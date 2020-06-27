@@ -65,13 +65,7 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
-  <created_user>-</created_user>
+    <created_user>-</created_user>
   <created_date>2011&#47;07&#47;21 17:46:45.931</created_date>
   <modified_user>-</modified_user>
   <modified_date>2011&#47;07&#47;21 17:46:45.931</modified_date>
@@ -121,7 +115,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 
-import org.pentaho.di.cluster.SlaveConnectionManager;
+import org.pentaho.di.cluster.HopServerConnectionManager;
 
 
 public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
@@ -204,8 +198,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 </usage_parameter><usage_parameter><parameter_tag>PASSWORD</parameter_tag>
 <parameter_value>${PASSWORD}</parameter_value>
 <parameter_description>The password of your twitter account</parameter_description>
-</usage_parameter></usage_parameters>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+</usage_parameter></usage_parameters> <input>   </input>   <output>   </output>     <GUI>
       <xloc>111</xloc>
       <yloc>144</yloc>
       <draw>Y</draw>
@@ -232,8 +225,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
     <inject_transform>Mapping input specification</inject_transform>
     <retrieve_transform>Mapping output specification</retrieve_transform>
       <parameters>        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+      </parameters> <input>   </input>   <output>   </output>     <GUI>
       <xloc>489</xloc>
       <yloc>144</yloc>
       <draw>Y</draw>
@@ -343,8 +335,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
         <precision>-1</precision>
       </field>
     </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>867</xloc>
       <yloc>144</yloc>
       <draw>Y</draw>
@@ -372,8 +363,7 @@ if (nr==1) {
   out.flush();
 }
 </jsScript_script>
-      </jsScript>    </jsScripts>    <fields>    </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+      </jsScript>    </jsScripts>    <fields>    </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>677</xloc>
       <yloc>143</yloc>
       <draw>Y</draw>
@@ -401,8 +391,7 @@ if (out==null) {
   out.flush();
 }
 </jsScript_script>
-      </jsScript>    </jsScripts>    <fields>    </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+      </jsScript>    </jsScripts>    <fields>    </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>300</xloc>
       <yloc>144</yloc>
       <draw>Y</draw>
@@ -411,7 +400,4 @@ if (out==null) {
 
   <transform_error_handling>
   </transform_error_handling>
-   <slave-transform-copy-partition-distribution>
-</slave-transform-copy-partition-distribution>
-   <slave_transformation>N</slave_transformation>
-</pipeline>
+ </pipeline>

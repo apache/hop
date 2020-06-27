@@ -56,13 +56,13 @@
     </dependencies>
     <partitionschemas>
     </partitionschemas>
-    <slaveservers>
-         <slaveserver><name>Slave3</name><hostname>localhost</hostname><port>8084</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>Slave2</name><hostname>localhost</hostname><port>8083</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>Slave1</name><hostname>localhost</hostname><port>8082</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>Pentaho Server</name><hostname>localhost</hostname><port>8080</port><webAppName>pentaho</webAppName><username>joe</username><password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></slaveserver>
-         <slaveserver><name>Master</name><hostname>localhost</hostname><port>8081</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></slaveserver>
-    </slaveservers>
+    <hop-servers>
+         <hop-server><name>Server3</name><hostname>localhost</hostname><port>8084</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>Server2</name><hostname>localhost</hostname><port>8083</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>Server1</name><hostname>localhost</hostname><port>8082</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>Pentaho Server</name><hostname>localhost</hostname><port>8080</port><webAppName>pentaho</webAppName><username>joe</username><password>Encrypted 2be98afc86aa7f2e4bb18bd63c99dbdde</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>N</master></hop-server>
+         <hop-server><name>Master</name><hostname>localhost</hostname><port>8081</port><webAppName/><username>cluster</username><password>Encrypted 2be98afc86aa7f2e4cb1aa265cd86aac8</password><proxy_hostname/><proxy_port/><non_proxy_hosts/><master>Y</master></hop-server>
+    </hop-servers>
     <clusterschemas>
         <clusterschema>
           <name>ClusterSchema</name>
@@ -71,11 +71,11 @@
           <sockets_flush_interval>5000</sockets_flush_interval>
           <sockets_compressed>Y</sockets_compressed>
           <dynamic>N</dynamic>
-          <slaveservers>
-            <name>Slave2</name>
-            <name>Slave1</name>
+          <hop-servers>
+            <name>Server2</name>
+            <name>Server1</name>
             <name>Master</name>
-          </slaveservers>
+          </hop-servers>
         </clusterschema>
     </clusterschemas>
   <created_user>-</created_user>
@@ -120,8 +120,7 @@
            </partitioning>
     <timeout>15</timeout>
     <scaletime>seconds</scaletime>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>440</xloc>
       <yloc>240</yloc>
       <draw>Y</draw>
@@ -147,8 +146,7 @@
       </field>
         <select_unspecified>Y</select_unspecified>
     </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>100</xloc>
       <yloc>100</yloc>
       <draw>Y</draw>
@@ -165,8 +163,7 @@
            <method>none</method>
            <schema_name/>
            </partitioning>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>740</xloc>
       <yloc>100</yloc>
       <draw>Y</draw>
@@ -191,8 +188,7 @@
         <name>counter</name>
         </field>
       </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>520</xloc>
       <yloc>100</yloc>
       <draw>Y</draw>
@@ -231,8 +227,7 @@
   </conditions>
  </condition>
     </compare>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>300</xloc>
       <yloc>100</yloc>
       <draw>Y</draw>
@@ -257,8 +252,7 @@
         <name>counter</name>
         </field>
       </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>580</xloc>
       <yloc>240</yloc>
       <draw>Y</draw>
@@ -267,7 +261,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-   <slave-transform-copy-partition-distribution>
-</slave-transform-copy-partition-distribution>
-   <slave_transformation>N</slave_transformation>
-</pipeline>
+ </pipeline>

@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2014&#x2f;02&#x2f;26 16&#x3a;55&#x3a;33.899</created_date>
     <modified_user>admin</modified_user>
@@ -571,9 +565,7 @@
         <set_empty_string>N</set_empty_string>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -610,9 +602,7 @@
         <set_empty_string>N</set_empty_string>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -645,9 +635,7 @@
       <start_at>1</start_at>
       <increment_by>1</increment_by>
       <max_value>9999999</max_value>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -721,9 +709,7 @@
         <attributeParentName/>
         </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -811,9 +797,7 @@
         <attributeParentName/>
         </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -853,9 +837,7 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -878,9 +860,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -958,9 +938,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -989,9 +967,7 @@
       </remove>      <remove>        <name>SHAPE</name>
       </remove>      <remove>        <name>COLOUR</name>
       </remove>      <remove>        <name>RADIUS</name>
-      </remove>    </fields>    <cluster_schema/>
-
-      <input>
+      </remove>    </fields><input>
       </input>
       <output>
       </output>
@@ -1021,9 +997,7 @@
       </remove>      <remove>        <name>COLOUR</name>
       </remove>      <remove>        <name>LENGTH</name>
       </remove>      <remove>        <name>WIDTH</name>
-      </remove>    </fields>    <cluster_schema/>
-
-      <input>
+      </remove>    </fields><input>
       </input>
       <output>
       </output>
@@ -1056,9 +1030,7 @@
  <rightvalue/>
  <value><name>constant</name><type>String</type><text>circle</text><length>-1</length><precision>-1</precision><isnull>N</isnull><mask/></value> </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1072,7 +1044,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

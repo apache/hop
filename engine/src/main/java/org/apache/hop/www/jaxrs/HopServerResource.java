@@ -30,7 +30,7 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.www.HopServerObjectEntry;
 import org.apache.hop.www.HopServerSingleton;
-import org.apache.hop.www.SlaveServerConfig;
+import org.apache.hop.www.HopServerConfig;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -83,7 +83,7 @@ public class HopServerResource {
   @Path( "/configDetails" )
   @Produces( { MediaType.APPLICATION_JSON } )
   public List<NVPair> getConfigDetails() {
-    SlaveServerConfig serverConfig = HopServerSingleton.getInstance().getPipelineMap().getSlaveServerConfig();
+    HopServerConfig serverConfig = HopServerSingleton.getInstance().getPipelineMap().getHopServerConfig();
     List<NVPair> list = new ArrayList<NVPair>();
     list.add( new NVPair( "maxLogLines", "" + serverConfig.getMaxLogLines() ) );
     list.add( new NVPair( "maxLogLinesAge", "" + serverConfig.getMaxLogTimeoutMinutes() ) );

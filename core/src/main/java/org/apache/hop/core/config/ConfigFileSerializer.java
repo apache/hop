@@ -42,8 +42,10 @@ public class ConfigFileSerializer implements IHopConfigSerializer {
       // If this worked, rename the file to the old file  (hop.config -> hop.config.old)
       //
       File file = new File( filename );
-      if ( !file.renameTo( oldFile ) ) {
-        throw new HopException( "Unable to rename config file to .old : " + file.getPath() );
+      if (file.exists()) { // could be a new file
+        if ( !file.renameTo( oldFile ) ) {
+          throw new HopException( "Unable to rename config file to .old : " + file.getPath() );
+        }
       }
 
       // Now rename the new file to the final value...

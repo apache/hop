@@ -38,12 +38,11 @@ public class LogMessage implements ILogMessage {
   private Object[] arguments;
   private LogLevel level;
   private String copy;
+  private boolean simplified;
 
   /**
    * Backward compatibility : no registry used, just log the subject as part of the message
    *
-   * @param message
-   * @param logChannelId
    */
   public LogMessage( String subject, LogLevel level ) {
     this.subject = subject;
@@ -52,25 +51,24 @@ public class LogMessage implements ILogMessage {
     this.logChannelId = null;
   }
 
-  /**
-   * Recommended use :
-   *
-   * @param message
-   * @param logChannelId
-   * @param level        the log level
-   */
   public LogMessage( String message, String logChannelId, LogLevel level ) {
-    this.message = message;
-    this.logChannelId = logChannelId;
-    this.level = level;
-    lookupSubject();
+    this(message, logChannelId, null, level, false);
+  }
+
+  public LogMessage( String message, String logChannelId, LogLevel level, boolean simplified ) {
+    this(message, logChannelId, null, level, simplified);
   }
 
   public LogMessage( String message, String logChannelId, Object[] arguments, LogLevel level ) {
+    this(message, logChannelId, arguments, level, false);
+  }
+
+  public LogMessage( String message, String logChannelId, Object[] arguments, LogLevel level, boolean simplified ) {
     this.message = message;
     this.logChannelId = logChannelId;
     this.arguments = arguments;
     this.level = level;
+    this.simplified = simplified;
     lookupSubject();
   }
 
@@ -111,11 +109,6 @@ public class LogMessage implements ILogMessage {
     return subjects;
   }
 
-  /**
-   * @param string
-   * @param subjects
-   * @return
-   */
   private String formatDetailedSubject( List<String> subjects ) {
 
     StringBuilder string = new StringBuilder();
@@ -133,12 +126,16 @@ public class LogMessage implements ILogMessage {
   @Override
   @Deprecated
   public String toString() {
-    if ( StringUtils.isBlank( message ) ) {
-      return subject;
-    } else if ( StringUtils.isBlank( subject ) ) {
+    if (simplified) {
       return getMessage();
+    } else {
+      if ( StringUtils.isBlank( message ) ) {
+        return subject;
+      } else if ( StringUtils.isBlank( subject ) ) {
+        return getMessage();
+      }
+      return String.format( "%s - %s", subject, getMessage() );
     }
-    return String.format( "%s - %s", subject, getMessage() );
   }
 
   @Override
@@ -203,5 +200,21 @@ public class LogMessage implements ILogMessage {
   @Override
   public String getCopy() {
     return copy;
+  }
+
+  /**
+   * Gets simplified
+   *
+   * @return value of simplified
+   */
+  @Override public boolean isSimplified() {
+    return simplified;
+  }
+
+  /**
+   * @param simplified The simplified to set
+   */
+  public void setSimplified( boolean simplified ) {
+    this.simplified = simplified;
   }
 }

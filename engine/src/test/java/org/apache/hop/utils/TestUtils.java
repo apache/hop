@@ -78,7 +78,7 @@ public class TestUtils {
       variables.initializeVariablesFrom( null );
     }
     try {
-      FileObject file = HopVfs.getFileObject( "ram://" + path, variables );
+      FileObject file = HopVfs.getFileObject( "ram://" + path );
       file.createFile();
       return file.getName().getURI();
     } catch ( FileSystemException | HopFileException e ) {
@@ -96,7 +96,7 @@ public class TestUtils {
       variables.initializeVariablesFrom( null );
     }
     try {
-      return HopVfs.getFileObject( vfsPath, variables );
+      return HopVfs.getFileObject( vfsPath );
     } catch ( HopFileException e ) {
       throw new RuntimeException( e );
     }

@@ -16,7 +16,7 @@
   </gui-plugin>
 
   <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPlugin</classname>
+    <classname>org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective</classname>
     <description>Hop Search Perspective GUI</description>
   </gui-plugin>
 
@@ -28,11 +28,6 @@
   <gui-plugin>
     <classname>org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph</classname>
     <description>Pipeline Graph tab</description>
-  </gui-plugin>
-
-  <gui-plugin>
-    <classname>org.apache.hop.ui.hopgui.file.pipeline.delegates.HopGuiPipelinePreviewDelegate</classname>
-    <description>Pipeline Graph Preview Delegate</description>
   </gui-plugin>
 
   <gui-plugin>
@@ -83,5 +78,11 @@
     <description>Local single threaded pipeline run configuration widgets</description>
   </gui-plugin>
   -->
+
+  <!-- The VFS file dialog is a GUI plugin as well -->
+  <gui-plugin>
+    <classname>org.apache.hop.ui.core.vfs.HopVfsFileDialog</classname>
+    <description>Allows you to browse to local or VFS locations</description>
+  </gui-plugin>
 
 </gui-plugins>

@@ -501,7 +501,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
       }
 
       if ( !Utils.isEmpty( realTargetDirectory ) ) {
-        TargetFolder = HopVfs.getFileObject( realTargetDirectory, this );
+        TargetFolder = HopVfs.getFileObject( realTargetDirectory );
         boolean TargetFolderExists = TargetFolder.exists();
         if ( TargetFolderExists ) {
           if ( log.isDetailed() ) {
@@ -611,8 +611,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
             logDebug( BaseMessages.getString( PKG, "JobSFTP.Log.GettingFiles", filelist[ i ], realTargetDirectory ) );
           }
 
-          FileObject targetFile = HopVfs.getFileObject(
-            realTargetDirectory + Const.FILE_SEPARATOR + filelist[ i ], this );
+          FileObject targetFile = HopVfs.getFileObject( realTargetDirectory + Const.FILE_SEPARATOR + filelist[ i ] );
           sftpclient.get( targetFile, filelist[ i ] );
           filesRetrieved++;
 

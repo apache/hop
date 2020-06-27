@@ -426,12 +426,6 @@
     <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user>-</created_user>
     <created_date>2019/01/14 22:08:35.813</created_date>
     <modified_user>-</modified_user>
@@ -909,7 +903,6 @@ kettle-json-plugin</note>
   </step_error_handling>
   <slave-step-copy-partition-distribution>
   </slave-step-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
-  <attributes />
+<attributes />
 </transformation>
 

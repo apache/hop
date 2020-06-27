@@ -36,6 +36,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.search.SearchableAnalyserPluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypePluginType;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -52,7 +53,8 @@ public class HopGuiEnvironment extends HopClientEnvironment {
     init( Arrays.asList(
       GuiPluginType.getInstance(),
       HopPerspectivePluginType.getInstance(),
-      HopFileTypePluginType.getInstance()
+      HopFileTypePluginType.getInstance(),
+      SearchableAnalyserPluginType.getInstance()
     ) );
   }
 

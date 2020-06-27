@@ -179,7 +179,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
       String realFoldername = getRealFoldername();
       FileObject folderObject = null;
       try {
-        folderObject = HopVfs.getFileObject( realFoldername, this );
+        folderObject = HopVfs.getFileObject( realFoldername );
         if ( folderObject.exists() ) {
           // Check if it's a folder
           if ( folderObject.getType() == FileType.FOLDER ) {

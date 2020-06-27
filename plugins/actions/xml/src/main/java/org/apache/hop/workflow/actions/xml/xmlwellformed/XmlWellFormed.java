@@ -347,7 +347,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     String realWildcard = environmentSubstitute( wildcard );
 
     try {
-      sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername, this );
+      sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername );
 
       if ( sourcefilefolder.exists() ) {
         if ( log.isDetailed() ) {
@@ -496,7 +496,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
   private void addFileToResultFilenames( String fileaddentry, Result result, IWorkflowEngine parentWorkflow ) {
     try {
       ResultFile resultFile =
-          new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( fileaddentry, this ), parentWorkflow
+          new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( fileaddentry ), parentWorkflow
               .getWorkflowName(), toString() );
       result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 

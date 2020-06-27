@@ -360,9 +360,9 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     FileObject outputfile = null;
 
     try {
-      xmlfile = HopVfs.getFileObject( xmlfilename, this );
-      xslfile = HopVfs.getFileObject( xslfilename, this );
-      outputfile = HopVfs.getFileObject( outputfilename, this );
+      xmlfile = HopVfs.getFileObject( xmlfilename );
+      xslfile = HopVfs.getFileObject( xslfilename );
+      outputfile = HopVfs.getFileObject( outputfilename );
 
       if ( xmlfile.exists() && xslfile.exists() ) {
         if ( outputfile.exists() && iffileexists == 2 ) {
@@ -456,7 +456,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
             if ( isAddFileToResult() ) {
               // Add output filename to output files
               ResultFile resultFile =
-                  new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( outputfilename, this ),
+                  new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( outputfilename ),
                       parentWorkflow.getWorkflowName(), toString() );
               result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
             }

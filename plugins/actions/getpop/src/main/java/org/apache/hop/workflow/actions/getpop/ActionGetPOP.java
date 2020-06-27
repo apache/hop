@@ -1207,7 +1207,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
             .getString( PKG, "JobGetMailsFromPOP.Error.AttachmentFolderEmpty" ) );
       }
     }
-    FileObject folder = HopVfs.getFileObject( folderName, this );
+    FileObject folder = HopVfs.getFileObject( folderName );
     if ( folder.exists() ) {
       if ( folder.getType() != FileType.FOLDER ) {
         switch ( folderType ) {

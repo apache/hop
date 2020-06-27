@@ -900,7 +900,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
 
     HopClientEnvironment.init();
     List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
-    PropsUi.init( display );
     HopEnvironment.init();
     DatabaseMeta databaseMeta = new DatabaseMeta( "Test", "MYSQL", "Native", "localhost", "samples", "3306", "username", "password" );
     DatabaseMetaDialog dialog = new DatabaseMetaDialog( shell, null, databaseMeta );

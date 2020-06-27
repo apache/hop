@@ -1017,11 +1017,11 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   }
 
   protected FileObject getFileObject( String vfsFilename, IVariables variables ) throws HopFileException {
-    return HopVfs.getFileObject( vfsFilename, variables );
+    return HopVfs.getFileObject( vfsFilename );
   }
 
   protected OutputStream getOutputStream( String vfsFilename, IVariables variables, boolean append ) throws HopFileException {
-    return HopVfs.getOutputStream( vfsFilename, variables, append );
+    return HopVfs.getOutputStream( vfsFilename, append );
   }
 
 }

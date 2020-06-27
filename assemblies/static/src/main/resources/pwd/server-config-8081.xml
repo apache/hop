@@ -1,0 +1,10 @@
+<hop-server-config>
+
+  <hop-server>
+    <name>server1-8081</name>
+    <hostname>localhost</hostname>
+    <port>8081</port>
+    <master>N</master>
+  </hop-server>
+
+</hop-server-config>

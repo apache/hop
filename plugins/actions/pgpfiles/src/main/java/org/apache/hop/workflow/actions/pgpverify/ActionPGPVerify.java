@@ -246,7 +246,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
         // From : ${FOLDER}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( gpglocation ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( gpglocation ) );
 
         // If the file doesn't exist, forget about this effort too!
         //

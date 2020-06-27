@@ -18,11 +18,14 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
   private IHopMetadataProvider metadataProvider;
   private Class<T> managedClass;
   private Map<String, T> objectMap;
+  protected String description;
 
-  public MemoryMetadataSerializer( IHopMetadataProvider provider, Class<T> managedClass, IVariables variables ) {
+  public MemoryMetadataSerializer( IHopMetadataProvider provider, Class<T> managedClass, IVariables variables, String description ) {
     this.metadataProvider = provider;
     this.managedClass = managedClass;
     this.variables = variables;
+    this.description = description;
+
     objectMap = new HashMap<>();
   }
 
@@ -132,5 +135,21 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
    */
   public IVariables getVariables() {
     return variables;
+  }
+
+  /**
+   * Gets description
+   *
+   * @return value of description
+   */
+  @Override public String getDescription() {
+    return description;
+  }
+
+  /**
+   * @param description The description to set
+   */
+  public void setDescription( String description ) {
+    this.description = description;
   }
 }

@@ -38,7 +38,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.ui.workflow.actions.pipeline.ActionBaseDialog;
@@ -137,7 +136,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     // Start Server Section
     wPassExport = new Button( gExecution, SWT.CHECK );
-    wPassExport.setText( BaseMessages.getString( PKG, "ActionWorkflow.PassExportToSlave.Label" ) );
+    wPassExport.setText( BaseMessages.getString( PKG, "ActionWorkflow.PassExportToServer.Label" ) );
     props.setLook( wPassExport );
     FormData fdPassExport = new FormData();
     fdPassExport.left = new FormAttachment( 0, 0 );
@@ -146,7 +145,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wPassExport.setLayoutData( fdPassExport );
 
     wExpandRemote = new Button( gExecution, SWT.CHECK );
-    wExpandRemote.setText( BaseMessages.getString( PKG, "ActionWorkflowDialog.ExpandRemoteOnSlave.Label" ) );
+    wExpandRemote.setText( BaseMessages.getString( PKG, "ActionWorkflowDialog.ExpandRemoteOnServer.Label" ) );
     props.setLook( wExpandRemote );
     FormData fdExpandRemote = new FormData();
     fdExpandRemote.top = new FormAttachment( wPassExport, 10 );
@@ -238,7 +237,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   protected void pickFileVFS() {
-    HopWorkflowFileType<WorkflowMeta> workflowFileType = HopDataOrchestrationPerspective.getInstance().getWorkflowFileType();
+    HopWorkflowFileType<WorkflowMeta> workflowFileType = new HopWorkflowFileType<>();
     BaseDialog.presentFileDialog( shell, wPath, workflowMeta, workflowFileType.getFilterExtensions(), workflowFileType.getFilterNames(), true );
   }
 

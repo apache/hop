@@ -551,7 +551,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
           // Get file names
           String file_previous = resultRow.getString( 0, null );
           if ( !Utils.isEmpty( file_previous ) ) {
-            FileObject file = HopVfs.getFileObject( file_previous, this );
+            FileObject file = HopVfs.getFileObject( file_previous );
             if ( !file.exists() ) {
               logError( BaseMessages.getString( PKG, "JobSFTPPUT.Log.FilefromPreviousNotFound", file_previous ) );
             } else {
@@ -631,7 +631,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
         } else {
           FileObject folder = null;
           try {
-            folder = HopVfs.getFileObject( realDestinationFolder, this );
+            folder = HopVfs.getFileObject( realDestinationFolder );
             // Let's check if folder exists...
             if ( !folder.exists() ) {
               // Do we need to create it?
@@ -732,7 +732,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
         // Get all the files in the local directory...
         myFileList = new ArrayList<FileObject>();
 
-        FileObject localFiles = HopVfs.getFileObject( realLocalDirectory, this );
+        FileObject localFiles = HopVfs.getFileObject( realLocalDirectory );
         FileObject[] children = localFiles.getChildren();
         if ( children != null ) {
           for ( int i = 0; i < children.length; i++ ) {
@@ -811,7 +811,7 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
                 try {
                   destination =
                     HopVfs.getFileObject( realDestinationFolder
-                      + Const.FILE_SEPARATOR + myFile.getName().getBaseName(), this );
+                      + Const.FILE_SEPARATOR + myFile.getName().getBaseName() );
                   myFile.moveTo( destination );
                   if ( log.isDetailed() ) {
                     logDetailed( BaseMessages.getString( PKG, "JobSFTPPUT.Log.FileMoved", myFile, destination ) );

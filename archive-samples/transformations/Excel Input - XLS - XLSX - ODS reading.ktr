@@ -422,19 +422,19 @@
     </dependencies>
     <partitionschemas>
     </partitionschemas>
-    <slaveservers>
-      <slaveserver>
+    <hop-servers>
+      <hop-server>
         <name>CARTE</name>
-        <hostname>&#x24;&#x7b;CARTE_HOSTNAME&#x7d;</hostname>
-        <port>&#x24;&#x7b;CARTE_PORT&#x7d;</port>
+        <hostname>&#x24;&#x7b;HOP_SERVER_HOSTNAME&#x7d;</hostname>
+        <port>&#x24;&#x7b;HOP_SERVER_PORT&#x7d;</port>
         <webAppName/>
-        <username>&#x24;&#x7b;CARTE_USER&#x7d;</username>
-<password>&#x24;&#x7b;CARTE_PWD&#x7d;</password>        <proxy_hostname>&#x24;&#x7b;CARTE_PROXY_HOST&#x7d;</proxy_hostname>
-        <proxy_port>&#x24;&#x7b;CARTE_PROXY_PORT&#x7d;</proxy_port>
-        <non_proxy_hosts>&#x24;&#x7b;CARTE_NON_PROXY&#x7d;</non_proxy_hosts>
+        <username>&#x24;&#x7b;HOP_SERVER_USER&#x7d;</username>
+<password>&#x24;&#x7b;HOP_SERVER_PWD&#x7d;</password>        <proxy_hostname>&#x24;&#x7b;HOP_SERVER_PROXY_HOST&#x7d;</proxy_hostname>
+        <proxy_port>&#x24;&#x7b;HOP_SERVER_PROXY_PORT&#x7d;</proxy_port>
+        <non_proxy_hosts>&#x24;&#x7b;HOP_SERVER_NON_PROXY&#x7d;</non_proxy_hosts>
         <master>Y</master>
-        <sslMode>N</sslMode>      </slaveserver>
-    </slaveservers>
+        <sslMode>N</sslMode>      </hop-server>
+    </hop-servers>
     <clusterschemas>
     </clusterschemas>
     <created_user>-</created_user>
@@ -581,9 +581,7 @@
       <row_threshold>4</row_threshold>
       <message>More than 3 different rows received, something wrong with one of the readers&#x21;</message>
       <always_log_rows>Y</always_log_rows>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -606,9 +604,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -740,9 +736,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>ODS</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -814,9 +808,7 @@
         <presorted>N</presorted>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -843,9 +835,7 @@
       <count_field/>
       <reject_duplicate_row>N</reject_duplicate_row>
       <error_description/>
-    <fields>      </fields>    <cluster_schema/>
-
-      <input>
+    <fields>      </fields><input>
       </input>
       <output>
       </output>
@@ -977,9 +967,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1111,9 +1099,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>POI</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1245,9 +1231,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>POI</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1261,7 +1245,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

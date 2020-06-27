@@ -431,12 +431,6 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2011&#x2f;01&#x2f;24 13&#x3a;01&#x3a;43.595</created_date>
     <modified_user>admin</modified_user>
@@ -490,9 +484,7 @@
     <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
         <jsScript_name>Script 1</jsScript_name>
         <jsScript_script>&#x2f;&#x2f; Get the repository we&#x27;re connected to&#xa;var rep &#x3d; _transform_.getTrans&#x28;&#x29;.getRepository&#x28;&#x29;&#x3b;&#xa;&#x2f;&#x2f; Ask the repository for its exporter&#xa;var exporter &#x3d; rep.getExporter&#x28;&#x29;&#x3b;&#xa;&#x2f;&#x2f; Find the directory to export in the repository&#xa;var repdir &#x3d; rep.loadRepositoryDirectoryTree&#x28;&#x29;.findDirectory&#x28;directory&#x29;&#x3b;&#xa;&#x2f;&#x2f; Export all the objects from the directory into the filename we specified&#xa;exporter.exportAllObjects&#x28;null, filename, repdir, &#x22;all&#x22;&#x29;&#x3b;</jsScript_script>
-      </jsScript>    </jsScripts>    <fields>    </fields>    <cluster_schema/>
-
-      <input>
+      </jsScript>    </jsScripts>    <fields>    </fields><input>
       </input>
       <output>
       </output>
@@ -541,9 +533,7 @@
         <trim_type>none</trim_type>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -557,7 +547,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

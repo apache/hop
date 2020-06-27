@@ -346,7 +346,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
                   // Add filename to output files
                   ResultFile resultFile =
                     new ResultFile(
-                      ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realFilename, this ), parentWorkflow
+                      ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realFilename ), parentWorkflow
                       .getWorkflowName(), toString() );
                   result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
                 }

@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2014&#x2f;02&#x2f;26 16&#x3a;54&#x3a;32.160</created_date>
     <modified_user>-</modified_user>
@@ -716,9 +710,7 @@
         <set_empty_string>N</set_empty_string>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -752,9 +744,7 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -788,9 +778,7 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -824,9 +812,7 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -870,9 +856,7 @@
           <valuefield/>
         </field>
       </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -916,9 +900,7 @@
           <valuefield/>
         </field>
       </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -965,9 +947,7 @@
           <valuefield/>
         </field>
       </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1011,9 +991,7 @@
           <valuefield/>
         </field>
       </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1060,9 +1038,7 @@
           <valuefield/>
         </field>
       </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1097,9 +1073,7 @@
  <rightvalue/>
  </condition>
     </compare>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1207,9 +1181,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1341,9 +1313,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1463,9 +1433,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1621,9 +1589,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1743,9 +1709,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1889,9 +1853,7 @@
     <extensionFieldName/>
     <sizeFieldName/>
     <spreadsheet_type>JXL</spreadsheet_type>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1928,9 +1890,7 @@
         <set_empty_string>N</set_empty_string>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -1979,9 +1939,7 @@
         <set_empty_string>N</set_empty_string>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2030,9 +1988,7 @@
         <set_empty_string>N</set_empty_string>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2066,9 +2022,7 @@
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>    <cluster_schema/>
-
-      <input>
+      </field>    </fields><input>
       </input>
       <output>
       </output>
@@ -2116,9 +2070,7 @@
         <presorted>N</presorted>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2174,9 +2126,7 @@
         <presorted>N</presorted>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2224,9 +2174,7 @@
         <presorted>N</presorted>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2282,9 +2230,7 @@
         <presorted>N</presorted>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2328,9 +2274,7 @@
         <type>String</type>
       </value>
     </lookup>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2370,9 +2314,7 @@
         <type>String</type>
       </value>
     </lookup>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2412,9 +2354,7 @@
         <type>String</type>
       </value>
     </lookup>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2458,9 +2398,7 @@
         <type>String</type>
       </value>
     </lookup>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2528,9 +2466,7 @@
         <precision>-1</precision>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2590,9 +2526,7 @@
         <attributeParentName/>
         </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2722,9 +2656,7 @@
         <attributeParentName/>
         </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2784,9 +2716,7 @@
         <attributeParentName/>
         </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -2930,9 +2860,7 @@
         <attributeParentName/>
         </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -3034,9 +2962,7 @@
         <attributeParentName/>
         </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -3124,9 +3050,7 @@
         <attributeParentName/>
         </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -3140,7 +3064,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

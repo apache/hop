@@ -640,7 +640,7 @@ public class CsvInputMeta
         // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ) );
 
         // If the file doesn't exist, forget about this effort too!
         //

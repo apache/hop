@@ -67,15 +67,17 @@ public class HopLogLayout {
       String[] parts = message.getMessage() == null ? new String[] {} : message.getMessage().split( Const.CR );
       for ( int i = 0; i < parts.length; i++ ) {
         // Start every line of the output with a dateTimeString
-        line.append( dateTimeString );
+        if (!message.isSimplified()) {
+          line.append( dateTimeString );
 
-        // Include the subject too on every line...
-        if ( message.getSubject() != null ) {
-          line.append( message.getSubject() );
-          if ( message.getCopy() != null ) {
-            line.append( "." ).append( message.getCopy() );
+          // Include the subject too on every line...
+          if ( message.getSubject() != null ) {
+            line.append( message.getSubject() );
+            if ( message.getCopy() != null ) {
+              line.append( "." ).append( message.getCopy() );
+            }
+            line.append( " - " );
           }
-          line.append( " - " );
         }
 
         if ( i == 0 && message.isError() ) {

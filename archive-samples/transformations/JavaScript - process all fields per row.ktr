@@ -420,12 +420,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2014&#x2f;03&#x2f;03 20&#x3a;39&#x3a;04.834</created_date>
     <modified_user/>
@@ -521,9 +515,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -601,9 +593,7 @@
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -634,9 +624,7 @@
       </jsScript>      <jsScript>        <jsScript_type>-1</jsScript_type>
         <jsScript_name>replace_Sample</jsScript_name>
         <jsScript_script>&#x2f;&#x2f; Replaces Strings inside the given Variable.&#xa;&#x2f;&#x2f; It is possible to make more replacements inside&#xa;&#x2f;&#x2f; one call. The given variables must be an odd number&#xa;&#x2f;&#x2f;&#xa;&#x2f;&#x2f; Usage&#x3a;&#xa;&#x2f;&#x2f; replace&#x28;var, var, var&#x29;&#x3b;&#xa;&#x2f;&#x2f; 1&#x3a; String - The Variable with the content to replace.&#xa;&#x2f;&#x2f; 2&#x3a; String - The Value to search for.&#xa;&#x2f;&#x2f; 3&#x3a; String - The Value to replace with.&#xa;&#x2f;&#x2f;&#xa;&#x2f;&#x2f; replace&#x28;var, var, var, var,var,...&#x29;&#xa;&#x2f;&#x2f; 1&#x3a; String - The Variable with the content to replace.&#xa;&#x2f;&#x2f; 2&#x3a; String - The First Value to search for.&#xa;&#x2f;&#x2f; 3&#x3a; String - The First Value to replace with.&#xa;&#x2f;&#x2f; 4&#x3a; String - The Second Value to search for.&#xa;&#x2f;&#x2f; 5&#x3a; String - The Second Value to replace with.&#xa;&#x2f;&#x2f; ...&#xa;&#x2f;&#x2f;&#xa;&#x2f;&#x2f; 2006-11-15&#xa;&#x2f;&#x2f;&#xa;var str1 &#x3d; &#x22;Hello World, this is a nice function&#x22;&#x3b;      &#xa;var str2 &#x3d; replace&#x28;str1,&#x22;World&#x22;, &#x22;Folk&#x22;&#x29;&#x3b;&#xa;Alert&#x28;str2&#x29;&#x3b;&#xa;var str2 &#x3d; replace&#x28;str1,&#x22;World&#x22;, &#x22;Folk&#x22;, &#x22;nice&#x22;,&#x22;beautifull&#x22;&#x29;&#x3b;&#xa;Alert&#x28;str2&#x29;&#x3b;</jsScript_script>
-      </jsScript>    </jsScripts>    <fields>    </fields>    <cluster_schema/>
-
-      <input>
+      </jsScript>    </jsScripts>    <fields>    </fields><input>
       </input>
       <output>
       </output>
@@ -650,7 +638,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

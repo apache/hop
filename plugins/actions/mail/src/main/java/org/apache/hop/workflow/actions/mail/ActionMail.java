@@ -991,7 +991,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
           } else {
             try {
               boolean found = false;
-              imageFile = HopVfs.getFileObject( realImageFile, this );
+              imageFile = HopVfs.getFileObject( realImageFile );
               if ( imageFile.exists() && imageFile.getType() == FileType.FILE ) {
                 found = true;
               } else {

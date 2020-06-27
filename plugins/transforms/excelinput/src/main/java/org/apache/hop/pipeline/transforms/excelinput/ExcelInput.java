@@ -380,7 +380,7 @@ public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> im
           }
           String fileValue = rowSet.getRowMeta().getString( fileRow, idx );
           try {
-            data.files.addFile( HopVfs.getFileObject( fileValue, getPipelineMeta() ) );
+            data.files.addFile( HopVfs.getFileObject( fileValue ) );
           } catch ( HopFileException e ) {
             throw new HopException( BaseMessages.getString(
               PKG, "ExcelInput.Exception.CanNotCreateFileObject", fileValue ), e );

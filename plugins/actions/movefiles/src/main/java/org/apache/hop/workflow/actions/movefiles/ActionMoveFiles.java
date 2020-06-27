@@ -305,7 +305,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
       }
       FileObject folder = null;
       try {
-        folder = HopVfs.getFileObject( MoveToFolder, this );
+        folder = HopVfs.getFileObject( MoveToFolder );
         if ( !folder.exists() ) {
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "JobMoveFiles.Log.Error.FolderMissing", MoveToFolder ) );
@@ -468,10 +468,10 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     String realWildcard = environmentSubstitute( wildcard );
 
     try {
-      sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername, this );
-      destinationfilefolder = HopVfs.getFileObject( realDestinationFilefoldername, this );
+      sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername );
+      destinationfilefolder = HopVfs.getFileObject( realDestinationFilefoldername );
       if ( !Utils.isEmpty( MoveToFolder ) ) {
-        movetofolderfolder = HopVfs.getFileObject( MoveToFolder, this );
+        movetofolderfolder = HopVfs.getFileObject( MoveToFolder );
       }
 
       if ( sourcefilefolder.exists() ) {
@@ -511,14 +511,14 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
               String destinationfilenamefull =
                 HopVfs.getFilename( destinationfilefolder ) + Const.FILE_SEPARATOR + shortfilename;
-              FileObject destinationfile = HopVfs.getFileObject( destinationfilenamefull, this );
+              FileObject destinationfile = HopVfs.getFileObject( destinationfilenamefull );
 
               entrystatus = MoveFile( shortfilename, sourcefilefolder, destinationfile, movetofolderfolder, parentWorkflow, result );
               return entrystatus;
             } else if ( sourcefilefolder.getType().equals( FileType.FILE ) && destination_is_a_file ) {
               // Source is a file, destination is a file
 
-              FileObject destinationfile = HopVfs.getFileObject( realDestinationFilefoldername, this );
+              FileObject destinationfile = HopVfs.getFileObject( realDestinationFilefoldername );
 
               // return destination short filename
               String shortfilename = destinationfile.getName().getBaseName();
@@ -533,7 +533,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
               String destinationfilenamefull =
                 HopVfs.getFilename( destinationfile.getParent() ) + Const.FILE_SEPARATOR + shortfilename;
-              destinationfile = HopVfs.getFileObject( destinationfilenamefull, this );
+              destinationfile = HopVfs.getFileObject( destinationfilenamefull );
 
               entrystatus =
                 MoveFile(
@@ -703,7 +703,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
           String movetofilenamefull =
             destinationfilename.getParent().toString() + Const.FILE_SEPARATOR + short_filename;
-          destinationfile = HopVfs.getFileObject( movetofilenamefull, this );
+          destinationfile = HopVfs.getFileObject( movetofilenamefull );
 
           if ( !simulate ) {
             sourcefilename.moveTo( destinationfile );
@@ -742,7 +742,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
           }
 
           String movetofilenamefull = movetofolderfolder.toString() + Const.FILE_SEPARATOR + short_filename;
-          destinationfile = HopVfs.getFileObject( movetofilenamefull, this );
+          destinationfile = HopVfs.getFileObject( movetofilenamefull );
           if ( !destinationfile.exists() ) {
             if ( !simulate ) {
               sourcefilename.moveTo( destinationfile );
@@ -783,7 +783,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
 
               String destinationfilenamefull =
                 movetofolderfolder.toString() + Const.FILE_SEPARATOR + short_filename;
-              destinationfile = HopVfs.getFileObject( destinationfilenamefull, this );
+              destinationfile = HopVfs.getFileObject( destinationfilenamefull );
 
               if ( !simulate ) {
                 sourcefilename.moveTo( destinationfile );
@@ -861,7 +861,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
         // Built destination filename
         file_name =
           HopVfs.getFileObject( realDestinationFilefoldername
-            + Const.FILE_SEPARATOR + short_filename_from_basefolder, this );
+            + Const.FILE_SEPARATOR + short_filename_from_basefolder );
 
         if ( !Currentfile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
 
@@ -943,7 +943,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
   private void addFileToResultFilenames( String fileaddentry, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) {
     try {
       ResultFile resultFile =
-        new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( fileaddentry, this ), parentWorkflow
+        new ResultFile( ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( fileaddentry ), parentWorkflow
           .getWorkflowName(), toString() );
       result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
 

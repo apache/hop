@@ -23,14 +23,15 @@
 package org.apache.hop.ui.hopgui.file.pipeline;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Props;
+import org.apache.hop.core.config.DescribedVariable;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.logging.HopLogLayout;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHasLogChannel;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.ILogParentProvided;
+import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -126,7 +127,14 @@ public class HopGuiLogBrowser {
 
               // The maximum size of the log buffer
               //
-              int maxSize = Props.getInstance().getMaxNrLinesInLog() * 150;
+              int maxSize;
+              DescribedVariable describedVariable = HopConfig.getInstance().findDescribedVariable( Const.HOP_MAX_LOG_SIZE_IN_LINES );
+              if (describedVariable==null) {
+                maxSize = Const.MAX_NR_LOG_LINES;
+              } else {
+                maxSize = Const.toInt( describedVariable.getValue(), Const.MAX_NR_LOG_LINES);
+              }
+
 
               // int position = text.getSelection().x;
               // StringBuilder buffer = new StringBuilder(text.getText());

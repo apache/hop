@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.ToolItem;
 
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
@@ -285,39 +284,6 @@ public class GuiCompositeWidgets {
       LogChannel.UI.logError( "Error getting list of combo items for method '"+getComboValuesMethod +"' on source object: "+sourceObject, e );
       return new String[] {};
     }
-  }
-
-  private void addListener( ToolItem item, Object sourceObject, GuiElements guiElements ) {
-    // Call the method to which the GuiToolbarElement annotation belongs.
-    //
-    item.addListener( SWT.Selection, e -> {
-      try {
-        Object object;
-        if ( guiElements.isSingleTon() && guiElements.getListenerClass() != null ) {
-          // Get singleton of this class, call method
-          //
-          Method getInstanceMethod = guiElements.getListenerClass().getDeclaredMethod( "getInstance" );
-          if ( getInstanceMethod == null ) {
-            throw new HopException( "Unable to find getInstance() method on singleton listener class " + guiElements.getListenerClass() );
-          }
-          object = getInstanceMethod.invoke( null );
-        } else {
-          object = sourceObject;
-        }
-        Method method = object.getClass().getMethod( guiElements.getListenerMethod() );
-        if ( method == null ) {
-          throw new HopException( "Unable to find method " + guiElements.getListenerMethod() + " in class " + sourceObject.getClass().getName() );
-        }
-        try {
-          method.invoke( object );
-        } catch ( Exception ie ) {
-          System.err.println( "Unable to call method " + guiElements.getListenerMethod() + " in class " + object.getClass().getName() + " : " + ie.getMessage() );
-          throw ie;
-        }
-      } catch ( Exception ex ) {
-        ex.printStackTrace( System.err );
-      }
-    } );
   }
 
   public void setWidgetsContents( Object sourceData, Composite parentComposite, String parentGuiElementId ) {

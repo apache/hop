@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.pipeline.transforms.getslavesequence;
+package org.apache.hop.pipeline.transforms.getserverequence;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -33,26 +33,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class GetSlaveSequenceMetaTest {
+public class GetServerSequenceMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
   public void testRoundTrip() throws HopException {
     List<String> attributes =
-      Arrays.asList( "valuename", "slave", "seqname", "increment" );
+      Arrays.asList( "valuename", "server", "seqname", "increment" );
     Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "valuename", "getValuename" );
-    getterMap.put( "slave", "getSlaveServerName" );
+    getterMap.put( "server", "getHopServerName" );
     getterMap.put( "seqname", "getSequenceName" );
     getterMap.put( "increment", "getIncrement" );
 
     Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "valuename", "setValuename" );
-    setterMap.put( "slave", "setSlaveServerName" );
+    setterMap.put( "server", "setHopServerName" );
     setterMap.put( "seqname", "setSequenceName" );
     setterMap.put( "increment", "setIncrement" );
 
-    LoadSaveTester tester = new LoadSaveTester( GetSlaveSequenceMeta.class, attributes, getterMap, setterMap );
+    LoadSaveTester tester = new LoadSaveTester( GetServerSequenceMeta.class, attributes, getterMap, setterMap );
 
     tester.testSerialization();
   }

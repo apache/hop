@@ -30,6 +30,7 @@ import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.laf.BasePropertyHandler;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -52,11 +53,13 @@ import java.util.Properties;
 )
 public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 
+  public static final String WORKFLOW_FILE_TYPE_DESCRIPTION = "Workflow";
+
   public HopWorkflowFileType() {
   }
 
   @Override public String getName() {
-    return "Workflow"; // TODO: i18n
+    return WORKFLOW_FILE_TYPE_DESCRIPTION;
   }
 
   @Override public String[] getFilterExtensions() {
@@ -92,8 +95,20 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     try {
       // This file is opened in the data orchestration perspective
       //
-      HopDataOrchestrationPerspective perspective = HopDataOrchestrationPerspective.getInstance();
+      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
       perspective.activate();
+
+      // See if the same workflow isn't already open.
+      // Other file types we might allow to open more than once but not workflows for now.
+      //
+      TabItemHandler tabItemHandlerWithFilename = perspective.findTabItemHandlerWithFilename( filename );
+      if (tabItemHandlerWithFilename!=null) {
+        // Same file so we can simply switch to it.
+        // This will prevent confusion.
+        //
+        perspective.switchToTab( tabItemHandlerWithFilename );
+        return tabItemHandlerWithFilename.getTypeHandler();
+      }
 
       // Load the workflow from file
       //
@@ -119,7 +134,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     try {
       // This file is created in the data orchestration perspective
       //
-      HopDataOrchestrationPerspective perspective = HopDataOrchestrationPerspective.getInstance();
+      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
       perspective.activate();
 
       // Create the empty pipeline

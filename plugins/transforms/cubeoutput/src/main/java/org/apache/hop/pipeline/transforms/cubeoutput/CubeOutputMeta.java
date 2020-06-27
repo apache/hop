@@ -206,7 +206,7 @@ public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ), variables );
+      FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ) );
 
       // If the file doesn't exist, forget about this effort too!
       //

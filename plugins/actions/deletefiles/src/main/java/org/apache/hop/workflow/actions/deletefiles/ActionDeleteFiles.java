@@ -260,7 +260,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
     FileObject fileFolder = null;
 
     try {
-      fileFolder = HopVfs.getFileObject( path, this );
+      fileFolder = HopVfs.getFileObject( path );
 
       if ( fileFolder.exists() ) {
         if ( fileFolder.getType() == FileType.FOLDER ) {

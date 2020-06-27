@@ -26,8 +26,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.commons.vfs2.FileType;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
@@ -39,7 +39,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -47,7 +47,6 @@ import org.apache.hop.workflow.action.validator.AbstractFileValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
@@ -230,7 +229,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
     String realwildcard = environmentSubstitute( wildcard );
 
     try {
-      filefolder = HopVfs.getFileObject( realFilefoldername, this );
+      filefolder = HopVfs.getFileObject( realFilefoldername );
       if ( filefolder.exists() ) {
         // the file or folder exists
 
@@ -242,7 +241,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
           }
           ResultFile resultFile =
             new ResultFile(
-              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filefolder.toString(), this ), parentWorkflow
+              ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filefolder.toString() ), parentWorkflow
               .getWorkflowName(), toString() );
           result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
         } else {
@@ -256,7 +255,7 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
             }
             ResultFile resultFile =
               new ResultFile(
-                ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( list[ i ].toString(), this ), parentWorkflow
+                ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( list[ i ].toString()), parentWorkflow
                 .getWorkflowName(), toString() );
             result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
           }

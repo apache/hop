@@ -23,10 +23,11 @@
 package org.apache.hop.ui.hopgui;
 
 import org.apache.commons.io.output.TeeOutputStream;
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.config.DescribedVariable;
+import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -34,6 +35,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.GuiOsxKeyboardShortcut;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
@@ -47,7 +49,10 @@ import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.plugins.Plugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.search.ISearchableProvider;
+import org.apache.hop.core.search.ISearchablesLocation;
 import org.apache.hop.core.undo.ChangeAction;
+import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -55,10 +60,11 @@ import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.HopSystemPropertiesDialog;
+import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
 import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -78,10 +84,15 @@ import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
+import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.EmptyHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.HopGuiPerspectiveManager;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePluginType;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
+import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
+import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
 import org.apache.hop.ui.hopgui.shared.Sleak;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -102,7 +113,6 @@ import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -112,12 +122,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 @GuiPlugin(
   description = "The main hop graphical user interface"
 )
-public class HopGui implements IActionContextHandlersProvider {
+public class HopGui implements IActionContextHandlersProvider, ISearchableProvider {
   private static Class<?> PKG = HopGui.class;
 
   // The main Menu IDs
@@ -140,6 +149,7 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String ID_MAIN_MENU_EDIT_REDO = "20020-menu-edit-redo";
   public static final String ID_MAIN_MENU_EDIT_SELECT_ALL = "20050-menu-edit-select-all";
   public static final String ID_MAIN_MENU_EDIT_UNSELECT_ALL = "20060-menu-edit-unselect-all";
+  public static final String ID_MAIN_MENU_EDIT_FIND = "20070-menu-edit-find";
   public static final String ID_MAIN_MENU_EDIT_COPY = "20080-menu-edit-copy";
   public static final String ID_MAIN_MENU_EDIT_PASTE = "20090-menu-edit-paste";
   public static final String ID_MAIN_MENU_EDIT_CUT = "20100-menu-edit-cut";
@@ -156,8 +166,8 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String ID_MAIN_MENU_RUN_DEBUG = "30060-menu-run-debug";
 
   public static final String ID_MAIN_MENU_TOOLS_PARENT_ID = "40000-menu-tools";
-  public static final String ID_MAIN_MENU_TOOLS_OPTIONS   = "40010-menu-tools-options";
-  public static final String ID_MAIN_MENU_TOOLS_SYSPROPS  = "40020-menu-tools-system-properties";
+  public static final String ID_MAIN_MENU_TOOLS_OPTIONS = "40010-menu-tools-options";
+  public static final String ID_MAIN_MENU_TOOLS_SYSPROPS = "40020-menu-tools-system-properties";
 
 
   // The main toolbar IDs
@@ -178,6 +188,7 @@ public class HopGui implements IActionContextHandlersProvider {
   public static final String APP_NAME = "Hop";
 
   private static HopGui hopGui;
+  private String id;
 
   private IHopMetadataProvider metadataProvider;
 
@@ -207,7 +218,7 @@ public class HopGui implements IActionContextHandlersProvider {
   private static PrintStream originalSystemErr = System.err;
 
   public MetadataManager<DatabaseMeta> databaseMetaManager;
-  public MetadataManager<SlaveServer> slaveServerManager;
+  public MetadataManager<HopServer> hopServerManager;
   public MetadataManager<PartitionSchema> partitionManager;
 
   public HopGuiFileDelegate fileDelegate;
@@ -219,9 +230,10 @@ public class HopGui implements IActionContextHandlersProvider {
 
   private HopGui( Display display ) {
     this.display = display;
+    this.id = UuidUtil.getUUIDAsString();
+
     commandLineArguments = new ArrayList<>();
     variables = Variables.getADefaultVariableSpace();
-    props = PropsUi.getInstance();
 
     loggingObject = new LoggingObject( APP_NAME );
     log = new LogChannel( APP_NAME );
@@ -238,7 +250,7 @@ public class HopGui implements IActionContextHandlersProvider {
     metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider( variables );
 
     databaseMetaManager = new MetadataManager<>( variables, metadataProvider, DatabaseMeta.class );
-    slaveServerManager = new MetadataManager<>( variables, metadataProvider, SlaveServer.class );
+    hopServerManager = new MetadataManager<>( variables, metadataProvider, HopServer.class );
     partitionManager = new MetadataManager<>( variables, metadataProvider, PartitionSchema.class );
 
     HopNamespace.setNamespace( DEFAULT_HOP_GUI_NAMESPACE );
@@ -259,17 +271,14 @@ public class HopGui implements IActionContextHandlersProvider {
       OsHelper.initOsHandlers( display );
       UIManager.setLookAndFeel( new MetalLookAndFeel() );
 
-      // Load images and so on...
-      //
-      PropsUi.init( display );
-
       // Initialize the logging backend
       //
-      HopLogStore.init( PropsUi.getInstance().getMaxNrLinesInLog(), PropsUi.getInstance().getMaxLogLineTimeoutMinutes() );
+      HopLogStore.init();
       Locale.setDefault( LanguageChoice.getInstance().getDefaultLocale() );
 
       hopGui = new HopGui( display );
       hopGui.getCommandLineArguments().addAll( Arrays.asList( arguments ) );
+      hopGui.setProps( PropsUi.getInstance() );
 
       // Add and load the Hop GUI Plugins...
       // - Load perspectives
@@ -278,15 +287,15 @@ public class HopGui implements IActionContextHandlersProvider {
 
       try {
         ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiInit.id, hopGui );
-      } catch(Exception e) {
-        hopGui.getLog().logError( "Error calling extension point plugin(s) for HopGuiInit", e);
+      } catch ( Exception e ) {
+        hopGui.getLog().logError( "Error calling extension point plugin(s) for HopGuiInit", e );
       }
 
       boolean errors = false;
       try {
         hopGui.open();
       } catch ( Throwable e ) {
-        originalSystemErr.println( "Serious error detected in the Hop GUI: " + e.getMessage()+Const.CR+Const.getStackTracker( e ) );
+        originalSystemErr.println( "Serious error detected in the Hop GUI: " + e.getMessage() + Const.CR + Const.getStackTracker( e ) );
         errors = true;
       }
 
@@ -328,25 +337,25 @@ public class HopGui implements IActionContextHandlersProvider {
 
     try {
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiStart.id, this );
-    } catch(Exception e) {
-      new ErrorDialog(shell, "Error", "Error calling extension point '"+HopExtensionPoint.HopGuiStart.id+"'", e);
+    } catch ( Exception e ) {
+      new ErrorDialog( shell, "Error", "Error calling extension point '" + HopExtensionPoint.HopGuiStart.id + "'", e );
     }
     // Open the previously used files. Extension points can disable this
     //
-    if (openingLastFiles) {
+    if ( openingLastFiles ) {
       auditDelegate.openLastFiles();
     }
     boolean retry = true;
-    while(retry) {
+    while ( retry ) {
       try {
         while ( !shell.isDisposed() ) {
           if ( !display.readAndDispatch() ) {
             display.sleep();
           }
         }
-        retry=false;
+        retry = false;
       } catch ( Throwable throwable ) {
-        System.err.println("Error in the Hop GUI : "+throwable.getMessage()+Const.CR+Const.getClassicStackTrace( throwable ));
+        System.err.println( "Error in the Hop GUI : " + throwable.getMessage() + Const.CR + Const.getClassicStackTrace( throwable ) );
       }
     }
     display.dispose();
@@ -358,28 +367,29 @@ public class HopGui implements IActionContextHandlersProvider {
 
   private void loadPerspectives() {
     try {
+      // Pre-load the perspectives and store them in the manager as well as the GuiRegistry
+      //
       perspectiveManager = new HopGuiPerspectiveManager( this, mainPerspectivesComposite );
       PluginRegistry pluginRegistry = PluginRegistry.getInstance();
       boolean first = true;
       List<Plugin> perspectivePlugins = PluginRegistry.getInstance().getPlugins( HopPerspectivePluginType.class );
+
       // Sort by ID
       //
-      Collections.sort( perspectivePlugins, new Comparator<Plugin>() {
-        @Override public int compare( Plugin p1, Plugin p2 ) {
-          return p1.getIds()[ 0 ].compareTo( p2.getIds()[ 0 ] );
-        }
-      } );
+      Collections.sort( perspectivePlugins, Comparator.comparing( p -> p.getIds()[ 0 ] ) );
+
       for ( Plugin perspectivePlugin : perspectivePlugins ) {
         Class<IHopPerspective> perspectiveClass = pluginRegistry.getClass( perspectivePlugin, IHopPerspective.class );
-        Method method = perspectiveClass.getDeclaredMethod( "getInstance" );
-        if ( method == null ) {
-          throw new HopException( "Unable to find the getInstance() method in class " + perspectiveClass.getName() + " : make it a singleton" );
-        }
-        // Get the singleton
+        // Create a new instance & initialize.
         //
-        IHopPerspective perspective = (IHopPerspective) method.invoke( null );
+        IHopPerspective perspective = perspectiveClass.newInstance();
         perspective.initialize( this, mainPerspectivesComposite );
         perspectiveManager.addPerspective( perspective );
+
+        // Save in registry
+        //
+        GuiRegistry.getInstance().registerGuiPluginObject( getId(), perspectiveClass.getName(), perspectivesToolbarWidgets.getInstanceId(), perspective );
+
         if ( first ) {
           first = false;
           perspective.show();
@@ -439,6 +449,7 @@ public class HopGui implements IActionContextHandlersProvider {
     mainMenu = new Menu( shell, SWT.BAR );
 
     mainMenuWidgets = new GuiMenuWidgets();
+    mainMenuWidgets.registerGuiPluginObject( this );
     mainMenuWidgets.createMenuWidgets( ID_MAIN_MENU, shell, mainMenu );
 
     shell.setMenuBar( mainMenu );
@@ -446,84 +457,84 @@ public class HopGui implements IActionContextHandlersProvider {
     handleFileCapabilities( new EmptyFileType(), false, false );
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE, label = "&File", parentId = ID_MAIN_MENU )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE, label = "&File", parentId = ID_MAIN_MENU )
   public void menuFile() {
     // Nothing is done here.
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_NEW, label = "New", image = "ui/images/new.svg", parentId = ID_MAIN_MENU_FILE )
-  @GuiToolbarElement( root=ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_NEW, image = "ui/images/new.svg", toolTip = "New" )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_NEW, label = "New", image = "ui/images/new.svg", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( root = ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_NEW, image = "ui/images/new.svg", toolTip = "New" )
   @GuiKeyboardShortcut( control = true, key = 'n' )
   @GuiOsxKeyboardShortcut( command = true, key = 'n' )
   public void menuFileNew() {
     contextDelegate.fileNew();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_OPEN, label = "Open", image = "ui/images/open.svg", parentId = ID_MAIN_MENU_FILE )
-  @GuiToolbarElement( root=ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_OPEN, image = "ui/images/open.svg", toolTip = "Open", separator = true )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_OPEN, label = "Open", image = "ui/images/open.svg", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( root = ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_OPEN, image = "ui/images/open.svg", toolTip = "Open", separator = true )
   @GuiKeyboardShortcut( control = true, key = 'o' )
   @GuiOsxKeyboardShortcut( command = true, key = 'o' )
   public void menuFileOpen() {
     fileDelegate.fileOpen();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_OPEN_RECENT, label = "Open recent...", image = "ui/images/open.svg", parentId = ID_MAIN_MENU_FILE )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_OPEN_RECENT, label = "Open recent...", image = "ui/images/open.svg", parentId = ID_MAIN_MENU_FILE )
   public void menuFileOpenRecent() {
     fileDelegate.fileOpenRecent();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_SAVE, label = "Save", image = "ui/images/save.svg", parentId = ID_MAIN_MENU_FILE )
-  @GuiToolbarElement( root=ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_SAVE, image = "ui/images/save.svg", toolTip = "Save" )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_SAVE, label = "Save", image = "ui/images/save.svg", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( root = ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_SAVE, image = "ui/images/save.svg", toolTip = "Save" )
   @GuiKeyboardShortcut( control = true, key = 's' )
   @GuiOsxKeyboardShortcut( command = true, key = 's' )
   public void menuFileSave() {
     fileDelegate.fileSave();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_SAVE_AS, label = "Save As...", image = "ui/images/saveas.svg", parentId = ID_MAIN_MENU_FILE )
-  @GuiToolbarElement( root=ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_SAVE_AS, image = "ui/images/saveas.svg", toolTip = "Save as..." )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_SAVE_AS, label = "Save As...", image = "ui/images/saveas.svg", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( root = ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_SAVE_AS, image = "ui/images/saveas.svg", toolTip = "Save as..." )
   public void menuFileSaveAs() {
     fileDelegate.fileSaveAs();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EDIT_METASTORE, label = "Edit MetaStore element", parentId = ID_MAIN_MENU_FILE, separator = true )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EDIT_METASTORE, label = "Edit MetaStore element", parentId = ID_MAIN_MENU_FILE, separator = true )
   public void menuFileEditMetadata() {
     contextDelegate.fileMetadataEdit();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_DELETE_METASTORE, label = "Delete MetaStore element", parentId = ID_MAIN_MENU_FILE )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_DELETE_METASTORE, label = "Delete MetaStore element", parentId = ID_MAIN_MENU_FILE )
   public void menuFileDeleteMetadata() {
     contextDelegate.fileMetadataDelete();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXPLORE_METASTORE, label = "Explore the MetaStore", parentId = ID_MAIN_MENU_FILE )
-  @GuiToolbarElement( root=ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_METADATA, image = "ui/images/metadata.svg", toolTip = "Explore metadata", separator = true )
-  @GuiKeyboardShortcut( control = true, shift=true, key = SWT.F5 )
-  @GuiOsxKeyboardShortcut( command = true, shift=true, key = SWT.F5 )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXPLORE_METASTORE, label = "Explore the MetaStore", parentId = ID_MAIN_MENU_FILE )
+  @GuiToolbarElement( root = ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_METADATA, image = "ui/images/metadata.svg", toolTip = "Explore metadata", separator = true )
+  @GuiKeyboardShortcut( control = true, shift = true, key = SWT.F5 )
+  @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.F5 )
   public void menuFileExplorerMetadata() {
     new MetadataExplorerDialog( shell, metadataProvider ).open();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_CLOSE, label = "Close", parentId = ID_MAIN_MENU_FILE, separator = true )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_CLOSE, label = "Close", parentId = ID_MAIN_MENU_FILE, separator = true )
   @GuiKeyboardShortcut( control = true, key = 'w' )
   @GuiOsxKeyboardShortcut( command = true, key = 'w' )
   public void menuFileClose() {
     fileDelegate.fileClose();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_CLOSE_ALL, label = "Close all", parentId = ID_MAIN_MENU_FILE )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_CLOSE_ALL, label = "Close all", parentId = ID_MAIN_MENU_FILE )
   public void menuFileCloseAll() {
-    if (fileDelegate.saveGuardAllFiles()) {
+    if ( fileDelegate.saveGuardAllFiles() ) {
       fileDelegate.closeAllFiles();
     }
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXIT, label = "Exit", parentId = ID_MAIN_MENU_FILE, separator = true )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXIT, label = "Exit", parentId = ID_MAIN_MENU_FILE, separator = true )
   @GuiKeyboardShortcut( control = true, key = 'q' )
   @GuiOsxKeyboardShortcut( command = true, key = 'q' )
   public void menuFileExit() {
 
-    if (fileDelegate.fileExit()) {
+    if ( fileDelegate.fileExit() ) {
       // Save the shell size and position
       //
       props.setScreen( new WindowProperty( shell ) );
@@ -533,26 +544,26 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_PARENT_ID, label = "Edit", parentId = ID_MAIN_MENU )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_PARENT_ID, label = "Edit", parentId = ID_MAIN_MENU )
   public void menuEdit() {
     // Nothing is done here.
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_UNDO, label = "Undo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_UNDO, label = "Undo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
   @GuiKeyboardShortcut( control = true, key = 'z' )
   @GuiOsxKeyboardShortcut( command = true, key = 'z' )
   public void menuEditUndo() {
     getActiveFileTypeHandler().undo();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_REDO, label = "Redo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_REDO, label = "Redo", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
   @GuiKeyboardShortcut( control = true, shift = true, key = 'z' )
   @GuiOsxKeyboardShortcut( command = true, shift = true, key = 'z' )
   public void menuEditRedo() {
     getActiveFileTypeHandler().redo();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_SELECT_ALL, label = "Select all", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_SELECT_ALL, label = "Select all", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true )
   @GuiKeyboardShortcut( control = true, key = 'a' )
   @GuiOsxKeyboardShortcut( command = true, key = 'a' )
   public void menuEditSelectAll() {
@@ -560,117 +571,129 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_UNSELECT_ALL, label = "Clear selection", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_UNSELECT_ALL, label = "Clear selection", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
   @GuiKeyboardShortcut( key = SWT.ESC )
   @GuiOsxKeyboardShortcut( key = SWT.ESC )
   public void menuEditUnselectAll() {
     getActiveFileTypeHandler().unselectAll();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_COPY, label = "Copy selected to clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_FIND, label = "Find...", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiKeyboardShortcut( key = 'f', control = true)
+  @GuiOsxKeyboardShortcut( key = 'f', command = true)
+  public void menuEditFind() {
+    IHopPerspective perspective = perspectiveManager.findPerspective( HopSearchPerspective.class );
+    if (perspective!=null) {
+      ((HopSearchPerspective)perspective).activate();
+    }
+  }
+
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_COPY, label = "Copy selected to clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true )
   @GuiKeyboardShortcut( control = true, key = 'c' )
   @GuiOsxKeyboardShortcut( command = true, key = 'c' )
   public void menuEditCopySelected() {
     getActiveFileTypeHandler().copySelectedToClipboard();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_PASTE, label = "Paste from clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_PASTE, label = "Paste from clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
   @GuiKeyboardShortcut( control = true, key = 'v' )
   @GuiOsxKeyboardShortcut( command = true, key = 'v' )
   public void menuEditPaste() {
     getActiveFileTypeHandler().pasteFromClipboard();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_CUT, label = "Cut selected to clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_CUT, label = "Cut selected to clipboard", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
   @GuiKeyboardShortcut( control = true, key = 'x' )
   @GuiOsxKeyboardShortcut( command = true, key = 'x' )
   public void menuEditCutSelected() {
     getActiveFileTypeHandler().cutSelectedToClipboard();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_DELETE, label = "Delete selected", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_DELETE, label = "Delete selected", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
   @GuiKeyboardShortcut( control = true, key = 'x' )
   @GuiOsxKeyboardShortcut( command = true, key = 'x' )
   public void menuEditDeleteSelected() {
     getActiveFileTypeHandler().deleteSelected();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_NAV_PREV, label = "Go to previous file", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_NAV_PREV, label = "Go to previous file", parentId = ID_MAIN_MENU_EDIT_PARENT_ID, separator = true )
   @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_LEFT )
   public void menuEditNavigatePreviousFile() {
     getActivePerspective().navigateToPreviousFile();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_NAV_NEXT, label = "Go to next file", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_NAV_NEXT, label = "Go to next file", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
   @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_RIGHT )
   public void menuEditNavigateNextFile() {
     getActivePerspective().navigateToNextFile();
   }
 
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_PARENT_ID, label = "Run", parentId = ID_MAIN_MENU )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_PARENT_ID, label = "Run", parentId = ID_MAIN_MENU )
   public void menuRun() {
     // Nothing is done here.
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_START, label = "Start execution", image = "ui/images/toolbar/run.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_START, label = "Start execution", image = "ui/images/toolbar/run.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
   @GuiKeyboardShortcut( key = SWT.F8 )
   public void menuRunStart() {
     getActiveFileTypeHandler().start();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_STOP, label = "Stop execution", image = "ui/images/toolbar/stop.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_STOP, label = "Stop execution", image = "ui/images/toolbar/stop.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
   public void menuRunStop() {
     getActiveFileTypeHandler().stop();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_PAUSE, label = "Pause execution", image = "ui/images/toolbar/pause.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator =
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_PAUSE, label = "Pause execution", image = "ui/images/toolbar/pause.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator =
     true )
   public void menuRunPause() {
     getActiveFileTypeHandler().pause();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_RESUME, label = "Resume execution", image = "ui/images/toolbar/run.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_RESUME, label = "Resume execution", image = "ui/images/toolbar/run.svg", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
   public void menuRunResume() {
     getActiveFileTypeHandler().pause();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_PREVIEW, label = "Preview", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator = true )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_PREVIEW, label = "Preview", parentId = ID_MAIN_MENU_RUN_PARENT_ID, separator = true )
   public void menuRunPreview() {
     getActiveFileTypeHandler().preview();
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_DEBUG, label = "Debug", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_RUN_DEBUG, label = "Debug", parentId = ID_MAIN_MENU_RUN_PARENT_ID )
   public void menuRunDebug() {
     getActiveFileTypeHandler().debug();
   }
 
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_PARENT_ID, label = "Tools", parentId = ID_MAIN_MENU )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_PARENT_ID, label = "Tools", parentId = ID_MAIN_MENU )
   public void menuTools() {
     // Nothing is done here.
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_OPTIONS, label = "Options...", parentId = ID_MAIN_MENU_TOOLS_PARENT_ID )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_OPTIONS, label = "Options...", parentId = ID_MAIN_MENU_TOOLS_PARENT_ID )
   public void menuToolsOptions() {
-    if (new EnterOptionsDialog( hopGui.getShell() ).open()!=null) {
+    if ( new EnterOptionsDialog( hopGui.getShell() ).open() != null ) {
       try {
-        HopConfig.saveToFile();
-      } catch(Exception e) {
-        new ErrorDialog( hopGui.getShell(), "Error", "Error saving the configuration file '"+HopConfig.getInstance().getFilename()+"'", e );
+        HopConfig.getInstance().saveToFile();
+      } catch ( Exception e ) {
+        new ErrorDialog( hopGui.getShell(), "Error", "Error saving the configuration file '" + HopConfig.getInstance().getConfigFilename() + "'", e );
       }
     }
   }
 
-  @GuiMenuElement( root=ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_SYSPROPS, label = "Edit system properties...", parentId = ID_MAIN_MENU_TOOLS_PARENT_ID )
-  public void menuToolsSystemSettings() {
-    HopSystemPropertiesDialog dialog = new HopSystemPropertiesDialog( shell );
-    Map<String, String> systemSettings = dialog.open();
-    if (systemSettings!=null) {
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_TOOLS_SYSPROPS, label = "Edit config variables...", parentId = ID_MAIN_MENU_TOOLS_PARENT_ID )
+  public void menuToolsEditConfigVariables() {
+    List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
+    String message = "Editing file: " + HopConfig.getInstance().getConfigFilename();
+    HopDescribedVariablesDialog dialog = new HopDescribedVariablesDialog( shell, message, describedVariables, null );
+    if ( dialog.open() != null ) {
       try {
-        HopConfig.saveSystemProperties( systemSettings );
-      } catch(Exception e) {
-        new ErrorDialog( hopGui.getShell(), "Error", "Error saving system properties to configuration file '"+HopConfig.getInstance().getFilename()+"'", e );
+        HopConfig.getInstance().setDescribedVariables( describedVariables );
+        HopConfig.getInstance().saveToFile();
+      } catch ( Exception e ) {
+        new ErrorDialog( hopGui.getShell(), "Error", "Error saving config variables to configuration file '" + HopConfig.getInstance().getConfigFilename() + "'", e );
       }
     }
   }
@@ -686,6 +709,7 @@ public class HopGui implements IActionContextHandlersProvider {
     props.setLook( mainToolbar, Props.WIDGET_STYLE_TOOLBAR );
 
     mainToolbarWidgets = new GuiToolbarWidgets();
+    mainToolbarWidgets.registerGuiPluginObject( this );
     mainToolbarWidgets.createToolbarWidgets( mainToolbar, ID_MAIN_TOOLBAR );
     mainToolbar.pack();
   }
@@ -712,6 +736,7 @@ public class HopGui implements IActionContextHandlersProvider {
     perspectivesToolbar.setLayoutData( fdToolBar );
 
     perspectivesToolbarWidgets = new GuiToolbarWidgets();
+    perspectivesToolbarWidgets.registerGuiPluginObject( this );
     perspectivesToolbarWidgets.createToolbarWidgets( perspectivesToolbar, GUI_PLUGIN_PERSPECTIVES_PARENT_ID );
     perspectivesToolbar.pack();
   }
@@ -776,8 +801,8 @@ public class HopGui implements IActionContextHandlersProvider {
    * In this method we'll enable/disable menu and toolbar items
    *
    * @param fileType The type of file to handle giving you its capabilities to take into account from {@link IHopFileType} or set by a plugin
-   * @param running set this to true if the current file is running
-   * @param paused set this to true if the current file is paused
+   * @param running  set this to true if the current file is running
+   * @param paused   set this to true if the current file is paused
    */
   public void handleFileCapabilities( IHopFileType fileType, boolean running, boolean paused ) {
 
@@ -801,7 +826,7 @@ public class HopGui implements IActionContextHandlersProvider {
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_DEBUG, IHopFileType.CAPABILITY_DEBUG );
 
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_PREV, IHopFileType.CAPABILITY_FILE_HISTORY, getActivePerspective().hasNavigationPreviousFile() );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_NEXT, IHopFileType.CAPABILITY_FILE_HISTORY,getActivePerspective().hasNavigationNextFile() );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_NEXT, IHopFileType.CAPABILITY_FILE_HISTORY, getActivePerspective().hasNavigationNextFile() );
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {
@@ -1067,6 +1092,73 @@ public class HopGui implements IActionContextHandlersProvider {
   }
 
   /**
+   * Convenience method to pick up the active pipeline graph
+   *
+   * @return The active pipeline graph or null if none is active
+   */
+  public static HopGuiPipelineGraph getActivePipelineGraph() {
+    IHopPerspective activePerspective = HopGui.getInstance().getActivePerspective();
+    if ( !( activePerspective instanceof HopDataOrchestrationPerspective ) ) {
+      return null;
+    }
+    HopDataOrchestrationPerspective perspective = (HopDataOrchestrationPerspective) activePerspective;
+    IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
+    if ( !( typeHandler instanceof HopGuiPipelineGraph ) ) {
+      return null;
+    }
+    return (HopGuiPipelineGraph) typeHandler;
+  }
+
+  public static HopGuiWorkflowGraph getActiveWorkflowGraph() {
+    IHopPerspective activePerspective = HopGui.getInstance().getActivePerspective();
+    if ( !( activePerspective instanceof HopDataOrchestrationPerspective ) ) {
+      return null;
+    }
+    HopDataOrchestrationPerspective perspective = (HopDataOrchestrationPerspective) activePerspective;
+    IHopFileTypeHandler typeHandler = perspective.getActiveFileTypeHandler();
+    if ( !( typeHandler instanceof HopGuiWorkflowGraph ) ) {
+      return null;
+    }
+    return (HopGuiWorkflowGraph) typeHandler;
+  }
+
+  public static HopDataOrchestrationPerspective getDataOrchestrationPerspective() {
+    return (HopDataOrchestrationPerspective) HopGui.getInstance().getPerspectiveManager().findPerspective( HopDataOrchestrationPerspective.class );
+  }
+
+  /**
+   * Create a list of all the searcheables locations. By default this means HopGui, the the current metadata
+   *
+   * @return
+   */
+  @Override public List<ISearchablesLocation> getSearchablesLocations() {
+    List<ISearchablesLocation> locations = new ArrayList<>();
+
+    locations.add( new HopGuiSearchLocation(this) );
+
+    // Allow plugins to add other locations as well
+    //
+    try {
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiGetSearchablesLocations.name(), locations );
+    } catch ( Exception e ) {
+      log.logError( "Error adding to the list of searchables locations", e );
+    }
+    return locations;
+  }
+
+  public static boolean editConfigFile( Shell shell, String configFilename, DescribedVariablesConfigFile variablesConfigFile, String selectedVariable ) throws HopException {
+    String message = "Editing configuration file: "+configFilename;
+    HopDescribedVariablesDialog variablesDialog = new HopDescribedVariablesDialog( shell, message, variablesConfigFile.getDescribedVariables(), selectedVariable );
+    List<DescribedVariable> vars = variablesDialog.open();
+    if (vars!=null) {
+      variablesConfigFile.setDescribedVariables( vars );
+      variablesConfigFile.saveToFile();
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Gets databaseMetaManager
    *
    * @return value of databaseMetaManager
@@ -1211,4 +1303,14 @@ public class HopGui implements IActionContextHandlersProvider {
   public void setOpeningLastFiles( boolean openingLastFiles ) {
     this.openingLastFiles = openingLastFiles;
   }
+
+  /**
+   * Gets the unique id of this HopGui instance
+   *
+   * @return value of id
+   */
+  public static String getId() {
+    return getInstance().id;
+  }
+
 }

@@ -12,6 +12,6 @@ The Add constant values transform is a simple and high performance way to add co
 [width="90%", options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform. *Note*: This name has to be unique in a single transformation.
+|Transform name|Name of the transform. *Note*: This name has to be unique in a single pipeline.
 |Fields|specify the name, type, and value in the form of a string. Then, specify the formats to convert the value into the chosen data type.
 |===

@@ -115,6 +115,8 @@ public enum HopExtensionPoint {
   HopGuiMetadataObjectUpdated("A metadata object is updated"),
   HopGuiMetadataObjectDeleted("A metadata object is deleted"),
 
+  HopGuiGetSearchablesLocations("Get a list of searchables locations (List<ISearchablesLocation>)"),
+
   HopRunInit( "At the start of the HopRun command line, before initialization" ),
   HopRunCalculateFilename( "Right after the filename is determined, before it is used in any way" ),
   HopRunStart( "At the start of the HopRun command line, before loading metadata execution" ),
@@ -124,6 +126,9 @@ public enum HopExtensionPoint {
   HopGuiWorkflowAfterClose("Called after a workflow is closed in the Hop GUI (WorkflowMeta)"),
 
   GetFieldsExtension( "Get Fields dialog" ),
+
+  HopEnvironmentAfterInit("Called after HopEnvironment.init() was called.  It allows you to add your own plugins and so on at this time."),
+
   ;
 
   public String id;

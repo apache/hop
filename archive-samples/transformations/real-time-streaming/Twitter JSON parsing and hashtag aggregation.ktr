@@ -55,13 +55,7 @@
     <transform_performance_capturing_size_limit>100</transform_performance_capturing_size_limit>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
-  <created_user>-</created_user>
+    <created_user>-</created_user>
   <created_date>2011&#47;07&#47;27 21:48:07.317</created_date>
   <modified_user>-</modified_user>
   <modified_date>2011&#47;07&#47;27 21:48:07.317</modified_date>
@@ -92,8 +86,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+      </field>    </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>315</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
@@ -270,8 +263,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
     <rootUriNameFieldName/>
     <extensionFieldName/>
     <sizeFieldName/>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>194</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
@@ -297,8 +289,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
       </field>
         <select_unspecified>N</select_unspecified>
     </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>73</xloc>
       <yloc>156</yloc>
       <draw>Y</draw>
@@ -315,8 +306,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
            <method>none</method>
            <schema_name/>
            </partitioning>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>1162</xloc>
       <yloc>163</yloc>
       <draw>Y</draw>
@@ -359,8 +349,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
           <valuefield/>
         </field>
       </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>678</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
@@ -387,8 +376,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
  <rightvalue/>
  </condition>
     </compare>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>557</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
@@ -421,8 +409,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
         </field>      <field>        <name>hashtag4</name>
         <value>4</value>
         <norm>hashtag</norm>
-        </field>      </fields>     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+        </field>      </fields> <input>   </input>   <output>   </output>     <GUI>
       <xloc>436</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
@@ -468,8 +455,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
         <case_sensitive>N</case_sensitive>
       </field>
     </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>920</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
@@ -510,8 +496,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
           <valuefield/>
         </field>
       </fields>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>1041</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
@@ -538,8 +523,7 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
  <rightvalue/>
  <value><name>constant</name><type>Integer</type><text>1</text><length>-1</length><precision>0</precision><isnull>N</isnull><mask>#;-#</mask></value> </condition>
     </compare>
-     <cluster_schema/>
-    <input>   </input>   <output>   </output>     <GUI>
+ <input>   </input>   <output>   </output>     <GUI>
       <xloc>799</xloc>
       <yloc>84</yloc>
       <draw>Y</draw>
@@ -548,7 +532,4 @@ var created_at = str2date(created_tmp, &quot;EEE MMM d HH:mm:ss Z yyyy&quot;, &q
 
   <transform_error_handling>
   </transform_error_handling>
-   <slave-transform-copy-partition-distribution>
-</slave-transform-copy-partition-distribution>
-   <slave_transformation>N</slave_transformation>
-</pipeline>
+ </pipeline>

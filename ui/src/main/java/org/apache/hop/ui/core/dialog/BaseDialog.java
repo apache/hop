@@ -35,7 +35,9 @@ import org.apache.hop.ui.core.FormDataBuilder;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
 import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.hopgui.delegates.HopGuiDirectorySelectedExtension;
@@ -101,7 +103,7 @@ public abstract class BaseDialog extends Dialog {
   }
 
   public static final String presentFileDialog( boolean save, Shell shell, String[] filterExtensions, String[] filterNames, boolean folderAndFile ) {
-    return presentFileDialog( save,shell, null, null, null, filterExtensions, filterNames, folderAndFile );
+    return presentFileDialog( save, shell, null, null, null, filterExtensions, filterNames, folderAndFile );
   }
 
   public static final String presentFileDialog( Shell shell, TextVar textVar,
@@ -116,7 +118,7 @@ public abstract class BaseDialog extends Dialog {
     return presentFileDialog( save, shell, textVar, null, fileObject, filterExtensions, filterNames, folderAndFile );
   }
 
-  public static final String presentFileDialog(Shell shell, TextVar textVar, IVariables variables,
+  public static final String presentFileDialog( Shell shell, TextVar textVar, IVariables variables,
                                                 String[] filterExtensions, String[] filterNames,
                                                 boolean folderAndFile ) {
     return presentFileDialog( false, shell, textVar, variables, null, filterExtensions, filterNames, folderAndFile );
@@ -137,8 +139,19 @@ public abstract class BaseDialog extends Dialog {
   public static final String presentFileDialog( boolean save, Shell shell, TextVar textVar, IVariables variables,
                                                 FileObject fileObject, String[] filterExtensions, String[] filterNames,
                                                 boolean folderAndFile ) {
-    FileDialog dialog = new FileDialog( shell, save ? SWT.SAVE : SWT.OPEN );
-    if (save) {
+
+    boolean useNativeFileDialog = "Y".equalsIgnoreCase( HopGui.getInstance().getVariables().getVariable( "HOP_USE_NATIVE_FILE_DIALOG", "N" ) );
+
+    IFileDialog dialog;
+
+    if ( useNativeFileDialog ) {
+      FileDialog fileDialog = new FileDialog( shell, save ? SWT.SAVE : SWT.OPEN );
+      dialog = new NativeFileDialog( fileDialog );
+    } else {
+      dialog = new HopVfsFileDialog( shell, variables, fileObject, false );
+    }
+
+    if ( save ) {
       dialog.setText( BaseMessages.getString( PKG, "BaseDialog.SaveFile" ) );
     } else {
       dialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenFile" ) );
@@ -195,12 +208,21 @@ public abstract class BaseDialog extends Dialog {
   }
 
   public static String presentDirectoryDialog( Shell shell, TextVar textVar, IVariables variables ) {
-    return presentDirectoryDialog(shell, textVar, null, variables);
+    return presentDirectoryDialog( shell, textVar, null, variables );
   }
 
   public static String presentDirectoryDialog( Shell shell, TextVar textVar, String message, IVariables variables ) {
-    DirectoryDialog directoryDialog = new DirectoryDialog( shell, SWT.OPEN );
-    if ( StringUtils.isNotEmpty(message)) {
+
+    boolean useNativeFileDialog = "Y".equalsIgnoreCase( HopGui.getInstance().getVariables().getVariable( "HOP_USE_NATIVE_FILE_DIALOG", "N" ) );
+
+    IDirectoryDialog directoryDialog;
+    if (useNativeFileDialog) {
+      directoryDialog = new NativeDirectoryDialog( new DirectoryDialog( shell, SWT.OPEN ) );
+    } else {
+      directoryDialog = new HopVfsFileDialog( shell, variables, null, true );
+    }
+
+    if ( StringUtils.isNotEmpty( message ) ) {
       directoryDialog.setMessage( message );
     }
     directoryDialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenDirectory" ) );
@@ -230,7 +252,7 @@ public abstract class BaseDialog extends Dialog {
       }
 
       // Set the text box to the new selection
-      if ( textVar!=null && directoryName != null ) {
+      if ( textVar != null && directoryName != null ) {
         textVar.setText( directoryName );
       }
     }

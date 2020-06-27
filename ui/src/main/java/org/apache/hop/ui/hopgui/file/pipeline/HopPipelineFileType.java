@@ -35,9 +35,10 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
+import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -52,11 +53,13 @@ import java.util.Properties;
 )
 public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase<T> implements IHopFileType<T> {
 
+  public static final String PIPELINE_FILE_TYPE_DESCRIPTION = "Pipeline";
+
   public HopPipelineFileType() {
   }
 
   @Override public String getName() {
-    return "Pipeline"; // TODO: i18n?
+    return PIPELINE_FILE_TYPE_DESCRIPTION;
   }
 
   @Override public String[] getFilterExtensions() {
@@ -92,8 +95,20 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     try {
       // This file is opened in the data orchestration perspective
       //
-      HopDataOrchestrationPerspective perspective = HopDataOrchestrationPerspective.getInstance();
+      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
       perspective.activate();
+
+      // See if the same pipeline isn't already open.
+      // Other file types we might allow to open more than once but not pipelines for now.
+      //
+      TabItemHandler tabItemHandlerWithFilename = perspective.findTabItemHandlerWithFilename( filename );
+      if (tabItemHandlerWithFilename!=null) {
+        // Same file so we can simply switch to it.
+        // This will prevent confusion.
+        //
+        perspective.switchToTab( tabItemHandlerWithFilename );
+        return tabItemHandlerWithFilename.getTypeHandler();
+      }
 
       // Load the pipeline
       //
@@ -121,7 +136,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     try {
       // This file is created in the data orchestration perspective
       //
-      HopDataOrchestrationPerspective perspective = HopDataOrchestrationPerspective.getInstance();
+      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
       perspective.activate();
 
       // Create the empty pipeline

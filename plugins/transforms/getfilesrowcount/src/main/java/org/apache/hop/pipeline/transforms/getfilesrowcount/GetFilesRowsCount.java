@@ -249,7 +249,7 @@ public class GetFilesRowsCount
             .setOutputFilenameField(), filename ) );
         }
 
-        data.file = HopVfs.getFileObject( filename, getPipelineMeta() );
+        data.file = HopVfs.getFileObject( filename );
 
         // Init Row number
         if ( meta.isFileField() ) {

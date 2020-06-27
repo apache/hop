@@ -22,10 +22,10 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopFileException;
 import org.scannotation.AnnotationDB;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,9 +34,9 @@ public class JarFileCache {
 
   private static JarFileCache cache;
 
-  private final Map<IPluginFolder, FileObject[]> folderMap;
+  private final Map<IPluginFolder, File[]> folderMap;
 
-  private final Map<FileObject, AnnotationDB> annotationMap;
+  private final Map<File, AnnotationDB> annotationMap;
 
   private JarFileCache() {
     annotationMap = new HashMap<>();
@@ -50,18 +50,18 @@ public class JarFileCache {
     return cache;
   }
 
-  public AnnotationDB getAnnotationDB( FileObject fileObject ) throws IOException {
-    AnnotationDB result = annotationMap.get( fileObject );
+  public AnnotationDB getAnnotationDB( File file ) throws IOException {
+    AnnotationDB result = annotationMap.get( file );
     if ( result == null ) {
       result = new AnnotationDB();
-      result.scanArchives( fileObject.getURL() );
-      annotationMap.put( fileObject, result );
+      result.scanArchives( file.toURI().toURL() );
+      annotationMap.put( file, result );
     }
     return result;
   }
 
-  public FileObject[] getFileObjects( IPluginFolder pluginFolderInterface ) throws HopFileException {
-    FileObject[] result = folderMap.get( pluginFolderInterface );
+  public File[] getFileObjects( IPluginFolder pluginFolderInterface ) throws HopFileException {
+    File[] result = folderMap.get( pluginFolderInterface );
     if ( result == null ) {
       result = pluginFolderInterface.findJarFiles();
       folderMap.put( pluginFolderInterface, result );

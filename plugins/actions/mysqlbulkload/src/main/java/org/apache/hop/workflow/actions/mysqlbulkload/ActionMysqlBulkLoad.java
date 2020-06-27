@@ -230,7 +230,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
         // As such, we're going to verify that it's a local file...
         // We're also going to convert VFS FileObject to File
         //
-        FileObject fileObject = HopVfs.getFileObject( vfsFilename, this );
+        FileObject fileObject = HopVfs.getFileObject( vfsFilename );
         if ( !( fileObject instanceof LocalFile ) ) {
           // MySQL LOAD DATA can only use local files, so that's what we limit ourselves to.
           //
@@ -363,7 +363,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
                     // Add zip filename to output files
                     ResultFile resultFile =
                       new ResultFile(
-                        ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realFilename, this ), parentWorkflow
+                        ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( realFilename ), parentWorkflow
                         .getWorkflowName(), toString() );
                     result.getResultFiles().put( resultFile.getFile().toString(), resultFile );
                   }

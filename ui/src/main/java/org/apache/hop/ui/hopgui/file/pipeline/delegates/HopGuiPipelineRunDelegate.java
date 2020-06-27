@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
-import org.apache.hop.cluster.SlaveServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -42,7 +41,6 @@ import org.apache.hop.ui.pipeline.debug.PipelineDebugDialog;
 import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -194,9 +192,6 @@ public class HopGuiPipelineRunDelegate {
     if ( execConfigAnswer ) {
       pipelineGraph.pipelineGridDelegate.addPipelineGrid();
       pipelineGraph.pipelineLogDelegate.addPipelineLog();
-      pipelineGraph.pipelinePreviewDelegate.addPipelinePreview();
-      pipelineGraph.pipelineMetricsDelegate.addPipelineMetrics();
-      pipelineGraph.pipelinePerfDelegate.addPipelinePerf();
       pipelineGraph.extraViewTabFolder.setSelection( 0 );
 
       // Set the named parameters

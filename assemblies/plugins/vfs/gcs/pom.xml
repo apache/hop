@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-assemblies-plugins-vfs</artifactId>
+        <version>0.30-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-assemblies-plugins-vfs-gcs</artifactId>
+    <version>0.30-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Hop Assemblies Plugins VFS Google Cloud Storage</name>
+    <description></description>
+
+    <properties>
+        <vfs-gcs.version>3.0.2</vfs-gcs.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-plugins-vfs-gcs</artifactId>
+            <version>0.30-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sshtools</groupId>
+            <artifactId>vfs-gcs</artifactId>
+            <version>${vfs-gcs.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-storage</artifactId>
+            <version>1.53.0</version>
+        </dependency>
+    </dependencies>
+
+</project>

@@ -211,7 +211,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
     if ( useXML ) {
       out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
-      SlaveServerStatus serverStatus = new SlaveServerStatus();
+      HopServerStatus serverStatus = new HopServerStatus();
       serverStatus.setStatusDescription( "Online" );
 
       getSystemInfo( serverStatus );
@@ -220,7 +220,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
         IPipelineEngine<PipelineMeta> pipeline = getPipelineMap().getPipeline( entry );
         String statusDescription = pipeline.getStatusDescription();
 
-        SlaveServerPipelineStatus sstatus = new SlaveServerPipelineStatus( entry.getName(), entry.getId(), statusDescription );
+        HopServerPipelineStatus sstatus = new HopServerPipelineStatus( entry.getName(), entry.getId(), statusDescription );
         sstatus.setLogDate( pipeline.getExecutionStartDate() );
         sstatus.setPaused( pipeline.isPaused() );
         serverStatus.getPipelineStatusList().add( sstatus );
@@ -229,7 +229,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
       for ( HopServerObjectEntry entry : actions ) {
         IWorkflowEngine<WorkflowMeta> workflow = getWorkflowMap().getWorkflow( entry );
         String status = workflow.getStatusDescription();
-        SlaveServerWorkflowStatus jobStatus = new SlaveServerWorkflowStatus( entry.getName(), entry.getId(), status );
+        HopServerWorkflowStatus jobStatus = new HopServerWorkflowStatus( entry.getName(), entry.getId(), status );
         jobStatus.setLogDate( workflow.getExecutionStartDate() );
         serverStatus.getJobStatusList().add( jobStatus );
       }
@@ -242,7 +242,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     } else {
       out.println( "<HTML>" );
       out.println( "<HEAD><TITLE>"
-        + BaseMessages.getString( PKG, "GetStatusServlet.HopSlaveServerStatus" ) + "</TITLE>" );
+        + BaseMessages.getString( PKG, "GetStatusServlet.HopHopServerStatus" ) + "</TITLE>" );
       out.println( "<META http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">" );
 
       int tableBorder = 1;
@@ -511,7 +511,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
 
       // The max number of log lines in the back-end
       //
-      SlaveServerConfig serverConfig = getPipelineMap().getSlaveServerConfig();
+      HopServerConfig serverConfig = getPipelineMap().getHopServerConfig();
       if ( serverConfig != null ) {
         String maxLines = "";
         if ( serverConfig.getMaxLogLines() == 0 ) {
@@ -864,7 +864,7 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
     }
   }
 
-  private static void getSystemInfo( SlaveServerStatus serverStatus ) {
+  private static void getSystemInfo( HopServerStatus serverStatus ) {
     OperatingSystemMXBean operatingSystemMXBean =
       java.lang.management.ManagementFactory.getOperatingSystemMXBean();
     ThreadMXBean threadMXBean = java.lang.management.ManagementFactory.getThreadMXBean();

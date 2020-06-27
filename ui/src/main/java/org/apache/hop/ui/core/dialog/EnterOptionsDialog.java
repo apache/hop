@@ -125,10 +125,6 @@ public class EnterOptionsDialog extends Dialog {
 
   private Text wDefaultPreview;
 
-  private Text wMaxNrLogLines;
-
-  private Text wMaxLogLineTimeout;
-
   private Text wMiddlePct;
 
   private Text wGridSize;
@@ -251,8 +247,6 @@ public class EnterOptionsDialog extends Dialog {
     wLineWidth.addSelectionListener( lsDef );
     wMiddlePct.addSelectionListener( lsDef );
     wDefaultPreview.addSelectionListener( lsDef );
-    wMaxNrLogLines.addSelectionListener( lsDef );
-    wMaxLogLineTimeout.addSelectionListener( lsDef );
     wGridSize.addSelectionListener( lsDef );
 
     // Detect [X] or ALT-F4 or something that kills this window...
@@ -885,7 +879,7 @@ public class EnterOptionsDialog extends Dialog {
     fdlFilename.top = new FormAttachment( 0, margin );
     wlFilename.setLayoutData( fdlFilename );
     wFilename = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wFilename.setText( Const.NVL( HopConfig.getInstance().getFilename(), "" ) );
+    wFilename.setText( Const.NVL( HopConfig.getInstance().getConfigFilename(), "" ) );
     wlFilename.setEnabled( false );
     props.setLook( wFilename );
     FormData fdFilename = new FormData();
@@ -914,45 +908,6 @@ public class EnterOptionsDialog extends Dialog {
     fdDefaultPreview.top = new FormAttachment( wlDefaultPreview, 0, SWT.CENTER );
     wDefaultPreview.setLayoutData( fdDefaultPreview );
     lastControl = wDefaultPreview;
-
-    // Max Nr of log lines
-    Label wlMaxNrLogLines = new Label( wGeneralComp, SWT.RIGHT );
-    wlMaxNrLogLines.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.MaxNrLogLinesSize.Label" ) );
-    props.setLook( wlMaxNrLogLines );
-    FormData fdlMaxNrLogLines = new FormData();
-    fdlMaxNrLogLines.left = new FormAttachment( 0, 0 );
-    fdlMaxNrLogLines.right = new FormAttachment( middle, -margin );
-    fdlMaxNrLogLines.top = new FormAttachment( lastControl, margin );
-    wlMaxNrLogLines.setLayoutData( fdlMaxNrLogLines );
-    wMaxNrLogLines = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wMaxNrLogLines.setText( Integer.toString( props.getMaxNrLinesInLog() ) );
-    props.setLook( wMaxNrLogLines );
-    FormData fdMaxNrLogLines = new FormData();
-    fdMaxNrLogLines.left = new FormAttachment( middle, 0 );
-    fdMaxNrLogLines.right = new FormAttachment( 100, -margin );
-    fdMaxNrLogLines.top = new FormAttachment( wlMaxNrLogLines, 0, SWT.CENTER );
-    wMaxNrLogLines.setLayoutData( fdMaxNrLogLines );
-    lastControl = wMaxNrLogLines;
-
-    // Max log line timeout (minutes)
-    Label wlMaxLogLineTimeout = new Label( wGeneralComp, SWT.RIGHT );
-    wlMaxLogLineTimeout.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.MaxLogLineTimeout.Label" ) );
-    props.setLook( wlMaxLogLineTimeout );
-    FormData fdlMaxLogLineTimeout = new FormData();
-    fdlMaxLogLineTimeout.left = new FormAttachment( 0, 0 );
-    fdlMaxLogLineTimeout.right = new FormAttachment( middle, -margin );
-    fdlMaxLogLineTimeout.top = new FormAttachment( lastControl, margin );
-    wlMaxLogLineTimeout.setLayoutData( fdlMaxLogLineTimeout );
-    wMaxLogLineTimeout = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wMaxLogLineTimeout.setText( Integer.toString( props.getMaxLogLineTimeoutMinutes() ) );
-    props.setLook( wMaxLogLineTimeout );
-    FormData fdMaxLogLineTimeout = new FormData();
-    fdMaxLogLineTimeout.left = new FormAttachment( middle, 0 );
-    fdMaxLogLineTimeout.right = new FormAttachment( 100, -margin );
-    fdMaxLogLineTimeout.top = new FormAttachment( wlMaxLogLineTimeout, 0, SWT.CENTER );
-    wMaxLogLineTimeout.setLayoutData( fdMaxLogLineTimeout );
-    lastControl = wMaxLogLineTimeout;
-
 
     // Use DB Cache?
     Label wlUseCache = new Label( wGeneralComp, SWT.RIGHT );
@@ -1353,9 +1308,6 @@ public class EnterOptionsDialog extends Dialog {
     props.setCanvasGridSize( Const.toInt( wGridSize.getText(), 1 ) );
 
     props.setDefaultPreviewSize( Const.toInt( wDefaultPreview.getText(), props.getDefaultPreviewSize() ) );
-
-    props.setMaxNrLinesInLog( Const.toInt( wMaxNrLogLines.getText(), Const.MAX_NR_LOG_LINES ) );
-    props.setMaxLogLineTimeoutMinutes( Const.toInt( wMaxLogLineTimeout.getText(), Const.MAX_LOG_LINE_TIMEOUT_MINUTES ) );
 
     props.setUseDBCache( wUseCache.getSelection() );
     props.setOpenLastFile( wOpenLast.getSelection() );

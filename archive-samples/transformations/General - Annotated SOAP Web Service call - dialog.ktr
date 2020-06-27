@@ -421,12 +421,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2014/02/26 14:58:08.974</created_date>
     <modified_user>-</modified_user>
@@ -541,9 +535,7 @@ var requestXml=request.toXMLString();
         <replace>N</replace>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -586,9 +578,7 @@ var requestXml=request.toXMLString();
       <response_time/>
       <response_header/>
     </result>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -697,9 +687,7 @@ Alert(responseBody.toXMLString());
         <replace>N</replace>
       </field>
     </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -740,9 +728,7 @@ Alert(responseBody.toXMLString());
     <interval_in_ms/>
     <row_time_field/>
     <last_time_field/>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -755,7 +741,4 @@ Alert(responseBody.toXMLString());
   </transform>
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

@@ -452,7 +452,7 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
       } catch ( Exception e ) {
         logError( BaseMessages.getString( PKG, "ScriptValuesMod.Log.UnexpectedeError" ) + " : " + e.toString() );
         logError( BaseMessages.getString( PKG, "ScriptValuesMod.Log.ErrorStackTrace" )
-          + Const.CR + Const.getStackTracker( e ) );
+          + Const.CR + Const.getSimpleStackTrace( e ) + Const.CR + Const.getStackTracker( e ) );
         setErrors( 1 );
         stopAll();
       }

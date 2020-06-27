@@ -57,13 +57,7 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
-  <created_user/>
+    <created_user/>
   <created_date>2011&#47;01&#47;26 15:02:20.074</created_date>
   <modified_user>-</modified_user>
   <modified_date>2010&#47;01&#47;29 13:08:07.709</modified_date>
@@ -165,7 +159,6 @@ xml files like such:
       </field>
     </fields>
     <limit>1</limit>
-     <cluster_schema/>
  <remotetransforms>   <input>   </input>   <output>   </output> </remotetransforms>    <GUI>
       <xloc>83</xloc>
       <yloc>45</yloc>
@@ -183,7 +176,6 @@ xml files like such:
            <method>none</method>
            <schema_name/>
            </partitioning>
-     <cluster_schema/>
  <remotetransforms>   <input>   </input>   <output>   </output> </remotetransforms>    <GUI>
       <xloc>82</xloc>
       <yloc>264</yloc>
@@ -218,8 +210,7 @@ encrypted_password = &quot;Encrypted &quot; + Packages.org.apache.hop.core.encry
         <length>-1</length>
         <precision>-1</precision>
         <replace>N</replace>
-      </field>    </fields>     <cluster_schema/>
- <remotetransforms>   <input>   </input>   <output>   </output> </remotetransforms>    <GUI>
+      </field>    </fields> <remotetransforms>   <input>   </input>   <output>   </output> </remotetransforms>    <GUI>
       <xloc>84</xloc>
       <yloc>147</yloc>
       <draw>Y</draw>
@@ -228,10 +219,7 @@ encrypted_password = &quot;Encrypted &quot; + Packages.org.apache.hop.core.encry
 
   <transform_error_handling>
   </transform_error_handling>
-   <slave-transform-copy-partition-distribution>
-</slave-transform-copy-partition-distribution>
-   <slave_transformation>N</slave_transformation>
-</transformation>
+ </transformation>
 </transformations>
 <jobs>
 <workflow>

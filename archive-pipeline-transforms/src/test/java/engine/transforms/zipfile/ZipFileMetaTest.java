@@ -180,7 +180,6 @@ public class ZipFileMetaTest {
       + "<createparentfolder>Y</createparentfolder>" + Const.CR
       + "<keepsourcefolder>Y</keepsourcefolder>" + Const.CR
       + "<movetofolderfield/>" + Const.CR
-      + "<cluster_schema/>" + Const.CR
       + "<GUI>" + Const.CR
       + "  <xloc>608</xloc>" + Const.CR
       + "  <yloc>48</yloc>" + Const.CR

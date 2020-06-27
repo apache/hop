@@ -884,7 +884,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           }
           String fileValue = prevInfoFields.getString( fileRow, idx );
           try {
-            FileObject fileObject = HopVfs.getFileObject( fileValue, getPipelineMeta() );
+            FileObject fileObject = HopVfs.getFileObject( fileValue );
             data.getFiles().addFile( fileObject );
             if ( meta.isPassingThruFields() ) {
               data.passThruFields.put( fileObject, fileRow );

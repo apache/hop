@@ -1136,7 +1136,7 @@ public class TextFileInputMeta
    * For testing
    */
   FileObject getFileObject( String vfsFileName, IVariables variables ) throws HopFileException {
-    return HopVfs.getFileObject( variables.environmentSubstitute( vfsFileName ), variables );
+    return HopVfs.getFileObject( variables.environmentSubstitute( vfsFileName ) );
   }
 
   @Override

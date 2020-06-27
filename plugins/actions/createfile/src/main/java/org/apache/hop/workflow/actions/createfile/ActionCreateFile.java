@@ -132,7 +132,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
       String realFilename = getRealFilename();
       FileObject fileObject = null;
       try {
-        fileObject = HopVfs.getFileObject( realFilename, this );
+        fileObject = HopVfs.getFileObject( realFilename );
 
         if ( fileObject.exists() ) {
           if ( isFailIfFileExists() ) {
@@ -182,7 +182,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
   private void addFilenameToResult( String targetFilename, Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow ) throws HopException {
     FileObject targetFile = null;
     try {
-      targetFile = HopVfs.getFileObject( targetFilename, this );
+      targetFile = HopVfs.getFileObject( targetFilename );
 
       // Add to the result files...
       ResultFile resultFile =

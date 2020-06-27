@@ -421,12 +421,6 @@
     <transform_performance_capturing_size_limit/>
     <dependencies>
     </dependencies>
-    <partitionschemas>
-    </partitionschemas>
-    <slaveservers>
-    </slaveservers>
-    <clusterschemas>
-    </clusterschemas>
     <created_user/>
     <created_date>2010&#x2f;08&#x2f;19 13&#x3a;44&#x3a;19.217</created_date>
     <modified_user>-</modified_user>
@@ -639,9 +633,7 @@
         <target_detail>Y</target_detail>
         <source_transform>Fields</source_transform>
         <source_field>group</source_field>
-      </mapping>    </mappings>    <cluster_schema/>
-
-      <input>
+      </mapping>    </mappings><input>
       </input>
       <output>
       </output>
@@ -777,9 +769,7 @@
       <line> <item>stateCode</item><item>String</item><item/><item>9</item><item/><item/><item/><item/><item>none</item> </line>
       <line> <item>state</item><item>String</item><item/><item>30</item><item/><item/><item/><item/><item>none</item> </line>
     </data>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -821,9 +811,7 @@
     <interval_in_ms>5000</interval_in_ms>
     <row_time_field>now</row_time_field>
     <last_time_field>FiveSecondsAgo</last_time_field>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -862,9 +850,7 @@
     <data>
       <line> <item>stateCode</item> </line>
     </data>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -914,9 +900,7 @@
     <data>
       <line> <item>id</item><item>DEMO_ID</item> </line>
     </data>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -948,9 +932,7 @@
         <set_empty_string>N</set_empty_string>
         </field>
       </fields>
-    <cluster_schema/>
-
-      <input>
+<input>
       </input>
       <output>
       </output>
@@ -964,7 +946,4 @@
 
   <transform_error_handling>
   </transform_error_handling>
-  <slave-transform-copy-partition-distribution>
-  </slave-transform-copy-partition-distribution>
-  <slave_transformation>N</slave_transformation>
 </pipeline>

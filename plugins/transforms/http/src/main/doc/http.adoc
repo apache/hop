@@ -48,4 +48,4 @@ Enabling this will also allow you to specify the name of the input field.
 
 *Q*: Does the HTTP client support SOAP?
 
-*A*: No, it just calls an URL with arguments. Future transforms may provide SOAP functionality, Work is underway on a WebService transform supporting WSDL. The first experimental version appeared in PDI v2.5.0
+*A*: No, it just calls an URL with arguments. Future transforms may provide SOAP functionality, Work is underway on a WebService transform supporting WSDL.

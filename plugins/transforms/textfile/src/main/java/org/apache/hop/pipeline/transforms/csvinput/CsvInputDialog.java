@@ -993,10 +993,6 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
         }
 
         pipelineGraph.extraViewTabFolder.setSelection( 5 );
-
-        pipelineGraph.pipelinePreviewDelegate.addPreviewData( transformMeta, rowMeta, rowsData, buffer );
-        pipelineGraph.pipelinePreviewDelegate.setSelectedTransform( transformMeta );
-        pipelineGraph.pipelinePreviewDelegate.refreshView();
       }
     } finally {
       previewBusy.set( false );
@@ -1005,15 +1001,11 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
   protected void asyncUpdatePreview() {
 
-    Runnable update = new Runnable() {
-
-      @Override
-      public void run() {
-        try {
-          updatePreview();
-        } catch ( SWTException e ) {
-          // Ignore widget disposed errors
-        }
+    Runnable update = () -> {
+      try {
+        updatePreview();
+      } catch ( SWTException e ) {
+        // Ignore widget disposed errors
       }
     };
 

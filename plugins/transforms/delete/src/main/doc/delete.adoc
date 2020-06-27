@@ -14,7 +14,7 @@ image::delete.png[]
 [width="90%", options="header"]
 |===
 |Option|Description
-|Transform name|Name of the transform. This name has to be unique in a single transformation.
+|Transform name|Name of the transform. This name has to be unique in a single pipeline.
 |Connection|The database connection to which data is written
 |Target schema|The name of the Schema for the table to which data is written. This is important for data sources that allow for table names with periods in them.
 |Target table|Name of the table in which you want to do the insert or update.

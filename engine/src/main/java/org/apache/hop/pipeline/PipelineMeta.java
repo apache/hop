@@ -500,7 +500,7 @@ public class PipelineMeta extends AbstractMeta
 
   /**
    * Clears the pipeline's meta-data, including the lists of databases, transforms, hops, notes, dependencies,
-   * partition schemas, slave servers, and cluster schemas. Logging information and timeouts are reset to defaults, and
+   * partition schemas, hop servers, and cluster schemas. Logging information and timeouts are reset to defaults, and
    * recent connection info is cleared.
    */
   @Override
@@ -1829,7 +1829,7 @@ public class PipelineMeta extends AbstractMeta
   }
 
   /**
-   * Gets the XML representation of this pipeline, including or excluding transform, database, slave server, cluster,
+   * Gets the XML representation of this pipeline, including or excluding transform, database, hop server, cluster,
    * or partition information as specified by the parameters
    *
    * @param includeTransforms      whether to include transform data
@@ -1971,7 +1971,7 @@ public class PipelineMeta extends AbstractMeta
     // OK, try to load using the VFS stuff...
     Document doc = null;
     try {
-      final FileObject pipelineFile = HopVfs.getFileObject( fname, parentVariableSpace );
+      final FileObject pipelineFile = HopVfs.getFileObject( fname );
       if ( !pipelineFile.exists() ) {
         throw new HopXmlException( BaseMessages.getString( PKG, "PipelineMeta.Exception.InvalidXMLPath", fname ) );
       }
@@ -3524,7 +3524,7 @@ public class PipelineMeta extends AbstractMeta
     //
     if ( !Utils.isEmpty( filename ) ) {
       try {
-        FileObject fileObject = HopVfs.getFileObject( filename, var );
+        FileObject fileObject = HopVfs.getFileObject( filename );
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline
@@ -3663,7 +3663,7 @@ public class PipelineMeta extends AbstractMeta
       String fullname;
       String extension = "ktr";
       if ( StringUtils.isNotEmpty( getFilename() ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( getFilename() ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( getFilename() ) );
         originalPath = fileObject.getParent().getURL().toString();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getURL().toString();

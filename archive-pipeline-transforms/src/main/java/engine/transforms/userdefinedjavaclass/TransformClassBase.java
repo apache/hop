@@ -253,8 +253,8 @@ public abstract class TransformClassBase {
     return parent.getRuntimeImpl();
   }
 
-  public int getSlaveNr() {
-    return parent.getSlaveNrImpl();
+  public int getServerNr() {
+    return parent.getServerNrImpl();
   }
 
   public TransformExecutionStatus getStatus() {
@@ -297,12 +297,12 @@ public abstract class TransformClassBase {
     return parent.getTypeIdImpl();
   }
 
-  public int getUniqueTransformCountAcrossSlaves() {
-    return parent.getUniqueTransformCountAcrossSlavesImpl();
+  public int getUniqueTransformCountAcrossServers() {
+    return parent.getUniqueTransformCountAcrossServersImpl();
   }
 
-  public int getUniqueTransformNrAcrossSlaves() {
-    return parent.getUniqueTransformNrAcrossSlavesImpl();
+  public int getUniqueTransformNrAcrossServers() {
+    return parent.getUniqueTransformNrAcrossServersImpl();
   }
 
   public String getVariable( String variableName ) {

@@ -172,7 +172,7 @@ public class FileInputList {
       }
 
       try {
-        FileObject directoryFileObject = HopVfs.getFileObject( onefile, variables );
+        FileObject directoryFileObject = HopVfs.getFileObject( onefile );
         boolean processFolder = true;
         if ( onerequired ) {
           if ( !directoryFileObject.exists() ) {
@@ -261,7 +261,7 @@ public class FileInputList {
             }
             // We don't sort here, keep the order of the files in the archive.
           } else {
-            FileObject fileObject = HopVfs.getFileObject( onefile, variables );
+            FileObject fileObject = HopVfs.getFileObject( onefile );
             if ( fileObject.exists() ) {
               if ( fileObject.isReadable() ) {
                 fileInputList.addFile( fileObject );
@@ -308,7 +308,7 @@ public class FileInputList {
       try {
         // Find all folder names in this directory
         //
-        directoryFileObject = HopVfs.getFileObject( onefile, variables );
+        directoryFileObject = HopVfs.getFileObject( onefile );
         if ( directoryFileObject != null && directoryFileObject.getType() == FileType.FOLDER ) { // it's a directory
           FileObject[] fileObjects = directoryFileObject.findFiles( new AllFileSelector() {
             @Override

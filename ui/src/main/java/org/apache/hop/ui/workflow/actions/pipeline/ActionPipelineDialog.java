@@ -39,7 +39,6 @@ import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
@@ -224,8 +223,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
 
     protected void pickFileVFS() {
 
-        HopPipelineFileType<PipelineMeta> pipelineFileType = HopDataOrchestrationPerspective.getInstance().getPipelineFileType();
-
+        HopPipelineFileType<PipelineMeta> pipelineFileType = new HopPipelineFileType<>();
         String filename = BaseDialog.presentFileDialog(shell, wPath, workflowMeta, pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true);
         if (filename != null) {
             wPath.setText(filename);

@@ -18,6 +18,8 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.search.ISearchableAnalyser;
+import org.apache.hop.core.search.SearchableAnalyserPluginType;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
@@ -67,7 +69,8 @@ public class FatJarBuilder {
     List<String> systemXmlFiles = Arrays.asList( Const.XML_FILE_HOP_TRANSFORMS, Const.XML_FILE_HOP_EXTENSION_POINTS,
       Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_DATABASE_TYPES, Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS,
       Const.XML_FILE_HOP_VALUEMETA_PLUGINS, Const.XML_FILE_HOP_PIPELINE_ENGINES, Const.XML_FILE_HOP_TRANSFORMS,
-      Const.XML_FILE_HOP_WORKFLOW_ENGINES, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_EXTENSION_POINTS );
+      Const.XML_FILE_HOP_WORKFLOW_ENGINES, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_EXTENSION_POINTS,
+      Const.XML_FILE_HOP_VFS_PLUGINS );
     fileContentMap = new HashMap<>();
 
     try {
@@ -178,8 +181,10 @@ public class FatJarBuilder {
       ActionPluginType actionPluginType = ActionPluginType.getInstance();
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, actionPluginType.getMainTag(), actionPluginType.getSubTag(), ActionPluginType.class, IAction.class, null );
       ExtensionPointPluginType xpPluginType = ExtensionPointPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_EXTENSION_POINTS, xpPluginType.getMainTag(), xpPluginType.getSubTag(), ExtensionPointPluginType.class, IExtensionPoint.class,
-        extraXpPluginClasses );
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_EXTENSION_POINTS, xpPluginType.getMainTag(), xpPluginType.getSubTag(), ExtensionPointPluginType.class, IExtensionPoint.class, extraXpPluginClasses );
+      SearchableAnalyserPluginType saPluginType = SearchableAnalyserPluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS, saPluginType.getMainTag(), saPluginType.getSubTag(), SearchableAnalyserPluginType.class, ISearchableAnalyser.class, extraXpPluginClasses );
+
 
 
       zipOutputStream.close();

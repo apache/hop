@@ -26,10 +26,14 @@ import com.google.common.util.concurrent.SettableFuture;
 import org.apache.hop.core.auth.AuthenticationConsumerPluginType;
 import org.apache.hop.core.auth.AuthenticationProviderPluginType;
 import org.apache.hop.core.compress.CompressionPluginType;
+import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPluginType;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionDialogFragmentType;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.HopLifecyclePluginType;
@@ -126,9 +130,18 @@ public class HopEnvironment {
 
         // If the HopConfig system properties is empty, initialize with the variables...
         //
-        if ( HopConfig.getSystemProperties().isEmpty() ) {
-          HopConfig.saveSystemProperties( HopVariablesList.getInstance().getDefaultValueMap() );
+        List<DescribedVariable> configVariables = HopConfig.getInstance().getDescribedVariables();
+        if ( configVariables.isEmpty() ) {
+          List<DescribedVariable> describedVariables = HopVariablesList.getInstance().getEnvironmentVariables();
+          for ( DescribedVariable describedVariable : describedVariables ) {
+            HopConfig.getInstance().setDescribedVariable( new DescribedVariable( describedVariable ) );
+          }
         }
+
+        // Inform the outside world that we're ready with the init of the Hop Environment
+        // Others might want to register extra plugins that perhaps were not found automatically
+        //
+        ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.HopEnvironmentAfterInit.name(), PluginRegistry.getInstance());
 
         ready.set( true );
       } catch ( Throwable t ) {

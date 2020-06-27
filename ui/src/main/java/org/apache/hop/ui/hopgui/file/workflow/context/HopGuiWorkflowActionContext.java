@@ -113,9 +113,10 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
 
         // Is this object already loaded?
         //
-        TabItemHandler tabItemHandler = HopDataOrchestrationPerspective.getInstance().findTabItemHandlerWithFilename(filename);
+        HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
+        TabItemHandler tabItemHandler = perspective.findTabItemHandlerWithFilename(filename);
         if (tabItemHandler!=null) {
-          HopDataOrchestrationPerspective.getInstance().switchToTab(tabItemHandler);
+          perspective.switchToTab(tabItemHandler);
         } else {
           hopGui.fileDelegate.fileOpen(filename);
         }

@@ -166,7 +166,7 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
         createParentFolder( realFilename );
 
         // Create / open file for writing
-        os = HopVfs.getOutputStream( realFilename, this, isAppendFile() );
+        os = HopVfs.getOutputStream( realFilename, isAppendFile() );
 
         if ( Utils.isEmpty( encoding ) ) {
           if ( isDebug() ) {
@@ -213,7 +213,7 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
   private void createParentFolder( String realFilename ) throws HopException {
     FileObject parent = null;
     try {
-      parent = HopVfs.getFileObject( realFilename, this ).getParent();
+      parent = HopVfs.getFileObject( realFilename ).getParent();
       if ( !parent.exists() ) {
         if ( isCreateParentFolder() ) {
           if ( isDetailed() ) {

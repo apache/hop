@@ -420,7 +420,7 @@ public class FtpsConnection implements FTPListener {
    */
   public void downloadFile( FTPFile file, String localFilename ) throws HopException {
     try {
-      FileObject localFile = HopVfs.getFileObject( localFilename, nameSpace );
+      FileObject localFile = HopVfs.getFileObject( localFilename );
       writeToFile( connection.downloadStream( file ), localFile.getContent().getOutputStream(), localFilename );
     } catch ( Exception e ) {
       throw new HopException( e );
@@ -449,7 +449,7 @@ public class FtpsConnection implements FTPListener {
     FileObject file = null;
 
     try {
-      file = HopVfs.getFileObject( localFileName, nameSpace );
+      file = HopVfs.getFileObject( localFileName );
       this.connection.uploadStream( file.getContent().getInputStream(), new FTPFile( new File( shortFileName ) ) );
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG, "JobFTPS.Error.UuploadingFile", localFileName ), e );

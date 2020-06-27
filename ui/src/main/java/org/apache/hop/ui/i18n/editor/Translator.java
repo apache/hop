@@ -1254,7 +1254,6 @@ public class Translator {
 
     Display display = new Display();
     ILogChannel log = new LogChannel( APP_NAME );
-    PropsUi.init( display );
 
     HopNamespace.setNamespace( TRANSLATOR_NAMESPACE );
 

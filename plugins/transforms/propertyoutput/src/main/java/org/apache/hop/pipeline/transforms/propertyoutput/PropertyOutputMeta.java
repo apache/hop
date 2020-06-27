@@ -25,7 +25,6 @@ package org.apache.hop.pipeline.transforms.propertyoutput;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -562,7 +561,7 @@ public class PropertyOutputMeta extends BaseTransformMeta implements ITransformM
       //
       // In case the name of the file comes from previous transforms, forget about this!
       if ( !fileNameInField ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ), variables );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
 
         // If the file doesn't exist, forget about this effort too!
         //

@@ -206,7 +206,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     boolean result = false;
     try {
       // Get parent folder
-      parentfolder = HopVfs.getFileObject( filename, this ).getParent();
+      parentfolder = HopVfs.getFileObject( filename ).getParent();
 
       if ( !parentfolder.exists() ) {
         if ( log.isDetailed() ) {
@@ -259,7 +259,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     String localSourceFilename = realSourceDirectoryOrFile;
 
     try {
-      originFile = HopVfs.getFileObject( realSourceDirectoryOrFile, this );
+      originFile = HopVfs.getFileObject( realSourceDirectoryOrFile );
       localSourceFilename = HopVfs.getFilename( originFile );
       orginExist = originFile.exists();
     } catch ( Exception e ) {
@@ -279,7 +279,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
       FileObject fileObject = null;
       try {
-        fileObject = HopVfs.getFileObject( localrealZipfilename, this );
+        fileObject = HopVfs.getFileObject( localrealZipfilename );
         localrealZipfilename = HopVfs.getFilename( fileObject );
         // Check if Zip File exists
         if ( fileObject.exists() ) {
@@ -317,7 +317,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
           // Let's see if we deal with file or folder
           FileObject[] fileList;
 
-          FileObject sourceFileOrFolder = HopVfs.getFileObject( localSourceFilename, this );
+          FileObject sourceFileOrFolder = HopVfs.getFileObject( localSourceFilename );
           boolean isSourceDirectory = sourceFileOrFolder.getType().equals( FileType.FOLDER );
           final Pattern pattern;
           final Pattern patternExclude;
@@ -407,7 +407,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
             // Prepare Zip File
             buffer = new byte[ 18024 ];
-            dest = HopVfs.getOutputStream( localrealZipfilename, this, false );
+            dest = HopVfs.getOutputStream( localrealZipfilename, false );
             buff = new BufferedOutputStreamWithCloseDetection( dest );
             out = new ZipOutputStream( buff );
 
@@ -496,7 +496,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                 targetFilename = localSourceFilename;
               }
 
-              FileObject file = HopVfs.getFileObject( targetFilename, this );
+              FileObject file = HopVfs.getFileObject( targetFilename );
               boolean isTargetDirectory = file.exists() && file.getType().equals( FileType.FOLDER );
 
               if ( getIt && !getItexclude && !isTargetDirectory && !fileSet.contains( targetFilename ) ) {
@@ -565,7 +565,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                   // Delete, Move File
                   FileObject fileObjectd = zippedFiles[ i ];
                   if ( !isSourceDirectory ) {
-                    fileObjectd = HopVfs.getFileObject( localSourceFilename, this );
+                    fileObjectd = HopVfs.getFileObject( localSourceFilename );
                   }
 
                   // Here we can move, delete files
@@ -591,7 +591,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                     try {
                       fileObjectm =
                         HopVfs.getFileObject( realMovetodirectory
-                          + Const.FILE_SEPARATOR + fileObjectd.getName().getBaseName(), this );
+                          + Const.FILE_SEPARATOR + fileObjectd.getName().getBaseName() );
                       fileObjectd.moveTo( fileObjectm );
                     } catch ( IOException e ) {
                       logError( BaseMessages.getString( PKG, "JobZipFiles.Cant_Move_File1.Label" )
@@ -710,7 +710,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       if ( depth == 0 ) {
         return filename;
       }
-      FileObject fileObject = HopVfs.getFileObject( filename, this );
+      FileObject fileObject = HopVfs.getFileObject( filename );
       FileObject folder = fileObject.getParent();
       String baseName = fileObject.getName().getBaseName();
       if ( depth == 1 ) {
@@ -732,7 +732,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
   private File getFile( final String filename ) {
     try {
-      String uri = HopVfs.getFileObject( environmentSubstitute( filename ), this ).getName().getPath();
+      String uri = HopVfs.getFileObject( environmentSubstitute( filename ) ).getName().getPath();
       return new File( uri );
     } catch ( HopFileException ex ) {
       logError( "Error in Fetching URI for File: " + filename, ex );
@@ -772,7 +772,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       } else {
         FileObject moveToDirectory = null;
         try {
-          moveToDirectory = HopVfs.getFileObject( realMovetodirectory, this );
+          moveToDirectory = HopVfs.getFileObject( realMovetodirectory );
           if ( moveToDirectory.exists() ) {
             if ( moveToDirectory.getType() == FileType.FOLDER ) {
               if ( log.isDetailed() ) {

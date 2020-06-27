@@ -159,7 +159,7 @@ public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<C
     GZIPInputStream fis = null;
     DataInputStream dis = null;
     try {
-      InputStream is = HopVfs.getInputStream( variables.environmentSubstitute( filename ), variables );
+      InputStream is = HopVfs.getInputStream( variables.environmentSubstitute( filename ) );
       fis = new GZIPInputStream( is );
       dis = new DataInputStream( fis );
 
@@ -237,7 +237,7 @@ public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<C
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ), variables );
+      FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ) );
 
       // If the file doesn't exist, forget about this effort too!
       //

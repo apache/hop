@@ -23,18 +23,16 @@
 package org.apache.hop.pipeline.transforms.randomvalue;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Uuid4Util;
 import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
@@ -51,10 +49,6 @@ import java.util.List;
 public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData> implements ITransform<RandomValueMeta, RandomValueData> {
 
   private static Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
-
-  private RandomValueMeta meta;
-
-  private RandomValueData data;
 
   public RandomValue( TransformMeta transformMeta, RandomValueMeta meta, RandomValueData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {
@@ -199,7 +193,6 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
   public boolean init() {
 
     if ( super.init() ) {
-//      data.readsRows = getTransformMeta().getRemoteInputTransforms().size() > 0;
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms( getTransformMeta() );
       if ( previous != null && previous.size() > 0 ) {
         data.readsRows = true;

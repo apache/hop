@@ -40,6 +40,9 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Rectangle;
@@ -77,8 +80,6 @@ public class PreviewRowsDialog {
   private Shell shell;
 
   private final List<Object[]> buffer;
-
-  private final PropsUi props;
 
   private String title, message;
 
@@ -132,7 +133,6 @@ public class PreviewRowsDialog {
     this.style = ( style != SWT.None ) ? style : this.style;
     this.dialogClosedListeners = new ArrayList<IDialogClosedListener>();
 
-    props = PropsUi.getInstance();
     bounds = null;
     hscroll = -1;
     vscroll = -1;
@@ -149,6 +149,8 @@ public class PreviewRowsDialog {
 
   public void open() {
     shell = new Shell( parentShell, style );
+    PropsUi props = PropsUi.getInstance();
+
     props.setLook( shell );
     shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
@@ -243,6 +245,19 @@ public class PreviewRowsDialog {
       }
     } );
 
+    KeyListener escapeListener = new KeyAdapter() {
+      @Override public void keyPressed( KeyEvent e ) {
+        if (e.keyCode==SWT.ESC) {
+          close();
+        }
+      }
+    };
+
+    shell.addKeyListener( escapeListener );
+    wFields.addKeyListener( escapeListener );
+    wFields.table.addKeyListener( escapeListener );
+    buttons.stream().forEach( b->b.addKeyListener( escapeListener ) );
+
     getData();
 
     BaseTransformDialog.setSize( shell );
@@ -259,6 +274,7 @@ public class PreviewRowsDialog {
   }
 
   private boolean addFields() {
+    PropsUi props = PropsUi.getInstance();
     int margin = props.getMargin();
 
     if ( wlFields == null ) {
@@ -317,7 +333,7 @@ public class PreviewRowsDialog {
   }
 
   public void dispose() {
-    props.setScreen( new WindowProperty( shell ) );
+    PropsUi.getInstance().setScreen( new WindowProperty( shell ) );
     bounds = shell.getBounds();
     hscroll = wFields.getHorizontalBar().getSelection();
     vscroll = wFields.getVerticalBar().getSelection();
@@ -543,7 +559,7 @@ public class PreviewRowsDialog {
           }
         }
 
-        if ( wFields.table.getItemCount() > props.getDefaultPreviewSize() ) {
+        if ( wFields.table.getItemCount() > PropsUi.getInstance().getDefaultPreviewSize() ) {
           wFields.table.remove( 0 );
         }
 

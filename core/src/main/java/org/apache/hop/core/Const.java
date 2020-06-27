@@ -316,7 +316,7 @@ public class Const {
   /**
    * Name of the hop configuration file
    */
-  public static final String HOP_CONFIG = "config.json";
+  public static final String HOP_CONFIG = "hop-config.json";
 
   /**
    * The prefix that all internal hop variables should have
@@ -485,9 +485,9 @@ public class Const {
   public static final String HOP_LOG_SIZE_LIMIT = "HOP_LOG_SIZE_LIMIT";
 
   /**
-   * The name of the variable that defines the timer used for detecting slave nodes.
+   * The name of the variable that defines the timer used for detecting server nodes.
    */
-  public static final String HOP_SLAVE_DETECTION_TIMER = "HOP_SLAVE_DETECTION_TIMER";
+  public static final String HOP_SERVER_DETECTION_TIMER = "HOP_SERVER_DETECTION_TIMER";
 
   /**
    * System wide flag to drive the evaluation of null in ValueMeta. If this setting is set to "Y", an empty string and
@@ -759,7 +759,17 @@ public class Const {
   public static final String XML_FILE_HOP_DATABASE_TYPES = "hop-database-types.xml";
 
   /**
-   * The XML file that contains the list of native Hop metadata plugins (DatabaseMeta, SlaveServer, ...)
+   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
+   */
+  public static final String XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS = "hop-search-analyser-plugins.xml";
+
+  /**
+   * The XML file that contains the list of native Hop database types (MySQL, Oracle, etc)
+   */
+  public static final String XML_FILE_HOP_VFS_PLUGINS = "hop-vfs-plugins.xml";
+
+  /**
+   * The XML file that contains the list of native Hop metadata plugins (DatabaseMeta, HopServer, ...)
    */
   public static final String XML_FILE_HOP_METADATA_PLUGINS = "hop-metadata-plugins.xml";
 
@@ -910,22 +920,22 @@ public class Const {
   /**
    * A variable to configure jetty option: acceptors for Carte
    */
-  public static final String HOP_CARTE_JETTY_ACCEPTORS = "HOP_CARTE_JETTY_ACCEPTORS";
+  public static final String HOP_SERVER_JETTY_ACCEPTORS = "HOP_SERVER_JETTY_ACCEPTORS";
 
   /**
    * A variable to configure jetty option: acceptQueueSize for Carte
    */
-  public static final String HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE = "HOP_CARTE_JETTY_ACCEPT_QUEUE_SIZE";
+  public static final String HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE = "HOP_SERVER_JETTY_ACCEPT_QUEUE_SIZE";
 
   /**
    * A variable to configure jetty option: lowResourcesMaxIdleTime for Carte
    */
-  public static final String HOP_CARTE_JETTY_RES_MAX_IDLE_TIME = "HOP_CARTE_JETTY_RES_MAX_IDLE_TIME";
+  public static final String HOP_SERVER_JETTY_RES_MAX_IDLE_TIME = "HOP_SERVER_JETTY_RES_MAX_IDLE_TIME";
 
   /**
    * A variable to configure refresh for carte workflow/pipeline status page
    */
-  public static final String HOP_CARTE_REFRESH_STATUS = "HOP_CARTE_REFRESH_STATUS";
+  public static final String HOP_SERVER_REFRESH_STATUS = "HOP_SERVER_REFRESH_STATUS";
 
   /**
    * A variable to configure s3vfs to use a temporary file on upload data to S3 Amazon."

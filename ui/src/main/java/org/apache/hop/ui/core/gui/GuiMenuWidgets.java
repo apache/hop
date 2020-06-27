@@ -28,6 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
+import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -51,6 +52,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
   private Map<String, KeyboardShortcut> shortcutMap;
 
   public GuiMenuWidgets() {
+    super( UuidUtil.getUUIDAsString() );
     this.menuItemMap = new HashMap<>();
     this.shortcutMap = new HashMap<>();
   }
@@ -115,7 +117,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
       menuItem.addListener( SWT.Selection, e -> {
         try {
 
-          Object singleton = loadSingleTon( guiMenuItem.getClassLoader(), guiMenuItem.getListenerClassName() );
+          Object singleton = findGuiPluginInstance( guiMenuItem.getClassLoader(), guiMenuItem.getListenerClassName() );
 
           Method menuMethod = singleton.getClass().getMethod( guiMenuItem.getListenerMethod() );
           if ( menuMethod == null ) {

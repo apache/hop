@@ -139,12 +139,8 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     DataInputStream in1 = null;
     DataInputStream in2 = null;
     try {
-      in1 =
-        new DataInputStream( new BufferedInputStream( HopVfs.getInputStream(
-          HopVfs.getFilename( file1 ), this ) ) );
-      in2 =
-        new DataInputStream( new BufferedInputStream( HopVfs.getInputStream(
-          HopVfs.getFilename( file2 ), this ) ) );
+      in1 = new DataInputStream( new BufferedInputStream( HopVfs.getInputStream( HopVfs.getFilename( file1 ) ) ) );
+      in2 = new DataInputStream( new BufferedInputStream( HopVfs.getInputStream( HopVfs.getFilename( file2 ) ) ) );
 
       char ch1, ch2;
       while ( in1.available() != 0 && in2.available() != 0 ) {
@@ -191,8 +187,8 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     try {
       if ( filename1 != null && filename2 != null ) {
 
-        file1 = HopVfs.getFileObject( realFilename1, this );
-        file2 = HopVfs.getFileObject( realFilename2, this );
+        file1 = HopVfs.getFileObject( realFilename1 );
+        file2 = HopVfs.getFileObject( realFilename2 );
 
         if ( file1.exists() && file2.exists() ) {
           if ( equalFileContents( file1, file2 ) ) {

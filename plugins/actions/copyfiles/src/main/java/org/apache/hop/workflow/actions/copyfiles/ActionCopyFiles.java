@@ -377,8 +377,8 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     String realWildcard = environmentSubstitute( wildcard );
 
     try {
-      sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername, this );
-      destinationfilefolder = HopVfs.getFileObject( realDestinationFilefoldername, this );
+      sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername );
+      destinationfilefolder = HopVfs.getFileObject( realDestinationFilefoldername );
 
       if ( sourcefilefolder.exists() ) {
 
@@ -453,7 +453,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
                 // Unable to retrieve file through existing connection; Get the file through a new VFS connection
                 if ( removeFile == null ) {
-                  removeFile = HopVfs.getFileObject( fileremoventry, this );
+                  removeFile = HopVfs.getFileObject( fileremoventry );
                 }
 
                 // Remove ONLY Files
@@ -493,7 +493,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
                 // Unable to retrieve file through existing connection; Get the file through a new VFS connection
                 if ( addFile == null ) {
-                  addFile = HopVfs.getFileObject( fileaddentry, this );
+                  addFile = HopVfs.getFileObject( fileaddentry );
                 }
 
                 // Add ONLY Files
@@ -715,7 +715,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
           // Built destination filename
           if ( destinationFolderObject == null ) {
             // Resolve the destination folder
-            destinationFolderObject = HopVfs.getFileObject( destinationFolder, ActionCopyFiles.this );
+            destinationFolderObject = HopVfs.getFileObject( destinationFolder );
           }
 
           String fullName = info.getFile().toString();
@@ -933,7 +933,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
             // check if the file exists
             fil_name = destfolder + Const.FILE_SEPARATOR + filename;
 
-            if ( HopVfs.getFileObject( fil_name, ActionCopyFiles.this ).exists() ) {
+            if ( HopVfs.getFileObject( fil_name).exists() ) {
               if ( isDetailed() ) {
                 logDetailed( "      " + BaseMessages.getString( PKG, "JobCopyFiles.Log.FileExists", HopVfs.getFriendlyURI( fil_name ) ) );
               }
@@ -967,7 +967,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
           if ( resultat && add_result_filesname ) {
             // add this folder/file to result files name
-            list_add_result.add( HopVfs.getFileObject( fil_name, ActionCopyFiles.this ).toString() );
+            list_add_result.add( HopVfs.getFileObject( fil_name ).toString() );
           }
         }
       } catch ( Exception e ) {
@@ -1089,7 +1089,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     String path = null;
     try {
       String noVariablesURL = incomingURL.replaceAll( "[${}]", "/" );
-      FileName fileName = HopVfs.getInstance().getFileSystemManager().resolveURI( noVariablesURL );
+      FileName fileName = HopVfs.getFileSystemManager().resolveURI( noVariablesURL );
       String root = fileName.getRootURI();
       path = incomingURL.substring( root.length() - 1 );
     } catch ( FileSystemException e ) {

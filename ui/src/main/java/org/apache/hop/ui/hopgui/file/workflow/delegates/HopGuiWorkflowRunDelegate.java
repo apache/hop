@@ -23,7 +23,7 @@
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.hop.cluster.SlaveServer;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -158,18 +158,18 @@ public class HopGuiWorkflowRunDelegate {
     m.open();
   }
 
-  private void monitorRemoteJob( final WorkflowMeta workflowMeta, final String serverObjectId, final SlaveServer remoteSlaveServer ) {
+  private void monitorRemoteJob( final WorkflowMeta workflowMeta, final String serverObjectId, final HopServer remoteHopServer ) {
     // There is a workflow running in the background. When it finishes log the result on the console.
     // Launch in a separate thread to prevent GUI blocking...
     //
     Thread thread = new Thread( new Runnable() {
       public void run() {
-        remoteSlaveServer.monitorRemoteJob( hopGui.getLog(), serverObjectId, workflowMeta.toString() );
+        remoteHopServer.monitorRemoteJob( hopGui.getLog(), serverObjectId, workflowMeta.toString() );
       }
     } );
 
     thread.setName( "Monitor remote workflow '" + workflowMeta.getName() + "', carte object id=" + serverObjectId
-      + ", slave server: " + remoteSlaveServer.getName() );
+      + ", hop server: " + remoteHopServer.getName() );
     thread.start();
 
   }

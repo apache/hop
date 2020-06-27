@@ -716,8 +716,8 @@ public class ParGzipCsvInput extends BaseTransform implements ITransform {
       // Handle parallel reading capabilities...
       //
       if ( meta.isRunningInParallel() ) {
-        data.transformNumber = getUniqueTransformNrAcrossSlaves();
-        data.totalNumberOfTransforms = getUniqueTransformCountAcrossSlaves();
+        data.transformNumber = getUniqueTransformNrAcrossServers();
+        data.totalNumberOfTransforms = getUniqueTransformCountAcrossServers();
 
       }
 
