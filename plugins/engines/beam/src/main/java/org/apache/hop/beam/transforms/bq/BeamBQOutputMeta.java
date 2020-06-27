@@ -20,6 +20,7 @@ import org.w3c.dom.Node;
 
 @Transform(
         id = "BeamBQOutput",
+        image = "beam-bq-output.svg",
         name = "Beam BigQuery Output",
         description = "Writes to a BigQuery table in Beam",
         categoryDescription = "Big Data",

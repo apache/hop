@@ -1,20 +1,6 @@
 
 package org.apache.hop.beam.transforms.window;
 
-import org.apache.hop.core.annotations.PluginDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 import org.apache.hop.beam.core.BeamDefaults;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
@@ -24,12 +10,14 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.*;
 
-@PluginDialog(
-        id = "BeamWindow",
-        image = "beam-window.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class BeamWindowDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamWindowDialog.class; // for i18n purposes, needed by Translator2!!
   private final BeamWindowMeta input;

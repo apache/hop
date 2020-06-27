@@ -26,7 +26,6 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -54,9 +53,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.apache.hop.workflow.action.validator.AbstractFileValidator.putVariableSpace;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.fileExistsValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.*;
 import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 /**

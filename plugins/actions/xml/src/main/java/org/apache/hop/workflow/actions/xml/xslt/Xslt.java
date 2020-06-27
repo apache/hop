@@ -23,13 +23,8 @@
 package org.apache.hop.workflow.actions.xml.xslt;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Action;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -62,9 +57,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.apache.hop.workflow.action.validator.AbstractFileValidator.putVariableSpace;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.fileExistsValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.*;
 import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 /**

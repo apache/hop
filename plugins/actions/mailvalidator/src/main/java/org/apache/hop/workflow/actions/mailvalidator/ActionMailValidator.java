@@ -41,13 +41,6 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * Action mail validator.
- *
- * @author Samatar
- * @since 23-06-2008
- */
-
 @Action(
   id = "MAIL_VALIDATOR",
   i18nPackageName = "org.apache.hop.workflow.actions.mailvalidator",
