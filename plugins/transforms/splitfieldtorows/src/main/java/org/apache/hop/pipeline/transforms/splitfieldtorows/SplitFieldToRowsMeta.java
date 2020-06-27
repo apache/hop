@@ -22,9 +22,12 @@
 
 package org.apache.hop.pipeline.transforms.splitfieldtorows;
 
+import java.util.List;
+
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -39,16 +42,21 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
-public class SplitFieldToRowsMeta extends BaseTransformMeta implements ITransform {
-  private static Class<?> PKG = SplitFieldToRowsMeta.class; // for i18n purposes, needed by Translator!!
+@Transform(
+        id = "SplitFieldToRows3",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.splitfieldtorows",
+        name = "SplitFieldToRows.Name",
+        image = "splitfieldtorows.svg",
+        description = "SplitFieldToRows.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/splitfieldtorows.html"
+)
+public class SplitFieldToRowsMeta extends BaseTransformMeta implements  ITransformMeta<SplitFieldToRows, SplitFieldToRowsData> {
+  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Field to split
@@ -252,13 +260,13 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta implements ITransfor
       remarks.add( cr );
     }
   }
-
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
-                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new SplitFieldToRows( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  
+  @Override
+  public SplitFieldToRows createTransform(TransformMeta transformMeta, SplitFieldToRowsData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new SplitFieldToRows(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
-  public ITransformData getTransformData() {
+  public SplitFieldToRowsData getTransformData() {
     return new SplitFieldToRowsData();
   }
 
