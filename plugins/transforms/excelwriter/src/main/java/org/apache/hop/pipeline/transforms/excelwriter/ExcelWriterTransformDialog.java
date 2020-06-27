@@ -24,7 +24,6 @@ package org.apache.hop.pipeline.transforms.excelwriter;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -59,11 +58,6 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-@PluginDialog(
-        id = "TypeExitExcelWriterTransform",
-        image = "excelwriter.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class ExcelWriterTransformDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n
 

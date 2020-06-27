@@ -53,6 +53,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "GetTableNames.Injection.", groups = { "FIELDS", "SETTINGS", "OUTPUT" } )
 @Transform(
         id = "GetTableNames",
+        image = "gettablenames.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.gettablenames",
         name = "BaseTransform.TypeLongDesc.GetTableNames",
         description = "BaseTransform.TypeTooltipDesc.GetTableNames",

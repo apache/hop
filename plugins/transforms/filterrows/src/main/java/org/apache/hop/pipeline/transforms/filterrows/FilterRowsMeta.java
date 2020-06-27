@@ -62,6 +62,7 @@ import java.util.Optional;
 @InjectionSupported( localizationPrefix = "FilterRowsMeta.Injection." )
 @Transform(
         id = "FilterRows",
+        image = "filterrows.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filterrows",
         name = "BaseTransform.TypeLongDesc.FilterRows",
         description = "BaseTransform.TypeTooltipDesc.FilterRows",

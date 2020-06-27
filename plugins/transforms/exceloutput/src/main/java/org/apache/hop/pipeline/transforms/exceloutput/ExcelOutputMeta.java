@@ -53,14 +53,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Metadata of the Excel Output transform.
- *
- * @author Matt
- * @since on 6-sep-2006
- */
 @Transform(
         id = "ExcelOutput",
+        image = "exceloutput.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.exceloutput",
         name = "BaseTransform.TypeLongDesc.ExcelOutput",
         description = "BaseTransform.TypeTooltipDesc.ExcelOutput",

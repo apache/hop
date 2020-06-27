@@ -56,6 +56,7 @@ import java.util.List;
  */
 @Transform(
         id = "CheckSum",
+        image = "checksum.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.checksum",
         name = "CheckSum.Name",
         description = "CheckSum.Description",

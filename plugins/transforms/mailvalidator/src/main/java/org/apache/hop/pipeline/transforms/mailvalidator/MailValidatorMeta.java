@@ -38,20 +38,17 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
-import javax.xml.crypto.Data;
 import java.util.List;
-
-/*
- * Created on 03-Juin-2008
- *
- */
 
 @Transform(
         id = "MailValidator",
+        image = "mailvalidator.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.mailvalidator",
         name = "BaseTransform.TypeLongDesc.MailValidator",
         description = "BaseTransform.TypeTooltipDesc.MailValidator",

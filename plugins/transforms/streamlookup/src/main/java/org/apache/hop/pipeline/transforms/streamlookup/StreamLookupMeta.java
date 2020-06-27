@@ -53,6 +53,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "StreamLookupMeta.Injection." )
 @Transform(
         id = "StreamLookup",
+        image = "streamlookup.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.streamlookup",
         name = "BaseTransform.TypeLongDesc.StreamLookup",
         description = "BaseTransform.TypeTooltipDesc.StreamLookup",

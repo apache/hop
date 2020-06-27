@@ -45,13 +45,9 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 03-Juin-2008
- *
- */
-
 @Transform(
         id = "ColumnExists",
+        image = "columnexists.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.columnexists",
         name = "ColumnExists.Name",
         description = "ColumnExists.Description",

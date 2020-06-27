@@ -54,11 +54,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-@PluginDialog(
-        id = "RandomValue",
-        image = "randomvalue.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class RandomValueDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 

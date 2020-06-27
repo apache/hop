@@ -53,6 +53,7 @@ import java.util.List;
 
 @Transform(
         id = "Calculator",
+        image = "calculator.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transform.calculator",
         name = "BaseTransform.TypeLongDesc.Calculator",
         description = "BaseTransform.TypeTooltipDesc.Calculator",

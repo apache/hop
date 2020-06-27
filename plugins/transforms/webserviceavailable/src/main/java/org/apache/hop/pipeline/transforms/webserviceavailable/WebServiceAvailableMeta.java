@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.webserviceavailable;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -43,11 +44,15 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 03-01-2010
- *
- */
-
+@Transform(
+        id = "WebServiceAvailable",
+        image = "webserviceavailable.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.webserviceavailable",
+        name = "BaseTransform.TypeLongDesc.WebServiceAvailable",
+        description = "BaseTransform.TypeTooltipDesc.WebServiceAvailable",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/webserviceavailable.html"
+)
 public class WebServiceAvailableMeta extends BaseTransformMeta implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
   private static Class<?> PKG = WebServiceAvailableMeta.class; // for i18n purposes, needed by Translator!!
 

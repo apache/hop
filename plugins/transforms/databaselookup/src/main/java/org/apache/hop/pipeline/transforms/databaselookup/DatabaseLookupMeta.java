@@ -55,6 +55,7 @@ import java.util.List;
 
 @Transform(
         id = "DBLookup",
+        image = "dblookup.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.databaselookup",
         name = "BaseTransform.TypeLongDesc.DatabaseLookup",
         description = "BaseTransform.TypeTooltipDesc.DatabaseLookup",

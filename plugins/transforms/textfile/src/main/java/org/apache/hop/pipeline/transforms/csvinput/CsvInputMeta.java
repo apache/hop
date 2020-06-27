@@ -62,14 +62,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * @author matt
- * @version 3.0
- * @since 2007-07-05
- */
-
 @Transform(
         id = "CSVInput",
+        image = "textfileinput.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.csvinput",
         name = "BaseTransform.TypeLongDesc.CsvInput",
         description = "BaseTransform.TypeTooltipDesc.CsvInput",

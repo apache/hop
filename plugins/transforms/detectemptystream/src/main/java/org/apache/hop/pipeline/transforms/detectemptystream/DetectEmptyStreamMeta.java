@@ -33,17 +33,16 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * @author Samatar
- * @since 30-08-2008
- */
 @Transform(
         id = "DetectEmptyStream",
+        image = "detectemptystream.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.detectemptystream",
         name = "BaseTransform.TypeLongDesc.DetectEmptyStream",
         description = "BaseTransform.TypeTooltipDesc.DetectEmptyStream",

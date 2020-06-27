@@ -50,6 +50,7 @@ import java.util.List;
 
 @Transform(
         id = "FileExists",
+        image = "fileexists.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.fileexists",
         name = "BaseTransform.TypeLongDesc.FileExists",
         description = "BaseTransform.TypeTooltipDesc.FileExists",

@@ -54,6 +54,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "JoinRows.Injection." )
 @Transform(
         id = "JoinRows",
+        image = "joinrows.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.joinrows",
         name = "BaseTransform.TypeLongDesc.JoinRows",
         description = "BaseTransform.TypeTooltipDesc.JoinRows",

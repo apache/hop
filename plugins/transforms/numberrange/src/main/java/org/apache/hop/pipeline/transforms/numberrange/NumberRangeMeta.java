@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.numberrange;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -36,20 +36,18 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Configuration for the NumberRangePlugin
- *
- */
-
 @Transform(
         id = "NumberRange",
+        image = "numberrange.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.NumberRange",
         name = "BaseTransform.TypeLongDesc.NumberRange",
         description = "BaseTransform.TypeTooltipDesc.NumberRange",

@@ -48,6 +48,7 @@ import java.util.List;
  */
 @Transform(
         id = "GetSlaveSequence",
+        image = "getslavesequence.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getslavesequence",
         name = "GetSlaveSequence.Name",
         description = "GetSlaveSequence.Description",

@@ -49,7 +49,9 @@ import javax.xml.crypto.Data;
 import java.util.List;
 
 
-@Transform(  id = "Rest",
+@Transform(
+        id = "Rest",
+        image = "rest.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.rest",
         name = "BaseTransform.TypeLongDesc.Rest",
         description = "BaseTransform.TypeTooltipDesc.Rest",

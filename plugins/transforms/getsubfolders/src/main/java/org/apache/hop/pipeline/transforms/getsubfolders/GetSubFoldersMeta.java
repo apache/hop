@@ -59,6 +59,7 @@ import java.util.Map;
  */
 @Transform(
         id = "GetSubFolders",
+        image = "getsubfolders.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getsubfolders",
         name = "BaseTransform.TypeLongDesc.GetSubFolders",
         description = "BaseTransform.TypeTooltipDesc.GetSubFolders",

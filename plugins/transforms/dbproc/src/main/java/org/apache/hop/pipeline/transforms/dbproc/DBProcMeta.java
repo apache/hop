@@ -55,6 +55,7 @@ import java.util.List;
 
 @Transform(
         id = "DBProc",
+        image = "dbproc.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.dbproc",
         name = "BaseTransform.TypeLongDesc.CallDBProcedure",
         description = "BaseTransform.TypeTooltipDesc.CallDBProcedure",

@@ -45,13 +45,13 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 
 @Transform(
-		  id = "TeraFast",
-		  i18nPackageName = "org.apache.hop.pipeline.transforms.terafast",
-		  description = "TeraFast.Description",
-		  name = "TeraFast.Name",
-		  categoryDescription = "BaseTransform.Category.Bulk",
-		  image = "TeraFast.svg",
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/terafast.html"
+        id = "TeraFast",
+        image = "TeraFast.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.terafast",
+        description = "TeraFast.Description",
+		name = "TeraFast.Name",
+		categoryDescription = "BaseTransform.Category.Bulk",
+		documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/terafast.html"
 )
 public class TeraFastMeta extends AbstractTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 

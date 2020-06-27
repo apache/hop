@@ -51,15 +51,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Output rows to Properties file and create a file.
- *
- * @author Samatar
- * @since 13-Apr-2008
- */
-
 @Transform(
         id = "PropertyOutput",
+        image = "propertyoutput.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.propertyoutput",
         name = "BaseTransform.TypeTooltipDesc.PropertyOutput",
         description = "BaseTransform.TypeLongDesc.PropertyOutput",

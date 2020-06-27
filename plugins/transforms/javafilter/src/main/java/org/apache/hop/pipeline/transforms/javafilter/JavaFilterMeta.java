@@ -55,6 +55,7 @@ import java.util.Objects;
  */
 @Transform(
         id = "JavaFilter",
+        image = "javafilter.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.javafilter",
         name = "BaseTransform.TypeLongDesc.JavaFilter",
         description = "BaseTransform.TypeTooltipDesc.JavaFilter",

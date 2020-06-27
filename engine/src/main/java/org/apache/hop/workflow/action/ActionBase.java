@@ -741,8 +741,15 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    */
   public String getDialogClassName() {
     String className = getClass().getCanonicalName();
-    //className = className.replaceFirst( "\\.hop\\.", ".hop.ui." );
     className += "Dialog";
+
+    try {
+      Class clazz = Class.forName(className.replaceFirst( "\\.hop\\.", ".hop.ui." ));
+      className = clazz.getName();
+    }catch (ClassNotFoundException e){
+      //do nothing and return plugin classname
+    }
+
     return className;
   }
 

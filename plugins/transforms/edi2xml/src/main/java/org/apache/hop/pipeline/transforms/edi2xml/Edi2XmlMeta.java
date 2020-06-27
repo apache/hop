@@ -43,6 +43,7 @@ import java.util.List;
 
 @Transform(
         id = "TypeExitEdi2XmlTransform",
+        image = "EDI2XML.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.edi2xml",
         name = "BaseTransform.TypeLongDesc.Edi2Xml",
         description = "BaseTransform.TypeTooltipDesc.Edi2Xml",

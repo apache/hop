@@ -64,11 +64,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-@PluginDialog(
-        id = "AnalyticQuery",
-        image = "analyticquery.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class AnalyticQueryDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AnalyticQueryDialog.class; // for i18n purposes, needed by Translator!!
 

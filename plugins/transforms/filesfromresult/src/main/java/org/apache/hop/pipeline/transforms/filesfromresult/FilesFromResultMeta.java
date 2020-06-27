@@ -49,6 +49,7 @@ import java.util.List;
 
 @Transform(
         id = "FilesFromResult",
+        image = "filesfromresult.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filesfromresult",
         name = "BaseTransform.TypeLongDesc.FilesFromResult",
         description = "BaseTransform.TypeTooltipDesc.FilesFromResult",

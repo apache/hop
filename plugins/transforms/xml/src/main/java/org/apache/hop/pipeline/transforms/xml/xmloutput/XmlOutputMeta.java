@@ -59,14 +59,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/**
- * This class knows how to handle the MetaData for the XML output step
- *
- * @since 14-jan-2006
- */
-@Transform( id = "XMLOutput", image = "XOU.svg", i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmloutput",
-  name = "XMLOutput.name", description = "XMLOutput.description", categoryDescription = "XMLOutput.category",
-  documentationUrl = "" )
+@Transform(
+        id = "XMLOutput",
+        image = "XOU.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmloutput",
+        name = "XMLOutput.name",
+        description = "XMLOutput.description",
+        categoryDescription = "XMLOutput.category",
+        documentationUrl = "" )
 @InjectionSupported( localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS" )
 public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<XmlOutput, XmlOutputData> {
   private static Class<?> PKG = XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!

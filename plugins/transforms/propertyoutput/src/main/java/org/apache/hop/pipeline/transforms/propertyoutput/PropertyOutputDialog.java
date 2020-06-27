@@ -62,18 +62,6 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-/**
- * Output rows to Properties file and create a file.
- *
- * @author Samatar
- * @since 13-Apr-2008
- */
-
-@PluginDialog(
-        id = "PropertyOutput",
-        image = "propertyoutput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class PropertyOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = PropertyOutputMeta.class; // for i18n purposes, needed by Translator!!
 

@@ -24,13 +24,12 @@ package org.apache.hop.pipeline.transforms.terafast;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.util.KeyValue;
 import org.apache.hop.core.util.IPluginProperty;
+import org.apache.hop.core.util.KeyValue;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -48,17 +47,11 @@ import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.program.Program;
 import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
 
-@PluginDialog( 
-		  id = "TeraFast", 
-		  image = "TeraFast.svg", 
-		  pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static final Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator!!

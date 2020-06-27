@@ -57,6 +57,7 @@ import java.util.Map;
 
 @Transform(
         id = "LDIFInput",
+        image = "ldifinput.svg",
         name = "BaseTransform.TypeLongDesc.LDIFInput",
         description = "BaseTransform.TypeTooltipDesc.LDIFInput",
         i18nPackageName = "org.apache.hop.pipeline.transforms.ldifinput",

@@ -24,7 +24,6 @@ package org.apache.hop.pipeline.transforms.execprocess;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
@@ -49,11 +48,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
-@PluginDialog(
-        id = "ExecProcess",
-        image = "execprocess.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class ExecProcessDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 

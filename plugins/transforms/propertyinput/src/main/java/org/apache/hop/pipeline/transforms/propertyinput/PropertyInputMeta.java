@@ -57,6 +57,7 @@ import java.util.Map;
 
 @Transform(
         id = "PropertyInput",
+        image = "propertyinput.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.propertyinput",
         name = "BaseTransform.TypeTooltipDesc.PropertyInput",
         description = "BaseTransform.TypeLongDesc.PropertyInput",

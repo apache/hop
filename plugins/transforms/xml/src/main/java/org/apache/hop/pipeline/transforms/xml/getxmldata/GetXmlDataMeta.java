@@ -62,6 +62,7 @@ import java.util.Map;
  */
 @Transform(
         id = "getXMLData",
+        image = "GXD.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.xml.getxmldata",
         name = "GetXMLData.name",
         description = "GetXMLData.description",

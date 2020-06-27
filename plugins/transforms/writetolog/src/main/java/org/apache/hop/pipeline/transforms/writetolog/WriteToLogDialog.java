@@ -24,7 +24,6 @@ package org.apache.hop.pipeline.transforms.writetolog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
@@ -51,11 +50,6 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-@PluginDialog(
-        id = "WriteToLog",
-        image = "writetolog.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class WriteToLogDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = WriteToLogDialog.class; // for i18n purposes, needed by Translator!!
 

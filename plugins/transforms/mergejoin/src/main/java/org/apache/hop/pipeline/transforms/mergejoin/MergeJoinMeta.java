@@ -55,6 +55,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "MergeJoin.Injection." )
 @Transform(
         id = "MergeJoin",
+        image = "mergejoin.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.mergejoin",
         name = "BaseTransform.TypeLongDesc.MergeJoin",
         description = "BaseTransform.TypeTooltipDesc.MergeJoin",

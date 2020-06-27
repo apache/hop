@@ -51,6 +51,7 @@ import java.util.Map;
  */
 @Transform(
         id = "CubeOutput",
+        image = "cubeoutput.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.cubeoutput",
         name = "CubeOutput.Name",
         description = "CubeOutput.Description",

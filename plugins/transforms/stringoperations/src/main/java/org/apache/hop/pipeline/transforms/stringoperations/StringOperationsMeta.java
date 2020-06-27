@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.stringoperations;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -44,12 +45,15 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * This class takes care of the meta data for the StringOperations transform.
- *
- * @author Samatar Hassan
- * @since 02 April 2009
- */
+@Transform(
+        id = "StringOperations",
+        image = "stringoperations.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.StringOperations",
+        name = "BaseTransform.TypeLongDesc.StringOperations",
+        description = "BaseTransform.TypeTooltipDesc.StringOperations",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/stringoperations.html"
+)
 public class StringOperationsMeta extends BaseTransformMeta implements ITransformMeta<StringOperations,StringOperationsData> {
 
   private static Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!

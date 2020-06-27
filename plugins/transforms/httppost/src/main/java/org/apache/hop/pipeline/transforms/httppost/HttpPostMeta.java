@@ -54,6 +54,7 @@ import java.util.List;
 
 @Transform(
         id = "HttpPost",
+        image = "httppost.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.httppost",
         name = "BaseTransform.TypeLongDesc.HTTPPOST",
         description = "BaseTransform.TypeTooltipDesc.HTTPPOST",

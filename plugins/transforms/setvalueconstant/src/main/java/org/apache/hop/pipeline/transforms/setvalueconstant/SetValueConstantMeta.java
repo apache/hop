@@ -48,6 +48,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "SetValueConstant.Injection.", groups = { "FIELDS", "OPTIONS" } )
 @Transform(
         id = "SetValueConstant",
+        image = "setvalueconstant.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.setvalueconstant",
         name = "BaseTransform.TypeLongDesc.SetValueConstant",
         description = "BaseTransform.TypeTooltipDesc.SetValueConstant",

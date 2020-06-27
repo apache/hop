@@ -55,13 +55,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Meta Data class for the Select Values Transform.
- * <p>
- * Created on 02-jun-2003
- */
 @Transform(
         id = "SelectValues",
+        image = "selectvalues.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.selectvalues",
         name = "BaseTransform.TypeLongDesc.SelectValues",
         description = "BaseTransform.TypeTooltipDesc.SelectValues",

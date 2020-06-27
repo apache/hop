@@ -71,6 +71,7 @@ import java.util.Properties;
  */
 @Transform(
         id = "ScriptValueMod",
+        image = "javascript.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.javascript",
         name = "ScriptValuesMod.Name",
         description = "ScriptValuesMod.Description",

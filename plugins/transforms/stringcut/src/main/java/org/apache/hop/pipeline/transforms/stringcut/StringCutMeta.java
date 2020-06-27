@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.stringcut;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -44,10 +45,15 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * @author Samatar Hassan
- * @since 30 September 2008
- */
+@Transform(
+        id = "StringCut",
+        image = "stringcut.svg",
+        i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.stringcut",
+        name = "BaseTransform.TypeLongDesc.StringCut",
+        description = "BaseTransform.TypeTooltipDesc.StringCut",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/stringcut.html"
+)
 public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<StringCut, StringCutData> {
 
   private static Class<?> PKG = StringCutMeta.class; // for i18n purposes, needed by Translator!!
