@@ -72,7 +72,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.*;
 
-public class ScriptValuesModDialog extends BaseTransformDialog implements ITransformDialog {
+public class ScriptValuesMetaModDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = ScriptValuesMetaMod.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] YES_NO_COMBO = new String[] {
@@ -174,7 +174,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements ITrans
 
   private RowGeneratorMeta genMeta;
 
-  public ScriptValuesModDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public ScriptValuesMetaModDialog(Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
 
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ScriptValuesMetaMod) in;

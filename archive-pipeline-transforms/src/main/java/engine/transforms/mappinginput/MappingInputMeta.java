@@ -49,11 +49,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/*
- * Created on 02-jun-2003
- *
- */
-
+@Transform(
+        id = "MappingInput",
+        image = "ui/images/MPI.svg",
+        documentationUrl = "http://www.project-hop.org/manual/latest/plugins/transforms/mappinginput.html"
+)
 public class MappingInputMeta extends BaseTransformMeta implements ITransformMeta<MappingInput, MappingInputData> {
 
   private static Class<?> PKG = MappingInputMeta.class; // for i18n purposes, needed by Translator!!
