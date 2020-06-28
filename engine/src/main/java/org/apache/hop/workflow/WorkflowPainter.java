@@ -210,7 +210,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
     gc.setBackground( EColor.BACKGROUND );
     gc.fillRoundRectangle( x - 1, y - 1, iconSize + 1, iconSize + 1, 7, 7 );
-    gc.drawJobEntryIcon( x, y, actionCopy, magnification );
+    gc.drawActionIcon( x, y, actionCopy, magnification );
 
     areaOwners.add( new AreaOwner( AreaType.ACTION_ICON, x, y, iconSize, iconSize, offset, subject, actionCopy ) );
 

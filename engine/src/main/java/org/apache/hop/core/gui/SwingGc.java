@@ -127,8 +127,8 @@ public class SwingGc implements IGc {
   //TODO should be changed to PropsUI usage
   private int smallIconSize = 16;
 
-  private Map<String, SwingUniversalImage> transformImages;
-  private Map<String, SwingUniversalImage> entryImages;
+  private Map<String, SwingUniversalImageSvg> transformImages;
+  private Map<String, SwingUniversalImageSvg> actionImages;
 
   private BufferedImage image;
   private ImageObserver observer;
@@ -163,7 +163,7 @@ public class SwingGc implements IGc {
     }
     this.observer = observer;
     this.transformImages = SwingGUIResource.getInstance().getTransformImages();
-    this.entryImages = SwingGUIResource.getInstance().getEntryImages();
+    this.actionImages = SwingGUIResource.getInstance().getActionImages();
     this.iconSize = iconSize;
     this.area = area;
     this.xOffset = xOffset;
@@ -695,7 +695,7 @@ public class SwingGc implements IGc {
     }
   }
 
-  public void drawJobEntryIcon( int x, int y, ActionCopy actionCopy, float magnification ) {
+  public void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) {
     if ( actionCopy == null ) {
       return; // Don't draw anything
     }
@@ -712,7 +712,7 @@ public class SwingGc implements IGc {
     } else {
       String configId = actionCopy.getAction().getPluginId();
       if ( configId != null ) {
-        image = entryImages.get( configId );
+        image = actionImages.get( configId );
       }
     }
     if ( image == null ) {
@@ -724,8 +724,8 @@ public class SwingGc implements IGc {
   }
 
   @Override
-  public void drawJobEntryIcon( int x, int y, ActionCopy actionCopy ) {
-    drawJobEntryIcon( x, y, actionCopy, 1.0f );
+  public void drawActionIcon( int x, int y, ActionCopy actionCopy ) {
+    drawActionIcon( x, y, actionCopy, 1.0f );
   }
 
   @Override

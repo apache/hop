@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
@@ -176,7 +175,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     };
     columnInfo[ 0 ].setUsingVariables( true );
 
-    wConfigFiles = new TableView( new Variables(), shell, SWT.SINGLE, columnInfo, environment.getConfigurationFiles().size(), null, props );
+    wConfigFiles = new TableView( variables, shell, SWT.SINGLE, columnInfo, environment.getConfigurationFiles().size(), null, props );
     props.setLook( wConfigFiles );
     FormData fdConfigFiles = new FormData();
     fdConfigFiles.left = new FormAttachment( 0, 0 );

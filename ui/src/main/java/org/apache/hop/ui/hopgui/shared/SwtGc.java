@@ -434,7 +434,7 @@ public class SwtGc implements IGc {
     }
   }
 
-  public void drawJobEntryIcon( int x, int y, ActionCopy actionCopy, float magnification ) {
+  public void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) {
     if ( actionCopy == null ) {
       return; // Don't draw anything
     }
@@ -471,8 +471,8 @@ public class SwtGc implements IGc {
   }
 
   @Override
-  public void drawJobEntryIcon( int x, int y, ActionCopy actionCopy ) {
-    drawJobEntryIcon( x, y, actionCopy, currentMagnification );
+  public void drawActionIcon( int x, int y, ActionCopy actionCopy ) {
+    drawActionIcon( x, y, actionCopy, currentMagnification );
   }
 
   @Override

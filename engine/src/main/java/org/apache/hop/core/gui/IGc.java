@@ -27,9 +27,9 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public interface IGc extends IPrimitiveGc {
 
-  void drawJobEntryIcon( int x, int y, ActionCopy actionCopy, float magnification );
+  void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification );
 
-  void drawJobEntryIcon( int x, int y, ActionCopy actionCopy );
+  void drawActionIcon( int x, int y, ActionCopy actionCopy );
 
   void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification );
 

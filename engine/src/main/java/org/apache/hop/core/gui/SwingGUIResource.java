@@ -23,8 +23,6 @@
 package org.apache.hop.core.gui;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.hop.core.SwingUniversalImage;
-import org.apache.hop.core.SwingUniversalImageBitmap;
 import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -37,8 +35,6 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.workflow.WorkflowMeta;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -46,16 +42,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SwingGUIResource {
-  private static ILogChannel log = new LogChannel( "SwingGUIResource" );
+  private static ILogChannel log = LogChannel.GENERAL;
 
   private static SwingGUIResource instance;
 
-  private Map<String, SwingUniversalImage> transformImages;
-  private Map<String, SwingUniversalImage> entryImages;
+  private Map<String, SwingUniversalImageSvg> transformImages;
+  private Map<String, SwingUniversalImageSvg> actionImages;
 
   private SwingGUIResource() {
     this.transformImages = loadTransformImages();
-    this.entryImages = loadEntryImages();
+    this.actionImages = loadActionImages();
   }
 
   public static SwingGUIResource getInstance() {
@@ -65,26 +61,25 @@ public class SwingGUIResource {
     return instance;
   }
 
-  private Map<String, SwingUniversalImage> loadTransformImages() {
-    Map<String, SwingUniversalImage> map = new HashMap<>();
+  private Map<String, SwingUniversalImageSvg> loadTransformImages() {
+    Map<String, SwingUniversalImageSvg> map = new HashMap<>();
 
     for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( TransformPluginType.class ) ) {
       try {
-        SwingUniversalImage image = getUniversalImageIcon( plugin );
+        SwingUniversalImageSvg image = getUniversalImageIcon( plugin );
         for ( String id : plugin.getIds() ) {
           map.put( id, image );
         }
       } catch ( Exception e ) {
-        log.logError( "Unable to load transform icon image for plugin: "
-          + plugin.getName() + " (id=" + plugin.getIds()[ 0 ] + ")", e );
+        log.logError( "Unable to load transform icon image for plugin: " + plugin.getName() + " (id=" + plugin.getIds()[ 0 ] + ")", e );
       }
     }
 
     return map;
   }
 
-  private Map<String, SwingUniversalImage> loadEntryImages() {
-    Map<String, SwingUniversalImage> map = new HashMap<>();
+  private Map<String, SwingUniversalImageSvg> loadActionImages() {
+    Map<String, SwingUniversalImageSvg> map = new HashMap<>();
 
     for ( IPlugin plugin : PluginRegistry.getInstance().getPlugins( ActionPluginType.class ) ) {
       try {
@@ -92,10 +87,9 @@ public class SwingGUIResource {
           continue;
         }
 
-        SwingUniversalImage image = getUniversalImageIcon( plugin );
+        SwingUniversalImageSvg image = getUniversalImageIcon( plugin );
         if ( image == null ) {
-          throw new HopException( "Unable to find image file: "
-            + plugin.getImageFile() + " for plugin: " + plugin );
+          throw new HopException( "Unable to find image file: " + plugin.getImageFile() + " for plugin: " + plugin );
         }
 
         map.put( plugin.getIds()[ 0 ], image );
@@ -108,14 +102,14 @@ public class SwingGUIResource {
     return map;
   }
 
-  private SwingUniversalImage getUniversalImageIcon( IPlugin plugin ) throws HopException {
+  private SwingUniversalImageSvg getUniversalImageIcon( IPlugin plugin ) throws HopException {
     try {
       PluginRegistry registry = PluginRegistry.getInstance();
       String filename = plugin.getImageFile();
 
       ClassLoader classLoader = registry.getClassLoader( plugin );
 
-      SwingUniversalImage image = null;
+      SwingUniversalImageSvg image = null;
 
       if ( SvgSupport.isSvgEnabled() && SvgSupport.isSvgName( filename ) ) {
         // Try to use the plugin class loader to get access to the icon
@@ -152,57 +146,20 @@ public class SwingGUIResource {
       }
 
       if ( image == null ) {
-        filename = SvgSupport.toPngName( filename );
-        // Try to use the plugin class loader to get access to the icon
-        //
-        InputStream inputStream = classLoader.getResourceAsStream( filename );
-        if ( inputStream == null ) {
-          inputStream = classLoader.getResourceAsStream( "/" + filename );
-        }
-        // Try to use the PDI class loader to get access to the icon
-        //
-        if ( inputStream == null ) {
-          inputStream = registry.getClass().getResourceAsStream( filename );
-        }
-        if ( inputStream == null ) {
-          inputStream = registry.getClass().getResourceAsStream( "/" + filename );
-        }
-        // As a last resort, try to use the standard file-system
-        //
-        if ( inputStream == null ) {
-          try {
-            inputStream = new FileInputStream( filename );
-          } catch ( FileNotFoundException e ) {
-            // Ignore, throws error below
-          }
-        }
-        if ( inputStream != null ) {
-          try {
-            BufferedImage bitmap = ImageIO.read( inputStream );
-
-            image = new SwingUniversalImageBitmap( bitmap );
-          } finally {
-            IOUtils.closeQuietly( inputStream );
-          }
-        }
-      }
-
-      if ( image == null ) {
         throw new HopException( "Unable to find file: " + plugin.getImageFile() + " for plugin: " + plugin );
       }
 
       return image;
     } catch ( Throwable e ) {
-      throw new HopException( "Unable to load image from file : '"
-        + plugin.getImageFile() + "' for plugin: " + plugin, e );
+      throw new HopException( "Unable to load image from file : '" + plugin.getImageFile() + "' for plugin: " + plugin, e );
     }
   }
 
-  public Map<String, SwingUniversalImage> getEntryImages() {
-    return entryImages;
+  public Map<String, SwingUniversalImageSvg> getActionImages() {
+    return actionImages;
   }
 
-  public Map<String, SwingUniversalImage> getTransformImages() {
+  public Map<String, SwingUniversalImageSvg> getTransformImages() {
     return transformImages;
   }
 }
