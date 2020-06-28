@@ -22,16 +22,17 @@
 
 package org.apache.hop.workflow.actions.ftp;
 
-import com.enterprisedt.net.ftp.FTPFile;
-import com.enterprisedt.net.ftp.FTPFileParser;
-import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.i18n.BaseMessages;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.StringTokenizer;
+
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.i18n.BaseMessages;
+
+import com.enterprisedt.net.ftp.FTPFile;
+import com.enterprisedt.net.ftp.FTPFileParser;
 
 /**
  * MVS Folder Listing Parser The purpose of this parser is to be able handle responses from an MVS z/OS mainframe FTP

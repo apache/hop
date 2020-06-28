@@ -26,10 +26,9 @@ package org.apache.hop.pipeline.transforms.fileinput.text;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.compress.CompressionInputStream;
-import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.compress.CompressionProviderFactory;
+import org.apache.hop.core.compress.ICompressionProvider;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.fileinput.FileInputList;
@@ -42,8 +41,8 @@ import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
@@ -84,11 +83,6 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@PluginDialog(
-        id = "TextFileInput",
-        image = "textfileinput.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<TextFileInputMeta>, ICsvInputAwareTransformDialog {
   private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!

@@ -25,7 +25,6 @@ package org.apache.hop.pipeline.transforms.selectvalues;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -59,14 +58,6 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.*;
 
-/**
- * Dialog for the Select Values transform.
- */
-@PluginDialog(
-        id = "SelectValues",
-        image = "selectvalues.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class SelectValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
 

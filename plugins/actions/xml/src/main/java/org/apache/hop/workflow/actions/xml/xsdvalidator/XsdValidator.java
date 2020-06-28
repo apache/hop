@@ -53,9 +53,7 @@ import java.io.IOException;
 import java.util.List;
 
 import static org.apache.hop.workflow.action.validator.AbstractFileValidator.putVariableSpace;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.fileExistsValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.*;
 import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 /**
@@ -70,8 +68,9 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
         i18nPackageName = "org.apache.hop.workflow.actions.xml.xsdvalidator",
         name = "XSD_VALIDATOR.Name",
         description = "XSD_VALIDATOR.Description",
-        categoryDescription = "XSD_VALIDATOR.Category",
-        documentationUrl = ""
+        image = "org/apache/hop/workflow/actions/xml/XSD.svg",
+        categoryDescription = "XSD_VALIDATOR.Category",        
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xsdvalidator.html"
 )
 public class XsdValidator extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = XsdValidator.class; // for i18n purposes, needed by Translator2!!

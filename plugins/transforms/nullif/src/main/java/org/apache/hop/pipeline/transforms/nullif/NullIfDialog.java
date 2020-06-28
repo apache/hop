@@ -23,7 +23,6 @@
 package org.apache.hop.pipeline.transforms.nullif;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -46,8 +45,6 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 import java.util.*;
 
-@PluginDialog( id = "NullIf", image = "NullIf.svg", pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class NullIfDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = NullIfMeta.class; // for i18n purposes, needed by Translator!!
 

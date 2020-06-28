@@ -63,6 +63,7 @@ import java.util.*;
  */
 @Transform(
         id = "DimensionLookup",
+        image = "dimensionlookup.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.dimensionlookup",
         name = "BaseTransform.TypeLongDesc.DimensionUpdate",
         description = "BaseTransform.TypeTooltipDesc.DimensionUpdate",

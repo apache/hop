@@ -49,6 +49,7 @@ import java.util.List;
 
 @Transform(
         id = "DynamicSqlRow",
+        image = "dynamicsqlrow.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.dynamicsqlrow",
         name = "BaseTransform.TypeLongDesc.DynamicSQLRow",
         description = "BaseTransform.TypeTooltipDesc.DynamicSQLRow",

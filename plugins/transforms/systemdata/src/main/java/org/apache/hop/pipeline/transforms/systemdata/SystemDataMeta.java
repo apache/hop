@@ -54,13 +54,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/*
- * Created on 05-aug-2003
- *
- */
 @InjectionSupported( localizationPrefix = "SystemDataMeta.Injection." )
 @Transform(
         id = "SystemInfo",
+        image = "systeminfo.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.systemdata",
         name = "BaseTransform.TypeLongDesc.SystemInfo",
         description = "BaseTransform.TypeTooltipDesc.SystemInfo",

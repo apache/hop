@@ -61,17 +61,18 @@ import java.util.regex.Pattern;
   name = "ActionDeleteResultFilenames.Name",
   description = "ActionDeleteResultFilenames.Description",
   image = "DeleteResultFilenames.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deleteresultfilenames.html"
 )
-public class ActionDeleteResultFilenamesI extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionDeleteResultFilenamesI.class; // for i18n purposes, needed by Translator!!
+public class ActionDeleteResultFilenames extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = ActionDeleteResultFilenames.class; // for i18n purposes, needed by Translator!!
 
   private String foldername;
   private boolean specifywildcard;
   private String wildcard;
   private String wildcardexclude;
 
-  public ActionDeleteResultFilenamesI( String n ) {
+  public ActionDeleteResultFilenames( String n ) {
     super( n, "" );
     foldername = null;
     wildcardexclude = null;
@@ -79,12 +80,12 @@ public class ActionDeleteResultFilenamesI extends ActionBase implements Cloneabl
     specifywildcard = false;
   }
 
-  public ActionDeleteResultFilenamesI() {
+  public ActionDeleteResultFilenames() {
     this( "" );
   }
 
   public Object clone() {
-    ActionDeleteResultFilenamesI je = (ActionDeleteResultFilenamesI) super.clone();
+    ActionDeleteResultFilenames je = (ActionDeleteResultFilenames) super.clone();
     return je;
   }
 

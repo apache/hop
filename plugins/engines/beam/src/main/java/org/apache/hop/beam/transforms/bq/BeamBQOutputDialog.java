@@ -2,7 +2,6 @@
 package org.apache.hop.beam.transforms.bq;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -18,19 +17,8 @@ import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
-
-@PluginDialog(
-        id = "BeamBQOutput",
-        image = "beam-bq-output.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class BeamBQOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = BeamBQOutputDialog.class; // for i18n purposes, needed by Translator2!!
   private final BeamBQOutputMeta input;

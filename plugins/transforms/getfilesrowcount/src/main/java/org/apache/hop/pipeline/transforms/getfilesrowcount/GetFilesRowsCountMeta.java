@@ -52,6 +52,7 @@ import java.util.Map;
 
 @Transform(
         id = "GetFilesRowsCount",
+        image = "getfilesrowcount.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getfilesrowcount",
         name = "BaseTransform.TypeLongDesc.GetFilesRowsCount",
         description = "BaseTransform.TypeTooltipDesc.GetFilesRowsCount",

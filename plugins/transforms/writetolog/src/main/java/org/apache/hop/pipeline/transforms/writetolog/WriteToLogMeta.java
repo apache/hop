@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transforms.writetolog;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogLevel;
@@ -35,20 +35,18 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.Arrays;
 import java.util.List;
 
-/*
- * Created on 30-06-2008
- *
- */
-
 @Transform(
         id = "WriteToLog",
+        image = "writetolog.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.writetolog",
         name = "WriteToLog.Name",
         description = "WriteToLog.Description",

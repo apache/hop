@@ -56,6 +56,7 @@ import java.util.Locale;
 @InjectionSupported( localizationPrefix = "SortRows.Injection.", groups = { "FIELDS" } )
 @Transform(
         id = "SortRows",
+        image = "sortrows.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.sort",
         name = "BaseTransform.TypeLongDesc.SortRows",
         description = "BaseTransform.TypeTooltipDesc.SortRows",

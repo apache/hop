@@ -56,8 +56,10 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.workflow.actions.xml.dtdvalidator",
         name = "DTD_VALIDATOR.Name",
         description = "DTD_VALIDATOR.Description",
+        image = "DTD.svg",
         categoryDescription = "DTD_VALIDATOR.Category",
-        documentationUrl = "" )
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/dtdvalidator.html"
+)
 public class DtdValidator extends ActionBase implements Cloneable, IAction {
   private String xmlfilename;
   private String dtdfilename;

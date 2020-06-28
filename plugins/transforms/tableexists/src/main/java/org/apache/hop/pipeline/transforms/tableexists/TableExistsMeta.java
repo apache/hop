@@ -51,6 +51,7 @@ import java.util.List;
 
 @Transform(
         id = "TableExists",
+        image = "tableexists.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.tableexists",
         name = "BaseTransform.TypeLongDesc.TableExists",
         description = "BaseTransform.TypeTooltipDesc.TableExists",

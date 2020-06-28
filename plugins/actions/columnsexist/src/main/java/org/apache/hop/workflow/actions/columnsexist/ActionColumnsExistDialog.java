@@ -24,7 +24,6 @@ package org.apache.hop.workflow.actions.columnsexist;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
@@ -70,12 +69,6 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar
  * @since 15-06-2008
  */
-@PluginDialog( 
-		  id = "COLUMNS_EXIST", 
-		  image = "ColumnsExist.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/columnsexist.html"
-)
 public class ActionColumnsExistDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionColumnsExist.class; // for i18n purposes, needed by Translator!!
 

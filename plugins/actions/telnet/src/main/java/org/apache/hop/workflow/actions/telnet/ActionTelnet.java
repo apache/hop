@@ -58,7 +58,8 @@ import java.util.List;
   name = "ActionTelnet.Name",
   description = "ActionTelnet.Description",
   image = "Telnet.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/telnet.html"
 )
 public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionTelnet.class; // for i18n

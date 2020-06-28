@@ -52,6 +52,7 @@ import java.util.Map;
 
 @Transform(
         id = "TypeExitExcelWriterTransform",
+        image = "excelwriter.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.excelwriter",
         name = "BaseTransform.TypeLongDesc.TypeExitExcelWriterTransform",
         description = "BaseTransform.TypeTooltipDesc.TypeExitExcelWriterTransform",

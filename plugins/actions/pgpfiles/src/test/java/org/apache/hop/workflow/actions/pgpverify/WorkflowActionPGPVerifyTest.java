@@ -21,13 +21,13 @@
  ******************************************************************************/
 package org.apache.hop.workflow.actions.pgpverify;
 
-import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.junit.ClassRule;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
+import org.junit.ClassRule;
 
 public class WorkflowActionPGPVerifyTest extends WorkflowActionLoadSaveTestSupport<ActionPGPVerify> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

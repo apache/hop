@@ -23,11 +23,7 @@
 package org.apache.hop.workflow.actions.xml.xslt;
 
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.Result;
-import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -61,9 +57,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.apache.hop.workflow.action.validator.AbstractFileValidator.putVariableSpace;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.andValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.fileExistsValidator;
-import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.notBlankValidator;
+import static org.apache.hop.workflow.action.validator.ActionValidatorUtils.*;
 import static org.apache.hop.workflow.action.validator.AndValidator.putValidators;
 
 /**
@@ -77,8 +71,9 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
         i18nPackageName = "org.apache.hop.workflow.actions.xml.xslt",
         name = "XSLT.Name",
         description = "XSLT.Description",
-        categoryDescription = "XSLT.Category",
-        documentationUrl = ""
+        image = "XSLT.svg",
+        categoryDescription = "XSLT.Category",               
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xslt.html"
 )
 public class Xslt extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = Xslt.class; // for i18n purposes, needed by Translator2!!

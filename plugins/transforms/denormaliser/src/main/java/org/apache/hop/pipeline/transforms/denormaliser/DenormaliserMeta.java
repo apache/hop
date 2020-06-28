@@ -51,6 +51,7 @@ import java.util.List;
 
 @Transform(
         id = "Denormaliser",
+        image = "denormaliser.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.denormaliser",
         name = "Denormaliser.Name",
         description = "Denormaliser.Description",

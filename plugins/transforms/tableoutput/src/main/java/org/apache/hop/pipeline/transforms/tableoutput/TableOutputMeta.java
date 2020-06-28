@@ -50,14 +50,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * Table Output meta data.
- *
- * @author Matt Casters
- * @since 2-jun-2003
- */
 @Transform(
         id = "TableOutput",
+        image = "tableoutput.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.tableoutput",
         name = "BaseTransform.TypeLongDesc.TableOutput",
         description = "BaseTransform.TypeTooltipDesc.TableOutput",

@@ -36,14 +36,15 @@
 
 package org.apache.hop.workflow.actions.ftpput;
 
-import com.enterprisedt.net.ftp.FTPClient;
-import com.enterprisedt.net.ftp.FTPException;
-import com.enterprisedt.net.ftp.FTPFile;
+import java.io.IOException;
+import java.text.ParseException;
+
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 
-import java.io.IOException;
-import java.text.ParseException;
+import com.enterprisedt.net.ftp.FTPClient;
+import com.enterprisedt.net.ftp.FTPException;
+import com.enterprisedt.net.ftp.FTPFile;
 
 /**
  * This class should largely be able to be removed if the edtftp project accepts my change to replace dirDetails(".")

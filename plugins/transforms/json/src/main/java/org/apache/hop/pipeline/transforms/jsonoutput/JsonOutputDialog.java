@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.jsonoutput;
+package org.apache.hop.pipeline.transforms.jsonoutput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;

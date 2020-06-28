@@ -55,6 +55,7 @@ import java.util.List;
  */
 @Transform( 
         id = "AnalyticQuery",
+        image = "analyticquery.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.analyticquery",
         name = "AnalyticQuery.Name",
         description = "AnalyticQuery.Description",

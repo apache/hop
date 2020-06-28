@@ -47,6 +47,7 @@ import java.util.List;
 
 @Transform(
         id = "IfNull",
+        image = "IfNull.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.ifnull",
         name = "IfNull.Name",
         description = "IfNull.Description",

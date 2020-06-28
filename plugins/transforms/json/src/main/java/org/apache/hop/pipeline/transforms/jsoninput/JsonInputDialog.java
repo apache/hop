@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.jsoninput;
+package org.apache.hop.pipeline.transforms.jsoninput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;

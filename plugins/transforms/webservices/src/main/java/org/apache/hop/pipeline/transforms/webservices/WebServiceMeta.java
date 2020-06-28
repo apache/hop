@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.webservices;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -45,6 +46,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+@Transform(
+        id = "WebServiceLookup",
+        image = "webservice.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.WebServiceLookup",
+        name = "BaseTransform.TypeLongDesc.WebServiceLookup",
+        description = "BaseTransform.TypeTooltipDesc.WebServiceLookup",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/webservices.html"
+)
 public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<WebService, WebServiceData> {
   public static final String XSD_NS_URI = "http://www.w3.org/2001/XMLSchema";
 

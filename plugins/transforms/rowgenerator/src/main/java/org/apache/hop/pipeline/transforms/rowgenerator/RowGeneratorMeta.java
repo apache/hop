@@ -54,6 +54,7 @@ import java.util.List;
  */
 @Transform(
         id = "RowGenerator",
+        image = "rowgenerator.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.rowgenerator",
         name = "BaseTransform.TypeLongDesc.GenerateRows",
         description = "BaseTransform.TypeTooltipDesc.GenerateRows",

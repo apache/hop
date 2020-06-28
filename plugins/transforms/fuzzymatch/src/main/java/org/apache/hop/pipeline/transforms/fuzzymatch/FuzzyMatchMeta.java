@@ -51,6 +51,7 @@ import java.util.List;
 
 @Transform(
         id = "FuzzyMatch",
+        image = "fuzzymatch.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.fuzzymatch",
         name = "BaseTransform.TypeLongDesc.FuzzyMatch",
         description = "BaseTransform.TypeTooltipDesc.FuzzyMatch",

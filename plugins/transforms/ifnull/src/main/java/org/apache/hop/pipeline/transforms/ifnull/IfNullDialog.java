@@ -23,7 +23,6 @@
 package org.apache.hop.pipeline.transforms.ifnull;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -50,11 +49,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-@PluginDialog(
-        id = "IfNull",
-        image = "IfNull.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class IfNullDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = IfNullMeta.class; // for i18n purposes, needed by Translator!!
 

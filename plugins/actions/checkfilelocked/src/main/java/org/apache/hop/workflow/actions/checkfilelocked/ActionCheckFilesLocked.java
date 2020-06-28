@@ -66,10 +66,11 @@ import java.util.regex.Pattern;
 		name = "ActionCheckFilesLocked.Name",
 		description = "ActionCheckFilesLocked.Description",
 		image = "CheckFilesLocked.svg",
-		categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions"
+		categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
+		documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/checkfilelocked.html"
 )
-public class ActionICheckFilesLocked extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionICheckFilesLocked.class; // for i18n purposes, needed by Translator!!
+public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = ActionCheckFilesLocked.class; // for i18n purposes, needed by Translator!!
 
   public boolean argFromPrevious;
 
@@ -81,7 +82,7 @@ public class ActionICheckFilesLocked extends ActionBase implements Cloneable, IA
 
   private boolean oneFileLocked;
 
-  public ActionICheckFilesLocked( String n ) {
+  public ActionCheckFilesLocked( String n ) {
     super( n, "" );
     argFromPrevious = false;
     arguments = null;
@@ -89,12 +90,12 @@ public class ActionICheckFilesLocked extends ActionBase implements Cloneable, IA
     includeSubfolders = false;
   }
 
-  public ActionICheckFilesLocked() {
+  public ActionCheckFilesLocked() {
     this( "" );
   }
 
   public Object clone() {
-    ActionICheckFilesLocked je = (ActionICheckFilesLocked) super.clone();
+    ActionCheckFilesLocked je = (ActionCheckFilesLocked) super.clone();
     if ( arguments != null ) {
       int nrFields = arguments.length;
       je.allocate( nrFields );

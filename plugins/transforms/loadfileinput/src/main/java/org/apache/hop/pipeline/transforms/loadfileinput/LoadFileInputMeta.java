@@ -59,6 +59,7 @@ import java.util.Map;
 
 @Transform(
         id = "LoadFileInput",
+        image = "loadfileinput.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.loadfileinput",
         name = "BaseTransform.TypeLongDesc.LoadFileInput",
         description = "BaseTransform.TypeTooltipDesc.LoadFileInput",

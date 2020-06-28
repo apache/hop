@@ -25,7 +25,6 @@ package org.apache.hop.pipeline.transforms.datagrid;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -55,11 +54,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-@PluginDialog(
-        id = "DataGrid",
-        image = "datagrid.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class DataGridDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
 

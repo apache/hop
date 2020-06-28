@@ -24,7 +24,6 @@ package org.apache.hop.workflow.actions.xml.xslt;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.xml.xslt.XsltMeta;
@@ -72,13 +71,6 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar Hassan
  * @since 02-03-2007
  */
-
-@PluginDialog(
-        id = "XSLT",
-        image = "XSLT.svg",
-        pluginType = PluginDialog.PluginType.ACTION,
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xslt.html"
-)
 public class XsltDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = Xslt.class; // for i18n purposes, needed by Translator2!!
 

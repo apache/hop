@@ -60,6 +60,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "UpdateMeta.Injection.", groups = { "KEYS", "UPDATES" } )
 @Transform(
         id = "Update",
+        image = "update.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.update",
         name = "BaseTransform.TypeLongDesc.Update",
         description = "BaseTransform.TypeTooltipDesc.Update",

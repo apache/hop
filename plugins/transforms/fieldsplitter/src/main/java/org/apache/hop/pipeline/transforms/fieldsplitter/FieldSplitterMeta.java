@@ -101,6 +101,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "FieldSplitter.Injection.", groups = { "FIELDS" } )
 @Transform(
         id = "FieldSplitter",
+        image = "fieldsplitter.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.fieldsplitter",
         name = "SplitFields.Name",
         description = "SplitFields.Description",
