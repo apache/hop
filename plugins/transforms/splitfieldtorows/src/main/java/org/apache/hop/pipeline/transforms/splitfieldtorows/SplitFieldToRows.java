@@ -31,22 +31,19 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
+
 
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-public class SplitFieldToRows extends BaseTransform implements ITransform {
-  private static Class<?> PKG = SplitFieldToRowsMeta.class; // for i18n purposes, needed by Translator!!
+public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitFieldToRowsData> implements ITransform<SplitFieldToRowsMeta, SplitFieldToRowsData> {
+  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // for i18n purposes, needed by Translator!!
 
-  private SplitFieldToRowsMeta meta;
-  private SplitFieldToRowsData data;
 
-  public SplitFieldToRows( TransformMeta transformMeta, ITransformData data, int copyNr,
-                           PipelineMeta pipelineMeta, Pipeline pipeline ) {
+
+  public SplitFieldToRows( TransformMeta transformMeta, SplitFieldToRowsMeta meta, SplitFieldToRowsData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
@@ -118,9 +115,7 @@ public class SplitFieldToRows extends BaseTransform implements ITransform {
     return true;
   }
 
-  public synchronized boolean.processRow() throws HopException {
-    meta = (SplitFieldToRowsMeta) smi;
-    data = (SplitFieldToRowsData) sdi;
+  public synchronized boolean processRow() throws HopException {
 
     Object[] r = getRow(); // get row from rowset, wait for our turn, indicate busy!
     if ( r == null ) { // no more input to be expected...
@@ -147,8 +142,6 @@ public class SplitFieldToRows extends BaseTransform implements ITransform {
   }
 
   public boolean init() {
-    meta = (SplitFieldToRowsMeta) smi;
-    data = (SplitFieldToRowsData) sdi;
 
     if ( super.init() ) {
       data.rownr = 1L;

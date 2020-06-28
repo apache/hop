@@ -99,6 +99,7 @@
         <module>setvariable</module>
         <module>sort</module>
         <module>sortedmerge</module>
+        <module>splitfieldtorows</module>
         <module>sql</module>
         <module>streamlookup</module>
         <module>stringcut</module>
