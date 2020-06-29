@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.database;
 
-import org.apache.hop.core.database.DatabasePluginType;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -35,7 +33,7 @@ public class DatabaseMetaObjectFactory implements IHopMetadataObjectFactory {
   @Override public Object createObject( String id, Object parentObject ) throws HopException {
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.findPluginWithId( DatabasePluginType.class, id );
-    IDatabase iDatabase = registry.loadClass( plugin, IDatabase.class );
+    IDatabase iDatabase = (IDatabase) registry.loadClass( plugin );
     return iDatabase;
   }
 
