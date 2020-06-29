@@ -68,7 +68,6 @@ public class Project extends ConfigFile implements IConfigFile {
       ObjectMapper objectMapper = new ObjectMapper();
       Project project = objectMapper.readValue(new File(configFilename), Project.class );
 
-      this.configFilename = project.configFilename;
       this.description = project.description;
       this.company = project.company;
       this.department = project.department;

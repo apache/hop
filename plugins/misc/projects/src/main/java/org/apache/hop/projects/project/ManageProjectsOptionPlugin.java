@@ -75,16 +75,16 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     try {
       boolean changed = false;
       if ( createProject ) {
-        createProject( log, config );
+        createProject( log, config, variables );
         changed = true;
       } else if ( modifyProject ) {
-        modifyProject( log, config );
+        modifyProject( log, config, variables );
         changed = true;
       } else if ( deleteProject ) {
-        deleteProject( log, config );
+        deleteProject( log, config, variables );
         changed = true;
       } else if ( listProjects ) {
-        listProjects( log, config );
+        listProjects( log, config, variables );
         changed = true;
       }
       return changed;
@@ -94,7 +94,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
 
   }
 
-  private void listProjects( ILogChannel log, ProjectsConfig config ) throws HopException {
+  private void listProjects( ILogChannel log, ProjectsConfig config, IVariables variables ) throws HopException {
     log.logBasic( "Projects:" );
     List<String> names = config.listProjectConfigNames();
     for ( String name : names ) {
@@ -116,7 +116,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     }
   }
 
-  private void deleteProject( ILogChannel log, ProjectsConfig config ) throws Exception {
+  private void deleteProject( ILogChannel log, ProjectsConfig config, IVariables variables ) throws Exception {
     validateProjectNameSpecified();
 
     ProjectConfig projectConfig = config.findProjectConfig( projectName );
@@ -129,7 +129,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     log.logBasic( "Project '"+projectName+" was removed from the configuration" );
   }
 
-  private void modifyProject( ILogChannel log, ProjectsConfig config ) throws Exception {
+  private void modifyProject( ILogChannel log, ProjectsConfig config, IVariables variables ) throws Exception {
     validateProjectNameSpecified();
 
     ProjectConfig projectConfig = config.findProjectConfig( projectName );
@@ -145,8 +145,6 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     }
 
     config.addProjectConfig( projectConfig );
-
-    IVariables variables = Variables.getADefaultVariableSpace();
 
     String projectConfigFilename = projectConfig.getActualProjectConfigFilename( variables );
 
@@ -208,7 +206,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   }
 
 
-  private void createProject( ILogChannel log, ProjectsConfig config ) throws Exception {
+  private void createProject( ILogChannel log, ProjectsConfig config, IVariables variables ) throws Exception {
     validateProjectNameSpecified();
     validateProjectHomeSpecified();
 
@@ -225,6 +223,15 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     ProjectsConfigSingleton.saveConfig();
 
     log.logBasic( "Project '" + projectName + "' was created for home folder : " + projectHome );
+
+    Project project = projectConfig.loadProject( variables );
+    modifyProjectSettings( project );
+
+    // Always save, even if it's an empty file
+    //
+    project.saveToFile();
+
+    log.logBasic( "Configuration file for project '" + projectName + "' was saved to : " + project.getConfigFilename() );
   }
 
   private void validateProjectNameSpecified() throws Exception {
