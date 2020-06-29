@@ -1,27 +1,15 @@
 package org.apache.hop.debug.util;
 
 import org.apache.hop.core.gui.IGc;
-import org.apache.hop.workflow.action.ActionCopy;
-
-import java.awt.image.BufferedImage;
-import java.util.Map;
+import org.apache.hop.core.svg.SvgFile;
 
 public class BeePainter {
 
-  private static BufferedImage beeImage;
-
-  public static void drawBee( IGc gc, int x, int y, int iconSize, ClassLoader classLoader ) throws Exception {
-
-    // Blow up the image and reduce it during painting. This gives a very crisp look
-    //
-    int blowupFactor = 6;
-    if ( beeImage == null ) {
-      beeImage = SvgLoader.transcodeSVGDocument( classLoader, "bee.svg", 30 * blowupFactor, 26 * blowupFactor );
-    }
+  public void drawBee( IGc gc, int x, int y, int iconSize, ClassLoader classLoader ) throws Exception {
 
     float magnification = gc.getMagnification();
-    gc.setTransform( 0, 0, magnification / blowupFactor );
-    gc.drawImage( beeImage, blowupFactor * ( x + iconSize ), blowupFactor * ( y - iconSize / 3 ) );
+    SvgFile svgFile = new SvgFile( "bee.svg", classLoader );
+    gc.drawImage( svgFile, x -2 + iconSize + iconSize/3, y + iconSize / 3, 16, 16, magnification, 0 );
     gc.setTransform( 0, 0, magnification );
   }
 }

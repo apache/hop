@@ -28,8 +28,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.IGc;
-import org.apache.hop.core.gui.IPrimitiveGc.EColor;
-import org.apache.hop.core.gui.IPrimitiveGc.EFont;
+
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -75,9 +74,9 @@ public class DrawInputDataSetOnTransformExtensionPoint implements IExtensionPoin
     int y = ext.y1;
 
     gc.setLineWidth( transformMeta.isSelected() ? 2 : 1 );
-    gc.setForeground( EColor.CRYSTAL );
-    gc.setBackground( EColor.LIGHTGRAY );
-    gc.setFont( EFont.GRAPH );
+    gc.setForeground( IGc.EColor.CRYSTAL );
+    gc.setBackground( IGc.EColor.LIGHTGRAY );
+    gc.setFont( IGc.EFont.GRAPH );
     Point textExtent = gc.textExtent( dataSetName );
     textExtent.x += 6; // add a tiny bit of a margin
     textExtent.y += 6;

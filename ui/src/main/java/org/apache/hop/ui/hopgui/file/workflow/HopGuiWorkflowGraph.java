@@ -87,7 +87,6 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardD
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowGridDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowHopDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegate;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowMetricsDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowRunDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowUndoDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
@@ -254,7 +253,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public HopGuiWorkflowLogDelegate workflowLogDelegate;
   public HopGuiWorkflowGridDelegate workflowGridDelegate;
-  public HopGuiWorkflowMetricsDelegate workflowMetricsDelegate;
   public HopGuiWorkflowClipboardDelegate workflowClipboardDelegate;
   public HopGuiWorkflowRunDelegate workflowRunDelegate;
   public HopGuiWorkflowUndoDelegate workflowUndoDelegate;
@@ -306,7 +304,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     workflowLogDelegate = new HopGuiWorkflowLogDelegate( hopGui, this );
     workflowGridDelegate = new HopGuiWorkflowGridDelegate( hopGui, this );
-    workflowMetricsDelegate = new HopGuiWorkflowMetricsDelegate( hopGui, this );
     workflowClipboardDelegate = new HopGuiWorkflowClipboardDelegate( hopGui, this );
     workflowRunDelegate = new HopGuiWorkflowRunDelegate( hopGui, this );
     workflowUndoDelegate = new HopGuiWorkflowUndoDelegate( hopGui, this );
@@ -1374,12 +1371,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // When zooming out we want to correct the scroll bars.
     //
     float factor = magnification / oldMagnification;
-    int newHThumb = Math.min((int)( horizontalScrollBar.getThumb() / factor), 100);
+    int newHThumb = Math.min( (int) ( horizontalScrollBar.getThumb() / factor ), 100 );
     horizontalScrollBar.setThumb( newHThumb );
-    horizontalScrollBar.setSelection( (int)( horizontalScrollBar.getSelection()*factor ));
-    int newVThumb = Math.min((int)( verticalScrollBar.getThumb() / factor), 100);
+    horizontalScrollBar.setSelection( (int) ( horizontalScrollBar.getSelection() * factor ) );
+    int newVThumb = Math.min( (int) ( verticalScrollBar.getThumb() / factor ), 100 );
     verticalScrollBar.setThumb( newVThumb );
-    verticalScrollBar.setSelection( (int)( verticalScrollBar.getSelection()*factor ));
+    verticalScrollBar.setSelection( (int) ( verticalScrollBar.getSelection() * factor ) );
 
     redraw();
   }
@@ -2268,24 +2265,27 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     Display display = hopDisplay();
 
-    Image img = getJobImage( display, area.x, area.y, magnification );
-    e.gc.drawImage( img, 0, 0 );
-    if ( workflowMeta.nrActions() == 0 ) {
-      e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
-      e.gc.setBackground( GuiResource.getInstance().getColorBackground() );
-      e.gc.setFont( GuiResource.getInstance().getFontMedium() );
+    try {
+      Image img = getJobImage( display, area.x, area.y, magnification );
+      e.gc.drawImage( img, 0, 0 );
+      if ( workflowMeta.nrActions() == 0 ) {
+        e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
+        e.gc.setBackground( GuiResource.getInstance().getColorBackground() );
+        e.gc.setFont( GuiResource.getInstance().getFontMedium() );
 
-      Image welcomeImage = GuiResource.getInstance().getImageWorkflowCanvas();
-      int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
-      int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
-      e.gc.drawImage( welcomeImage, leftPosition, topPosition );
+        Image welcomeImage = GuiResource.getInstance().getImageWorkflowCanvas();
+        int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
+        int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
+        e.gc.drawImage( welcomeImage, leftPosition, topPosition );
 
+      }
+      img.dispose();
+    } catch ( Exception ex ) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error drawing workflow", ex );
     }
-    img.dispose();
-
   }
 
-  public Image getJobImage( Device device, int x, int y, float magnificationFactor ) {
+  public Image getJobImage( Device device, int x, int y, float magnificationFactor ) throws HopException {
     IGc gc = new SwtGc( device, new Point( x, y ), iconSize );
 
     int gridSize =
@@ -2523,8 +2523,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-left.svg",
     disabledImage = "ui/images/toolbar/align-left-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_LEFT )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_LEFT )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_LEFT )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_LEFT )
   public void alignLeft() {
     createSnapAllignDistribute().allignleft();
   }
@@ -2536,8 +2536,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-right.svg",
     disabledImage = "ui/images/toolbar/align-right-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_RIGHT )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_RIGHT )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_RIGHT )
   public void alignRight() {
     createSnapAllignDistribute().allignright();
   }
@@ -2549,8 +2549,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-top.svg",
     disabledImage = "ui/images/toolbar/align-top-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_UP )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_UP )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_UP )
   public void alignTop() {
     createSnapAllignDistribute().alligntop();
   }
@@ -2562,8 +2562,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-bottom.svg",
     disabledImage = "ui/images/toolbar/align-bottom-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_DOWN )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_DOWN )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_DOWN )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_DOWN )
   public void alignBottom() {
     createSnapAllignDistribute().allignbottom();
   }
@@ -2575,8 +2575,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-horizontally.svg",
     disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg"
   )
-  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
-  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
+  @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( alt = true, key = SWT.ARROW_RIGHT )
   public void distributeHorizontal() {
     createSnapAllignDistribute().distributehorizontal();
   }
@@ -2588,8 +2588,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-vertically.svg",
     disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg"
   )
-  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
-  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
+  @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( alt = true, key = SWT.ARROW_UP )
   public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
   }
@@ -2991,7 +2991,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     workflowLogDelegate.addJobLog();
     workflowGridDelegate.addJobGrid();
-    workflowMetricsDelegate.addJobMetrics();
 
     if ( tabItemSelection != null ) {
       extraViewTabFolder.setSelection( tabItemSelection );
@@ -3201,8 +3200,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Do a final check to see if it all ended...
     //
     if ( workflow != null && workflow.isInitialized() && workflow.isFinished() ) {
-      workflowMetricsDelegate.resetLastRefreshTime();
-      workflowMetricsDelegate.updateGraph();
       log.logMinimal( BaseMessages.getString( PKG, "WorkflowLog.Log.WorkflowHasEnded" ) );
     }
     updateGui();

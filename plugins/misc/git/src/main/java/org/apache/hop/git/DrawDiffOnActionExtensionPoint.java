@@ -19,10 +19,10 @@ package org.apache.hop.git;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
-import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -35,9 +35,9 @@ import static org.apache.hop.git.PdiDiff.CHANGED;
 import static org.apache.hop.git.PdiDiff.REMOVED;
 
 @ExtensionPoint(
-    id = "DrawDiffOnActionExtensionPoint",
-    description = "Draws a marker on top of an action if it has some change",
-    extensionPointId = "WorkflowPainterEnd" )
+  id = "DrawDiffOnActionExtensionPoint",
+  description = "Draws a marker on top of an action if it has some change",
+  extensionPointId = "WorkflowPainterEnd" )
 public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
 
   @Override
@@ -48,32 +48,42 @@ public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
     WorkflowPainter painter = (WorkflowPainter) object;
     Point offset = painter.getOffset();
     IGc gc = painter.getGc();
-    WorkflowMeta jobMeta = painter.getWorkflowMeta();
-    jobMeta.getActionCopies().stream().filter( je -> je.getAttribute( ATTR_GIT, ATTR_STATUS ) != null )
-      .forEach( je -> {
-        if ( jobMeta.getJobversion() == null ? false : jobMeta.getJobversion().startsWith( "git" ) ) {
-          String status = je.getAttribute( ATTR_GIT, ATTR_STATUS );
-          Point n = je.getLocation();
-          String location = "org/pentaho/di/git/spoon/images/";
-          if ( status.equals( REMOVED ) ) {
-            location += "removed.svg";
-          } else if ( status.equals( CHANGED ) ) {
-            location += "changed.svg";
-          } else if ( status.equals( ADDED ) ) {
-            location += "added.svg";
-          } else { // Unchanged
-            return;
+    WorkflowMeta pipelineMeta = painter.getWorkflowMeta();
+    try {
+      pipelineMeta.getActionCopies().stream().filter( je -> je.getAttribute( ATTR_GIT, ATTR_STATUS ) != null )
+        .forEach( je -> {
+          if ( pipelineMeta.getWorkflowVersion() == null ? false : pipelineMeta.getWorkflowVersion().startsWith( "git" ) ) {
+            String status = je.getAttribute( ATTR_GIT, ATTR_STATUS );
+            Point n = je.getLocation();
+            String location;
+            if ( status.equals( REMOVED ) ) {
+              location = "removed.svg";
+            } else if ( status.equals( CHANGED ) ) {
+              location = "changed.svg";
+            } else if ( status.equals( ADDED ) ) {
+              location = "added.svg";
+            } else { // Unchanged
+              return;
+            }
+            int iconSize = ConstUi.ICON_SIZE;
+            try {
+              iconSize = PropsUi.getInstance().getIconSize();
+            } catch ( Exception e ) {
+              // Exception when accessed from Carte
+            }
+            int x = ( n.x + iconSize + offset.x ) - ( iconSize / 4 );
+            int y = n.y + offset.y - ( iconSize / 4 );
+            try {
+              gc.drawImage( new SvgFile( location, getClass().getClassLoader() ), x, y, iconSize / 4, iconSize / 4, gc.getMagnification(), 0 );
+            } catch(Exception e) {
+              throw new RuntimeException(e);
+            }
+          } else {
+            je.getAttributesMap().remove( ATTR_GIT );
           }
-          int iconsize = ConstUi.ICON_SIZE;
-          try {
-            iconsize = PropsUi.getInstance().getIconSize();
-          } catch ( Exception e ) {
-            // Exception when accessed from Carte
-          }
-          gc.drawImage( location, getClass().getClassLoader(), ( n.x + iconsize + offset.x ) - ( BasePainter.MINI_ICON_SIZE / 2 ), n.y + offset.y - ( BasePainter.MINI_ICON_SIZE / 2 ) );
-        } else {
-          je.getAttributesMap().remove( ATTR_GIT );
-        }
-      } );
+        } );
+    } catch(Exception e) {
+      throw new HopException("Error drawing status icon on action", e);
+    }
   }
 }

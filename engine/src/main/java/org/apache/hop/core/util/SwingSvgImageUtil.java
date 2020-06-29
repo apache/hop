@@ -27,13 +27,11 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.hop.core.SwingUniversalImage;
-import org.apache.hop.core.SwingUniversalImageBitmap;
 import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.svg.SvgSupport;
 import org.apache.hop.core.vfs.HopVfs;
 
-import javax.imageio.ImageIO;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -61,8 +59,8 @@ public class SwingSvgImageUtil {
   /**
    * Load image from several sources.
    */
-  private static SwingUniversalImage getImageAsResourceInternal( String location ) {
-    SwingUniversalImage result = null;
+  private static SwingUniversalImageSvg getImageAsResourceInternal( String location ) {
+    SwingUniversalImageSvg result = null;
     if ( result == null ) {
       result = loadFromCurrentClasspath( location );
     }
@@ -78,13 +76,10 @@ public class SwingSvgImageUtil {
   /**
    * Load image from several sources.
    */
-  public static SwingUniversalImage getImageAsResource( String location ) {
-    SwingUniversalImage result = null;
+  public static SwingUniversalImageSvg getImageAsResource( String location ) {
+    SwingUniversalImageSvg result = null;
     if ( result == null && SvgSupport.isSvgEnabled() ) {
       result = getImageAsResourceInternal( SvgSupport.toSvgName( location ) );
-    }
-    if ( result == null ) {
-      result = getImageAsResourceInternal( SvgSupport.toPngName( location ) );
     }
     if ( result == null && !location.equals( NO_IMAGE ) ) {
       result = getImageAsResource( NO_IMAGE );
@@ -92,8 +87,8 @@ public class SwingSvgImageUtil {
     return result;
   }
 
-  private static SwingUniversalImage getUniversalImageInternal( ClassLoader classLoader, String filename ) {
-    SwingUniversalImage result = loadFromClassLoader( classLoader, filename );
+  private static SwingUniversalImageSvg getUniversalImageInternal( ClassLoader classLoader, String filename ) {
+    SwingUniversalImageSvg result = loadFromClassLoader( classLoader, filename );
     if ( result == null ) {
       result = loadFromClassLoader( classLoader, "/" + filename );
       if ( result == null ) {
@@ -109,13 +104,13 @@ public class SwingSvgImageUtil {
   /**
    * Load image from several sources.
    */
-  public static SwingUniversalImage getUniversalImage( ClassLoader classLoader, String filename ) {
+  public static SwingUniversalImageSvg getUniversalImage( ClassLoader classLoader, String filename ) {
 
     if ( StringUtils.isBlank( filename ) ) {
       throw new RuntimeException( "Filename not provided" );
     }
 
-    SwingUniversalImage result = null;
+    SwingUniversalImageSvg result = null;
     if ( SvgSupport.isSvgEnabled() ) {
       result = getUniversalImageInternal( classLoader, SvgSupport.toSvgName( filename ) );
     }
@@ -142,7 +137,7 @@ public class SwingSvgImageUtil {
   /**
    * Internal image loading by ClassLoader.getResourceAsStream.
    */
-  private static SwingUniversalImage loadFromClassLoader( ClassLoader classLoader, String location ) {
+  private static SwingUniversalImageSvg loadFromClassLoader( ClassLoader classLoader, String location ) {
     InputStream s = classLoader.getResourceAsStream( location );
     if ( s == null ) {
       return null;
@@ -157,7 +152,7 @@ public class SwingSvgImageUtil {
   /**
    * Internal image loading by Thread.currentThread.getContextClassLoader.getResource.
    */
-  private static SwingUniversalImage loadFromCurrentClasspath( String location ) {
+  private static SwingUniversalImageSvg loadFromCurrentClasspath( String location ) {
     ClassLoader cl = Thread.currentThread().getContextClassLoader();
     URL res = cl.getResource( location );
     if ( res == null ) {
@@ -182,7 +177,7 @@ public class SwingSvgImageUtil {
   /**
    * Internal image loading from Hop's user.dir VFS.
    */
-  private static SwingUniversalImage loadFromBasedVFS( String location ) {
+  private static SwingUniversalImageSvg loadFromBasedVFS( String location ) {
     try {
       FileObject imageFileObject = HopVfs.getFileSystemManager().resolveFile( base, location );
       InputStream s = HopVfs.getInputStream( imageFileObject );
@@ -202,7 +197,7 @@ public class SwingSvgImageUtil {
   /**
    * Internal image loading from Hop's VFS.
    */
-  private static SwingUniversalImage loadFromSimpleVFS( String location ) {
+  private static SwingUniversalImageSvg loadFromSimpleVFS( String location ) {
     try {
       InputStream s = HopVfs.getInputStream( location );
       if ( s == null ) {
@@ -222,16 +217,11 @@ public class SwingSvgImageUtil {
   /**
    * Load image from InputStream as bitmap image, or SVG image conversion to bitmap image.
    */
-  private static SwingUniversalImage loadImage( InputStream in, String filename ) {
+  private static SwingUniversalImageSvg loadImage( InputStream in, String filename ) {
     if ( !SvgSupport.isSvgName( filename ) ) {
-      // bitmap image
-      try {
-        return new SwingUniversalImageBitmap( ImageIO.read( in ) );
-      } catch ( IOException e ) {
-        throw new RuntimeException( e );
-      }
+     throw new RuntimeException("Only SVG images are supported, not : '"+filename+"'");
     } else {
-      // svg image - need to convert to bitmap
+      // svg image
       try {
         return new SwingUniversalImageSvg( SvgSupport.loadSvgImage( in ) );
       } catch ( Exception ex ) {

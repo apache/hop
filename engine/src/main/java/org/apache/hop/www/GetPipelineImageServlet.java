@@ -23,9 +23,9 @@
 package org.apache.hop.www;
 
 import org.apache.batik.dom.GenericDOMImplementation;
-import org.apache.hop.core.gui.HopSvgGraphics2D;
 import org.apache.hop.core.gui.Point;
-import org.apache.hop.core.gui.SwingGc;
+import org.apache.hop.core.gui.SvgGc;
+import org.apache.hop.core.svg.HopSvgGraphics2D;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -37,7 +37,6 @@ import org.w3c.dom.Document;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -122,7 +121,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
 
     HopSvgGraphics2D graphics2D = new HopSvgGraphics2D( document );
 
-    SwingGc gc = new SwingGc( graphics2D, new Rectangle(0, 0, maximum.x+100, maximum.y+100), 32, 0, 0 );
+    SvgGc gc = new SvgGc( graphics2D, new Point(maximum.x+100, maximum.y+100), 32, 0, 0 );
     PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, "Arial", 10, 1.0d );
     pipelinePainter.setMagnification( magnification );
     pipelinePainter.buildPipelineImage();

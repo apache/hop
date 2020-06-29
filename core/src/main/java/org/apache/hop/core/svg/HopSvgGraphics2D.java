@@ -1,4 +1,4 @@
-package org.apache.hop.core.gui;
+package org.apache.hop.core.svg;
 
 import org.apache.batik.svggen.DOMGroupManager;
 import org.apache.batik.svggen.ExtensionHandler;

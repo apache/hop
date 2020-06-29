@@ -30,7 +30,7 @@ import org.w3c.dom.Document;
 public class SvgImage {
   private final Document document;
 
-  protected SvgImage( Document doc ) {
+  public SvgImage( Document doc ) {
     this.document = doc;
   }
 

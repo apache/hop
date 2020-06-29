@@ -26,10 +26,11 @@ import org.apache.hop.base.BaseHopMeta;
 import org.apache.hop.base.IBaseMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
-import org.apache.hop.core.gui.IPrimitiveGc.EColor;
-import org.apache.hop.core.gui.IPrimitiveGc.EImage;
-import org.apache.hop.core.gui.IPrimitiveGc.ELineStyle;
+import org.apache.hop.core.gui.IGc.EColor;
+import org.apache.hop.core.gui.IGc.EImage;
+import org.apache.hop.core.gui.IGc.ELineStyle;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 
@@ -39,7 +40,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   public final double theta = Math.toRadians( 11 ); // arrowhead sharpness
 
-  public static final int MINI_ICON_SIZE = 16;
   public static final int MINI_ICON_MARGIN = 5;
   public static final int MINI_ICON_TRIANGLE_BASE = 20;
   public static final int MINI_ICON_DISTANCE = 4;
@@ -63,6 +63,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   protected Point offset;
   protected Point dropCandidate;
   protected int iconSize;
+  protected int miniIconSize;
   protected int gridSize;
   protected Rectangle selectionRectangle;
   protected int lineWidth;
@@ -97,6 +98,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
     // props = PropsUI.getInstance();
     this.iconSize = iconSize;
+    this.miniIconSize = iconSize/2;
     this.lineWidth = lineWidth;
     this.gridSize = gridSize;
 
@@ -467,7 +469,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     return new int[] { x1, y1, x2, y2 };
   }
 
-  protected void drawArrow( EImage arrow, int[] line, Hop hop, Object startObject, Object endObject ) {
+  protected void drawArrow( EImage arrow, int[] line, Hop hop, Object startObject, Object endObject ) throws HopException {
     Point screen_from = real2screen( line[ 0 ], line[ 1 ] );
     Point screen_to = real2screen( line[ 2 ], line[ 3 ] );
 
@@ -476,7 +478,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   }
 
   protected abstract void drawArrow( EImage arrow, int x1, int y1, int x2, int y2, double theta, int size, double factor,
-                                     Hop jobHop, Object startObject, Object endObject );
+                                     Hop jobHop, Object startObject, Object endObject ) throws HopException;
 
   /**
    * Gets zoomFactor

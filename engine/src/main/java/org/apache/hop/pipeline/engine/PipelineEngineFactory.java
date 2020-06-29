@@ -45,7 +45,7 @@ public class PipelineEngineFactory {
       throw new HopException( "Error loading the pipeline run configuration '"+runConfigurationName+"'", e);
     }
     if (pipelineRunConfiguration==null) {
-      throw new HopException( "Unable to find the specified pipeline run configuration '"+runConfigurationName+"'" );
+      throw new HopException( "Unable to find the specified pipeline run configuration '"+runConfigurationName+"' in metadata provider: "+metadataProvider.getDescription() );
     }
 
     // Apply the variables from the run configuration

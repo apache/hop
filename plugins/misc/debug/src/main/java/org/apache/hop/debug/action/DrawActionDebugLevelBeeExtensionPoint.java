@@ -1,18 +1,13 @@
 package org.apache.hop.debug.action;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
-import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.debug.util.BeePainter;
 import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.debug.util.Defaults;
-import org.apache.hop.debug.util.SvgLoader;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.WorkflowPainterExtension;
-import org.apache.hop.workflow.action.ActionCopy;
 
 import java.awt.image.BufferedImage;
 import java.util.Map;
@@ -25,7 +20,7 @@ import java.util.Map;
 /**
  * We need to use the hop drawing logic because the workflow entry XP is not available
  */
-public class DrawActionDebugLevelBeeExtensionPoint implements IExtensionPoint<WorkflowPainterExtension> {
+public class DrawActionDebugLevelBeeExtensionPoint extends BeePainter implements IExtensionPoint<WorkflowPainterExtension> {
 
   private static BufferedImage beeImage;
 
@@ -42,7 +37,7 @@ public class DrawActionDebugLevelBeeExtensionPoint implements IExtensionPoint<Wo
 
         ActionDebugLevel actionDebugLevel = DebugLevelUtil.getActionDebugLevel( actionLevelMap, ext.actionCopy.toString() );
         if (actionDebugLevel!=null) {
-          BeePainter.drawBee( ext.gc, ext.x1, ext.y1, iconSize, this.getClass().getClassLoader() );
+          drawBee( ext.gc, ext.x1, ext.y1, iconSize, this.getClass().getClassLoader() );
         }
       }
     } catch ( Exception e ) {

@@ -24,14 +24,13 @@
 package org.apache.hop.core.row.value;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.IPrimitiveGc;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IValueMeta;
@@ -4500,13 +4499,6 @@ public class ValueMetaBase implements IValueMeta {
   @Override
   public void setIgnoreWhitespace( boolean ignoreWhitespace ) {
     this.ignoreWhitespace = ignoreWhitespace;
-  }
-
-  @Override
-  public void drawValue( IPrimitiveGc gc, Object value ) throws HopValueException {
-    // Just draw the string by default.
-    //
-    gc.drawText( getString( value ), 0, 0 );
   }
 
   @SuppressWarnings( "fallthrough" )

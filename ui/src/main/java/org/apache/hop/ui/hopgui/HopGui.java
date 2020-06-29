@@ -57,6 +57,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
@@ -126,7 +127,7 @@ import java.util.Locale;
 @GuiPlugin(
   description = "The main hop graphical user interface"
 )
-public class HopGui implements IActionContextHandlersProvider, ISearchableProvider {
+public class HopGui implements IActionContextHandlersProvider, ISearchableProvider, IHasHopMetadataProvider {
   private static Class<?> PKG = HopGui.class;
 
   // The main Menu IDs

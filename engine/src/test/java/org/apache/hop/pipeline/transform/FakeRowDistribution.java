@@ -22,8 +22,9 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.gui.IPrimitiveGc;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.laf.BasePropertyHandler;
 
 @RowDistributionPlugin( code = "FakeDistribution", name = "Fake distribution",
   description = "Useful only for unit testing" )
@@ -46,7 +47,7 @@ public class FakeRowDistribution implements IRowDistribution {
   }
 
   @Override
-  public IPrimitiveGc.EImage getDistributionImage() {
-    return IPrimitiveGc.EImage.LOAD_BALANCE;
+  public SvgFile getDistributionImage() {
+    return new SvgFile( BasePropertyHandler.getProperty( "LoadBalance_image" ), this.getClass().getClassLoader() );
   }
 }

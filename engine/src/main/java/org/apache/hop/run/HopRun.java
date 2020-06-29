@@ -24,6 +24,7 @@ package org.apache.hop.run;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -55,7 +56,7 @@ import picocli.CommandLine.ParameterException;
 
 import java.io.IOException;
 
-public class HopRun implements Runnable {
+public class HopRun implements Runnable, IHasHopMetadataProvider {
 
   @Option( names = { "-f", "--file" }, description = "The filename of the workflow or pipeline to run" )
   private String filename;

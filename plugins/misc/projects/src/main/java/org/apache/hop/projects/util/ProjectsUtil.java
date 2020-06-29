@@ -8,13 +8,13 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
+import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.Project;
-import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.hopgui.HopGui;
 
 import java.util.List;
 
@@ -29,12 +29,11 @@ public class ProjectsUtil {
   public static final String STRING_ENVIRONMENT_AUDIT_TYPE = "environment";
 
 
-
   /**
    * Enable the specified project
    * Force reload of a number of settings
    *
-   * @param log the log channel to log to
+   * @param log                the log channel to log to
    * @param projectName
    * @param project
    * @param variables
@@ -42,13 +41,13 @@ public class ProjectsUtil {
    * @throws HopException
    * @throws HopException
    */
-  public static void enableProject( ILogChannel log, String projectName, Project project, IVariables variables, List<String> configurationFiles, String environmentName ) throws HopException {
+  public static void enableProject( ILogChannel log, String projectName, Project project, IVariables variables, List<String> configurationFiles, String environmentName, IHasHopMetadataProvider hasHopMetadataProvider ) throws HopException {
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
     ProjectConfig projectConfig = config.findProjectConfig( projectName );
-    if (projectConfig == null) {
-      throw new HopException("Error enabling project "+projectName+": it is not configured.");
+    if ( projectConfig == null ) {
+      throw new HopException( "Error enabling project " + projectName + ": it is not configured." );
     }
 
     // Variable system variables but also apply them to variables
@@ -56,11 +55,13 @@ public class ProjectsUtil {
     //
     project.modifyVariables( variables, projectConfig, configurationFiles, environmentName );
 
-    // Change the metadata
+    // Change the metadata provider in the GUI
     //
-    HopGui.getInstance().setMetadataProvider( HopMetadataUtil.getStandardHopMetadataProvider( variables ) );
+    if ( hasHopMetadataProvider != null ) {
+      hasHopMetadataProvider.setMetadataProvider( HopMetadataUtil.getStandardHopMetadataProvider( variables ) );
+    }
 
-    // We store the project in the HopGui namespace
+    // We store the project in the namespace singleton (used mainly in the GUI)
     //
     HopNamespace.setNamespace( projectName );
 
@@ -74,7 +75,7 @@ public class ProjectsUtil {
     if ( StringUtils.isNotEmpty( filename ) ) {
       // See that this filename is located under the environment home folder
       //
-      log.logBasic( "Validation against environment '"+projectConfig.getProjectName()+"' in home folder : " + projectHome );
+      log.logBasic( "Validation against environment '" + projectConfig.getProjectName() + "' in home folder : " + projectHome );
 
       FileObject envHome = HopVfs.getFileObject( projectHome );
       FileObject transFile = HopVfs.getFileObject( filename );
@@ -127,7 +128,7 @@ public class ProjectsUtil {
     log.logBasic( "Validating active project '" + activeProjectName + "'" );
     ProjectConfig projectConfig = config.findProjectConfig( activeProjectName );
 
-    if ( projectConfig==null ) {
+    if ( projectConfig == null ) {
       throw new HopException( "Project '" + activeProjectName + "' is not defined" );
     }
 
