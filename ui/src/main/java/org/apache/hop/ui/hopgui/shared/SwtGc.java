@@ -23,13 +23,18 @@
 package org.apache.hop.ui.hopgui.shared;
 
 import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.SwtUniversalImageSvg;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
+import org.apache.hop.core.svg.SvgCache;
+import org.apache.hop.core.svg.SvgCacheEntry;
+import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.util.ImageUtil;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.eclipse.swt.SWT;
@@ -38,13 +43,11 @@ import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.LineAttributes;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.graphics.Transform;
 
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -75,7 +78,7 @@ public class SwtGc implements IGc {
   private int iconsize;
 
   //TODO should be changed to PropsUi usage
-  private int small_icon_size = ConstUi.SMALL_ICON_SIZE;
+  private int miniIconSize = ConstUi.SMALL_ICON_SIZE;
 
   private Map<String, SwtUniversalImage> images;
 
@@ -137,25 +140,20 @@ public class SwtGc implements IGc {
 
   public void drawImage( String location, ClassLoader classLoader, int x, int y ) {
     Image img = SwtSvgImageUtil.getImage( PropsUi.getDisplay(), classLoader, location,
-      Math.round( small_icon_size * currentMagnification ),
-      Math.round( small_icon_size * currentMagnification ) );
+      Math.round( miniIconSize * currentMagnification ),
+      Math.round( miniIconSize * currentMagnification ) );
     if ( img != null ) {
       Rectangle bounds = img.getBounds();
-      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, small_icon_size, small_icon_size );
+      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, miniIconSize, miniIconSize );
     }
   }
 
-  @Override
-  public void drawImage( EImage image, int x, int y ) {
-    drawImage( image, x, y, currentMagnification );
-  }
-
   public void drawImage( EImage image, int x, int y, float magnification ) {
-    Image img = getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( small_icon_size * magnification ),
-      Math.round( small_icon_size * magnification ) );
+    Image img = getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( miniIconSize * magnification ),
+      Math.round( miniIconSize * magnification ) );
     if ( img != null ) {
       Rectangle bounds = img.getBounds();
-      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, small_icon_size, small_icon_size );
+      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, miniIconSize, miniIconSize );
     }
   }
 
@@ -170,18 +168,14 @@ public class SwtGc implements IGc {
 
   public void drawImage( EImage image, int x, int y, float magnification, double angle ) {
     Image img =
-      getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( small_icon_size * magnification ),
-        Math.round( small_icon_size * magnification ), angle );
+      getNativeImage( image ).getAsBitmapForSize( gc.getDevice(), Math.round( miniIconSize * magnification ),
+        Math.round( miniIconSize * magnification ), angle );
     if ( img != null ) {
       Rectangle bounds = img.getBounds();
       int hx = Math.round( bounds.width / magnification );
       int hy = Math.round( bounds.height / magnification );
       gc.drawImage( img, 0, 0, bounds.width, bounds.height, x - hx / 2, y - hy / 2, hx, hy );
     }
-  }
-
-  public Point getImageBounds( EImage image ) {
-    return new Point( small_icon_size, small_icon_size );
   }
 
   public static final SwtUniversalImage getNativeImage( EImage image ) {
@@ -417,7 +411,7 @@ public class SwtGc implements IGc {
   }
 
   public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) {
-    String transformtype = transformMeta.getTransformPluginId();
+    String transformType = transformMeta.getTransformPluginId();
     Image im = null;
     if ( transformMeta.isMissing() ) {
       im = GuiResource.getInstance().getImageMissing();
@@ -425,7 +419,7 @@ public class SwtGc implements IGc {
       im = GuiResource.getInstance().getImageDeprecated();
     } else {
       im =
-        images.get( transformtype ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
+        images.get( transformType ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
           Math.round( iconsize * magnification ) );
     }
     if ( im != null ) { // Draw the icon!
@@ -470,14 +464,16 @@ public class SwtGc implements IGc {
     gc.drawImage( image, 0, 0, bounds.width, bounds.height, x, y, iconsize, iconsize );
   }
 
-  @Override
-  public void drawActionIcon( int x, int y, ActionCopy actionCopy ) {
-    drawActionIcon( x, y, actionCopy, currentMagnification );
-  }
+  @Override public void drawImage( SvgFile svgFile, int x, int y, int desiredWidth, int desiredHeight, float magnification, double angle ) throws HopException {
+    //
+    SvgCacheEntry cacheEntry = SvgCache.loadSvg( svgFile );
+    SwtUniversalImageSvg imageSvg = new SwtUniversalImageSvg( new SvgImage(cacheEntry.getSvgDocument()) );
 
-  @Override
-  public void drawTransformIcon( int x, int y, TransformMeta transformMeta ) {
-    drawTransformIcon( x, y, transformMeta, currentMagnification );
+    Image img = imageSvg.getAsBitmapForSize( gc.getDevice(), Math.round( desiredWidth * magnification ), Math.round( desiredHeight * magnification ), angle );
+    Rectangle bounds = img.getBounds();
+    int hx = Math.round( bounds.width / magnification );
+    int hy = Math.round( bounds.height / magnification );
+    gc.drawImage( img, 0, 0, bounds.width, bounds.height, x - hx / 2, y - hy / 2, hx, hy );
   }
 
   public void setAntialias( boolean antiAlias ) {
@@ -546,11 +542,4 @@ public class SwtGc implements IGc {
     return area;
   }
 
-  @Override
-  public void drawImage( BufferedImage image, int x, int y ) {
-    ImageData imageData = ImageUtil.convertToSWT( image );
-    Image swtImage = new Image( gc.getDevice(), imageData );
-    gc.drawImage( swtImage, x, y );
-    swtImage.dispose();
-  }
 }

@@ -23,35 +23,23 @@
 package org.apache.hop.ui.workflow.dialog;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.DbCache;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.database.Database;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.database.dialog.SqlEditor;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.IFieldDisabledListener;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
@@ -75,13 +63,10 @@ import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 
 /**
@@ -656,7 +641,7 @@ public class WorkflowDialog extends Dialog {
     updateNameFilenameSync( null );
     wDescription.setText( Const.NVL( workflowMeta.getDescription(), "" ) );
     wExtendedDescription.setText( Const.NVL( workflowMeta.getExtendedDescription(), "" ) );
-    wVersion.setText( Const.NVL( workflowMeta.getJobversion(), "" ) );
+    wVersion.setText( Const.NVL( workflowMeta.getWorkflowVersion(), "" ) );
     wWorkflowStatus.select( workflowMeta.getWorkflowStatus() - 1 );
 
     if ( workflowMeta.getCreatedUser() != null ) {
@@ -716,7 +701,7 @@ public class WorkflowDialog extends Dialog {
     workflowMeta.setName( wWorkflowName.getText() );
     workflowMeta.setDescription( wDescription.getText() );
     workflowMeta.setExtendedDescription( wExtendedDescription.getText() );
-    workflowMeta.setJobversion( wVersion.getText() );
+    workflowMeta.setWorkflowVersion( wVersion.getText() );
     if ( wWorkflowStatus.getSelectionIndex() != 2 ) {
       // Saving the index as meta data is in fact pretty bad, but since
       // it was already in ...

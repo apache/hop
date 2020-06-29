@@ -506,7 +506,7 @@ public class ProjectsGuiPlugin {
       // Set the variables and so on...
       //
       String environmentName = environment == null ? null : environment.getName();
-      ProjectsUtil.enableProject( hopGui.getLog(), projectName, project, variables, configurationFiles, environmentName);
+      ProjectsUtil.enableProject( hopGui.getLog(), projectName, project, variables, configurationFiles, environmentName, hopGui);
 
       // We need to change the currently set variables in the newly loaded files
       //

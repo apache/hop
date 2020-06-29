@@ -37,7 +37,6 @@ import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.util.ImageUtil;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
@@ -181,43 +180,25 @@ public class GuiResource {
 
   private SwtUniversalImage imagePreview;
 
-  private Image imageKeySmall;
-
-  private Image imageColumnSmall;
-
   private Image imageSchema;
 
   private Image imageSynonym;
 
-  private Image imageProcedure;
-
-  private Image imageExploreDbSmall;
-
   private Image imageView;
 
-  private Image imageHopLogo;
-
   private SwtUniversalImage imageLogoSmall;
-
-  private Image imageBanner;
 
   private SwtUniversalImage imageBol;
 
   private Image imageCalendar;
 
-  private SwtUniversalImage imageCluster;
-
   private SwtUniversalImage imageServer;
-
-  private SwtUniversalImage imageServerTree;
 
   private SwtUniversalImage imageArrow;
 
   private SwtUniversalImage imageFolder;
 
   private Image imageWizard;
-
-  private Image imageCredits;
 
   private SwtUniversalImage imageStart;
 
@@ -246,8 +227,6 @@ public class GuiResource {
   private SwtUniversalImage candidateArrow;
 
   private Image imageUser;
-
-  private Image imageProfil;
 
   private SwtUniversalImage imageFolderConnections;
 
@@ -291,10 +270,6 @@ public class GuiResource {
 
   private Image imageHideResults;
 
-  private Image imageDesignPanel;
-
-  private Image imageViewPanel;
-
   private SwtUniversalImage imageExpandAll;
 
   private SwtUniversalImage imageClearText;
@@ -319,8 +294,6 @@ public class GuiResource {
 
   private SwtUniversalImage imageWarning;
 
-  private Image imageVersionBrowser;
-
   private Image imageDeprecated;
 
   private Image imageNew;
@@ -329,15 +302,9 @@ public class GuiResource {
 
   private Image imageDelete;
 
-  private Image imageShowDeleted;
-
   private Image imagePauseLog;
 
   private Image imageContinueLog;
-
-  private Image imageImport;
-
-  private Image imageExport;
 
   private SwtUniversalImage imageHopInput;
 
@@ -365,8 +332,6 @@ public class GuiResource {
 
   private SwtUniversalImage imageCheckpoint;
 
-  private Image imageGantt;
-
   private Image imageHelpWeb;
 
   /**
@@ -377,10 +342,6 @@ public class GuiResource {
   private Map<String, Image> imageMap;
 
   private Map<RGB, Color> colorMap;
-
-  private Image imageHadoop;
-
-  private Image imageDropHere;
 
   private Image imagePipelineCanvas;
 
@@ -622,21 +583,14 @@ public class GuiResource {
       imagePreview.dispose();
       imageSchema.dispose();
       imageSynonym.dispose();
-      imageProcedure.dispose();
-      imageExploreDbSmall.dispose();
       imageView.dispose();
       imageLogoSmall.dispose();
-      imageHopLogo.dispose();
-      imageBanner.dispose();
       imageBol.dispose();
       imageCalendar.dispose();
-      imageCluster.dispose();
       imageServer.dispose();
-      imageServerTree.dispose();
       imageArrow.dispose();
       imageFolder.dispose();
       imageWizard.dispose();
-      imageCredits.dispose();
       imageStart.dispose();
       imageDummy.dispose();
       imageMissing.dispose();
@@ -648,7 +602,6 @@ public class GuiResource {
       imagePipelineTree.dispose();
       imageWorkflowTree.dispose();
       imageUser.dispose();
-      imageProfil.dispose();
       imageFolderConnections.dispose();
       imageShowResults.dispose();
       imageHideResults.dispose();
@@ -659,29 +612,21 @@ public class GuiResource {
       imageErrorHop.dispose();
       imageInfoHop.dispose();
       imageWarning.dispose();
-      imageVersionBrowser.dispose();
       imageClearText.dispose();
       imageDeprecated.dispose();
       imageClearTextDisabled.dispose();
       imageExpandAll.dispose();
       imageSearchSmall.dispose();
       imageRegExSmall.dispose();
-      imageViewPanel.dispose();
-      imageDesignPanel.dispose();
       imageNew.dispose();
       imageEdit.dispose();
       imageDelete.dispose();
-      imageShowDeleted.dispose();
       imagePauseLog.dispose();
       imageContinueLog.dispose();
       imageLocked.dispose();
-      imageImport.dispose();
-      imageExport.dispose();
       imageHopInput.dispose();
       imageHopOutput.dispose();
       imageHopTarget.dispose();
-      imageKeySmall.dispose();
-      imageColumnSmall.dispose();
       imageTrue.dispose();
       imageFalse.dispose();
       imageContextMenu.dispose();
@@ -692,10 +637,7 @@ public class GuiResource {
       imageInject.dispose();
       imageBalance.dispose();
       imageCheckpoint.dispose();
-      imageGantt.dispose();
       imageHelpWeb.dispose();
-      imageHadoop.dispose();
-      imageDropHere.dispose();
       imagePipelineCanvas.dispose();
       imageWorkflowCanvas.dispose();
       imageAddAll.dispose();
@@ -937,36 +879,14 @@ public class GuiResource {
     // "ui/images/noteSmall.svg"
     imageNoteSmall = loadAsResource( display, BasePropertyHandler.getProperty( "Note_image" ), 12 );
 
-    // "ui/images/proc.svg"
-    imageProcedure = loadAsResource( display, BasePropertyHandler.getProperty( "ProcedureSmall_image" ), ConstUi.SMALL_ICON_SIZE );
-
-    // , "ui/images/exploreDbSmall.svg"
-    imageExploreDbSmall =
-      loadAsResource( display, BasePropertyHandler.getProperty( "ExploreDbSmall_image" ), ConstUi.SMALL_ICON_SIZE );
-
-    // "ui/images/cluster.svg"
-    imageCluster = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Cluster_image" ) );
-
     // , "ui/images/server.svg"
     imageServer = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Server_image" ) );
-
-    // , "ui/images/server-tree.svg"
-    imageServerTree = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Server_tree_image" ) );
-
-    // "ui/images/hop_logo_lrg.svg"
-    imageHopLogo = loadAsResource( display, BasePropertyHandler.getProperty( "Logo_lrg_image" ), 0 );
-
-    // "ui/images/bg_banner.svg"
-    imageBanner = loadAsResource( display, BasePropertyHandler.getProperty( "Banner_bg_image" ), 0 );
 
     // "ui/images/BOL.svg"
     imageBol = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "BOL_image" ) );
 
     // "ui/images/Calendar.svg"
     imageCalendar = loadAsResource( display, BasePropertyHandler.getProperty( "Calendar_image" ), ConstUi.SMALL_ICON_SIZE ); // ,
-
-    // "ui/images/credits.svg"
-    imageCredits = loadAsResource( display, BasePropertyHandler.getProperty( "Credits_image" ), 0 );
 
     // "ui/images/STR.svg"
     imageStart = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "STR_image" ) );
@@ -1037,12 +957,6 @@ public class GuiResource {
     // "ui/images/hide-results.svg
     imageHideResults = loadAsResource( display, BasePropertyHandler.getProperty( "HideResults_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/Design.svg;
-    imageDesignPanel = loadAsResource( display, BasePropertyHandler.getProperty( "DesignPanel_image" ), 0 );
-
-    // "ui/images/View.svg;
-    imageViewPanel = loadAsResource( display, BasePropertyHandler.getProperty( "ViewPanel_image" ), 0 );
-
     // "ui/images/ClearText.svg;
     imageClearText = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "ClearText_image" ) );
 
@@ -1074,11 +988,8 @@ public class GuiResource {
     imageWarning = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "Warning_image" ) );
 
     // "ui/images/deprecated.svg
-    imageDeprecated = loadAsResource( display, BasePropertyHandler.getProperty( "Deprecated_image" ),
-      ConstUi.LARGE_ICON_SIZE );
+    imageDeprecated = loadAsResource( display, BasePropertyHandler.getProperty( "Deprecated_image" ), ConstUi.LARGE_ICON_SIZE );
 
-    // "ui/images/version-history.svg;
-    imageVersionBrowser = loadAsResource( display, BasePropertyHandler.getProperty( "VersionBrowser_image" ), ConstUi.SMALL_ICON_SIZE );
 
     // "ui/images/generic-new.svg;
     imageNew = loadAsResource( display, BasePropertyHandler.getProperty( "Add_image" ), ConstUi.SMALL_ICON_SIZE );
@@ -1089,20 +1000,11 @@ public class GuiResource {
     // "ui/images/generic-delete.svg;
     imageDelete = loadAsResource( display, BasePropertyHandler.getProperty( "DeleteOriginal_image" ), ConstUi.SMALL_ICON_SIZE );
 
-    // "ui/images/show-deleted.svg;
-    imageShowDeleted = loadAsResource( display, BasePropertyHandler.getProperty( "ShowDeleted_image" ), ConstUi.SMALL_ICON_SIZE );
-
     // "ui/images/pause-log.svg;
     imagePauseLog = loadAsResource( display, BasePropertyHandler.getProperty( "PauseLog_image" ), ConstUi.SMALL_ICON_SIZE );
 
     // "ui/images/continue-log.svg;
     imageContinueLog = loadAsResource( display, BasePropertyHandler.getProperty( "ContinueLog_image" ), ConstUi.SMALL_ICON_SIZE );
-
-    // "ui/images/import.svg;
-    imageImport = loadAsResource( display, BasePropertyHandler.getProperty( "Import_image" ), ConstUi.SMALL_ICON_SIZE );
-
-    // "ui/images/export.svg;
-    imageExport = loadAsResource( display, BasePropertyHandler.getProperty( "Export_image" ), ConstUi.SMALL_ICON_SIZE );
 
     // "ui/images/hop-input.svg;
     imageHopInput = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "HopInput_image" ) );
@@ -1143,17 +1045,8 @@ public class GuiResource {
     // "ui/images/scales.svg
     imageCheckpoint = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "CheckeredFlag_image" ) );
 
-    // "ui/images/gantt.svg
-    imageGantt = loadAsResource( display, BasePropertyHandler.getProperty( "Gantt_image" ), ConstUi.SMALL_ICON_SIZE );
-
     // "ui/images/help_web.svg
     imageHelpWeb = loadAsResource( display, BasePropertyHandler.getProperty( "HelpWeb_image" ), ConstUi.SMALL_ICON_SIZE );
-
-    // "ui/images/hadoop.svg
-    imageHadoop = loadAsResource( display, BasePropertyHandler.getProperty( "Hadoop_image" ), ConstUi.SMALL_ICON_SIZE );
-
-    // "ui/images/drop_here.svg
-    imageDropHere = loadAsResource( display, BasePropertyHandler.getProperty( "DropHere_image" ), 0 );
 
     // "ui/images/pipeline_canvas.svg
     imagePipelineCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "PipelineCanvas_image" ), 800, 250 );
@@ -1229,22 +1122,14 @@ public class GuiResource {
     // "ui/images/wizard.svg"
     imageWizard = loadAsResource( display, BasePropertyHandler.getProperty( "spoon_icon" ), 0 );
 
-    // , "ui/images/bg_banner.svg"
-    imageBanner = ImageUtil.makeImageTransparent( display, loadAsResource( display, BasePropertyHandler.getProperty( "Banner_bg_image" ), 0 ), new RGB( 255, 255, 255 ) );
-
     // , "ui/images/user.svg"
     imageUser = loadAsResource( display, BasePropertyHandler.getProperty( "User_image" ), ConstUi.SMALL_ICON_SIZE );
-
-    // "ui/images/profil.svg"
-    imageProfil = loadAsResource( display, BasePropertyHandler.getProperty( "Profil_image" ), ConstUi.SMALL_ICON_SIZE );
 
     // "ui/images/folder_connection.svg"
     imageFolderConnections = SwtSvgImageUtil.getImageAsResource( display, BasePropertyHandler.getProperty( "FolderConnections_image" ) );
 
     imageRegExSmall = loadAsResource( display, BasePropertyHandler.getProperty( "RegExSmall_image" ), ConstUi.SMALL_ICON_SIZE );
     imageSearchSmall = loadAsResource( display, BasePropertyHandler.getProperty( "SearchSmall_image" ), ConstUi.SMALL_ICON_SIZE );
-    imageKeySmall = loadAsResource( display, BasePropertyHandler.getProperty( "KeySmall_image" ), ConstUi.SMALL_ICON_SIZE );
-    imageColumnSmall = loadAsResource( display, BasePropertyHandler.getProperty( "ColumnSmall_image" ), ConstUi.SMALL_ICON_SIZE );
 
     defaultArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "defaultArrow_image" ) );
     okArrow = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "okArrow_image" ) );
@@ -1488,42 +1373,10 @@ public class GuiResource {
   }
 
   /**
-   * @return Returns the imageCluster.
-   */
-  public Image getImageCluster() {
-    return imageCluster.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
-  }
-
-  public Image getImageClusterMedium() {
-    return imageCluster.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
-  }
-
-  /**
    * @return Returns the imageServer.
    */
   public Image getImageServer() {
     return imageServer.getAsBitmapForSize( display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
-  }
-
-  /**
-   * @return Returns the imageServer.
-   */
-  public Image getImageServerMedium() {
-    return imageServer.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
-  }
-
-  /**
-   * @return Returns the imageServerTree.
-   */
-  public Image getImageServerTree() {
-    return imageServerTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
-  }
-
-  /**
-   * @return Returns the imageServer.
-   */
-  public Image getImageServerTreeMedium() {
-    return imageServerTree.getAsBitmapForSize( display, ConstUi.MEDIUM_ICON_SIZE, ConstUi.MEDIUM_ICON_SIZE );
   }
 
   /**
@@ -1571,20 +1424,6 @@ public class GuiResource {
   }
 
   /**
-   * @return Returns the imageKeySmall.
-   */
-  public Image getImageKeySmall() {
-    return imageKeySmall;
-  }
-
-  /**
-   * @return Returns the imageColumnSmall.
-   */
-  public Image getImageColumnSmall() {
-    return imageColumnSmall;
-  }
-
-  /**
    * @return Returns the imageSchema.
    */
   public Image getImageSchema() {
@@ -1596,20 +1435,6 @@ public class GuiResource {
    */
   public Image getImageSynonym() {
     return imageSynonym;
-  }
-
-  /**
-   * @return Returns the imageProcedure.
-   */
-  public Image getImageProcedure() {
-    return imageProcedure;
-  }
-
-  /**
-   * @return Returns the imageExploreDbSmall.
-   */
-  public Image getImageExploreDbSmall() {
-    return imageExploreDbSmall;
   }
 
   /**
@@ -1631,13 +1456,6 @@ public class GuiResource {
    */
   public Image getImageColor() {
     return imageColor;
-  }
-
-  /**
-   * @return Returns the imageCredits.
-   */
-  public Image getImageCredits() {
-    return imageCredits;
   }
 
   /**
@@ -1828,10 +1646,6 @@ public class GuiResource {
     return imageUser;
   }
 
-  public Image getImageProfil() {
-    return imageProfil;
-  }
-
   public Image getImageFolderConnections() {
     return getZoomedImaged( imagePipelineGraph, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
@@ -1915,38 +1729,10 @@ public class GuiResource {
   }
 
   /**
-   * @return the imageBanner
-   */
-  public Image getImageBanner() {
-    return imageBanner;
-  }
-
-  /**
    * @return the imageWizard
    */
   public Image getImageWizard() {
     return imageWizard;
-  }
-
-  /**
-   * @param imageBanner the imageBanner to set
-   */
-  public void setImageBanner( Image imageBanner ) {
-    this.imageBanner = imageBanner;
-  }
-
-  /**
-   * @return the imageHopLogo
-   */
-  public Image getImageHopLogo() {
-    return imageHopLogo;
-  }
-
-  /**
-   * @param imageHopLogo the imageHopLogo to set
-   */
-  public void setImageHopLogo( Image imageHopLogo ) {
-    this.imageHopLogo = imageHopLogo;
   }
 
   /**
@@ -2183,14 +1969,6 @@ public class GuiResource {
     return imageHideResults;
   }
 
-  public Image getImageDesignPanel() {
-    return imageDesignPanel;
-  }
-
-  public Image getImageViewPanel() {
-    return imageViewPanel;
-  }
-
   public Image getImageClearText() {
     return getZoomedImaged( imageClearText, display, ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
   }
@@ -2275,10 +2053,6 @@ public class GuiResource {
     return imageWarning;
   }
 
-  public Image getImageVersionBrowser() {
-    return imageVersionBrowser;
-  }
-
   public Image getImageDeprecated() {
     return imageDeprecated;
   }
@@ -2299,24 +2073,12 @@ public class GuiResource {
     return imageDelete;
   }
 
-  public Image getImageShowDeleted() {
-    return imageShowDeleted;
-  }
-
   public Image getImagePauseLog() {
     return imagePauseLog;
   }
 
   public Image getImageContinueLog() {
     return imageContinueLog;
-  }
-
-  public Image getImageImport() {
-    return imageImport;
-  }
-
-  public Image getImageExport() {
-    return imageExport;
   }
 
   public Image getImageHopInput() {
@@ -2510,24 +2272,8 @@ public class GuiResource {
     return imageCheckpoint;
   }
 
-  public Image getImageGantt() {
-    return imageGantt;
-  }
-
   public Image getImageHelpWeb() {
     return imageHelpWeb;
-  }
-
-  public Image getHadoop() {
-    return imageHadoop;
-  }
-
-  public void setImageDropHere( Image imageDropHere ) {
-    this.imageDropHere = imageDropHere;
-  }
-
-  public Image getImageDropHere() {
-    return imageDropHere;
   }
 
   public Image getImagePipelineCanvas() {

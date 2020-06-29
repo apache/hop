@@ -2727,8 +2727,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     pipelinePainter.setCandidateHopType( candidateHopType );
     pipelinePainter.setStartErrorHopTransform( startErrorHopTransform );
 
-    pipelinePainter.buildPipelineImage();
-
+    try {
+      pipelinePainter.buildPipelineImage();
+    } catch(Exception e) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error building pipeline image", e );
+    }
     Image img = (Image) gc.getImage();
 
     gc.dispose();

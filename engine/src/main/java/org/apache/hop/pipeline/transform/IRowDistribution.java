@@ -23,8 +23,8 @@
 package org.apache.hop.pipeline.transform;
 
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.gui.IPrimitiveGc.EImage;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.svg.SvgFile;
 
 public interface IRowDistribution {
 
@@ -41,8 +41,8 @@ public interface IRowDistribution {
   /**
    * Do the actual row distribution in the transform
    *
-   * @param rowMeta       the meta-data of the row to distribute
-   * @param row           the data of the row data to distribute
+   * @param rowMeta    the meta-data of the row to distribute
+   * @param row        the data of the row data to distribute
    * @param iTransform The transform to distribute the rows in
    * @throws HopTransformException
    */
@@ -51,7 +51,7 @@ public interface IRowDistribution {
   /**
    * Which mini-icon needs to be shown on the hop?
    *
-   * @return the available code EImage or null if the standard icon needs to be used.
+   * @return the available svg file or null if the standard icon needs to be used.
    */
-  EImage getDistributionImage();
+  SvgFile getDistributionImage();
 }

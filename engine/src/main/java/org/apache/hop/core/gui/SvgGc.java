@@ -22,80 +22,92 @@
 
 package org.apache.hop.core.gui;
 
-import org.apache.commons.io.IOUtils;
+import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
+import org.apache.batik.util.SVGConstants;
+import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.SwingUniversalImage;
-import org.apache.hop.core.SwingUniversalImageSvg;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.svg.SvgImage;
-import org.apache.hop.core.svg.SvgSupport;
-import org.apache.hop.core.util.SwingSvgImageUtil;
+import org.apache.hop.core.exception.HopPluginException;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.plugins.TransformPluginType;
+import org.apache.hop.core.svg.HopSvgGraphics2D;
+import org.apache.hop.core.svg.SvgCache;
+import org.apache.hop.core.svg.SvgCacheEntry;
+import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.action.ActionCopy;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.svg.SVGDocument;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.batik.svggen.DOMGroupManager.DRAW;
 
 
 public class SvgGc implements IGc {
 
-  private static SwingUniversalImageSvg imageLocked;
+  private static SvgFile imageLocked;
 
-  private static SwingUniversalImageSvg imageTransformError;
+  private static SvgFile imageTransformError;
 
-  private static SwingUniversalImageSvg imageEdit;
+  private static SvgFile imageEdit;
 
-  private static SwingUniversalImageSvg imageContextMenu;
+  private static SvgFile imageContextMenu;
 
-  private static SwingUniversalImageSvg imageTrue;
+  private static SvgFile imageTrue;
 
-  private static SwingUniversalImageSvg imageFalse;
+  private static SvgFile imageFalse;
 
-  private static SwingUniversalImageSvg imageErrorHop;
+  private static SvgFile imageErrorHop;
 
-  private static SwingUniversalImageSvg imageInfoHop;
+  private static SvgFile imageInfoHop;
 
-  private static SwingUniversalImageSvg imageHopTarget;
+  private static SvgFile imageHopTarget;
 
-  private static SwingUniversalImageSvg imageHopInput;
+  private static SvgFile imageHopInput;
 
-  private static SwingUniversalImageSvg imageHopOutput;
+  private static SvgFile imageHopOutput;
 
-  private static SwingUniversalImageSvg imageArrow;
+  private static SvgFile imageArrow;
 
-  private static SwingUniversalImageSvg imageCopyHop;
+  private static SvgFile imageCopyHop;
 
-  private static SwingUniversalImageSvg imageLoadBalance;
+  private static SvgFile imageLoadBalance;
 
-  private static SwingUniversalImageSvg imageCheckpoint;
+  private static SvgFile imageCheckpoint;
 
-  private static SwingUniversalImageSvg imageDatabase;
+  private static SvgFile imageDatabase;
 
-  private static SwingUniversalImageSvg imageParallelHop;
+  private static SvgFile imageParallelHop;
 
-  private static SwingUniversalImageSvg imageUnconditionalHop;
+  private static SvgFile imageUnconditionalHop;
 
-  private static SwingUniversalImageSvg imageStart;
+  private static SvgFile imageStart;
 
-  private static SwingUniversalImageSvg imageDummy;
+  private static SvgFile imageDummy;
 
-  private static SwingUniversalImageSvg imageBusy;
+  private static SvgFile imageBusy;
 
-  private static SwingUniversalImageSvg imageInject;
+  private static SvgFile imageInject;
 
-  private static SwingUniversalImageSvg imageData;
+  private static SvgFile imageData;
 
-  private static SwingUniversalImageSvg defaultArrow;
-  private static SwingUniversalImageSvg okArrow;
-  private static SwingUniversalImageSvg errorArrow;
-  private static SwingUniversalImageSvg disabledArrow;
+  private static SvgFile defaultArrow;
+  private static SvgFile okArrow;
+  private static SvgFile errorArrow;
+  private static SvgFile disabledArrow;
 
   protected Color background;
 
@@ -114,15 +126,13 @@ public class SvgGc implements IGc {
   protected Color hopDefault;
   protected Color hopOK;
 
-  private Graphics2D gc;
+  private HopSvgGraphics2D gc;
 
   private int iconSize;
+  private int miniIconSize;
 
-  //TODO should be changed to PropsUI usage
-  private int smallIconSize = 16;
-
-  private Map<String, SwingUniversalImageSvg> transformImages;
-  private Map<String, SwingUniversalImageSvg> actionImages;
+  private Map<String, SvgFile> transformImages;
+  private Map<String, SvgFile> actionImages;
 
   private Point area;
 
@@ -143,17 +153,41 @@ public class SvgGc implements IGc {
 
   private AffineTransform originalTransform;
 
-  public SvgGc( Graphics2D gc, Point area, int iconSize, int xOffset, int yOffset ) throws HopException {
+  public SvgGc( HopSvgGraphics2D gc, Point area, int iconSize, int xOffset, int yOffset ) throws HopException {
     this.gc = gc;
-    this.transformImages = SwingGUIResource.getInstance().getTransformImages();
-    this.actionImages = SwingGUIResource.getInstance().getActionImages();
+    this.transformImages = getTransformImageFilenames();
+    this.actionImages = getActionImageFilenames();
     this.iconSize = iconSize;
+    this.miniIconSize = iconSize/2;
     this.area = area;
     this.xOffset = xOffset;
     this.yOffset = yOffset;
     this.originalTransform = this.gc.getTransform();
 
     init();
+  }
+
+  private Map<String, SvgFile> getTransformImageFilenames() throws HopPluginException {
+    Map<String, SvgFile> map = new HashMap<>();
+    PluginRegistry registry = PluginRegistry.getInstance();
+    for ( IPlugin plugin : registry.getPlugins( TransformPluginType.class ) ) {
+      for ( String id : plugin.getIds() ) {
+        map.put( id, new SvgFile( plugin.getImageFile(), registry.getClassLoader( plugin ) ) );
+      }
+    }
+    return map;
+  }
+
+  private Map<String, SvgFile> getActionImageFilenames() throws HopPluginException {
+    Map<String, SvgFile> map = new HashMap<>();
+    PluginRegistry registry = PluginRegistry.getInstance();
+
+    for ( IPlugin plugin : registry.getPlugins( TransformPluginType.class ) ) {
+      for ( String id : plugin.getIds() ) {
+        map.put( id, new SvgFile( plugin.getImageFile(), registry.getClassLoader( plugin ) ) );
+      }
+    }
+    return map;
   }
 
 
@@ -178,34 +212,34 @@ public class SvgGc implements IGc {
     this.hopDefault = new Color( 61, 99, 128 );
     this.hopOK = new Color( 12, 178, 15 );
 
-    imageLocked = getImageIcon( BasePropertyHandler.getProperty( "Locked_image" ) );
-    imageTransformError = getImageIcon( BasePropertyHandler.getProperty( "TransformErrorLines_image" ) );
-    imageEdit = getImageIcon( BasePropertyHandler.getProperty( "EditSmall_image" ) );
-    imageContextMenu = getImageIcon( BasePropertyHandler.getProperty( "ContextMenu_image" ) );
-    imageTrue = getImageIcon( BasePropertyHandler.getProperty( "True_image" ) );
-    imageFalse = getImageIcon( BasePropertyHandler.getProperty( "False_image" ) );
-    imageErrorHop = getImageIcon( BasePropertyHandler.getProperty( "ErrorHop_image" ) );
-    imageInfoHop = getImageIcon( BasePropertyHandler.getProperty( "InfoHop_image" ) );
-    imageHopTarget = getImageIcon( BasePropertyHandler.getProperty( "HopTarget_image" ) );
-    imageHopInput = getImageIcon( BasePropertyHandler.getProperty( "HopInput_image" ) );
-    imageHopOutput = getImageIcon( BasePropertyHandler.getProperty( "HopOutput_image" ) );
-    imageArrow = getImageIcon( BasePropertyHandler.getProperty( "ArrowIcon_image" ) );
-    imageCopyHop = getImageIcon( BasePropertyHandler.getProperty( "CopyHop_image" ) );
-    imageLoadBalance = getImageIcon( BasePropertyHandler.getProperty( "LoadBalance_image" ) );
-    imageCheckpoint = getImageIcon( BasePropertyHandler.getProperty( "CheckeredFlag_image" ) );
-    imageDatabase = getImageIcon( BasePropertyHandler.getProperty( "Database_image" ) );
-    imageParallelHop = getImageIcon( BasePropertyHandler.getProperty( "ParallelHop_image" ) );
-    imageUnconditionalHop = getImageIcon( BasePropertyHandler.getProperty( "UnconditionalHop_image" ) );
-    imageStart = getImageIcon( BasePropertyHandler.getProperty( "STR_image" ) );
-    imageDummy = getImageIcon( BasePropertyHandler.getProperty( "DUM_image" ) );
-    imageBusy = getImageIcon( BasePropertyHandler.getProperty( "Busy_image" ) );
-    imageInject = getImageIcon( BasePropertyHandler.getProperty( "Inject_image" ) );
-    imageData = getImageIcon( BasePropertyHandler.getProperty( "Data_image" ) );
+    imageLocked = new SvgFile( BasePropertyHandler.getProperty( "Locked_image" ), this.getClass().getClassLoader() );
+    imageTransformError = new SvgFile( BasePropertyHandler.getProperty( "TransformErrorLines_image" ), this.getClass().getClassLoader() );
+    imageEdit = new SvgFile( BasePropertyHandler.getProperty( "EditSmall_image" ), this.getClass().getClassLoader() );
+    imageContextMenu = new SvgFile( BasePropertyHandler.getProperty( "ContextMenu_image" ), this.getClass().getClassLoader() );
+    imageTrue = new SvgFile( BasePropertyHandler.getProperty( "True_image" ), this.getClass().getClassLoader() );
+    imageFalse = new SvgFile( BasePropertyHandler.getProperty( "False_image" ), this.getClass().getClassLoader() );
+    imageErrorHop = new SvgFile( BasePropertyHandler.getProperty( "ErrorHop_image" ), this.getClass().getClassLoader() );
+    imageInfoHop = new SvgFile( BasePropertyHandler.getProperty( "InfoHop_image" ), this.getClass().getClassLoader() );
+    imageHopTarget = new SvgFile( BasePropertyHandler.getProperty( "HopTarget_image" ), this.getClass().getClassLoader() );
+    imageHopInput = new SvgFile( BasePropertyHandler.getProperty( "HopInput_image" ), this.getClass().getClassLoader() );
+    imageHopOutput = new SvgFile( BasePropertyHandler.getProperty( "HopOutput_image" ), this.getClass().getClassLoader() );
+    imageArrow = new SvgFile( BasePropertyHandler.getProperty( "ArrowIcon_image" ), this.getClass().getClassLoader() );
+    imageCopyHop = new SvgFile( BasePropertyHandler.getProperty( "CopyHop_image" ), this.getClass().getClassLoader() );
+    imageLoadBalance = new SvgFile( BasePropertyHandler.getProperty( "LoadBalance_image" ), this.getClass().getClassLoader() );
+    imageCheckpoint = new SvgFile( BasePropertyHandler.getProperty( "CheckeredFlag_image" ), this.getClass().getClassLoader() );
+    imageDatabase = new SvgFile( BasePropertyHandler.getProperty( "Database_image" ), this.getClass().getClassLoader() );
+    imageParallelHop = new SvgFile( BasePropertyHandler.getProperty( "ParallelHop_image" ), this.getClass().getClassLoader() );
+    imageUnconditionalHop = new SvgFile( BasePropertyHandler.getProperty( "UnconditionalHop_image" ), this.getClass().getClassLoader() );
+    imageStart = new SvgFile( BasePropertyHandler.getProperty( "STR_image" ), this.getClass().getClassLoader() );
+    imageDummy = new SvgFile( BasePropertyHandler.getProperty( "DUM_image" ), this.getClass().getClassLoader() );
+    imageBusy = new SvgFile( BasePropertyHandler.getProperty( "Busy_image" ), this.getClass().getClassLoader() );
+    imageInject = new SvgFile( BasePropertyHandler.getProperty( "Inject_image" ), this.getClass().getClassLoader() );
+    imageData = new SvgFile( BasePropertyHandler.getProperty( "Data_image" ), this.getClass().getClassLoader() );
 
-    defaultArrow = getImageIcon( BasePropertyHandler.getProperty( "defaultArrow_image" ) );
-    okArrow = getImageIcon( BasePropertyHandler.getProperty( "okArrow_image" ) );
-    errorArrow = getImageIcon( BasePropertyHandler.getProperty( "errorArrow_image" ) );
-    disabledArrow = getImageIcon( BasePropertyHandler.getProperty( "disabledArrow_image" ) );
+    defaultArrow = new SvgFile( BasePropertyHandler.getProperty( "defaultArrow_image" ), this.getClass().getClassLoader() );
+    okArrow = new SvgFile( BasePropertyHandler.getProperty( "okArrow_image" ), this.getClass().getClassLoader() );
+    errorArrow = new SvgFile( BasePropertyHandler.getProperty( "errorArrow_image" ), this.getClass().getClassLoader() );
+    disabledArrow = new SvgFile( BasePropertyHandler.getProperty( "disabledArrow_image" ), this.getClass().getClassLoader() );
 
     fontGraph = new Font( "FreeSans", Font.PLAIN, 10 );
     fontNote = new Font( "FreeSans", Font.PLAIN, 10 );
@@ -217,52 +251,6 @@ public class SvgGc implements IGc {
     gc.fillRect( 0, 0, area.x, area.y );
   }
 
-  private SwingUniversalImageSvg getImageIcon( String fileName ) throws HopException {
-    SwingUniversalImageSvg image = null;
-
-    InputStream inputStream = null;
-    if ( fileName == null ) {
-      throw new HopException( "Image icon file name can not be null" );
-    }
-
-    if ( SvgSupport.isSvgEnabled() && SvgSupport.isSvgName( fileName ) ) {
-      try {
-        inputStream = new FileInputStream( fileName );
-      } catch ( FileNotFoundException ex ) {
-        // no need to fail
-      }
-      if ( inputStream == null ) {
-        try {
-          inputStream = new FileInputStream( "/" + fileName );
-        } catch ( FileNotFoundException ex ) {
-          // no need to fail
-        }
-      }
-      if ( inputStream == null ) {
-        inputStream = getClass().getResourceAsStream( fileName );
-      }
-      if ( inputStream == null ) {
-        inputStream = getClass().getResourceAsStream( "/" + fileName );
-      }
-      if ( inputStream != null ) {
-        try {
-          SvgImage svg = SvgSupport.loadSvgImage( inputStream );
-          image = new SwingUniversalImageSvg( svg );
-        } catch ( Exception ex ) {
-          throw new HopException( "Unable to load image from classpath : '" + fileName + "'", ex );
-        } finally {
-          IOUtils.closeQuietly( inputStream );
-        }
-      }
-    }
-
-    if ( image == null ) {
-      throw new HopException( "Unable to load image from classpath : '" + fileName + "'" );
-    }
-
-    return image;
-  }
-
   public void dispose() {
   }
 
@@ -271,46 +259,17 @@ public class SvgGc implements IGc {
   }
 
   @Override
-  public void drawImage( String location, ClassLoader classLoader, int x, int y ) {
-    SwingUniversalImageSvg img = SwingSvgImageUtil.getUniversalImage( classLoader, location );
-    drawImage( img, x, y, smallIconSize );
+  public void drawImage( EImage image, int locationX, int locationY, float magnification ) throws HopException {
+    drawImage( image, locationX, locationY, magnification, 0 );
   }
 
   @Override
-  public void drawImage( EImage image, int x, int y ) {
-    drawImage( image, x, y, 0.0f );
+  public void drawImage( EImage image, int x, int y, float magnification, double angle ) throws HopException {
+    SvgFile svgFile = getNativeImage( image );
+    drawImage( svgFile, x, y, miniIconSize, miniIconSize, magnification, angle );
   }
 
-  @Override
-  public void drawImage( EImage image, int locationX, int locationY, float magnification ) {
-    SwingUniversalImage img = getNativeImage( image );
-    drawImage( img, locationX, locationY, smallIconSize );
-  }
-
-  public void drawImage( EImage image, int x, int y, int width, int height, float magnification ) {
-    SwingUniversalImage img = getNativeImage( image );
-    drawImage( img, x, y, width, height );
-  }
-
-  @Override
-  public void drawImage( EImage image, int x, int y, float magnification, double angle ) {
-    SwingUniversalImage img = getNativeImage( image );
-    drawImage( img, x, y, angle, smallIconSize );
-  }
-
-  protected void drawImage( SwingUniversalImage image, int locationX, int locationY, int imageSize ) {
-    image.drawToGraphics( gc, locationX, locationY, imageSize, imageSize );
-  }
-
-  protected void drawImage( SwingUniversalImage image, int centerX, int centerY, double angle, int imageSize ) {
-    image.drawToGraphics( gc, centerX, centerY, imageSize, imageSize, angle );
-  }
-
-  public Point getImageBounds( EImage image ) {
-    return new Point( smallIconSize, smallIconSize );
-  }
-
-  public static final SwingUniversalImageSvg getNativeImage( EImage image ) {
+  public static final SvgFile getNativeImage( EImage image ) {
     switch ( image ) {
       case LOCK:
         return imageLocked;
@@ -586,49 +545,39 @@ public class SvgGc implements IGc {
     return new Point( maxWidth, height );
   }
 
-  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) {
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) throws HopException {
     String transformType = transformMeta.getTransformPluginId();
-    SwingUniversalImageSvg im = transformImages.get( transformType );
-    if ( im != null ) { // Draw the icon!
-      drawImage( im, x + xOffset, y + xOffset, iconSize );
+    SvgFile svgFile = transformImages.get( transformType );
+    if ( svgFile != null ) { // Draw the icon!
+      drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
     }
   }
 
-  public void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) {
+  public void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) throws HopException {
     if ( actionCopy == null ) {
       return; // Don't draw anything
     }
 
-    SwingUniversalImage image = null;
+    SvgFile svgFile = null;
 
     if ( actionCopy.isSpecial() ) {
       if ( actionCopy.isStart() ) {
-        image = imageStart;
+        svgFile = imageStart;
       }
       if ( actionCopy.isDummy() ) {
-        image = imageDummy;
+        svgFile = imageDummy;
       }
     } else {
       String configId = actionCopy.getAction().getPluginId();
       if ( configId != null ) {
-        image = actionImages.get( configId );
+        svgFile = actionImages.get( configId );
       }
     }
-    if ( image == null ) {
+    if ( svgFile == null ) {
       return;
     }
 
-    drawImage( image, x + xOffset, y + xOffset, iconSize );
-  }
-
-  @Override
-  public void drawActionIcon( int x, int y, ActionCopy actionCopy ) {
-    drawActionIcon( x, y, actionCopy, 1.0f );
-  }
-
-  @Override
-  public void drawTransformIcon( int x, int y, TransformMeta transformMeta ) {
-    drawTransformIcon( x, y, transformMeta, 1.0f );
+    drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
   }
 
   public void setAntialias( boolean antiAlias ) {
@@ -683,9 +632,101 @@ public class SvgGc implements IGc {
     return area;
   }
 
-  @Override
-  public void drawImage( BufferedImage image, int x, int y ) {
-    // Do NOT draw bitmaps
+
+  @Override public void drawImage( SvgFile svgFile, int x, int y, int desiredWidth, int desiredHeight, float magnification, double angle ) throws HopException {
+
+    // Load the SVG XML document
+    // Simply embed the SVG into the parent document (HopSvgGraphics2D)
+    // This doesn't actually render anything, it delays that until the rendering of the whole document is done.
     //
+    AffineTransform oldTransform = gc.getTransform();
+    gc.scale( magnification, magnification );
+    gc.rotate( angle );
+
+    // Don't scale the location...
+    int imageX = (int) ( x / magnification );
+    int imageY = (int) ( y / magnification );
+
+    try {
+      try {
+
+        SVGDocument svgDocument;
+        int width;
+        int height;
+
+        // Let's not hammer the file system all the time, keep the SVGDocument in memory
+        //
+        SvgCacheEntry cacheEntry = SvgCache.findSvg( svgFile.getFilename() );
+        if ( cacheEntry == null ) {
+          String parser = XMLResourceDescriptor.getXMLParserClassName();
+          SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory( parser );
+          InputStream svgStream = svgFile.getClassLoader().getResourceAsStream( svgFile.getFilename() );
+
+          if ( svgStream == null ) {
+            throw new HopException( "Unable to find file '" + svgFile.getFilename() + "'" );
+          }
+          svgDocument = factory.createSVGDocument( svgFile.getFilename(), svgStream );
+
+          Element elSVG = svgDocument.getRootElement();
+          String widthString = elSVG.getAttribute( "width" );
+          String heightString = elSVG.getAttribute( "height" );
+          width = Const.toInt( widthString.replace( "px", "" ), -1 );
+          height = Const.toInt( heightString.replace( "px", "" ), -1 );
+          if ( width < 0 || height < 0 ) {
+            throw new HopException( "Unable to find valid width or height in SVG document " + svgFile.getFilename() );
+          }
+          SvgCache.addSvg( svgFile.getFilename(), svgDocument, width, height );
+        } else {
+          svgDocument = cacheEntry.getSvgDocument();
+          width = cacheEntry.getWidth();
+          height = cacheEntry.getHeight();
+        }
+
+        // How much more do we need to scale the image.
+        // If the Width of the icon is 500px and we desire 50px then we need to scale to 10% times the magnification
+        //
+        float xScaleFactor = magnification * (desiredWidth / width);
+        String xScalePercent = new DecimalFormat( "##0'%'" ).format( xScaleFactor * 100 );
+
+        float yScaleFactor = magnification * (desiredHeight / height);
+        String yScalePercent = new DecimalFormat( "##0'%'" ).format( yScaleFactor * 100 );
+        
+        Document domFactory = gc.getDOMFactory();
+
+        // Simply embed the image SVG
+        //
+        Element svgSvg = domFactory.createElementNS( SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_SVG_TAG );
+
+        svgSvg.setAttributeNS( null, SVGConstants.SVG_X_ATTRIBUTE, Integer.toString( imageX ) );
+        svgSvg.setAttributeNS( null, SVGConstants.SVG_Y_ATTRIBUTE, Integer.toString( imageY ) );
+        svgSvg.setAttributeNS( null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Integer.toString( width ) );
+        svgSvg.setAttributeNS( null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Integer.toString( height ) );
+        svgSvg.setAttributeNS( null, SVGConstants.SVG_TRANSFORM_ATTRIBUTE, xScalePercent + " " + yScalePercent );
+
+        // Add all the elements from the SVG Image...
+        //
+        NodeList childNodes = svgDocument.getRootElement().getChildNodes();
+        for ( int c = 0; c < childNodes.getLength(); c++ ) {
+          Node childNode = childNodes.item( c );
+
+          // Copy this node over to the svgSvg element
+          //
+          Node childNodeCopy = domFactory.importNode( childNode, true );
+          svgSvg.appendChild( childNodeCopy );
+        }
+
+        gc.getDomGroupManager().addElement( svgSvg, DRAW );
+
+      } catch ( IOException e ) {
+        throw new HopException( "Error reading file '" + svgFile.getFilename() + "'", e );
+      }
+    } catch ( Exception e ) {
+      throw new HopException( "Unable to load SVG file '" + svgFile.getFilename() + "'", e );
+    } finally {
+      // Reset scaling
+      //
+      gc.setTransform( oldTransform );
+    }
   }
+
 }
