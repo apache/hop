@@ -124,7 +124,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
     SvgGc gc = new SvgGc( graphics2D, new Point(maximum.x+100, maximum.y+100), 32, 0, 0 );
     PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, "Arial", 10, 1.0d );
     pipelinePainter.setMagnification( magnification );
-    pipelinePainter.buildPipelineImage();
+    pipelinePainter.drawPipelineImage();
 
     // convert to SVG
     //

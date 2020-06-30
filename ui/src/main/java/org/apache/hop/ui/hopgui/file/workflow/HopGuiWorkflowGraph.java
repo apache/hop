@@ -124,7 +124,6 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -2263,11 +2262,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    Display display = hopDisplay();
-
     try {
-      Image img = getJobImage( display, area.x, area.y, magnification );
-      e.gc.drawImage( img, 0, 0 );
+      drawWorkflowImage( e.gc, area.x, area.y, magnification );
+
       if ( workflowMeta.nrActions() == 0 ) {
         e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
         e.gc.setBackground( GuiResource.getInstance().getColorBackground() );
@@ -2277,55 +2274,58 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
         int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
         e.gc.drawImage( welcomeImage, leftPosition, topPosition );
-
       }
-      img.dispose();
     } catch ( Exception ex ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error drawing workflow", ex );
     }
   }
 
-  public Image getJobImage( Device device, int x, int y, float magnificationFactor ) throws HopException {
-    IGc gc = new SwtGc( device, new Point( x, y ), iconSize );
+  public void drawWorkflowImage( GC swtGc, int width, int height, float magnificationFactor ) throws HopException {
 
-    int gridSize =
-      PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
+    IGc gc = new SwtGc( swtGc, width, height, iconSize );
+    try {
+      int gridSize = PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
 
-    WorkflowPainter workflowPainter =
-      new WorkflowPainter( gc, workflowMeta, new Point( x, y ), new SwtScrollBar( horizontalScrollBar ), new SwtScrollBar( verticalScrollBar ), hopCandidate,
+      WorkflowPainter workflowPainter = new WorkflowPainter( gc, workflowMeta, new Point( width, height ),
+        new SwtScrollBar( horizontalScrollBar ), new SwtScrollBar( verticalScrollBar ), hopCandidate,
         dropCandidate, selectionRegion, areaOwners, PropsUi.getInstance().getIconSize(),
         PropsUi.getInstance().getLineWidth(), gridSize, PropsUi.getInstance().getNoteFont().getName(),
         PropsUi.getInstance().getNoteFont().getHeight(), PropsUi.getInstance().getZoomFactor() );
 
-    // correct the magnifacation with the overall zoom factor
-    //
-    float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
+      // correct the magnification with the overall zoom factor
+      //
+      float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
 
-    workflowPainter.setMagnification( correctedMagnification );
-    workflowPainter.setStartHopEntry( startHopEntry );
-    workflowPainter.setEndHopLocation( endHopLocation );
-    workflowPainter.setEndHopEntry( endHopEntry );
-    workflowPainter.setNoInputEntry( noInputEntry );
-    if ( workflow != null ) {
-      workflowPainter.setActionResults( workflow.getActionResults() );
-    } else {
-      workflowPainter.setActionResults( new ArrayList<>() );
-    }
-
-    List<ActionCopy> activeJobEntries = new ArrayList<>();
-    if ( workflow != null ) {
-      if ( workflow.getActiveActionWorkflows().size() > 0 ) {
-        activeJobEntries.addAll( workflow.getActiveActionWorkflows().keySet() );
+      workflowPainter.setMagnification( correctedMagnification );
+      workflowPainter.setStartHopEntry( startHopEntry );
+      workflowPainter.setEndHopLocation( endHopLocation );
+      workflowPainter.setEndHopEntry( endHopEntry );
+      workflowPainter.setNoInputEntry( noInputEntry );
+      if ( workflow != null ) {
+        workflowPainter.setActionResults( workflow.getActionResults() );
+      } else {
+        workflowPainter.setActionResults( new ArrayList<>() );
       }
-      if ( workflow.getActiveActionPipeline().size() > 0 ) {
-        activeJobEntries.addAll( workflow.getActiveActionPipeline().keySet() );
+
+      List<ActionCopy> activeJobEntries = new ArrayList<>();
+      if ( workflow != null ) {
+        if ( workflow.getActiveActionWorkflows().size() > 0 ) {
+          activeJobEntries.addAll( workflow.getActiveActionWorkflows().keySet() );
+        }
+        if ( workflow.getActiveActionPipeline().size() > 0 ) {
+          activeJobEntries.addAll( workflow.getActiveActionPipeline().keySet() );
+        }
       }
+      workflowPainter.setActiveJobEntries( activeJobEntries );
+
+      try {
+        workflowPainter.drawWorkflow();
+      } catch ( HopException e ) {
+        throw new HopException( "Error drawing workflow", e );
+      }
+    } finally {
+      gc.dispose();
     }
-    workflowPainter.setActiveJobEntries( activeJobEntries );
-
-    workflowPainter.drawWorkflow();
-
-    return (Image) gc.getImage();
   }
 
   protected Point getOffset() {

@@ -88,86 +88,92 @@ public class JsonMetadataParser<T extends IHopMetadata> {
       jsonParser.nextToken();
       Object fieldValue = null;
 
-      if ( fieldType.isEnum() ) {
-        final Class<? extends Enum> enumerationClass = (Class<? extends Enum>) field.getType();
-        String enumerationName = jsonParser.getText();
-        if ( StringUtils.isNotEmpty( enumerationName ) ) {
-          fieldValue = Enum.valueOf( enumerationClass, enumerationName );
-        }
-      } else if ( String.class.equals( fieldType ) ) {
-        String string = jsonParser.getText();
-        if ( metadataProperty.password() ) {
-          string = metadataProvider.getTwoWayPasswordEncoder().decode( string, true );
-        }
-        fieldValue = string;
-      } else if ( int.class.equals( fieldType ) || Integer.class.equals( fieldType ) ) {
-        fieldValue = jsonParser.getIntValue();
-      } else if ( long.class.equals( fieldType ) || Long.class.equals( fieldType ) ) {
-        fieldValue = jsonParser.getLongValue();
-      } else if ( Boolean.class.equals( fieldType ) || boolean.class.equals( fieldType ) ) {
-        fieldValue = jsonParser.getBooleanValue();
-      } else if ( Date.class.equals( fieldType ) ) {
-        String dateString = jsonParser.getText();
-        fieldValue = new SimpleDateFormat( "yyyy/MM/dd'T'HH:mm:ss" ).parse( dateString );
-      } else if ( Map.class.equals( fieldType ) ) {
-        Map<String, String> map = new HashMap<>();
-        while ( jsonParser.nextToken() != JsonToken.END_OBJECT ) {
-          String mapKey = jsonParser.getText();
-          jsonParser.nextToken();
-          String mapValue = jsonParser.getText();
-          map.put( mapKey, mapValue );
-        }
-        fieldValue = map;
-      } else if ( List.class.equals( fieldType ) ) {
-        ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
-        Class<?> listClass = (Class<?>) parameterizedType.getActualTypeArguments()[ 0 ];
-        if ( String.class.equals( listClass ) ) {
-          List<String> list = new ArrayList<>();
-          while ( jsonParser.nextToken() != JsonToken.END_ARRAY ) {
-            list.add( jsonParser.getText() );
-          }
-          fieldValue = list;
-        } else {
-          // List of POJO
-          //
-          IHopMetadataSerializer<?> serializer = null;
-          if ( metadataProperty.storeWithName() ) {
-            if ( !IHopMetadata.class.isAssignableFrom( listClass ) ) {
-              throw new HopException( "Error: metadata objects that need to be stored with a name reference need to implement IHopMetadata: " + listClass.getName() );
-            }
-            serializer = metadataProvider.getSerializer( (Class<? extends IHopMetadata>) listClass );
-          }
-          List list = new ArrayList<>();
-          while ( jsonParser.nextToken() != JsonToken.END_ARRAY ) {
-            if ( metadataProperty.storeWithName() ) {
-              // Load by name reference
-              //
-              String name = jsonParser.getText();
-              Object listObject = serializer.load( name );
-              list.add( listObject );
-            } else {
-              // Load the object itself
-              //
-              Object listObject = loadPojoProperties( listClass, jsonParser );
-              list.add( listObject );
-            }
-          }
-          fieldValue = list;
-        }
-      } else {
-        // POJO
+      if ("null".equals(jsonParser.getText()) && jsonParser.getValueAsString() == null) {
+        // This is the case { "name" : null }
         //
-        if ( metadataProperty.storeWithName() ) {
-          // Load using name reference
-          //
-          if ( !IHopMetadata.class.isAssignableFrom( fieldType ) ) {
-            throw new HopException( "Error: metadata objects that need to be stored with a name reference need to implement IHopMetadata: " + fieldType.getName() );
+        fieldValue=null;
+      } else {
+        if ( fieldType.isEnum() ) {
+          final Class<? extends Enum> enumerationClass = (Class<? extends Enum>) field.getType();
+          String enumerationName = jsonParser.getText();
+          if ( StringUtils.isNotEmpty( enumerationName ) ) {
+            fieldValue = Enum.valueOf( enumerationClass, enumerationName );
           }
-          IHopMetadataSerializer<?> serializer = metadataProvider.getSerializer( (Class<? extends IHopMetadata>) fieldType );
-          String name = jsonParser.getText();
-          fieldValue = serializer.load( name );
+        } else if ( String.class.equals( fieldType ) ) {
+          String string = jsonParser.getText();
+          if ( metadataProperty.password() ) {
+            string = metadataProvider.getTwoWayPasswordEncoder().decode( string, true );
+          }
+          fieldValue = string;
+        } else if ( int.class.equals( fieldType ) || Integer.class.equals( fieldType ) ) {
+          fieldValue = jsonParser.getIntValue();
+        } else if ( long.class.equals( fieldType ) || Long.class.equals( fieldType ) ) {
+          fieldValue = jsonParser.getLongValue();
+        } else if ( Boolean.class.equals( fieldType ) || boolean.class.equals( fieldType ) ) {
+          fieldValue = jsonParser.getBooleanValue();
+        } else if ( Date.class.equals( fieldType ) ) {
+          String dateString = jsonParser.getText();
+          fieldValue = new SimpleDateFormat( "yyyy/MM/dd'T'HH:mm:ss" ).parse( dateString );
+        } else if ( Map.class.equals( fieldType ) ) {
+          Map<String, String> map = new HashMap<>();
+          while ( jsonParser.nextToken() != JsonToken.END_OBJECT ) {
+            String mapKey = jsonParser.getText();
+            jsonParser.nextToken();
+            String mapValue = jsonParser.getText();
+            map.put( mapKey, mapValue );
+          }
+          fieldValue = map;
+        } else if ( List.class.equals( fieldType ) ) {
+          ParameterizedType parameterizedType = (ParameterizedType) field.getGenericType();
+          Class<?> listClass = (Class<?>) parameterizedType.getActualTypeArguments()[ 0 ];
+          if ( String.class.equals( listClass ) ) {
+            List<String> list = new ArrayList<>();
+            while ( jsonParser.nextToken() != JsonToken.END_ARRAY ) {
+              list.add( jsonParser.getText() );
+            }
+            fieldValue = list;
+          } else {
+            // List of POJO
+            //
+            IHopMetadataSerializer<?> serializer = null;
+            if ( metadataProperty.storeWithName() ) {
+              if ( !IHopMetadata.class.isAssignableFrom( listClass ) ) {
+                throw new HopException( "Error: metadata objects that need to be stored with a name reference need to implement IHopMetadata: " + listClass.getName() );
+              }
+              serializer = metadataProvider.getSerializer( (Class<? extends IHopMetadata>) listClass );
+            }
+            List list = new ArrayList<>();
+            while ( jsonParser.nextToken() != JsonToken.END_ARRAY ) {
+              if ( metadataProperty.storeWithName() ) {
+                // Load by name reference
+                //
+                String name = jsonParser.getText();
+                Object listObject = serializer.load( name );
+                list.add( listObject );
+              } else {
+                // Load the object itself
+                //
+                Object listObject = loadPojoProperties( listClass, jsonParser );
+                list.add( listObject );
+              }
+            }
+            fieldValue = list;
+          }
         } else {
-          fieldValue = loadPojoProperties( fieldType, jsonParser );
+          // POJO
+          //
+          if ( metadataProperty.storeWithName() ) {
+            // Load using name reference
+            //
+            if ( !IHopMetadata.class.isAssignableFrom( fieldType ) ) {
+              throw new HopException( "Error: metadata objects that need to be stored with a name reference need to implement IHopMetadata: " + fieldType.getName() );
+            }
+            IHopMetadataSerializer<?> serializer = metadataProvider.getSerializer( (Class<? extends IHopMetadata>) fieldType );
+            String name = jsonParser.getText();
+            fieldValue = serializer.load( name );
+          } else {
+            fieldValue = loadPojoProperties( fieldType, jsonParser );
+          }
         }
       }
 
