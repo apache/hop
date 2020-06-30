@@ -11,7 +11,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import picocli.CommandLine;
@@ -70,7 +70,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
   private boolean listProjects;
 
 
-  @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+  @Override public boolean handleOption( ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables ) throws HopException {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     try {
       boolean changed = false;
@@ -244,6 +244,246 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     if ( StringUtil.isEmpty( projectHome ) ) {
       throw new HopException( "Please specify the home directory of the project to create" );
     }
+  }
+
+  /**
+   * Gets createProject
+   *
+   * @return value of createProject
+   */
+  public boolean isCreateProject() {
+    return createProject;
+  }
+
+  /**
+   * @param createProject The createProject to set
+   */
+  public void setCreateProject( boolean createProject ) {
+    this.createProject = createProject;
+  }
+
+  /**
+   * Gets projectName
+   *
+   * @return value of projectName
+   */
+  public String getProjectName() {
+    return projectName;
+  }
+
+  /**
+   * @param projectName The projectName to set
+   */
+  public void setProjectName( String projectName ) {
+    this.projectName = projectName;
+  }
+
+  /**
+   * Gets projectHome
+   *
+   * @return value of projectHome
+   */
+  public String getProjectHome() {
+    return projectHome;
+  }
+
+  /**
+   * @param projectHome The projectHome to set
+   */
+  public void setProjectHome( String projectHome ) {
+    this.projectHome = projectHome;
+  }
+
+  /**
+   * Gets projectConfigFile
+   *
+   * @return value of projectConfigFile
+   */
+  public String getProjectConfigFile() {
+    return projectConfigFile;
+  }
+
+  /**
+   * @param projectConfigFile The projectConfigFile to set
+   */
+  public void setProjectConfigFile( String projectConfigFile ) {
+    this.projectConfigFile = projectConfigFile;
+  }
+
+  /**
+   * Gets projectDescription
+   *
+   * @return value of projectDescription
+   */
+  public String getProjectDescription() {
+    return projectDescription;
+  }
+
+  /**
+   * @param projectDescription The projectDescription to set
+   */
+  public void setProjectDescription( String projectDescription ) {
+    this.projectDescription = projectDescription;
+  }
+
+  /**
+   * Gets projectCompany
+   *
+   * @return value of projectCompany
+   */
+  public String getProjectCompany() {
+    return projectCompany;
+  }
+
+  /**
+   * @param projectCompany The projectCompany to set
+   */
+  public void setProjectCompany( String projectCompany ) {
+    this.projectCompany = projectCompany;
+  }
+
+  /**
+   * Gets projectDepartment
+   *
+   * @return value of projectDepartment
+   */
+  public String getProjectDepartment() {
+    return projectDepartment;
+  }
+
+  /**
+   * @param projectDepartment The projectDepartment to set
+   */
+  public void setProjectDepartment( String projectDepartment ) {
+    this.projectDepartment = projectDepartment;
+  }
+
+  /**
+   * Gets projectMetadataBaseFolder
+   *
+   * @return value of projectMetadataBaseFolder
+   */
+  public String getProjectMetadataBaseFolder() {
+    return projectMetadataBaseFolder;
+  }
+
+  /**
+   * @param projectMetadataBaseFolder The projectMetadataBaseFolder to set
+   */
+  public void setProjectMetadataBaseFolder( String projectMetadataBaseFolder ) {
+    this.projectMetadataBaseFolder = projectMetadataBaseFolder;
+  }
+
+  /**
+   * Gets projectUnitTestsBasePath
+   *
+   * @return value of projectUnitTestsBasePath
+   */
+  public String getProjectUnitTestsBasePath() {
+    return projectUnitTestsBasePath;
+  }
+
+  /**
+   * @param projectUnitTestsBasePath The projectUnitTestsBasePath to set
+   */
+  public void setProjectUnitTestsBasePath( String projectUnitTestsBasePath ) {
+    this.projectUnitTestsBasePath = projectUnitTestsBasePath;
+  }
+
+  /**
+   * Gets projectDataSetsCsvFolder
+   *
+   * @return value of projectDataSetsCsvFolder
+   */
+  public String getProjectDataSetsCsvFolder() {
+    return projectDataSetsCsvFolder;
+  }
+
+  /**
+   * @param projectDataSetsCsvFolder The projectDataSetsCsvFolder to set
+   */
+  public void setProjectDataSetsCsvFolder( String projectDataSetsCsvFolder ) {
+    this.projectDataSetsCsvFolder = projectDataSetsCsvFolder;
+  }
+
+  /**
+   * Gets projectEnforceExecutionInHome
+   *
+   * @return value of projectEnforceExecutionInHome
+   */
+  public String getProjectEnforceExecutionInHome() {
+    return projectEnforceExecutionInHome;
+  }
+
+  /**
+   * @param projectEnforceExecutionInHome The projectEnforceExecutionInHome to set
+   */
+  public void setProjectEnforceExecutionInHome( String projectEnforceExecutionInHome ) {
+    this.projectEnforceExecutionInHome = projectEnforceExecutionInHome;
+  }
+
+  /**
+   * Gets projectVariables
+   *
+   * @return value of projectVariables
+   */
+  public String[] getProjectVariables() {
+    return projectVariables;
+  }
+
+  /**
+   * @param projectVariables The projectVariables to set
+   */
+  public void setProjectVariables( String[] projectVariables ) {
+    this.projectVariables = projectVariables;
+  }
+
+  /**
+   * Gets modifyProject
+   *
+   * @return value of modifyProject
+   */
+  public boolean isModifyProject() {
+    return modifyProject;
+  }
+
+  /**
+   * @param modifyProject The modifyProject to set
+   */
+  public void setModifyProject( boolean modifyProject ) {
+    this.modifyProject = modifyProject;
+  }
+
+  /**
+   * Gets deleteProject
+   *
+   * @return value of deleteProject
+   */
+  public boolean isDeleteProject() {
+    return deleteProject;
+  }
+
+  /**
+   * @param deleteProject The deleteProject to set
+   */
+  public void setDeleteProject( boolean deleteProject ) {
+    this.deleteProject = deleteProject;
+  }
+
+  /**
+   * Gets listProjects
+   *
+   * @return value of listProjects
+   */
+  public boolean isListProjects() {
+    return listProjects;
+  }
+
+  /**
+   * @param listProjects The listProjects to set
+   */
+  public void setListProjects( boolean listProjects ) {
+    this.listProjects = listProjects;
   }
 }
 
