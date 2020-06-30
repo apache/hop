@@ -68,8 +68,8 @@ import java.util.List;
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/sendnagiospassivecheck.html"
 )
-public class ActionSendNagiosPassiveICheck extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionSendNagiosPassiveICheck.class; // for i18n purposes, needed by Translator!!
+public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = ActionSendNagiosPassiveCheck.class; // for i18n purposes, needed by Translator!!
 
   private String serverName;
   private String port;
@@ -121,7 +121,7 @@ public class ActionSendNagiosPassiveICheck extends ActionBase implements Cloneab
   public static final int LEVEL_TYPE_WARNING = 2;
   public static final int LEVEL_TYPE_CRITICAL = 3;
 
-  public ActionSendNagiosPassiveICheck( String n ) {
+  public ActionSendNagiosPassiveCheck(String n ) {
     super( n, "" );
     port = "" + DEFAULT_PORT;
     serverName = null;
@@ -135,12 +135,12 @@ public class ActionSendNagiosPassiveICheck extends ActionBase implements Cloneab
     password = null;
   }
 
-  public ActionSendNagiosPassiveICheck() {
+  public ActionSendNagiosPassiveCheck() {
     this( "" );
   }
 
   public Object clone() {
-    ActionSendNagiosPassiveICheck je = (ActionSendNagiosPassiveICheck) super.clone();
+    ActionSendNagiosPassiveCheck je = (ActionSendNagiosPassiveCheck) super.clone();
     return je;
   }
 

@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Shell;
  * @since 01-10-2011
  */
 public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionSendNagiosPassiveICheck.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = ActionSendNagiosPassiveCheck.class; // for i18n purposes, needed by Translator!!
 
   private LabelText wName;
 
@@ -97,7 +97,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
   private Listener lsOk, lsCancel;
 
-  private ActionSendNagiosPassiveICheck action;
+  private ActionSendNagiosPassiveCheck action;
 
   private Shell shell;
 
@@ -149,7 +149,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
   public ActionSendNagiosPassiveCheckDialog( Shell parent, IAction action,
                                              WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
-    this.action = (ActionSendNagiosPassiveICheck) action;
+    this.action = (ActionSendNagiosPassiveCheck) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Name.Default" ) );
     }
@@ -350,7 +350,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     fdlEncryptionMode.top = new FormAttachment( wSenderServiceName, margin );
     wlEncryptionMode.setLayoutData( fdlEncryptionMode );
     wEncryptionMode = new CCombo( wSenderSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wEncryptionMode.setItems( ActionSendNagiosPassiveICheck.encryption_mode_Desc );
+    wEncryptionMode.setItems( ActionSendNagiosPassiveCheck.encryption_mode_Desc );
 
     props.setLook( wEncryptionMode );
     fdEncryptionMode = new FormData();
@@ -374,7 +374,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     fdlLevelMode.top = new FormAttachment( wEncryptionMode, margin );
     wlLevelMode.setLayoutData( fdlLevelMode );
     wLevelMode = new CCombo( wSenderSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wLevelMode.setItems( ActionSendNagiosPassiveICheck.level_type_Desc );
+    wLevelMode.setItems( ActionSendNagiosPassiveCheck.level_type_Desc );
 
     props.setLook( wLevelMode );
     fdLevelMode = new FormData();
@@ -528,7 +528,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     String hostname = workflowMeta.environmentSubstitute( wServerName.getText() );
     int nrPort =
       Const.toInt(
-        workflowMeta.environmentSubstitute( "" + wPort.getText() ), ActionSendNagiosPassiveICheck.DEFAULT_PORT );
+        workflowMeta.environmentSubstitute( "" + wPort.getText() ), ActionSendNagiosPassiveCheck.DEFAULT_PORT );
     int realConnectionTimeOut = Const.toInt( workflowMeta.environmentSubstitute( wConnectionTimeOut.getText() ), -1 );
 
     try {
@@ -573,8 +573,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wSenderServerName.setText( Const.NVL( action.getSenderServerName(), "" ) );
     wSenderServiceName.setText( Const.NVL( action.getSenderServiceName(), "" ) );
     wMessage.setText( Const.NVL( action.getMessage(), "" ) );
-    wEncryptionMode.setText( ActionSendNagiosPassiveICheck.getEncryptionModeDesc( action.getEncryptionMode() ) );
-    wLevelMode.setText( ActionSendNagiosPassiveICheck.getLevelDesc( action.getLevel() ) );
+    wEncryptionMode.setText( ActionSendNagiosPassiveCheck.getEncryptionModeDesc( action.getEncryptionMode() ) );
+    wLevelMode.setText( ActionSendNagiosPassiveCheck.getLevelDesc( action.getLevel() ) );
 
     wName.selectAll();
     wName.setFocus();
@@ -602,8 +602,8 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     action.setSenderServerName( wSenderServerName.getText() );
     action.setSenderServiceName( wSenderServiceName.getText() );
     action.setMessage( wMessage.getText() );
-    action.setEncryptionMode( ActionSendNagiosPassiveICheck.getEncryptionModeByDesc( wEncryptionMode.getText() ) );
-    action.setLevel( ActionSendNagiosPassiveICheck.getLevelByDesc( wLevelMode.getText() ) );
+    action.setEncryptionMode( ActionSendNagiosPassiveCheck.getEncryptionModeByDesc( wEncryptionMode.getText() ) );
+    action.setLevel( ActionSendNagiosPassiveCheck.getLevelByDesc( wLevelMode.getText() ) );
     action.setPassword( wPassword.getText() );
 
     dispose();

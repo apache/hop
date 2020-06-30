@@ -70,8 +70,8 @@ import java.util.regex.Pattern;
 		categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
 		documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/copymoveresultfilenames.html"
 )
-public class ActionCopyMoveResultFilenamesI extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionCopyMoveResultFilenamesI.class; // for i18n purposes, needed by Translator!!
+public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneable, IAction {
+  private static Class<?> PKG = ActionCopyMoveResultFilenames.class; // for i18n purposes, needed by Translator!!
 
   private String foldername;
   private boolean specifywildcard;
@@ -105,7 +105,7 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
   boolean successConditionBrokenExit = false;
   int limitFiles = 0;
 
-  public ActionCopyMoveResultFilenamesI( String n ) {
+  public ActionCopyMoveResultFilenames(String n ) {
     super( n, "" );
     RemovedSourceFilename = true;
     AddDestinationFilename = true;
@@ -128,12 +128,12 @@ public class ActionCopyMoveResultFilenamesI extends ActionBase implements Clonea
     success_condition = SUCCESS_IF_NO_ERRORS;
   }
 
-  public ActionCopyMoveResultFilenamesI() {
+  public ActionCopyMoveResultFilenames() {
     this( "" );
   }
 
   public Object clone() {
-    ActionCopyMoveResultFilenamesI je = (ActionCopyMoveResultFilenamesI) super.clone();
+    ActionCopyMoveResultFilenames je = (ActionCopyMoveResultFilenames) super.clone();
     return je;
   }
 
