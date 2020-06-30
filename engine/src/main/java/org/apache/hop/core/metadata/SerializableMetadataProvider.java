@@ -10,6 +10,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.serializer.json.JsonMetadataParser;
 import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
@@ -59,7 +60,7 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider impleme
       }
       String classKey = hopMetadata.key();
 
-      JSONObject jClass = new JSONObject();
+      JSONArray jClass = new JSONArray();
 
       JsonMetadataParser parser = new JsonMetadataParser( metadataClass, this );
 
@@ -69,7 +70,7 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider impleme
       for (String name : serializer.listObjectNames()) {
         Object object = serializer.load( name );
         JSONObject jObject = parser.getJsonObject( (IHopMetadata) object );
-        jClass.put(name, jObject);
+        jClass.add(jObject);
       }
 
       jStore.put( classKey, jClass );
@@ -105,7 +106,7 @@ public class SerializableMetadataProvider extends MemoryMetadataProvider impleme
           // Loop over the metadata objects in the JSON for the given class...
           //
           jsonParser.nextToken(); // skip {
-          while ( jsonParser.nextToken() != JsonToken.END_OBJECT ) {
+          while ( jsonParser.nextToken() != JsonToken.END_ARRAY ) {
             IHopMetadata object = metadataParser.loadJsonObject( managedClass, jsonParser );
             serializer.save( object );
           }

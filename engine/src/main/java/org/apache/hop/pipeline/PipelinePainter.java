@@ -131,7 +131,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return titles;
   }
 
-  public void buildPipelineImage() throws HopException {
+  public void drawPipelineImage() throws HopException {
 
     Point max = pipelineMeta.getMaximum();
     Point thumb = getThumb( area, max );

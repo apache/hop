@@ -32,14 +32,12 @@ import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -75,10 +73,9 @@ public class SwtGc implements IGc {
 
   private GC gc;
 
-  private int iconsize;
+  private int iconSize;
 
-  //TODO should be changed to PropsUi usage
-  private int miniIconSize = ConstUi.SMALL_ICON_SIZE;
+  private int miniIconSize;
 
   private Map<String, SwtUniversalImage> images;
 
@@ -87,20 +84,18 @@ public class SwtGc implements IGc {
   private List<Color> colors;
   private List<Font> fonts;
 
-  private Image image;
-
   private Point area;
   private Transform transform;
 
-  public SwtGc( Device device, Point area, int iconsize ) {
-    this.image = new Image( device, area.x, area.y );
-    this.gc = new GC( image );
+  public SwtGc( GC gc, int width, int height, int iconSize ) {
+    this.gc = gc;
     this.images = GuiResource.getInstance().getImagesTransforms();
-    this.iconsize = iconsize;
-    this.area = area;
+    this.iconSize = iconSize;
+    this.miniIconSize = iconSize / 2;
+    this.area = new Point(width, height);
 
-    this.colors = new ArrayList<Color>();
-    this.fonts = new ArrayList<Font>();
+    this.colors = new ArrayList<>();
+    this.fonts = new ArrayList<>();
 
     this.background = GuiResource.getInstance().getColorGraph();
     this.black = GuiResource.getInstance().getColorBlack();
@@ -419,12 +414,12 @@ public class SwtGc implements IGc {
       im = GuiResource.getInstance().getImageDeprecated();
     } else {
       im =
-        images.get( transformType ).getAsBitmapForSize( gc.getDevice(), Math.round( iconsize * magnification ),
-          Math.round( iconsize * magnification ) );
+        images.get( transformType ).getAsBitmapForSize( gc.getDevice(), Math.round( iconSize * magnification ),
+          Math.round( iconSize * magnification ) );
     }
     if ( im != null ) { // Draw the icon!
       org.eclipse.swt.graphics.Rectangle bounds = im.getBounds();
-      gc.drawImage( im, 0, 0, bounds.width, bounds.height, x, y, iconsize, iconsize );
+      gc.drawImage( im, 0, 0, bounds.width, bounds.height, x, y, iconSize, iconSize );
     }
   }
 
@@ -435,8 +430,8 @@ public class SwtGc implements IGc {
 
     SwtUniversalImage swtImage = null;
 
-    int w = Math.round( iconsize * magnification );
-    int h = Math.round( iconsize * magnification );
+    int w = Math.round( iconSize * magnification );
+    int h = Math.round( iconSize * magnification );
 
     if ( actionCopy.isSpecial() ) {
       if ( actionCopy.isStart() ) {
@@ -461,7 +456,7 @@ public class SwtGc implements IGc {
     Image image = swtImage.getAsBitmapForSize( gc.getDevice(), w, h );
 
     org.eclipse.swt.graphics.Rectangle bounds = image.getBounds();
-    gc.drawImage( image, 0, 0, bounds.width, bounds.height, x, y, iconsize, iconsize );
+    gc.drawImage( image, 0, 0, bounds.width, bounds.height, x, y, iconSize, iconSize );
   }
 
   @Override public void drawImage( SvgFile svgFile, int x, int y, int desiredWidth, int desiredHeight, float magnification, double angle ) throws HopException {
@@ -524,10 +519,6 @@ public class SwtGc implements IGc {
       font = fonts.get( index );
     }
     gc.setFont( font );
-  }
-
-  public Object getImage() {
-    return image;
   }
 
   public void switchForegroundBackgroundColors() {

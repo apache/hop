@@ -1198,10 +1198,23 @@ public class HopServer extends ChangedFlag implements Cloneable, IVariables, IXm
   }
 
   /**
+   * @param sslConfig The sslConfig to set
+   */
+  public void setSslConfig( SslConfiguration sslConfig ) {
+    this.sslConfig = sslConfig;
+  }
+
+  /**
    * @param overrideExistingProperties The overrideExistingProperties to set
    */
   public void setOverrideExistingProperties( boolean overrideExistingProperties ) {
     this.overrideExistingProperties = overrideExistingProperties;
   }
 
+  /**
+   * @param propertiesMasterName The propertiesMasterName to set
+   */
+  public void setPropertiesMasterName( String propertiesMasterName ) {
+    this.propertiesMasterName = propertiesMasterName;
+  }
 }

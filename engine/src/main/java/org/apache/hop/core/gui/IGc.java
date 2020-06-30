@@ -114,8 +114,6 @@ public interface IGc {
 
   void setFont( String fontName, int fontSize, boolean fontBold, boolean fontItalic );
 
-  Object getImage();
-
   void switchForegroundBackgroundColors();
 
   Point getArea();

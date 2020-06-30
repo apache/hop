@@ -62,6 +62,9 @@ public class SslConfiguration {
   @HopMetadataProperty( password = true )
   private String keyPassword;
 
+  public SslConfiguration() {
+  }
+
   public SslConfiguration( Node sslConfigNode ) {
     super();
     setKeyStore( XmlHandler.getTagValue( sslConfigNode, XML_TAG_KEY_STORE ) );
