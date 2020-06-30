@@ -8,7 +8,7 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -28,7 +28,7 @@ public class ManageConfigFileOptionPlugin implements IConfigOptions {
   @CommandLine.Option( names = { "-cfd", "--config-file-describe-variables" }, description = "A list of variable=description combinations separated by a comma", split = "," )
   private String[] configDescribeVariables;
 
-  @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+  @Override public boolean handleOption( ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables ) throws HopException {
 
     String realConfigFile = variables.environmentSubstitute( configFile );
     if ( StringUtils.isEmpty( realConfigFile ) ) {

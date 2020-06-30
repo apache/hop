@@ -7,7 +7,7 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import picocli.CommandLine;
 
 @ConfigPlugin(
@@ -22,7 +22,7 @@ public class SetHopConfigVariables implements IConfigOptions {
   @CommandLine.Option( names = { "-dv", "--describe-variable" }, description = "Describe a variable, use format VARIABLE=Description" )
   private String describeVariable = null;
 
-  @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+  @Override public boolean handleOption( ILogChannel log, IHasHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
     // Is this an option we want to handle?
     //
     boolean changed = false;

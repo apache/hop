@@ -1,17 +1,23 @@
 package org.apache.hop.projects.environment;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.config.DescribedVariablesConfigFile;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.config.plugin.ConfigPlugin;
 import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.projects.project.Project;
+import org.apache.hop.projects.project.ProjectConfig;
+import org.apache.hop.projects.util.ProjectsUtil;
 import picocli.CommandLine;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
@@ -46,22 +52,22 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
   private boolean listEnvironments;
 
 
-  @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+  @Override public boolean handleOption( ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables ) throws HopException {
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
     try {
       boolean changed = false;
       if ( createEnvironment ) {
-        createEnvironment( log, config );
+        createEnvironment( log, config, variables, hasHopMetadataProvider );
         changed = true;
       } else if ( modifyEnvironment ) {
-        modifyEnvironment( log, config );
+        modifyEnvironment( log, config, variables, hasHopMetadataProvider );
         changed = true;
       } else if ( deleteEnvironment ) {
-        deleteEnvironment( log, config );
+        deleteEnvironment( log, config, variables );
         changed = true;
       } else if ( listEnvironments ) {
-        listEnvironments( log, config );
+        listEnvironments( log, config, variables );
         changed = true;
       }
       return changed;
@@ -70,7 +76,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
   }
 
-  private void listEnvironments( ILogChannel log, ProjectsConfig config ) throws HopException {
+  private void listEnvironments( ILogChannel log, ProjectsConfig config, IVariables variables ) throws HopException {
 
     log.logBasic( "Lifecycle environments:" );
     List<String> names = config.listEnvironmentNames();
@@ -90,7 +96,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
   }
 
-  private void deleteEnvironment( ILogChannel log, ProjectsConfig config ) throws Exception {
+  private void deleteEnvironment( ILogChannel log, ProjectsConfig config, IVariables variables ) throws Exception {
     validateEnvironmentNameSpecified();
     LifecycleEnvironment environment = config.findEnvironment( environmentName );
     if ( environment==null) {
@@ -98,9 +104,10 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     }
     config.removeEnvironment( environmentName );
     ProjectsConfigSingleton.saveConfig();
+    log.logBasic( "Lifecycle environment '" + environmentName + "' was deleted from Hop configuration file "+ HopConfig.getInstance().getConfigFilename() );
   }
 
-  private void modifyEnvironment( ILogChannel log, ProjectsConfig config ) throws Exception {
+  private void modifyEnvironment( ILogChannel log, ProjectsConfig config, IVariables variables, IHasHopMetadataProvider hasHopMetadataProvider ) throws Exception {
     validateEnvironmentNameSpecified();
     LifecycleEnvironment environment = config.findEnvironment( environmentName );
     if ( environment==null) {
@@ -109,15 +116,18 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
 
     if (updateEnvironmentDetails( environment )) {
       config.addEnvironment( environment );
-      log.logBasic( "Environment '" + environmentName + "' was modified." );
+      log.logBasic( "Lifecycle environment '" + environmentName + "' was modified in Hop configuration file "+ HopConfig.getInstance().getConfigFilename()  );
       logEnvironmentDetails( log, environment );
+      ProjectsConfigSingleton.saveConfig();
     } else {
       log.logBasic( "Environment '" + environmentName + "' was not modified." );
     }
 
+    enableProject( log, environment, variables, hasHopMetadataProvider, config );
+    validateConfigFiles( log, variables, environment );
   }
 
-  private void createEnvironment( ILogChannel log, ProjectsConfig config ) throws Exception {
+  private void createEnvironment( ILogChannel log, ProjectsConfig config, IVariables variables, IHasHopMetadataProvider hasHopMetadataProvider ) throws Exception {
     validateEnvironmentNameSpecified();
 
     LifecycleEnvironment environment = config.findEnvironment( environmentName );
@@ -131,8 +141,45 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     updateEnvironmentDetails( environment );
 
     config.addEnvironment( environment );
-    log.logBasic( "Project '" + environmentName + "' was created." );
+    ProjectsConfigSingleton.saveConfig();
+
+    log.logBasic( "Environment '" + environmentName + "' was created in Hop configuration file "+ HopConfig.getInstance().getConfigFilename()  );
+
+    enableProject( log, environment, variables, hasHopMetadataProvider, config);
+
+    validateConfigFiles(log, variables, environment);
     logEnvironmentDetails( log, environment );
+  }
+
+  private void enableProject( ILogChannel log, LifecycleEnvironment environment, IVariables variables, IHasHopMetadataProvider hasHopMetadataProvider,
+                              ProjectsConfig config ) throws HopException {
+    ProjectConfig projectConfig = config.findProjectConfig( environment.getProjectName() );
+    if (projectConfig==null) {
+      log.logBasic( "Warning: referenced project '"+environment.getProjectName()+"' doesn't exist" );
+    } else {
+      Project project = projectConfig.loadProject( variables );
+
+      // Change variables, metadata, ... for the project
+      //
+      ProjectsUtil.enableProject( log, environment.getProjectName(), project, variables, environment.getConfigurationFiles(), environmentName, hasHopMetadataProvider );
+    }
+  }
+
+  private void validateConfigFiles(ILogChannel log, IVariables variables, LifecycleEnvironment environment) throws Exception {
+    if (environment==null || environmentConfigFiles==null){
+      return;
+    }
+    for (String environmentConfigFilename : environment.getConfigurationFiles()) {
+      String realEnvConfFilename = variables.environmentSubstitute(environmentConfigFilename);
+      DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( realEnvConfFilename );
+      // Create the config file if it doesn't exist
+      if (!new File(realEnvConfFilename).exists()) {
+        variablesConfigFile.saveToFile();
+        log.logBasic( "Created empty environment configuration file : "+realEnvConfFilename );
+      } else {
+        log.logBasic( "Found existing environment configuration file: "+realEnvConfFilename );
+      }
+    }
   }
 
   private boolean updateEnvironmentDetails( LifecycleEnvironment environment ) {
@@ -157,6 +204,134 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
     if ( StringUtil.isEmpty( environmentName ) ) {
       throw new HopException( "Please specify the name of the environment to create" );
     }
+  }
+
+  /**
+   * Gets createEnvironment
+   *
+   * @return value of createEnvironment
+   */
+  public boolean isCreateEnvironment() {
+    return createEnvironment;
+  }
+
+  /**
+   * @param createEnvironment The createEnvironment to set
+   */
+  public void setCreateEnvironment( boolean createEnvironment ) {
+    this.createEnvironment = createEnvironment;
+  }
+
+  /**
+   * Gets environmentName
+   *
+   * @return value of environmentName
+   */
+  public String getEnvironmentName() {
+    return environmentName;
+  }
+
+  /**
+   * @param environmentName The environmentName to set
+   */
+  public void setEnvironmentName( String environmentName ) {
+    this.environmentName = environmentName;
+  }
+
+  /**
+   * Gets environmentPurpose
+   *
+   * @return value of environmentPurpose
+   */
+  public String getEnvironmentPurpose() {
+    return environmentPurpose;
+  }
+
+  /**
+   * @param environmentPurpose The environmentPurpose to set
+   */
+  public void setEnvironmentPurpose( String environmentPurpose ) {
+    this.environmentPurpose = environmentPurpose;
+  }
+
+  /**
+   * Gets environmentProject
+   *
+   * @return value of environmentProject
+   */
+  public String getEnvironmentProject() {
+    return environmentProject;
+  }
+
+  /**
+   * @param environmentProject The environmentProject to set
+   */
+  public void setEnvironmentProject( String environmentProject ) {
+    this.environmentProject = environmentProject;
+  }
+
+  /**
+   * Gets environmentConfigFiles
+   *
+   * @return value of environmentConfigFiles
+   */
+  public String[] getEnvironmentConfigFiles() {
+    return environmentConfigFiles;
+  }
+
+  /**
+   * @param environmentConfigFiles The environmentConfigFiles to set
+   */
+  public void setEnvironmentConfigFiles( String[] environmentConfigFiles ) {
+    this.environmentConfigFiles = environmentConfigFiles;
+  }
+
+  /**
+   * Gets modifyEnvironment
+   *
+   * @return value of modifyEnvironment
+   */
+  public boolean isModifyEnvironment() {
+    return modifyEnvironment;
+  }
+
+  /**
+   * @param modifyEnvironment The modifyEnvironment to set
+   */
+  public void setModifyEnvironment( boolean modifyEnvironment ) {
+    this.modifyEnvironment = modifyEnvironment;
+  }
+
+  /**
+   * Gets deleteEnvironment
+   *
+   * @return value of deleteEnvironment
+   */
+  public boolean isDeleteEnvironment() {
+    return deleteEnvironment;
+  }
+
+  /**
+   * @param deleteEnvironment The deleteEnvironment to set
+   */
+  public void setDeleteEnvironment( boolean deleteEnvironment ) {
+    this.deleteEnvironment = deleteEnvironment;
+  }
+
+  /**
+   * Gets listEnvironments
+   *
+   * @return value of listEnvironments
+   */
+  public boolean isListEnvironments() {
+    return listEnvironments;
+  }
+
+  /**
+   * @param listEnvironments The listEnvironments to set
+   */
+  public void setListEnvironments( boolean listEnvironments ) {
+    this.listEnvironments = listEnvironments;
   }
 }
 

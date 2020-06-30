@@ -3,7 +3,7 @@ package org.apache.hop.core.config.plugin;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 
 /**
  * The class implementing this interface has a bunch of Picocli @Option annotations
@@ -12,6 +12,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
  */
 public interface IConfigOptions {
 
-  boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException;
+  boolean handleOption( ILogChannel log, IHasHopMetadataProvider metadataProvider, IVariables variables ) throws HopException;
 
 }
