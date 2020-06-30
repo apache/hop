@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 26-02-2008
  */
 public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionCopyMoveResultFilenamesI.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = ActionCopyMoveResultFilenames.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
   private Text wName;
@@ -87,7 +87,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
   private CCombo wAction;
   private FormData fdlAction, fdAction;
 
-  private ActionCopyMoveResultFilenamesI action;
+  private ActionCopyMoveResultFilenames action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -152,7 +152,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
   public ActionCopyMoveResultFilenamesDialog( Shell parent, IAction action,
                                               WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
-    this.action = (ActionCopyMoveResultFilenamesI) action;
+    this.action = (ActionCopyMoveResultFilenames) action;
 
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Name.Default" ) );

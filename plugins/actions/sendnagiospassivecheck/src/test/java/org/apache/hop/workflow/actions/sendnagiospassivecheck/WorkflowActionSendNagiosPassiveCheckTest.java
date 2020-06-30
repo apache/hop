@@ -29,12 +29,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class WorkflowActionSendNagiosPassiveCheckTest extends WorkflowActionLoadSaveTestSupport<ActionSendNagiosPassiveICheck> {
+public class WorkflowActionSendNagiosPassiveCheckTest extends WorkflowActionLoadSaveTestSupport<ActionSendNagiosPassiveCheck> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Override
-  protected Class<ActionSendNagiosPassiveICheck> getActionClass() {
-    return ActionSendNagiosPassiveICheck.class;
+  protected Class<ActionSendNagiosPassiveCheck> getActionClass() {
+    return ActionSendNagiosPassiveCheck.class;
   }
 
   @Override
