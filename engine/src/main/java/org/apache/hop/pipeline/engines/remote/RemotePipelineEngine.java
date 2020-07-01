@@ -264,7 +264,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
         // The executionConfiguration should not include external references here because all the resources should be
         // retrieved from the exported zip file
-        // TODO: Serialize metadata objects to JSON (Kettle Beam project) and include it in the zip file
+        // TODO: Serialize metadata objects to JSON and include it in the zip file
         //
         PipelineExecutionConfiguration clonedConfiguration = (PipelineExecutionConfiguration) executionConfiguration.clone();
         TopLevelResource topLevelResource = ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), pipelineMeta, pipelineMeta,

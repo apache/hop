@@ -8,8 +8,8 @@ public class SvgCacheEntry {
 
   private String filename;
   private SVGDocument svgDocument;
-  private int width;
-  private int height;
+  private float width;
+  private float height;
 
   public SvgCacheEntry( String filename, SVGDocument svgDocument, int width, int height ) {
     this.filename = filename;
@@ -70,14 +70,14 @@ public class SvgCacheEntry {
    *
    * @return value of width
    */
-  public int getWidth() {
+  public float getWidth() {
     return width;
   }
 
   /**
    * @param width The width to set
    */
-  public void setWidth( int width ) {
+  public void setWidth( float width ) {
     this.width = width;
   }
 
@@ -86,14 +86,14 @@ public class SvgCacheEntry {
    *
    * @return value of height
    */
-  public int getHeight() {
+  public float getHeight() {
     return height;
   }
 
   /**
    * @param height The height to set
    */
-  public void setHeight( int height ) {
+  public void setHeight( float height ) {
     this.height = height;
   }
 }

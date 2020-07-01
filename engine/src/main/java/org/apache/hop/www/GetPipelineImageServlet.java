@@ -22,7 +22,6 @@
 
 package org.apache.hop.www;
 
-import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SvgGc;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
@@ -31,8 +30,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -40,13 +37,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.StringWriter;
 import java.util.ArrayList;
 
 public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final long serialVersionUID = -4365372274638005929L;
-  public static final float ZOOM_FACTOR = 1.5f;
+  public static final float ZOOM_FACTOR = 1.0f;
 
   private static Class<?> PKG = GetPipelineImageServlet.class; // for i18n purposes, needed by Translator!!
 
@@ -113,25 +109,16 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
     Point maximum = pipelineMeta.getMaximum();
     maximum.multiply( magnification );
 
-    DOMImplementation domImplementation = GenericDOMImplementation.getDOMImplementation();
-
-    // Create an instance of org.w3c.dom.Document.
-    String svgNamespace = "http://www.w3.org/2000/svg";
-    Document document = domImplementation.createDocument(svgNamespace, "svg", null);
-
-    HopSvgGraphics2D graphics2D = new HopSvgGraphics2D( document );
+    HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
 
     SvgGc gc = new SvgGc( graphics2D, new Point(maximum.x+100, maximum.y+100), 32, 0, 0 );
     PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, maximum, null, null, null, null, null, new ArrayList<>(), 32, 1, 0, "Arial", 10, 1.0d );
     pipelinePainter.setMagnification( magnification );
     pipelinePainter.drawPipelineImage();
 
-    // convert to SVG
+    // convert to SVG XML
     //
-    StringWriter stringWriter = new StringWriter();
-    graphics2D.stream( stringWriter, true );
-
-    return stringWriter.toString();
+    return graphics2D.toXml();
   }
 
   public String toString() {

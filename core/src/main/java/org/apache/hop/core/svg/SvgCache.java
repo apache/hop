@@ -2,10 +2,9 @@ package org.apache.hop.core.svg;
 
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.util.XMLResourceDescriptor;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
+import org.w3c.dom.svg.SVGSVGElement;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -52,16 +51,24 @@ public class SvgCache {
         throw new HopException( "Unable to find file '" + svgFile.getFilename() + "'" );
       }
       SVGDocument svgDocument = factory.createSVGDocument( svgFile.getFilename(), svgStream );
+      SVGSVGElement elSVG = svgDocument.getRootElement();
 
-      Element elSVG = svgDocument.getRootElement();
-      String widthString = elSVG.getAttribute( "width" );
-      String heightString = elSVG.getAttribute( "height" );
-      double width = Const.toDouble( widthString.replace( "px", "" ), -1 );
-      double height = Const.toDouble( heightString.replace( "px", "" ), -1 );
-      if ( width < 0 || height < 0 ) {
-        throw new HopException( "Unable to find valid width or height in SVG document " + svgFile.getFilename() );
+      // Try to determine the size of the image...
+      //
+      float width;
+      if (elSVG.getWidth().getBaseVal()!=null ) {
+        width = elSVG.getWidth().getBaseVal().getValue();
+      } else {
+        throw new HopException("Unable to find width in SVG "+svgFile.getFilename());
       }
-      cacheEntry = new SvgCacheEntry( svgFile.getFilename(), svgDocument, (int)Math.round(width), (int)Math.round(height) );
+      float height;
+      if (elSVG.getHeight().getBaseVal()!=null) {
+        height = elSVG.getHeight().getBaseVal().getValue();
+      } else {
+        throw new HopException("Unable to find height in SVG "+svgFile.getFilename());
+      }
+
+      cacheEntry = new SvgCacheEntry( svgFile.getFilename(), svgDocument, Math.round(width), Math.round(height) );
       getInstance().fileDocumentMap.put( svgFile.getFilename(), cacheEntry );
       return cacheEntry;
     } catch ( Exception e ) {

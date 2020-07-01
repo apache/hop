@@ -417,7 +417,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
     xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
-    xml.append( "  " ).append( XmlHandler.addTagValue( "name", getName() ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "name", getName() ) ); // lossy if name is sync'ed with filename
     xml.append( "  " ).append( XmlHandler.addTagValue( "name_sync_with_filename", nameSynchronizedWithFilename ) );
 
     xml.append( "  " ).append( XmlHandler.addTagValue( "description", description ) );
