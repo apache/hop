@@ -777,7 +777,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
     // To get a relative path to it, we inject ${Internal.Entry.Current.Directory}
     //
-    String newFilename = "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + proposedNewFilename;
+    String newFilename = "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + proposedNewFilename;
 
     // Set the correct filename inside the XML.
     //

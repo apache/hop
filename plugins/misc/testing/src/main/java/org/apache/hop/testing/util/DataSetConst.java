@@ -72,7 +72,7 @@ public class DataSetConst {
   public static final String ROW_COLLECTION_MAP = "RowCollectionMap";
   public static final String UNIT_TEST_RESULTS = "UnitTestResults";
 
-  public static final String VARIABLE_UNIT_TESTS_BASE_PATH = "UNIT_TESTS_BASE_PATH";
+  public static final String VARIABLE_HOP_UNIT_TESTS_FOLDER = "HOP_UNIT_TESTS_FOLDER";
 
   private static final String[] tweakDesc = new String[] {
     BaseMessages.getString( PKG, "DataSetConst.Tweak.NONE.Desc" ),

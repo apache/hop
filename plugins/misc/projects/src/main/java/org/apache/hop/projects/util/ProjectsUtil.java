@@ -21,8 +21,8 @@ import java.util.List;
 public class ProjectsUtil {
 
   public static final String VARIABLE_PROJECT_HOME = "PROJECT_HOME";
-  public static final String VARIABLE_DATASETS_BASE_PATH = "DATASETS_BASE_PATH";
-  public static final String VARIABLE_UNIT_TESTS_BASE_PATH = "UNIT_TESTS_BASE_PATH";
+  public static final String VARIABLE_HOP_DATASETS_FOLDER = "HOP_DATASETS_FOLDER";
+  public static final String VARIABLE_HOP_UNIT_TESTS_FOLDER = "HOP_UNIT_TESTS_FOLDER";
 
   public static final String STRING_PROJECTS_AUDIT_GROUP = "projects";
   public static final String STRING_PROJECT_AUDIT_TYPE = "project";
@@ -116,7 +116,7 @@ public class ProjectsUtil {
 
     // What is the active project?
     //
-    String activeProjectName = System.getProperty( Defaults.VARIABLE_PROJECT_NAME );
+    String activeProjectName = System.getProperty( Defaults.VARIABLE_HOP_PROJECT_NAME );
     if ( StringUtils.isEmpty( activeProjectName ) ) {
       // Nothing to be done here...
       //

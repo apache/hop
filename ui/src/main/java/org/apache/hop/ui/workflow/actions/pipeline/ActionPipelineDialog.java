@@ -232,7 +232,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
 
     String getEntryName(String name) {
         return "${"
-                + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + name;
+                + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + name;
     }
 
     public void dispose() {

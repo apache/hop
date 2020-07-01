@@ -606,7 +606,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
       // ${Internal.Entry.Current.Directory}
       //
       String newFilename =
-        "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + proposedNewFilename;
+        "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + proposedNewFilename;
 
       // Set the correct filename inside the XML.
       //

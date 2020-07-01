@@ -271,7 +271,7 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
     if ( StringUtils.isEmpty( baseFilePath ) ) {
       // See if the base path environment variable is set
       //
-      baseFilePath = getVariable( DataSetConst.VARIABLE_UNIT_TESTS_BASE_PATH );
+      baseFilePath = getVariable( DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER );
     }
     if ( StringUtils.isEmpty( baseFilePath ) ) {
       baseFilePath = "";
@@ -489,7 +489,7 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
 
     String base = getBasePath();
     if ( StringUtils.isEmpty( base ) ) {
-      base = getVariable( DataSetConst.VARIABLE_UNIT_TESTS_BASE_PATH );
+      base = getVariable( DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER );
     }
     base = environmentSubstitute( base );
     if ( StringUtils.isNotEmpty( base ) ) {
