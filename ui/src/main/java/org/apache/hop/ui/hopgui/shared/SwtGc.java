@@ -117,7 +117,9 @@ public class SwtGc implements IGc {
   }
 
   public void dispose() {
-    gc.dispose();
+    // Do not dispose the GC.  It's handed to us so we don't dispose it
+    // However, the resources below are possibly used and allocated here so they need to be cleaned up
+    //
     if ( transform != null && transform.isDisposed() == false ) {
       transform.dispose();
     }
