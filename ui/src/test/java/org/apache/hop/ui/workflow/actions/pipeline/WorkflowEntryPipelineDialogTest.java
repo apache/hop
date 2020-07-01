@@ -42,6 +42,6 @@ public class WorkflowEntryPipelineDialogTest {
   public void testEntryName() {
     dialog = mock( ActionPipelineDialog.class );
     doCallRealMethod().when( dialog ).getEntryName( any() );
-    assertEquals( dialog.getEntryName( FILE_NAME ), "${Internal.Entry.Current.Directory}/" + FILE_NAME );
+    assertEquals( dialog.getEntryName( FILE_NAME ), "${Internal.Entry.Current.Folder}/" + FILE_NAME );
   }
 }
