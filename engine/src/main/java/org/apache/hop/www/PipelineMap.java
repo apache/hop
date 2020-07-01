@@ -89,7 +89,11 @@ public class PipelineMap {
    * @return the pipeline with the specified entry
    */
   public IPipelineEngine<PipelineMeta> getPipeline( HopServerObjectEntry entry ) {
-    return pipelineMap.get( entry ).getPipeline();
+    PipelineData pipelineData = pipelineMap.get( entry );
+    if (pipelineData!=null) {
+      return pipelineData.getPipeline();
+    }
+    return null;
   }
 
   /**

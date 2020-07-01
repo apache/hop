@@ -1849,7 +1849,7 @@ public class PipelineMeta extends AbstractMeta
 
     xml.append( "  " ).append( XmlHandler.openTag( XML_TAG_INFO ) ).append( Const.CR );
 
-    xml.append( "    " ).append( XmlHandler.addTagValue( "name", name ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "name", getName() ) ); // lossy if name is sync'ed with filename
     xml.append( "    " ).append( XmlHandler.addTagValue( "name_sync_with_filename", nameSynchronizedWithFilename ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "description", description ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "extended_description", extendedDescription ) );

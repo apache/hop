@@ -1,13 +1,23 @@
 package org.apache.hop.core.svg;
 
+import org.apache.batik.anim.dom.SVGDOMImplementation;
+import org.apache.batik.dom.GenericDOMImplementation;
 import org.apache.batik.svggen.DOMGroupManager;
 import org.apache.batik.svggen.ExtensionHandler;
 import org.apache.batik.svggen.ImageHandler;
 import org.apache.batik.svggen.SVGGeneratorContext;
 import org.apache.batik.svggen.SVGGraphics2D;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
 
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.awt.font.TextLayout;
+import java.io.StringWriter;
 
 public class HopSvgGraphics2D extends SVGGraphics2D {
   public HopSvgGraphics2D( Document domFactory ) {
@@ -47,4 +57,26 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
       super.drawString( str, x, y );
     }
   }
+
+  public static HopSvgGraphics2D newDocument() {
+    DOMImplementation domImplementation = GenericDOMImplementation.getDOMImplementation();
+
+    // Create an instance of org.w3c.dom.Document.
+    Document document = domImplementation.createDocument( SVGDOMImplementation.SVG_NAMESPACE_URI, "svg", null);
+
+    HopSvgGraphics2D graphics2D = new HopSvgGraphics2D(document);
+
+    return graphics2D;
+  }
+
+  public String toXml() throws TransformerException {
+    Transformer transformer = TransformerFactory.newInstance().newTransformer();
+    transformer.setOutputProperty( OutputKeys.INDENT, "yes" );
+    transformer.setOutputProperty( "{http://xml.apache.org/xslt}indent-amount", "2" );
+    StreamResult streamResult = new StreamResult( new StringWriter() );
+    DOMSource domSource = new DOMSource( getRoot() );
+    transformer.transform( domSource, streamResult );
+    return streamResult.getWriter().toString();
+  }
+
 }

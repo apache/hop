@@ -22,9 +22,7 @@
 
 package org.apache.hop.core.gui;
 
-import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
 import org.apache.batik.util.SVGConstants;
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -43,12 +41,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
+import org.w3c.dom.svg.SVGSVGElement;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -158,11 +155,13 @@ public class SvgGc implements IGc {
     this.transformImages = getTransformImageFilenames();
     this.actionImages = getActionImageFilenames();
     this.iconSize = iconSize;
-    this.miniIconSize = iconSize/2;
+    this.miniIconSize = iconSize / 2;
     this.area = area;
     this.xOffset = xOffset;
     this.yOffset = yOffset;
     this.originalTransform = this.gc.getTransform();
+
+    gc.setSVGCanvasSize( new Dimension(area.x, area.y) );
 
     init();
   }
@@ -256,75 +255,6 @@ public class SvgGc implements IGc {
 
   public void drawLine( int x, int y, int x2, int y2 ) {
     gc.drawLine( x + xOffset, y + yOffset, x2 + xOffset, y2 + yOffset );
-  }
-
-  @Override
-  public void drawImage( EImage image, int locationX, int locationY, float magnification ) throws HopException {
-    drawImage( image, locationX, locationY, magnification, 0 );
-  }
-
-  @Override
-  public void drawImage( EImage image, int x, int y, float magnification, double angle ) throws HopException {
-    SvgFile svgFile = getNativeImage( image );
-    drawImage( svgFile, x, y, miniIconSize, miniIconSize, magnification, angle );
-  }
-
-  public static final SvgFile getNativeImage( EImage image ) {
-    switch ( image ) {
-      case LOCK:
-        return imageLocked;
-      case TRANSFORM_ERROR:
-        return imageTransformError;
-      case EDIT:
-        return imageEdit;
-      case CONTEXT_MENU:
-        return imageContextMenu;
-      case TRUE:
-        return imageTrue;
-      case FALSE:
-        return imageFalse;
-      case ERROR:
-        return imageErrorHop;
-      case INFO:
-        return imageInfoHop;
-      case TARGET:
-        return imageHopTarget;
-      case INPUT:
-        return imageHopInput;
-      case OUTPUT:
-        return imageHopOutput;
-      case ARROW:
-        return imageArrow;
-      case COPY_ROWS:
-        return imageCopyHop;
-      case LOAD_BALANCE:
-        return imageLoadBalance;
-      case CHECKPOINT:
-        return imageCheckpoint;
-      case DB:
-        return imageDatabase;
-      case PARALLEL:
-        return imageParallelHop;
-      case UNCONDITIONAL:
-        return imageUnconditionalHop;
-      case BUSY:
-        return imageBusy;
-      case INJECT:
-        return imageInject;
-      case ARROW_DEFAULT:
-        return defaultArrow;
-      case ARROW_OK:
-        return okArrow;
-      case ARROW_ERROR:
-        return errorArrow;
-      case ARROW_DISABLED:
-        return disabledArrow;
-      case DATA:
-        return imageData;
-      default:
-        break;
-    }
-    return null;
   }
 
   public void drawPoint( int x, int y ) {
@@ -545,40 +475,6 @@ public class SvgGc implements IGc {
     return new Point( maxWidth, height );
   }
 
-  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) throws HopException {
-    String transformType = transformMeta.getTransformPluginId();
-    SvgFile svgFile = transformImages.get( transformType );
-    if ( svgFile != null ) { // Draw the icon!
-      drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
-    }
-  }
-
-  public void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) throws HopException {
-    if ( actionCopy == null ) {
-      return; // Don't draw anything
-    }
-
-    SvgFile svgFile = null;
-
-    if ( actionCopy.isSpecial() ) {
-      if ( actionCopy.isStart() ) {
-        svgFile = imageStart;
-      }
-      if ( actionCopy.isDummy() ) {
-        svgFile = imageDummy;
-      }
-    } else {
-      String configId = actionCopy.getAction().getPluginId();
-      if ( configId != null ) {
-        svgFile = actionImages.get( configId );
-      }
-    }
-    if ( svgFile == null ) {
-      return;
-    }
-
-    drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
-  }
 
   public void setAntialias( boolean antiAlias ) {
     if ( antiAlias ) {
@@ -633,100 +529,197 @@ public class SvgGc implements IGc {
   }
 
 
+  public static final SvgFile getNativeImage( EImage image ) {
+    switch ( image ) {
+      case LOCK:
+        return imageLocked;
+      case TRANSFORM_ERROR:
+        return imageTransformError;
+      case EDIT:
+        return imageEdit;
+      case CONTEXT_MENU:
+        return imageContextMenu;
+      case TRUE:
+        return imageTrue;
+      case FALSE:
+        return imageFalse;
+      case ERROR:
+        return imageErrorHop;
+      case INFO:
+        return imageInfoHop;
+      case TARGET:
+        return imageHopTarget;
+      case INPUT:
+        return imageHopInput;
+      case OUTPUT:
+        return imageHopOutput;
+      case ARROW:
+        return imageArrow;
+      case COPY_ROWS:
+        return imageCopyHop;
+      case LOAD_BALANCE:
+        return imageLoadBalance;
+      case CHECKPOINT:
+        return imageCheckpoint;
+      case DB:
+        return imageDatabase;
+      case PARALLEL:
+        return imageParallelHop;
+      case UNCONDITIONAL:
+        return imageUnconditionalHop;
+      case BUSY:
+        return imageBusy;
+      case INJECT:
+        return imageInject;
+      case ARROW_DEFAULT:
+        return defaultArrow;
+      case ARROW_OK:
+        return okArrow;
+      case ARROW_ERROR:
+        return errorArrow;
+      case ARROW_DISABLED:
+        return disabledArrow;
+      case DATA:
+        return imageData;
+      default:
+        break;
+    }
+    return null;
+  }
+
+  @Override
+  public void drawImage( EImage image, int locationX, int locationY, float magnification ) throws HopException {
+    drawImage( image, locationX, locationY, magnification, 0 );
+  }
+
+  @Override
+  public void drawImage( EImage image, int x, int y, float magnification, double angle ) throws HopException {
+    SvgFile svgFile = getNativeImage( image );
+    drawImage( svgFile, x+xOffset-miniIconSize/2, y+yOffset-miniIconSize/2, miniIconSize, miniIconSize, magnification, angle );
+  }
+
+  public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) throws HopException {
+    String transformType = transformMeta.getTransformPluginId();
+    SvgFile svgFile = transformImages.get( transformType );
+    if ( svgFile != null ) { // Draw the icon!
+      drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
+    }
+  }
+
+  public void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) throws HopException {
+    if ( actionCopy == null ) {
+      return; // Don't draw anything
+    }
+
+    SvgFile svgFile = null;
+
+    if ( actionCopy.isSpecial() ) {
+      if ( actionCopy.isStart() ) {
+        svgFile = imageStart;
+      }
+      if ( actionCopy.isDummy() ) {
+        svgFile = imageDummy;
+      }
+    } else {
+      String configId = actionCopy.getAction().getPluginId();
+      if ( configId != null ) {
+        svgFile = actionImages.get( configId );
+      }
+    }
+    if ( svgFile == null ) {
+      return;
+    }
+
+    drawImage( svgFile, x + xOffset, y + xOffset, iconSize, iconSize, magnification, 0 );
+  }
+
+
   @Override public void drawImage( SvgFile svgFile, int x, int y, int desiredWidth, int desiredHeight, float magnification, double angle ) throws HopException {
 
     // Load the SVG XML document
     // Simply embed the SVG into the parent document (HopSvgGraphics2D)
     // This doesn't actually render anything, it delays that until the rendering of the whole document is done.
     //
-    AffineTransform oldTransform = gc.getTransform();
-    gc.scale( magnification, magnification );
-    gc.rotate( angle );
-
-    // Don't scale the location...
-    int imageX = (int) ( x / magnification );
-    int imageY = (int) ( y / magnification );
-
     try {
-      try {
+      // Let's not hammer the file system all the time, keep the SVGDocument in memory
+      //
+      SvgCacheEntry cacheEntry = SvgCache.loadSvg( svgFile );
+      SVGDocument svgDocument = cacheEntry.getSvgDocument();
+      float width = cacheEntry.getWidth();
+      float height = cacheEntry.getHeight();
 
-        SVGDocument svgDocument;
-        int width;
-        int height;
+      // How much more do we need to scale the image.
+      // If the width of the icon is 500px and we desire 50px then we need to scale to 10% times the magnification
+      //
+      float xScaleFactor = magnification * desiredWidth / width;
+      String xScale = new DecimalFormat( "##0.##" ).format( xScaleFactor );
 
-        // Let's not hammer the file system all the time, keep the SVGDocument in memory
-        //
-        SvgCacheEntry cacheEntry = SvgCache.findSvg( svgFile.getFilename() );
-        if ( cacheEntry == null ) {
-          String parser = XMLResourceDescriptor.getXMLParserClassName();
-          SAXSVGDocumentFactory factory = new SAXSVGDocumentFactory( parser );
-          InputStream svgStream = svgFile.getClassLoader().getResourceAsStream( svgFile.getFilename() );
+      float yScaleFactor = magnification * desiredHeight / height;
+      String yScale = new DecimalFormat( "##0.##" ).format( yScaleFactor );
 
-          if ( svgStream == null ) {
-            throw new HopException( "Unable to find file '" + svgFile.getFilename() + "'" );
-          }
-          svgDocument = factory.createSVGDocument( svgFile.getFilename(), svgStream );
+      Document domFactory = gc.getDOMFactory();
 
-          Element elSVG = svgDocument.getRootElement();
-          String widthString = elSVG.getAttribute( "width" );
-          String heightString = elSVG.getAttribute( "height" );
-          width = Const.toInt( widthString.replace( "px", "" ), -1 );
-          height = Const.toInt( heightString.replace( "px", "" ), -1 );
-          if ( width < 0 || height < 0 ) {
-            throw new HopException( "Unable to find valid width or height in SVG document " + svgFile.getFilename() );
-          }
-          SvgCache.addSvg( svgFile.getFilename(), svgDocument, width, height );
-        } else {
-          svgDocument = cacheEntry.getSvgDocument();
-          width = cacheEntry.getWidth();
-          height = cacheEntry.getHeight();
-        }
+      Element svgG = domFactory.createElementNS( SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_G_TAG );
+      gc.getDomGroupManager().addElement( svgG, DRAW );
 
-        // How much more do we need to scale the image.
-        // If the Width of the icon is 500px and we desire 50px then we need to scale to 10% times the magnification
-        //
-        float xScaleFactor = magnification * (desiredWidth / width);
-        String xScalePercent = new DecimalFormat( "##0'%'" ).format( xScaleFactor * 100 );
-
-        float yScaleFactor = magnification * (desiredHeight / height);
-        String yScalePercent = new DecimalFormat( "##0'%'" ).format( yScaleFactor * 100 );
-        
-        Document domFactory = gc.getDOMFactory();
-
-        // Simply embed the image SVG
-        //
-        Element svgSvg = domFactory.createElementNS( SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_SVG_TAG );
-
-        svgSvg.setAttributeNS( null, SVGConstants.SVG_X_ATTRIBUTE, Integer.toString( imageX ) );
-        svgSvg.setAttributeNS( null, SVGConstants.SVG_Y_ATTRIBUTE, Integer.toString( imageY ) );
-        svgSvg.setAttributeNS( null, SVGConstants.SVG_WIDTH_ATTRIBUTE, Integer.toString( width ) );
-        svgSvg.setAttributeNS( null, SVGConstants.SVG_HEIGHT_ATTRIBUTE, Integer.toString( height ) );
-        svgSvg.setAttributeNS( null, SVGConstants.SVG_TRANSFORM_ATTRIBUTE, xScalePercent + " " + yScalePercent );
-
-        // Add all the elements from the SVG Image...
-        //
-        NodeList childNodes = svgDocument.getRootElement().getChildNodes();
-        for ( int c = 0; c < childNodes.getLength(); c++ ) {
-          Node childNode = childNodes.item( c );
-
-          // Copy this node over to the svgSvg element
-          //
-          Node childNodeCopy = domFactory.importNode( childNode, true );
-          svgSvg.appendChild( childNodeCopy );
-        }
-
-        gc.getDomGroupManager().addElement( svgSvg, DRAW );
-
-      } catch ( IOException e ) {
-        throw new HopException( "Error reading file '" + svgFile.getFilename() + "'", e );
+      String transformString = "translate(" + x + " " + y + ") ";
+      if ( !"1".equals( xScale ) || !"1".equals( yScale ) ) {
+        transformString += "scale(" + xScale + " " + yScale + ") ";
       }
+      String angleDegrees = new DecimalFormat( "0.###" ).format( Math.toDegrees( angle ) );
+      if ( !"0".equals( angleDegrees ) ) {
+        String centreX = new DecimalFormat( "0.###" ).format( width / 2 );
+        String centreY = new DecimalFormat( "0.###" ).format( height / 2 );
+
+        transformString += "rotate(" + angleDegrees + " " + centreX + " " + centreY + ")";
+      }
+      if ( transformString.length() > 0 ) {
+        svgG.setAttributeNS( null, SVGConstants.SVG_TRANSFORM_ATTRIBUTE, transformString );
+      }
+
+      svgG.setAttributeNS( null, "filename", svgFile.getFilename() );
+
+      /*
+      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:dc", "http://purl.org/dc/elements/1.1/");
+      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:cc", "http://creativecommons.org/ns#" );
+      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#" );
+      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:sodipodi", "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" );
+      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:inkscape", "http://www.inkscape.org/namespaces/inkscape" );
+      */
+
+      SVGSVGElement svgImageRoot = svgDocument.getRootElement();
+
+      // Add all the elements from the SVG Image...
+      //
+      copyChildren( domFactory, svgG, svgImageRoot );
+
+      // gc.getDomGroupManager().addElement( svgSvg, DRAW );
+
     } catch ( Exception e ) {
       throw new HopException( "Unable to load SVG file '" + svgFile.getFilename() + "'", e );
-    } finally {
-      // Reset scaling
-      //
-      gc.setTransform( oldTransform );
     }
   }
 
+  private void copyChildren( Document domFactory, Node target, Node svgImage ) {
+
+    NodeList childNodes = svgImage.getChildNodes();
+    for ( int c = 0; c < childNodes.getLength(); c++ ) {
+      Node childNode = childNodes.item( c );
+
+      if ( "metadata".equals( childNode.getNodeName() ) ) {
+        continue; // skip some junk
+      }
+      if ( "defs".equals( childNode.getNodeName() ) ) {
+        continue; // skip some junk
+      }
+      if ( "sodipodi:namedview".equals( childNode.getNodeName() ) ) {
+        continue; // skip some junk
+      }
+
+      // Copy this node over to the svgSvg element
+      //
+      Node childNodeCopy = domFactory.importNode( childNode, true );
+      target.appendChild( childNodeCopy );
+    }
+  }
 }
