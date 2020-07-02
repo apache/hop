@@ -565,11 +565,11 @@ public class PipelineMetaTest {
   public void testSetInternalEntryCurrentDirectoryWithFilename() {
     PipelineMeta pipelineMetaTest = new PipelineMeta();
     pipelineMetaTest.setFilename( "hasFilename" );
-    pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
+    pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
     pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     pipelineMetaTest.setInternalEntryCurrentDirectory();
 
-    assertEquals( "file:///C:/SomeFilenameDirectory", pipelineMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+    assertEquals( "file:///C:/SomeFilenameDirectory", pipelineMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
 
   }
 
@@ -577,10 +577,10 @@ public class PipelineMetaTest {
   @Test
   public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
     PipelineMeta pipelineMetaTest = new PipelineMeta();
-    pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
+    pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
     pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     pipelineMetaTest.setInternalEntryCurrentDirectory();
 
-    assertEquals( "Original value defined at run execution", pipelineMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+    assertEquals( "Original value defined at run execution", pipelineMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
   }
 }

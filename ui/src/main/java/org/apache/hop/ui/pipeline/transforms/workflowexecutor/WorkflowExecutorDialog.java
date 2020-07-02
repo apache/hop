@@ -383,7 +383,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
         loadWorkflowFile( filename );
         if ( parentFolder != null && filename.startsWith( parentFolder ) ) {
-          filename = filename.replace( parentFolder, "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}" );
+          filename = filename.replace( parentFolder, "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}" );
         }
         wPath.setText( filename );
       }

@@ -3487,8 +3487,8 @@ public class PipelineMeta extends AbstractMeta
 
     // Here we don't remove the workflow specific parameters, as they may come in handy.
     //
-    if ( variables.getVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY ) == null ) {
-      variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "Parent Workflow File Directory" );
+    if ( variables.getVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER ) == null ) {
+      variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, "Parent Workflow File Directory" );
     }
     if ( variables.getVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME ) == null ) {
       variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "Parent Workflow Filename" );
@@ -3549,10 +3549,10 @@ public class PipelineMeta extends AbstractMeta
   }
 
   protected void setInternalEntryCurrentDirectory() {
-    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
+    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, variables.getVariable(
       StringUtils.isNotEmpty( filename )
         ? Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY
-        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
   }
 
 

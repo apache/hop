@@ -89,8 +89,8 @@ public class Project extends ConfigFile implements IConfigFile {
 
     // Set the name of the active environment
     //
-    variables.setVariable( Defaults.VARIABLE_PROJECT_NAME, Const.NVL( projectConfig.getProjectName(), "" ) );
-    variables.setVariable( Defaults.VARIABLE_ENVIRONMENT_NAME, Const.NVL( environmentName, "" ) );
+    variables.setVariable( Defaults.VARIABLE_HOP_PROJECT_NAME, Const.NVL( projectConfig.getProjectName(), "" ) );
+    variables.setVariable( Defaults.VARIABLE_HOP_ENVIRONMENT_NAME, Const.NVL( environmentName, "" ) );
 
     // To allow circular logic where an environment file is relative to the project home
     //
@@ -130,11 +130,11 @@ public class Project extends ConfigFile implements IConfigFile {
     }
     if ( StringUtils.isNotEmpty( unitTestsBasePath ) ) {
       String realValue = variables.environmentSubstitute( unitTestsBasePath );
-      variables.setVariable( ProjectsUtil.VARIABLE_UNIT_TESTS_BASE_PATH, realValue );
+      variables.setVariable( ProjectsUtil.VARIABLE_HOP_UNIT_TESTS_FOLDER, realValue );
     }
     if ( StringUtils.isNotEmpty( dataSetsCsvFolder ) ) {
       String realValue = variables.environmentSubstitute( dataSetsCsvFolder );
-      variables.setVariable( ProjectsUtil.VARIABLE_DATASETS_BASE_PATH, realValue );
+      variables.setVariable( ProjectsUtil.VARIABLE_HOP_DATASETS_FOLDER, realValue );
     }
     for ( DescribedVariable variable : getDescribedVariables() ) {
       if ( variable.getName() != null ) {

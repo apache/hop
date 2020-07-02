@@ -417,11 +417,11 @@ public class PipelineTest {
     boolean hasFilename = true;
     boolean hasRepoDir = false;
     pipelineTest.copyVariablesFrom( null );
-    pipelineTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
+    pipelineTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     pipelineTest.setInternalEntryCurrentDirectory( hasFilename );
 
-    assertEquals( "file:///C:/SomeFilenameDirectory", pipelineTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+    assertEquals( "file:///C:/SomeFilenameDirectory", pipelineTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
 
   }
 
@@ -430,11 +430,11 @@ public class PipelineTest {
     Pipeline pipelineTest = new LocalPipelineEngine();
     pipelineTest.copyVariablesFrom( null );
     boolean hasFilename = false;
-    pipelineTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, "Original value defined at run execution" );
+    pipelineTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     pipelineTest.setInternalEntryCurrentDirectory( hasFilename );
 
-    assertEquals( "Original value defined at run execution", pipelineTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+    assertEquals( "Original value defined at run execution", pipelineTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
   }
 
 }

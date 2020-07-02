@@ -430,7 +430,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     boolean doConsoleRedirect = !Boolean.getBoolean( "HopUi.Console.Redirect.Disabled" );
     if ( doConsoleRedirect ) {
       try {
-        Path parent = Paths.get( Const.HOP_AUDIT_DIRECTORY );
+        Path parent = Paths.get( Const.HOP_AUDIT_FOLDER );
         Files.createDirectories( parent );
         Files.deleteIfExists( Paths.get( parent.toString(), "hopui.log" ) );
         Path path = Files.createFile( Paths.get( parent.toString(), "hopui.log" ) );

@@ -144,19 +144,19 @@ public class Const {
   /*
     The name of the history folder in which the Hop local audit manager saves data
    */
-  public static final String HOP_AUDIT_DIRECTORY =  NVL( System.getProperty( "HOP_AUDIT_DIRECTORY" ),
+  public static final String HOP_AUDIT_FOLDER =  NVL( System.getProperty( "HOP_AUDIT_FOLDER" ),
     System.getProperty( "user.dir" ) + File.separator + "audit" );
 
   /*
    The name of the history folder in which the Hop local audit manager saves data
   */
-  public static final String HOP_CONFIG_DIRECTORY =  NVL( System.getProperty( "HOP_CONFIG_DIRECTORY" ),
+  public static final String HOP_CONFIG_FOLDER =  NVL( System.getProperty( "HOP_CONFIG_FOLDER" ),
     System.getProperty( "user.dir" ) + File.separator + "config" );
 
   /**
    * The variable which points to a shared folder with JDBC drivers in them.
    */
-  public static final String HOP_SHARED_JDBC_DIRECTORY = "HOP_SHARED_JDBC_DIRECTORY";
+  public static final String HOP_SHARED_JDBC_FOLDER = "HOP_SHARED_JDBC_FOLDER";
 
   /**
    * An empty ("") String.
@@ -324,24 +324,9 @@ public class Const {
   public static final String INTERNAL_VARIABLE_PREFIX = "Internal";
 
   /**
-   * The version number as an internal variable
-   */
-  public static final String INTERNAL_VARIABLE_HOP_VERSION = INTERNAL_VARIABLE_PREFIX + ".Hop.Version";
-
-  /**
-   * The build version as an internal variable
-   */
-  public static final String INTERNAL_VARIABLE_HOP_BUILD_VERSION = INTERNAL_VARIABLE_PREFIX + ".Hop.Build.Version";
-
-  /**
-   * The build date as an internal variable
-   */
-  public static final String INTERNAL_VARIABLE_HOP_BUILD_DATE = INTERNAL_VARIABLE_PREFIX + ".Hop.Build.Date";
-
-  /**
    * The workflow filename directory
    */
-  public static final String INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY = INTERNAL_VARIABLE_PREFIX + ".Workflow.Filename.Directory";
+  public static final String INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER = INTERNAL_VARIABLE_PREFIX + ".Workflow.Filename.Folder";
 
   /**
    * The workflow filename name
@@ -356,13 +341,13 @@ public class Const {
   /**
    * The current pipeline directory
    */
-  public static final String INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY = INTERNAL_VARIABLE_PREFIX + ".Entry.Current.Directory";
+  public static final String INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER = INTERNAL_VARIABLE_PREFIX + ".Entry.Current.Folder";
 
   /**
    * All the internal pipeline variables
    */
   public static final String[] INTERNAL_PIPELINE_VARIABLES = new String[] {
-    Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY,
+    Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER,
     Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY,
     Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_NAME, Const.INTERNAL_VARIABLE_PIPELINE_NAME,
   };
@@ -371,8 +356,8 @@ public class Const {
    * All the internal workflow variables
    */
   public static final String[] INTERNAL_WORKFLOW_VARIABLES = new String[] {
-    Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY,
-    Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME,
+    Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER,
+    Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME,
     Const.INTERNAL_VARIABLE_WORKFLOW_NAME,
   };
 

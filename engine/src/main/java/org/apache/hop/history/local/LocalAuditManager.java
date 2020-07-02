@@ -58,7 +58,7 @@ public class LocalAuditManager implements IAuditManager {
   private String rootFolder;
 
   public LocalAuditManager() {
-    this.rootFolder = Const.HOP_AUDIT_DIRECTORY;
+    this.rootFolder = Const.HOP_AUDIT_FOLDER;
   }
 
   @Override public void storeEvent( AuditEvent event ) throws HopException {

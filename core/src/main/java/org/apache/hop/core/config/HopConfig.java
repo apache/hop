@@ -26,7 +26,7 @@ public class HopConfig extends ConfigFile implements IConfigFile {
 
   private HopConfig() {
     try {
-      this.configFilename = Const.HOP_CONFIG_DIRECTORY + Const.FILE_SEPARATOR + Const.HOP_CONFIG;
+      this.configFilename = Const.HOP_CONFIG_FOLDER + Const.FILE_SEPARATOR + Const.HOP_CONFIG;
       readFromFile();
     } catch ( Exception e ) {
       throw new RuntimeException( "Error reading the hop config file '" + configFilename + "'", e );
