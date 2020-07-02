@@ -1270,7 +1270,7 @@ public class EnterOptionsDialog extends Dialog {
     // Magnify to compensate for the same reduction elsewhere.
     //
     graphFontData = props.getGraphFont();
-    graphFontData.height *= PropsUi.getNativeZoomFactor();
+    graphFontData.setHeight( (int) ( graphFontData.getHeight() * PropsUi.getNativeZoomFactor() ) );
     graphFont = new Font( display, graphFontData );
 
     noteFontData = props.getNoteFont();
