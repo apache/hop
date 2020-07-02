@@ -57,6 +57,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.i18n.LanguageChoice;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.partition.PartitionSchema;
@@ -126,7 +127,7 @@ import java.util.Locale;
 @GuiPlugin(
   description = "The main hop graphical user interface"
 )
-public class HopGui implements IActionContextHandlersProvider, ISearchableProvider {
+public class HopGui implements IActionContextHandlersProvider, ISearchableProvider, IHasHopMetadataProvider {
   private static Class<?> PKG = HopGui.class;
 
   // The main Menu IDs
@@ -672,7 +673,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
   public void menuToolsEditConfigVariables() {
     List<DescribedVariable> describedVariables = HopConfig.getInstance().getDescribedVariables();
     String message = "Editing file: " + HopConfig.getInstance().getConfigFilename();
-    HopDescribedVariablesDialog dialog = new HopDescribedVariablesDialog( shell, message, describedVariables );
+    HopDescribedVariablesDialog dialog = new HopDescribedVariablesDialog( shell, message, describedVariables, null );
     if ( dialog.open() != null ) {
       try {
         HopConfig.getInstance().setDescribedVariables( describedVariables );
@@ -1135,9 +1136,9 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     return locations;
   }
 
-  public static boolean editConfigFile( Shell shell, String configFilename, DescribedVariablesConfigFile variablesConfigFile ) throws HopException {
+  public static boolean editConfigFile( Shell shell, String configFilename, DescribedVariablesConfigFile variablesConfigFile, String selectedVariable ) throws HopException {
     String message = "Editing configuration file: "+configFilename;
-    HopDescribedVariablesDialog variablesDialog = new HopDescribedVariablesDialog( shell, message, variablesConfigFile.getDescribedVariables() );
+    HopDescribedVariablesDialog variablesDialog = new HopDescribedVariablesDialog( shell, message, variablesConfigFile.getDescribedVariables(), selectedVariable );
     List<DescribedVariable> vars = variablesDialog.open();
     if (vars!=null) {
       variablesConfigFile.setDescribedVariables( vars );

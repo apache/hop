@@ -78,6 +78,8 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
         JsonFactory jsonFactory = new JsonFactory();
         com.fasterxml.jackson.core.JsonParser jsonParser = jsonFactory.createParser( fileInputStream );
 
+        jsonParser.nextToken(); // skip {
+
         T t = parser.loadJsonObject( managedClass, jsonParser );
         inheritVariables(t);
         return t;

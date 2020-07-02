@@ -31,15 +31,12 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.AreaOwner.AreaType;
 import org.apache.hop.core.gui.BasePainter;
 import org.apache.hop.core.gui.IGc;
-import org.apache.hop.core.gui.IPrimitiveGc.EColor;
-import org.apache.hop.core.gui.IPrimitiveGc.EFont;
-import org.apache.hop.core.gui.IPrimitiveGc.EImage;
-import org.apache.hop.core.gui.IPrimitiveGc.ELineStyle;
 import org.apache.hop.core.gui.IScrollBar;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
@@ -57,6 +54,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.apache.hop.core.gui.IGc.EColor;
+import static org.apache.hop.core.gui.IGc.EFont;
+import static org.apache.hop.core.gui.IGc.EImage;
+import static org.apache.hop.core.gui.IGc.ELineStyle;
 
 public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta> {
 
@@ -129,7 +131,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return titles;
   }
 
-  public void buildPipelineImage() {
+  public void drawPipelineImage() throws HopException {
 
     Point max = pipelineMeta.getMaximum();
     Point thumb = getThumb( area, max );
@@ -150,7 +152,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     gc.dispose();
   }
 
-  private void drawPipeline( Point thumb ) {
+  private void drawPipeline( Point thumb ) throws HopException {
     if ( gridSize > 1 ) {
       drawGrid();
     }
@@ -512,7 +514,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
   }
 
-  private void drawTransformStatusIndicator( TransformMeta transformMeta ) {
+  private void drawTransformStatusIndicator( TransformMeta transformMeta ) throws HopException {
 
     if ( transformMeta == null ) {
       return;
@@ -536,14 +538,14 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         for ( IEngineComponent transform : transforms ) {
           String transformStatus = transform.getStatusDescription();
           if ( transformStatus != null && transformStatus.equalsIgnoreCase( EngineComponent.ComponentExecutionStatus.STATUS_FINISHED.getDescription() ) ) {
-            gc.drawImage( EImage.TRUE, ( x + iconSize ) - ( MINI_ICON_SIZE / 2 ) + 4, y - ( MINI_ICON_SIZE / 2 ) - 1, magnification );
+            gc.drawImage( EImage.TRUE, ( x + iconSize ) - ( miniIconSize / 2 ) + 4, y - ( miniIconSize / 2 ) - 1, magnification );
           }
         }
       }
     }
   }
 
-  private void drawTransformOutputIndicator( TransformMeta transformMeta ) {
+  private void drawTransformOutputIndicator( TransformMeta transformMeta ) throws HopException {
 
     if ( transformMeta == null ) {
       return;
@@ -563,7 +565,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       RowBuffer rowBuffer = outputRowsMap.get( transformMeta.getName() );
       if ( rowBuffer != null && !rowBuffer.isEmpty() ) {
-        int iconWidth = MINI_ICON_SIZE;
+        int iconWidth = miniIconSize;
         int iconX = x + iconSize - iconWidth + 10;
         int iconY = y + iconSize - iconWidth + 10 ;
         gc.drawImage( EImage.DATA, iconX, iconY, magnification );
@@ -578,11 +580,11 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     gc.drawText( txt, x, y );
   }
 
-  private void drawHop( PipelineHopMeta hi ) {
+  private void drawHop( PipelineHopMeta hi ) throws HopException {
     drawHop( hi, false );
   }
 
-  private void drawHop( PipelineHopMeta hi, boolean isCandidate ) {
+  private void drawHop( PipelineHopMeta hi, boolean isCandidate ) throws HopException {
     TransformMeta fs = hi.getFromTransform();
     TransformMeta ts = hi.getToTransform();
 
@@ -591,7 +593,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     }
   }
 
-  private void drawTransform( TransformMeta transformMeta ) {
+  private void drawTransform( TransformMeta transformMeta ) throws HopException {
     if ( transformMeta == null ) {
       return;
     }
@@ -730,13 +732,12 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       // Show an error lines icon in the upper right corner of the transform...
       //
-      int xError = ( x + iconSize ) - ( MINI_ICON_SIZE / 2 ) + 4;
-      int yError = y - ( MINI_ICON_SIZE / 2 ) - 1;
-      Point ib = gc.getImageBounds( EImage.TRANSFORM_ERROR_RED );
+      int xError = ( x + iconSize ) - ( miniIconSize / 2 ) + 4;
+      int yError = y - ( miniIconSize / 2 ) - 1;
       gc.drawImage( EImage.TRANSFORM_ERROR_RED, xError, yError, magnification );
 
       areaOwners.add( new AreaOwner(
-        AreaType.TRANSFORM_ERROR_RED_ICON, pt.x + iconSize - 3, pt.y - 8, ib.x, ib.y, offset, log,
+        AreaType.TRANSFORM_ERROR_RED_ICON, pt.x + iconSize - 3, pt.y - 8, 16, 16, offset, log,
         STRING_TRANSFORM_ERROR_LOG ) );
     }
 
@@ -761,7 +762,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
     return new Point( xpos, ypos );
   }
 
-  private void drawLine( TransformMeta fs, TransformMeta ts, PipelineHopMeta hi, boolean is_candidate ) {
+  private void drawLine( TransformMeta fs, TransformMeta ts, PipelineHopMeta hi, boolean is_candidate ) throws HopException {
     int[] line = getLine( fs, ts );
 
     EColor col;
@@ -832,7 +833,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
   @Override
   protected void drawArrow( EImage arrow, int x1, int y1, int x2, int y2, double theta, int size, double factor,
-                            PipelineHopMeta pipelineHop, Object startObject, Object endObject ) {
+                            PipelineHopMeta pipelineHop, Object startObject, Object endObject ) throws HopException {
     int mx, my;
     int a, b, dist;
     double angle;
@@ -895,24 +896,21 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         IStream targetStream = ioMeta.findTargetStream( ts );
         if ( targetStream != null ) {
           EImage hopsIcon = BasePainter.getStreamIconImage( targetStream.getStreamIcon() );
-          Point bounds = gc.getImageBounds( hopsIcon );
           gc.drawImage( hopsIcon, mx, my, magnification );
 
           areaOwners.add( new AreaOwner(
-            AreaType.TRANSFORM_TARGET_HOP_ICON, mx, my, bounds.x, bounds.y, offset, fs, targetStream ) );
+            AreaType.TRANSFORM_TARGET_HOP_ICON, mx, my, 16, 16, offset, fs, targetStream ) );
         }
       } else if ( fs.isDistributes()
         && fs.getRowDistribution() != null && !ts.getTransformPartitioningMeta().isMethodMirror() && !errorHop ) {
 
         // Draw the custom row distribution plugin icon
         //
-        EImage eImage = fs.getRowDistribution().getDistributionImage();
-        if ( eImage != null ) {
-          Point bounds = gc.getImageBounds( eImage );
-          gc.drawImage( eImage, mx, my, magnification );
-
-          areaOwners.add( new AreaOwner(
-            AreaType.ROW_DISTRIBUTION_ICON, mx, my, bounds.x, bounds.y, offset, fs, STRING_ROW_DISTRIBUTION ) );
+        SvgFile svgFile= fs.getRowDistribution().getDistributionImage();
+        if ( svgFile != null ) {
+          //
+          gc.drawImage( svgFile, mx, my, 16, 16, magnification, 0 );
+          areaOwners.add( new AreaOwner( AreaType.ROW_DISTRIBUTION_ICON, mx, my, 16, 16, offset, fs, STRING_ROW_DISTRIBUTION ) );
           mx += 16;
         }
 
@@ -920,17 +918,15 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
         // Draw the copy icon on the hop
         //
-        Point bounds = gc.getImageBounds( EImage.COPY_ROWS );
         gc.drawImage( EImage.COPY_ROWS, mx, my, magnification );
 
-        areaOwners.add( new AreaOwner( AreaType.HOP_COPY_ICON, mx, my, bounds.x, bounds.y, offset, fs, STRING_HOP_TYPE_COPY ) );
+        areaOwners.add( new AreaOwner( AreaType.HOP_COPY_ICON, mx, my, 16, 16, offset, fs, STRING_HOP_TYPE_COPY ) );
         mx += 16;
       }
 
       if ( errorHop ) {
-        Point bounds = gc.getImageBounds( EImage.COPY_ROWS );
         gc.drawImage( EImage.FALSE, mx, my, magnification );
-        areaOwners.add( new AreaOwner( AreaType.HOP_ERROR_ICON, mx, my, bounds.x, bounds.y, offset, fs, ts ) );
+        areaOwners.add( new AreaOwner( AreaType.HOP_ERROR_ICON, mx, my, 16, 16, offset, fs, ts ) );
         mx += 16;
       }
 
@@ -939,9 +935,8 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
       if ( ( candidateHopType == StreamType.INFO && ts.equals( endHopTransform ) && fs.equals( startHopTransform ) )
         || Const.indexOfString( fs.getName(), infoTransformNames ) >= 0 ) {
-        Point bounds = gc.getImageBounds( EImage.INFO );
         gc.drawImage( EImage.INFO, mx, my, magnification );
-        areaOwners.add( new AreaOwner( AreaType.HOP_INFO_ICON, mx, my, bounds.x, bounds.y, offset, fs, ts ) );
+        areaOwners.add( new AreaOwner( AreaType.HOP_INFO_ICON, mx, my, 16, 16, offset, fs, ts ) );
         mx += 16;
       }
 
@@ -960,7 +955,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
               // We do this by drawing an error icon over the hop...
               //
               gc.drawImage( EImage.ERROR, mx, my, magnification );
-              areaOwners.add( new AreaOwner( AreaType.HOP_INFO_TRANSFORM_COPIES_ERROR, mx, my, MINI_ICON_SIZE, MINI_ICON_SIZE, offset, fs, ts ) );
+              areaOwners.add( new AreaOwner( AreaType.HOP_INFO_TRANSFORM_COPIES_ERROR, mx, my, miniIconSize, miniIconSize, offset, fs, ts ) );
               mx += 16;
 
             }

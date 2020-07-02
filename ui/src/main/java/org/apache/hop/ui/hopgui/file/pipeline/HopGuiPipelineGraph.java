@@ -159,7 +159,6 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
@@ -2712,7 +2711,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    getPipelineImage( e.gc, area.x, area.y, magnification );
+    GC swtGc = e.gc;
+
+    drawPipelineImage( swtGc, area.x, area.y, magnification );
+
     if ( pipelineMeta.nrTransforms() == 0 ) {
       e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
       e.gc.setFont( GuiResource.getInstance().getFontMedium() );
@@ -2724,34 +2726,39 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
   }
 
-  public void getPipelineImage( GC gc2, int x, int y, float magnificationFactor ) {
+  public void drawPipelineImage( GC swtGc, int width, int height, float magnificationFactor ) {
 
-    IGc gc = new SwtGc( gc2, new Point( x, y ), iconsize );
+    IGc gc = new SwtGc( swtGc, width, height, iconsize );
+    try {
+      int gridSize = PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
 
-    int gridSize =
-      PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
+      PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, new Point( width, height ), new SwtScrollBar( horizontalScrollBar ), new SwtScrollBar( verticalScrollBar ),
+        candidate, drop_candidate, selectionRegion, areaOwners,
+        PropsUi.getInstance().getIconSize(), PropsUi.getInstance().getLineWidth(), gridSize,
+        PropsUi.getInstance().getNoteFont().getName(), PropsUi.getInstance()
+        .getNoteFont().getHeight(), pipeline, PropsUi.getInstance().isIndicateSlowPipelineTransformsEnabled(), PropsUi.getInstance().getZoomFactor(), outputRowsMap );
 
-    PipelinePainter pipelinePainter = new PipelinePainter( gc, pipelineMeta, new Point( x, y ), new SwtScrollBar( horizontalScrollBar ), new SwtScrollBar( verticalScrollBar ),
-      candidate, drop_candidate, selectionRegion, areaOwners,
-      PropsUi.getInstance().getIconSize(), PropsUi.getInstance().getLineWidth(), gridSize,
-      PropsUi.getInstance().getNoteFont().getName(), PropsUi.getInstance()
-      .getNoteFont().getHeight(), pipeline, PropsUi.getInstance().isIndicateSlowPipelineTransformsEnabled(), PropsUi.getInstance().getZoomFactor(), outputRowsMap );
+      // correct the magnification with the overall zoom factor
+      //
+      float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
 
-    // correct the magnification with the overall zoom factor
-    //
-    float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
+      pipelinePainter.setMagnification( correctedMagnification );
+      pipelinePainter.setTransformLogMap( transformLogMap );
+      pipelinePainter.setStartHopTransform( startHopTransform );
+      pipelinePainter.setEndHopLocation( endHopLocation );
+      pipelinePainter.setNoInputTransform( noInputTransform );
+      pipelinePainter.setEndHopTransform( endHopTransform );
+      pipelinePainter.setCandidateHopType( candidateHopType );
+      pipelinePainter.setStartErrorHopTransform( startErrorHopTransform );
 
-    pipelinePainter.setMagnification( correctedMagnification );
-    pipelinePainter.setTransformLogMap( transformLogMap );
-    pipelinePainter.setStartHopTransform( startHopTransform );
-    pipelinePainter.setEndHopLocation( endHopLocation );
-    pipelinePainter.setNoInputTransform( noInputTransform );
-    pipelinePainter.setEndHopTransform( endHopTransform );
-    pipelinePainter.setCandidateHopType( candidateHopType );
-    pipelinePainter.setStartErrorHopTransform( startErrorHopTransform );
-
-    pipelinePainter.buildPipelineImage();
-
+      try {
+        pipelinePainter.drawPipelineImage();
+      } catch ( Exception e ) {
+        new ErrorDialog( hopGui.getShell(), "Error", "Error drawing pipeline image", e );
+      }
+    } finally {
+      gc.dispose();
+    }
     setData( pipelineMeta );
   }
 
@@ -4250,7 +4257,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if ( newTransform == null ) {
       return;
     }
-    PropsUi.setLocation(newTransform,  p.x, p.y);
+    PropsUi.setLocation( newTransform, p.x, p.y );
 
     if ( lastChained != null ) {
       PipelineHopMeta hop = new PipelineHopMeta( lastChained, newTransform );
@@ -4488,7 +4495,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     image = "ui/images/copy.svg"
   )
   public void copyTransformToClipboard( HopGuiPipelineTransformContext context ) {
-    pipelineClipboardDelegate.copySelected( pipelineMeta, Arrays.asList(context.getTransformMeta()), Collections.emptyList() );
+    pipelineClipboardDelegate.copySelected( pipelineMeta, Arrays.asList( context.getTransformMeta() ), Collections.emptyList() );
   }
 
 

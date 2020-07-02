@@ -55,6 +55,7 @@ import java.util.List;
  */
 @Transform(
         id = "Delete",
+        image = "delete.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.delete",
         name = "BaseTransform.TypeLongDesc.Delete",
         description = "BaseTransform.TypeTooltipDesc.Delete",

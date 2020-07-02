@@ -57,7 +57,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -77,6 +76,7 @@ public class HopSearchPerspective implements IHopPerspective {
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20020-perspective-search";
 
   public static final String AUDIT_TYPE_SEARCH_LOCATION = "search-location";
+  public static final String AUDIT_TYPE_SEARCH_STRING = "search-string";
 
   private HopGui hopGui;
   private Composite parent;
@@ -85,7 +85,7 @@ public class HopSearchPerspective implements IHopPerspective {
   private List<ISearchablesLocation> searchablesLocations;
   private String[] locations;
   private Combo wLocations;
-  private Text wSearchString;
+  private Combo wSearchString;
   private Button wCaseSensitive;
   private Button wRegEx;
   private TableView wResults;
@@ -118,6 +118,12 @@ public class HopSearchPerspective implements IHopPerspective {
       locations[ i ] = searchablesLocations.get( i ).getLocationDescription();
     }
 
+    refreshLastUsedLocation();
+
+    refreshLastUsedSearchStrings();
+  }
+
+  private void refreshLastUsedLocation() {
     if (wLocations!=null && !wLocations.isDisposed()) {
       wLocations.setItems( locations );
 
@@ -128,7 +134,17 @@ public class HopSearchPerspective implements IHopPerspective {
           wLocations.select(index);
         }
       }
+    }
+  }
 
+  private void refreshLastUsedSearchStrings() {
+    if (wSearchString!=null && !wSearchString.isDisposed()) {
+      try {
+        String[] lastUsedValues = AuditManagerGuiUtil.getLastUsedValues( AUDIT_TYPE_SEARCH_STRING );
+        wSearchString.setItems( lastUsedValues );
+      } catch(Exception e) {
+        hopGui.getLog().logError( "Error reading list of used search strings", e );
+      }
     }
   }
 
@@ -189,7 +205,7 @@ public class HopSearchPerspective implements IHopPerspective {
     //
     Label wlInfo = new Label( composite, SWT.LEFT );
     props.setLook( wlInfo );
-    wlInfo.setText( "Select the locations to search and the search string. Then hit the 'Search' button." );
+    wlInfo.setText( "Select the location to search in and the search string. Then hit the 'Search' button." );
     wlInfo.setFont( GuiResource.getInstance().getFontBold() );
     FormData fdInfo = new FormData();
     fdInfo.left = new FormAttachment( 0, 0 );
@@ -254,8 +270,9 @@ public class HopSearchPerspective implements IHopPerspective {
     wRegEx.setLayoutData( fdRegEx );
     lastControl = wCaseSensitive;
 
-    wSearchString = new Text( composite, SWT.BORDER | SWT.SINGLE );
+    wSearchString = new Combo( composite, SWT.BORDER | SWT.SINGLE );
     props.setLook( wSearchString );
+    wSearchString.setFont( GuiResource.getInstance().getFontBold() );
     FormData fdSearchString = new FormData();
     fdSearchString.left = new FormAttachment( 0, 0 );
     fdSearchString.top = new FormAttachment( lastControl, margin );
@@ -304,6 +321,7 @@ public class HopSearchPerspective implements IHopPerspective {
     fdResults.top = new FormAttachment( lastControl, margin );
     fdResults.bottom = new FormAttachment( wbOpen, -2*margin );
     wResults.setLayoutData( fdResults );
+    wResults.table.addListener( SWT.DefaultSelection, this::open );
   }
 
   private void open( Event event ) {
@@ -357,9 +375,10 @@ public class HopSearchPerspective implements IHopPerspective {
         return;
       }
 
-      // Save the last used location...
+      // Save the last used location and search string...
       //
       AuditManagerGuiUtil.addLastUsedValue( AUDIT_TYPE_SEARCH_LOCATION, searchablesLocation.getLocationDescription() );
+      AuditManagerGuiUtil.addLastUsedValue( AUDIT_TYPE_SEARCH_STRING, wSearchString.getText() );
 
       Iterator<ISearchable> iterator = searchablesLocation.getSearchables();
       while ( iterator.hasNext() ) {
@@ -383,6 +402,9 @@ public class HopSearchPerspective implements IHopPerspective {
       wResults.optWidth( true );
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error searching", e );
+    } finally {
+      refreshLastUsedLocation();
+      refreshLastUsedSearchStrings();
     }
 
   }

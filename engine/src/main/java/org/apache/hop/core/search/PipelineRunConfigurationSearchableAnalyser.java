@@ -21,20 +21,20 @@ public class PipelineRunConfigurationSearchableAnalyser extends BaseSearchableAn
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "Pipeline run configuration name", runConfig.getName() );
-    matchProperty( searchable, results, searchQuery, "Pipeline run configuration description", runConfig.getDescription() );
+    matchProperty( searchable, results, searchQuery, "Pipeline run configuration name", runConfig.getName(), null );
+    matchProperty( searchable, results, searchQuery, "Pipeline run configuration description", runConfig.getDescription(), null );
 
     // Analyze the variables
     //
     for ( VariableValueDescription configurationVariable : runConfig.getConfigurationVariables()) {
-      matchProperty( searchable, results, searchQuery, "Pipeline run configuration variable name", configurationVariable.getName() );
-      matchProperty( searchable, results, searchQuery, "Pipeline run configuration variable value", configurationVariable.getValue() );
-      matchProperty( searchable, results, searchQuery, "Pipeline run configuration variable description", configurationVariable.getDescription() );
+      matchProperty( searchable, results, searchQuery, "Pipeline run configuration variable name", configurationVariable.getName(), null );
+      matchProperty( searchable, results, searchQuery, "Pipeline run configuration variable value", configurationVariable.getValue(), null );
+      matchProperty( searchable, results, searchQuery, "Pipeline run configuration variable description", configurationVariable.getDescription(), null );
     }
 
     // Analyze the configuration plugin fields
     //
-    matchObjectFields( searchable, results, searchQuery, runConfig.getEngineRunConfiguration(), "Pipeline run configuration property" );
+    matchObjectFields( searchable, results, searchQuery, runConfig.getEngineRunConfiguration(), "Pipeline run configuration property", null );
 
     return results;
   }

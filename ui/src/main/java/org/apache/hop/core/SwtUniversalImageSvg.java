@@ -59,8 +59,7 @@ public class SwtUniversalImageSvg extends SwtUniversalImage {
 
   @Override
   protected Image renderSimple( Device device ) {
-    return renderSimple( device, (int) Math.round( svgGraphicsSize.getWidth() ), (int) Math.round( svgGraphicsSize
-      .getHeight() ) );
+    return renderSimple( device, (int) Math.round( svgGraphicsSize.getWidth() ), (int) Math.round( svgGraphicsSize.getHeight() ) );
   }
 
   @Override

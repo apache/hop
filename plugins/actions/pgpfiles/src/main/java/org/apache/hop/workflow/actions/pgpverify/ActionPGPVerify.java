@@ -22,6 +22,9 @@
 
 package org.apache.hop.workflow.actions.pgpverify;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -33,22 +36,19 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.AndValidator;
-import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceDefinition;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
-import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.resource.ResourceReference;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
+import org.apache.hop.workflow.action.validator.AndValidator;
+import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 import org.w3c.dom.Node;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * This defines a PGP verify action.
@@ -63,7 +63,8 @@ import java.util.Map;
   name = "ActionPGPVerify.Name",
   description = "ActionPGPVerify.Description",
   image = "PGPVerify.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
 )
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionPGPVerify.class; // for i18n purposes, needed by Translator!!

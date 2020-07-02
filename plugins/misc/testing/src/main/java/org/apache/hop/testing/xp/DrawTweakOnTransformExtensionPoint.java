@@ -26,8 +26,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.IGc;
-import org.apache.hop.core.gui.IPrimitiveGc.EColor;
-import org.apache.hop.core.gui.IPrimitiveGc.EFont;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.pipeline.PipelinePainterExtension;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -81,9 +79,9 @@ public class DrawTweakOnTransformExtensionPoint implements IExtensionPoint<Pipel
     int y = ext.y1 - 5;
 
     gc.setLineWidth( transformMeta.isSelected() ? 4 : 3 );
-    gc.setForeground( EColor.CRYSTAL );
-    gc.setBackground( EColor.LIGHTGRAY );
-    gc.setFont( EFont.GRAPH );
+    gc.setForeground( IGc.EColor.CRYSTAL );
+    gc.setBackground( IGc.EColor.LIGHTGRAY );
+    gc.setFont( IGc.EFont.GRAPH );
 
     gc.drawLine( x, y, x + iconSize / 2, y + iconSize / 2 );
     gc.drawLine( x + iconSize / 2, y, x, y + iconSize / 2 );
@@ -100,8 +98,8 @@ public class DrawTweakOnTransformExtensionPoint implements IExtensionPoint<Pipel
     int aW = iconSize / 2;
     int aH = 3 * iconSize / 8;
 
-    gc.setForeground( EColor.CRYSTAL );
-    gc.setBackground( EColor.CRYSTAL );
+    gc.setForeground( IGc.EColor.CRYSTAL );
+    gc.setBackground( IGc.EColor.CRYSTAL );
 
     //                 C\
     //                 | \

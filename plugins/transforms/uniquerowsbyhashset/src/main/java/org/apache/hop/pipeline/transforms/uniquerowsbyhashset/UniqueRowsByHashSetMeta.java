@@ -42,6 +42,7 @@ import java.util.List;
 
 @Transform(
         id = "UniqueRowsByHashSet",
+        image = "uniquerowsbyhashset.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.uniquerowsbyhashset",
         name = "BaseTransform.TypeLongDesc.UniqueRowsByHashSet",
         description = "BaseTransform.TypeTooltipDesc.UniqueRowsByHashSet",

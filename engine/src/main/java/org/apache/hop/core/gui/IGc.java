@@ -22,16 +22,103 @@
 
 package org.apache.hop.core.gui;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
-public interface IGc extends IPrimitiveGc {
+public interface IGc {
 
-  void drawJobEntryIcon( int x, int y, ActionCopy actionCopy, float magnification );
 
-  void drawJobEntryIcon( int x, int y, ActionCopy actionCopy );
+  enum EColor {
+    BACKGROUND, BLACK, WHITE, RED, YELLOW, ORANGE, GREEN, BLUE, MAGENTA, GRAY, LIGHTGRAY, DARKGRAY, LIGHTBLUE, CRYSTAL,
+    HOP_DEFAULT, HOP_OK, DEPRECATED
+  }
 
-  void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification );
+  enum EFont {
+    NOTE, GRAPH, SMALL,
+  }
 
-  void drawTransformIcon( int x, int y, TransformMeta transformMeta );
+  enum ELineStyle {
+    SOLID, DASHDOT, DOT, PARALLEL, DASH
+  }
+
+  enum EImage {
+    LOCK, TRANSFORM_ERROR, TRANSFORM_ERROR_RED, EDIT, CONTEXT_MENU, TRUE, FALSE, ERROR, INFO, TARGET, INPUT, OUTPUT, ARROW,
+    COPY_ROWS, UNCONDITIONAL, PARALLEL, BUSY, INJECT, LOAD_BALANCE, CHECKPOINT, DB, ARROW_DEFAULT, ARROW_OK,
+    ARROW_ERROR, ARROW_DISABLED, ARROW_CANDIDATE, DATA,
+    ;
+  }
+
+  void setLineWidth( int width );
+
+  void setFont( EFont font );
+
+  Point textExtent( String text );
+
+  Point getDeviceBounds();
+
+  void setBackground( EColor color );
+
+  void setForeground( EColor color );
+
+  void setBackground( int red, int green, int blue );
+
+  void setForeground( int red, int green, int blue );
+
+  void fillRectangle( int x, int y, int width, int height );
+
+  void fillGradientRectangle( int x, int y, int width, int height, boolean vertical );
+
+
+  void drawImage( EImage image, int x, int y, float magnification ) throws HopException;
+
+  void drawImage( EImage image, int x, int y, float magnification, double angle ) throws HopException;
+
+  void drawImage( SvgFile svgFile, int x, int y, int desiredWidth, int desiredHeight, float magnification, double angle ) throws HopException;
+
+
+  void drawLine( int x, int y, int x2, int y2 );
+
+  void setLineStyle( ELineStyle lineStyle );
+
+  void drawRectangle( int x, int y, int width, int height );
+
+  void drawPoint( int x, int y );
+
+  void drawText( String text, int x, int y );
+
+  void drawText( String text, int x, int y, boolean transparent );
+
+  void fillRoundRectangle( int x, int y, int width, int height, int circleWidth, int circleHeight );
+
+  void drawRoundRectangle( int x, int y, int width, int height, int circleWidth, int circleHeight );
+
+  void fillPolygon( int[] polygon );
+
+  void drawPolygon( int[] polygon );
+
+  void drawPolyline( int[] polyline );
+
+  void setAntialias( boolean antiAlias );
+
+  void setTransform( float translationX, float translationY, float magnification );
+
+  float getMagnification();
+
+  void setAlpha( int alpha );
+
+  void dispose();
+
+  int getAlpha();
+
+  void setFont( String fontName, int fontSize, boolean fontBold, boolean fontItalic );
+
+  void switchForegroundBackgroundColors();
+
+  Point getArea();
+
+  void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) throws HopException;
+
+  void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) throws HopException;
 }

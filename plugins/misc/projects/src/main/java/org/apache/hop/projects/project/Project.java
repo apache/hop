@@ -68,7 +68,6 @@ public class Project extends ConfigFile implements IConfigFile {
       ObjectMapper objectMapper = new ObjectMapper();
       Project project = objectMapper.readValue(new File(configFilename), Project.class );
 
-      this.configFilename = project.configFilename;
       this.description = project.description;
       this.company = project.company;
       this.department = project.department;
@@ -82,18 +81,32 @@ public class Project extends ConfigFile implements IConfigFile {
     }
   }
 
-  public void modifyVariables( IVariables variables, ProjectConfig projectConfig, List<String> configurationFiles ) {
+  public void modifyVariables( IVariables variables, ProjectConfig projectConfig, List<String> configurationFiles, String environmentName ) {
 
     if ( variables == null ) {
       variables = Variables.getADefaultVariableSpace();
     }
 
+    // Set the name of the active environment
+    //
+    variables.setVariable( Defaults.VARIABLE_PROJECT_NAME, Const.NVL( projectConfig.getProjectName(), "" ) );
+    variables.setVariable( Defaults.VARIABLE_ENVIRONMENT_NAME, Const.NVL( environmentName, "" ) );
+
+    // To allow circular logic where an environment file is relative to the project home
+    //
+    if ( StringUtils.isNotEmpty( projectConfig.getProjectHome() ) ) {
+      String realValue = variables.environmentSubstitute( projectConfig.getProjectHome() );
+      variables.setVariable( ProjectsUtil.VARIABLE_PROJECT_HOME, realValue );
+    }
+
     // Apply the described variables from the various configuration files in the given order...
     //
     for (String configurationFile : configurationFiles) {
-      File file = new File(configurationFile);
+      String realConfigurationFile = variables.environmentSubstitute( configurationFile );
+
+      File file = new File(realConfigurationFile);
       if (file.exists()) {
-        ConfigFile configFile = new DescribedVariablesConfigFile( configurationFile );
+        ConfigFile configFile = new DescribedVariablesConfigFile( realConfigurationFile );
         try {
           configFile.readFromFile();
 
@@ -104,21 +117,13 @@ public class Project extends ConfigFile implements IConfigFile {
           }
 
         } catch(Exception e) {
-          LogChannel.GENERAL.logError( "Error reading described variables from configuration file '"+configurationFile+"'", e);
+          LogChannel.GENERAL.logError( "Error reading described variables from configuration file '"+realConfigurationFile+"'", e);
         }
       } else {
-        LogChannel.GENERAL.logError( "Configuration file '"+configurationFile+"' does not exist to read variables from.");
+        LogChannel.GENERAL.logError( "Configuration file '"+realConfigurationFile+"' does not exist to read variables from.");
       }
     }
 
-    // Set the name of the active environment
-    //
-    variables.setVariable( Defaults.VARIABLE_ACTIVE_PROJECT, Const.NVL( projectConfig.getProjectName(), "" ) );
-
-    if ( StringUtils.isNotEmpty( projectConfig.getProjectHome() ) ) {
-      String realValue = variables.environmentSubstitute( projectConfig.getProjectHome() );
-      variables.setVariable( ProjectsUtil.VARIABLE_PROJECT_HOME, realValue );
-    }
     if ( StringUtils.isNotEmpty( metadataBaseFolder ) ) {
       String realValue = variables.environmentSubstitute( metadataBaseFolder );
       variables.setVariable( Const.HOP_METADATA_FOLDER, realValue );

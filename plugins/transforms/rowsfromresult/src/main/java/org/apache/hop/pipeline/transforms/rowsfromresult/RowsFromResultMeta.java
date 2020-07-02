@@ -51,6 +51,7 @@ import java.util.List;
 
 @Transform(
         id = "RowsFromResult",
+        image = "rowsfromresult.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.rowsfromresult",
         name = "BaseTransform.TypeLongDesc.RowsFromResult",
         description = "BaseTransform.TypeTooltipDesc.RowsFromResult",

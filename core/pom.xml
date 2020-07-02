@@ -260,6 +260,17 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>batik-svggen</artifactId>
+      <version>${batik.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>xml-apis</groupId>
       <artifactId>xml-apis-ext</artifactId>
       <version>${xml-apis-ext.version}</version>

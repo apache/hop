@@ -50,6 +50,7 @@ import java.util.List;
 
 @Transform(
         id = "Flattener,Flatterner",
+        image = "flattener.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.flattener",
         name = "BaseTransform.TypeLongDesc.RowFlattener",
         description = "BaseTransform.TypeTooltipDesc.RowFlattener",

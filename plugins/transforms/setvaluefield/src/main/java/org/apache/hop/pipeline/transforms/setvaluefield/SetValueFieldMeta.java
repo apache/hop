@@ -47,6 +47,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "SetValueField.Injection.", groups = { "FIELDS" } )
 @Transform(
         id = "SetValueField",
+        image = "setvaluefield.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.setvaluefield",
         name = "BaseTransform.TypeLongDesc.SetValueField",
         description = "BaseTransform.TypeTooltipDesc.SetValueField",

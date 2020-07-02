@@ -63,5 +63,6 @@ public class LanguageChoice {
    */
   public void setDefaultLocale( Locale defaultLocale ) {
     this.defaultLocale = defaultLocale;
+    HopConfig.getInstance().saveOption( STRING_DEFAULT_LOCALE, defaultLocale.toString() );
   }
 }

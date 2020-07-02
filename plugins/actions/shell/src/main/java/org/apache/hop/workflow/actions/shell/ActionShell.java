@@ -77,7 +77,8 @@ import java.util.Map;
   name = "ActionShell.Name",
   description = "ActionShell.Description",
   image = "Shell.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/shell.html"
 )
 public class ActionShell extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionShell.class; // for i18n purposes, needed by Translator!!

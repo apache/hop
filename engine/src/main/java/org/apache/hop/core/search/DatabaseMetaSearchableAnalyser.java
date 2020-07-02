@@ -20,9 +20,9 @@ public class DatabaseMetaSearchableAnalyser extends BaseSearchableAnalyser<Datab
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "database name", databaseMeta.getName() );
+    matchProperty( searchable, results, searchQuery, "database name", databaseMeta.getName(), null );
 
-    matchObjectFields( searchable, results, searchQuery, databaseMeta.getIDatabase(), "database '"+databaseMeta.getName()+"' property" );
+    matchObjectFields( searchable, results, searchQuery, databaseMeta.getIDatabase(), "database '"+databaseMeta.getName()+"' property", null );
 
     return results;
   }

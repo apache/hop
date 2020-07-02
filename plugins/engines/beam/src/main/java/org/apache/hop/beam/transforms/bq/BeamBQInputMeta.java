@@ -24,11 +24,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Transform(
-  id = "BeamBQInput",
-  name = "Beam BigQuery Input",
-  description = "Reads from a BigQuery table in Beam",
-  image = "beam-bq-input.svg",
-  categoryDescription = "Big Data"
+        id = "BeamBQInput",
+        name = "Beam BigQuery Input",
+        description = "Reads from a BigQuery table in Beam",
+        image = "beam-bq-input.svg",
+        categoryDescription = "Big Data",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beambigqueryinput.html"
 )
 public class BeamBQInputMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 

@@ -1,13 +1,14 @@
 package org.apache.hop.ui.hopgui.search;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionCopy;
 
 public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
 
@@ -40,10 +41,34 @@ public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
   }
 
   @Override public ISearchableCallback getSearchCallback() {
-    return new ISearchableCallback() {
-      @Override public void callback( ISearchable searchable, ISearchResult searchResult ) throws HopException {
-        HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-        perspective.addWorkflow( perspective.getComposite(), HopGui.getInstance(), workflowMeta, perspective.getWorkflowFileType() );
+    return ( searchable, searchResult ) -> {
+      HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
+      perspective.show();
+
+      HopGuiWorkflowGraph workflowGraph;
+
+      // See if the same workflow isn't already open.
+      // Other file types we might allow to open more than once but not workflows for now.
+      //
+      TabItemHandler tabItemHandlerWithFilename = perspective.findTabItemHandlerWithFilename( workflowMeta.getFilename() );
+      if (tabItemHandlerWithFilename!=null) {
+        // Same file so we can simply switch to it.
+        // This will prevent confusion.
+        //
+        perspective.switchToTab( tabItemHandlerWithFilename );
+        workflowGraph = (HopGuiWorkflowGraph) tabItemHandlerWithFilename.getTypeHandler();
+      } else {
+        workflowGraph = (HopGuiWorkflowGraph) perspective.addWorkflow( perspective.getComposite(), HopGui.getInstance(), workflowMeta, perspective.getWorkflowFileType() );
+      }
+
+      // Select and open the found action?
+      //
+      if (searchResult.getComponent()!=null) {
+        ActionCopy actionCopy = workflowMeta.findAction( searchResult.getComponent(), 0 );
+        if (actionCopy!=null) {
+          actionCopy.setSelected( true );
+          workflowGraph.editAction(actionCopy);
+        }
       }
     };
   }

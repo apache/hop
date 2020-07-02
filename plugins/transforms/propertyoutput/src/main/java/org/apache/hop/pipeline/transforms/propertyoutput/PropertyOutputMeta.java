@@ -24,8 +24,8 @@ package org.apache.hop.pipeline.transforms.propertyoutput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -37,12 +37,14 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -50,15 +52,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Output rows to Properties file and create a file.
- *
- * @author Samatar
- * @since 13-Apr-2008
- */
-
 @Transform(
         id = "PropertyOutput",
+        image = "propertyoutput.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.propertyoutput",
         name = "BaseTransform.TypeTooltipDesc.PropertyOutput",
         description = "BaseTransform.TypeLongDesc.PropertyOutput",

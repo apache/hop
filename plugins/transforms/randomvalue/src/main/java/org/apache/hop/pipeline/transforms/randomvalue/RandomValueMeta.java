@@ -52,11 +52,12 @@ import java.util.List;
 
 @Transform(
         id = "RandomValue",
+        image = "randomvalue.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.randomvalue",
         name = "BaseTransform.TypeTooltipDesc.RandomValue",
         description = "BaseTransform.TypeLongDesc.RandomValue",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = ""
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/randomvalue.html"
 )
 public class RandomValueMeta extends BaseTransformMeta implements ITransformMeta<RandomValue, RandomValueData> {
 

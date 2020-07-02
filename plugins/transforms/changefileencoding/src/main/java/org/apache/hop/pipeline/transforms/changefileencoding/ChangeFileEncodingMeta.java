@@ -41,10 +41,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-@Transform( id = "ChangeFileEncoding", i18nPackageName = "org.apache.hop.pipeline.transforms.changefileencoding",
-  name = "ChangeFileEncoding.Name", description = "ChangeFileEncoding.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/changefileencoding.html"
+@Transform(
+        id = "ChangeFileEncoding",
+        image = "changefileencoding.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.changefileencoding",
+        name = "ChangeFileEncoding.Name",
+        description = "ChangeFileEncoding.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/changefileencoding.html"
 )
 public class ChangeFileEncodingMeta extends BaseTransformMeta implements ITransformMeta<ChangeFileEncoding, ChangeFileEncodingData> {
 

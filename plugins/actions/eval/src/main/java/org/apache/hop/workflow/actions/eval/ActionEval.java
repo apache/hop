@@ -22,28 +22,27 @@
 
 package org.apache.hop.workflow.actions.eval;
 
-import org.apache.hop.core.ICheckResult;
+import java.util.List;
+
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.Workflow;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 /**
  * Action type to evaluate the result of a previous action. It uses a piece of javascript to do this.
@@ -58,7 +57,8 @@ import java.util.List;
   name = "ActionEval.Name",
   description = "ActionEval.Description",
   image = "Eval.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/eval.html"
 )
 public class ActionEval extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionEval.class; // for i18n purposes, needed by Translator!!

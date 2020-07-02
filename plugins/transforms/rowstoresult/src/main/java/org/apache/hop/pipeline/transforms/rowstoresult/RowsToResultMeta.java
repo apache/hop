@@ -39,13 +39,9 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 02-jun-2003
- *
- */
-
 @Transform(
         id = "RowsToResult",
+        image = "rowstoresult.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.rowstoresult",
         name = "BaseTransform.TypeLongDesc.RowsToResult",
         description = "BaseTransform.TypeTooltipDesc.RowsToResult",

@@ -22,14 +22,13 @@
 
 package org.apache.hop.core.row;
 
-import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.IDatabase;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.gui.IPrimitiveGc;
 import org.w3c.dom.Node;
 
 import java.io.DataInputStream;
@@ -1176,13 +1175,6 @@ public interface IValueMeta extends Cloneable {
    *                              a non-numeric character is found.
    */
   void setLenientStringToNumber( boolean lenientStringToNumber );
-
-  /**
-   * This method draws the value using the supplied graphical context.
-   *
-   * @param gc The graphical context to draw on.
-   */
-  void drawValue( IPrimitiveGc gc, Object value ) throws HopValueException;
 
   /**
    * Investigate JDBC result set metadata at the specified index. If this value metadata is interested in handling this

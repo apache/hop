@@ -8,9 +8,7 @@ import org.apache.hop.core.config.plugin.IConfigOptions;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.projects.config.ProjectsConfig;
-import org.apache.hop.projects.config.ProjectsConfigSingleton;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import picocli.CommandLine;
 
 import java.io.File;
@@ -30,17 +28,17 @@ public class ManageConfigFileOptionPlugin implements IConfigOptions {
   @CommandLine.Option( names = { "-cfd", "--config-file-describe-variables" }, description = "A list of variable=description combinations separated by a comma", split = "," )
   private String[] configDescribeVariables;
 
-  @Override public boolean handleOption( ILogChannel log, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
+  @Override public boolean handleOption( ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables ) throws HopException {
 
-    if ( StringUtils.isEmpty( configFile ) ) {
+    String realConfigFile = variables.environmentSubstitute( configFile );
+    if ( StringUtils.isEmpty( realConfigFile ) ) {
       return false;
     }
 
-    ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     try {
       boolean changed = false;
-      DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( configFile );
-      if ( new File( configFile ).exists() ) {
+      DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( realConfigFile );
+      if ( new File( realConfigFile ).exists() ) {
         variablesConfigFile.readFromFile();
       }
 

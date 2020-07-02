@@ -76,7 +76,8 @@ import java.util.List;
   name = "ActionHTTP.Name",
   description = "ActionHTTP.Description",
   image = "HTTP.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/http.html"
 )
 public class ActionHttp extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionHttp.class; // for i18n purposes, needed by Translator!!

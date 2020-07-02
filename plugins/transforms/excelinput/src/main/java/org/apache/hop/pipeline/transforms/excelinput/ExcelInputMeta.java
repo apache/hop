@@ -63,6 +63,7 @@ import java.util.Map;
  */
 @Transform(
         id = "ExcelInput",
+        image = "excelinput.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.excelinput",
         name = "BaseTransform.TypeLongDesc.ExcelInput",
         description = "BaseTransform.TypeTooltipDesc.ExcelInput",

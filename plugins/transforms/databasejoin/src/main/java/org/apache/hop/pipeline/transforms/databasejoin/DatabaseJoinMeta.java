@@ -54,6 +54,7 @@ import java.util.List;
 
 @Transform(
         id = "DBJoin",
+        image = "dbjoin.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.databasejoin",
         name = "BaseTransform.TypeLongDesc.DatabaseJoin",
         description = "BaseTransform.TypeTooltipDesc.DatabaseJoin",

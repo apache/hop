@@ -23,7 +23,6 @@
 package org.apache.hop.workflow.actions.addresultfilenames;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -63,8 +62,6 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar Hassan
  * @since 06-05-2007
  */
-@PluginDialog( id = "ADD_RESULT_FILENAMES", image = "AddResultFileNames.svg", pluginType = PluginDialog.PluginType.ACTION,
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/addresultfilenames.html" )
 public class ActionAddResultFilenamesDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionAddResultFilenamesDialog.class; // for i18n purposes, needed by Translator!!
 

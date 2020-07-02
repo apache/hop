@@ -41,13 +41,9 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * Meta data for the Add Sequence transform.
- * <p>
- * Created on 13-may-2003
- */
 @Transform(
         id = "GetServerSequence",
+        image = "get-server-sequence.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.getserversequence",
         name = "GetServerSequence.Name",
         description = "GetServerSequence.Description",

@@ -22,48 +22,38 @@
 
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
-import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.IProvidesDatabaseConnectionInformation;
-import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.*;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.DatabaseImpact;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-/**
- * Created on 20-feb-2007
- *
- * @author Sven Boden (originally)
- */
-
 @Transform(
         id = "PGBulkLoader",
+        image = "PGBulkLoader.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.pgbulkloader",
         description = "PGBulkLoader.Description",
         name = "PGBulkLoader.Name",
         categoryDescription = "BaseTransform.Category.Bulk",
-        image = "PGBulkLoader.svg",
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/pgbulkloader.html"
 )
 public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,

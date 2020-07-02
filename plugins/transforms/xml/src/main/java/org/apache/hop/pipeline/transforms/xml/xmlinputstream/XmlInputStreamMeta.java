@@ -46,10 +46,14 @@ import org.w3c.dom.Node;
 
 import java.util.List;
 
-@Transform( id = "XMLInputStream", image = "xml_input_stream.svg",
-    i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmlinputstream", name = "XMLInputStream.name",
-    description = "XMLInputStream.description", categoryDescription = "XMLInputStream.category",
-    documentationUrl = "Products/XML_Input_Stream_(StAX)" )
+@Transform(
+        id = "XMLInputStream",
+        image = "xml_input_stream.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmlinputstream",
+        name = "XMLInputStream.name",
+        description = "XMLInputStream.description",
+        categoryDescription = "XMLInputStream.category",
+        documentationUrl = "Products/XML_Input_Stream_(StAX)" )
 public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformMeta<XmlInputStream, XmlInputStreamData> {
   private static final int DEFAULT_STRING_LEN_FILENAME = 256; // default length for XML path
   private static final int DEFAULT_STRING_LEN_PATH = 1024; // default length for XML path

@@ -51,6 +51,7 @@ import java.util.List;
 
 @Transform(
         id = "ExecProcess",
+        image = "execprocess.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.execprocess",
         name = "BaseTransform.TypeLongDesc.ExecProcess",
         description = "BaseTransform.TypeTooltipDesc.ExecProcess",

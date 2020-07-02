@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
@@ -176,7 +175,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
     };
     columnInfo[ 0 ].setUsingVariables( true );
 
-    wConfigFiles = new TableView( new Variables(), shell, SWT.SINGLE, columnInfo, environment.getConfigurationFiles().size(), null, props );
+    wConfigFiles = new TableView( variables, shell, SWT.SINGLE, columnInfo, environment.getConfigurationFiles().size(), null, props );
     props.setLook( wConfigFiles );
     FormData fdConfigFiles = new FormData();
     fdConfigFiles.left = new FormAttachment( 0, 0 );
@@ -219,9 +218,11 @@ public class LifecycleEnvironmentDialog extends Dialog {
       if ( StringUtils.isEmpty( configFilename ) ) {
         return;
       }
-      DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( configFilename );
+      String realConfigFilename = variables.environmentSubstitute(configFilename);
 
-      File file = new File( configFilename );
+      DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( realConfigFilename );
+
+      File file = new File( realConfigFilename );
       if ( !file.exists() ) {
         MessageBox box = new MessageBox( HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
         box.setText( "Create file?" );
@@ -234,7 +235,7 @@ public class LifecycleEnvironmentDialog extends Dialog {
         variablesConfigFile.readFromFile();
       }
 
-      HopGui.editConfigFile(shell, configFilename, variablesConfigFile);
+      HopGui.editConfigFile(shell, realConfigFilename, variablesConfigFile, null);
 
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Error editing configuration file", e );
@@ -305,6 +306,14 @@ public class LifecycleEnvironmentDialog extends Dialog {
     }
     wConfigFiles.setRowNums();
     wConfigFiles.optWidth( true );
+
+    // Select the first configuration file by default
+    // That way you can immediately hit the edit button
+    //
+    if (!environment.getConfigurationFiles().isEmpty()) {
+      wConfigFiles.setSelection( new int[] { 0 } );
+    }
+
   }
 
   private void getInfo( LifecycleEnvironment env ) {

@@ -55,6 +55,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "ValueMapper.Injection.", groups = { "VALUES" } )
 @Transform(
         id = "ValueMapper",
+        image = "valuemapper.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.valuemapper",
         name = "ValueMapper.Name",
         description = "ValueMapper.Description",

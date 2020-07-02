@@ -23,10 +23,7 @@
 package org.apache.hop.pipeline.transforms.sort;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPointHandler;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
@@ -41,8 +38,6 @@ import org.apache.hop.ui.core.widget.CheckBoxVar;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
-import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
@@ -56,13 +51,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-@PluginDialog(
-        id = "SortRows",
-        image = "sortrows.svg",
-        pluginType = PluginDialog.PluginType.TRANSFORM
-)
 public class SortRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = SortRowsMeta.class; // for i18n purposes, needed by Translator!!
 

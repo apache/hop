@@ -24,18 +24,17 @@ package org.apache.hop.workflow.actions.msgboxinfo;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ControlSpaceKeyAdapter;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -61,12 +60,6 @@ import org.eclipse.swt.widgets.Text;
  * @author Matt
  * @since 19-06-2003
  */
-@PluginDialog( 
-		  id = "MSGBOX_INFO", 
-		  image = "MsgBoxInfo.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/msgboxinfo.html"
-)
 public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionMsgBoxInfo.class; // for i18n purposes, needed by Translator!!
 

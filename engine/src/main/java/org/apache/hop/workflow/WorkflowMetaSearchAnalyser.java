@@ -31,37 +31,38 @@ public class WorkflowMetaSearchAnalyser extends BaseSearchableAnalyser<WorkflowM
 
     List<ISearchResult> results = new ArrayList<>();
 
-    matchProperty( searchable, results, searchQuery, "workflow name", workflowMeta.getName() );
-    matchProperty( searchable, results, searchQuery, "workflow description", workflowMeta.getDescription() );
+    matchProperty( searchable, results, searchQuery, "workflow name", workflowMeta.getName(), null);
+    matchProperty( searchable, results, searchQuery, "workflow description", workflowMeta.getDescription(), null );
 
     // The actions...
     //
     for ( ActionCopy actionCopy : workflowMeta.getActionCopies() ) {
-      matchProperty( searchable, results, searchQuery, "workflow action name", actionCopy.getName() );
-      matchProperty( searchable, results, searchQuery, "workflow action description", actionCopy.getDescription() );
+      String actionName = actionCopy.getName();
+      matchProperty( searchable, results, searchQuery, "workflow action name", actionName, actionName );
+      matchProperty( searchable, results, searchQuery, "workflow action description", actionCopy.getDescription(), actionName );
 
       IAction action = actionCopy.getAction();
       if (action!=null) {
 
         String actionPluginId = action.getPluginId();
         if ( actionPluginId != null ) {
-          matchProperty( searchable, results, searchQuery, "workflow action plugin ID", actionPluginId );
+          matchProperty( searchable, results, searchQuery, "workflow action plugin ID", actionPluginId, actionName );
           IPlugin actionPlugin = PluginRegistry.getInstance().findPluginWithId( ActionPluginType.class, actionPluginId );
           if ( actionPlugin != null ) {
-            matchProperty( searchable, results, searchQuery, "workflow action plugin name", actionPlugin.getName() );
+            matchProperty( searchable, results, searchQuery, "workflow action plugin name", actionPlugin.getName(), actionName );
           }
         }
 
         // Search the action properties
         //
-        matchObjectFields( searchable, results, searchQuery, action, "workflow action property" );
+        matchObjectFields( searchable, results, searchQuery, action, "workflow action property", actionName );
       }
     }
 
     // Search the notes...
     //
     for ( NotePadMeta note : workflowMeta.getNotes() ) {
-      matchProperty( searchable, results, searchQuery, "workflow note", note.getNote() );
+      matchProperty( searchable, results, searchQuery, "workflow note", note.getNote(), null );
     }
 
     return results;

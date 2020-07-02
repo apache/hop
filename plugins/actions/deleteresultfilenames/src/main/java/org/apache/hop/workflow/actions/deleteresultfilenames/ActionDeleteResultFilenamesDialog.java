@@ -23,17 +23,16 @@
 package org.apache.hop.workflow.actions.deleteresultfilenames;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -59,15 +58,8 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar
  * @since 27-10-2007
  */
-
-@PluginDialog( 
-		  id = "DELETE_RESULT_FILENAMES", 
-		  image = "DeleteResultFilenames.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deleteresultfilenames.html"
-)
 public class ActionDeleteResultFilenamesDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionDeleteResultFilenamesI.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = ActionDeleteResultFilenames.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
   private Text wName;
@@ -88,7 +80,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
-  private ActionDeleteResultFilenamesI action;
+  private ActionDeleteResultFilenames action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -98,7 +90,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
   public ActionDeleteResultFilenamesDialog( Shell parent, IAction action,
                                             WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
-    this.action = (ActionDeleteResultFilenamesI) action;
+    this.action = (ActionDeleteResultFilenames) action;
 
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Name.Default" ) );

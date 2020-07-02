@@ -90,7 +90,6 @@ import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowClipboardD
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowGridDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowHopDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowLogDelegate;
-import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowMetricsDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowRunDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.delegates.HopGuiWorkflowUndoDelegate;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
@@ -131,7 +130,6 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
@@ -262,7 +260,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public HopGuiWorkflowLogDelegate workflowLogDelegate;
   public HopGuiWorkflowGridDelegate workflowGridDelegate;
-  public HopGuiWorkflowMetricsDelegate workflowMetricsDelegate;
   public HopGuiWorkflowClipboardDelegate workflowClipboardDelegate;
   public HopGuiWorkflowRunDelegate workflowRunDelegate;
   public HopGuiWorkflowUndoDelegate workflowUndoDelegate;
@@ -314,7 +311,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     workflowLogDelegate = new HopGuiWorkflowLogDelegate( hopGui, this );
     workflowGridDelegate = new HopGuiWorkflowGridDelegate( hopGui, this );
-    workflowMetricsDelegate = new HopGuiWorkflowMetricsDelegate( hopGui, this );
     workflowClipboardDelegate = new HopGuiWorkflowClipboardDelegate( hopGui, this );
     workflowRunDelegate = new HopGuiWorkflowRunDelegate( hopGui, this );
     workflowUndoDelegate = new HopGuiWorkflowUndoDelegate( hopGui, this );
@@ -466,7 +462,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     ActionCopy action = workflowMeta.getAction( real.x, real.y, iconSize );
     if ( action != null ) {
       if ( e.button == 1 ) {
-        editEntry( action );
+        editAction( action );
       } else {
         // open tab in HopGui
         launchStuff( action );
@@ -549,7 +545,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             clearSettings();
             currentEntry = (ActionCopy) areaOwner.getOwner();
             stopEntryMouseOverDelayTimer( currentEntry );
-            editEntry( currentEntry );
+            editAction( currentEntry );
             break;
 
           case ACTION_MINI_ICON_CONTEXT:
@@ -1402,12 +1398,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // When zooming out we want to correct the scroll bars.
     //
     float factor = magnification / oldMagnification;
-    int newHThumb = Math.min((int)( horizontalScrollBar.getThumb() / factor), 100);
+    int newHThumb = Math.min( (int) ( horizontalScrollBar.getThumb() / factor ), 100 );
     horizontalScrollBar.setThumb( newHThumb );
-    horizontalScrollBar.setSelection( (int)( horizontalScrollBar.getSelection()*factor ));
-    int newVThumb = Math.min((int)( verticalScrollBar.getThumb() / factor), 100);
+    horizontalScrollBar.setSelection( (int) ( horizontalScrollBar.getSelection() * factor ) );
+    int newVThumb = Math.min( (int) ( verticalScrollBar.getThumb() / factor ), 100 );
     verticalScrollBar.setThumb( newVThumb );
-    verticalScrollBar.setSelection( (int)( verticalScrollBar.getSelection()*factor ));
+    verticalScrollBar.setSelection( (int) ( verticalScrollBar.getSelection() * factor ) );
 
     resize();
     redraw();
@@ -2295,61 +2291,70 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return; // nothing to do!
     }
 
-    getJobImage( e.gc, area.x, area.y, magnification );
-    if ( workflowMeta.nrActions() == 0 ) {
-      e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
-      e.gc.setBackground( GuiResource.getInstance().getColorBackground() );
-      e.gc.setFont( GuiResource.getInstance().getFontMedium() );
+    try {
+      drawWorkflowImage( e.gc, area.x, area.y, magnification );
 
-      Image welcomeImage = GuiResource.getInstance().getImageWorkflowCanvas();
-      int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
-      int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
-      e.gc.drawImage( welcomeImage, leftPosition, topPosition );
+      if ( workflowMeta.nrActions() == 0 ) {
+        e.gc.setForeground( GuiResource.getInstance().getColorCrystalText() );
+        e.gc.setBackground( GuiResource.getInstance().getColorBackground() );
+        e.gc.setFont( GuiResource.getInstance().getFontMedium() );
 
+        Image welcomeImage = GuiResource.getInstance().getImageWorkflowCanvas();
+        int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
+        int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
+        e.gc.drawImage( welcomeImage, leftPosition, topPosition );
+      }
+    } catch ( Exception ex ) {
+      new ErrorDialog( hopGui.getShell(), "Error", "Error drawing workflow", ex );
     }
-
   }
 
-  public void getJobImage( GC gc2, int x, int y, float magnificationFactor ) {
-    IGc gc = new SwtGc( gc2, new Point( x, y ), iconSize );
+  public void drawWorkflowImage( GC swtGc, int width, int height, float magnificationFactor ) throws HopException {
 
-    int gridSize =
-      PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
+    IGc gc = new SwtGc( swtGc, width, height, iconSize );
+    try {
+      int gridSize = PropsUi.getInstance().isShowCanvasGridEnabled() ? PropsUi.getInstance().getCanvasGridSize() : 1;
 
-    WorkflowPainter workflowPainter =
-      new WorkflowPainter( gc, workflowMeta, new Point( x, y ), new SwtScrollBar( horizontalScrollBar ), new SwtScrollBar( verticalScrollBar ), hopCandidate,
+      WorkflowPainter workflowPainter = new WorkflowPainter( gc, workflowMeta, new Point( width, height ),
+        new SwtScrollBar( horizontalScrollBar ), new SwtScrollBar( verticalScrollBar ), hopCandidate,
         dropCandidate, selectionRegion, areaOwners, PropsUi.getInstance().getIconSize(),
         PropsUi.getInstance().getLineWidth(), gridSize, PropsUi.getInstance().getNoteFont().getName(),
         PropsUi.getInstance().getNoteFont().getHeight(), PropsUi.getInstance().getZoomFactor() );
 
-    // correct the magnifacation with the overall zoom factor
-    //
-    float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
+      // correct the magnification with the overall zoom factor
+      //
+      float correctedMagnification = (float) ( magnificationFactor * PropsUi.getInstance().getZoomFactor() );
 
-    workflowPainter.setMagnification( correctedMagnification );
-    workflowPainter.setStartHopEntry( startHopEntry );
-    workflowPainter.setEndHopLocation( endHopLocation );
-    workflowPainter.setEndHopEntry( endHopEntry );
-    workflowPainter.setNoInputEntry( noInputEntry );
-    if ( workflow != null ) {
-      workflowPainter.setActionResults( workflow.getActionResults() );
-    } else {
-      workflowPainter.setActionResults( new ArrayList<>() );
-    }
-
-    List<ActionCopy> activeJobEntries = new ArrayList<>();
-    if ( workflow != null ) {
-      if ( workflow.getActiveActionWorkflows().size() > 0 ) {
-        activeJobEntries.addAll( workflow.getActiveActionWorkflows().keySet() );
+      workflowPainter.setMagnification( correctedMagnification );
+      workflowPainter.setStartHopEntry( startHopEntry );
+      workflowPainter.setEndHopLocation( endHopLocation );
+      workflowPainter.setEndHopEntry( endHopEntry );
+      workflowPainter.setNoInputEntry( noInputEntry );
+      if ( workflow != null ) {
+        workflowPainter.setActionResults( workflow.getActionResults() );
+      } else {
+        workflowPainter.setActionResults( new ArrayList<>() );
       }
-      if ( workflow.getActiveActionPipeline().size() > 0 ) {
-        activeJobEntries.addAll( workflow.getActiveActionPipeline().keySet() );
+
+      List<ActionCopy> activeJobEntries = new ArrayList<>();
+      if ( workflow != null ) {
+        if ( workflow.getActiveActionWorkflows().size() > 0 ) {
+          activeJobEntries.addAll( workflow.getActiveActionWorkflows().keySet() );
+        }
+        if ( workflow.getActiveActionPipeline().size() > 0 ) {
+          activeJobEntries.addAll( workflow.getActiveActionPipeline().keySet() );
+        }
       }
+      workflowPainter.setActiveJobEntries( activeJobEntries );
+
+      try {
+        workflowPainter.drawWorkflow();
+      } catch ( HopException e ) {
+        throw new HopException( "Error drawing workflow", e );
+      }
+    } finally {
+      gc.dispose();
     }
-    workflowPainter.setActiveJobEntries( activeJobEntries );
-
-    workflowPainter.drawWorkflow();
-
     setData( workflowMeta );
   }
 
@@ -2437,45 +2442,45 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     tooltip = "Edit the action properties",
     image = "ui/images/Edit.svg"
   )
-  public void editEntry( HopGuiWorkflowActionContext context ) {
+  public void editAction( HopGuiWorkflowActionContext context ) {
 
     workflowEntryDelegate.editAction( workflowMeta, context.getActionCopy() );
   }
 
-  public void editEntry( ActionCopy je ) {
+  public void editAction( ActionCopy je ) {
     workflowEntryDelegate.editAction( workflowMeta, je );
   }
 
-  protected void editNote( NotePadMeta ni ) {
-    NotePadMeta before = (NotePadMeta) ni.clone();
+  protected void editNote( NotePadMeta notePadMeta ) {
+    NotePadMeta before = notePadMeta.clone();
     String title = BaseMessages.getString( PKG, "WorkflowGraph.Dialog.EditNote.Title" );
 
-    NotePadDialog dd = new NotePadDialog( workflowMeta, hopShell(), title, ni );
+    NotePadDialog dd = new NotePadDialog( workflowMeta, hopShell(), title, notePadMeta );
     NotePadMeta n = dd.open();
     if ( n != null ) {
-      ni.setChanged();
-      ni.setNote( n.getNote() );
-      ni.setFontName( n.getFontName() );
-      ni.setFontSize( n.getFontSize() );
-      ni.setFontBold( n.isFontBold() );
-      ni.setFontItalic( n.isFontItalic() );
+      notePadMeta.setChanged();
+      notePadMeta.setNote( n.getNote() );
+      notePadMeta.setFontName( n.getFontName() );
+      notePadMeta.setFontSize( n.getFontSize() );
+      notePadMeta.setFontBold( n.isFontBold() );
+      notePadMeta.setFontItalic( n.isFontItalic() );
       // font color
-      ni.setFontColorRed( n.getFontColorRed() );
-      ni.setFontColorGreen( n.getFontColorGreen() );
-      ni.setFontColorBlue( n.getFontColorBlue() );
+      notePadMeta.setFontColorRed( n.getFontColorRed() );
+      notePadMeta.setFontColorGreen( n.getFontColorGreen() );
+      notePadMeta.setFontColorBlue( n.getFontColorBlue() );
       // background color
-      ni.setBackGroundColorRed( n.getBackGroundColorRed() );
-      ni.setBackGroundColorGreen( n.getBackGroundColorGreen() );
-      ni.setBackGroundColorBlue( n.getBackGroundColorBlue() );
+      notePadMeta.setBackGroundColorRed( n.getBackGroundColorRed() );
+      notePadMeta.setBackGroundColorGreen( n.getBackGroundColorGreen() );
+      notePadMeta.setBackGroundColorBlue( n.getBackGroundColorBlue() );
       // border color
-      ni.setBorderColorRed( n.getBorderColorRed() );
-      ni.setBorderColorGreen( n.getBorderColorGreen() );
-      ni.setBorderColorBlue( n.getBorderColorBlue() );
+      notePadMeta.setBorderColorRed( n.getBorderColorRed() );
+      notePadMeta.setBorderColorGreen( n.getBorderColorGreen() );
+      notePadMeta.setBorderColorBlue( n.getBorderColorBlue() );
 
-      hopGui.undoDelegate.addUndoChange( workflowMeta, new NotePadMeta[] { before }, new NotePadMeta[] { ni }, new int[] { workflowMeta
-        .indexOfNote( ni ) } );
-      ni.width = ConstUi.NOTE_MIN_SIZE;
-      ni.height = ConstUi.NOTE_MIN_SIZE;
+      hopGui.undoDelegate.addUndoChange( workflowMeta, new NotePadMeta[] { before }, new NotePadMeta[] { notePadMeta }, new int[] { workflowMeta
+        .indexOfNote( notePadMeta ) } );
+      notePadMeta.width = ConstUi.NOTE_MIN_SIZE;
+      notePadMeta.height = ConstUi.NOTE_MIN_SIZE;
 
       updateGui();
     }
@@ -2603,8 +2608,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-left.svg",
     disabledImage = "ui/images/toolbar/align-left-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_LEFT )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_LEFT )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_LEFT )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_LEFT )
   public void alignLeft() {
     createSnapAllignDistribute().allignleft();
   }
@@ -2616,8 +2621,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-right.svg",
     disabledImage = "ui/images/toolbar/align-right-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_RIGHT )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_RIGHT )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_RIGHT )
   public void alignRight() {
     createSnapAllignDistribute().allignright();
   }
@@ -2629,8 +2634,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-top.svg",
     disabledImage = "ui/images/toolbar/align-top-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_UP )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_UP )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_UP )
   public void alignTop() {
     createSnapAllignDistribute().alligntop();
   }
@@ -2642,8 +2647,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/align-bottom.svg",
     disabledImage = "ui/images/toolbar/align-bottom-disabled.svg"
   )
-  @GuiKeyboardShortcut( control=true, key=SWT.ARROW_DOWN )
-  @GuiOsxKeyboardShortcut( command=true, key=SWT.ARROW_DOWN )
+  @GuiKeyboardShortcut( control = true, key = SWT.ARROW_DOWN )
+  @GuiOsxKeyboardShortcut( command = true, key = SWT.ARROW_DOWN )
   public void alignBottom() {
     createSnapAllignDistribute().allignbottom();
   }
@@ -2655,8 +2660,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-horizontally.svg",
     disabledImage = "ui/images/toolbar/distribute-horizontally-disabled.svg"
   )
-  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
-  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_RIGHT )
+  @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_RIGHT )
+  @GuiOsxKeyboardShortcut( alt = true, key = SWT.ARROW_RIGHT )
   public void distributeHorizontal() {
     createSnapAllignDistribute().distributehorizontal();
   }
@@ -2668,8 +2673,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     image = "ui/images/toolbar/distribute-vertically.svg",
     disabledImage = "ui/images/toolbar/distribute-vertically-disabled.svg"
   )
-  @GuiKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
-  @GuiOsxKeyboardShortcut( alt=true, key=SWT.ARROW_UP )
+  @GuiKeyboardShortcut( alt = true, key = SWT.ARROW_UP )
+  @GuiOsxKeyboardShortcut( alt = true, key = SWT.ARROW_UP )
   public void distributeVertical() {
     createSnapAllignDistribute().distributevertical();
   }
@@ -3071,7 +3076,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     workflowLogDelegate.addJobLog();
     workflowGridDelegate.addJobGrid();
-    workflowMetricsDelegate.addJobMetrics();
 
     if ( tabItemSelection != null ) {
       extraViewTabFolder.setSelection( tabItemSelection );
@@ -3281,8 +3285,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Do a final check to see if it all ended...
     //
     if ( workflow != null && workflow.isInitialized() && workflow.isFinished() ) {
-      workflowMetricsDelegate.resetLastRefreshTime();
-      workflowMetricsDelegate.updateGraph();
       log.logMinimal( BaseMessages.getString( PKG, "WorkflowLog.Log.WorkflowHasEnded" ) );
     }
     updateGui();
@@ -3383,7 +3385,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     updateGui();
 
     if ( shift ) {
-      editEntry( newEntry );
+      editAction( newEntry );
     }
 
     workflowMeta.unselectAll();

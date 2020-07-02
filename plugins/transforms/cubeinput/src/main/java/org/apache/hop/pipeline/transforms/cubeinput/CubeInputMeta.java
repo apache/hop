@@ -58,6 +58,7 @@ import java.util.zip.GZIPInputStream;
  */
 @Transform(
         id = "CubeInput",
+        image = "cubeinput.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.cubeinput",
         name = "CubeInput.Name",
         description = "CubeInput.Description",

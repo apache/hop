@@ -67,7 +67,8 @@ import java.util.List;
   name = "ActionSQL.Name",
   description = "ActionSQL.Description",
   image = "SQL.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Scripting",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/sql.html"
 )
 public class ActionSql extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionSql.class; // for i18n purposes, needed by Translator!!

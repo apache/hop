@@ -51,6 +51,7 @@ import static org.apache.hop.core.util.StringUtil.isEmpty;
         i18nPackageName = "org.apache.hop.pipeline.transforms.abort",
         name = "Abort.Name",
         description = "Abort.Description",
+        image = "abort.svg",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/abort.html"
 )

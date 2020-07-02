@@ -52,6 +52,7 @@ import java.util.List;
 
 @Transform(
         id = "Mail",
+        image = "mail.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.mail",
         name = "BaseTransform.TypeLongDesc.Mail",
         description = "BaseTransform.TypeTooltipDesc.Mail",

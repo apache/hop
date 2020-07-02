@@ -47,13 +47,13 @@ import java.util.List;
  * Created on 27-apr-2006
  */
 @Transform(
-  id = "SetVariable",
-  i18nPackageName = "org.apache.hop.pipeline.transforms.setvariable",
-  name = "BaseTransform.TypeLongDesc.SetVariable",
-  description = "BaseTransform.TypeTooltipDesc.SetVariable",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/setvariable.html",
-  image = "ui/images/SVG.svg"
+        id = "SetVariable",
+        image = "setvariable.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.setvariable",
+        name = "BaseTransform.TypeLongDesc.SetVariable",
+        description = "BaseTransform.TypeTooltipDesc.SetVariable",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/setvariable.html"
 )
 public class SetVariableMeta extends BaseTransformMeta implements ITransformMeta<SetVariable,SetVariableData> {
   private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!

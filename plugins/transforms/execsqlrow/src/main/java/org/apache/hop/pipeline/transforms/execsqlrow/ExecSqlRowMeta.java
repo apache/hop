@@ -38,19 +38,17 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.sql.ExecSql;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-/***
- * Contains meta-data to execute arbitrary SQL from a specified field.
- *
- * Created on 10-sep-2008
- */
 @Transform(
         id = "ExecSqlRow",
+        image = "execsqlrow.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.execsqlrow",
         name = "BaseTransform.TypeLongDesc.ExecSqlRow",
         description = "BaseTransform.TypeTooltipDesc.ExecSqlRow",

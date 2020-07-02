@@ -44,10 +44,14 @@ import org.w3c.dom.Node;
 import java.io.File;
 import java.util.List;
 
-@Transform( id = "BlockingTransform", i18nPackageName = "org.apache.hop.pipeline.transforms.blockingtransform", name = "BlockingTransform.Name",
-  description = "BlockingTransform.Description",
-  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/blockingtransform.html"
+@Transform(
+        id = "BlockingTransform",
+        image = "blockingtransform.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.blockingtransform",
+        name = "BlockingTransform.Name",
+        description = "BlockingTransform.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/blockingtransform.html"
 )
 public class BlockingTransformMeta extends BaseTransformMeta implements ITransformMeta<BlockingTransform, BlockingTransformData> {
 

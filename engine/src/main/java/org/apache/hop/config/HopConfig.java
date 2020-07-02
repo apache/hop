@@ -35,6 +35,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.serializer.json.JsonMetadataProvider;
 import picocli.CommandLine;
@@ -45,7 +46,7 @@ import picocli.CommandLine.ParameterException;
 import java.util.List;
 import java.util.Map;
 
-public class HopConfig implements Runnable {
+public class HopConfig implements Runnable, IHasHopMetadataProvider {
 
   @Option( names = { "-h", "--help" }, usageHelp = true, description = "Displays this help message and quits." )
   private boolean helpRequested;
@@ -72,7 +73,7 @@ public class HopConfig implements Runnable {
         if (mixin instanceof IConfigOptions) {
           IConfigOptions configOptions = (IConfigOptions) mixin;
 
-          actionTaken = configOptions.handleOption( log, metadataProvider, variables ) || actionTaken;
+          actionTaken = configOptions.handleOption( log, this, variables ) || actionTaken;
         }
       }
 
@@ -108,6 +109,22 @@ public class HopConfig implements Runnable {
    */
   public void setCmd( CommandLine cmd ) {
     this.cmd = cmd;
+  }
+
+  /**
+   * Gets metadataProvider
+   *
+   * @return value of metadataProvider
+   */
+  @Override public IHopMetadataProvider getMetadataProvider() {
+    return metadataProvider;
+  }
+
+  /**
+   * @param metadataProvider The metadataProvider to set
+   */
+  @Override public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
+    this.metadataProvider = metadataProvider;
   }
 
   public static void main( String[] args ) {

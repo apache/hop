@@ -57,6 +57,7 @@ import java.util.List;
 
 @Transform(
         id = "AddXML",
+        image = "add_xml.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.xml.addxml",
         name = "AddXML.name",
         description = "AddXML.description",

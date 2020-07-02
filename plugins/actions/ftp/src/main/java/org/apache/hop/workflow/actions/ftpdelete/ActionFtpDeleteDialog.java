@@ -22,29 +22,25 @@
 
 package org.apache.hop.workflow.actions.ftpdelete;
 
-import com.enterprisedt.net.ftp.FTPClient;
-import com.trilead.ssh2.Connection;
-import com.trilead.ssh2.HTTPProxyData;
-import com.trilead.ssh2.SFTPv3Client;
-import com.trilead.ssh2.SFTPv3FileAttributes;
+import java.net.InetAddress;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IActionDialog;
-import org.apache.hop.workflow.actions.ftpsget.FtpsConnection;
-import org.apache.hop.workflow.actions.sftp.SftpClient;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.IActionDialog;
+import org.apache.hop.workflow.actions.ftpsget.FtpsConnection;
+import org.apache.hop.workflow.actions.sftp.SftpClient;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -69,7 +65,11 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-import java.net.InetAddress;
+import com.enterprisedt.net.ftp.FTPClient;
+import com.trilead.ssh2.Connection;
+import com.trilead.ssh2.HTTPProxyData;
+import com.trilead.ssh2.SFTPv3Client;
+import com.trilead.ssh2.SFTPv3FileAttributes;
 
 /**
  * This dialog allows you to edit the FTP Delete action settings.
@@ -77,12 +77,6 @@ import java.net.InetAddress;
  * @author Samatar
  * @since 27-04-2008
  */
-@PluginDialog( 
-		  id = "FTP_DELETE", 
-		  image = "FTPDelete.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpdelete.html"
-)
 public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!
 

@@ -58,7 +58,8 @@ import java.util.List;
   name = "ActionCreateFolder.Name",
   description = "ActionCreateFolder.Description",
   image = "CreateFolder.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/createfolder.html"
 )
 public class ActionCreateFolder extends ActionBase implements Cloneable, IAction {
   private String foldername;

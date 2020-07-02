@@ -54,6 +54,7 @@ import java.util.Objects;
 
 @Transform(
         id = "Janino",
+        image = "janino.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.janino",
         name = "BaseTransform.TypeLongDesc.Janino",
         description = "BaseTransform.TypeTooltipDesc.Janino",

@@ -1022,9 +1022,22 @@ public class PluginRegistry {
    * @param annotationClass The type of annotation to consider
    */
   public void registerPluginClass( String pluginClassName, Class<? extends IPluginType> pluginTypeClass, Class<? extends Annotation> annotationClass ) throws HopPluginException {
+    registerPluginClass(getClass().getClassLoader(), Collections.emptyList(), null, pluginClassName, pluginTypeClass, annotationClass, true);
+  }
+
+    /**
+     * Try to register the given annotated class, present in the classpath, as a plugin
+     *
+     * @param classLoader the classloader to find the class with
+     * @param pluginClassName The name of the class to register
+     * @param pluginTypeClass The type of plugin to register
+     * @param annotationClass The type of annotation to consider
+     * @param isNative if this is a native plugin (in the classpath) or an external plugin
+     */
+  public void registerPluginClass( ClassLoader classLoader, List<String> libraries, URL pluginUrl, String pluginClassName, Class<? extends IPluginType> pluginTypeClass, Class<? extends Annotation> annotationClass, boolean isNative ) throws HopPluginException {
     IPluginType pluginType = getPluginType( pluginTypeClass );
     try {
-      Class<?> pluginClass = Class.forName( pluginClassName );
+      Class<?> pluginClass = classLoader.loadClass( pluginClassName );
       Annotation annotation = pluginClass.getAnnotation( annotationClass );
       if ( annotation == null ) {
         throw new HopPluginException( "The requested annotation '" + annotationClass.getName() + " couldn't be found in the plugin class" );
@@ -1032,7 +1045,8 @@ public class PluginRegistry {
 
       // Register the plugin using the metadata in the annotation
       //
-      pluginType.handlePluginAnnotation( pluginClass, annotation, new ArrayList<>(), true, null );
+      pluginType.handlePluginAnnotation( pluginClass, annotation, libraries, isNative, pluginUrl );
+
     } catch ( ClassNotFoundException e ) {
       throw new HopPluginException( "Sorry, the plugin class you want to register '" + pluginClassName + "' can't be found in the classpath", e );
     }

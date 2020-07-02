@@ -23,7 +23,6 @@
 package org.apache.hop.workflow.actions.copymoveresultfilenames;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.BaseDialog;
@@ -62,14 +61,8 @@ import org.eclipse.swt.widgets.Text;
  * @author Samatar
  * @since 26-02-2008
  */
-@PluginDialog(
-  id = "COPY_MOVE_RESULT_FILENAMES",
-  image = "CopyMoveResultFilenames.svg",
-  pluginType = PluginDialog.PluginType.ACTION,
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/copymoveresultfilenames.html"
-)
 public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionCopyMoveResultFilenamesI.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> PKG = ActionCopyMoveResultFilenames.class; // for i18n purposes, needed by Translator!!
 
   private Label wlName;
   private Text wName;
@@ -94,7 +87,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
   private CCombo wAction;
   private FormData fdlAction, fdAction;
 
-  private ActionCopyMoveResultFilenamesI action;
+  private ActionCopyMoveResultFilenames action;
   private Shell shell;
 
   private SelectionAdapter lsDef;
@@ -159,7 +152,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
   public ActionCopyMoveResultFilenamesDialog( Shell parent, IAction action,
                                               WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
-    this.action = (ActionCopyMoveResultFilenamesI) action;
+    this.action = (ActionCopyMoveResultFilenames) action;
 
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Name.Default" ) );

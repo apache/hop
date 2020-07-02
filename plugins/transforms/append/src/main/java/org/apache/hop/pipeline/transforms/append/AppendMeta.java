@@ -56,6 +56,7 @@ import java.util.List;
  */
 @Transform(
         id = "Append",
+        image = "append.svg",
         i18nPackageName = "org.apache.hop.pipeline.transforms.append",
         name = "Append.Name",
         description = "Append.Description",

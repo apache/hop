@@ -51,6 +51,7 @@ import java.util.List;
 
 @Transform(
         id = "FileLocked",
+        image = "filelocked.svg",
         i18nPackageName = "i18n:org.apache.hop.pipeline.transforms.filelocked",
         name = "BaseTransform.TypeLongDesc.FileLocked",
         description = "BaseTransform.TypeTooltipDesc.FileLocked",

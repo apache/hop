@@ -22,22 +22,23 @@
 
 package org.apache.hop.workflow.actions.syslog;
 
+import java.net.InetAddress;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
-import org.apache.hop.core.annotations.PluginDialog;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
-import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.LabelText;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
+import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -63,20 +64,12 @@ import org.eclipse.swt.widgets.Shell;
 import org.snmp4j.UserTarget;
 import org.snmp4j.smi.UdpAddress;
 
-import java.net.InetAddress;
-
 /**
  * This dialog allows you to edit the Syslog action settings.
  *
  * @author Samatar
  * @since 19-06-2003
  */
-@PluginDialog( 
-		  id = "SYSLOG", 
-		  image = "Syslog.svg", 
-		  pluginType = PluginDialog.PluginType.ACTION,
-		  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/syslog.html"
-)
 public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
   private static Class<?> PKG = ActionSyslog.class; // for i18n purposes, needed by Translator!!
 

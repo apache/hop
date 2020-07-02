@@ -417,7 +417,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
     xml.append( XmlHandler.openTag( XML_TAG ) ).append( Const.CR );
 
-    xml.append( "  " ).append( XmlHandler.addTagValue( "name", getName() ) );
+    xml.append( "  " ).append( XmlHandler.addTagValue( "name", getName() ) ); // lossy if name is sync'ed with filename
     xml.append( "  " ).append( XmlHandler.addTagValue( "name_sync_with_filename", nameSynchronizedWithFilename ) );
 
     xml.append( "  " ).append( XmlHandler.addTagValue( "description", description ) );
@@ -1753,7 +1753,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @return The version of the workflow
    */
-  public String getJobversion() {
+  public String getWorkflowVersion() {
     return workflowVersion;
   }
 
@@ -1771,7 +1771,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @param jobVersion The new version description of the workflow
    */
-  public void setJobversion( String jobVersion ) {
+  public void setWorkflowVersion( String jobVersion ) {
     this.workflowVersion = jobVersion;
   }
 
