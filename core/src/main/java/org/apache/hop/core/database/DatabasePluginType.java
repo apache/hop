@@ -42,7 +42,7 @@ public class DatabasePluginType extends BasePluginType<DatabaseMetaPlugin> imple
     super( DatabaseMetaPlugin.class, "DATABASE", "Database" );
     populateFolders( "databases" );
 
-    String sharedJdbcDirectory = System.getProperty( Const.HOP_SHARED_JDBC_DIRECTORY );
+    String sharedJdbcDirectory = System.getProperty( Const.HOP_SHARED_JDBC_FOLDER );
     if ( StringUtils.isNotEmpty(sharedJdbcDirectory)) {
       extraLibraryFolders.add(sharedJdbcDirectory);
     }

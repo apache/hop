@@ -32,7 +32,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Updates directory references referencing {@link Const#INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY}
+ * Updates directory references referencing {@link Const#INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER}
  */
 public class EntryCurrentDirectoryChangedListener implements ICurrentDirectoryChangedListener {
 
@@ -69,7 +69,7 @@ public class EntryCurrentDirectoryChangedListener implements ICurrentDirectoryCh
   public void directoryChanged( Object origin, String oldCurrentDir, String newCurrentDir ) {
     for ( IPathReference ref : references ) {
       String path = ref.getPath();
-      if ( StringUtils.contains( path, Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY )
+      if ( StringUtils.contains( path, Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER )
         && !Objects.equal( oldCurrentDir, newCurrentDir ) ) {
         path = reapplyCurrentDir( oldCurrentDir, newCurrentDir, path );
         ref.setPath( path );
@@ -79,14 +79,14 @@ public class EntryCurrentDirectoryChangedListener implements ICurrentDirectoryCh
 
   private String reapplyCurrentDir( String oldCurrentDir, String newCurrentDir, String path ) {
     Variables vars = new Variables();
-    vars.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, oldCurrentDir );
+    vars.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, oldCurrentDir );
     String newPath = vars.environmentSubstitute( path );
     return getPath( newCurrentDir, newPath );
   }
 
   private static String getPath( String parentPath, String path ) {
     if ( !parentPath.equals( "/" ) && path.startsWith( parentPath ) ) {
-      path = path.replace( parentPath, "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}" );
+      path = path.replace( parentPath, "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}" );
     }
     return path;
   }

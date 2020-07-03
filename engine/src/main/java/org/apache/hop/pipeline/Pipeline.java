@@ -2338,10 +2338,10 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
   }
 
   protected void setInternalEntryCurrentDirectory( boolean hasFilename ) {
-    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
+    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, variables.getVariable(
       hasFilename
         ? Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY
-        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
   }
 
 

@@ -17,7 +17,7 @@ public class HopMetadataUtil {
     if ( StringUtils.isEmpty( folder ) ) {
       // The folder is the "metadata" folder in the configuration folder...
       //
-      String configDirectory = Const.HOP_CONFIG_DIRECTORY;
+      String configDirectory = Const.HOP_CONFIG_FOLDER;
       if (!configDirectory.endsWith( Const.FILE_SEPARATOR )) {
         configDirectory+=Const.FILE_SEPARATOR;
       }

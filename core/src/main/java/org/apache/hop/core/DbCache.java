@@ -123,7 +123,7 @@ public class DbCache {
   }
 
   public String getFilename() {
-    return Const.HOP_AUDIT_DIRECTORY + Const.FILE_SEPARATOR + "db.cache";
+    return Const.HOP_AUDIT_FOLDER + Const.FILE_SEPARATOR + "db.cache";
   }
 
   private DbCache() throws HopFileException {

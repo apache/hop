@@ -48,9 +48,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY;
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER;
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY;
-import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY;
+import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER;
 import static org.apache.hop.core.Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME;
 
 /**
@@ -73,16 +73,16 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
   /**
    * @return new var space with follow vars from parent space or just new space if parent was null
    * <p>
-   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY}
-   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY}
+   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER}
+   * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER}
    * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY}
    * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME}
    */
   private static IVariables getVarSpaceOnlyWithRequiredParentVars( IVariables parentSpace ) {
     Variables tmpSpace = new Variables();
     if ( parentSpace != null ) {
-      tmpSpace.setVariable( INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, parentSpace.getVariable( INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
-      tmpSpace.setVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, parentSpace.getVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY ) );
+      tmpSpace.setVariable( INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, parentSpace.getVariable( INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
+      tmpSpace.setVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, parentSpace.getVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER ) );
       tmpSpace.setVariable( INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, parentSpace.getVariable( INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY ) );
       tmpSpace.setVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, parentSpace.getVariable( INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME ) );
     }
@@ -240,7 +240,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
       // To get a relative path to it, we inject
       // ${Internal.Entry.Current.Directory}
       //
-      String newFilename = "${" + INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + proposedNewFilename;
+      String newFilename = "${" + INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + proposedNewFilename;
 
       // Set the correct filename inside the XML.
       //

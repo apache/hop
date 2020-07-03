@@ -230,7 +230,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlUnitTestsBasePath = new Label( shell, SWT.RIGHT );
     props.setLook( wlUnitTestsBasePath );
-    wlUnitTestsBasePath.setText( "Unit tests base path (UNIT_TESTS_BASE_PATH) " );
+    wlUnitTestsBasePath.setText( "Unit tests base path (HOP_UNIT_TESTS_FOLDER) " );
     FormData fdlUnitTestsBasePath = new FormData();
     fdlUnitTestsBasePath.left = new FormAttachment( 0, 0 );
     fdlUnitTestsBasePath.right = new FormAttachment( middle, 0 );
@@ -248,7 +248,7 @@ public class ProjectDialog extends Dialog {
 
     Label wlDataSetCsvFolder = new Label( shell, SWT.RIGHT );
     props.setLook( wlDataSetCsvFolder );
-    wlDataSetCsvFolder.setText( "Data Sets CSV Folder (DATASETS_BASE_PATH)" );
+    wlDataSetCsvFolder.setText( "Data Sets CSV Folder (HOP_DATASETS_FOLDER)" );
     FormData fdlDataSetCsvFolder = new FormData();
     fdlDataSetCsvFolder.left = new FormAttachment( 0, 0 );
     fdlDataSetCsvFolder.right = new FormAttachment( middle, 0 );

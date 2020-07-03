@@ -35,8 +35,8 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 /**
  * This class resolve and update system variables
- * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY}
- * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY}
+ * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER}
+ * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER}
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY}
  * {@link org.apache.hop.core.Const#INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME}
  */
@@ -77,8 +77,8 @@ public class CurrentDirectoryResolver {
         // The directory of the pipeline
         FileName fileDir = fileName.getParent();
         tmpSpace.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, fileDir.getURI() );
-        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, fileDir.getURI() );
-        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, fileDir.getURI() );
+        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, fileDir.getURI() );
+        tmpSpace.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, fileDir.getURI() );
       } catch ( Exception e ) {
         throw new RuntimeException( "Unable to figure out the current directory", e );
       }

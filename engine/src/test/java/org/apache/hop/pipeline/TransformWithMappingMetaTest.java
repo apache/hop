@@ -70,7 +70,7 @@ public class TransformWithMappingMetaTest {
 
     //we have pipeline
     IVariables variables = new Variables();
-    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, parentFolder.toString() );
+    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, parentFolder.toString() );
     PipelineMeta parentPipelineMeta = new PipelineMeta( variables );
 
     //we have transform in this pipeline
@@ -79,7 +79,7 @@ public class TransformWithMappingMetaTest {
 
     //attach the executor to transform which was described above
     TransformWithMappingMeta mappingMetaMock = mock( TransformWithMappingMeta.class );
-    when( mappingMetaMock.getFilename() ).thenReturn( "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + fileName );
+    when( mappingMetaMock.getFilename() ).thenReturn( "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER + "}/" + fileName );
     when( mappingMetaMock.getParentTransformMeta() ).thenReturn( transformMeta );
 
     //we will try to load the subtras which was linked at the transform metas
@@ -93,7 +93,7 @@ public class TransformWithMappingMetaTest {
      * {@link PipelineMeta#setInternalFilenameHopVariables(IVariables)}
      *
      */
-    Assert.assertEquals( expected.deleteCharAt( expected.length() - 1 ).toString(), pipelineMeta.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+    Assert.assertEquals( expected.deleteCharAt( expected.length() - 1 ).toString(), pipelineMeta.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
   }
 
 
@@ -225,7 +225,7 @@ public class TransformWithMappingMetaTest {
 
     TransformWithMappingMeta.replaceVariableValues( ChildVariables, replaceByParentVariables );
     // do not replace internal variables
-    Assert.assertEquals( "childValue", ChildVariables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+    Assert.assertEquals( "childValue", ChildVariables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
     // replace non internal variables
     Assert.assertEquals( "parentNotInternalValue", ChildVariables.getVariable( variableOverwrite ) );
     // keep child only variables
@@ -253,7 +253,7 @@ public class TransformWithMappingMetaTest {
 
     TransformWithMappingMeta.replaceVariableValues( ChildVariables, replaceByParentVariables );
     // do not replace internal variables
-    Assert.assertEquals( "childValue", ChildVariables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+    Assert.assertEquals( "childValue", ChildVariables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
     // replace non internal variables
     Assert.assertEquals( "parentNotInternalValue", ChildVariables.getVariable( variableOverwrite ) );
     // keep child only variables

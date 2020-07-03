@@ -50,7 +50,7 @@ import java.util.List;
 )
 public class DataSet extends Variables implements Cloneable, IVariables, IHopMetadata {
 
-  public static final String VARIABLE_DATASETS_BASE_PATH = "DATASETS_BASE_PATH";
+  public static final String VARIABLE_HOP_DATASETS_FOLDER = "HOP_DATASETS_FOLDER";
 
   @HopMetadataProperty
   private String name;
@@ -250,7 +250,7 @@ public class DataSet extends Variables implements Cloneable, IVariables, IHopMet
   public String getActualDataSetFolder() {
     String folder = Const.NVL(folderName, "");
     if ( StringUtils.isEmpty( folder ) ) {
-      folder = getVariable( VARIABLE_DATASETS_BASE_PATH );
+      folder = getVariable( VARIABLE_HOP_DATASETS_FOLDER );
     }
     if ( StringUtils.isEmpty( folder ) ) {
       // Local folder

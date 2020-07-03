@@ -1792,19 +1792,19 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     setInternalFilenameHopVariables( var );
     setInternalNameHopVariable( var );
 
-    variables.getVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY );
+    variables.getVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER );
     updateCurrentDir();
   }
 
   // changed to protected for testing purposes
   //
   protected void updateCurrentDir() {
-    String prevCurrentDir = variables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY );
+    String prevCurrentDir = variables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER );
     String currentDir = variables.getVariable(
       filename != null
-        ? Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY
-        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY );
-    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, currentDir );
+        ? Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER
+        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER );
+    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, currentDir );
     fireCurrentDirectoryChanged( prevCurrentDir, currentDir );
   }
 
@@ -1837,13 +1837,13 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
         // The directory of the workflow
         FileName fileDir = fileName.getParent();
-        variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, fileDir.getURI() );
+        variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, fileDir.getURI() );
       } catch ( Exception e ) {
-        variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "" );
+        variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, "" );
         variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
       }
     } else {
-      variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY, "" );
+      variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, "" );
       variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
     }
 
@@ -1852,10 +1852,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   }
 
   protected void setInternalEntryCurrentDirectory() {
-    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY, variables.getVariable(
+    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, variables.getVariable(
       filename != null
-        ? Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_DIRECTORY
-        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY ) );
+        ? Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER
+        : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
   }
 
   @Deprecated
