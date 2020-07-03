@@ -72,8 +72,9 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
     Point max = workflowMeta.getMaximum();
     Point thumb = getThumb( area, max );
-    offset = getOffset( thumb, area );
-
+    if (offset==null) {
+      offset = getOffset( thumb, area );
+    }
     gc.setBackground( EColor.BACKGROUND );
 
     if ( hori != null ) {

@@ -135,7 +135,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     Point max = pipelineMeta.getMaximum();
     Point thumb = getThumb( area, max );
-    offset = getOffset( thumb, area );
+    if (offset==null) {
+      offset = getOffset( thumb, area );
+    }
 
     // First clear the image in the background color
     gc.setBackground( EColor.BACKGROUND );
@@ -1085,4 +1087,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   public void setOutputRowsMap( Map<String, RowBuffer> outputRowsMap ) {
     this.outputRowsMap = outputRowsMap;
   }
+
+
 }
