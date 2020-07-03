@@ -7,8 +7,12 @@ import org.apache.batik.svggen.ExtensionHandler;
 import org.apache.batik.svggen.ImageHandler;
 import org.apache.batik.svggen.SVGGeneratorContext;
 import org.apache.batik.svggen.SVGGraphics2D;
+import org.apache.batik.util.SVGConstants;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -18,6 +22,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.font.TextLayout;
 import java.io.StringWriter;
+import java.text.DecimalFormat;
+
+import static org.apache.batik.svggen.DOMGroupManager.DRAW;
+import static org.apache.batik.svggen.DOMGroupManager.FILL;
 
 public class HopSvgGraphics2D extends SVGGraphics2D {
   public HopSvgGraphics2D( Document domFactory ) {
@@ -79,4 +87,81 @@ public class HopSvgGraphics2D extends SVGGraphics2D {
     return streamResult.getWriter().toString();
   }
 
+  private String format(double d) {
+    return new DecimalFormat("0.###").format( d );
+  }
+
+  /**
+   *  Embed the given SVG from the given node into this SVG 2D
+   *
+   * @param svgNode The source SVG node which is copied
+   * @param filename The filename will be added as information (not if null)
+   * @param x The x location to translate to
+   * @param y The y location to translate to
+   * @param width The width of the SVG to embed.
+   * @param height The height of the SVG to embed
+   * @param xMagnification The horizontal magnification
+   * @param yMagnification The vertical magnification
+   * @param angleDegrees The rotation angle in degrees (not radians)
+   */
+  public void embedSvg( Node svgNode, String filename, int x, int y, float width, float height, float xMagnification, float yMagnification, double angleDegrees ) {
+
+    Document domFactory = getDOMFactory();
+    float centreX = width / 2;
+    float centreY = height / 2;
+
+    // Add a <g> group tag
+    // Do the magnification, translation and rotation in that group
+    //
+    Element svgG = domFactory.createElementNS( SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_G_TAG );
+    getDomGroupManager().addElement( svgG, (short) (DRAW | FILL) );
+
+    svgG.setAttributeNS( null, SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE );
+    svgG.removeAttributeNS( null, SVGConstants.SVG_FILL_ATTRIBUTE );
+
+    String transformString = "translate(" + x + " " + y + ") ";
+    transformString += "scale(" + format(xMagnification) + " " + format(yMagnification) + ") ";
+    transformString += "rotate(" + format(angleDegrees) + " " + format(centreX) + " " + format(centreY) + ")";
+    svgG.setAttributeNS( null, SVGConstants.SVG_TRANSFORM_ATTRIBUTE, transformString );
+
+    if (filename!=null) {
+      // Just informational
+      svgG.setAttributeNS( null, "filename", filename );
+    }
+
+    svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:dc", "http://purl.org/dc/elements/1.1/");
+    svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:cc", "http://creativecommons.org/ns#" );
+    svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#" );
+    svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:sodipodi", "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" );
+    svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:inkscape", "http://www.inkscape.org/namespaces/inkscape" );
+
+    // Add all the elements from the SVG Image...
+    //
+    copyChildren( domFactory, svgG, svgNode );
+  }
+
+  private void copyChildren( Document domFactory, Node target, Node svgImage ) {
+
+    NodeList childNodes = svgImage.getChildNodes();
+    for ( int c = 0; c < childNodes.getLength(); c++ ) {
+      Node childNode = childNodes.item( c );
+
+      /*
+      if ( "metadata".equals( childNode.getNodeName() ) ) {
+        continue; // skip some junk
+      }
+      if ( "defs".equals( childNode.getNodeName() ) ) {
+        continue; // skip some junk
+      }
+      if ( "sodipodi:namedview".equals( childNode.getNodeName() ) ) {
+        continue; // skip some junk
+      }
+       */
+
+      // Copy this node over to the svgSvg element
+      //
+      Node childNodeCopy = domFactory.importNode( childNode, true );
+      target.appendChild( childNodeCopy );
+    }
+  }
 }

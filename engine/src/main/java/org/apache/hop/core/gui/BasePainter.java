@@ -495,4 +495,6 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   public void setZoomFactor( double zoomFactor ) {
     this.zoomFactor = zoomFactor;
   }
+
+
 }

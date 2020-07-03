@@ -135,7 +135,9 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     Point max = pipelineMeta.getMaximum();
     Point thumb = getThumb( area, max );
-    offset = getOffset( thumb, area );
+    if (offset==null) {
+      offset = getOffset( thumb, area );
+    }
 
     // Make sure the canvas is scaled 100%
     gc.setTransform( 0.0f, 0.0f, 1.0f );
@@ -1087,4 +1089,6 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
   public void setOutputRowsMap( Map<String, RowBuffer> outputRowsMap ) {
     this.outputRowsMap = outputRowsMap;
   }
+
+
 }

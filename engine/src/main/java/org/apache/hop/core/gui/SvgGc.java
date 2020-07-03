@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.gui;
 
-import org.apache.batik.util.SVGConstants;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
@@ -37,20 +36,15 @@ import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
-import org.w3c.dom.svg.SVGSVGElement;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Rectangle2D;
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.apache.batik.svggen.DOMGroupManager.DRAW;
 
 
 public class SvgGc implements IGc {
@@ -645,56 +639,24 @@ public class SvgGc implements IGc {
       //
       SvgCacheEntry cacheEntry = SvgCache.loadSvg( svgFile );
       SVGDocument svgDocument = cacheEntry.getSvgDocument();
-      float width = cacheEntry.getWidth();
-      float height = cacheEntry.getHeight();
 
       // How much more do we need to scale the image.
       // If the width of the icon is 500px and we desire 50px then we need to scale to 10% times the magnification
       //
-      float xScaleFactor = magnification * desiredWidth / width;
-      String xScale = new DecimalFormat( "##0.##" ).format( xScaleFactor );
+      float xScaleFactor = magnification * desiredWidth / cacheEntry.getWidth();
+      float yScaleFactor = magnification * desiredHeight / cacheEntry.getHeight();
 
-      float yScaleFactor = magnification * desiredHeight / height;
-      String yScale = new DecimalFormat( "##0.##" ).format( yScaleFactor );
-
-      Document domFactory = gc.getDOMFactory();
-
-      Element svgG = domFactory.createElementNS( SVGConstants.SVG_NAMESPACE_URI, SVGConstants.SVG_G_TAG );
-      gc.getDomGroupManager().addElement( svgG, DRAW );
-
-      String transformString = "translate(" + x + " " + y + ") ";
-      if ( !"1".equals( xScale ) || !"1".equals( yScale ) ) {
-        transformString += "scale(" + xScale + " " + yScale + ") ";
-      }
-      String angleDegrees = new DecimalFormat( "0.###" ).format( Math.toDegrees( angle ) );
-      if ( !"0".equals( angleDegrees ) ) {
-        String centreX = new DecimalFormat( "0.###" ).format( width / 2 );
-        String centreY = new DecimalFormat( "0.###" ).format( height / 2 );
-
-        transformString += "rotate(" + angleDegrees + " " + centreX + " " + centreY + ")";
-      }
-      if ( transformString.length() > 0 ) {
-        svgG.setAttributeNS( null, SVGConstants.SVG_TRANSFORM_ATTRIBUTE, transformString );
-      }
-
-      svgG.setAttributeNS( null, "filename", svgFile.getFilename() );
-
-      /*
-      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:dc", "http://purl.org/dc/elements/1.1/");
-      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:cc", "http://creativecommons.org/ns#" );
-      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#" );
-      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:sodipodi", "http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" );
-      svgG.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:inkscape", "http://www.inkscape.org/namespaces/inkscape" );
-      */
-
-      SVGSVGElement svgImageRoot = svgDocument.getRootElement();
-
-      // Add all the elements from the SVG Image...
-      //
-      copyChildren( domFactory, svgG, svgImageRoot );
-
-      // gc.getDomGroupManager().addElement( svgSvg, DRAW );
-
+      gc.embedSvg(
+        svgDocument.getRootElement(),
+        svgFile.getFilename(),
+        x,
+        y,
+        cacheEntry.getWidth(),
+        cacheEntry.getHeight(),
+        xScaleFactor,
+        yScaleFactor,
+        Math.toDegrees( angle )
+      );
     } catch ( Exception e ) {
       throw new HopException( "Unable to load SVG file '" + svgFile.getFilename() + "'", e );
     }
