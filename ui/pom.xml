@@ -76,6 +76,7 @@
         </exclusion>
       </exclusions>
     </dependency>
+
     <dependency>
       <groupId>org.eclipse.rap</groupId>
       <artifactId>org.eclipse.rap.rwt</artifactId>
@@ -97,12 +98,6 @@
       <version>${rap.version}</version>
     </dependency>
     <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>4.0.1</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
       <groupId>org.mozilla</groupId>
       <artifactId>rhino</artifactId>
     </dependency>
@@ -121,6 +116,12 @@
       <version>${project.version}</version>
       <classifier>tests</classifier>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>4.0.1</version>
+      <scope>provided</scope>
     </dependency>
 
     <dependency>
