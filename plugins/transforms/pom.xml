@@ -121,6 +121,7 @@
         <module>propertyinput</module>
         <module>propertyoutput</module>
         <module>randomvalue</module>
+        <module>replacestring</module>
         <module>reservoirsampling</module>
         <module>rest</module>
         <module>rowgenerator</module>
