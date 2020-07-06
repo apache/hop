@@ -22,7 +22,6 @@
 package org.apache.hop.ui.pipeline.transforms.sftpput;
 
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.eclipse.rap.rwt.testfixture.TestContext;
 import org.apache.hop.core.Props;
 import org.apache.hop.workflow.actions.sftp.SFTPClient;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
@@ -33,7 +32,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
@@ -52,9 +50,6 @@ public class SFTPPutDialogTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static boolean changedPropsUi;
-
-  @Rule
-  public TestContext context = new TestContext();
 
   @BeforeClass
   public static void hackPropsUi() throws Exception {

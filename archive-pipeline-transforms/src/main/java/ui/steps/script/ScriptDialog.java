@@ -212,7 +212,7 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
 
   private TreeItem itemoutput;
 
-  private GUIResource guiresource = GUIResource.getInstance();
+  private static GUIResource guiresource = GUIResource.getInstance();
 
   private TreeItem itemWaitFieldsIn, itemWaitFieldsOut;
 

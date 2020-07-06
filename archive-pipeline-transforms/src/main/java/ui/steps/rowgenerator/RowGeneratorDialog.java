@@ -337,7 +337,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
         wFields.redraw();
       }
     };
-//    shell.addListener( SWT.Resize, lsResize );
+    shell.addListener( SWT.Resize, lsResize );
 
     // Set the shell size, based upon previous time...
     setSize();

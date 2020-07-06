@@ -24,7 +24,6 @@ package org.apache.hop.ui.pipeline.transforms.fileinput.text;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.reflect.FieldUtils;
-import org.eclipse.rap.rwt.testfixture.TestContext;
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.Props;
@@ -47,12 +46,10 @@ import org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputData;
 import org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputMeta;
 import org.apache.hop.ui.core.PropsUI;
 import org.apache.hop.ui.core.widget.TableView;
->>>>>>> master:archive-pipeline-transforms/src/test/java/ui/transforms/fileinput/text/TextFileInputDialogTest.java
 import org.eclipse.swt.widgets.Shell;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -75,9 +72,6 @@ public class TextFileInputDialogTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static boolean changedPropsUi;
-
-  @Rule
-  public TestContext context = new TestContext();
 
   @BeforeClass
   public static void initHop() throws Exception {

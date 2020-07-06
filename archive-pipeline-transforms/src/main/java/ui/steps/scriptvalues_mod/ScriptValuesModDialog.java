@@ -221,7 +221,7 @@ public class ScriptValuesModDialog extends BaseTransformDialog implements ITrans
 
   private TreeItem itemoutput;
 
-  private GUIResource guiresource = GUIResource.getInstance();
+  private static GUIResource guiresource = GUIResource.getInstance();
 
   private TreeItem itemWaitFieldsIn, itemWaitFieldsOut;
 
