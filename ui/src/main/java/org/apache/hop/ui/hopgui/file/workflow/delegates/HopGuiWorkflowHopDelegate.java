@@ -63,7 +63,6 @@ public class HopGuiWorkflowHopDelegate {
         //
         workflowMeta.removeWorkflowHop( idx );
       } else {
-        // TODO: Create a new Undo/Redo system
         hopGui.undoDelegate.addUndoNew( workflowMeta, new WorkflowHopMeta[] { hopMeta }, new int[] { workflowMeta.indexOfWorkflowHop( hopMeta ) } );
       }
 

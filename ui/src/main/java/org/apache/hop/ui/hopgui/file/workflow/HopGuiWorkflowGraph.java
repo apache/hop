@@ -56,10 +56,12 @@ import org.apache.hop.core.logging.ILogParentProvided;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
@@ -422,6 +424,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public void mouseDoubleClick( MouseEvent e ) {
+
+    if (!PropsUi.getInstance().useDoubleClick()) {
+      return;
+    }
+
     doubleClick = true;
     clearSettings();
 
@@ -645,7 +652,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     Point icon = new Point( real.x - iconOffset.x, real.y - iconOffset.y );
     AreaOwner areaOwner = getVisibleAreaOwner( real.x, real.y );
 
-    // Quick new hop option? (drag from one transform to another)
+    // Quick new hop option? (drag from one action to another)
     //
     if ( hopCandidate != null && areaOwner != null && areaOwner.getAreaType() != null ) {
       switch ( areaOwner.getAreaType() ) {
@@ -849,50 +856,58 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     final NotePadMeta fSingleClickNote = singleClickNote;
     final WorkflowHopMeta fSingleClickHop = singleClickHop;
 
-    Display.getDefault().timerExec( Display.getDefault().getDoubleClickTime(),
-      () -> {
-        if ( !doubleClick ) {
-
-
-          // Just a single click on the background:
-          // We have a bunch of possible actions for you...
-          //
-          if ( fSingleClick && fSingleClickType != null ) {
-            IGuiContextHandler contextHandler = null;
-            String message = null;
-            switch ( fSingleClickType ) {
-              case Workflow:
-                message = "Select the action to execute or the action to create:";
-                contextHandler = new HopGuiWorkflowContext( workflowMeta, this, real );
-                break;
-              case Action:
-                message = "Select the action to take on action '" + fSingleClickAction.getName() + "':";
-                contextHandler = new HopGuiWorkflowActionContext( workflowMeta, fSingleClickAction, this, real );
-                break;
-              case Note:
-                message = "Select the note action to take:";
-                contextHandler = new HopGuiWorkflowNoteContext( workflowMeta, fSingleClickNote, this, real );
-                break;
-              case Hop:
-                message = "Select the hop action to take:";
-                contextHandler = new HopGuiWorkflowHopContext( workflowMeta, fSingleClickHop, this, real );
-                break;
-              default:
-                break;
-            }
-            if ( contextHandler != null ) {
-              Shell parent = hopShell();
-              org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
-
-              // If we lost focus ignore the next left click
-              //
-              ignoreNextClick = GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
-            }
-          }
-        }
-      } );
+    if (PropsUi.getInstance().useDoubleClick()) {
+      Display.getDefault().timerExec( Display.getDefault().getDoubleClickTime(),
+        () -> showContextDialog( e, real, fSingleClick, fSingleClickType, fSingleClickAction, fSingleClickNote, fSingleClickHop )
+      );
+    } else {
+      showContextDialog( e, real, fSingleClick, fSingleClickType, fSingleClickAction, fSingleClickNote, fSingleClickHop );
+    }
 
     lastButton = 0;
+  }
+
+  private void showContextDialog( MouseEvent e, Point real, boolean fSingleClick, SingleClickType fSingleClickType, ActionCopy fSingleClickAction, NotePadMeta fSingleClickNote,
+                                  WorkflowHopMeta fSingleClickHop ) {
+    if ( !doubleClick ) {
+
+
+      // Just a single click on the background:
+      // We have a bunch of possible actions for you...
+      //
+      if ( fSingleClick && fSingleClickType != null ) {
+        IGuiContextHandler contextHandler = null;
+        String message = null;
+        switch ( fSingleClickType ) {
+          case Workflow:
+            message = "Select the action to execute or the action to create:";
+            contextHandler = new HopGuiWorkflowContext( workflowMeta, this, real );
+            break;
+          case Action:
+            message = "Select the action to take on action '" + fSingleClickAction.getName() + "':";
+            contextHandler = new HopGuiWorkflowActionContext( workflowMeta, fSingleClickAction, this, real );
+            break;
+          case Note:
+            message = "Select the note action to take:";
+            contextHandler = new HopGuiWorkflowNoteContext( workflowMeta, fSingleClickNote, this, real );
+            break;
+          case Hop:
+            message = "Select the hop action to take:";
+            contextHandler = new HopGuiWorkflowHopContext( workflowMeta, fSingleClickHop, this, real );
+            break;
+          default:
+            break;
+        }
+        if ( contextHandler != null ) {
+          Shell parent = hopShell();
+          org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
+
+          // If we lost focus ignore the next left click
+          //
+          ignoreNextClick = GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
+        }
+      }
+    }
   }
 
   public void mouseMove( MouseEvent e ) {
@@ -2283,13 +2298,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     try {
       drawWorkflowImage( swtGc, area.x, area.y, magnification );
 
-      if ( workflowMeta.nrActions() == 0 ) {
-        Image welcomeImage = GuiResource.getInstance().getImageWorkflowCanvas();
-        int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
-        int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
-        e.gc.drawImage( welcomeImage, leftPosition, topPosition );
-      }
-
       if ( needsDoubleBuffering ) {
         // Draw the image onto the canvas and get rid of the resources
         //
@@ -2343,6 +2351,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       try {
         workflowPainter.drawWorkflow();
+
+        if ( workflowMeta.isEmpty() ) {
+          SvgFile svgFile = new SvgFile( BasePropertyHandler.getProperty( "WorkflowCanvas_image" ), getClass().getClassLoader() );
+          gc.drawImage( svgFile, 50, 50, 200, 62, gc.getMagnification(), 0 );
+        }
       } catch ( HopException e ) {
         throw new HopException( "Error drawing workflow", e );
       }

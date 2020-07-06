@@ -3991,4 +3991,8 @@ public class PipelineMeta extends AbstractMeta
     }
     return cloned;
   }
+
+  public boolean isEmpty() {
+    return nrTransforms()==0 && nrNotes()==0;
+  }
 }

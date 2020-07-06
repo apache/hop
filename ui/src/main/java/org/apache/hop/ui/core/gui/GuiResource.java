@@ -343,10 +343,6 @@ public class GuiResource {
 
   private Map<RGB, Color> colorMap;
 
-  private Image imagePipelineCanvas;
-
-  private Image imageWorkflowCanvas;
-
   private Image imageAddAll;
 
   private Image imageAddSingle;
@@ -638,8 +634,6 @@ public class GuiResource {
       imageBalance.dispose();
       imageCheckpoint.dispose();
       imageHelpWeb.dispose();
-      imagePipelineCanvas.dispose();
-      imageWorkflowCanvas.dispose();
       imageAddAll.dispose();
       imageAddSingle.dispose();
       imageRemoveAll.dispose();
@@ -1047,12 +1041,6 @@ public class GuiResource {
 
     // "ui/images/help_web.svg
     imageHelpWeb = loadAsResource( display, BasePropertyHandler.getProperty( "HelpWeb_image" ), ConstUi.SMALL_ICON_SIZE );
-
-    // "ui/images/pipeline_canvas.svg
-    imagePipelineCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "PipelineCanvas_image" ), 800, 250 );
-
-    // "ui/images/job_canvas.svg
-    imageWorkflowCanvas = loadAsResource( display, BasePropertyHandler.getProperty( "WorkflowCanvas_image" ), 800, 250 );
 
     // "ui/images/add_all.svg
     imageAddAll = loadAsResource( display, BasePropertyHandler.getProperty( "AddAll_image" ), 12 );
@@ -2274,22 +2262,6 @@ public class GuiResource {
 
   public Image getImageHelpWeb() {
     return imageHelpWeb;
-  }
-
-  public Image getImagePipelineCanvas() {
-    return imagePipelineCanvas;
-  }
-
-  public void setImagePipelineCanvas( Image imagePipelineCanvas ) {
-    this.imagePipelineCanvas = imagePipelineCanvas;
-  }
-
-  public Image getImageWorkflowCanvas() {
-    return imageWorkflowCanvas;
-  }
-
-  public void setImageWorkflowCanvas( Image imageWorkflowCanvas ) {
-    this.imageWorkflowCanvas = imageWorkflowCanvas;
   }
 
   public void setImageAddAll( Image imageAddAll ) {

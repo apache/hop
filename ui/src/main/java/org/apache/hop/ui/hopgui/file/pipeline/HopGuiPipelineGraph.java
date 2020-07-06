@@ -65,10 +65,12 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowBuffer;
+import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.lineage.PipelineDataLineage;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
@@ -273,7 +275,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   private Point drop_candidate;
 
-  private boolean split_hop;
+  private boolean splitHop;
 
   private int lastButton;
 
@@ -359,11 +361,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   Timer redrawTimer;
 
   private HopPipelineFileType fileType;
-  private boolean ignoreNextClick;
   private boolean doubleClick;
   private PipelineHopMeta clickedPipelineHop;
 
   protected Map<String, RowBuffer> outputRowsMap;
+  private boolean avoidContextDialog;
 
   public void setCurrentNote( NotePadMeta ni ) {
     this.ni = ni;
@@ -554,6 +556,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public void mouseDoubleClick( MouseEvent e ) {
+
+    if (!PropsUi.getInstance().useDoubleClick()) {
+      return;
+    }
+
     doubleClick = true;
     clearSettings();
 
@@ -609,11 +616,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   @Override
   public void mouseDown( MouseEvent e ) {
     doubleClick = false;
-
-    if ( ignoreNextClick ) {
-      ignoreNextClick = false;
-      return;
-    }
 
     boolean alt = ( e.stateMask & SWT.ALT ) != 0;
     boolean control = ( e.stateMask & SWT.MOD1 ) != 0;
@@ -696,6 +698,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
             if ( candidate != null ) {
               addCandidateAsHop( e.x, e.y );
+              avoidContextDialog=true;
             }
             // ALT-Click: edit error handling
             //
@@ -819,6 +822,17 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             return;
           }
           break;
+        case TRANSFORM_ICON:
+          if (startHopTransform!=null) {
+            // Mouse up while dragging around a hop candidate
+            //
+            currentTransform = (TransformMeta) areaOwner.getOwner();
+            candidate = new PipelineHopMeta(startHopTransform, currentTransform);
+            addCandidateAsHop( e.x, e.y );
+            redraw();
+            return;
+          }
+          break;
         default:
           break;
       }
@@ -843,8 +857,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       //
       if ( selectedTransform != null && startHopTransform == null ) {
         if ( e.button == 1 ) {
-          Point realclick = screen2real( e.x, e.y );
-          if ( lastclick.x == realclick.x && lastclick.y == realclick.y ) {
+          Point realClick = screen2real( e.x, e.y );
+          if ( lastclick.x == realClick.x && lastclick.y == realClick.y ) {
             // Flip selection when control is pressed!
             if ( control ) {
               selectedTransform.flipSelected();
@@ -878,12 +892,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // OK, we moved the transform, did we move it across a hop?
         // If so, ask to split the hop!
-        if ( split_hop ) {
+        if ( splitHop ) {
           PipelineHopMeta hi = findPipelineHop( icon.x + iconsize / 2, icon.y + iconsize / 2, selectedTransform );
           if ( hi != null ) {
             splitHop( hi );
           }
-          split_hop = false;
+          splitHop = false;
         }
 
         selectedTransforms = null;
@@ -943,6 +957,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
 
+    if (avoidContextDialog) {
+      avoidContextDialog=false;
+      return;
+    }
+
     if ( clickedPipelineHop != null ) {
       // Clicked on a hop
       //
@@ -960,49 +979,56 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     final NotePadMeta fSingleClickNote = singleClickNote;
     final PipelineHopMeta fSingleClickHop = singleClickHop;
 
-    Display.getDefault().timerExec( Display.getDefault().getDoubleClickTime(),
-      () -> {
-        if ( !doubleClick ) {
-          // Just a single click on the background:
-          // We have a bunch of possible actions for you...
-          //
-          if ( fSingleClick && fSingleClickType != null ) {
-            IGuiContextHandler contextHandler = null;
-            String message = null;
-            switch ( fSingleClickType ) {
-              case Pipeline:
-                message = "Select the action to execute or the transform to create:";
-                contextHandler = new HopGuiPipelineContext( pipelineMeta, this, real );
-                break;
-              case Transform:
-                message = "Select the action to take on transform '" + fSingleClickTransform.getName() + "':";
-                contextHandler = new HopGuiPipelineTransformContext( pipelineMeta, fSingleClickTransform, this, real );
-                break;
-              case Note:
-                message = "Select the note action to take:";
-                contextHandler = new HopGuiPipelineNoteContext( pipelineMeta, fSingleClickNote, this, real );
-                break;
-              case Hop:
-                message = "Select the hop action to take:";
-                contextHandler = new HopGuiPipelineHopContext( pipelineMeta, fSingleClickHop, this, real );
-                break;
-              default:
-                break;
-            }
-            if ( contextHandler != null ) {
-              Shell parent = hopShell();
-              org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
-
-              // If we lost focus ignore the next left click
-              //
-              ignoreNextClick = GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
-            }
-
-          }
-        }
-      } );
-
+    if (PropsUi.getInstance().useDoubleClick()) {
+      Display.getDefault().timerExec( Display.getDefault().getDoubleClickTime(),
+        () -> showActionDialog( e, real, fSingleClick, fSingleClickType, fSingleClickTransform, fSingleClickNote, fSingleClickHop )
+      );
+    } else {
+      showActionDialog( e, real, fSingleClick, fSingleClickType, fSingleClickTransform, fSingleClickNote, fSingleClickHop );
+    }
     lastButton = 0;
+  }
+
+  private void showActionDialog( MouseEvent e, Point real, boolean fSingleClick, SingleClickType fSingleClickType, TransformMeta fSingleClickTransform,
+                                 NotePadMeta fSingleClickNote, PipelineHopMeta fSingleClickHop ) {
+    if ( !doubleClick ) {
+      // Just a single click on the background:
+      // We have a bunch of possible actions for you...
+      //
+      if ( fSingleClick && fSingleClickType != null ) {
+        IGuiContextHandler contextHandler = null;
+        String message = null;
+        switch ( fSingleClickType ) {
+          case Pipeline:
+            message = "Select the action to execute or the transform to create:";
+            contextHandler = new HopGuiPipelineContext( pipelineMeta, this, real );
+            break;
+          case Transform:
+            message = "Select the action to take on transform '" + fSingleClickTransform.getName() + "':";
+            contextHandler = new HopGuiPipelineTransformContext( pipelineMeta, fSingleClickTransform, this, real );
+            break;
+          case Note:
+            message = "Select the note action to take:";
+            contextHandler = new HopGuiPipelineNoteContext( pipelineMeta, fSingleClickNote, this, real );
+            break;
+          case Hop:
+            message = "Select the hop action to take:";
+            contextHandler = new HopGuiPipelineHopContext( pipelineMeta, fSingleClickHop, this, real );
+            break;
+          default:
+            break;
+        }
+        if ( contextHandler != null ) {
+          Shell parent = hopShell();
+          org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
+
+          // If we lost focus ignore the next left click
+          //
+          avoidContextDialog = GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
+        }
+
+      }
+    }
   }
 
   private void splitHop( PipelineHopMeta hi ) {
@@ -1186,7 +1212,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         // OK, we want to split the hop in 2
         //
         if ( !hi.getFromTransform().equals( selectedTransform ) && !hi.getToTransform().equals( selectedTransform ) ) {
-          split_hop = true;
+          splitHop = true;
           last_hop_split = hi;
           hi.split = true;
         }
@@ -1194,7 +1220,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         if ( last_hop_split != null ) {
           last_hop_split.split = false;
           last_hop_split = null;
-          split_hop = false;
+          splitHop = false;
         }
       }
 
@@ -2681,14 +2707,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     drawPipelineImage( swtGc, area.x, area.y, magnification );
 
-    if ( pipelineMeta.nrTransforms() == 0 ) {
-      Image welcomeImage = GuiResource.getInstance().getImagePipelineCanvas();
-      int leftPosition = ( area.x - welcomeImage.getBounds().width ) / 2;
-      int topPosition = ( area.y - welcomeImage.getBounds().height ) / 2;
-      swtGc.drawImage( welcomeImage, leftPosition, topPosition );
-      swtGc.drawImage( welcomeImage, leftPosition, topPosition );
-    }
-
     if ( needsDoubleBuffering ) {
       // Draw the image onto the canvas and get rid of the resources
       //
@@ -2725,6 +2743,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       try {
         pipelinePainter.drawPipelineImage();
+
+        if ( pipelineMeta.isEmpty() ) {
+          SvgFile svgFile = new SvgFile( BasePropertyHandler.getProperty( "PipelineCanvas_image" ), getClass().getClassLoader() );
+          gc.drawImage( svgFile, 50, 50, 200, 62, gc.getMagnification(), 0 );
+        }
+
       } catch ( Exception e ) {
         new ErrorDialog( hopGui.getShell(), "Error", "Error drawing pipeline image", e );
       }

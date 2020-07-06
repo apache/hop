@@ -529,6 +529,9 @@ public class ContextDialog extends Dialog {
 		}
 
 		Rectangle area = wCanvas.getClientArea();
+		if (cellHeight==0) {
+			return;
+		}
 		int pageRows = Math.floorDiv( area.height, cellHeight );
 		int nrColumns = calculateNrColumns();
 		int nrRows = calculateNrRows();
