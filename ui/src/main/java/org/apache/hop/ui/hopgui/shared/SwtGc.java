@@ -34,7 +34,6 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.workflow.action.ActionCopy;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
@@ -133,16 +132,6 @@ public class SwtGc implements IGc {
 
   public void drawLine( int x, int y, int x2, int y2 ) {
     gc.drawLine( x, y, x2, y2 );
-  }
-
-  public void drawImage( String location, ClassLoader classLoader, int x, int y ) {
-    Image img = SwtSvgImageUtil.getImage( PropsUi.getDisplay(), classLoader, location,
-      Math.round( miniIconSize * currentMagnification ),
-      Math.round( miniIconSize * currentMagnification ) );
-    if ( img != null ) {
-      Rectangle bounds = img.getBounds();
-      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, miniIconSize, miniIconSize );
-    }
   }
 
   public void drawImage( EImage image, int x, int y, float magnification ) {
@@ -466,11 +455,23 @@ public class SwtGc implements IGc {
     SvgCacheEntry cacheEntry = SvgCache.loadSvg( svgFile );
     SwtUniversalImageSvg imageSvg = new SwtUniversalImageSvg( new SvgImage(cacheEntry.getSvgDocument()) );
 
-    Image img = imageSvg.getAsBitmapForSize( gc.getDevice(), Math.round( desiredWidth * magnification ), Math.round( desiredHeight * magnification ), angle );
-    Rectangle bounds = img.getBounds();
-    int hx = Math.round( bounds.width / magnification );
-    int hy = Math.round( bounds.height / magnification );
-    gc.drawImage( img, 0, 0, bounds.width, bounds.height, x - hx / 2, y - hy / 2, hx, hy );
+    int magnifiedWidth = Math.round( desiredWidth * magnification );
+    int magnifiedHeight = Math.round( desiredHeight * magnification );
+    if (angle!=0) {
+      // A rotated image is blown up to twice its size to allow it to be rendered completely in the center
+      //
+      Image img = imageSvg.getAsBitmapForSize( gc.getDevice(), magnifiedWidth, magnifiedHeight, angle );
+      Rectangle bounds = img.getBounds();
+      int hx = Math.round( bounds.width / magnification );
+      int hy = Math.round( bounds.height / magnification );
+      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x - hx / 2, y - hy / 2, hx, hy );
+    } else {
+      // Without rotation we simply draw the image with the desired width
+      //
+      Image img = imageSvg.getAsBitmapForSize( gc.getDevice(), magnifiedWidth, magnifiedHeight );
+      Rectangle bounds = img.getBounds();
+      gc.drawImage( img, 0, 0, bounds.width, bounds.height, x, y, desiredWidth, desiredHeight );
+    }
   }
 
   public void setAntialias( boolean antiAlias ) {

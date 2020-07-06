@@ -479,7 +479,7 @@ public class PropsUi extends Props {
   }
 
   public static void setGCFont( GC gc, Device device, FontData fontData ) {
-    if ( Const.getOS().startsWith( "Windows" ) ) {
+    if ( Const.getHopPlatformOs().startsWith( "Windows" ) ) {
       Font font = new Font( device, fontData );
       gc.setFont( font );
       font.dispose();
@@ -575,7 +575,7 @@ public class PropsUi extends Props {
   }
 
   public static void setTableItemLook( TableItem item, Display disp ) {
-    if ( !Const.getOS().startsWith( "Windows" ) ) {
+    if ( !Const.getHopPlatformOs().startsWith( "Windows" ) ) {
       return;
     }
 

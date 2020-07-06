@@ -88,7 +88,8 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
                   HopGui.getInstance().setOpeningLastFiles( false );
                   break;// we have an project
                 } else {
-                  logChannelInterface.logError( "The last used project '" + lastProjectName + "' no longer exists" );
+                  // Silently ignore, not that important
+                  // logChannelInterface.logError( "The last used project '" + lastProjectName + "' no longer exists" );
                 }
               }
             }

@@ -159,6 +159,16 @@ public class Const {
   public static final String HOP_SHARED_JDBC_FOLDER = "HOP_SHARED_JDBC_FOLDER";
 
   /**
+   * The operating system the hop platform runs on
+   */
+  public static final String HOP_PLATFORM_OS = "HOP_PLATFORM_OS";
+
+  /**
+   * The runtime that is being used
+   */
+  public static final String HOP_PLATFORM_RUNTIME = "HOP_PLATFORM_RUNTIME";
+
+  /**
    * An empty ("") String.
    */
   public static final String EMPTY_STRING = "";
@@ -1436,12 +1446,21 @@ public class Const {
   }
 
   /**
-   * determine the OS name
+   * This is determined by the HOP_PLATFORM_OS variable set by the Hop execution script(s)
    *
-   * @return The name of the OS
+   * @return the operating system hop runs on
    */
-  public static String getOS() {
-    return System.getProperty( "os.name" );
+  public static String getHopPlatformOs() {
+    return System.getProperty( HOP_PLATFORM_OS );
+  }
+
+  /**
+   * This is determined by the HOP_PLATFORM_RUNTIME variable set by the Hop execution script(s)
+   *
+   * @return The name of the Hop tool running right now
+   */
+  public static String getHopPlatformRuntime() {
+    return System.getProperty( HOP_PLATFORM_RUNTIME );
   }
 
   /**
@@ -1483,21 +1502,21 @@ public class Const {
    * @return True if the OS is a Windows derivate.
    */
   public static boolean isWindows() {
-    return getOS().startsWith( "Windows" );
+    return getHopPlatformOs().startsWith( "Windows" );
   }
 
   /**
    * @return True if the OS is a Linux derivate.
    */
   public static boolean isLinux() {
-    return getOS().startsWith( "Linux" );
+    return getHopPlatformOs().startsWith( "Linux" );
   }
 
   /**
    * @return True if the OS is an OSX derivate.
    */
   public static boolean isOSX() {
-    return getOS().toUpperCase().contains( "OS X" );
+    return getHopPlatformOs().toUpperCase().contains( "OS X" );
   }
 
   /**
@@ -1646,7 +1665,7 @@ public class Const {
   public static String getMACAddress() throws Exception {
     String ip = getIPAddress();
     String mac = "none";
-    String os = getOS();
+    String os = getHopPlatformOs();
     String s = "";
     @SuppressWarnings( "unused" )
     Boolean errorOccured = false;

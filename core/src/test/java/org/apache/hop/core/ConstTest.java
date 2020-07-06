@@ -1855,7 +1855,7 @@ public class ConstTest {
     final String key = "os.name";
     final String os = System.getProperty( key );
     System.setProperty( key, "BeOS" );
-    assertEquals( "BeOS", Const.getOS() );
+    assertEquals( "BeOS", Const.getHopPlatformOs() );
     System.setProperty( key, os );
   }
 

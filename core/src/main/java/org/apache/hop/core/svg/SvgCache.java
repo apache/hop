@@ -1,11 +1,19 @@
 package org.apache.hop.core.svg;
 
 import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
+import org.apache.batik.bridge.BridgeContext;
+import org.apache.batik.bridge.DocumentLoader;
+import org.apache.batik.bridge.GVTBuilder;
+import org.apache.batik.bridge.UserAgent;
+import org.apache.batik.bridge.UserAgentAdapter;
+import org.apache.batik.gvt.GraphicsNode;
 import org.apache.batik.util.XMLResourceDescriptor;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGSVGElement;
 
+import java.awt.geom.Rectangle2D;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,19 +61,41 @@ public class SvgCache {
       SVGDocument svgDocument = factory.createSVGDocument( svgFile.getFilename(), svgStream );
       SVGSVGElement elSVG = svgDocument.getRootElement();
 
-      // Try to determine the size of the image...
+      float width=-1;
+      float height=-1;
+
+      // See if the element has a "width" and a "height" attribute...
       //
-      float width;
-      if (elSVG.getWidth().getBaseVal()!=null ) {
-        width = elSVG.getWidth().getBaseVal().getValue();
-      } else {
-        throw new HopException("Unable to find width in SVG "+svgFile.getFilename());
+      String widthAttribute = elSVG.getAttribute( "width" );
+      String heightAttribute = elSVG.getAttribute( "height" );
+      if (widthAttribute!=null && heightAttribute!=null) {
+        width = (float) Const.toDouble( widthAttribute.replace( "px", "" ), -1.0d );
+        height = (float) Const.toDouble( heightAttribute.replace( "px", "" ), -1.0d );
       }
-      float height;
-      if (elSVG.getHeight().getBaseVal()!=null) {
-        height = elSVG.getHeight().getBaseVal().getValue();
-      } else {
-        throw new HopException("Unable to find height in SVG "+svgFile.getFilename());
+
+      // If we don't have width and height we'll have to calculate it...
+      //
+      if (width<=1 || height<=1) {
+        // Figure out the primitives bounds...
+        //
+        UserAgent agent = new UserAgentAdapter();
+        DocumentLoader loader= new DocumentLoader(agent);
+        BridgeContext context = new BridgeContext(agent, loader);
+        context.setDynamic(true);
+        GVTBuilder builder= new GVTBuilder();
+        GraphicsNode root= builder.build(context, svgDocument);
+
+        // We need to go through the document to figure it out unfortunately.
+        // It is slower but should always work.
+        //
+        Rectangle2D primitiveBounds = root.getPrimitiveBounds();
+
+        width = (float) primitiveBounds.getWidth();
+        height = (float) primitiveBounds.getHeight();
+      }
+
+      if (width<=1 || height<=1) {
+        throw new HopException("Couldn't determine width or height of file : "+ svgFile.getFilename());
       }
 
       cacheEntry = new SvgCacheEntry( svgFile.getFilename(), svgDocument, Math.round(width), Math.round(height) );
