@@ -1446,12 +1446,19 @@ public class Const {
   }
 
   /**
-   * This is determined by the HOP_PLATFORM_OS variable set by the Hop execution script(s)
-   *
    * @return the operating system hop runs on
    */
+  public static String getSystemOs() {
+    return System.getProperty( "os.name" );
+  }
+
+  /**
+   * This is determined by the HOP_PLATFORM_OS variable set by the Hop execution script(s)
+   *
+   * @return The name of the Hop tool running right now
+   */
   public static String getHopPlatformOs() {
-    return System.getProperty( HOP_PLATFORM_OS );
+    return System.getProperty( HOP_PLATFORM_OS, "" );
   }
 
   /**
@@ -1502,21 +1509,21 @@ public class Const {
    * @return True if the OS is a Windows derivate.
    */
   public static boolean isWindows() {
-    return getHopPlatformOs().startsWith( "Windows" );
+    return getHopPlatformOs().startsWith( "Windows" ) || getSystemOs().startsWith( "Windows" );
   }
 
   /**
    * @return True if the OS is a Linux derivate.
    */
   public static boolean isLinux() {
-    return getHopPlatformOs().startsWith( "Linux" );
+    return getHopPlatformOs().startsWith( "Linux" ) || getSystemOs().startsWith( "Linux" );
   }
 
   /**
    * @return True if the OS is an OSX derivate.
    */
   public static boolean isOSX() {
-    return getHopPlatformOs().toUpperCase().contains( "OS X" );
+    return getHopPlatformOs().startsWith( "Darwin" ) || getSystemOs().toUpperCase().contains( "OS X" );
   }
 
   /**
@@ -1665,7 +1672,7 @@ public class Const {
   public static String getMACAddress() throws Exception {
     String ip = getIPAddress();
     String mac = "none";
-    String os = getHopPlatformOs();
+    String os = getSystemOs();
     String s = "";
     @SuppressWarnings( "unused" )
     Boolean errorOccured = false;
