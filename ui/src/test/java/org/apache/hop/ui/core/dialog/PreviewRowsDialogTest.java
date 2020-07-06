@@ -22,8 +22,6 @@
 
 package org.apache.hop.ui.core.dialog;
 
-import org.eclipse.rap.rwt.testfixture.TestContext;
-import org.apache.hop.core.Props;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.variables.IVariables;
@@ -32,9 +30,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -43,9 +39,6 @@ import java.util.Collections;
 
 public class PreviewRowsDialogTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
-
-  @Rule
-  public TestContext context = new TestContext();
 
   @Test
   public void getDataForRow() throws Exception {
