@@ -26,6 +26,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
@@ -41,17 +42,23 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
 @InjectionSupported( localizationPrefix = "ReplaceString.Injection.", groups = { "FIELDS" } )
-public class ReplaceStringMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "ReplaceString",
+        image = "replaceinstring.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.replacestring",
+        name = "BaseTransform.TypeLongDesc.ReplaceString",
+        description = "BaseTransform.TypeTooltipDesc.ReplaceString",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/replacestring.html"
+)
+public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMeta<ReplaceString, ReplaceStringData> {
 
   private static Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
 
@@ -260,6 +267,11 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransform {
     System.arraycopy( caseSensitive, 0, retval.caseSensitive, 0, nrkeys );
     System.arraycopy( isUnicode, 0, retval.isUnicode, 0, nrkeys );
     return retval;
+  }
+
+  @Override
+  public ITransform createTransform(TransformMeta transformMeta, ReplaceStringData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new ReplaceString( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
   private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
@@ -475,12 +487,7 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
-                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new ReplaceString( transformMeta, this, data, cnr, pipelineMeta, pipeline );
-  }
-
-  public ITransformData getTransformData() {
+  public ReplaceStringData getTransformData() {
     return new ReplaceStringData();
   }
 

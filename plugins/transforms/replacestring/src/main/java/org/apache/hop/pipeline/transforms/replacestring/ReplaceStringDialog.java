@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.replacestring;
+package org.apache.hop.pipeline.transforms.replacestring;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -37,7 +37,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.TableItemInsertListener;
+import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -414,7 +414,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        TableItemInsertListener listener = new TableItemInsertListener() {
+        ITableItemInsertListener listener = new ITableItemInsertListener() {
           public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
             if ( v.getType() == IValueMeta.TYPE_STRING ) {
               // Only process strings
