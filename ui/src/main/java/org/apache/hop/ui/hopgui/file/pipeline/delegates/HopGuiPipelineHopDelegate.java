@@ -87,8 +87,7 @@ public class HopGuiPipelineHopDelegate {
         //
         pipelineMeta.removePipelineHop( idx );
       } else {
-        // TODO: Create a new Undo/Redo system
-        // addUndoNew( pipelineMeta, new PipelineHopMeta[] { pipelineHopMeta }, new int[] { pipelineMeta.indexOfPipelineHop( pipelineHopMeta ) } );
+        hopGui.undoDelegate.addUndoNew( pipelineMeta, new PipelineHopMeta[] { pipelineHopMeta }, new int[] { pipelineMeta.indexOfPipelineHop( pipelineHopMeta ) } );
       }
 
       pipelineGraph.redraw();

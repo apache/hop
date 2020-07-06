@@ -341,7 +341,7 @@ public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopSer
           Point max = pipeline.getPipelineMeta().getMaximum();
           max.x = (int)(max.x * GetPipelineImageServlet.ZOOM_FACTOR) + 100;
           max.y = (int)(max.y * GetPipelineImageServlet.ZOOM_FACTOR) + 50;
-          out.print( "<iframe height=\"" + max.y + "px\" width=\"" + max.x + "px\" "
+          out.print( "<iframe height=\"" + (max.y+100) + "px\" width=\"" + (max.x+100) + "px\" "
             + "src=\"" + convertContextPath( GetPipelineImageServlet.CONTEXT_PATH ) + "?name="
             + URLEncoder.encode( pipelineName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" )
             + "\" frameborder=\"0\"></iframe>" );

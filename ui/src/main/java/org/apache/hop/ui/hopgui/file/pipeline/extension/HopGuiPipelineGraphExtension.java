@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.extension;
 
+import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.eclipse.swt.events.MouseEvent;
@@ -31,12 +32,14 @@ public class HopGuiPipelineGraphExtension {
   private HopGuiPipelineGraph pipelineGraph;
   private MouseEvent event;
   private Point point;
-  private boolean preventDefault;
+  private boolean preventingDefault;
+  private AreaOwner areaOwner;
 
-  public HopGuiPipelineGraphExtension( HopGuiPipelineGraph pipelineGraph, MouseEvent event, Point point ) {
+  public HopGuiPipelineGraphExtension( HopGuiPipelineGraph pipelineGraph, MouseEvent event, Point point, AreaOwner areaOwner ) {
     this.pipelineGraph = pipelineGraph;
     this.event = event;
     this.point = point;
+    this.areaOwner = areaOwner;
   }
 
   /**
@@ -92,14 +95,30 @@ public class HopGuiPipelineGraphExtension {
    *
    * @return value of preventDefault
    */
-  public boolean isPreventDefault() {
-    return preventDefault;
+  public boolean isPreventingDefault() {
+    return preventingDefault;
   }
 
   /**
-   * @param preventDefault The preventDefault to set
+   * @param preventingDefault The preventDefault to set
    */
-  public void setPreventDefault( boolean preventDefault ) {
-    this.preventDefault = preventDefault;
+  public void setPreventingDefault( boolean preventingDefault ) {
+    this.preventingDefault = preventingDefault;
+  }
+
+  /**
+   * Gets areaOwner
+   *
+   * @return value of areaOwner
+   */
+  public AreaOwner getAreaOwner() {
+    return areaOwner;
+  }
+
+  /**
+   * @param areaOwner The areaOwner to set
+   */
+  public void setAreaOwner( AreaOwner areaOwner ) {
+    this.areaOwner = areaOwner;
   }
 }

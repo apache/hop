@@ -2,6 +2,8 @@ package org.apache.hop.debug.transform;
 
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
+import org.apache.hop.core.gui.AreaOwner;
+import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.debug.util.BeePainter;
 import org.apache.hop.debug.util.DebugLevelUtil;
@@ -36,7 +38,8 @@ public class DrawTransformDebugLevelBeeExtensionPoint extends BeePainter impleme
 
         final TransformDebugLevel debugLevel = DebugLevelUtil.getTransformDebugLevel( transformLevelMap, transformName );
         if ( debugLevel != null ) {
-          drawBee( ext.gc, ext.x1, ext.y1, ext.iconSize, this.getClass().getClassLoader() );
+          Rectangle r = drawBee( ext.gc, ext.x1, ext.y1, ext.iconSize, this.getClass().getClassLoader() );
+          ext.areaOwners.add( new AreaOwner( AreaOwner.AreaType.CUSTOM, r.x, r.y, r.width, r.height, ext.offset, ext.transformMeta, debugLevel) );
         }
       }
     } catch ( Exception e ) {

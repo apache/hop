@@ -28,6 +28,20 @@ public class TransformDebugLevel implements Cloneable {
     this.condition = condition;
   }
 
+  @Override public String toString() {
+    String s = logLevel.toString();
+    if ( startRow >= 0 ) {
+      s += ", start row=" + startRow;
+    }
+    if ( endRow >= 0 ) {
+      s += ", end row=" + endRow;
+    }
+    if ( condition != null && !condition.isEmpty() ) {
+      s += ", condition=" + condition.toString();
+    }
+    return s;
+  }
+
   @Override public TransformDebugLevel clone() {
     return new TransformDebugLevel( logLevel, startRow, endRow, (Condition) condition.clone() );
   }

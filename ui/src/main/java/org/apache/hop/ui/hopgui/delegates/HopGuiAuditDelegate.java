@@ -138,7 +138,7 @@ public class HopGuiAuditDelegate {
             // Also save the state : active, zoom, ...
             //
             Map<String, Object> stateProperties = typeHandler.getStateProperties();
-            boolean active = activeFileTypeHandler!=null && activeFileTypeHandler.getFilename().equals( filename );
+            boolean active = activeFileTypeHandler!=null && activeFileTypeHandler.getFilename()!=null && activeFileTypeHandler.getFilename().equals( filename );
             stateProperties.put( STATE_PROPERTY_ACTIVE, active );
 
             auditStateMap.add( new AuditState(filename, stateProperties) );

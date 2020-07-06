@@ -187,8 +187,12 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
     gc.setBackground( notePadMeta.getBackGroundColorRed(), notePadMeta.getBackGroundColorGreen(), notePadMeta.getBackGroundColorBlue() );
     gc.setForeground( notePadMeta.getBorderColorRed(), notePadMeta.getBorderColorGreen(), notePadMeta.getBorderColorBlue() );
 
-    gc.fillRoundRectangle( noteShape.x, noteShape.y, noteShape.width, noteShape.height, (int)(margin*zoomFactor), (int)(margin*zoomFactor) );
-    gc.drawRoundRectangle( noteShape.x, noteShape.y, noteShape.width, noteShape.height, (int)(margin*zoomFactor), (int)(margin*zoomFactor) );
+    // Radius is 10% of width+height
+    //
+    int radius = Math.round( ((float)noteShape.height+(float)noteShape.width)/10 );
+
+    gc.fillRoundRectangle( noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius );
+    gc.drawRoundRectangle( noteShape.x, noteShape.y, noteShape.width, noteShape.height, radius, radius );
 
     if ( !Utils.isEmpty( notePadMeta.getNote() ) ) {
       gc.setForeground( notePadMeta.getFontColorRed(), notePadMeta.getFontColorGreen(), notePadMeta.getFontColorBlue() );

@@ -262,7 +262,7 @@ public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopSer
           max.x += (int)(max.x*GetWorkflowImageServlet.ZOOM_FACTOR) + 100;
           max.y += (int)(max.y+GetWorkflowImageServlet.ZOOM_FACTOR) + 50;
           out.print( "<iframe height=\""
-              + max.y + "px\" width=\"" + max.x + "px\" src=\""
+              + (max.y+100) + "px\" width=\"" + (max.x+100) + "px\" src=\""
               + convertContextPath( GetWorkflowImageServlet.CONTEXT_PATH ) + "?name="
               + URLEncoder.encode( workflowName, "UTF-8" ) + "&id=" + URLEncoder.encode( id, "UTF-8" )
               + "\"></iframe>" );

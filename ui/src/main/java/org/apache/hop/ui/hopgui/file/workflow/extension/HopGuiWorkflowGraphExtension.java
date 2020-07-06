@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.extension;
 
+import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.eclipse.swt.events.MouseEvent;
@@ -31,11 +32,15 @@ public class HopGuiWorkflowGraphExtension {
   private HopGuiWorkflowGraph workflowGraph;
   private MouseEvent event;
   private Point point;
+  private AreaOwner areaOwner;
+  private boolean preventingDefault;
 
-  public HopGuiWorkflowGraphExtension( HopGuiWorkflowGraph workflowGraph, MouseEvent event, Point point ) {
+  public HopGuiWorkflowGraphExtension( HopGuiWorkflowGraph workflowGraph, MouseEvent event, Point point, AreaOwner areaOwner ) {
     this.workflowGraph = workflowGraph;
     this.event = event;
     this.point = point;
+    this.areaOwner = areaOwner;
+    this.preventingDefault = false;
   }
 
   /**
@@ -84,5 +89,53 @@ public class HopGuiWorkflowGraphExtension {
    */
   public void setPoint( Point point ) {
     this.point = point;
+  }
+
+  /**
+   * Gets workflowGraph
+   *
+   * @return value of workflowGraph
+   */
+  public HopGuiWorkflowGraph getWorkflowGraph() {
+    return workflowGraph;
+  }
+
+  /**
+   * @param workflowGraph The workflowGraph to set
+   */
+  public void setWorkflowGraph( HopGuiWorkflowGraph workflowGraph ) {
+    this.workflowGraph = workflowGraph;
+  }
+
+  /**
+   * Gets areaOwner
+   *
+   * @return value of areaOwner
+   */
+  public AreaOwner getAreaOwner() {
+    return areaOwner;
+  }
+
+  /**
+   * @param areaOwner The areaOwner to set
+   */
+  public void setAreaOwner( AreaOwner areaOwner ) {
+    this.areaOwner = areaOwner;
+  }
+
+  /**
+   * Gets preventingDefault
+   *
+   * @return value of preventingDefault
+   */
+  public boolean isPreventingDefault() {
+    return preventingDefault;
+  }
+
+  /**
+   * @param preventingDefault The preventingDefault to set
+   */
+  public void setPreventingDefault( boolean preventingDefault ) {
+    this.preventingDefault = preventingDefault;
   }
 }
