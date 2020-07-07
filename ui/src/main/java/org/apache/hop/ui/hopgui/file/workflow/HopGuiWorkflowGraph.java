@@ -118,6 +118,7 @@ import org.eclipse.jface.window.ToolTip;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.scripting.ClientListener;
+import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -1326,12 +1327,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void start() {
     workflowMeta.setShowDialog( workflowMeta.isAlwaysShowRunOptions() );
+    final ServerPushSession pushSession = new ServerPushSession();
+    pushSession.start();
     Thread thread = new Thread() {
       @Override
       public void run() {
         getDisplay().asyncExec( () -> {
           try {
             workflowRunDelegate.executeWorkflow( workflowMeta, true, false, false, null, 0 );
+            pushSession.stop();
           } catch ( Exception e ) {
             new ErrorDialog( getShell(), "Execute workflow", "There was an error during workflow execution", e );
           }
