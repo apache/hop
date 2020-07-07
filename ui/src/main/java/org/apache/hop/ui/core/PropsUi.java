@@ -45,7 +45,6 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
@@ -69,7 +68,7 @@ public class PropsUi extends Props {
 
   private static final String YES = "Y";
 
-  private static double nativeZoomFactor;
+  private static double nativeZoomFactor = 1.0;
 
   private static final String STRING_SHOW_COPY_OR_DISTRIBUTE_WARNING = "ShowCopyOrDistributeWarning";
 
@@ -96,18 +95,6 @@ public class PropsUi extends Props {
 
   private PropsUi() {
     super();
-
-    // Calculate the native default zoom factor...
-    // We take the default font and render it, calculate the height.
-    // Compare that to the standard small icon size of 16
-    //
-    Canvas dummyCanvas = new Canvas( HopGui.getInstance().getShell(), SWT.NO_REDRAW_RESIZE );
-    GC gc = new GC( dummyCanvas );
-    org.eclipse.swt.graphics.Point extent = gc.textExtent( "The quick brown fox jumped over the lazy dog!" );
-    nativeZoomFactor = (double) extent.y / (double) ConstUi.SMALL_ICON_SIZE;
-    gc.dispose();
-    dummyCanvas.dispose();
-    
     setDefault();
   }
 
