@@ -293,10 +293,11 @@ public class SvgGc implements IGc {
   public void drawText( String text, int x, int y ) {
 
     int height = gc.getFontMetrics().getHeight();
+    int descent = gc.getFontMetrics().getDescent();
 
     String[] lines = text.split( "\n" );
     for ( String line : lines ) {
-      gc.drawString( line, x + xOffset, y + height + yOffset );
+      gc.drawString( line, x + xOffset, y + height + yOffset - descent );
       y += height;
     }
   }
@@ -582,14 +583,19 @@ public class SvgGc implements IGc {
   }
 
   @Override
-  public void drawImage( EImage image, int locationX, int locationY, float magnification ) throws HopException {
-    drawImage( image, locationX, locationY, magnification, 0 );
+  public void drawImage( EImage image, int x, int y, float magnification ) throws HopException {
+    SvgFile svgFile = getNativeImage( image );
+    drawImage( svgFile, x+xOffset, y+yOffset, miniIconSize, miniIconSize, magnification, 0 );
   }
 
   @Override
   public void drawImage( EImage image, int x, int y, float magnification, double angle ) throws HopException {
     SvgFile svgFile = getNativeImage( image );
-    drawImage( svgFile, x+xOffset-miniIconSize/2, y+yOffset-miniIconSize/2, miniIconSize, miniIconSize, magnification, angle );
+    if (Math.abs(angle)>0.0001) {
+      drawImage( svgFile, x + xOffset - miniIconSize / 2, y + yOffset - miniIconSize / 2, miniIconSize, miniIconSize, magnification, angle );
+    } else {
+      drawImage( svgFile, x+xOffset, y+yOffset, miniIconSize, miniIconSize, magnification, 0 );
+    }
   }
 
   public void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) throws HopException {
@@ -640,6 +646,7 @@ public class SvgGc implements IGc {
       SvgCacheEntry cacheEntry = SvgCache.loadSvg( svgFile );
       SVGDocument svgDocument = cacheEntry.getSvgDocument();
 
+      // How much more do we need to scale the image.
       // How much more do we need to scale the image.
       // If the width of the icon is 500px and we desire 50px then we need to scale to 10% times the magnification
       //

@@ -16,7 +16,7 @@ REM # Settings for all OSses
 if "%HOP_OPTIONS%"=="" set HOP_OPTIONS="-Xmx2048m"
 
 REM # optional line for attaching a debugger
-set HOP_OPTIONS=%HOP_OPTIONS% "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+set HOP_OPTIONS=%HOP_OPTIONS% "-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5006"
 
 REM Pass HOP variables if they're set.
 if not "%HOP_AUDIT_FOLDER%"=="" (
@@ -26,8 +26,11 @@ if not "%HOP_CONFIG_FOLDER%"=="" (
   set HOP_OPTIONS=%HOP_OPTIONS% "-DHOP_CONFIG_FOLDER="%HOP_CONFIG_FOLDER%
 )
 if not "%DHOP_SHARED_JDBC_FOLDER%"=="" (
-  set HOP_OPTIONS=%HOP_OPTIONS% "-DDHOP_SHARED_JDBC_FOLDER="%DHOP_SHARED_JDBC_FOLDER%
+  set HOP_OPTIONS=%HOP_OPTIONS% "-DHOP_SHARED_JDBC_FOLDER="%HOP_SHARED_JDBC_FOLDER%
 )
+
+set HOP_OPTIONS=%HOP_OPTIONS% "-DHOP_PLATFORM_OS=Windows"
+set HOP_OPTIONS=%HOP_OPTIONS% "-DHOP_PLATFORM_RUNTIME=Run"
 
 @echo on
 %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* "-Djava.library.path=%LIBSPATH%" %HOP_OPTIONS% org.apache.hop.run.HopRun

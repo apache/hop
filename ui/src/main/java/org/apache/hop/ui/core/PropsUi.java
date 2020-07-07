@@ -83,6 +83,8 @@ public class PropsUi extends Props {
 
   private static final String DISABLE_BROWSER_ENVIRONMENT_CHECK = "DisableBrowserEnvironmentCheck";
 
+  private static final String USE_DOUBLE_CLICK_ON_CANVAS = "UseDoubleClickOnCanvas";
+
   private static PropsUi instance;
 
   public static PropsUi getInstance() {
@@ -480,7 +482,7 @@ public class PropsUi extends Props {
   }
 
   public static void setGCFont( GC gc, Device device, FontData fontData ) {
-    if ( Const.getOS().startsWith( "Windows" ) ) {
+    if ( Const.getSystemOs().startsWith( "Windows" ) ) {
       Font font = new Font( device, fontData );
       gc.setFont( font );
       font.dispose();
@@ -576,7 +578,7 @@ public class PropsUi extends Props {
   }
 
   public static void setTableItemLook( TableItem item, Display disp ) {
-    if ( !Const.getOS().startsWith( "Windows" ) ) {
+    if ( !Const.getSystemOs().startsWith( "Windows" ) ) {
       return;
     }
 
@@ -623,6 +625,15 @@ public class PropsUi extends Props {
 
     shell.setSize( Integer.parseInt( xy[ 0 ] ), Integer.parseInt( xy[ 1 ] ) );
   }
+
+  public boolean useDoubleClick() {
+    return YES.equalsIgnoreCase( getProperty( USE_DOUBLE_CLICK_ON_CANVAS, YES) );
+  }
+
+  public void setUseDoubleClickOnCanvas( boolean use ) {
+    setProperty( USE_DOUBLE_CLICK_ON_CANVAS, use ? YES : NO );
+  }
+
 
   public boolean showToolTips() {
     return YES.equalsIgnoreCase( getProperty( SHOW_TOOL_TIPS, YES ) );

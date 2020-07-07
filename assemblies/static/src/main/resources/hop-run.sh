@@ -20,7 +20,7 @@ if [ -z "$HOP_OPTIONS" ]; then
 fi
 # optional line for attaching a debugger
 #
-#HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005"
+#HOP_OPTIONS="${HOP_OPTIONS} -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5006"
 
 # Add HOP variables if they're set:
 #
@@ -31,8 +31,10 @@ if [ -n "${HOP_CONFIG_FOLDER}" ]; then
     HOP_OPTIONS="${HOP_OPTIONS} -DHOP_CONFIG_FOLDER=${HOP_CONFIG_FOLDER}"
 fi
 if [ -n "${DHOP_SHARED_JDBC_FOLDER}" ]; then
-    HOP_OPTIONS="${HOP_OPTIONS} -DDHOP_SHARED_JDBC_FOLDER=${DHOP_SHARED_JDBC_FOLDER}"
+    HOP_OPTIONS="${HOP_OPTIONS} -DHOP_SHARED_JDBC_FOLDER=${HOP_SHARED_JDBC_FOLDER}"
 fi
+
+HOP_OPTIONS="${HOP_OPTIONS} -DHOP_PLATFORM_RUNTIME=Run -DHOP_PLATFORM_OS="$(uname -s)
 
 case $( uname -s ) in
         Linux) 

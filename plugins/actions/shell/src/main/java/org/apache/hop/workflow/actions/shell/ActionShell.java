@@ -404,7 +404,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       List<String> cmds = new ArrayList<>();
 
       if ( log.isBasic() ) {
-        logBasic( BaseMessages.getString( PKG, "JobShell.RunningOn", Const.getOS() ) );
+        logBasic( BaseMessages.getString( PKG, "JobShell.RunningOn", Const.getSystemOs() ) );
       }
 
       if ( insertScript ) {
@@ -414,13 +414,13 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
         fileObject = HopVfs.getFileObject( realFilename );
       }
 
-      if ( Const.getOS().equals( "Windows 95" ) ) {
+      if ( Const.getSystemOs().equals( "Windows 95" ) ) {
         base = new String[] { "command.com", "/C" };
         if ( insertScript ) {
           tempFile = HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ) );
           fileObject = createTemporaryShellFile( tempFile, realScript );
         }
-      } else if ( Const.getOS().startsWith( "Windows" ) ) {
+      } else if ( Const.getSystemOs().startsWith( "Windows" ) ) {
         base = new String[] { "cmd.exe", "/C" };
         if ( insertScript ) {
           tempFile = HopVfs.createTempFile( "hop", "shell.bat", System.getProperty( "java.io.tmpdir" ) );
@@ -441,7 +441,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           cmds.add( base[ i ] );
         }
 
-        if ( Const.getOS().equals( "Windows 95" ) || Const.getOS().startsWith( "Windows" ) ) {
+        if ( Const.getSystemOs().equals( "Windows 95" ) || Const.getSystemOs().startsWith( "Windows" ) ) {
           // for windows all arguments including the command itself
           // need to be
           // included in 1 argument to cmd/command.
@@ -479,7 +479,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           cmds.add( base[ i ] );
         }
 
-        if ( Const.getOS().equals( "Windows 95" ) || Const.getOS().startsWith( "Windows" ) ) {
+        if ( Const.getSystemOs().equals( "Windows 95" ) || Const.getSystemOs().startsWith( "Windows" ) ) {
           // for windows all arguments including the command itself
           // need to be
           // included in 1 argument to cmd/command.

@@ -50,15 +50,11 @@ import java.util.regex.Pattern;
  * @author Samatar Hassan
  * @since 28 September 2008
  */
-public class ReplaceString extends BaseTransform implements ITransform {
+public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStringData> implements ITransform<ReplaceStringMeta, ReplaceStringData> {
 
   private static Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ReplaceStringMeta meta;
-
-  private ReplaceStringData data;
-
-  public ReplaceString( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public ReplaceString( TransformMeta transformMeta, ReplaceStringMeta meta, ReplaceStringData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
@@ -150,8 +146,6 @@ public class ReplaceString extends BaseTransform implements ITransform {
   }
 
   public boolean processRow() throws HopException {
-    meta = (ReplaceStringMeta) smi;
-    data = (ReplaceStringData) sdi;
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
@@ -248,9 +242,6 @@ public class ReplaceString extends BaseTransform implements ITransform {
 
   public boolean init() {
 
-    meta = (ReplaceStringMeta) smi;
-    data = (ReplaceStringData) sdi;
-
     if ( super.init() ) {
 
       return true;
@@ -258,9 +249,7 @@ public class ReplaceString extends BaseTransform implements ITransform {
     return false;
   }
 
-  public void.dispose() {
-    meta = (ReplaceStringMeta) smi;
-    data = (ReplaceStringData) sdi;
+  public void dispose() {
 
     data.outStreamNrs = null;
     data.patterns = null;

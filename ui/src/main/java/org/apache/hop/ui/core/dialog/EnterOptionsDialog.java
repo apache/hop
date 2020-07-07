@@ -155,11 +155,13 @@ public class EnterOptionsDialog extends Dialog {
 
   private int margin;
 
-  private Button tooltipBtn;
+  private Button wbToolTip;
 
-  private Button helptipBtn;
+  private Button wbHelpTip;
 
-  private Button autoCollapseBtn;
+  private Button wbUseDoubleClick;
+
+  private Button wbAutoCollapse;
 
 
   /**
@@ -1061,61 +1063,79 @@ public class EnterOptionsDialog extends Dialog {
     lastControl = wClearCustom;
 
     // Auto-collapse core objects tree branches?
-    Label autoCollapseLbl = new Label( wGeneralComp, SWT.RIGHT );
-    autoCollapseLbl.setText( BaseMessages.getString(
-      PKG, "EnterOptionsDialog.EnableAutoCollapseCoreObjectTree.Label" ) );
-    props.setLook( autoCollapseLbl );
-    FormData fdautoCollapse = new FormData();
-    fdautoCollapse.left = new FormAttachment( 0, 0 );
-    fdautoCollapse.top = new FormAttachment( lastControl, 2 * margin );
-    fdautoCollapse.right = new FormAttachment( middle, -margin );
-    autoCollapseLbl.setLayoutData( fdautoCollapse );
-    autoCollapseBtn = new Button( wGeneralComp, SWT.CHECK );
-    props.setLook( autoCollapseBtn );
-    autoCollapseBtn.setSelection( props.getAutoCollapseCoreObjectsTree() );
-    FormData helpautoCollapse = new FormData();
-    helpautoCollapse.left = new FormAttachment( middle, 0 );
-    helpautoCollapse.top = new FormAttachment( autoCollapseLbl, 0, SWT.CENTER );
-    helpautoCollapse.right = new FormAttachment( 100, 0 );
-    autoCollapseBtn.setLayoutData( helpautoCollapse );
-    lastControl = autoCollapseBtn;
+    Label wlAutoCollapse = new Label( wGeneralComp, SWT.RIGHT );
+    wlAutoCollapse.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.EnableAutoCollapseCoreObjectTree.Label" ) );
+    props.setLook( wlAutoCollapse );
+    FormData fdlAutoCollapse = new FormData();
+    fdlAutoCollapse.left = new FormAttachment( 0, 0 );
+    fdlAutoCollapse.top = new FormAttachment( lastControl, 2 * margin );
+    fdlAutoCollapse.right = new FormAttachment( middle, -margin );
+    wlAutoCollapse.setLayoutData( fdlAutoCollapse );
+    wbAutoCollapse = new Button( wGeneralComp, SWT.CHECK );
+    props.setLook( wbAutoCollapse );
+    wbAutoCollapse.setSelection( props.getAutoCollapseCoreObjectsTree() );
+    FormData fdAutoCollapse = new FormData();
+    fdAutoCollapse.left = new FormAttachment( middle, 0 );
+    fdAutoCollapse.top = new FormAttachment( wlAutoCollapse, 0, SWT.CENTER );
+    fdAutoCollapse.right = new FormAttachment( 100, 0 );
+    wbAutoCollapse.setLayoutData( fdAutoCollapse );
+    lastControl = wbAutoCollapse;
 
     // Tooltips
-    Label tooltipLbl = new Label( wGeneralComp, SWT.RIGHT );
-    tooltipLbl.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.ToolTipsEnabled.Label" ) );
-    props.setLook( tooltipLbl );
-    FormData fdlToolTipData = new FormData();
-    fdlToolTipData.left = new FormAttachment( 0, 0 );
-    fdlToolTipData.top = new FormAttachment( lastControl, margin );
-    fdlToolTipData.right = new FormAttachment( middle, -margin );
-    tooltipLbl.setLayoutData( fdlToolTipData );
-    tooltipBtn = new Button( wGeneralComp, SWT.CHECK );
-    props.setLook( tooltipBtn );
-    tooltipBtn.setSelection( props.showToolTips() );
-    FormData toolTipBtnData = new FormData();
-    toolTipBtnData.left = new FormAttachment( middle, 0 );
-    toolTipBtnData.top = new FormAttachment( tooltipLbl, 0, SWT.CENTER );
-    toolTipBtnData.right = new FormAttachment( 100, 0 );
-    tooltipBtn.setLayoutData( toolTipBtnData );
-    lastControl = tooltipBtn;
+    Label wlToolTip = new Label( wGeneralComp, SWT.RIGHT );
+    wlToolTip.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.ToolTipsEnabled.Label" ) );
+    props.setLook( wlToolTip );
+    FormData fdlToolTip = new FormData();
+    fdlToolTip.left = new FormAttachment( 0, 0 );
+    fdlToolTip.top = new FormAttachment( lastControl, margin );
+    fdlToolTip.right = new FormAttachment( middle, -margin );
+    wlToolTip.setLayoutData( fdlToolTip );
+    wbToolTip = new Button( wGeneralComp, SWT.CHECK );
+    props.setLook( wbToolTip );
+    wbToolTip.setSelection( props.showToolTips() );
+    FormData fdbToolTip = new FormData();
+    fdbToolTip.left = new FormAttachment( middle, 0 );
+    fdbToolTip.top = new FormAttachment( wlToolTip, 0, SWT.CENTER );
+    fdbToolTip.right = new FormAttachment( 100, 0 );
+    wbToolTip.setLayoutData( fdbToolTip );
+    lastControl = wbToolTip;
 
     // Help tool tips
-    Label helptipLbl = new Label( wGeneralComp, SWT.RIGHT );
-    helptipLbl.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.HelpToolTipsEnabled.Label" ) );
-    props.setLook( helptipLbl );
-    FormData fdlHelpTipData = new FormData();
-    fdlHelpTipData.left = new FormAttachment( 0, 0 );
-    fdlHelpTipData.top = new FormAttachment( lastControl, margin );
-    fdlHelpTipData.right = new FormAttachment( middle, -margin );
-    helptipLbl.setLayoutData( fdlHelpTipData );
-    helptipBtn = new Button( wGeneralComp, SWT.CHECK );
-    props.setLook( helptipBtn );
-    helptipBtn.setSelection( props.isShowingHelpToolTips() );
-    FormData helpTipBtnData = new FormData();
-    helpTipBtnData.left = new FormAttachment( middle, 0 );
-    helpTipBtnData.top = new FormAttachment( helptipLbl, 0, SWT.CENTER );
-    helpTipBtnData.right = new FormAttachment( 100, 0 );
-    helptipBtn.setLayoutData( helpTipBtnData );
+    Label wlHelpTip = new Label( wGeneralComp, SWT.RIGHT );
+    wlHelpTip.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.HelpToolTipsEnabled.Label" ) );
+    props.setLook( wlHelpTip );
+    FormData fdlHelpTip = new FormData();
+    fdlHelpTip.left = new FormAttachment( 0, 0 );
+    fdlHelpTip.top = new FormAttachment( lastControl, margin );
+    fdlHelpTip.right = new FormAttachment( middle, -margin );
+    wlHelpTip.setLayoutData( fdlHelpTip );
+    wbHelpTip = new Button( wGeneralComp, SWT.CHECK );
+    props.setLook( wbHelpTip );
+    wbHelpTip.setSelection( props.isShowingHelpToolTips() );
+    FormData fdbHelpTip = new FormData();
+    fdbHelpTip.left = new FormAttachment( middle, 0 );
+    fdbHelpTip.top = new FormAttachment( wlHelpTip, 0, SWT.CENTER );
+    fdbHelpTip.right = new FormAttachment( 100, 0 );
+    wbHelpTip.setLayoutData( fdbHelpTip );
+    lastControl = wbHelpTip;
+
+    // Help tool tips
+    Label wlUseDoubleClick = new Label( wGeneralComp, SWT.RIGHT );
+    wlUseDoubleClick.setText( BaseMessages.getString( PKG, "EnterOptionsDialog.UseDoubleClickOnCanvas.Label" ) );
+    props.setLook( wlUseDoubleClick );
+    FormData fdlUseDoubleClick = new FormData();
+    fdlUseDoubleClick.left = new FormAttachment( 0, 0 );
+    fdlUseDoubleClick.top = new FormAttachment( lastControl, margin );
+    fdlUseDoubleClick.right = new FormAttachment( middle, -margin );
+    wlUseDoubleClick.setLayoutData( fdlUseDoubleClick );
+    wbUseDoubleClick = new Button( wGeneralComp, SWT.CHECK );
+    props.setLook( wbUseDoubleClick );
+    wbHelpTip.setSelection( props.useDoubleClick() );
+    FormData fdbUseDoubleClick = new FormData();
+    fdbUseDoubleClick.left = new FormAttachment( middle, 0 );
+    fdbUseDoubleClick.top = new FormAttachment( wlUseDoubleClick, 0, SWT.CENTER );
+    fdbUseDoubleClick.right = new FormAttachment( 100, 0 );
+    wbUseDoubleClick.setLayoutData( fdbUseDoubleClick );
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
@@ -1317,9 +1337,10 @@ public class EnterOptionsDialog extends Dialog {
     props.setShowCanvasGridEnabled( wShowCanvasGrid.getSelection() );
     props.setExitWarningShown( wExitWarning.getSelection() );
     props.setOSLookShown( wOriginalLook.getSelection() );
-    props.setShowToolTips( tooltipBtn.getSelection() );
-    props.setAutoCollapseCoreObjectsTree( autoCollapseBtn.getSelection() );
-    props.setShowingHelpToolTips( helptipBtn.getSelection() );
+    props.setShowToolTips( wbToolTip.getSelection() );
+    props.setAutoCollapseCoreObjectsTree( wbAutoCollapse.getSelection() );
+    props.setShowingHelpToolTips( wbHelpTip.getSelection() );
+    props.setUseDoubleClickOnCanvas( wbUseDoubleClick.getSelection() );
 
     int defaultLocaleIndex = wDefaultLocale.getSelectionIndex();
     if ( defaultLocaleIndex < 0 || defaultLocaleIndex >= GlobalMessages.localeCodes.length ) {

@@ -117,6 +117,9 @@ public enum HopExtensionPoint {
 
   HopGuiGetSearchablesLocations("Get a list of searchables locations (List<ISearchablesLocation>)"),
 
+  HopGuiPipelineGraphAreaHover("Mouse is hovering over a drawn area in a pipeline graph (HopGuiTooltipExtension)"),
+  HopGuiWorkflowGraphAreaHover("Mouse is hovering over a drawn area in a workflow graph (HopGuiTooltipExtension)"),
+
   HopRunInit( "At the start of the HopRun command line, before initialization" ),
   HopRunCalculateFilename( "Right after the filename is determined, before it is used in any way" ),
   HopRunStart( "At the start of the HopRun command line, before loading metadata execution" ),

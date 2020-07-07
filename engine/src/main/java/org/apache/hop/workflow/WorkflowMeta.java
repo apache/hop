@@ -2160,4 +2160,8 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   public void setExpandingRemoteWorkflow( boolean expandingRemoteWorkflow ) {
     this.expandingRemoteWorkflow = expandingRemoteWorkflow;
   }
+
+  public boolean isEmpty() {
+    return nrActions()==0 && nrNotes()==0;
+  }
 }

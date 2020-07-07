@@ -36,6 +36,22 @@ public class ActionDebugLevel implements Cloneable {
     return new ActionDebugLevel( logLevel, loggingResult, loggingVariables, loggingResultRows, loggingResultFiles );
   }
 
+  @Override public String toString() {
+    String s = logLevel.toString();
+    if ( loggingResult ) {
+      s += ", logging result";
+    }
+    if ( loggingVariables ) {
+      s += ", logging variables";
+    }
+    if ( loggingResultRows ) {
+      s += ", logging result rows";
+    }
+    if ( loggingResultFiles ) {
+      s += ", logging result files";
+    }
+    return s;
+  }
 
   /**
    * Gets logLevel
