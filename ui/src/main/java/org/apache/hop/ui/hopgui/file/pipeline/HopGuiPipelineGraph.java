@@ -1958,6 +1958,23 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
+    id = "pipeline-graph-transform-10650-rows-copy",
+    parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Copy rows",
+    tooltip = "Make the transform copy rows to all next transforms",
+    image = "ui/images/copy-hop.svg"
+  )
+  public void setCopies( HopGuiPipelineTransformContext context ) {
+    context.getTransformMeta().setDistributes( false );
+    context.getTransformMeta().setRowDistribution( null );
+    redraw();
+  }
+
+  /**
+   * Implement HOP-530 before re-enabling
+   *
+  @GuiContextAction(
     id = "pipeline-graph-transform-10500-custom-row-distribution",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Modify,
@@ -1973,6 +1990,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     context.getTransformMeta().setRowDistribution( rowDistribution );
     redraw();
   }
+  */
 
   public IRowDistribution askUserForCustomDistributionMethod() {
     List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( RowDistributionPluginType.class );
