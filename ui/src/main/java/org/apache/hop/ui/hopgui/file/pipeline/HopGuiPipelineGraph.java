@@ -601,8 +601,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         } else {
           // See if the double click was in one of the visible drawn area's...
           //
-          if ( areaOwner.getParent() instanceof TransformMeta
-            && areaOwner.getOwner().equals( PipelinePainter.STRING_PARTITIONING_CURRENT_TRANSFORM ) ) {
+          if ( areaOwner!=null &&
+            areaOwner.getParent() instanceof TransformMeta &&
+            areaOwner.getOwner().equals( PipelinePainter.STRING_PARTITIONING_CURRENT_TRANSFORM ) ) {
+
             TransformMeta transform = (TransformMeta) areaOwner.getParent();
             pipelineTransformDelegate.editTransformPartitioning( pipelineMeta, transform );
           } else {

@@ -780,7 +780,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         if ( fs.isSendingErrorRowsToTransform( ts ) ) {
           col = EColor.RED;
           linestyle = ELineStyle.DASH;
-          activeLinewidth = lineWidth + 1;
+          // activeLinewidth = lineWidth + 1;
           arrow = EImage.ARROW_ERROR;
         } else {
           col = EColor.HOP_DEFAULT;
