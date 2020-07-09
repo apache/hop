@@ -1130,7 +1130,7 @@ public class EnterOptionsDialog extends Dialog {
     wlUseDoubleClick.setLayoutData( fdlUseDoubleClick );
     wbUseDoubleClick = new Button( wGeneralComp, SWT.CHECK );
     props.setLook( wbUseDoubleClick );
-    wbHelpTip.setSelection( props.useDoubleClick() );
+    wbUseDoubleClick.setSelection( props.useDoubleClick() );
     FormData fdbUseDoubleClick = new FormData();
     fdbUseDoubleClick.left = new FormAttachment( middle, 0 );
     fdbUseDoubleClick.top = new FormAttachment( wlUseDoubleClick, 0, SWT.CENTER );
