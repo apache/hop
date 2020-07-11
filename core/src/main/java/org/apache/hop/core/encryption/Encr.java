@@ -30,8 +30,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
 import org.eclipse.jetty.util.security.Password;
 
-import javax.xml.transform.sax.SAXSource;
-
 /**
  * This class handles basic encryption of passwords in Hop. Note that it's not really encryption, it's more
  * obfuscation. Passwords are <b>difficult</b> to read, not impossible.
