@@ -66,7 +66,7 @@ import java.util.Map;
         name = "XMLOutput.name",
         description = "XMLOutput.description",
         categoryDescription = "XMLOutput.category",
-        documentationUrl = "" )
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmloutput.html" )
 @InjectionSupported( localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS" )
 public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<XmlOutput, XmlOutputData> {
   private static Class<?> PKG = XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!

@@ -63,7 +63,7 @@ import java.util.Map;
         name = "XSDValidator.name",
         description = "XSDValidator.description",
         categoryDescription = "XSDValidator.category",
-        documentationUrl = "" )
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xsdvalidator.html" )
 public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMeta<XsdValidator, XsdValidatorData> {
   private static Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 
