@@ -64,7 +64,7 @@ import org.w3c.dom.Node;
   description = "ActionPGPVerify.Description",
   image = "PGPVerify.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/pgpverify.html"
 )
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionPGPVerify.class; // for i18n purposes, needed by Translator!!

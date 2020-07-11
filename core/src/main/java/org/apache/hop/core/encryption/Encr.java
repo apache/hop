@@ -160,6 +160,7 @@ public class Encr {
       //
       try {
         String obfuscated = Encr.encryptPasswordIfNotUsingVariables( password );
+        System.out.println(obfuscated);
         System.exit( 0 );
       } catch ( Exception ex ) {
         System.err.println( "Error encrypting password" );
@@ -171,6 +172,7 @@ public class Encr {
       // Jetty password obfuscation
       //
       String obfuscated = Password.obfuscate( password );
+      System.out.println(obfuscated);
       System.exit( 0 );
 
     } else {
