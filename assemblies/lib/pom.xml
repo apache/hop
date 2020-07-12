@@ -85,7 +85,7 @@
         </exclusion>
         <exclusion>
           <groupId>org.eclipse.rap</groupId>
-          <artifactId>org.eclipse.rap.clientbuilder</artifactId>
+          <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
     </dependency>

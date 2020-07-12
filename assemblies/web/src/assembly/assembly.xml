@@ -1,11 +1,10 @@
 <assembly xmlns="http://maven.apache.org/ASSEMBLY/2.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.0.0 http://maven.apache.org/xsd/assembly-2.0.0.xsd">
-  <id>client</id>
+  <id>web</id>
   <formats>
-    <format>zip</format>
+    <format>war</format>
   </formats>
-  <includeBaseDirectory>true</includeBaseDirectory>
-  <baseDirectory>hop</baseDirectory>
+  <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <!-- the staging dir -->
     <fileSet>
@@ -17,41 +16,29 @@
     <!-- hop components -->
     <dependencySet>
       <includes>
-        <include>org.hop:hop-assemblies-static:zip</include>
-        <include>org.hop:hop-assemblies-demo:zip</include>
+        <!--<include>org.hop:hop-assemblies-demo:zip</include>-->
         <include>org.hop:hop-assemblies-libs:zip</include>
-        <include>org.hop:hop-assemblies-plugins-dist:zip</include>
+      </includes>
+      <unpack>true</unpack>
+      <outputDirectory>WEB-INF</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
+    <dependencySet>
+      <includes>
+        <include>org.hop:hop-assemblies-static:zip</include>
       </includes>
       <unpack>true</unpack>
       <outputDirectory>.</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
-    <!-- swt -->
+    <!-- RAP -->
     <dependencySet>
       <includes>
-        <include>org.eclipse.platform:*.gtk.linux.x86_64</include>
+        <include>org.eclipse.rap:org.eclipse.rap.*</include>
       </includes>
-      <outputDirectory>libswt/linux/x86_64</outputDirectory>
-      <outputFileNameMapping>swt.jar</outputFileNameMapping>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-    <dependencySet>
-      <includes>
-        <include>org.eclipse.platform:*.win32.x86_64</include>
-      </includes>
-      <outputDirectory>libswt/win64</outputDirectory>
-      <outputFileNameMapping>swt.jar</outputFileNameMapping>
-      <useTransitiveDependencies>false</useTransitiveDependencies>
-      <useProjectArtifact>false</useProjectArtifact>
-    </dependencySet>
-    <dependencySet>
-      <includes>
-        <include>org.eclipse.platform:*.macosx.x86_64</include>
-      </includes>
-      <outputDirectory>libswt/osx64</outputDirectory>
-      <outputFileNameMapping>swt.jar</outputFileNameMapping>
+      <outputDirectory>WEB-INF/lib</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
