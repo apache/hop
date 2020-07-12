@@ -33,6 +33,15 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
+    <!-- RAP -->
+    <dependencySet>
+      <includes>
+        <include>org.eclipse.rap:org.eclipse.rap.*</include>
+      </includes>
+      <outputDirectory>WEB-INF/lib</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
 
   </dependencySets>
 </assembly>
