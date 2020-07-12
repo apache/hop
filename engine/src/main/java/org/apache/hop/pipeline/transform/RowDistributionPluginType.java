@@ -59,10 +59,6 @@ public class RowDistributionPluginType extends BasePluginType<RowDistributionPlu
     // None at this moment
   }
 
-  public String[] getNaturalCategoriesOrder() {
-    return new String[ 0 ];
-  }
-
   @Override
   protected String extractCategory( RowDistributionPlugin annotation ) {
     return "";

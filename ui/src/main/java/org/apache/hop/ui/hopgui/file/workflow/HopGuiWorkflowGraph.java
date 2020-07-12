@@ -82,6 +82,7 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
+import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
 import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
@@ -153,14 +154,7 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Handles the display of Workflows in HopGui, in a graphical form.
@@ -2750,6 +2744,18 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     }
 
     updateGui();
+  }
+
+  @GuiContextAction(
+          id = "pipeline-graph-transform-10010-copy-transform-to-clipboard",
+          parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
+          type = GuiActionType.Custom,
+          name = "Copy Action to clipboard",
+          tooltip = "Copy the XML representation of this Action to the clipboard",
+          image = "ui/images/copy.svg"
+  )
+  public void copyActionToClipboard( HopGuiWorkflowActionContext context ) {
+      workflowClipboardDelegate.copySelected( workflowMeta, Arrays.asList( context.getActionCopy() ), workflowMeta.getSelectedNotes() );
   }
 
   public void newProps() {

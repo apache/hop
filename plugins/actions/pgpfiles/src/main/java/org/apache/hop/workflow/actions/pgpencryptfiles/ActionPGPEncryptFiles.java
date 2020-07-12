@@ -71,7 +71,7 @@ import org.w3c.dom.Node;
   description = "ActionPGPEncryptFiles.Description",
   image = "PGPEncryptFiles.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/"
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/pgpencryptfiles.html"
 )
 public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionPGPEncryptFiles.class; // for i18n purposes, needed by Translator!!

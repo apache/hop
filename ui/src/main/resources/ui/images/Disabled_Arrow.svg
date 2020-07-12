@@ -13,14 +13,16 @@
    id="Layer_1"
    x="0px"
    y="0px"
-   viewBox="0 0 12 16"
+   viewBox="0 0 16 16"
    enable-background="new 0 0 12 16"
    xml:space="preserve"
    sodipodi:docname="Disabled_Arrow.svg"
-   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"><metadata
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
+   width="16"
+   height="16"><metadata
    id="metadata11"><rdf:RDF><cc:Work
        rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
-         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata><defs
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
    id="defs9" /><sodipodi:namedview
    pagecolor="#ffffff"
    bordercolor="#666666"
@@ -34,15 +36,15 @@
    inkscape:window-height="480"
    id="namedview7"
    showgrid="false"
-   inkscape:zoom="100.42676"
-   inkscape:cx="2.9828758"
-   inkscape:cy="8"
+   inkscape:zoom="202.00586"
+   inkscape:cx="6.4512371"
+   inkscape:cy="12.098891"
    inkscape:current-layer="Layer_1" />
 <g
    id="g4"
-   transform="matrix(0.68925715,0,0,1,1.8644571,0)">
+   transform="matrix(0.68925715,0,0,1,3.8941012,0)">
 	<polygon
-   points="6,13.9 0.2,16 6,0 11.8,16 "
+   points="11.8,16 6,13.9 0.2,16 6,0 "
    id="polygon2"
    style="fill:#cccccc" />
 </g>

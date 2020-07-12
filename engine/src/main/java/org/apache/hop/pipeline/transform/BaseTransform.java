@@ -1197,7 +1197,6 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
           }
         }
 
-
         // Loop until we find room in the target rowset
         //
         putRowToRowSet( rs, rowMeta, row );
