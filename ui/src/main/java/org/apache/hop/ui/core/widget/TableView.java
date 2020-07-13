@@ -23,9 +23,7 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.rap.rwt.RWT;
-import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
 import org.eclipse.rap.rwt.widgets.WidgetUtil;
 
