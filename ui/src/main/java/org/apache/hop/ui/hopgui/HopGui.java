@@ -96,7 +96,6 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -235,8 +234,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     return clipboard;
   }
 
-  //prevent instantiation from outside
-  private HopGui() {
+  protected HopGui() {
     this( Display.getCurrent() );
   }
 
@@ -268,8 +266,12 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     HopNamespace.setNamespace( DEFAULT_HOP_GUI_NAMESPACE );
   }
 
+  private static final ISingletonProvider PROVIDER;
+  static {
+    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( HopGui.class );
+  }
   public static final HopGui getInstance() {
-    return SingletonUtil.getSessionInstance( HopGui.class );
+    return (HopGui) PROVIDER.getInstanceInternal();
   }
 
   public static void main( String[] arguments ) {
