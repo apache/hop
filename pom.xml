@@ -107,7 +107,7 @@
 
     <!-- Copy from master POM (NEEDS CLEANUP) -->
     <!-- VERSIONS -->
-<!--    <derby.version>10.14.2.0</derby.version>-->
+    <!--    <derby.version>10.14.2.0</derby.version>-->
     <batik.version>1.12</batik.version>
     <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
     <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
@@ -210,7 +210,7 @@
       <dependency>
         <groupId>org.mozilla</groupId>
         <artifactId>rhino</artifactId>
-        <version>${rhino.version}</version>         
+        <version>${rhino.version}</version>
         <exclusions>
           <exclusion>
             <groupId>*</groupId>
@@ -646,7 +646,8 @@
               <goal>test</goal>
             </goals>
             <configuration>
-              <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding} ${maven-surefire-plugin.argLine} </argLine> <!-- this is set by jacoco's prepare-agent execution -->
+              <argLine>@{argLine} -Dfile.encoding=${project.build.sourceEncoding} ${maven-surefire-plugin.argLine}
+              </argLine> <!-- this is set by jacoco's prepare-agent execution -->
               <forkCount>${maven-surefire-plugin.forkCount}</forkCount>
               <reuseForks>${maven-surefire-plugin.reuseForks}</reuseForks>
               <testFailureIgnore>${maven-surefire-plugin.testFailureIgnore}</testFailureIgnore>
@@ -691,6 +692,54 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <version>0.13</version>
+        <configuration>
+          <excludes>
+            <exclude>**/README.md</exclude>
+            <exclude>Jenkinsfile</exclude>
+            <exclude>LICENSE</exclude>
+            <exclude>NOTICE</exclude>
+            <exclude>**/*.adoc</exclude>
+            <exclude>**/*.json</exclude>
+            <exclude>**/*.svg</exclude>
+            <exclude>**/*.htm</exclude>
+            <exclude>**/*.html</exclude>
+            <exclude>**/*.css</exclude>
+            <exclude>**/*.txt</exclude>
+            <exclude>**/*.xml</exclude>
+            <exclude>**/*.xsd</exclude>
+            <exclude>**/*.ktr</exclude>
+            <exclude>**/*.kjb</exclude>
+            <exclude>**/*.hpl</exclude>
+            <exclude>**/*.hwf</exclude>
+            <exclude>**/*.sh</exclude>
+            <exclude>**/*.bat</exclude>
+            <exclude>**/*.yaml</exclude>
+            <exclude>**/*.csv</exclude>
+            <exclude>**/*.csv.bz2</exclude>
+            <exclude>**/*.csv.gz</exclude>
+            <exclude>**/*.zip</exclude>
+            <exclude>**/*.js</exclude>
+            <exclude>**/*.sql</exclude>
+            <exclude>**/*.cmd</exclude>
+            <exclude>**/*.edi</exclude>
+            <exclude>**/*.cmd</exclude>
+            <exclude>**/*.ods</exclude>
+            <exclude>**/*.xls</exclude>
+            <exclude>**/*.xlsx</exclude>
+            <exclude>**/*.properties</exclude>
+            <exclude>**/PUT_JDBC_HERE</exclude>
+            <exclude>**/hop.pwd</exclude>
+            <exclude>**/*.list</exclude>
+            <exclude>archive-pipeline-transforms/</exclude>
+            <exclude>archive-samples/</exclude>
+            <exclude>pom.xml</exclude>
+          </excludes>
+        </configuration>
       </plugin>
     </plugins>
   </build>
@@ -812,7 +861,7 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>${maven-javadoc-plugin.version}</version>
         <configuration>
-<!--          <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>-->
+          <!--          <stylesheetfile>${basedir}/src/main/javadoc/stylesheet.css</stylesheetfile>-->
           <show>public</show>
         </configuration>
         <reportSets>
@@ -823,13 +872,13 @@
               <report>aggregate-no-fork</report>
               <report>test-aggregate-no-fork</report>
             </reports>
-            </reportSet>
-            <reportSet>
-              <id>default</id>
-              <reports>
-                <report>javadoc</report>
-              </reports>
-            </reportSet>
+          </reportSet>
+          <reportSet>
+            <id>default</id>
+            <reports>
+              <report>javadoc</report>
+            </reports>
+          </reportSet>
         </reportSets>
       </plugin>
     </plugins>
