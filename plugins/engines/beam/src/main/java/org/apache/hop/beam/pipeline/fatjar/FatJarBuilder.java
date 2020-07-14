@@ -1,3 +1,25 @@
+/*! ******************************************************************************
+ *
+ * Hop : The Hop Orchestration Platform
+ *
+ * http://www.project-hop.org
+ *
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
 package org.apache.hop.beam.pipeline.fatjar;
 
 import org.apache.commons.io.IOUtils;
@@ -70,7 +92,7 @@ public class FatJarBuilder {
       Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_DATABASE_TYPES, Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS,
       Const.XML_FILE_HOP_VALUEMETA_PLUGINS, Const.XML_FILE_HOP_PIPELINE_ENGINES, Const.XML_FILE_HOP_TRANSFORMS,
       Const.XML_FILE_HOP_WORKFLOW_ENGINES, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_EXTENSION_POINTS,
-      Const.XML_FILE_HOP_VFS_PLUGINS );
+      Const.XML_FILE_HOP_VFS_PLUGINS, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS );
     fileContentMap = new HashMap<>();
 
     try {
