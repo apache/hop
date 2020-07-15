@@ -232,10 +232,14 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     parentId = PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID,
     type = GuiElementType.TEXT,
     label = "Shutdown sources on final watermark",
-    toolTip = "If set, shutdown sources when their watermark reaches +Inf."
+    toolTip = "Shuts down sources which have been idle for the configured time of milliseconds. Once a source has been "
+      + "shut down, checkpointing is not possible anymore. Shutting down the sources eventually leads to pipeline "
+      + "shutdown (=Flink job finishes) once all input has been processed. Unless explicitly set, this will "
+      + "default to Long.MAX_VALUE when checkpointing is enabled and to 0 when checkpointing is disabled. "
+      + "See https://issues.apache.org/jira/browse/FLINK-2491 for progress on this issue."
   )
   @HopMetadataProperty
-  private String flinkShutdownSourcesOnFinalWatermark;
+  private String flinkShutdownSourcesAfterIdleMs;
 
   @GuiWidgetElement(
     order = "20170-flink-options",
@@ -298,7 +302,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     this.flinkRetainExternalizedCheckpointsOnCancellation = config.flinkRetainExternalizedCheckpointsOnCancellation;
     this.flinkMaxBundleSize = config.flinkMaxBundleSize;
     this.flinkMaxBundleTimeMills = config.flinkMaxBundleTimeMills;
-    this.flinkShutdownSourcesOnFinalWatermark = config.flinkShutdownSourcesOnFinalWatermark;
+    this.flinkShutdownSourcesAfterIdleMs = config.flinkShutdownSourcesAfterIdleMs;
     this.flinkLatencyTrackingInterval = config.flinkLatencyTrackingInterval;
     this.flinkAutoWatermarkInterval = config.flinkAutoWatermarkInterval;
     this.flinkExecutionModeForBatch = config.flinkExecutionModeForBatch;
@@ -434,10 +438,10 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     }
 
     // If set, shutdown sources when their watermark reaches +Inf.")
-    if ( StringUtils.isNotEmpty( getFlinkShutdownSourcesOnFinalWatermark() ) ) {
-      String str = environmentSubstitute( getFlinkShutdownSourcesOnFinalWatermark() );
-      boolean value = "Y".equalsIgnoreCase( str ) || "TRUE".equalsIgnoreCase( str );
-      options.setShutdownSourcesOnFinalWatermark( value );
+    if ( StringUtils.isNotEmpty( getFlinkShutdownSourcesAfterIdleMs() ) ) {
+      String str = environmentSubstitute( getFlinkShutdownSourcesAfterIdleMs() );
+      long value = Const.toLong( str, -1L );
+      options.setShutdownSourcesAfterIdleMs( value );
     }
 
     // Interval in milliseconds for sending latency tracking marks from the sources to the sinks. Interval value <= 0 disables the feature.")
@@ -721,19 +725,19 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
   }
 
   /**
-   * Gets flinkShutdownSourcesOnFinalWatermark
+   * Gets flinkShutdownSourcesAfterIdleMs
    *
-   * @return value of flinkShutdownSourcesOnFinalWatermark
+   * @return value of flinkShutdownSourcesAfterIdleMs
    */
-  public String getFlinkShutdownSourcesOnFinalWatermark() {
-    return flinkShutdownSourcesOnFinalWatermark;
+  public String getFlinkShutdownSourcesAfterIdleMs() {
+    return flinkShutdownSourcesAfterIdleMs;
   }
 
   /**
-   * @param flinkShutdownSourcesOnFinalWatermark The flinkShutdownSourcesOnFinalWatermark to set
+   * @param flinkShutdownSourcesAfterIdleMs The flinkShutdownSourcesAfterIdleMs to set
    */
-  public void setFlinkShutdownSourcesOnFinalWatermark( String flinkShutdownSourcesOnFinalWatermark ) {
-    this.flinkShutdownSourcesOnFinalWatermark = flinkShutdownSourcesOnFinalWatermark;
+  public void setFlinkShutdownSourcesAfterIdleMs( String flinkShutdownSourcesAfterIdleMs ) {
+    this.flinkShutdownSourcesAfterIdleMs = flinkShutdownSourcesAfterIdleMs;
   }
 
   /**

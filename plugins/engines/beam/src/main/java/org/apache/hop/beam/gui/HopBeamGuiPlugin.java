@@ -117,7 +117,7 @@ public class HopBeamGuiPlugin {
       };
 
       ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
-      pmd.run( true, true, op );
+      pmd.run( true, false, op );
 
       GuiResource.getInstance().toClipboard( filename );
 
