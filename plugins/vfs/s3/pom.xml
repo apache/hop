@@ -13,7 +13,7 @@
   <artifactId>hop-plugins-vfs-s3</artifactId>
   <packaging>jar</packaging>
 
-  <name>Hop Plugins VFS s3://</name>
+  <name>Hop Plugins VFS S3</name>
 
 
   <properties>

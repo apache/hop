@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.vfs.gs;
+package org.apache.hop.vfs.googledrive;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
@@ -38,9 +38,9 @@ import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileType;
 import org.apache.commons.vfs2.provider.AbstractFileName;
 import org.apache.commons.vfs2.provider.AbstractFileObject;
-import org.apache.hop.vfs.gs.util.CustomAuthorizationCodeInstalledApp;
-import org.apache.hop.vfs.gs.util.CustomDataStoreFactory;
-import org.apache.hop.vfs.gs.util.CustomLocalServerReceiver;
+import org.apache.hop.vfs.googledrive.util.CustomAuthorizationCodeInstalledApp;
+import org.apache.hop.vfs.googledrive.util.CustomDataStoreFactory;
+import org.apache.hop.vfs.googledrive.util.CustomLocalServerReceiver;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

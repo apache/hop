@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.vfs.gs;
+package org.apache.hop.vfs.googledrive;
 
 import org.apache.commons.vfs2.Capability;
 import org.apache.commons.vfs2.FileName;

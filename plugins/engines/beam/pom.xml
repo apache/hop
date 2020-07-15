@@ -81,6 +81,11 @@
       <artifactId>hop-transform-uniquerows</artifactId>
       <version>0.30-SNAPSHOT</version>
     </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-transform-rowgenerator</artifactId>
+      <version>0.30-SNAPSHOT</version>
+    </dependency>
 
     <!-- The Apache Beam dependencies -->
 
@@ -266,6 +271,11 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-mergejoin</artifactId>
+      <version>0.30-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-transform-rowgenerator</artifactId>
       <version>0.30-SNAPSHOT</version>
     </dependency>
     <dependency>

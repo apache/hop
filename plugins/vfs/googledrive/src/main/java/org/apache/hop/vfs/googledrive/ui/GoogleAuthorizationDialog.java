@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.vfs.gs.ui;
+package org.apache.hop.vfs.googledrive.ui;
 
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
 import org.apache.hop.core.Const;
@@ -28,7 +28,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
-import org.apache.hop.vfs.gs.util.CustomLocalServerReceiver;
+import org.apache.hop.vfs.googledrive.util.CustomLocalServerReceiver;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.CloseWindowListener;

@@ -13,6 +13,6 @@
     <artifactId>hop-plugins-vfs-hdfs</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugins VFS hdfs://</name>
+    <name>Hop Plugins VFS HDFS</name>
 
 </project>
