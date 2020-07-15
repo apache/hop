@@ -42,6 +42,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
+import org.apache.hop.core.vfs.plugin.IVfs;
+import org.apache.hop.core.vfs.plugin.VfsPluginType;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
@@ -208,6 +210,8 @@ public class FatJarBuilder {
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS, saPluginType.getMainTag(), saPluginType.getSubTag(), SearchableAnalyserPluginType.class, ISearchableAnalyser.class, null );
       MetadataPluginType mdPluginType = MetadataPluginType.getInstance();
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_METADATA_PLUGINS, mdPluginType.getMainTag(), mdPluginType.getSubTag(), MetadataPluginType.class, IHopMetadata.class, null );
+      VfsPluginType vfsPluginType = VfsPluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_VFS_PLUGINS, vfsPluginType.getMainTag(), vfsPluginType.getSubTag(), VfsPluginType.class, IVfs.class, null );
 
       zipOutputStream.close();
     } catch ( Exception e ) {
