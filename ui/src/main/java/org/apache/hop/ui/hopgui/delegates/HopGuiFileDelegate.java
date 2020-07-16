@@ -102,25 +102,30 @@ public class HopGuiFileDelegate {
    * Then we ask the perspective for the shown/active file.
    * We then know the filter extension and name so we can show a dialog.
    * We can then also have the {@link IHopFileType to save the file.
+   *
+   * @return The original filename, not having any variables replaced.  It returns null if no file was saved
    */
-  public void fileSaveAs() {
+  public String fileSaveAs() {
     try {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType fileType = typeHandler.getFileType();
       if ( !fileType.hasCapability( IHopFileType.CAPABILITY_SAVE ) ) {
-        return;
+        return null;
       }
 
       String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename == null ) {
-        return;
+        return null;
       }
 
       typeHandler.saveAs( hopGui.getVariables().environmentSubstitute( filename ) );
 
       AuditManager.registerEvent( HopNamespace.getNamespace(), "file", filename, "save" );
+
+      return filename;
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error saving file", e );
+      return null;
     }
   }
 
