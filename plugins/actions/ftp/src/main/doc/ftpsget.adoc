@@ -47,7 +47,7 @@ The Get a file with FTPS action can get files with FTPS.
 |Remote directory|The directory at the remote server.
 |Check folder|Check if folder exists.
 |Remove files after retrieval|Remove files at remote after download.
-|Move files after retrieval|Move files at remote after download|
+|Move files after retrieval|Move files at remote after download
 |Move to folder|The folder in which moved files will be put.
 |Create folder|Whether or not to create the folder.
 |Target directory|The target directory.

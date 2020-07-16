@@ -59,8 +59,8 @@ Use the FTP delete action to delete files on an FTP server.
 |Copy previous results to args?
 |Remote directory|The directory on the remote FTP server.
 |Check folder|Checks if the directory exists.
-|Wildcard (regular expression)|
-|Success on a|The success condition
+|Wildcard (regular expression)
+|Success on a| The success condition
 
 * All works fine
 * At least we delete x files
