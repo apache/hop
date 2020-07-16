@@ -104,8 +104,7 @@ public class TableDraw extends Canvas {
 
     display = parent.getDisplay();
     bg = GuiResource.getInstance().getColorBackground();
-    // font = GuiResource.getInstance().getFontGrid();
-    fontheight = props.getGridFont().getHeight();
+    fontheight = props.getDefaultFont().getHeight();
 
     black = GuiResource.getInstance().getColorBlack();
     red = GuiResource.getInstance().getColorRed();

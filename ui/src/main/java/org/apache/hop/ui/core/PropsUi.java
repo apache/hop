@@ -132,11 +132,6 @@ public class PropsUi extends Props {
       setProperty( STRING_FONT_GRAPH_STYLE, "" + fontData.getStyle() );
 
       fontData = getDefaultFont();
-      setProperty( STRING_FONT_GRID_NAME, fontData.getName() );
-      setProperty( STRING_FONT_GRID_SIZE, "" + fontData.getHeight() );
-      setProperty( STRING_FONT_GRID_STYLE, "" + fontData.getStyle() );
-
-      fontData = getDefaultFont();
       setProperty( STRING_FONT_NOTE_NAME, fontData.getName() );
       setProperty( STRING_FONT_NOTE_SIZE, "" + fontData.getHeight() );
       setProperty( STRING_FONT_NOTE_STYLE, "" + fontData.getStyle() );
@@ -215,25 +210,6 @@ public class PropsUi extends Props {
     int style = Const.toInt( getProperty( STRING_FONT_GRAPH_STYLE ), def.getStyle() );
 
     return new FontData( name, correctedSize, style );
-  }
-
-  public void setGridFont( FontData fd ) {
-    setProperty( STRING_FONT_GRID_NAME, fd.getName() );
-    setProperty( STRING_FONT_GRID_SIZE, "" + fd.getHeight() );
-    setProperty( STRING_FONT_GRID_STYLE, "" + fd.getStyle() );
-  }
-
-  public FontData getGridFont() {
-    FontData def = getDefaultFontData();
-
-    String name = getProperty( STRING_FONT_GRID_NAME, def.getName() );
-    String ssize = getProperty( STRING_FONT_GRID_SIZE );
-    String sstyle = getProperty( STRING_FONT_GRID_STYLE );
-
-    int size = Const.toInt( ssize, def.getHeight() );
-    int style = Const.toInt( sstyle, def.getStyle() );
-
-    return new FontData( name, size, style );
   }
 
   public void setNoteFont( FontData fd ) {

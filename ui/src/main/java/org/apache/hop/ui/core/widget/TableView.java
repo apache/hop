@@ -29,6 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -54,8 +55,6 @@ import org.eclipse.swt.dnd.DragSourceEvent;
 import org.eclipse.swt.dnd.DragSourceListener;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
@@ -71,7 +70,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseEvent;
 import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -169,11 +167,8 @@ public class TableView extends Composite {
   private ModifyListener lsMod, lsUndo, lsContent;
   private Clipboard clipboard;
 
-  // The following Image and Graphics Context are used for font metrics. We only
-  // want them created once.
-  private static Image dummyImage;
-  private static GC dummyGC;
-  private Font gridFont;
+  private Image dummyImage;
+  private GC dummyGC;
 
   // private int last_carret_position;
 
@@ -261,7 +256,7 @@ public class TableView extends Composite {
     selectionStart = -1;
     previousShift = false;
 
-    usedColors = new Hashtable<String, Color>();
+    usedColors = new Hashtable<>();
 
     condition = null;
 
@@ -274,21 +269,10 @@ public class TableView extends Composite {
     numberColumnValueMeta.setConversionMask( "####0.###" );
     numberColumn.setValueMeta( numberColumnValueMeta );
 
-    lsUndo = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent arg0 ) {
-        fieldChanged = true;
-      }
-    };
-    if ( TableView.dummyGC == null ) {
-      Display disp = parent.getDisplay();
-      TableView.dummyImage = new Image( disp, 1, 1 );
-      TableView.dummyGC = new GC( TableView.dummyImage );
+    lsUndo = arg0 -> fieldChanged = true;
 
-      gridFont = new Font( disp, props.getGridFont() );
-      TableView.dummyGC.setFont( gridFont );
-
-    }
+    dummyImage = new Image( parent.getDisplay(), 50, 10 );
+    dummyGC = new GC( dummyImage );
 
     FormLayout controlLayout = new FormLayout();
     controlLayout.marginLeft = 0;
@@ -933,7 +917,8 @@ public class TableView extends Composite {
         if ( e.keyCode == SWT.HOME && shift ) {
           activeTableRow = 0;
 
-          // Select all indeces from "from_selection" to "row"
+          // Select all indices from "from_selection" to "row"
+          //
           selectRows( selectionStart, activeTableRow );
           table.showItem( activeTableItem );
           e.doit = false;
@@ -1219,39 +1204,25 @@ public class TableView extends Composite {
     final int nrcols = tablecolumn.length;
     for ( int i = 0; i < nrcols; i++ ) {
       final int colnr = i;
-      Listener lsSort = new Listener() {
-        @Override
-        public void handleEvent( Event e ) {
-          // Sorting means: clear undo information!
-          clearUndo();
+      tablecolumn[ i ].addListener( SWT.Selection, e -> {
+        // Sorting means: clear undo information!
+        clearUndo();
 
-          sortTable( colnr );
-        }
-      };
-      tablecolumn[ i ].addListener( SWT.Selection, lsSort );
+        sortTable( colnr );
+      } );
     }
 
-    lsTraverse = new TraverseListener() {
-      @Override
-      public void keyTraversed( TraverseEvent e ) {
-        e.doit = false;
-      }
-    };
+    lsTraverse = e -> e.doit = false;
     table.addTraverseListener( lsTraverse );
-    // cursor.addTraverseListener(lsTraverse);
 
     // Clean up the clipboard
-    addDisposeListener( new DisposeListener() {
-      @Override
-      public void widgetDisposed( DisposeEvent e ) {
-        if ( clipboard != null ) {
-          clipboard.dispose();
-          clipboard = null;
-        }
-        if ( gridFont != null ) {
-          gridFont.dispose();
-        }
+    addDisposeListener( e -> {
+      if ( clipboard != null ) {
+        clipboard.dispose();
+        clipboard = null;
       }
+      dummyImage.dispose();
+      dummyGC.dispose();
     } );
 
     // Drag & drop source!
@@ -2286,7 +2257,7 @@ public class TableView extends Composite {
     }
     String str = getTextWidgetValue( colnr );
 
-    int strmax = TableView.dummyGC.textExtent( str, SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x + 20;
+    int strmax = dummyGC.textExtent( str, SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x + 20;
     int colmax = tablecolumn[ colnr ].getWidth();
     if ( strmax > colmax ) {
       if ( Const.isOSX() || Const.isLinux() ) {
@@ -2535,20 +2506,23 @@ public class TableView extends Composite {
   }
 
   public void optWidth( boolean header, int nrLines ) {
+
+    int extraForMargin = (int)(PropsUi.getNativeZoomFactor()*5);
+
     for ( int c = 0; c < table.getColumnCount(); c++ ) {
       TableColumn tc = table.getColumn( c );
       int max = 0;
       if ( header ) {
-        max = TableView.dummyGC.textExtent( tc.getText(), SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x;
+        max = dummyGC.textExtent( tc.getText(), SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x;
 
         // Check if the column has a sorted mark set. In that case, we need the
         // header to be a bit wider...
         //
         if ( c == sortfield && sortable ) {
-          max += 15;
+          max += extraForMargin;
         }
       }
-      Set<String> columnStrings = new HashSet<String>();
+      Set<String> columnStrings = new HashSet<>();
 
       boolean haveToGetTexts = false;
       if ( c > 0 ) {
@@ -2589,27 +2563,50 @@ public class TableView extends Composite {
       }
 
       for ( String str : columnStrings ) {
-        int len = TableView.dummyGC.textExtent( str == null ? "" : str, SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x;
+        int len = dummyGC.textExtent( str == null ? "" : str, SWT.DRAW_TAB | SWT.DRAW_DELIMITER ).x;
         if ( len > max ) {
           max = len;
         }
       }
 
       try {
-        int extra = 15;
+        max += extraForMargin;
+        if (c>0) {
+          max+=extraForMargin; // margins on both sides of the column
+        }
         if ( Const.isWindows() || Const.isLinux() ) {
-          extra += 15;
+          max += extraForMargin;
         }
 
-        if ( tc.getWidth() != max + extra ) {
-          if ( columns[ c ].getWidth() == -1 ) {
-            tc.setWidth( max + extra );
+        // The line number column
+        //
+        if (c==0) {
+          if (tc.getWidth()!=max) {
+            tc.setWidth( max );
+          }
+        } else {
+          int desiredWidth = columns[ c-1 ].getWidth();
+          if (desiredWidth > 0) {
+            if (tc.getWidth()!=desiredWidth) {
+              tc.setWidth( desiredWidth );
+            }
           } else {
-            tc.setWidth( columns[ c ].getWidth() );
+            if (tc.getWidth()!=max) {
+              tc.setWidth( max );
+            }
+          }
+        }
+
+        if ( tc.getWidth() != max ) {
+          if ( c>0 && columns[ c-1 ].getWidth() > 0 ) {
+            tc.setWidth( columns[ c-1 ].getWidth() );
+          } else {
+            tc.setWidth( max );
           }
         }
       } catch ( Exception e ) {
         // Ignore errors
+        LogChannel.UI.logError("error in TableView", e);
       }
     }
     if ( table.isListening( SWT.Resize ) ) {
@@ -2623,6 +2620,11 @@ public class TableView extends Composite {
     unEdit();
   }
 
+  public void optimizeTableView() {
+    removeEmptyRows();
+    setRowNums();
+    optWidth(true);
+  }
   /*
    * Remove empty rows in the table...
    */
