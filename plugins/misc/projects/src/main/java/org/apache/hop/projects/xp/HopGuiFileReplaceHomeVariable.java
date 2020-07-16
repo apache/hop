@@ -28,13 +28,11 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
-import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
 
 import java.io.File;
@@ -51,12 +49,6 @@ public class HopGuiFileReplaceHomeVariable implements IExtensionPoint<HopGuiFile
 
     // Is there an active project?
     //
-    IVariables variables;
-    if (ext.variables==null) {
-      variables = HopGui.getInstance().getVariables();
-    } else {
-      variables = ext.variables;
-    }
     String projectName = HopNamespace.getNamespace();
     if ( StringUtil.isEmpty(projectName)) {
       return;

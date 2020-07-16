@@ -53,10 +53,6 @@ public class Props implements Cloneable {
   public static final String STRING_FONT_GRAPH_SIZE = "FontGraphSize";
   public static final String STRING_FONT_GRAPH_STYLE = "FontGraphStyle";
 
-  public static final String STRING_FONT_GRID_NAME = "FontGridName";
-  public static final String STRING_FONT_GRID_SIZE = "FontGridSize";
-  public static final String STRING_FONT_GRID_STYLE = "FontGridStyle";
-
   public static final String STRING_FONT_NOTE_NAME = "FontNoteName";
   public static final String STRING_FONT_NOTE_SIZE = "FontNoteSize";
   public static final String STRING_FONT_NOTE_STYLE = "FontNoteStyle";

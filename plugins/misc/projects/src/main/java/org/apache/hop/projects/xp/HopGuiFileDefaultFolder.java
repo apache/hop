@@ -40,7 +40,6 @@ public class HopGuiFileDefaultFolder implements IExtensionPoint<HopGuiFileDialog
 
     // Is there an active project?
     //
-    IVariables variables = HopGui.getInstance().getVariables();
     String projectName = HopNamespace.getNamespace();
     if ( StringUtil.isEmpty(projectName)) {
       return;
