@@ -16,14 +16,14 @@
 * limitations under the License.
 */
 
-package org.apache.hop.vfs.gs.util;
+package org.apache.hop.vfs.googledrive.util;
 
 import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
 import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.vfs.gs.ui.GoogleAuthorizationDialog;
+import org.apache.hop.vfs.googledrive.ui.GoogleAuthorizationDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 

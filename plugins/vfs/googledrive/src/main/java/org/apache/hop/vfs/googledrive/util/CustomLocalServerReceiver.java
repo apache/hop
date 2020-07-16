@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.vfs.gs.util;
+package org.apache.hop.vfs.googledrive.util;
 
 import com.google.api.client.extensions.java6.auth.oauth2.VerificationCodeReceiver;
 import com.google.api.client.util.Throwables;
