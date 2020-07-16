@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.hop</groupId>
+    <artifactId>hop-plugins-transforms</artifactId>
+    <version>0.30-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>hop-transforms-kafka</artifactId>
+  <name>Hop Plugins Transforms Kafka</name>
+  <packaging>jar</packaging>
+
+  <properties>
+    <kafka-clients.version>0.10.2.1</kafka-clients.version>
+
+    <junit.version>4.4</junit.version>
+    <mockito-all.version>1.9.5</mockito-all.version>
+    <dependency.mockito.revision>1.10.19</dependency.mockito.revision>
+    <dependency.hamcrest.revision>1.3</dependency.hamcrest.revision>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-ui-swt</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.kafka</groupId>
+      <artifactId>kafka-clients</artifactId>
+      <version>${kafka-clients.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${dependency.mockito.revision}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <version>${dependency.hamcrest.revision}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>

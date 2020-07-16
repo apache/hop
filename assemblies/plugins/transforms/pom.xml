@@ -72,6 +72,7 @@
         <module>javascript</module>
         <module>joinrows</module>
         <module>json</module>
+        <module>kafka</module>
         <module>ldap</module>
         <module>ldifinput</module>
         <module>loadfileinput</module>
