@@ -41,7 +41,7 @@ public class SnowflakeDatabaseMetaTest {
 
 	@Test
 	public void testAccessType() throws Exception {
-		int[] aTypes = new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+		int[] aTypes = new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
 		assertArrayEquals(aTypes, nativeMeta.getAccessTypeList());
 	}
 

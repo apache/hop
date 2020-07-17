@@ -46,7 +46,7 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      DatabaseMeta.TYPE_ACCESS_NATIVE};
   }
 
   @Override
@@ -64,14 +64,10 @@ public class IngresDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "jdbc:odbc:" + databaseName;
+    if (Utils.isEmpty(port)) {
+      return "jdbc:ingres://" + hostname + ":II7/" + databaseName;
     } else {
-      if ( Utils.isEmpty( port ) ) {
-        return "jdbc:ingres://" + hostname + ":II7/" + databaseName;
-      } else {
-        return "jdbc:ingres://" + hostname + ":" + port + "/" + databaseName;
-      }
+      return "jdbc:ingres://" + hostname + ":" + port + "/" + databaseName;
     }
   }
 

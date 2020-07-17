@@ -66,7 +66,6 @@ public class OracleDatabaseMetaTest {
   private final String sequenceName = "sequence_name";
   
   private OracleDatabaseMeta nativeMeta;
-  private OracleDatabaseMeta odbcMeta;
 
   
   @BeforeClass
@@ -81,8 +80,6 @@ public class OracleDatabaseMetaTest {
   public void setupOnce() throws Exception {
     nativeMeta = new OracleDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new OracleDatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
     HopClientEnvironment.init();
   }
 
@@ -92,10 +89,8 @@ public class OracleDatabaseMetaTest {
     // according to the features of the DB as we know them
 
     assertEquals( 1521, nativeMeta.getDefaultDatabasePort() );
-    assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsAutoInc() );
     assertEquals( "oracle.jdbc.driver.OracleDriver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:oracle:thin:@FOO:1024:BAR", nativeMeta.getURL( "FOO", "1024", "BAR" ) );
     assertEquals( "jdbc:oracle:thin:@FOO:11:BAR", nativeMeta.getURL( "FOO", "11", ":BAR" ) );
     assertEquals( "jdbc:oracle:thin:@BAR:65534/FOO", nativeMeta.getURL( "BAR", "65534", "/FOO" ) );

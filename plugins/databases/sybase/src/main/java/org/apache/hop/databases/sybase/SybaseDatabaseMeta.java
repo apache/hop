@@ -46,7 +46,7 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   @Override
@@ -75,12 +75,8 @@ public class SybaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "jdbc:odbc:" + databaseName;
-    } else {
-      // jdbc:jtds:<server_type>://<server>[:<port>][/<database>][;<property>=<value>[;...]]
-      return "jdbc:jtds:sybase://" + hostname + ":" + port + "/" + databaseName;
-    }
+    // jdbc:jtds:<server_type>://<server>[:<port>][/<database>][;<property>=<value>[;...]]
+    return "jdbc:jtds:sybase://" + hostname + ":" + port + "/" + databaseName;
   }
 
   /**

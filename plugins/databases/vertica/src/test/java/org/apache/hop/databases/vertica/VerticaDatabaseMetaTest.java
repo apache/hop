@@ -51,7 +51,7 @@ public class VerticaDatabaseMetaTest {
   @ClassRule
   public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-  private VerticaDatabaseMeta nativeMeta, odbcMeta;
+  private VerticaDatabaseMeta nativeMeta;
 
   // Get PKG from class under test
   private Class<?> PKG = ValueMetaBase.PKG;
@@ -87,18 +87,14 @@ public class VerticaDatabaseMetaTest {
   public void setupBefore() {
     nativeMeta = new VerticaDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new VerticaDatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
   }
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE },
       nativeMeta.getAccessTypeList() );
     assertEquals( 5433, nativeMeta.getDefaultDatabasePort() );
-    assertEquals( 5433, odbcMeta.getDefaultDatabasePort() ); // Inconsistent with all other DatabaseMetas
     assertEquals( "com.vertica.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:vertica://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:vertica://FOO:/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) ); // Believe this is a bug - must have the port. Inconsistent with others
     assertFalse( nativeMeta.isFetchSizeSupported() );

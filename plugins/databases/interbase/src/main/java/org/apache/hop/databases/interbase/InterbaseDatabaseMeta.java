@@ -45,7 +45,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   @Override
@@ -71,11 +71,7 @@ public class InterbaseDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "jdbc:odbc:" + databaseName;
-    } else {
-      return "jdbc:interbase://" + hostname + ":" + port + "/" + databaseName;
-    }
+    return "jdbc:interbase://" + hostname + ":" + port + "/" + databaseName;
   }
 
   /**

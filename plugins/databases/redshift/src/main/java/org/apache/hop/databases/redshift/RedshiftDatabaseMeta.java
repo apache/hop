@@ -55,11 +55,7 @@ public class RedshiftDatabaseMeta extends PostgreSqlDatabaseMeta {
 
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "jdbc:odbc:" + databaseName;
-    } else {
-      return "jdbc:redshift://" + hostname + ":" + port + "/" + databaseName;
-    }
+    return "jdbc:redshift://" + hostname + ":" + port + "/" + databaseName;
   }
 
   @Override

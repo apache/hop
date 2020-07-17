@@ -46,7 +46,7 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   /**
@@ -72,7 +72,6 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
       // If the database is an in-memory DB or if there is no valid port and hostname, go embedded
       //
       if ( ( databaseName != null && databaseName.startsWith( "mem:" ) )
@@ -83,9 +82,6 @@ public class H2DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         //
         return "jdbc:h2:tcp://" + hostname + ":" + port + "/" + databaseName;
       }
-    } else {
-      return "jdbc:odbc:" + databaseName;
-    }
   }
 
   /**

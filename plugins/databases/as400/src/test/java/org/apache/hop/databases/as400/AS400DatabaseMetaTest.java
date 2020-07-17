@@ -46,25 +46,21 @@ public class AS400DatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   AS400DatabaseMeta nativeMeta;
-  AS400DatabaseMeta odbcMeta;
 
   @Before
   public void setupOnce() throws Exception {
     nativeMeta = new AS400DatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new AS400DatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
     HopClientEnvironment.init();
   }
 
   @Test
   public void testSettings() throws Exception {
     int[] aTypes =
-      new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
     assertArrayEquals( aTypes, nativeMeta.getAccessTypeList() );
     assertEquals( "com.ibm.as400.access.AS400JDBCDriver", nativeMeta.getDriverClass() );
     assertEquals( 65536, nativeMeta.getMaxTextFieldLength() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
     assertEquals( "jdbc:as400://foo/bar", nativeMeta.getURL( "foo", "1500", "bar" ) ); // note - AS400 driver ignores the port
     String[] expectedReservedWords = new String[] {
       // http://publib.boulder.ibm.com/infocenter/iseries/v5r4/index.jsp

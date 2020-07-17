@@ -35,24 +35,20 @@ import static org.junit.Assert.*;
 public class TeradataDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
-  private TeradataDatabaseMeta nativeMeta, odbcMeta;
+  private TeradataDatabaseMeta nativeMeta;
 
   @Before
   public void setupBefore() {
     nativeMeta = new TeradataDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new TeradataDatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
   }
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE },
       nativeMeta.getAccessTypeList() );
     assertEquals( 1025, nativeMeta.getDefaultDatabasePort() );
-    assertEquals( 1025, odbcMeta.getDefaultDatabasePort() ); // Inconsistent behavior - likely a bug (usually returns -1 )
     assertEquals( "com.teradata.jdbc.TeraDriver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:teradata://FOO/DATABASE=WIBBLE", nativeMeta.getURL( "FOO", "IGNOREDHERE", "WIBBLE" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );
     assertEquals( "FOO.BAR", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
