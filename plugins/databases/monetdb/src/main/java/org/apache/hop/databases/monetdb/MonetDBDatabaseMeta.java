@@ -55,7 +55,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   /**
@@ -88,15 +88,11 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
       if ( Utils.isEmpty( port ) ) {
         return "jdbc:monetdb://" + hostname + "/" + databaseName;
       } else {
         return "jdbc:monetdb://" + hostname + ":" + port + "/" + databaseName;
       }
-    } else {
-      return "jdbc:odbc:" + databaseName;
-    }
   }
 
   /**

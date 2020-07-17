@@ -1110,18 +1110,6 @@ public interface IDatabase extends Cloneable {
   void setPort( String port );
 
   /**
-   * Gets odbcDsn
-   *
-   * @return value of odbcDsn
-   */
-  public String getOdbcDsn();
-
-  /**
-   * @param odbcDsn The odbcDsn to set
-   */
-  public void setOdbcDsn( String odbcDsn );
-
-  /**
    * @return A manually entered URL which will be used over the internally generated one
    */
   public String getManualUrl();

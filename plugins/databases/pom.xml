@@ -65,7 +65,6 @@
         <module>derby</module>
         <module>monetdb</module>
         <module>cache</module>
-        <module>dbase</module>
         <module>exasol4</module>
         <module>sqlbase</module>
         <module>h2</module>
@@ -73,14 +72,12 @@
         <module>informix</module>
         <module>interbase</module>
         <module>kingbasees</module>
-        <module>msaccess</module>
         <module>mssqlnative</module>
         <module>mssql</module>
         <module>mysql</module>
         <module>netezza</module>
         <module>oracle</module>        
         <module>oraclerdb</module>
-        <module>remedy-ar-system</module>
         <module>sapdb</module>
         <module>sqlite</module>
         <module>googlebigquery</module>

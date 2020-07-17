@@ -30,23 +30,20 @@ import static org.junit.Assert.*;
 
 public class FirebirdDatabaseMetaTest {
 
-  private FirebirdDatabaseMeta nativeMeta, odbcMeta;
+  private FirebirdDatabaseMeta nativeMeta;
 
   @Before
   public void setupBefore() {
     nativeMeta = new FirebirdDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new FirebirdDatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
+
   }
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE },
       nativeMeta.getAccessTypeList() );
     assertEquals( 3050, nativeMeta.getDefaultDatabasePort() );
-    assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
 
     assertEquals( "&", nativeMeta.getExtraOptionSeparator() );
     assertEquals( "?", nativeMeta.getExtraOptionIndicator() );
@@ -143,9 +140,6 @@ public class FirebirdDatabaseMetaTest {
 
     assertEquals( "DELETE FROM FOO", nativeMeta.getTruncateTableStatement( "FOO" ) );
 
-    odbcMeta.setUsername( "FOO" );
-    assertEquals( "SELECT RDB$PROCEDURE_NAME FROM RDB$PROCEDURES "
-      + "WHERE RDB$OWNER_NAME = 'FOO' ", odbcMeta.getSqlListOfProcedures() );
   }
 
   @Test
@@ -160,11 +154,6 @@ public class FirebirdDatabaseMetaTest {
       nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, false, false ) );
     assertEquals( "CHAR(1)",
       nativeMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
-
-    odbcMeta.setSupportsBooleanDataType( true );
-    assertEquals( "BIT",
-      odbcMeta.getFieldDefinition( new ValueMetaBoolean( "FOO" ), "", "", false, false, false ) );
-    odbcMeta.setSupportsBooleanDataType( false );
 
     assertEquals( "BIGINT NOT NULL PRIMARY KEY",
       nativeMeta.getFieldDefinition( new ValueMetaNumber( "FOO" ), "FOO", "", false, false, false ) );

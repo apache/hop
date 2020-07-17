@@ -29,27 +29,23 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class DB2DatabaseMetaTest {
-  private DB2DatabaseMeta nativeMeta, odbcMeta;
+  private DB2DatabaseMeta nativeMeta;
 
   @Before
   public void setupBefore() {
     nativeMeta = new DB2DatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new DB2DatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
+
   }
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE},
       nativeMeta.getAccessTypeList() );
     assertEquals( 50000, nativeMeta.getDefaultDatabasePort() );
-    assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsSetCharacterStream() );
     assertEquals( "com.ibm.db2.jcc.DB2Driver", nativeMeta.getDriverClass() );
     assertEquals( "jdbc:db2://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "xxxxxx", "zzzzzzz", "FOO" ) );
     assertTrue( nativeMeta.supportsSchemas() );
     assertArrayEquals( new String[] {
       // http://publib.boulder.ibm.com/infocenter/db2luw/v8/index.jsp?topic=/com.ibm.db2.udb.doc/admin/r0001095.htm

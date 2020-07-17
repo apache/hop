@@ -48,20 +48,18 @@ import static org.junit.Assert.assertTrue;
 
 public class BaseDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  BaseDatabaseMeta nativeMeta, odbcMeta;
+  BaseDatabaseMeta nativeMeta;
 
   @Before
   public void setupOnce() throws Exception {
     nativeMeta = new ConcreteBaseDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new ConcreteBaseDatabaseMeta();
-    nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
     HopClientEnvironment.init();
   }
 
   @Test
   public void testDefaultSettings() throws Exception {
-    // Note - this method should only use native or odbc.
+    // Note - this method should only use native.
     // (each test run in its own thread).
     assertEquals( -1, nativeMeta.getDefaultDatabasePort() );
     assertTrue( nativeMeta.supportsSetCharacterStream() );
@@ -186,14 +184,9 @@ public class BaseDatabaseMetaTest {
 
   @Test
   public void testDefaultSqlStatements() {
-    // Note - this method should use only native or odbc metas.
+    // Note - this method should use only native metas.
     String lineSep = System.getProperty( "line.separator" );
     String expected = "ALTER TABLE FOO DROP BAR" + lineSep;
-    assertEquals( expected, odbcMeta.getDropColumnStatement( "FOO", new ValueMetaString( "BAR" ), "", false, "", false ) );
-    assertEquals( "TRUNCATE TABLE FOO", odbcMeta.getTruncateTableStatement( "FOO" ) );
-    assertEquals( "SELECT * FROM FOO", odbcMeta.getSqlQueryFields( "FOO" ) );
-    assertEquals( "SELECT 1 FROM FOO", odbcMeta.getSqlTableExists( "FOO" ) );
-    assertEquals( "SELECT FOO FROM BAR", odbcMeta.getSqlColumnExists( "FOO", "BAR" ) );
     assertEquals( "insert into \"FOO\".\"BAR\"(KEYFIELD, VERSIONFIELD) values (0, 1)",
       nativeMeta.getSqlInsertAutoIncUnknownDimensionRow( "\"FOO\".\"BAR\"", "KEYFIELD", "VERSIONFIELD" ) );
     assertEquals( "select count(*) FROM FOO", nativeMeta.getSelectCountStatement( "FOO" ) );
@@ -301,9 +294,6 @@ public class BaseDatabaseMetaTest {
       }
     } );
     Mockito.when( db.getDatabaseMeta() ).thenReturn( dm );
-    assertTrue( odbcMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW1COL2", "ROW2COL2" } ) );
-    assertFalse( odbcMeta.checkIndexExists( db, "", "FOO", new String[] { "ROW2COL2", "NOTTHERE" } ) );
-    assertFalse( odbcMeta.checkIndexExists( db, "", "FOO", new String[] { "NOTTHERE", "ROW1COL2" } ) );
 
   }
 
