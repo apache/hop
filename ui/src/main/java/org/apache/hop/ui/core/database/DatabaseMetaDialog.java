@@ -161,7 +161,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
     for ( IPlugin plugin : plugins ) {
       try {
-        IDatabase iDatabase = PluginRegistry.getInstance().loadClass( plugin, IDatabase.class );
+        IDatabase iDatabase = (IDatabase) PluginRegistry.getInstance().loadClass( plugin );
         if ( iDatabase.getDefaultDatabasePort() > 0 ) {
           iDatabase.setPort( Integer.toString( iDatabase.getDefaultDatabasePort() ) );
         }
