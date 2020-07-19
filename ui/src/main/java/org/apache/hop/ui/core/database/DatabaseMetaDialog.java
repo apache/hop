@@ -100,9 +100,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
   private FormData fdGeneralComp;
   private Text wName;
   private ComboVar wConnectionType;
-  private Button wODBC;
-  private Label wlOdbcDsn;
-  private TextVar wOdbcDsn;
   private Label wlManualUrl;
   private TextVar wManualUrl;
   private Label wlUsername;
@@ -161,7 +158,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
     for ( IPlugin plugin : plugins ) {
       try {
-        IDatabase iDatabase = PluginRegistry.getInstance().loadClass( plugin, IDatabase.class );
+        IDatabase iDatabase = (IDatabase) PluginRegistry.getInstance().loadClass( plugin );
         if ( iDatabase.getDefaultDatabasePort() > 0 ) {
           iDatabase.setPort( Integer.toString( iDatabase.getDefaultDatabasePort() ) );
         }
@@ -298,47 +295,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     fdConnectionType.right = new FormAttachment( 100, 0 );
     wConnectionType.setLayoutData( fdConnectionType );
     lastControl = wConnectionType;
-
-
-    // What's the type of database connection?
-    //
-    Label wlODBC = new Label( wGeneralComp, SWT.RIGHT );
-    props.setLook( wlODBC );
-    wlODBC.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ODBC" ) );
-    FormData fdlODBC = new FormData();
-    fdlODBC.top = new FormAttachment( lastControl, margin * 2 );
-    fdlODBC.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlODBC.right = new FormAttachment( middle, 0 );
-    wlODBC.setLayoutData( fdlODBC );
-    wODBC = new Button( wGeneralComp, SWT.CHECK | SWT.LEFT );
-    props.setLook( wODBC );
-    FormData fdODBC = new FormData();
-    fdODBC.top = new FormAttachment( wlODBC, 0, SWT.CENTER );
-    fdODBC.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdODBC.right = new FormAttachment( 100, 0 );
-    wODBC.setLayoutData( fdODBC );
-    lastControl = wODBC;
-
-    wODBC.addListener( SWT.Selection, event -> enableFields() );
-
-    // What's the ODBC DSN Name
-    //
-    wlOdbcDsn = new Label( wGeneralComp, SWT.RIGHT );
-    props.setLook( wlOdbcDsn );
-    wlOdbcDsn.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.OdbcDsn" ) );
-    FormData fdlOdbcDsn = new FormData();
-    fdlOdbcDsn.top = new FormAttachment( lastControl, margin * 2 );
-    fdlOdbcDsn.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlOdbcDsn.right = new FormAttachment( middle, 0 );
-    wlOdbcDsn.setLayoutData( fdlOdbcDsn );
-    wOdbcDsn = new TextVar( databaseMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wOdbcDsn );
-    FormData fdOdbcDsn = new FormData();
-    fdOdbcDsn.top = new FormAttachment( wlOdbcDsn, 0, SWT.CENTER );
-    fdOdbcDsn.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdOdbcDsn.right = new FormAttachment( 100, 0 );
-    wOdbcDsn.setLayoutData( fdOdbcDsn );
-    lastControl = wOdbcDsn;
 
     // Username field
     //
@@ -715,18 +671,11 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
   }
 
   private void enableFields() {
-    boolean odbc = wODBC.getSelection();
     boolean manualUrl = StringUtils.isNotEmpty( wManualUrl.getText() ) && StringUtils.isNotBlank( wManualUrl.getText() );
-
-    wlOdbcDsn.setEnabled( odbc );
-    wOdbcDsn.setEnabled( odbc );
-
-    wlManualUrl.setEnabled( !odbc );
-    wManualUrl.setEnabled( !odbc );
 
     // Also enable/disable the custom native fields
     //
-    guiCompositeWidgets.enableWidgets( workingMeta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !odbc && !manualUrl );
+    guiCompositeWidgets.enableWidgets( workingMeta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !manualUrl );
   }
 
   private void ok( Event event ) {
@@ -757,7 +706,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
   private void getData() {
 
     wName.setText( Const.NVL( workingMeta.getName(), "" ) );
-    wODBC.setSelection( workingMeta.getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC );
     wConnectionType.setText( Const.NVL( workingMeta.getPluginName(), "" ) );
 
     wUsername.setText( Const.NVL( workingMeta.getUsername(), "" ) );
@@ -802,9 +750,8 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     //
     guiCompositeWidgets.getWidgetsContents( meta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
-    meta.setAccessType( wODBC.getSelection() ? DatabaseMeta.TYPE_ACCESS_ODBC : DatabaseMeta.TYPE_ACCESS_NATIVE );
+    meta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
 
-    meta.setOdbcDsn( wOdbcDsn.getText() );
     meta.setManualUrl( wManualUrl.getText() );
     meta.setUsername( wUsername.getText() );
     meta.setPassword( wPassword.getText() );

@@ -45,7 +45,7 @@ import org.apache.hop.core.util.Utils;
 public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
-    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+    return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   @Override
@@ -62,17 +62,13 @@ public class HypersonicDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
-  public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_ODBC ) {
-      return "jdbc:odbc:" + databaseName;
+  public String getURL(String hostname, String port, String databaseName) {
+    if ((Utils.isEmpty(port) || "-1".equals(port)) && Utils.isEmpty(hostname)) {
+      // When no port is specified, or port is 0 support local/memory
+      // HSQLDB databases.
+      return "jdbc:hsqldb:" + databaseName;
     } else {
-      if ( ( Utils.isEmpty( port ) || "-1".equals( port ) ) && Utils.isEmpty( hostname ) ) {
-        // When no port is specified, or port is 0 support local/memory
-        // HSQLDB databases.
-        return "jdbc:hsqldb:" + databaseName;
-      } else {
-        return "jdbc:hsqldb:hsql://" + hostname + ":" + port + "/" + databaseName;
-      }
+      return "jdbc:hsqldb:hsql://" + hostname + ":" + port + "/" + databaseName;
     }
   }
 

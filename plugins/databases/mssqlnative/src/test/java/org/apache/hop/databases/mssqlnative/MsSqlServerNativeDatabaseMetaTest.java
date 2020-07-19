@@ -40,11 +40,8 @@ public class MsSqlServerNativeDatabaseMetaTest {
   public void testMsSqlOverrides() throws Exception {
     MsSqlServerNativeDatabaseMeta localNativeMeta = new MsSqlServerNativeDatabaseMeta();
     localNativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    MsSqlServerNativeDatabaseMeta localOdbcMeta = new MsSqlServerNativeDatabaseMeta();
-    localOdbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
 
     assertEquals( "com.microsoft.sqlserver.jdbc.SQLServerDriver", localNativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:WIBBLE", localOdbcMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:sqlserver://FOO:1234;databaseName=WIBBLE", localNativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
 
     

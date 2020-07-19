@@ -50,7 +50,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith( PowerMockRunner.class )
 public class GenericDatabaseMetaTest {
-  GenericDatabaseMeta nativeMeta, odbcMeta;
+  GenericDatabaseMeta nativeMeta;
 
   @Mock
   GenericDatabaseMeta mockedMeta;
@@ -59,13 +59,11 @@ public class GenericDatabaseMetaTest {
   public void setupBefore() {
     nativeMeta = new GenericDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new GenericDatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
   }
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE },
       nativeMeta.getAccessTypeList() );
     assertEquals( 1, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
@@ -75,7 +73,6 @@ public class GenericDatabaseMetaTest {
     nativeMeta.setAttributes( attrs );
     assertEquals( "foo.bar.wibble", nativeMeta.getDriverClass() );
     assertEquals( "jdbc:foo:bar://foodb", nativeMeta.getURL( "NOT", "GOINGTO", "BEUSED" ) );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "NOT", "USED", "FOO" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );
     assertFalse( nativeMeta.supportsBitmapIndex() );
     assertFalse( nativeMeta.supportsPreparedStatementMetadataRetrieval() );
@@ -157,11 +154,6 @@ public class GenericDatabaseMetaTest {
     assertEquals( "ALTER TABLE FOO ADD BAR SMALLINT",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR", 4, 0 ), "", true, "", false ) );
 
-    // do a boolean check
-    odbcMeta.setSupportsBooleanDataType( true );
-    assertEquals( "ALTER TABLE FOO ADD BAR BOOLEAN",
-      odbcMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
-    odbcMeta.setSupportsBooleanDataType( false );
 
     assertEquals( "ALTER TABLE FOO ADD BAR BIGSERIAL",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "BAR", false, "", false ) );

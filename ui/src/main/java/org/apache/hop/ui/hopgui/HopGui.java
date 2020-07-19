@@ -596,8 +596,8 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
   }
 
   @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_EDIT_DELETE, label = "Delete selected", parentId = ID_MAIN_MENU_EDIT_PARENT_ID )
-  @GuiKeyboardShortcut( control = true, key = 'x' )
-  @GuiOsxKeyboardShortcut( command = true, key = 'x' )
+  @GuiKeyboardShortcut( control = false, key = SWT.DEL )
+  @GuiOsxKeyboardShortcut( command = false, key = SWT.DEL )
   public void menuEditDeleteSelected() {
     getActiveFileTypeHandler().deleteSelected();
   }

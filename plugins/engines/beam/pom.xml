@@ -32,8 +32,8 @@
   </parent>
 
   <properties>
-    <apache-beam-version>2.20.0</apache-beam-version>
-    <spark-version>2.4.4</spark-version>
+    <apache-beam-version>2.22.0</apache-beam-version>
+    <spark-version>2.4.5</spark-version>
     <flink-version>1.9.1</flink-version>
 
     <junit.version>4.4</junit.version>
@@ -79,6 +79,11 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-uniquerows</artifactId>
+      <version>0.30-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-transform-rowgenerator</artifactId>
       <version>0.30-SNAPSHOT</version>
     </dependency>
 
@@ -266,6 +271,11 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-mergejoin</artifactId>
+      <version>0.30-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-transform-rowgenerator</artifactId>
       <version>0.30-SNAPSHOT</version>
     </dependency>
     <dependency>

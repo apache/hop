@@ -46,7 +46,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class MsSqlServerDatabaseMetaTest {
-  MsSqlServerDatabaseMeta nativeMeta, odbcMeta;
+  MsSqlServerDatabaseMeta nativeMeta;
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
 
   private DatabaseMeta databaseMeta;
@@ -64,8 +64,6 @@ public class MsSqlServerDatabaseMetaTest {
   public void setupOnce() throws Exception {
     nativeMeta = new MsSqlServerDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new MsSqlServerDatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
     databaseMeta = new DatabaseMeta();
     iDatabase = mock( IDatabase.class );
     databaseMeta.setIDatabase( iDatabase );
@@ -74,20 +72,13 @@ public class MsSqlServerDatabaseMetaTest {
   @Test
   public void testSettings() throws Exception {
     assertFalse( nativeMeta.supportsCatalogs() );
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE },
       nativeMeta.getAccessTypeList() );
     assertEquals( 1433, nativeMeta.getDefaultDatabasePort() );
-    assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( "net.sourceforge.jtds.jdbc.Driver", nativeMeta.getDriverClass() );
 
     assertEquals( "jdbc:jtds:sqlserver://FOO/WIBBLE", nativeMeta.getURL( "FOO", "", "WIBBLE" ) );
     assertEquals( "jdbc:jtds:sqlserver://FOO:1234/WIBBLE", nativeMeta.getURL( "FOO", "1234", "WIBBLE" ) );
-
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "xxxxxx", "zzzzzzz", "FOO" ) );
-
-    odbcMeta.setUsingDoubleDecimalAsSchemaTableSeparator( true );
-    assertEquals( "FOO..BAR", odbcMeta.getSchemaTableCombination( "FOO", "BAR" ) );
 
     assertEquals( "FOO.BAR", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
     assertFalse( nativeMeta.supportsBitmapIndex() );
@@ -169,11 +160,6 @@ public class MsSqlServerDatabaseMetaTest {
 
     assertEquals( "ALTER TABLE FOO ALTER COLUMN BAR VARCHAR(100)",
       nativeMeta.getModifyColumnStatement( "FOO", new ValueMetaString( "BAR" ), "", false, "", true ) );
-
-    odbcMeta.setSupportsBooleanDataType( true ); // some subclass of the MSSQL meta probably ...
-    assertEquals( "ALTER TABLE FOO ADD BAR BIT",
-      odbcMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
-    odbcMeta.setSupportsBooleanDataType( false );
 
     assertEquals( "select o.name from sysobjects o, sysusers u where  xtype in ( 'FN', 'P' ) and o.uid = u.uid order by o.name",
       nativeMeta.getSqlListOfProcedures() );

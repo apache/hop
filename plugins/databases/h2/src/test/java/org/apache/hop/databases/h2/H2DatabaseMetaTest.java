@@ -29,22 +29,18 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class H2DatabaseMetaTest {
-  H2DatabaseMeta nativeMeta, odbcMeta;
+  H2DatabaseMeta nativeMeta;
 
   @Before
   public void setupBefore() {
     nativeMeta = new H2DatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new H2DatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
   }
 
   @Test
   public void testSettings() throws Exception {
     assertEquals( 8082, nativeMeta.getDefaultDatabasePort() );
-    assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertEquals( "org.h2.Driver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
 
     assertEquals( "jdbc:h2:WIBBLE", nativeMeta.getURL( "", "", "WIBBLE" ) );
     assertEquals( "jdbc:h2:tcp://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
@@ -150,12 +146,6 @@ public class H2DatabaseMetaTest {
 
     assertEquals( "ALTER TABLE FOO ADD BAR TINYINT",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR", 2, 0 ), "", true, "", false ) );
-
-    // do a boolean check
-    odbcMeta.setSupportsBooleanDataType( true );
-    assertEquals( "ALTER TABLE FOO ADD BAR BOOLEAN",
-      odbcMeta.getAddColumnStatement( "FOO", new ValueMetaBoolean( "BAR" ), "", false, "", false ) );
-    odbcMeta.setSupportsBooleanDataType( false );
 
     assertEquals( "ALTER TABLE FOO ADD BAR IDENTITY",
       nativeMeta.getAddColumnStatement( "FOO", new ValueMetaInteger( "BAR" ), "BAR", false, "", false ) );

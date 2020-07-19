@@ -29,19 +29,17 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class DerbyDatabaseMetaTest {
-  private DerbyDatabaseMeta nativeMeta, odbcMeta;
+  private DerbyDatabaseMeta nativeMeta;
 
   @Before
   public void setupBefore() {
     nativeMeta = new DerbyDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new DerbyDatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
   }
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE},
       nativeMeta.getAccessTypeList() );
     assertEquals( 0, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
@@ -54,8 +52,6 @@ public class DerbyDatabaseMetaTest {
     assertEquals( "jdbc:derby://FOO:BAR/WIBBLE", nativeMeta.getURL( "FOO", "BAR", "WIBBLE" ) );
     assertEquals( "jdbc:derby:FOO", nativeMeta.getURL( "", "", "FOO" ) );
 
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( null, null, "FOO" ) );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "xxxxxx", "zzzzzzz", "FOO" ) );
 
     assertTrue( nativeMeta.isFetchSizeSupported() );
     assertFalse( nativeMeta.supportsBitmapIndex() );

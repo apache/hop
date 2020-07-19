@@ -49,7 +49,7 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
 
@@ -76,8 +76,6 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
 
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-
       String url = "jdbc:teradata://" + hostname;
 
       // port is not appended here; instead it is appended via the DBS_PORT extra option
@@ -87,9 +85,6 @@ public class TeradataDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
       }
       return url;
 
-    } else {
-      return "jdbc:odbc:" + databaseName;
-    }
   }
 
   /**

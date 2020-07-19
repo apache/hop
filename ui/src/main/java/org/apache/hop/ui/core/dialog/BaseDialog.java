@@ -148,7 +148,22 @@ public abstract class BaseDialog extends Dialog {
       FileDialog fileDialog = new FileDialog( shell, save ? SWT.SAVE : SWT.OPEN );
       dialog = new NativeFileDialog( fileDialog );
     } else {
-      dialog = new HopVfsFileDialog( shell, variables, fileObject, false );
+      HopVfsFileDialog vfsDialog = new HopVfsFileDialog( shell, variables, fileObject, false, save );
+      if (save) {
+        if ( fileObject != null ) {
+          vfsDialog.setSaveFilename( fileObject.getName().getBaseName() );
+        } else {
+          // Take the first extension with "filename" prepended
+          //
+          if ( filterExtensions != null && filterExtensions.length > 0 ) {
+            String filterExtension = filterExtensions[ 0 ];
+            String extension = filterExtension.substring( filterExtension.lastIndexOf( "." ) );
+            vfsDialog.setSaveFilename( "filename" + extension );
+          }
+        }
+      }
+      dialog = vfsDialog;
+
     }
 
     if ( save ) {
@@ -219,7 +234,7 @@ public abstract class BaseDialog extends Dialog {
     if (useNativeFileDialog) {
       directoryDialog = new NativeDirectoryDialog( new DirectoryDialog( shell, SWT.OPEN ) );
     } else {
-      directoryDialog = new HopVfsFileDialog( shell, variables, null, true );
+      directoryDialog = new HopVfsFileDialog( shell, variables, null, true, false );
     }
 
     if ( StringUtils.isNotEmpty( message ) ) {

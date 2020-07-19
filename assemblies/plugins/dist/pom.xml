@@ -1477,6 +1477,19 @@
 
     <dependency>
       <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-kafka</artifactId>
+      <version>${hop-plugins-transforms.version}</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-ldap</artifactId>
       <version>${hop-plugins-transforms.version}</version>
       <type>zip</type>
@@ -2690,19 +2703,6 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-vfs-azure</artifactId>
-      <version>0.30-SNAPSHOT</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-assemblies-plugins-vfs-gcs</artifactId>
       <version>0.30-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>

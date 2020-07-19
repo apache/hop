@@ -1,3 +1,25 @@
+/*! ******************************************************************************
+ *
+ * Hop : The Hop Orchestration Platform
+ *
+ * http://www.project-hop.org
+ *
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
 package org.apache.hop.ui.core.vfs;
 
 import org.apache.commons.io.FilenameUtils;
@@ -127,14 +149,17 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private String message;
 
   private boolean browsingDirectories;
+  private boolean savingFile;
+  private String saveFilename;
 
   private int sortIndex = 0;
   private boolean ascending = true;
 
-  public HopVfsFileDialog( Shell parent, IVariables variables, FileObject fileObject, boolean browsingDirectories ) {
+  public HopVfsFileDialog( Shell parent, IVariables variables, FileObject fileObject, boolean browsingDirectories, boolean savingFile ) {
     this.parent = parent;
     this.variables = variables;
     this.browsingDirectories = browsingDirectories;
+    this.savingFile = savingFile;
 
     this.fileName = fileName == null ? null : HopVfs.getFilename( fileObject );
 
@@ -450,6 +475,20 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   private void enteredFilenameOrFolder() {
+    if (StringUtils.isNotEmpty(saveFilename)) {
+      try {
+        FileObject fullObject = HopVfs.getFileObject( wFilename.getText() );
+        if (!fullObject.isFolder()) {
+          // We're saving a filename and now if we hit enter we want this to select the file and close the dialog
+          //
+          activeFileObject = fullObject;
+          ok();
+          return;
+        }
+      } catch(Exception e) {
+        // Ignore error, just try to refresh and the error will be listed in the message widget
+      }
+    }
     refreshBrowser();
   }
 
@@ -556,13 +595,13 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     refreshBookmarks();
 
-    if ( fileName == null ) {
-      if ( filterPath != null ) {
-        fileName = filterPath;
-      } else {
+    if ( StringUtils.isEmpty(fileName)) {
+      if ( StringUtils.isEmpty(filterPath)) {
         // Default to the user home directory
         //
         fileName = System.getProperty( "user.home" );
+      } else {
+        fileName = filterPath;
       }
     }
 
@@ -877,7 +916,36 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       navigationIndex = navigationHistory.size() - 1;
     }
 
-    wFilename.setText( filename );
+    if (StringUtils.isEmpty(saveFilename)) {
+      wFilename.setText( filename );
+    } else {
+      try {
+        // Save the "saveFilename" entered text by the user?
+        //
+        String oldFull = wFilename.getText();
+        try {
+          FileObject oldFullObject = HopVfs.getFileObject( oldFull );
+          if (!oldFullObject.isFolder()) {
+            saveFilename = oldFullObject.getName().getBaseName();
+          }
+        } catch(Exception e) {
+          // I guess it wasn't a valid filename, ignore the error to reduce spamming
+        }
+
+        if (HopVfs.getFileObject( filename ).isFolder()) {
+          String fullPath = FilenameUtils.concat( filename, saveFilename );
+          wFilename.setText( fullPath );
+          // Select the saveFilename part...
+          //
+          int start = fullPath.lastIndexOf( saveFilename );
+          int end = fullPath.lastIndexOf(".");
+          wFilename.getTextWidget().setSelection( start, end );
+          wFilename.setFocus();
+        }
+      } catch(Exception e) {
+        wFilename.setText(filename);
+      }
+    }
     refreshBrowser();
     refreshStates();
   }
@@ -1204,5 +1272,37 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
    */
   public void setBrowsingDirectories( boolean browsingDirectories ) {
     this.browsingDirectories = browsingDirectories;
+  }
+
+  /**
+   * Gets savingFile
+   *
+   * @return value of savingFile
+   */
+  public boolean isSavingFile() {
+    return savingFile;
+  }
+
+  /**
+   * @param savingFile The savingFile to set
+   */
+  public void setSavingFile( boolean savingFile ) {
+    this.savingFile = savingFile;
+  }
+
+  /**
+   * Gets saveFilename
+   *
+   * @return value of saveFilename
+   */
+  public String getSaveFilename() {
+    return saveFilename;
+  }
+
+  /**
+   * @param saveFilename The saveFilename to set
+   */
+  public void setSaveFilename( String saveFilename ) {
+    this.saveFilename = saveFilename;
   }
 }

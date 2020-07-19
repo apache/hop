@@ -35,7 +35,7 @@ import static org.junit.Assert.assertTrue;
 
 public class H2BaseDatabaseMetaTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
-  BaseDatabaseMeta nativeMeta, odbcMeta;
+  BaseDatabaseMeta nativeMeta;
 
   @Before
   public void setupOnce() throws Exception {

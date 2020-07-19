@@ -3882,8 +3882,6 @@ public class Database implements IVariables, ILoggingObject {
     try {
       alltables = getDatabaseMetaData().getTables( null, schemaname, null, databaseMeta.getTableTypes() );
       while ( alltables.next() ) {
-        // due to PDI-743 with ODBC and MS SQL Server the order is changed and
-        // try/catch included for safety
         String cat = "";
         try {
           cat = alltables.getString( "TABLE_CAT" );
@@ -3998,8 +3996,6 @@ public class Database implements IVariables, ILoggingObject {
     try {
       allviews = getDatabaseMetaData().getTables( null, schemaname, null, databaseMeta.getViewTypes() );
       while ( allviews.next() ) {
-        // due to PDI-743 with ODBC and MS SQL Server the order is changed and
-        // try/catch included for safety
         String cat = "";
         try {
           cat = allviews.getString( "TABLE_CAT" );
@@ -4097,8 +4093,6 @@ public class Database implements IVariables, ILoggingObject {
     try {
       alltables = getDatabaseMetaData().getTables( null, schemaname, null, databaseMeta.getSynonymTypes() );
       while ( alltables.next() ) {
-        // due to PDI-743 with ODBC and MS SQL Server the order is changed and
-        // try/catch included for safety
         String cat = "";
         try {
           cat = alltables.getString( "TABLE_CAT" );

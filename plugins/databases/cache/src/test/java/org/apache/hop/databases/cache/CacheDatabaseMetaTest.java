@@ -30,30 +30,26 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class CacheDatabaseMetaTest {
-  private CacheDatabaseMeta cdm, cdmODBC;
+  private CacheDatabaseMeta cdm;
 
   @Before
   public void setupBefore() {
     cdm = new CacheDatabaseMeta();
     cdm.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    cdmODBC = new CacheDatabaseMeta();
-    cdmODBC.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
+
   }
 
   @Test
   public void testSettings() throws Exception {
 
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE},
       cdm.getAccessTypeList() );
     assertEquals( 1972, cdm.getDefaultDatabasePort() );
-    assertEquals( -1, cdmODBC.getDefaultDatabasePort() );
     assertFalse( cdm.supportsSetCharacterStream() );
     assertFalse( cdm.isFetchSizeSupported() );
     assertFalse( cdm.supportsAutoInc() );
     assertEquals( "com.intersys.jdbc.CacheDriver", cdm.getDriverClass() );
     assertEquals( "jdbc:Cache://FOO:BAR/WIBBLE", cdm.getURL( "FOO", "BAR", "WIBBLE" ) );
-    assertEquals( "jdbc:odbc:FOO", cdmODBC.getURL( null, null, "FOO" ) );
-    assertEquals( "jdbc:odbc:FOO", cdmODBC.getURL( "xxxxxx", "zzzzzzz", "FOO" ) );
     assertTrue( cdm.requiresCreateTablePrimaryKeyAppend() );
     assertFalse( cdm.supportsNewLinesInSql() );
   }

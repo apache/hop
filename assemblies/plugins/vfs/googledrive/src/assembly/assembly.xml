@@ -53,6 +53,7 @@
         <include>io.opencensus:opencensus-api</include>
         <include>io.grpc:grpc-context</include>
         <include>io.opencensus:opencensus-contrib-http-util</include>
+        <include>org.mortbay.jetty:jetty-client</include>
       </includes>
     </dependencySet>
   </dependencySets>

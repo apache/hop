@@ -29,14 +29,12 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class Exasol4DatabaseMetaTest {
-  Exasol4DatabaseMeta nativeMeta, odbcMeta;
+  Exasol4DatabaseMeta nativeMeta;
 
   @Before
   public void setupBefore() {
     nativeMeta = new Exasol4DatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new Exasol4DatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC ); // according to the allowable types, this should be irrelevant
   }
 
   @Test
@@ -44,7 +42,6 @@ public class Exasol4DatabaseMetaTest {
     assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE },
       nativeMeta.getAccessTypeList() );
     assertEquals( 8563, nativeMeta.getDefaultDatabasePort() );
-    assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertFalse( nativeMeta.supportsAutoInc() );
     assertEquals( "com.exasol.jdbc.EXADriver", nativeMeta.getDriverClass() );
     assertEquals( "jdbc:exa:FOO:BAR", nativeMeta.getURL( "FOO", "BAR", "IGNORED" ) );

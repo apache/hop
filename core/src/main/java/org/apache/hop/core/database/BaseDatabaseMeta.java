@@ -136,7 +136,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   private static final String FIELDNAME_PROTECTOR = "_";
 
   @HopMetadataProperty
-  protected int accessType; // Database.TYPE_ODBC / NATIVE / OCI
+  protected int accessType; // NATIVE / OCI
 
   @HopMetadataProperty
   @GuiWidgetElement(
@@ -182,9 +182,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    */
   @HopMetadataProperty
   protected String manualUrl;
-
-  @HopMetadataProperty
-  protected String odbcDsn;
 
   @HopMetadataProperty
   protected String servername; // Informix only!
@@ -344,21 +341,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
     this.password = password;
   }
 
-  /**
-   * Gets odbcDsn
-   *
-   * @return value of odbcDsn
-   */
-  public String getOdbcDsn() {
-    return odbcDsn;
-  }
-
-  /**
-   * @param odbcDsn The odbcDsn to set
-   */
-  public void setOdbcDsn( String odbcDsn ) {
-    this.odbcDsn = odbcDsn;
-  }
 
   /**
    * @return Returns the servername.

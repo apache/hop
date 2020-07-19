@@ -19,22 +19,28 @@
 
     <properties>
         <commons-vfs2.version>2.4.1</commons-vfs2.version>
-        <google-oauth-client-jetty.version>1.22.0</google-oauth-client-jetty.version>
-        <google-http-client-jackson2.version>1.33.0</google-http-client-jackson2.version>
-        <google-http-client.version>1.33.0</google-http-client.version>
+        <google-api-client.version>1.30.9</google-api-client.version>
+        <google-oauth-client.version>1.30.6</google-oauth-client.version>
+        <google-http-client-jackson2.version>1.34.0</google-http-client-jackson2.version>
+        <google-http-client.version>1.34.0</google-http-client.version>
         <google-api-services-drive.version>v3-rev77-1.22.0</google-api-services-drive.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.hop</groupId>
-            <artifactId>hop-plugins-vfs-googledrive</artifactId>
-            <version>${project.version}</version>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>${google-api-client.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-drive</artifactId>
             <version>${google-api-services-drive.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.http-client</groupId>
+            <artifactId>google-http-client</artifactId>
+            <version>${google-http-client.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.http-client</groupId>
@@ -49,12 +55,27 @@
         <dependency>
             <groupId>com.google.oauth-client</groupId>
             <artifactId>google-oauth-client-jetty</artifactId>
-            <version>${google-oauth-client-jetty.version}</version>
+            <version>${google-oauth-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client</artifactId>
+            <version>${google-oauth-client.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-java6</artifactId>
+            <version>${google-oauth-client.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-vfs2</artifactId>
             <version>${commons-vfs2.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mortbay.jetty</groupId>
+            <artifactId>jetty-client</artifactId>
+            <version>6.1.26</version>
         </dependency>
     </dependencies>
 </project>

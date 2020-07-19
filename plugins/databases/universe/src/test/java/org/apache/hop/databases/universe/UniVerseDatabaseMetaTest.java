@@ -30,28 +30,24 @@ import static org.junit.Assert.*;
 
 public class UniVerseDatabaseMetaTest {
 
-  private UniVerseDatabaseMeta nativeMeta, odbcMeta;
+  private UniVerseDatabaseMeta nativeMeta;
 
   @Before
   public void setupBefore() {
     nativeMeta = new UniVerseDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-    odbcMeta = new UniVerseDatabaseMeta();
-    odbcMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_ODBC );
   }
 
   @Test
   public void testSettings() throws Exception {
-    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC },
+    assertArrayEquals( new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE },
       nativeMeta.getAccessTypeList() );
     assertEquals( 65535, nativeMeta.getMaxVARCHARLength() );
     assertEquals( -1, nativeMeta.getDefaultDatabasePort() );
-    assertEquals( -1, odbcMeta.getDefaultDatabasePort() );
     assertTrue( nativeMeta.supportsAutoInc() );
     assertEquals( 1, nativeMeta.getNotFoundTK( true ) );
     assertEquals( 0, nativeMeta.getNotFoundTK( false ) );
     assertEquals( "com.ibm.u2.jdbc.UniJDBCDriver", nativeMeta.getDriverClass() );
-    assertEquals( "jdbc:odbc:FOO", odbcMeta.getURL( "IGNORED", "IGNORED", "FOO" ) );
     assertEquals( "jdbc:ibm-u2://FOO/WIBBLE", nativeMeta.getURL( "FOO", "IGNORED", "WIBBLE" ) );
     assertEquals( "FOO.BAR", nativeMeta.getSchemaTableCombination( "FOO", "BAR" ) );
     assertFalse( nativeMeta.isFetchSizeSupported() );

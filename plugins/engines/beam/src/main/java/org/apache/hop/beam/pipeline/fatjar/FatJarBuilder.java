@@ -1,3 +1,25 @@
+/*! ******************************************************************************
+ *
+ * Hop : The Hop Orchestration Platform
+ *
+ * http://www.project-hop.org
+ *
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/
+
 package org.apache.hop.beam.pipeline.fatjar;
 
 import org.apache.commons.io.IOUtils;
@@ -20,7 +42,11 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
+import org.apache.hop.core.vfs.plugin.IVfs;
+import org.apache.hop.core.vfs.plugin.VfsPluginType;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.IHopMetadata;
+import org.apache.hop.metadata.plugin.MetadataPluginType;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -70,7 +96,7 @@ public class FatJarBuilder {
       Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_DATABASE_TYPES, Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS,
       Const.XML_FILE_HOP_VALUEMETA_PLUGINS, Const.XML_FILE_HOP_PIPELINE_ENGINES, Const.XML_FILE_HOP_TRANSFORMS,
       Const.XML_FILE_HOP_WORKFLOW_ENGINES, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_EXTENSION_POINTS,
-      Const.XML_FILE_HOP_VFS_PLUGINS );
+      Const.XML_FILE_HOP_VFS_PLUGINS, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS, Const.XML_FILE_HOP_METADATA_PLUGINS );
     fileContentMap = new HashMap<>();
 
     try {
@@ -154,7 +180,7 @@ public class FatJarBuilder {
       // Add the META-INF/services files...
       //
       for ( String entryName : fileContentMap.keySet() ) {
-        System.out.println( "Entry merged: " + entryName );
+        // System.out.println( "Entry merged: " + entryName );
         String fileContent = fileContentMap.get( entryName );
         zipOutputStream.putNextEntry( new ZipEntry( entryName ) );
         zipOutputStream.write( fileContent.getBytes( "UTF-8" ) );
@@ -166,16 +192,14 @@ public class FatJarBuilder {
       DatabasePluginType dbPluginType = DatabasePluginType.getInstance();
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_DATABASE_TYPES, dbPluginType.getMainTag(), dbPluginType.getSubTag(), DatabasePluginType.class, IDatabase.class, null );
       TwoWayPasswordEncoderPluginType pwPluginType = TwoWayPasswordEncoderPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS, pwPluginType.getMainTag(), pwPluginType.getSubTag(), TwoWayPasswordEncoderPluginType.class,
-        ITwoWayPasswordEncoder.class, null );
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS, pwPluginType.getMainTag(), pwPluginType.getSubTag(), TwoWayPasswordEncoderPluginType.class, ITwoWayPasswordEncoder.class, null );
       ValueMetaPluginType valuePluginType = ValueMetaPluginType.getInstance();
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_VALUEMETA_PLUGINS, valuePluginType.getMainTag(), valuePluginType.getSubTag(), ValueMetaPluginType.class, IValueMeta.class, null );
       // engine plugins
       PipelineEnginePluginType pePluginType = PipelineEnginePluginType.getInstance();
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_PIPELINE_ENGINES, pePluginType.getMainTag(), pePluginType.getSubTag(), PipelineEnginePluginType.class, IPipelineEngine.class, null );
       TransformPluginType transformPluginType = TransformPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_TRANSFORMS, transformPluginType.getMainTag(), transformPluginType.getSubTag(), TransformPluginType.class, ITransformMeta.class,
-        extraTransformPluginClasses );
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_TRANSFORMS, transformPluginType.getMainTag(), transformPluginType.getSubTag(), TransformPluginType.class, ITransformMeta.class, extraTransformPluginClasses );
       WorkflowEnginePluginType wePluginType = WorkflowEnginePluginType.getInstance();
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_WORKFLOW_ENGINES, wePluginType.getMainTag(), wePluginType.getSubTag(), WorkflowEnginePluginType.class, IWorkflowEngine.class, null );
       ActionPluginType actionPluginType = ActionPluginType.getInstance();
@@ -183,9 +207,11 @@ public class FatJarBuilder {
       ExtensionPointPluginType xpPluginType = ExtensionPointPluginType.getInstance();
       addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_EXTENSION_POINTS, xpPluginType.getMainTag(), xpPluginType.getSubTag(), ExtensionPointPluginType.class, IExtensionPoint.class, extraXpPluginClasses );
       SearchableAnalyserPluginType saPluginType = SearchableAnalyserPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS, saPluginType.getMainTag(), saPluginType.getSubTag(), SearchableAnalyserPluginType.class, ISearchableAnalyser.class, extraXpPluginClasses );
-
-
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS, saPluginType.getMainTag(), saPluginType.getSubTag(), SearchableAnalyserPluginType.class, ISearchableAnalyser.class, null );
+      MetadataPluginType mdPluginType = MetadataPluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_METADATA_PLUGINS, mdPluginType.getMainTag(), mdPluginType.getSubTag(), MetadataPluginType.class, IHopMetadata.class, null );
+      VfsPluginType vfsPluginType = VfsPluginType.getInstance();
+      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_VFS_PLUGINS, vfsPluginType.getMainTag(), vfsPluginType.getSubTag(), VfsPluginType.class, IVfs.class, null );
 
       zipOutputStream.close();
     } catch ( Exception e ) {
