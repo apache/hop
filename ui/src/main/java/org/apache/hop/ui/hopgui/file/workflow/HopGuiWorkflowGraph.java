@@ -118,7 +118,6 @@ import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
-import org.eclipse.rap.rwt.scripting.ClientListener;
 import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
@@ -353,7 +352,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     scrolledcomposite = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL );
     canvas = new Canvas( scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER );
-    ClientListener listener = WebSpoonClientListener.getInstance();
+    Listener listener = WebSpoonClientListener.getInstance();
     canvas.addListener( SWT.MouseDown, listener );
     canvas.addListener( SWT.MouseMove, listener );
     canvas.addListener( SWT.MouseUp, listener );
