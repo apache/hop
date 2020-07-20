@@ -26,7 +26,6 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -247,7 +246,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     this.outputFields = outputFields;
   }
 
-  public void loadXml( Node transformnode, List<DatabaseMeta> databases, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml( Node transformnode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     readData( transformnode );
   }
 
