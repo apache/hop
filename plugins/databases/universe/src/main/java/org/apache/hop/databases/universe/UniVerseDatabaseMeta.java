@@ -47,7 +47,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   /**
@@ -68,11 +68,7 @@ public class UniVerseDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
 
   @Override
   public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      return "jdbc:ibm-u2://" + hostname + "/" + databaseName;
-    } else {
-      return "jdbc:odbc:" + databaseName;
-    }
+    return "jdbc:ibm-u2://" + hostname + "/" + databaseName;
   }
 
   /**

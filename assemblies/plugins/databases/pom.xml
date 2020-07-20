@@ -35,7 +35,6 @@
         <module>derby-assemblies</module>
         <module>monetdb-assemblies</module>
         <module>cache-assemblies</module>
-        <module>dbase-assemblies</module>
         <module>exasol4-assemblies</module>
         <module>sqlbase-assemblies</module>
         <module>h2-assemblies</module>
@@ -43,14 +42,12 @@
         <module>informix-assemblies</module>
         <module>interbase-assemblies</module>
         <module>kingbasees-assemblies</module>
-        <module>msaccess-assemblies</module>
         <module>mssqlnative-assemblies</module>
         <module>mssql-assemblies</module>
         <module>mysql-assemblies</module>
         <module>netezza-assemblies</module>
         <module>oracle-assemblies</module>
         <module>oraclerdb-assemblies</module>
-        <module>remedy-ar-system-assemblies</module>
         <module>sapdb-assemblies</module>
         <module>sqlite-assemblies</module>
         <module>googlebigquery-assemblies</module>

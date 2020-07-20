@@ -125,21 +125,17 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
    */
   public static final int TYPE_ACCESS_NATIVE = 0;
 
-  /**
-   * Connect to the database using ODBC.
-   */
-  public static final int TYPE_ACCESS_ODBC = 1;
 
   /**
    * Short description of the access type, used in serialization.
    */
-  public static final String[] dbAccessTypeCode = { "Native", "ODBC" };
+  public static final String[] dbAccessTypeCode = { "Native" };
 
   /**
    * Longer description for user interactions.
    */
   public static final String[] dbAccessTypeDesc = {
-    "Native (JDBC)", "ODBC", };
+    "Native (JDBC)" };
 
   /**
    * Use this length in a String value to indicate that you want to use a CLOB in stead of a normal text field.
@@ -368,8 +364,6 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
    * <p>
    * TYPE_ACCESS_NATIVE
    * <p>
-   * TYPE_ACCESS_ODBC
-   * <p>
    * TYPE_ACCESS_OCI
    * <p>
    *
@@ -544,21 +538,6 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
     iDatabase.setChanged( false );
   }
 
-  /**
-   * @param odbcDsn
-   */
-  public void setOdbcDsn( String odbcDsn ) {
-    iDatabase.setOdbcDsn( odbcDsn );
-  }
-
-  /**
-   * Gets odbcDsn
-   *
-   * @return value of odbcDsn
-   */
-  public String getOdbcDsn() {
-    return iDatabase.getOdbcDsn();
-  }
 
   /**
    * @return A manually entered URL which will be used over the internally generated one
@@ -1011,11 +990,7 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
   }
 
   public String getDriverClass() {
-    if ( getAccessType() == TYPE_ACCESS_ODBC ) {
-      return "sun.jdbc.odbc.JdbcOdbcDriver";
-    } else {
       return environmentSubstitute( iDatabase.getDriverClass() );
-    }
   }
 
   public String stripCR( String sbsql ) {

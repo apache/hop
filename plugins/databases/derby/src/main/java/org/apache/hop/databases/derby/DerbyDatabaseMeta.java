@@ -46,7 +46,7 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override
   public int[] getAccessTypeList() {
     return new int[] {
-      DatabaseMeta.TYPE_ACCESS_NATIVE, DatabaseMeta.TYPE_ACCESS_ODBC };
+      DatabaseMeta.TYPE_ACCESS_NATIVE };
   }
 
   /**
@@ -70,22 +70,19 @@ public class DerbyDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getURL( String hostname, String port, String databaseName ) {
-    if ( getAccessType() == DatabaseMeta.TYPE_ACCESS_NATIVE ) {
-      if ( !Utils.isEmpty( hostname ) ) {
-        String url = "jdbc:derby://" + hostname;
-        if ( !Utils.isEmpty( port ) ) {
-          url += ":" + port;
-        }
-        url += "/" + databaseName;
-        return url;
-      } else { // Simple format: jdbc:derby:<dbname>
-        return "jdbc:derby:" + databaseName;
+  public String getURL(String hostname, String port, String databaseName) {
+    if (!Utils.isEmpty(hostname)) {
+      String url = "jdbc:derby://" + hostname;
+      if (!Utils.isEmpty(port)) {
+        url += ":" + port;
       }
-    } else {
-      return "jdbc:odbc:" + databaseName;
+      url += "/" + databaseName;
+      return url;
+    } else { // Simple format: jdbc:derby:<dbname>
+      return "jdbc:derby:" + databaseName;
     }
   }
+
 
   /**
    * Checks whether or not the command setFetchSize() is supported by the JDBC driver...
