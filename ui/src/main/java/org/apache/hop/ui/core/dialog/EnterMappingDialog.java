@@ -100,15 +100,14 @@ public class EnterMappingDialog extends Dialog {
 
   private List wSource;
 
-  private Button wSourceAuto;
-
-  private Button wSourceHide;
-
   private List wTarget;
 
+
+  private Button wSourceHide;
+  private Button wTargetHide;
+  private Button wSourceAuto;
   private Button wTargetAuto;
 
-  private Button wTargetHide;
 
   private List wResult;
 
@@ -155,8 +154,7 @@ public class EnterMappingDialog extends Dialog {
     Shell parent = getParent();
     Display display = parent.getDisplay();
 
-    shell =
-      new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET );
+    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET );
     props.setLook( shell );
 
     shell.setImage( GuiResource.getInstance().getImageHopUi() );
@@ -185,6 +183,62 @@ public class EnterMappingDialog extends Dialog {
     wCancel.addListener( SWT.Selection, e -> cancel() );
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wGuess, wCancel }, margin, null );
 
+    // Hide used source fields?
+    wSourceHide = new Button( shell, SWT.CHECK );
+    wSourceHide.setSelection( true );
+    wSourceHide.setText(BaseMessages.getString( PKG, "EnterMappingDialog.HideUsedSources" ));
+    props.setLook( wSourceHide );
+    FormData fdSourceHide = new FormData();
+    fdSourceHide.left = new FormAttachment( 0, 0 );
+    fdSourceHide.right = new FormAttachment( 25, 0 );
+    fdSourceHide.bottom = new FormAttachment( wOk, -2*margin );
+    wSourceHide.setLayoutData( fdSourceHide );
+    wSourceHide.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent e ) {
+        refreshMappings();
+      }
+    } );
+
+    // Hide used target fields?
+    wTargetHide = new Button( shell, SWT.CHECK );
+    wTargetHide.setText(BaseMessages.getString( PKG, "EnterMappingDialog.HideUsedTargets" ));
+    wTargetHide.setSelection( true );
+    props.setLook( wTargetHide );
+    FormData fdTargetHide = new FormData();
+    fdTargetHide.left = new FormAttachment( 25, margin * 2 );
+    fdTargetHide.right = new FormAttachment( 50, 0 );
+    fdTargetHide.bottom = new FormAttachment(  wOk, -2*margin );
+    wTargetHide.setLayoutData( fdTargetHide );
+    wTargetHide.addSelectionListener( new SelectionAdapter() {
+      @Override
+      public void widgetSelected( SelectionEvent e ) {
+        refreshMappings();
+      }
+    } );
+
+    // Automatic source selection
+    wSourceAuto = new Button( shell, SWT.CHECK );
+    wSourceAuto.setText(BaseMessages.getString( PKG, "EnterMappingDialog.AutoTargetSelection.Label" ));
+    wSourceAuto.setSelection( true );
+    props.setLook( wSourceAuto );
+    FormData fdSourceAuto = new FormData();
+    fdSourceAuto.left = new FormAttachment( 0, 0 );
+    fdSourceAuto.right = new FormAttachment( 25, 0 );
+    fdSourceAuto.bottom = new FormAttachment( wSourceHide, -2*margin );
+    wSourceAuto.setLayoutData( fdSourceAuto );
+
+    // Automatic target selection
+    wTargetAuto = new Button( shell, SWT.CHECK );
+    wTargetAuto.setText(BaseMessages.getString( PKG, "EnterMappingDialog.AutoSourceSelection.Label" ));
+    wTargetAuto.setSelection( false );
+    props.setLook( wTargetAuto );
+    FormData fdTargetAuto = new FormData();
+    fdTargetAuto.left = new FormAttachment( 25, margin*2 );
+    fdTargetAuto.right = new FormAttachment( 50, 0 );
+    fdTargetAuto.bottom = new FormAttachment( wTargetHide, -2*margin );
+    wTargetAuto.setLayoutData( fdTargetAuto );
+
     // Source table
     //
     Label wlSource = new Label( shell, SWT.NONE );
@@ -203,48 +257,9 @@ public class EnterMappingDialog extends Dialog {
     fdSource.left = new FormAttachment( 0, 0 );
     fdSource.right = new FormAttachment( 25, 0 );
     fdSource.top = new FormAttachment( wlSource, margin );
-    fdSource.bottom = new FormAttachment( 100, -buttonSpace );
+    fdSource.bottom = new FormAttachment( wSourceAuto, -2*margin );
     wSource.setLayoutData( fdSource );
 
-    // Automatic target selection
-    Label wlSourceAuto = new Label( shell, SWT.NONE );
-    wlSourceAuto.setText( BaseMessages.getString( PKG, "EnterMappingDialog.AutoTargetSelection.Label" ) );
-    props.setLook( wlSourceAuto );
-    FormData fdlSourceAuto = new FormData();
-    fdlSourceAuto.left = new FormAttachment( 0, 0 );
-    fdlSourceAuto.top = new FormAttachment( wSource, margin );
-    wlSourceAuto.setLayoutData( fdlSourceAuto );
-    wSourceAuto = new Button( shell, SWT.CHECK );
-    wSourceAuto.setSelection( true );
-    props.setLook( wSourceAuto );
-    FormData fdSourceAuto = new FormData();
-    fdSourceAuto.left = new FormAttachment( wlSourceAuto, margin * 2 );
-    fdSourceAuto.right = new FormAttachment( 25, 0 );
-    fdSourceAuto.top = new FormAttachment( wSource, margin );
-    wSourceAuto.setLayoutData( fdSourceAuto );
-
-    // Hide used source fields?
-    Label wlSourceHide = new Label( shell, SWT.NONE );
-    wlSourceHide.setText( BaseMessages.getString( PKG, "EnterMappingDialog.HideUsedSources" ) );
-    props.setLook( wlSourceHide );
-    FormData fdlSourceHide = new FormData();
-    fdlSourceHide.left = new FormAttachment( 0, 0 );
-    fdlSourceHide.top = new FormAttachment( wSourceAuto, margin );
-    wlSourceHide.setLayoutData( fdlSourceHide );
-    wSourceHide = new Button( shell, SWT.CHECK );
-    wSourceHide.setSelection( true );
-    props.setLook( wSourceHide );
-    FormData fdSourceHide = new FormData();
-    fdSourceHide.left = new FormAttachment( wlSourceHide, margin * 2 );
-    fdSourceHide.right = new FormAttachment( 25, 0 );
-    fdSourceHide.top = new FormAttachment( wSourceAuto, margin );
-    wSourceHide.setLayoutData( fdSourceHide );
-    wSourceHide.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        refreshMappings();
-      }
-    } );
 
     // Target table
     Label wlTarget = new Label( shell, SWT.NONE );
@@ -263,67 +278,31 @@ public class EnterMappingDialog extends Dialog {
     fdTarget.left = new FormAttachment( wSource, margin * 2 );
     fdTarget.right = new FormAttachment( 50, 0 );
     fdTarget.top = new FormAttachment( wlTarget, margin );
-    fdTarget.bottom = new FormAttachment( 100, -buttonSpace );
+    fdTarget.bottom = new FormAttachment( wTargetAuto, -2*margin );
     wTarget.setLayoutData( fdTarget );
 
-    // Automatic target selection
-    Label wlTargetAuto = new Label( shell, SWT.NONE );
-    wlTargetAuto.setText( BaseMessages.getString( PKG, "EnterMappingDialog.AutoSourceSelection.Label" ) );
-    props.setLook( wlTargetAuto );
-    FormData fdlTargetAuto = new FormData();
-    fdlTargetAuto.left = new FormAttachment( wSource, margin * 2 );
-    fdlTargetAuto.top = new FormAttachment( wTarget, margin );
-    wlTargetAuto.setLayoutData( fdlTargetAuto );
-    wTargetAuto = new Button( shell, SWT.CHECK );
-    wTargetAuto.setSelection( false );
-    props.setLook( wTargetAuto );
-    FormData fdTargetAuto = new FormData();
-    fdTargetAuto.left = new FormAttachment( wlTargetAuto, margin * 2 );
-    fdTargetAuto.right = new FormAttachment( 50, 0 );
-    fdTargetAuto.top = new FormAttachment( wTarget, margin );
-    wTargetAuto.setLayoutData( fdTargetAuto );
 
-    // Automatic target selection
-    Label wlTargetHide = new Label( shell, SWT.NONE );
-    wlTargetHide.setText( BaseMessages.getString( PKG, "EnterMappingDialog.HideUsedTargets" ) );
-    props.setLook( wlTargetHide );
-    FormData fdlTargetHide = new FormData();
-    fdlTargetHide.left = new FormAttachment( wSource, margin * 2 );
-    fdlTargetHide.top = new FormAttachment( wTargetAuto, margin );
-    wlTargetHide.setLayoutData( fdlTargetHide );
-    wTargetHide = new Button( shell, SWT.CHECK );
-    wTargetHide.setSelection( true );
-    props.setLook( wTargetHide );
-    FormData fdTargetHide = new FormData();
-    fdTargetHide.left = new FormAttachment( wlTargetHide, margin * 2 );
-    fdTargetHide.right = new FormAttachment( 50, 0 );
-    fdTargetHide.top = new FormAttachment( wTargetAuto, margin );
-    wTargetHide.setLayoutData( fdTargetHide );
 
-    wTargetHide.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        refreshMappings();
-      }
-    } );
 
-    // Add a couple of buttons:
-    Button wAdd = new Button( shell, SWT.PUSH );
-    FormData fdAdd = new FormData();
-    wAdd.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Button.Add" ) );
-    fdAdd.left = new FormAttachment( wTarget, margin * 2 );
-    fdAdd.top = new FormAttachment( wTarget, 0, SWT.CENTER );
-    wAdd.setLayoutData( fdAdd );
-    wAdd.addListener( SWT.Selection, e -> add() );
 
-    // Delete a couple of buttons:
+    // Delete mapping button
     Button wDelete = new Button( shell, SWT.PUSH );
     FormData fdDelete = new FormData();
     wDelete.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Button.Delete" ) );
     fdDelete.left = new FormAttachment( wTarget, margin * 2 );
-    fdDelete.top = new FormAttachment( wAdd, margin * 2 );
+    fdDelete.top = new FormAttachment( wTarget, 0, SWT.CENTER );
     wDelete.setLayoutData( fdDelete );
     wDelete.addListener( SWT.Selection, e -> delete() );
+
+    // Add mapping button:
+    Button wAdd = new Button( shell, SWT.PUSH );
+    FormData fdAdd = new FormData();
+    wAdd.setText( BaseMessages.getString( PKG, "EnterMappingDialog.Button.Add" ) );
+    fdAdd.left = new FormAttachment( wTarget, margin * 2 );
+    fdAdd.right = new FormAttachment( wDelete, 0, SWT.RIGHT );
+    fdAdd.bottom = new FormAttachment( wDelete, -2*margin );
+    wAdd.setLayoutData( fdAdd );
+    wAdd.addListener( SWT.Selection, e -> add() );
 
     // Result table
     Label wlResult = new Label( shell, SWT.NONE );
