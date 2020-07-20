@@ -1,9 +1,9 @@
 //# sourceURL=canvas.js
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2016-2018 by Hitachi America, Ltd., R&D : http://www.hitachi-america.us/rd/
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -20,6 +20,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
+
 "use strict";
 var x1, x2, y1, y2;
 var clicked = null;

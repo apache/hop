@@ -22,14 +22,15 @@
 
 package org.apache.hop.ui.hopgui;
 
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
-public class CanvasListener {
-  private static final ISingletonProvider PROVIDER;
-  static {
-    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( CanvasListener.class );
+public class CanvasListenerImpl implements ISingletonProvider, Listener {
+  public Object getInstanceInternal() {
+    return this;
   }
-  public static final Listener getInstance() {
-    return (Listener) PROVIDER.getInstanceInternal();
+  @Override
+  public void handleEvent( Event event ) {
+    // do nothing
   }
 }

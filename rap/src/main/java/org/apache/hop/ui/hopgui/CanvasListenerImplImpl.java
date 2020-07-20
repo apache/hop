@@ -22,14 +22,25 @@
 
 package org.apache.hop.ui.hopgui;
 
-import org.eclipse.swt.widgets.Listener;
+import java.io.IOException;
 
-public class CanvasListener {
-  private static final ISingletonProvider PROVIDER;
-  static {
-    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( CanvasListener.class );
+import org.apache.commons.io.IOUtils;
+import org.eclipse.rap.rwt.scripting.ClientListener;
+
+public class CanvasListenerImplImpl extends ClientListener {
+
+  private CanvasListenerImplImpl() {
+    super( getText() );
   }
-  public static final Listener getInstance() {
-    return (Listener) PROVIDER.getInstanceInternal();
+
+  private static String getText() {
+    String canvasScript = null;
+    try {
+      canvasScript = IOUtils.toString( CanvasListenerImplImpl.class.getResourceAsStream( "canvas.js" ) );
+    } catch ( IOException e1 ) {
+      // TODO Auto-generated catch block
+      e1.printStackTrace();
+    }
+    return canvasScript;
   }
 }
