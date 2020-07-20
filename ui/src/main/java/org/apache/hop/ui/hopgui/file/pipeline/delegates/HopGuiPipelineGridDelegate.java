@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -390,11 +389,11 @@ public class HopGuiPipelineGridDelegate {
       // The data in the grid...
       //
       List<List<String>> componentStringsList = new ArrayList<>();
-      int row = 0;
+      int row = 1;
       for ( IEngineComponent component : shownComponents ) {
         List<String> componentStrings = new ArrayList<>();
 
-        componentStrings.add( Integer.toString( row ) );
+        componentStrings.add( Integer.toString( row++ ) );
         componentStrings.add( Const.NVL( component.getName(), "" ) );
         componentStrings.add( Integer.toString( component.getCopyNr() ) );
 
