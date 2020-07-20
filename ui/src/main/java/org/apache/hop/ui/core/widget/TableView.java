@@ -2507,7 +2507,12 @@ public class TableView extends Composite {
 
   public void optWidth( boolean header, int nrLines ) {
 
-    int extraForMargin = (int)(PropsUi.getNativeZoomFactor()*5);
+    int extraForMargin;
+    if (Const.isWindows()) {
+      extraForMargin = (int)(PropsUi.getNativeZoomFactor()*8);
+    } else {
+      extraForMargin = (int)(PropsUi.getNativeZoomFactor()*5);
+    }
 
     for ( int c = 0; c < table.getColumnCount(); c++ ) {
       TableColumn tc = table.getColumn( c );

@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
@@ -75,7 +76,7 @@ public class HopGuiPipelineGridDelegate {
   public static final String TOOLBAR_ICON_SHOW_HIDE_INACTIVE = "ToolbarIcon-10000-ShowHideInactive";
   public static final String TOOLBAR_ICON_SHOW_HIDE_SELECTED = "ToolbarIcon-10010-ShowHideSelected";
 
-  public static final long UPDATE_TIME_VIEW = 2000L;
+  public static final long UPDATE_TIME_VIEW = 1000L;
 
   private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
@@ -340,7 +341,6 @@ public class HopGuiPipelineGridDelegate {
 
       // First the name of the component (transform):
       // Then the copy number
-      // TODO: rename transform to component
       //
       columns.add( new ColumnInfo( BaseMessages.getString( PKG, "PipelineLog.Column.TransformName" ), ColumnInfo.COLUMN_TYPE_TEXT, false, true ) );
       ColumnInfo copyColumn = new ColumnInfo( BaseMessages.getString( PKG, "PipelineLog.Column.Copynr" ), ColumnInfo.COLUMN_TYPE_TEXT, true, true );
@@ -387,46 +387,104 @@ public class HopGuiPipelineGridDelegate {
 
       columns.add( new ColumnInfo( "Status", ColumnInfo.COLUMN_TYPE_TEXT, false, true ) ); // TODO i18n
 
-      // Remove the old stuff on the composite...
+      // The data in the grid...
       //
-      pipelineGridView.dispose();
-      pipelineGridView =
-        new TableView( pipelineGraph.getManagedObject(), pipelineGridComposite, SWT.NONE, columns.toArray( new ColumnInfo[ 0 ] ), shownComponents.size(), null, PropsUi.getInstance() );
-      pipelineGridView.setSortable( false ); // TODO: re-implement
-      FormData fdView = new FormData();
-      fdView.left = new FormAttachment( 0, 0 );
-      fdView.right = new FormAttachment( 100, 0 );
-      fdView.top = new FormAttachment( toolbar, 0 );
-      fdView.bottom = new FormAttachment( 100, 0 );
-      pipelineGridView.setLayoutData( fdView );
-
-      // Fill the grid...
-      //
+      List<List<String>> componentStringsList = new ArrayList<>();
       int row = 0;
       for ( IEngineComponent component : shownComponents ) {
-        int col = 0;
+        List<String> componentStrings = new ArrayList<>();
 
-        TableItem item = pipelineGridView.table.getItem( row++ );
-        item.setText( col++, Integer.toString( row ) );
-        item.setText( col++, Const.NVL( component.getName(), "" ) );
-        item.setText( col++, Integer.toString( component.getCopyNr() ) );
+        componentStrings.add( Integer.toString( row ) );
+        componentStrings.add( Const.NVL( component.getName(), "" ) );
+        componentStrings.add( Integer.toString( component.getCopyNr() ) );
 
         for ( IEngineMetric metric : usedMetrics ) {
           Long value = engineMetrics.getComponentMetric( component, metric );
-          item.setText( col++, value == null ? "" : formatMetric( value ) );
+          componentStrings.add( value == null ? "" : formatMetric( value ) );
         }
         String duration = calculateDuration( component );
-        item.setText( col++, duration );
+        componentStrings.add( duration );
         String speed = engineMetrics.getComponentSpeedMap().get( component );
-        item.setText( col++, Const.NVL( speed, "" ) );
+        componentStrings.add( Const.NVL( speed, "" ) );
         String status = engineMetrics.getComponentStatusMap().get( component );
-        item.setText( col++, Const.NVL( status, "" ) );
+        componentStrings.add( Const.NVL( status, "" ) );
+
+        componentStringsList.add( componentStrings );
       }
+
+
+      // So now we have the columns and the content of the grid...
+      //
+      // If the number of columns has changed since the last refresh we rebuild the table.
+      //
+      if ( haveColumnsChanged( columns ) ) {
+        // Remove the old stuff on the composite...
+        //
+        pipelineGridView.dispose();
+        pipelineGridView =
+          new TableView( pipelineGraph.getManagedObject(), pipelineGridComposite, SWT.NONE, columns.toArray( new ColumnInfo[ 0 ] ), shownComponents.size(), null, PropsUi.getInstance() );
+        pipelineGridView.setSortable( false ); // TODO: re-implement
+        FormData fdView = new FormData();
+        fdView.left = new FormAttachment( 0, 0 );
+        fdView.right = new FormAttachment( 100, 0 );
+        fdView.top = new FormAttachment( toolbar, 0 );
+        fdView.bottom = new FormAttachment( 100, 0 );
+        pipelineGridView.setLayoutData( fdView );
+        pipelineGridComposite.layout( true, true );
+      }
+
+      // If the number of rows in the table is different then we need to remove all rows and rebuild.
+      // Otherwise we're just going to re-use the table items and put new values on the cells...
+      //
+      while ( pipelineGridView.table.getItemCount() > componentStringsList.size() ) {
+        pipelineGridView.table.remove( pipelineGridView.table.getItemCount() - 1 );
+      }
+
+      for (row=0;row<componentStringsList.size();row++) {
+        List<String> componentStrings = componentStringsList.get( row );
+
+        TableItem item;
+        if (row<pipelineGridView.table.getItemCount()) {
+          item = pipelineGridView.table.getItem( row );
+        } else {
+          item = new TableItem( pipelineGridView.table, SWT.NONE );
+        }
+
+        for (int col=0;col<componentStrings.size();col++) {
+          item.setText(col, componentStrings.get(col));
+        }
+      }
+
+      // Optimize the view...
+      //
       pipelineGridView.optWidth( true );
-      pipelineGridComposite.layout( true, true );
+
+      previousRefreshColumns = columns;
     } finally {
       refreshViewLock.unlock();
     }
+  }
+
+  private List<ColumnInfo> previousRefreshColumns = null;
+
+  private boolean haveColumnsChanged( List<ColumnInfo> columns ) {
+    if ( previousRefreshColumns == null ) {
+      return true;
+    }
+    if ( previousRefreshColumns.size() != columns.size() ) {
+      return true;
+    }
+    for ( int i = 0; i < columns.size(); i++ ) {
+      ColumnInfo newColumn = columns.get( i );
+      ColumnInfo prvColumn = previousRefreshColumns.get( i );
+      if ( !newColumn.getName().equals( prvColumn.getName() ) ) {
+        return true;
+      }
+      if ( newColumn.getType() != prvColumn.getType() ) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private String calculateDuration( IEngineComponent component ) {
