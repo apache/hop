@@ -185,14 +185,16 @@ public class ProjectsGuiPlugin {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
 
       ProjectConfig projectConfig = new ProjectConfig( "", "", ProjectConfig.DEFAULT_PROJECT_CONFIG_FILENAME );
-      config.addProjectConfig( projectConfig );
-      HopConfig.getInstance().saveToFile();
 
       Project project = new Project();
       ProjectDialog projectDialog = new ProjectDialog( hopGui.getShell(), project, projectConfig, hopGui.getVariables() );
       String projectName = projectDialog.open();
       if ( projectName != null ) {
         config.addProjectConfig( projectConfig );
+        HopConfig.getInstance().saveToFile();
+
+        // Save the project-config.json file as well in the project itself
+        //
         project.saveToFile();
 
         refreshProjectsList();
