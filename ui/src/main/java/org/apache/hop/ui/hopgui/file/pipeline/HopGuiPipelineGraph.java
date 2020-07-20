@@ -109,7 +109,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.WebSpoonClientListener;
+import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
@@ -471,7 +471,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     scrolledcomposite = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL );
     canvas = new Canvas( scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER );
-    Listener listener = WebSpoonClientListener.getInstance();
+    Listener listener = CanvasListener.getInstance();
     canvas.addListener( SWT.MouseDown, listener );
     canvas.addListener( SWT.MouseMove, listener );
     canvas.addListener( SWT.MouseUp, listener );

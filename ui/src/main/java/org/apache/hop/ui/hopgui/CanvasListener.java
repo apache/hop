@@ -28,19 +28,19 @@ import org.apache.commons.io.IOUtils;
 import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.rap.rwt.scripting.ClientListener;
 
-public class WebSpoonClientListener extends ClientListener {
-  public static WebSpoonClientListener getInstance() {
-    return SingletonUtil.getSessionInstance( WebSpoonClientListener.class );
+public class CanvasListener extends ClientListener {
+  public static CanvasListener getInstance() {
+    return SingletonUtil.getSessionInstance( CanvasListener.class );
   }
 
-  private WebSpoonClientListener() {
+  private CanvasListener() {
     super( getText() );
   }
 
   private static String getText() {
     String canvasScript = null;
     try {
-      canvasScript = IOUtils.toString( WebSpoonClientListener.class.getResourceAsStream( "canvas.js" ) );
+      canvasScript = IOUtils.toString( CanvasListener.class.getResourceAsStream( "canvas.js" ) );
     } catch ( IOException e1 ) {
       // TODO Auto-generated catch block
       e1.printStackTrace();
