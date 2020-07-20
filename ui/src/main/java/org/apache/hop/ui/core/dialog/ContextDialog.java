@@ -191,9 +191,9 @@ public class ContextDialog extends Dialog {
 		//
 		wlTooltip = new Label( shell, SWT.LEFT );
 		FormData fdlTooltip = new FormData();
-		fdlTooltip.height = this.cellHeight;
 		fdlTooltip.left = new FormAttachment( 0, Const.FORM_MARGIN );
 		fdlTooltip.right = new FormAttachment( 100, -Const.FORM_MARGIN );
+		fdlTooltip.top = new FormAttachment(100, -Const.FORM_MARGIN - (int)(props.getZoomFactor()*50));
 		fdlTooltip.bottom = new FormAttachment( 100, -Const.FORM_MARGIN );
 		wlTooltip.setLayoutData( fdlTooltip );
 
@@ -330,7 +330,18 @@ public class ContextDialog extends Dialog {
 	 * @param event
 	 */
 	private void onPaint( PaintEvent event ) {
+
+		// Do double buffering to prevent flickering on Windows
+		//
+		boolean needsDoubleBuffering = Const.isWindows() && "GUI".equalsIgnoreCase( Const.getHopPlatformRuntime() );
+
+		Image image = null;
 		GC gc = event.gc;
+
+		if ( needsDoubleBuffering ) {
+			image = new Image( shell.getDisplay(), event.width, event.height );
+			gc = new GC( image );
+		}
 
 		if ( !paintInitialized ) {
 			// Filter all actions by default
@@ -422,6 +433,14 @@ public class ContextDialog extends Dialog {
 			if ( y > event.height + 2 * cellHeight ) {
 				break;
 			}
+		}
+
+		if ( needsDoubleBuffering ) {
+			// Draw the image onto the canvas and get rid of the resources
+			//
+			event.gc.drawImage( image, 0, 0 );
+			gc.dispose();
+			image.dispose();
 		}
 	}
 
