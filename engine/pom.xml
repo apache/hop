@@ -6,7 +6,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop-engine</artifactId>
-  <version>0.30-SNAPSHOT</version>
+  <version>0.40-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Engine</name>
@@ -14,7 +14,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.30-SNAPSHOT</version>
+    <version>0.40-SNAPSHOT</version>
   </parent>
 
   <properties>
