@@ -7,7 +7,7 @@
 
 	<groupId>org.hop</groupId>
 	<artifactId>hop-plugins-actions</artifactId>
-	<version>0.30-SNAPSHOT</version>
+	<version>0.40-SNAPSHOT</version>
 	<modules>
 	</modules>
 	<packaging>pom</packaging>
@@ -17,7 +17,7 @@
 	<parent>
 		<groupId>org.hop</groupId>
 		<artifactId>hop-plugins</artifactId>
-		<version>0.30-SNAPSHOT</version>
+		<version>0.40-SNAPSHOT</version>
 	</parent>
 
 	<properties>
@@ -121,7 +121,7 @@
 		<dependency>
 			<groupId>org.hop</groupId>
 			<artifactId>hop-ui-swt</artifactId>
-			<version>0.30-SNAPSHOT</version>
+			<version>0.40-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
