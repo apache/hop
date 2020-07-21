@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.30-SNAPSHOT</version>
+        <version>0.30</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-creditcardvalidator</artifactId>
-    <version>0.30-SNAPSHOT</version>
+    <version>0.30</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Credit Card Validator</name>

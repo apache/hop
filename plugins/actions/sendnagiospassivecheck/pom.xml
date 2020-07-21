@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>org.hop</groupId>
 		<artifactId>hop-plugins-actions</artifactId>
-		<version>0.30-SNAPSHOT</version>
+		<version>0.30</version>
 	</parent>
 
 	<artifactId>hop-action-sendnagiospassivecheck</artifactId>

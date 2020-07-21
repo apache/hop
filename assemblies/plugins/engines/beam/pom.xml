@@ -7,11 +7,11 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop-assemblies-plugins-engines</artifactId>
-    <version>0.30-SNAPSHOT</version>
+    <version>0.30</version>
   </parent>
 
   <artifactId>hop-assemblies-plugins-engines-beam</artifactId>
-  <version>0.30-SNAPSHOT</version>
+  <version>0.30</version>
   <packaging>pom</packaging>
   <name>Hop Assemblies Plugins Engines Beam</name>
   <description></description>
@@ -45,7 +45,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-plugins-engines-beam</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.30</version>
     </dependency>
 
     <!-- The Apache Beam dependencies -->
@@ -220,42 +220,42 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-sort</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.30</version>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-uniquerows</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.30</version>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-memgroupby</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.30</version>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-constant</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.30</version>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-filterrows</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.30</version>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-streamlookup</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.30</version>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-mergejoin</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.30</version>
     </dependency>
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-switchcase</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.30</version>
     </dependency>
 
   </dependencies>

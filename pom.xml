@@ -6,7 +6,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop</artifactId>
-  <version>0.30-SNAPSHOT</version>
+  <version>0.30</version>
 
   <packaging>pom</packaging>
 

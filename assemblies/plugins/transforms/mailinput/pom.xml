@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.30-SNAPSHOT</version>
+        <version>0.30</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-mailinput</artifactId>
-    <version>0.30-SNAPSHOT</version>
+    <version>0.30</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Mail Input</name>
@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-action-getpop</artifactId>
-            <version>0.30-SNAPSHOT</version>
+            <version>0.30</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
