@@ -25,7 +25,6 @@ package org.apache.hop.ui.core.widget;
 
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.internal.textsize.TextSizeUtil;
-import org.eclipse.rap.rwt.widgets.WidgetUtil;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
@@ -48,7 +47,6 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.EnterConditionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.hopgui.ClipboardListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTException;
@@ -216,25 +214,6 @@ public class TableView extends Composite {
     @Override
     public void delete( int[] items ) {
 
-    }
-  };
-
-  private String widgetId = WidgetUtil.getId( this );
-  private ClipboardListener listener = new ClipboardListener() {
-
-    @Override
-    public void pasteListener( String text ) {
-      pasteSelected( text );
-    }
-
-    @Override
-    public String getWidgetId() {
-      return widgetId;
-    }
-
-    @Override
-    public void cutListener() {
-      delSelected();
     }
   };
 
@@ -476,7 +455,7 @@ public class TableView extends Composite {
     SelectionAdapter lsClipAll = new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
-        HopGui.getInstance().instructShortcuts();
+        clipSelected();
       }
     };
     SelectionAdapter lsCopyToAll = new SelectionAdapter() {
@@ -500,13 +479,13 @@ public class TableView extends Composite {
     SelectionAdapter lsPasteAll = new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
-        HopGui.getInstance().instructShortcuts();
+        pasteSelected();
       }
     };
     SelectionAdapter lsCutAll = new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
-        HopGui.getInstance().instructShortcuts();
+        cutSelected();
       }
     };
     SelectionAdapter lsDelAll = new SelectionAdapter() {
@@ -1010,10 +989,31 @@ public class TableView extends Composite {
           return;
         }
 
+        // CTRL-C --> Copy selected lines to clipboard
+        if ( e.keyCode == 'c' && ctrl ) {
+          e.doit = false;
+          clipSelected();
+          return;
+        }
+
         // CTRL-K --> keep only selected lines
         if ( !readonly && e.keyCode == 'k' && ctrl ) {
           e.doit = false;
           keepSelected();
+          return;
+        }
+
+        // CTRL-X --> Cut selected infomation...
+        if ( !readonly && e.keyCode == 'x' && ctrl ) {
+          e.doit = false;
+          cutSelected();
+          return;
+        }
+
+        // CTRL-V --> Paste selected infomation...
+        if ( !readonly && e.keyCode == 'v' && ctrl ) {
+          e.doit = false;
+          pasteSelected();
           return;
         }
 
@@ -1196,12 +1196,7 @@ public class TableView extends Composite {
       }
     };
 
-    HopGui.getInstance().getClipboard().addClipboardListener( listener );
     table.addMouseListener( lsMouseT );
-    table.addListener( SWT.Selection, ( e ) -> {
-      HopGui.getInstance().getClipboard().setContents( getSelectedText() );
-      HopGui.getInstance().getClipboard().attachToClipboard( this );
-    });
 
     // Add support for sorted columns!
     //
@@ -1863,8 +1858,18 @@ public class TableView extends Composite {
     return rownr;
   }
 
-  private void pasteSelected( String text ) {
+  private void pasteSelected() {
     int rownr = getCurrentRownr();
+
+    if ( clipboard != null ) {
+      clipboard.dispose();
+      clipboard = null;
+    }
+
+    clipboard = new Clipboard( getDisplay() );
+    TextTransfer tran = TextTransfer.getInstance();
+
+    String text = (String) clipboard.getContents( tran );
 
     if ( text != null ) {
       String[] lines = text.split( Const.CR );
