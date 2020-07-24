@@ -73,6 +73,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -115,7 +116,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
-import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -1317,15 +1317,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void start() {
     workflowMeta.setShowDialog( workflowMeta.isAlwaysShowRunOptions() );
-    final ServerPushSession pushSession = new ServerPushSession();
-    pushSession.start();
+    ServerPushSessionFacade.start();
     Thread thread = new Thread() {
       @Override
       public void run() {
         getDisplay().asyncExec( () -> {
           try {
             workflowRunDelegate.executeWorkflow( workflowMeta, true, false, false, null, 0 );
-            pushSession.stop();
+            ServerPushSessionFacade.stop();
           } catch ( Exception e ) {
             new ErrorDialog( getShell(), "Execute workflow", "There was an error during workflow execution", e );
           }

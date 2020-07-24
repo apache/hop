@@ -108,6 +108,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
 import org.apache.hop.ui.hopgui.CanvasFacade;
 import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -143,7 +144,6 @@ import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
-import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -3301,15 +3301,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void start() {
     try {
       pipelineMeta.setShowDialog( pipelineMeta.isAlwaysShowRunOptions() );
-      final ServerPushSession pushSession = new ServerPushSession();
-      pushSession.start();
+      ServerPushSessionFacade.start();
       Thread thread = new Thread( () -> getDisplay().asyncExec( () -> {
         try {
           if ( isRunning() && pipeline.isPaused() ) {
             pauseResume();
           } else {
             pipelineRunDelegate.executePipeline( hopGui.getLog(), pipelineMeta, false, false, LogLevel.BASIC );
-            pushSession.stop();
+            ServerPushSessionFacade.stop();
           }
         } catch ( Throwable e ) {
           new ErrorDialog( getShell(), "Execute pipeline", "There was an error during pipeline execution", e );
