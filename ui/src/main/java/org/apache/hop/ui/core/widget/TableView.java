@@ -23,8 +23,6 @@
 
 package org.apache.hop.ui.core.widget;
 
-import org.eclipse.rap.rwt.RWT;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Condition;
 import org.apache.hop.core.Const;
@@ -125,6 +123,9 @@ public class TableView extends Composite {
   }
 
   private static Class<?> PKG = TableView.class; // for i18n purposes, needed by Translator!!
+
+  // define CANCEL_KEYS here so that RWT needs not to be imported.
+  private static final String CANCEL_KEYS = "org.eclipse.rap.rwt.cancelKeys";
 
   private Composite parent;
   private ColumnInfo[] columns;
@@ -1213,7 +1214,7 @@ public class TableView extends Composite {
 
     lsTraverse = e -> e.doit = false;
     table.addTraverseListener( lsTraverse );
-    table.setData( RWT.CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
+    table.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
 
     // Clean up the clipboard
     addDisposeListener( e -> {
@@ -2209,7 +2210,7 @@ public class TableView extends Composite {
         textWidget.setToolTipText( "" );
       }
       textWidget.addTraverseListener( lsTraverse );
-      textWidget.setData( RWT.CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
+      textWidget.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
       textWidget.addFocusListener( lsFocusText );
     } else {
       Text textWidget = new Text( table, SWT.NONE );
@@ -2233,7 +2234,7 @@ public class TableView extends Composite {
         textWidget.setToolTipText( "" );
       }
       textWidget.addTraverseListener( lsTraverse );
-      textWidget.setData( RWT.CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
+      textWidget.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
       textWidget.addFocusListener( lsFocusText );
     }
     props.setLook( text, Props.WIDGET_STYLE_TABLE );
@@ -2359,7 +2360,7 @@ public class TableView extends Composite {
       }
       props.setLook( widget, Props.WIDGET_STYLE_TABLE );
       widget.addTraverseListener( lsTraverse );
-      widget.setData( RWT.CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
+      widget.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
       widget.addModifyListener( lsModCombo );
       widget.addFocusListener( lsFocusCombo );
 
@@ -2388,7 +2389,7 @@ public class TableView extends Composite {
       CCombo widget = (CCombo) combo;
       props.setLook( widget, Props.WIDGET_STYLE_TABLE );
       widget.addTraverseListener( lsTraverse );
-      widget.setData( RWT.CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
+      widget.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
       widget.addModifyListener( lsModCombo );
       widget.addFocusListener( lsFocusCombo );
 
@@ -2458,7 +2459,7 @@ public class TableView extends Composite {
       button.setToolTipText( "" );
     }
     button.addTraverseListener( lsTraverse ); // hop to next field
-    button.setData( RWT.CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
+    button.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
     button.addTraverseListener( new TraverseListener() {
       @Override
       public void keyTraversed( TraverseEvent arg0 ) {
