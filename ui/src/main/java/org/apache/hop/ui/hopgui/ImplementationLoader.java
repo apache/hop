@@ -7,6 +7,8 @@ public class ImplementationLoader {
     String name = type.getName();
     Object result = null;
     try {
+      // TODO: https://stackoverflow.com/questions/234600/can-i-use-class-newinstance-with-constructor-arguments
+      // TODO: https://stackoverflow.com/questions/195321/why-is-class-newinstance-evil
       result = type.getClassLoader().loadClass( name + "Impl" ).newInstance();
     } catch (Throwable throwable) {
       String txt = "Could not load implementation for {0}";
