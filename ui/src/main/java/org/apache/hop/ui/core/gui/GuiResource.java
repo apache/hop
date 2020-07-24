@@ -37,10 +37,11 @@ import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.ISingletonProvider;
+import org.apache.hop.ui.hopgui.ImplementationLoader;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
-import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -396,7 +397,7 @@ public class GuiResource {
    */
   private Clipboard clipboard;
 
-  private GuiResource() {
+  protected GuiResource() {
     initialize( PropsUi.getDisplay() );
   }
 
@@ -452,8 +453,12 @@ public class GuiResource {
     initialized = true;
   }
 
+  private static final ISingletonProvider PROVIDER;
+  static {
+    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( GuiResource.class );
+  }
   public static final GuiResource getInstance() {
-    return SingletonUtil.getSessionInstance( GuiResource.class );
+    return (GuiResource) PROVIDER.getInstanceInternal();
   }
 
   public static void registerGuiPlugin( Object guiPluginObject, String instanceId ) {
