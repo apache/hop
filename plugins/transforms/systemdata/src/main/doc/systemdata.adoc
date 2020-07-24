@@ -120,3 +120,4 @@ It can also accept any number of input streams, aggregate any fields defined by 
 |Previous workflow action nr files|
 |Previous workflow action nr files retrieved|
 |Previous workflow action log text|
+|===
