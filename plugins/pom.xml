@@ -5,7 +5,7 @@
 
   <groupId>org.hop</groupId>
   <artifactId>hop-plugins</artifactId>
-  <version>0.30-SNAPSHOT</version>
+  <version>0.40-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Hop Plugins</name>
@@ -13,7 +13,7 @@
   <parent>
     <groupId>org.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.30-SNAPSHOT</version>
+    <version>0.40-SNAPSHOT</version>
   </parent>
 
   <profiles>

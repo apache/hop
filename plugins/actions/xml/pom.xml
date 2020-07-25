@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.hop</groupId>
         <artifactId>hop-plugins-actions</artifactId>
-        <version>0.30-SNAPSHOT</version>
+        <version>0.40-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-action-xml</artifactId>
@@ -24,7 +24,7 @@
         <dependency>
             <groupId>org.hop</groupId>
             <artifactId>hop-transform-xml</artifactId>
-            <version>0.30-SNAPSHOT</version>
+            <version>0.40-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

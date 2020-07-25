@@ -5,7 +5,7 @@
   <parent>
     <artifactId>hop-assemblies-plugins</artifactId>
     <groupId>org.hop</groupId>
-    <version>0.30-SNAPSHOT</version>
+    <version>0.40-SNAPSHOT</version>
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
@@ -1686,7 +1686,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-randomvalue</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.40-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -1699,7 +1699,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-replacestring</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.40-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -2390,19 +2390,6 @@
 
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-assemblies-plugins-databases-dbase</artifactId>
-      <version>${hop-plugins-databases.version}</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-databases-exasol4</artifactId>
       <version>${hop-plugins-databases.version}</version>
       <type>zip</type>
@@ -2494,19 +2481,6 @@
 
     <dependency>
       <groupId>org.hop</groupId>
-      <artifactId>hop-assemblies-plugins-databases-msaccess</artifactId>
-      <version>${hop-plugins-databases.version}</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-databases-mssqlnative</artifactId>
       <version>${hop-plugins-databases.version}</version>
       <type>zip</type>
@@ -2560,19 +2534,6 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-databases-oraclerdb</artifactId>
-      <version>${hop-plugins-databases.version}</version>
-      <type>zip</type>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <dependency>
-      <groupId>org.hop</groupId>
-      <artifactId>hop-assemblies-plugins-databases-remedy-ar-system</artifactId>
       <version>${hop-plugins-databases.version}</version>
       <type>zip</type>
       <exclusions>
@@ -2690,7 +2651,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-engines-beam</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.40-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -2703,7 +2664,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-vfs-azure</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.40-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -2716,7 +2677,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-vfs-googledrive</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.40-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>
         <exclusion>
@@ -2729,7 +2690,7 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-vfs-s3</artifactId>
-      <version>0.30-SNAPSHOT</version>
+      <version>0.40-SNAPSHOT</version>
       <type>zip</type>
       <exclusions>
         <exclusion>

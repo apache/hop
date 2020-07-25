@@ -7,12 +7,12 @@
     <parent>
         <groupId>org.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.30-SNAPSHOT</version>
+        <version>0.40-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-fieldchangesequence</artifactId>
-    <version>0.30-SNAPSHOT</version>
+    <version>0.40-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Field Changing Sequence</name>
