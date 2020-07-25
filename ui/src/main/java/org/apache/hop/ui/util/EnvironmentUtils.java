@@ -199,4 +199,12 @@ public class EnvironmentUtils {
     return "";
   }
 
+  /**
+   * Ask if the client is Hop Web.
+   * @return 'true' if Hop Web 'false' otherwise.
+   */
+  public boolean isWeb() {
+    return SWT.getPlatform().equals( "rap" );
+  }
+
 }
