@@ -258,6 +258,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     partitionManager = new MetadataManager<>( variables, metadataProvider, PartitionSchema.class );
 
     HopNamespace.setNamespace( DEFAULT_HOP_GUI_NAMESPACE );
+    shell = new Shell( display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
   }
 
   private static final ISingletonProvider PROVIDER;
@@ -319,7 +320,6 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
    * Build the shell
    */
   protected void open() {
-//    shell = new Shell( display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
     shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     shell.setText( BaseMessages.getString( PKG, "HopGui.Application.Name" ) );
