@@ -96,7 +96,6 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import org.apache.hop.ui.hopgui.perspective.search.HopSearchPerspective;
 import org.apache.hop.ui.hopgui.search.HopGuiSearchLocation;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.rap.rwt.SingletonUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -229,14 +228,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
 
   private boolean openingLastFiles;
 
-  private Clipboard clipboard;
-
-  public Clipboard getClipboard() {
-    return clipboard;
-  }
-
-  //prevent instantiation from outside
-  private HopGui() {
+  protected HopGui() {
     this( Display.getCurrent() );
   }
 
@@ -266,10 +258,15 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     partitionManager = new MetadataManager<>( variables, metadataProvider, PartitionSchema.class );
 
     HopNamespace.setNamespace( DEFAULT_HOP_GUI_NAMESPACE );
+    shell = new Shell( display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
   }
 
+  private static final ISingletonProvider PROVIDER;
+  static {
+    PROVIDER = (ISingletonProvider) ImplementationLoader.newInstance( HopGui.class );
+  }
   public static final HopGui getInstance() {
-    return SingletonUtil.getSessionInstance( HopGui.class );
+    return (HopGui) PROVIDER.getInstanceInternal();
   }
 
   public static void main( String[] arguments ) {
@@ -323,8 +320,6 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
    * Build the shell
    */
   protected void open() {
-    clipboard = new Clipboard( shell );
-//    shell = new Shell( display, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
     shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     shell.setText( BaseMessages.getString( PKG, "HopGui.Application.Name" ) );
@@ -359,6 +354,20 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     if ( openingLastFiles ) {
       auditDelegate.openLastFiles();
     }
+    boolean retry = true;
+    while ( retry ) {
+      try {
+        while ( !shell.isDisposed() ) {
+          if ( !display.readAndDispatch() ) {
+            display.sleep();
+          }
+        }
+        retry = false;
+      } catch ( Throwable throwable ) {
+        System.err.println( "Error in the Hop GUI : " + throwable.getMessage() + Const.CR + Const.getClassicStackTrace( throwable ) );
+      }
+    }
+    display.dispose();
   }
 
   private void closeEvent( Event event ) {

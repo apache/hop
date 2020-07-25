@@ -72,6 +72,12 @@
       </exclusions>
     </dependency>
 
+    <!-- RCP fragment -->
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-ui-rcp</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- swt -->
     <dependency>
       <groupId>org.eclipse.platform</groupId>
@@ -99,6 +105,17 @@
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
       <version>${org.eclipse.swt.cocoa.macosx.x86_64.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.jface</artifactId>
+      <version>${org.eclipse.jface.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>

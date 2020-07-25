@@ -756,6 +756,8 @@
         <module>core</module>
         <module>engine</module>
         <module>ui</module>
+        <module>rap</module>
+        <module>rcp</module>
         <module>plugins</module>
       </modules>
     </profile>

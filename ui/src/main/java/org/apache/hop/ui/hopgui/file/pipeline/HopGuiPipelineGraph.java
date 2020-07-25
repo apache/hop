@@ -26,7 +26,6 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.IEngineMeta;
@@ -109,7 +108,9 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.WebSpoonClientListener;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
+import org.apache.hop.ui.hopgui.CanvasFacade;
+import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.delegates.HopGuiServerDelegate;
@@ -143,10 +144,6 @@ import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.dialogs.ProgressMonitorDialog;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
-import org.eclipse.rap.json.JsonArray;
-import org.eclipse.rap.json.JsonObject;
-import org.eclipse.rap.rwt.scripting.ClientListener;
-import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -472,7 +469,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     //
     scrolledcomposite = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL );
     canvas = new Canvas( scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER );
-    ClientListener listener = WebSpoonClientListener.getInstance();
+    Listener listener = CanvasListener.getInstance();
     canvas.addListener( SWT.MouseDown, listener );
     canvas.addListener( SWT.MouseMove, listener );
     canvas.addListener( SWT.MouseUp, listener );
@@ -2803,43 +2800,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    setData( pipelineMeta );
-  }
-
-  @Override
-  protected void setData( AbstractMeta meta ) {
-    super.setData( meta );
-
-    PipelineMeta pipelineMeta = (PipelineMeta) meta;
-    JsonObject jsonNodes = new JsonObject();
-    pipelineMeta.getTransforms().forEach( transform -> {
-      JsonObject jsonNode = new JsonObject();
-      jsonNode.add( "x", transform.getLocation().x );
-      jsonNode.add( "y", transform.getLocation().y );
-      jsonNode.add( "selected", transform.isSelected() );
-      Image im = null;
-      if ( transform.isMissing() ) {
-        im = GuiResource.getInstance().getImageMissing();
-      } else {
-        im = GuiResource.getInstance().getImagesTransforms().get( transform.getTransformPluginId() )
-        .getAsBitmapForSize( getDisplay(), Math.round( iconsize * magnification ), Math.round( iconsize * magnification ) );
-      }
-      jsonNode.add( "img",  im.internalImage.getResourceName() );
-      jsonNodes.add( transform.getName(), jsonNode );
-    } );
-    canvas.setData( "nodes", jsonNodes );
-
-    JsonArray jsonHops = new JsonArray();
-    for ( int i = 0; i < pipelineMeta.nrPipelineHops(); i++ ) {
-      JsonObject jsonHop = new JsonObject();
-      PipelineHopMeta hop = pipelineMeta.getPipelineHop( i );
-      if ( hop.getFromTransform() != null && hop.getToTransform() != null ) {
-        jsonHop.add( "from", hop.getFromTransform().getName() );
-        jsonHop.add( "to", hop.getToTransform().getName() );
-        jsonHops.add( jsonHop );
-      }
-    }
-    canvas.setData( "hops", jsonHops );
+    CanvasFacade.setData( canvas, magnification, pipelineMeta, HopGuiPipelineGraph.class );
   }
 
   @Override
@@ -3340,15 +3301,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void start() {
     try {
       pipelineMeta.setShowDialog( pipelineMeta.isAlwaysShowRunOptions() );
-      final ServerPushSession pushSession = new ServerPushSession();
-      pushSession.start();
+      ServerPushSessionFacade.start();
       Thread thread = new Thread( () -> getDisplay().asyncExec( () -> {
         try {
           if ( isRunning() && pipeline.isPaused() ) {
             pauseResume();
           } else {
             pipelineRunDelegate.executePipeline( hopGui.getLog(), pipelineMeta, false, false, LogLevel.BASIC );
-            pushSession.stop();
+            ServerPushSessionFacade.stop();
           }
         } catch ( Throwable e ) {
           new ErrorDialog( getShell(), "Execute pipeline", "There was an error during pipeline execution", e );

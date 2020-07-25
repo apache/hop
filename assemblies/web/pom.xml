@@ -68,6 +68,12 @@
       </exclusions>
     </dependency>
 
+    <!-- RAP fragment -->
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-ui-rap</artifactId>
+      <version>${project.version}</version>
+    </dependency>
     <!-- RAP -->
     <dependency>
       <groupId>org.eclipse.rap</groupId>

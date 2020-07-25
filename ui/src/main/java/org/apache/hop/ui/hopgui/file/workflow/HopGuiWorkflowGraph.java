@@ -26,7 +26,6 @@ package org.apache.hop.ui.hopgui.file.workflow;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileName;
 import org.apache.commons.vfs2.FileObject;
-import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IEngineMeta;
 import org.apache.hop.core.NotePadMeta;
@@ -34,7 +33,6 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.RowMetaAndData;
-import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -75,7 +73,9 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.WebSpoonClientListener;
+import org.apache.hop.ui.hopgui.ServerPushSessionFacade;
+import org.apache.hop.ui.hopgui.CanvasFacade;
+import org.apache.hop.ui.hopgui.CanvasListener;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
@@ -116,10 +116,6 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.jface.window.DefaultToolTip;
 import org.eclipse.jface.window.ToolTip;
-import org.eclipse.rap.json.JsonArray;
-import org.eclipse.rap.json.JsonObject;
-import org.eclipse.rap.rwt.scripting.ClientListener;
-import org.eclipse.rap.rwt.service.ServerPushSession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -353,7 +349,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     //
     scrolledcomposite = new ScrolledComposite( sashForm, SWT.V_SCROLL | SWT.H_SCROLL );
     canvas = new Canvas( scrolledcomposite, SWT.NO_BACKGROUND | SWT.BORDER );
-    ClientListener listener = WebSpoonClientListener.getInstance();
+    Listener listener = CanvasListener.getInstance();
     canvas.addListener( SWT.MouseDown, listener );
     canvas.addListener( SWT.MouseMove, listener );
     canvas.addListener( SWT.MouseUp, listener );
@@ -1321,15 +1317,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void start() {
     workflowMeta.setShowDialog( workflowMeta.isAlwaysShowRunOptions() );
-    final ServerPushSession pushSession = new ServerPushSession();
-    pushSession.start();
+    ServerPushSessionFacade.start();
     Thread thread = new Thread() {
       @Override
       public void run() {
         getDisplay().asyncExec( () -> {
           try {
             workflowRunDelegate.executeWorkflow( workflowMeta, true, false, false, null, 0 );
-            pushSession.stop();
+            ServerPushSessionFacade.stop();
           } catch ( Exception e ) {
             new ErrorDialog( getShell(), "Execute workflow", "There was an error during workflow execution", e );
           }
@@ -2389,58 +2384,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     } finally {
       gc.dispose();
     }
-    setData( workflowMeta );
-  }
-
-  @Override
-  protected void setData( AbstractMeta meta ) {
-    super.setData( meta );
-
-    WorkflowMeta workflowMeta = (WorkflowMeta) meta;
-    JsonObject jsonNodes = new JsonObject();
-    workflowMeta.getActionCopies().forEach( node -> {
-      JsonObject jsonNode = new JsonObject();
-      jsonNode.add( "x", node.getLocation().x );
-      jsonNode.add( "y", node.getLocation().y );
-      jsonNode.add( "selected", node.isSelected() );
-
-      SwtUniversalImage swtImage = null;
-
-      if ( node.isSpecial() ) {
-        if ( node.isStart() ) {
-          swtImage = GuiResource.getInstance().getSwtImageStart();
-        }
-        if ( node.isDummy() ) {
-          swtImage = GuiResource.getInstance().getSwtImageDummy();
-        }
-      } else {
-        String configId = node.getAction().getPluginId();
-        if ( configId != null ) {
-          swtImage = GuiResource.getInstance().getImagesActions().get( configId );
-        }
-      }
-      if ( node.isMissing() ) {
-        swtImage = GuiResource.getInstance().getSwtImageMissing();
-      }
-      if ( swtImage == null ) {
-        return;
-      }
-
-      Image image = swtImage.getAsBitmapForSize( getDisplay(), Math.round( iconSize * magnification ), Math.round( iconSize * magnification ) );
-      jsonNode.add( "img",  image.internalImage.getResourceName() );
-      jsonNodes.add( node.getName(), jsonNode );
-    } );
-    canvas.setData( "nodes", jsonNodes );
-
-    JsonArray jsonHops = new JsonArray();
-    for ( int i = 0; i < workflowMeta.nrWorkflowHops(); i++ ) {
-      JsonObject jsonHop = new JsonObject();
-      WorkflowHopMeta hop = workflowMeta.getWorkflowHop( i );
-      jsonHop.add( "from", hop.getFromAction().getName() );
-      jsonHop.add( "to", hop.getToAction().getName() );
-      jsonHops.add( jsonHop );
-    }
-    canvas.setData( "hops", jsonHops );
+    CanvasFacade.setData( canvas, magnification, workflowMeta, HopGuiWorkflowGraph.class );
   }
 
   protected Point getOffset() {

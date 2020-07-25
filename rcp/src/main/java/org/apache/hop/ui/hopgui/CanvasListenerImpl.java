@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2016-2018 by Hitachi America, Ltd., R&D : http://www.hitachi-america.us/rd/
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -22,29 +22,15 @@
 
 package org.apache.hop.ui.hopgui;
 
-import java.io.IOException;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
-import org.apache.commons.io.IOUtils;
-import org.eclipse.rap.rwt.SingletonUtil;
-import org.eclipse.rap.rwt.scripting.ClientListener;
-
-public class WebSpoonClientListener extends ClientListener {
-  public static WebSpoonClientListener getInstance() {
-    return SingletonUtil.getSessionInstance( WebSpoonClientListener.class );
+public class CanvasListenerImpl implements ISingletonProvider, Listener {
+  public Object getInstanceInternal() {
+    return this;
   }
-
-  private WebSpoonClientListener() {
-    super( getText() );
-  }
-
-  private static String getText() {
-    String canvasScript = null;
-    try {
-      canvasScript = IOUtils.toString( WebSpoonClientListener.class.getResourceAsStream( "canvas.js" ) );
-    } catch ( IOException e1 ) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
-    }
-    return canvasScript;
+  @Override
+  public void handleEvent( Event event ) {
+    // do nothing
   }
 }

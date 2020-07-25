@@ -42,6 +42,14 @@
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <useProjectArtifact>false</useProjectArtifact>
     </dependencySet>
+    <dependencySet>
+      <includes>
+        <include>org.hop:hop-ui-rap:jar</include>
+      </includes>
+      <outputDirectory>WEB-INF/lib</outputDirectory>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useProjectArtifact>false</useProjectArtifact>
+    </dependencySet>
 
   </dependencySets>
 </assembly>
