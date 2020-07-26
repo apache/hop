@@ -17,9 +17,6 @@
   </parent>
 
   <properties>
-    <!-- webSpoon specific dependencies -->
-    <rap.version>3.12.0</rap.version>
-
     <!-- Test running configuration -->
     <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
 
@@ -43,6 +40,29 @@
     </dependency>
 
     <!-- Third-party dependencies -->
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+      <version>${org.eclipse.platform.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.platform</groupId>
+      <artifactId>org.eclipse.jface</artifactId>
+      <version>${org.eclipse.jface.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.equinox.common</artifactId>
@@ -78,26 +98,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.eclipse.rap</groupId>
-      <artifactId>org.eclipse.rap.rwt</artifactId>
-      <version>${rap.version}-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.rap</groupId>
-      <artifactId>org.eclipse.rap.filedialog</artifactId>
-      <version>${rap.version}-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.rap</groupId>
-      <artifactId>org.eclipse.rap.jface</artifactId>
-      <version>${rap.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.rap</groupId>
-      <artifactId>org.eclipse.rap.fileupload</artifactId>
-      <version>${rap.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.mozilla</groupId>
       <artifactId>rhino</artifactId>
     </dependency>
@@ -121,7 +121,7 @@
       <groupId>javax.servlet</groupId>
       <artifactId>javax.servlet-api</artifactId>
       <version>4.0.1</version>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -138,18 +138,6 @@
       <groupId>org.powermock</groupId>
       <artifactId>powermock-api-mockito</artifactId>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.rap</groupId>
-      <artifactId>org.eclipse.rap.rwt.testfixture</artifactId>
-      <version>${rap.version}-SNAPSHOT</version>
-      <scope>test</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
   </dependencies>
 </project>

@@ -202,7 +202,6 @@ public class CheckBoxToolTip extends ToolTip {
    */
   public void setTitle( String title ) {
     this.title = title;
-    super.setText( title );
   }
 
   /**

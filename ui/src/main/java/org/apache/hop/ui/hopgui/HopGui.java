@@ -285,7 +285,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
       HopLogStore.init();
       Locale.setDefault( LanguageChoice.getInstance().getDefaultLocale() );
 
-      hopGui = new HopGui( display );
+      hopGui = HopGui.getInstance();
       hopGui.getCommandLineArguments().addAll( Arrays.asList( arguments ) );
       hopGui.setProps( PropsUi.getInstance() );
 

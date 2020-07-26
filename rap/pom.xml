@@ -35,6 +35,12 @@
       <groupId>org.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
       <version>${project.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.eclipse.platform</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Third-party dependencies -->
