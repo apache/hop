@@ -124,20 +124,14 @@ public class TableDraw extends Canvas {
     setBackground( bg );
     // setFont(font);
 
-    addPaintListener( new PaintListener() {
-      public void paintControl( PaintEvent e ) {
-        TableDraw.this.paintControl( e );
-      }
-    } );
+    addPaintListener( e -> TableDraw.this.paintControl( e ) );
 
-    addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent arg0 ) {
-        dummy_gc.dispose();
-        dummy_image.dispose();
+    addDisposeListener( arg0 -> {
+      dummy_gc.dispose();
+      dummy_image.dispose();
 
-        if ( cache_image != null ) {
-          cache_image.dispose();
-        }
+      if ( cache_image != null ) {
+        cache_image.dispose();
       }
     } );
 
@@ -178,23 +172,21 @@ public class TableDraw extends Canvas {
       }
     } );
 
-    addMouseMoveListener( new MouseMoveListener() {
-      public void mouseMove( MouseEvent e ) {
-        int posx = (int) Math.round( (double) ( e.x - LEFT - MARGIN - offset.x ) / ( (double) fontwidth ) );
+    addMouseMoveListener( e -> {
+      int posx = (int) Math.round( (double) ( e.x - LEFT - MARGIN - offset.x ) / ( (double) fontwidth ) );
 
-        // Clicked and mouse is down: move marker to a new location...
-        if ( potential_click >= 0 ) {
-          if ( posx > 0 ) {
-            potential_click = posx;
-            redraw();
-          }
+      // Clicked and mouse is down: move marker to a new location...
+      if ( potential_click >= 0 ) {
+        if ( posx > 0 ) {
+          potential_click = posx;
+          redraw();
         }
+      }
 
-        ITextFileInputField field = getFieldOnPosition( posx );
-        if ( field != null && !field.getName().equalsIgnoreCase( prevfieldname ) ) {
-          setToolTipText( field.getName() + " : length=" + field.getLength() );
-          prevfieldname = field.getName();
-        }
+      ITextFileInputField field = getFieldOnPosition( posx );
+      if ( field != null && !field.getName().equalsIgnoreCase( prevfieldname ) ) {
+        setToolTipText( field.getName() + " : length=" + field.getLength() );
+        prevfieldname = field.getName();
       }
     } );
   }

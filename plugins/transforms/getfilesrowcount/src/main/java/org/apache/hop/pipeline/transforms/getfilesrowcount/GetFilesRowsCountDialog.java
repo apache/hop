@@ -131,11 +131,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -715,21 +711,9 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsPreview = e -> preview();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wPreview.addListener( SWT.Selection, lsPreview );
@@ -826,10 +810,8 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     } );
 
     // Whenever something changes, set the tooltip to the expanded version of the filename:
-    wFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( "" ); // StringUtil.environmentSubstitute( wFilename.getText() ) );
-      }
+    wFilename.addModifyListener( e -> {
+      wFilename.setToolTipText( "" ); // StringUtil.environmentSubstitute( wFilename.getText() ) );
     } );
 
     // Listen to the Browse... button

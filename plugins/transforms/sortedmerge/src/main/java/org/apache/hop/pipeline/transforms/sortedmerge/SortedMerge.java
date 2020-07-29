@@ -115,14 +115,11 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
           }
         }
 
-        data.comparator = new Comparator<RowSetRow>() {
-
-          public int compare( RowSetRow o1, RowSetRow o2 ) {
-            try {
-              return o1.getRowMeta().compare( o1.getRowData(), o2.getRowData(), data.fieldIndices );
-            } catch ( HopValueException e ) {
-              return 0; // TODO see if we should fire off alarms over here... Perhaps throw a RuntimeException.
-            }
+        data.comparator = ( o1, o2 ) -> {
+          try {
+            return o1.getRowMeta().compare( o1.getRowData(), o2.getRowData(), data.fieldIndices );
+          } catch ( HopValueException e ) {
+            return 0; // TODO see if we should fire off alarms over here... Perhaps throw a RuntimeException.
           }
         };
 

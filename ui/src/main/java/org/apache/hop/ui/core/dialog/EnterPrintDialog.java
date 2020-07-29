@@ -159,11 +159,7 @@ public class EnterPrintDialog extends Dialog {
     wlCanvas.setLayoutData( fdlCanvas );
     wCanvas = new Canvas( shell, SWT.BORDER );
     props.setLook( wCanvas );
-    wCanvas.addPaintListener( new PaintListener() {
-      public void paintControl( PaintEvent pe ) {
-        repaint( pe.gc, pe.width, pe.height );
-      }
-    } );
+    wCanvas.addPaintListener( pe -> repaint( pe.gc, pe.width, pe.height ) );
     fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment( 0, 0 );
     fdCanvas.top = new FormAttachment( wlCanvas, margin );
@@ -266,11 +262,9 @@ public class EnterPrintDialog extends Dialog {
     fdlLeft.top = new FormAttachment( wScale, margin );
     wlLeft.setLayoutData( fdlLeft );
     wLeft = new Text( shell, SWT.BORDER );
-    wLeft.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        Text w = (Text) e.widget;
-        leftMargin = Const.toDouble( w.getText(), 0.00 );
-      }
+    wLeft.addModifyListener( e -> {
+      Text w = (Text) e.widget;
+      leftMargin = Const.toDouble( w.getText(), 0.00 );
     } );
     props.setLook( wLeft );
     fdLeft = new FormData();
@@ -289,11 +283,9 @@ public class EnterPrintDialog extends Dialog {
     fdlRight.top = new FormAttachment( wLeft, margin );
     wlRight.setLayoutData( fdlRight );
     wRight = new Text( shell, SWT.BORDER );
-    wRight.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        Text w = (Text) e.widget;
-        rightMargin = Const.toDouble( w.getText(), 0.00 );
-      }
+    wRight.addModifyListener( e -> {
+      Text w = (Text) e.widget;
+      rightMargin = Const.toDouble( w.getText(), 0.00 );
     } );
     props.setLook( wRight );
     fdRight = new FormData();
@@ -312,11 +304,9 @@ public class EnterPrintDialog extends Dialog {
     fdlTop.top = new FormAttachment( wRight, margin );
     wlTop.setLayoutData( fdlTop );
     wTop = new Text( shell, SWT.BORDER );
-    wTop.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        Text w = (Text) e.widget;
-        topMargin = Const.toDouble( w.getText(), 0.00 );
-      }
+    wTop.addModifyListener( e -> {
+      Text w = (Text) e.widget;
+      topMargin = Const.toDouble( w.getText(), 0.00 );
     } );
     props.setLook( wTop );
     fdTop = new FormData();
@@ -335,11 +325,9 @@ public class EnterPrintDialog extends Dialog {
     fdlBottom.top = new FormAttachment( wTop, margin );
     wlBottom.setLayoutData( fdlBottom );
     wBottom = new Text( shell, SWT.BORDER );
-    wBottom.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        Text w = (Text) e.widget;
-        bottomMargin = Const.toDouble( w.getText(), 0.00 );
-      }
+    wBottom.addModifyListener( e -> {
+      Text w = (Text) e.widget;
+      bottomMargin = Const.toDouble( w.getText(), 0.00 );
     } );
     props.setLook( wBottom );
     fdBottom = new FormData();
@@ -363,16 +351,8 @@ public class EnterPrintDialog extends Dialog {
     wCancel.setLayoutData( fdCancel );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

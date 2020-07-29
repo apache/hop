@@ -92,19 +92,16 @@ public class ValidatePipelineUnitTestExtensionPoint implements IExtensionPoint<I
 
         final HopGui hopGui = HopGui.getInstance();
         if ( hopGui != null && "N".equalsIgnoreCase( dontShowResults ) ) {
-          hopGui.getShell().getDisplay().asyncExec( new Runnable() {
-            @Override
-            public void run() {
-              PreviewRowsDialog dialog = new PreviewRowsDialog( hopGui.getShell(), pipeline, SWT.NONE,
-                "Unit test results",
-                UnitTestResult.getRowMeta(),
-                UnitTestResult.getRowData( results ) );
-              dialog.setDynamic( false );
-              dialog.setProposingToGetMoreRows( false );
-              dialog.setProposingToStop( false );
-              dialog.setTitleMessage( "Unit test results", "Here are the results of the unit test validations:" );
-              dialog.open();
-            }
+          hopGui.getShell().getDisplay().asyncExec( () -> {
+            PreviewRowsDialog dialog = new PreviewRowsDialog( hopGui.getShell(), pipeline, SWT.NONE,
+              "Unit test results",
+              UnitTestResult.getRowMeta(),
+              UnitTestResult.getRowData( results ) );
+            dialog.setDynamic( false );
+            dialog.setProposingToGetMoreRows( false );
+            dialog.setProposingToStop( false );
+            dialog.setTitleMessage( "Unit test results", "Here are the results of the unit test validations:" );
+            dialog.open();
           } );
         }
       }

@@ -90,11 +90,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
     backupCondition = (Condition) condition.clone();
 
@@ -167,11 +163,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     } );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSortDir.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wSortDir.setToolTipText( pipelineMeta.environmentSubstitute( wSortDir.getText() ) );
-      }
-    } );
+    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( pipelineMeta.environmentSubstitute( wSortDir.getText() ) ) );
 
     // Table line...
     wlPrefix = new Label( shell, SWT.RIGHT );
@@ -271,16 +263,8 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     wCondition.addModifyListener( lsMod );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

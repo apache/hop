@@ -184,23 +184,11 @@ public class ErrorDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
 
     // Add listeners
-    wOk.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    } );
+    wOk.addListener( SWT.Selection, e -> ok() );
     if ( showCancelButton ) {
-      wCancel.addListener( SWT.Selection, new Listener() {
-        public void handleEvent( Event e ) {
-          cancel();
-        }
-      } );
+      wCancel.addListener( SWT.Selection, e -> cancel() );
     }
-    wDetails.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        showDetails( details.toString() );
-      }
-    } );
+    wDetails.addListener( SWT.Selection, e -> showDetails( details.toString() ) );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -216,9 +204,7 @@ public class ErrorDialog extends Dialog {
       }
     } );
     // Clean up used resources!
-    shell.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent arg0 ) {
-      }
+    shell.addDisposeListener( arg0 -> {
     } );
 
     BaseTransformDialog.setSize( shell );

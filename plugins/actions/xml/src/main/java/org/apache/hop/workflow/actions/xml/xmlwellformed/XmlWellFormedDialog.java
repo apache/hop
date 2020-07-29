@@ -164,11 +164,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, jobEntry );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> jobEntry.setChanged();
     changed = jobEntry.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -356,11 +352,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wSourceFileFolder.setLayoutData( fdSourceFileFolder );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFolder.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wSourceFileFolder.setToolTipText( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) );
-      }
-    } );
+    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) ) );
 
     wbSourceFileFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -676,16 +668,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOK = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOK = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOK.addListener( SWT.Selection, lsOK );

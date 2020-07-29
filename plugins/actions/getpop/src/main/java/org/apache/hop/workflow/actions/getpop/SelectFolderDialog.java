@@ -115,18 +115,10 @@ public class SelectFolderDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wRefresh, wCancel }, Const.MARGIN, null );
 
     // Add listeners
-    wCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        dispose();
-      }
-    } );
+    wCancel.addListener( SWT.Selection, e -> dispose() );
 
     // Add listeners
-    wOk.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        handleOK();
-      }
-    } );
+    wOk.addListener( SWT.Selection, e -> handleOK() );
 
     wTree.addSelectionListener( new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent arg0 ) {
@@ -134,11 +126,7 @@ public class SelectFolderDialog extends Dialog {
       }
     } );
 
-    wRefresh.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        getData();
-      }
-    } );
+    wRefresh.addListener( SWT.Selection, e -> getData() );
 
     BaseTransformDialog.setSize( shell );
 

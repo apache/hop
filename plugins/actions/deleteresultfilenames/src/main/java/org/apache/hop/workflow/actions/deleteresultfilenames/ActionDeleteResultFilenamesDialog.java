@@ -105,11 +105,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -186,11 +182,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wWildcard.setLayoutData( fdWildcard );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wWildcard.setToolTipText( workflowMeta.environmentSubstitute( wWildcard.getText() ) );
-      }
-    } );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( workflowMeta.environmentSubstitute( wWildcard.getText() ) ) );
 
     // wWildcardExclude
     wlWildcardExclude = new Label( shell, SWT.RIGHT );
@@ -214,11 +206,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wWildcardExclude.setLayoutData( fdWildcardExclude );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcardExclude.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wWildcardExclude.setToolTipText( workflowMeta.environmentSubstitute( wWildcardExclude.getText() ) );
-      }
-    } );
+    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( workflowMeta.environmentSubstitute( wWildcardExclude.getText() ) ) );
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
@@ -228,16 +216,8 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wWildcardExclude );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

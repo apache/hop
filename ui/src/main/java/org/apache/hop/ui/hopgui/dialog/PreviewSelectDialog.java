@@ -139,16 +139,8 @@ public class PreviewSelectDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wPreview, wCancel }, margin, null );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsPreview = e -> preview();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wPreview.addListener( SWT.Selection, lsPreview );

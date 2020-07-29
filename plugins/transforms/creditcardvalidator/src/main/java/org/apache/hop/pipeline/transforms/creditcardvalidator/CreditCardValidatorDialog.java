@@ -81,11 +81,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
 
     changed = input.hasChanged();
 
@@ -259,17 +255,9 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wOutputFields );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
 
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

@@ -114,11 +114,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -169,11 +165,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wURL.setLayoutData( fdURL );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wURL.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wURL.setToolTipText( workflowMeta.environmentSubstitute( wURL.getText() ) );
-      }
-    } );
+    wURL.addModifyListener( e -> wURL.setToolTipText( workflowMeta.environmentSubstitute( wURL.getText() ) ) );
 
     // connect timeout line
     wlConnectTimeOut = new Label( shell, SWT.RIGHT );
@@ -197,11 +189,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wConnectTimeOut.setLayoutData( fdConnectTimeOut );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wConnectTimeOut.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wConnectTimeOut.setToolTipText( workflowMeta.environmentSubstitute( wConnectTimeOut.getText() ) );
-      }
-    } );
+    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( workflowMeta.environmentSubstitute( wConnectTimeOut.getText() ) ) );
 
     // Read timeout line
     wlReadTimeOut = new Label( shell, SWT.RIGHT );
@@ -224,11 +212,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wReadTimeOut.setLayoutData( fdReadTimeOut );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wReadTimeOut.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wReadTimeOut.setToolTipText( workflowMeta.environmentSubstitute( wReadTimeOut.getText() ) );
-      }
-    } );
+    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( workflowMeta.environmentSubstitute( wReadTimeOut.getText() ) ) );
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
@@ -249,16 +233,8 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wReadTimeOut );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

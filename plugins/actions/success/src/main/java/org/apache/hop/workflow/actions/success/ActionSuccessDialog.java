@@ -94,11 +94,7 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -138,17 +134,9 @@ public class ActionSuccessDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wName );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
 
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

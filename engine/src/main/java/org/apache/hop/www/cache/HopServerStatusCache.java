@@ -48,13 +48,11 @@ public class HopServerStatusCache implements Cache {
    * Switching the thread launched to be daemon otherwise it blocks the Hop server shutdown
    */
   private final ScheduledExecutorService removeService = Executors.newSingleThreadScheduledExecutor(
-    new ThreadFactory() {
-      public Thread newThread( Runnable r ) {
-        Thread t = Executors.defaultThreadFactory().newThread( r );
-        t.setDaemon( true );
-        t.setName( HopServerStatusCache.class.getSimpleName() );
-        return t;
-      }
+    r -> {
+      Thread t = Executors.defaultThreadFactory().newThread( r );
+      t.setDaemon( true );
+      t.setName( HopServerStatusCache.class.getSimpleName() );
+      return t;
     } );
 
   private final Map<String, CachedItem> cachedMap = new ConcurrentHashMap<>();

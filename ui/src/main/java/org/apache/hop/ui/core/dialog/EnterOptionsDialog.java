@@ -226,16 +226,8 @@ public class EnterOptionsDialog extends Dialog {
     // ///////////////////////////////////////////////////////////
 
     // Add listeners
-    Listener lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    Listener lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    Listener lsCancel = e -> cancel();
+    Listener lsOk = e -> ok();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
@@ -350,15 +342,13 @@ public class EnterOptionsDialog extends Dialog {
     fdFFont.top = new FormAttachment( 0, margin );
     fdFFont.bottom = new FormAttachment( 0, h );
     wFFont.setLayoutData( fdFFont );
-    wFFont.addPaintListener( new PaintListener() {
-      public void paintControl( PaintEvent pe ) {
-        pe.gc.setFont( fixedFont );
-        Rectangle max = wFFont.getBounds();
-        String name = fixedFontData.getName() + " - " + fixedFontData.getHeight();
-        Point size = pe.gc.textExtent( name );
+    wFFont.addPaintListener( pe -> {
+      pe.gc.setFont( fixedFont );
+      Rectangle max = wFFont.getBounds();
+      String name = fixedFontData.getName() + " - " + fixedFontData.getHeight();
+      Point size = pe.gc.textExtent( name );
 
-        pe.gc.drawText( name, ( max.width - size.x ) / 2, ( max.height - size.y ) / 2, true );
-      }
+      pe.gc.drawText( name, ( max.width - size.x ) / 2, ( max.height - size.y ) / 2, true );
     } );
 
     // Graph font
@@ -487,15 +477,13 @@ public class EnterOptionsDialog extends Dialog {
     fdNFont.top = new FormAttachment( 0, nr * h + margin );
     fdNFont.bottom = new FormAttachment( 0, ( nr + 1 ) * h + margin );
     wNFont.setLayoutData( fdNFont );
-    wNFont.addPaintListener( new PaintListener() {
-      public void paintControl( PaintEvent pe ) {
-        pe.gc.setFont( noteFont );
-        Rectangle max = wNFont.getBounds();
-        String name = noteFontData.getName() + " - " + noteFontData.getHeight();
-        Point size = pe.gc.textExtent( name );
+    wNFont.addPaintListener( pe -> {
+      pe.gc.setFont( noteFont );
+      Rectangle max = wNFont.getBounds();
+      String name = noteFontData.getName() + " - " + noteFontData.getHeight();
+      Point size = pe.gc.textExtent( name );
 
-        pe.gc.drawText( name, ( max.width - size.x ) / 2, ( max.height - size.y ) / 2, true );
-      }
+      pe.gc.drawText( name, ( max.width - size.x ) / 2, ( max.height - size.y ) / 2, true );
     } );
 
     // Background color

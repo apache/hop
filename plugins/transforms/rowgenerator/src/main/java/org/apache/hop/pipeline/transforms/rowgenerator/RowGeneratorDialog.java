@@ -85,11 +85,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -159,10 +155,10 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     } );
     FormData fdNeverEnding = new FormData();
     fdNeverEnding.left = new FormAttachment( middle, 0 );
-    fdNeverEnding.top = new FormAttachment( lastControl, margin );
+    fdNeverEnding.top = new FormAttachment( wlNeverEnding, 0, SWT.CENTER );
     fdNeverEnding.right = new FormAttachment( 100, 0 );
     wNeverEnding.setLayoutData( fdNeverEnding );
-    lastControl = wNeverEnding;
+    lastControl = wlNeverEnding;
 
     wlInterval = new Label( shell, SWT.RIGHT );
     wlInterval.setText( BaseMessages.getString( PKG, "RowGeneratorDialog.Interval.Label" ) );
@@ -297,13 +293,11 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
       }
     } );
 
-    lsResize = new Listener() {
-      public void handleEvent( Event event ) {
-        Point size = shell.getSize();
-        wFields.setSize( size.x - 10, size.y - 50 );
-        wFields.table.setSize( size.x - 10, size.y - 50 );
-        wFields.redraw();
-      }
+    lsResize = event -> {
+      Point size = shell.getSize();
+      wFields.setSize( size.x - 10, size.y - 50 );
+      wFields.table.setSize( size.x - 10, size.y - 50 );
+      wFields.redraw();
     };
     shell.addListener( SWT.Resize, lsResize );
 

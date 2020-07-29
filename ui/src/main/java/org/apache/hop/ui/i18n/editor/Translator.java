@@ -810,17 +810,15 @@ public class Translator {
       }
     } );
 
-    wValue.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        // The main value got changed...
-        // Capture this automatically
-        //
-        lastValueChanged = true;
-        lastValue = wValue.getText();
+    wValue.addModifyListener( e -> {
+      // The main value got changed...
+      // Capture this automatically
+      //
+      lastValueChanged = true;
+      lastValue = wValue.getText();
 
-        wApply.setEnabled( true );
-        wRevert.setEnabled( true );
-      }
+      wApply.setEnabled( true );
+      wRevert.setEnabled( true );
     } );
 
     wApply.addSelectionListener( new SelectionAdapter() {

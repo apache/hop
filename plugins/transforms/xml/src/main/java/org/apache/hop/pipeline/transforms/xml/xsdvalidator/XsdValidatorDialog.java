@@ -97,11 +97,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -510,17 +506,9 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
 
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
 
@@ -536,11 +524,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
 
     // Whenever something changes, set the tooltip to the expanded version
     // of the filename:
-    wFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) ) );
 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {

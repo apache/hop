@@ -121,11 +121,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     props.setLook( shell );
     Button helpButton = WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -335,11 +331,9 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     setComboValues( colinf[ 0 ] );
 
-    ITextVarButtonRenderCallback callback = new ITextVarButtonRenderCallback() {
-      public boolean shouldRenderButton() {
-        String envType = wFields.getActiveTableItem().getText( wFields.getActiveTableColumn() - 1 );
-        return !STATIC_ENVIRONMENT.equalsIgnoreCase( envType );
-      }
+    ITextVarButtonRenderCallback callback = () -> {
+      String envType = wFields.getActiveTableItem().getText( wFields.getActiveTableColumn() - 1 );
+      return !STATIC_ENVIRONMENT.equalsIgnoreCase( envType );
     };
 
     colinf[ 1 ].setUsingVariables( true );

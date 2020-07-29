@@ -250,26 +250,10 @@ public class PipelineUnitTestSetLocationDialog extends Dialog {
 
 
     // Add listeners
-    wOK.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    } );
-    wMapFields.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        getFieldMappings();
-      }
-    } );
-    wGetSortFields.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        getSortFields();
-      }
-    } );
-    wCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    } );
+    wOK.addListener( SWT.Selection, e -> ok() );
+    wMapFields.addListener( SWT.Selection, e -> getFieldMappings() );
+    wGetSortFields.addListener( SWT.Selection, e -> getSortFields() );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
 
     SelectionAdapter selAdapter = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

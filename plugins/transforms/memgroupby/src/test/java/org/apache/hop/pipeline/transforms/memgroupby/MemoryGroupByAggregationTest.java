@@ -399,14 +399,12 @@ public class MemoryGroupByAggregationTest {
 
     return FluentIterable.from( ContiguousSet.create( rows, DiscreteDomain.integers() ) )
       .transform( Functions.forMap( data.rowMap(), ImmutableMap.<Integer, Optional<Object>>of() ) )
-      .transform( new Function<Map<Integer, Optional<Object>>, Object[]>() {
-        @Override public Object[] apply( Map<Integer, Optional<Object>> input ) {
-          Object[] row = new Object[ rowMeta.size() ];
-          for ( Map.Entry<Integer, Optional<Object>> entry : input.entrySet() ) {
-            row[ entry.getKey() ] = entry.getValue().orNull();
-          }
-          return row;
+      .transform( input -> {
+        Object[] row = new Object[ rowMeta.size() ];
+        for ( Map.Entry<Integer, Optional<Object>> entry : input.entrySet() ) {
+          row[ entry.getKey() ] = entry.getValue().orNull();
         }
+        return row;
       } );
   }
 }

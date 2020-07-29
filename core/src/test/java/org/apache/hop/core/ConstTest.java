@@ -1903,12 +1903,7 @@ public class ConstTest {
 
   @Test
   public void testGetHostnameReal() {
-    doWithModifiedSystemProperty( "HOP_SYSTEM_HOSTNAME", "MyHost", new Runnable() {
-      @Override
-      public void run() {
-        assertEquals( "MyHost", Const.getHostnameReal() );
-      }
-    } );
+    doWithModifiedSystemProperty( "HOP_SYSTEM_HOSTNAME", "MyHost", () -> assertEquals( "MyHost", Const.getHostnameReal() ) );
   }
 
   @Test

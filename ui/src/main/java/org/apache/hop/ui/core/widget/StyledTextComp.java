@@ -252,65 +252,39 @@ public class StyledTextComp extends Composite {
     // styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem undoItem = new MenuItem( styledTextPopupmenu, SWT.PUSH );
     undoItem.setText( OsHelper.customizeMenuitemText( BaseMessages.getString( PKG, "WidgetDialog.Styled.Undo" ) ) );
-    undoItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        undo();
-      }
-    } );
+    undoItem.addListener( SWT.Selection, e -> undo() );
 
     MenuItem redoItem = new MenuItem( styledTextPopupmenu, SWT.PUSH );
     redoItem.setText( OsHelper.customizeMenuitemText( BaseMessages.getString( PKG, "WidgetDialog.Styled.Redo" ) ) );
-    redoItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        redo();
-      }
-    } );
+    redoItem.addListener( SWT.Selection, e -> redo() );
 
     new MenuItem( styledTextPopupmenu, SWT.SEPARATOR );
     MenuItem cutItem = new MenuItem( styledTextPopupmenu, SWT.PUSH );
     cutItem.setText( OsHelper.customizeMenuitemText( BaseMessages.getString( PKG, "WidgetDialog.Styled.Cut" ) ) );
-    cutItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        styledText.cut();
-      }
-    } );
+    cutItem.addListener( SWT.Selection, e -> styledText.cut() );
 
     MenuItem copyItem = new MenuItem( styledTextPopupmenu, SWT.PUSH );
     copyItem.setText( OsHelper.customizeMenuitemText( BaseMessages.getString( PKG, "WidgetDialog.Styled.Copy" ) ) );
-    copyItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        styledText.copy();
-      }
-    } );
+    copyItem.addListener( SWT.Selection, e -> styledText.copy() );
 
     MenuItem pasteItem = new MenuItem( styledTextPopupmenu, SWT.PUSH );
     pasteItem
       .setText( OsHelper.customizeMenuitemText( BaseMessages.getString( PKG, "WidgetDialog.Styled.Paste" ) ) );
-    pasteItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        styledText.paste();
-      }
-    } );
+    pasteItem.addListener( SWT.Selection, e -> styledText.paste() );
 
     MenuItem selectAllItem = new MenuItem( styledTextPopupmenu, SWT.PUSH );
     selectAllItem.setText( OsHelper.customizeMenuitemText( BaseMessages.getString(
       PKG, "WidgetDialog.Styled.SelectAll" ) ) );
-    selectAllItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        styledText.selectAll();
-      }
-    } );
+    selectAllItem.addListener( SWT.Selection, e -> styledText.selectAll() );
 
     new MenuItem( styledTextPopupmenu, SWT.SEPARATOR );
     MenuItem findItem = new MenuItem( styledTextPopupmenu, SWT.PUSH );
     findItem.setText( OsHelper.customizeMenuitemText( BaseMessages.getString( PKG, "WidgetDialog.Styled.Find" ) ) );
-    findItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        StyledTextCompFind stFind =
-          new StyledTextCompFind( styledText.getShell(), styledText, BaseMessages.getString(
-            PKG, "WidgetDialog.Styled.FindString", strTabName ) );
-        stFind.open();
-      }
+    findItem.addListener( SWT.Selection, e -> {
+      StyledTextCompFind stFind =
+        new StyledTextCompFind( styledText.getShell(), styledText, BaseMessages.getString(
+          PKG, "WidgetDialog.Styled.FindString", strTabName ) );
+      stFind.open();
     } );
     MenuItem replaceItem = new MenuItem( styledTextPopupmenu, SWT.PUSH );
     replaceItem.setText( OsHelper.customizeMenuitemText( BaseMessages.getString(
@@ -319,36 +293,32 @@ public class StyledTextComp extends Composite {
     // (helpMenu, SWT.PUSH, "&About\tCtrl+A",
     // null, SWT.CTRL + 'A', true, "doAbout");
 
-    replaceItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        StyledTextCompReplace stReplace = new StyledTextCompReplace( styledText.getShell(), styledText );
-        stReplace.open();
-      }
+    replaceItem.addListener( SWT.Selection, e -> {
+      StyledTextCompReplace stReplace = new StyledTextCompReplace( styledText.getShell(), styledText );
+      stReplace.open();
     } );
 
-    styledText.addMenuDetectListener( new MenuDetectListener() {
-      public void menuDetected( MenuDetectEvent e ) {
-        // Enable menus, if the Selection is ok
-        if ( undoStack.size() > 0 ) {
-          styledTextPopupmenu.getItem( 0 ).setEnabled( true );
-        } else {
-          styledTextPopupmenu.getItem( 0 ).setEnabled( false );
-        }
+    styledText.addMenuDetectListener( e -> {
+      // Enable menus, if the Selection is ok
+      if ( undoStack.size() > 0 ) {
+        styledTextPopupmenu.getItem( 0 ).setEnabled( true );
+      } else {
+        styledTextPopupmenu.getItem( 0 ).setEnabled( false );
+      }
 
-        if ( redoStack.size() > 0 ) {
-          styledTextPopupmenu.getItem( 1 ).setEnabled( true );
-        } else {
-          styledTextPopupmenu.getItem( 1 ).setEnabled( false );
-        }
+      if ( redoStack.size() > 0 ) {
+        styledTextPopupmenu.getItem( 1 ).setEnabled( true );
+      } else {
+        styledTextPopupmenu.getItem( 1 ).setEnabled( false );
+      }
 
-        styledTextPopupmenu.getItem( 5 ).setEnabled( checkPaste() );
-        if ( styledText.getSelectionCount() > 0 ) {
-          styledTextPopupmenu.getItem( 3 ).setEnabled( true );
-          styledTextPopupmenu.getItem( 4 ).setEnabled( true );
-        } else {
-          styledTextPopupmenu.getItem( 3 ).setEnabled( false );
-          styledTextPopupmenu.getItem( 4 ).setEnabled( false );
-        }
+      styledTextPopupmenu.getItem( 5 ).setEnabled( checkPaste() );
+      if ( styledText.getSelectionCount() > 0 ) {
+        styledTextPopupmenu.getItem( 3 ).setEnabled( true );
+        styledTextPopupmenu.getItem( 4 ).setEnabled( true );
+      } else {
+        styledTextPopupmenu.getItem( 3 ).setEnabled( false );
+        styledTextPopupmenu.getItem( 4 ).setEnabled( false );
       }
     } );
     styledText.setMenu( styledTextPopupmenu );
@@ -389,40 +359,38 @@ public class StyledTextComp extends Composite {
       }
     } );
 
-    styledText.addExtendedModifyListener( new ExtendedModifyListener() {
-      public void modifyText( ExtendedModifyEvent event ) {
-        int iEventLength = event.length;
-        int iEventStartPostition = event.start;
+    styledText.addExtendedModifyListener( event -> {
+      int iEventLength = event.length;
+      int iEventStartPostition = event.start;
 
-        // Unterscheidung um welche Art es sich handelt Delete or Insert
-        String newText = styledText.getText();
-        String repText = event.replacedText;
-        String oldText = "";
-        int iEventType = -1;
+      // Unterscheidung um welche Art es sich handelt Delete or Insert
+      String newText = styledText.getText();
+      String repText = event.replacedText;
+      String oldText = "";
+      int iEventType = -1;
 
-        // if((event.length!=newText.length()) || newText.length()==1){
-        if ( ( event.length != newText.length() ) || ( bFullSelection ) ) {
-          if ( repText != null && repText.length() > 0 ) {
-            oldText =
-              newText.substring( 0, event.start ) + repText + newText.substring( event.start + event.length );
-            iEventType = UndoRedoStack.DELETE;
-            iEventLength = repText.length();
-          } else {
-            oldText = newText.substring( 0, event.start ) + newText.substring( event.start + event.length );
-            iEventType = UndoRedoStack.INSERT;
-          }
-
-          if ( ( oldText != null && oldText.length() > 0 ) || ( iEventStartPostition == event.length ) ) {
-            UndoRedoStack urs =
-              new UndoRedoStack( iEventStartPostition, newText, oldText, iEventLength, iEventType );
-            if ( undoStack.size() == MAX_STACK_SIZE ) {
-              undoStack.remove( undoStack.size() - 1 );
-            }
-            undoStack.add( 0, urs );
-          }
+      // if((event.length!=newText.length()) || newText.length()==1){
+      if ( ( event.length != newText.length() ) || ( bFullSelection ) ) {
+        if ( repText != null && repText.length() > 0 ) {
+          oldText =
+            newText.substring( 0, event.start ) + repText + newText.substring( event.start + event.length );
+          iEventType = UndoRedoStack.DELETE;
+          iEventLength = repText.length();
+        } else {
+          oldText = newText.substring( 0, event.start ) + newText.substring( event.start + event.length );
+          iEventType = UndoRedoStack.INSERT;
         }
-        bFullSelection = false;
+
+        if ( ( oldText != null && oldText.length() > 0 ) || ( iEventStartPostition == event.length ) ) {
+          UndoRedoStack urs =
+            new UndoRedoStack( iEventStartPostition, newText, oldText, iEventLength, iEventType );
+          if ( undoStack.size() == MAX_STACK_SIZE ) {
+            undoStack.remove( undoStack.size() - 1 );
+          }
+          undoStack.add( 0, urs );
+        }
       }
+      bFullSelection = false;
     } );
 
   }

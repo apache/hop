@@ -88,12 +88,7 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -289,30 +284,10 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     wTarget.setLayoutData( fdTarget );
 
     // Add listeners
-    lsOk = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsGetAgg = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        getAgg();
-      }
-    };
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsGetAgg = e -> getAgg();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -511,26 +486,23 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
-          r, wTarget, 2, new int[] {}, new int[] {}, -1, -1, new ITableItemInsertListener() {
-            @Override
-            public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-              if ( Const.indexOfString( v.getName(), groupingFields ) < 0 ) { // Not a grouping field
-                if ( !wKeyField.getText().equalsIgnoreCase( v.getName() ) ) { // Not the key field
-                  int nr = tableItem.getParent().indexOf( tableItem ) + 1;
-                  tableItem.setText( 1, BaseMessages.getString( PKG, "DenormaliserDialog.TargetFieldname.Label" )
-                    + nr ); // the target fieldname
-                  tableItem.setText( 2, v.getName() );
-                  tableItem.setText( 4, v.getTypeDesc() );
-                  if ( v.getLength() >= 0 ) {
-                    tableItem.setText( 6, "" + v.getLength() );
-                  }
-                  if ( v.getPrecision() >= 0 ) {
-                    tableItem.setText( 7, "" + v.getPrecision() );
-                  }
+          r, wTarget, 2, new int[] {}, new int[] {}, -1, -1, ( tableItem, v ) -> {
+            if ( Const.indexOfString( v.getName(), groupingFields ) < 0 ) { // Not a grouping field
+              if ( !wKeyField.getText().equalsIgnoreCase( v.getName() ) ) { // Not the key field
+                int nr = tableItem.getParent().indexOf( tableItem ) + 1;
+                tableItem.setText( 1, BaseMessages.getString( PKG, "DenormaliserDialog.TargetFieldname.Label" )
+                  + nr ); // the target fieldname
+                tableItem.setText( 2, v.getName() );
+                tableItem.setText( 4, v.getTypeDesc() );
+                if ( v.getLength() >= 0 ) {
+                  tableItem.setText( 6, "" + v.getLength() );
+                }
+                if ( v.getPrecision() >= 0 ) {
+                  tableItem.setText( 7, "" + v.getPrecision() );
                 }
               }
-              return true;
             }
+            return true;
           } );
       }
     } catch ( HopException ke ) {

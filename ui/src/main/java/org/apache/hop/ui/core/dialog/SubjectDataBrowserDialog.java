@@ -130,11 +130,7 @@ public class SubjectDataBrowserDialog {
 
     wClose = new Button( shell, SWT.PUSH );
     wClose.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
-    wClose.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        close();
-      }
-    } );
+    wClose.addListener( SWT.Selection, e -> close() );
 
     // Position the buttons...
     //

@@ -365,12 +365,10 @@ public class HopGuiPipelineTransformDelegate {
 
           /*Schema selection*/
           IMethodProcessor methodProcessor = MethodProcessorFactory.create( methodType );
-          methodProcessor.schemaSelection( partitionSettings, hopGui.getShell(), new IPartitionSchemaSelection() {
-            @Override public String schemaFieldSelection( Shell shell, PartitionSettings settings ) throws HopException {
-              TransformPartitioningMeta partitioningMeta = settings.getTransformMeta().getTransformPartitioningMeta();
-              ITransformDialog dialog = getPartitionerDialog( shell, settings.getTransformMeta(), partitioningMeta, settings.getPipelineMeta() );
-              return dialog.open();
-            }
+          methodProcessor.schemaSelection( partitionSettings, hopGui.getShell(), ( shell, settings ) -> {
+            TransformPartitioningMeta partitioningMeta = settings.getTransformMeta().getTransformPartitioningMeta();
+            ITransformDialog dialog = getPartitionerDialog( shell, settings.getTransformMeta(), partitioningMeta, settings.getPipelineMeta() );
+            return dialog.open();
           } );
         }
         transformMeta.setChanged();

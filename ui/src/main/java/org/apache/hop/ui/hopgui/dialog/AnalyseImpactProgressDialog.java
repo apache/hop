@@ -61,19 +61,17 @@ public class AnalyseImpactProgressDialog {
   }
 
   public boolean open() {
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        try {
-          impact.clear(); // Start with a clean slate!!
-          pipelineMeta.analyseImpact( impact, new ProgressMonitorAdapter( monitor ) );
-          impactHasRun = true;
-        } catch ( Exception e ) {
-          impact.clear();
-          impactHasRun = false;
-          // Problem encountered generating impact list: {0}
-          throw new InvocationTargetException( e, BaseMessages.getString(
-            PKG, "AnalyseImpactProgressDialog.RuntimeError.UnableToAnalyzeImpact.Exception", e.toString() ) );
-        }
+    IRunnableWithProgress op = monitor -> {
+      try {
+        impact.clear(); // Start with a clean slate!!
+        pipelineMeta.analyseImpact( impact, new ProgressMonitorAdapter( monitor ) );
+        impactHasRun = true;
+      } catch ( Exception e ) {
+        impact.clear();
+        impactHasRun = false;
+        // Problem encountered generating impact list: {0}
+        throw new InvocationTargetException( e, BaseMessages.getString(
+          PKG, "AnalyseImpactProgressDialog.RuntimeError.UnableToAnalyzeImpact.Exception", e.toString() ) );
       }
     };
 

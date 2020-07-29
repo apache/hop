@@ -167,11 +167,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
 
     changed = input.hasChanged();
 
@@ -768,22 +764,20 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     // Search the fields in the background
     //
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -815,26 +809,10 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        getQueryFields();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsGetBodyParam = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> getQueryFields();
+    lsCancel = e -> cancel();
+    lsGetBodyParam = e -> get();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -860,13 +838,11 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
       }
     } );
 
-    lsResize = new Listener() {
-      public void handleEvent( Event event ) {
-        Point size = shell.getSize();
-        wFields.setSize( size.x - 10, size.y - 50 );
-        wFields.table.setSize( size.x - 10, size.y - 50 );
-        wFields.redraw();
-      }
+    lsResize = event -> {
+      Point size = shell.getSize();
+      wFields.setSize( size.x - 10, size.y - 50 );
+      wFields.table.setSize( size.x - 10, size.y - 50 );
+      wFields.redraw();
     };
     shell.addListener( SWT.Resize, lsResize );
 
@@ -1100,11 +1076,9 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            tableItem.setText( 3, NO ); // default is "N"
-            return true;
-          }
+        ITableItemInsertListener listener = ( tableItem, v ) -> {
+          tableItem.setText( 3, NO ); // default is "N"
+          return true;
         };
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1, 2 }, null, -1, -1, listener );
       }

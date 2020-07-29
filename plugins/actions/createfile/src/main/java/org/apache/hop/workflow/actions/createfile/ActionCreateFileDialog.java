@@ -108,11 +108,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -171,11 +167,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     wFilename.setLayoutData( fdFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
 
     wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
           new String[] { "*" }, FILETYPES, true )
@@ -230,16 +222,8 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wAddFilenameToResult );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

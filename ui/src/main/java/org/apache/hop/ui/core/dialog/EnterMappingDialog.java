@@ -333,11 +333,9 @@ public class EnterMappingDialog extends Dialog {
     } );
     wSource.addListener( SWT.DefaultSelection, event -> add() );
 
-    wTarget.addListener( SWT.Selection, new Listener() {
-      @Override public void handleEvent( Event event ) {
-        if ( wTargetAuto.getSelection() ) {
-          findSource();
-        }
+    wTarget.addListener( SWT.Selection, event -> {
+      if ( wTargetAuto.getSelection() ) {
+        findSource();
       }
     } );
     wTarget.addListener( SWT.DefaultSelection, event -> add() );
@@ -369,12 +367,7 @@ public class EnterMappingDialog extends Dialog {
     String[] sortedSourceList = Arrays.copyOf( sourceList, sourceList.length );
 
     // Sort Longest to Shortest string - makes matching better
-    Arrays.sort( sortedSourceList, new Comparator<String>() {
-      @Override
-      public int compare( String s1, String s2 ) {
-        return s2.length() - s1.length();
-      }
-    } );
+    Arrays.sort( sortedSourceList, ( s1, s2 ) -> s2.length() - s1.length() );
     // Look for matches using longest field name to shortest
     ArrayList<GuessPair> pList = new ArrayList<GuessPair>();
     for ( int i = 0; i < sourceList.length; i++ ) {
@@ -384,12 +377,7 @@ public class EnterMappingDialog extends Dialog {
       }
     }
     // Now add them in order or source field list
-    Collections.sort( pList, new Comparator<GuessPair>() {
-      @Override
-      public int compare( GuessPair s1, GuessPair s2 ) {
-        return s1.getSrcIndex() - s2.getSrcIndex();
-      }
-    } );
+    Collections.sort( pList, ( s1, s2 ) -> s1.getSrcIndex() - s2.getSrcIndex() );
     for ( GuessPair p : pList ) {
       if ( p.getFound() ) {
         SourceToTargetMapping mapping = new SourceToTargetMapping( p.getSrcIndex(), p.getTargetIndex() );

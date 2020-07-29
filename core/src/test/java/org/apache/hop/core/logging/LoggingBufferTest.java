@@ -40,46 +40,36 @@ public class LoggingBufferTest {
 
     final AtomicBoolean done = new AtomicBoolean( false );
 
-    final IHopLoggingEventListener lsnr = new IHopLoggingEventListener() {
-      @Override public void eventAdded( HopLoggingEvent event ) {
-        //stub
-      }
+    final IHopLoggingEventListener lsnr = event -> {
+      //stub
     };
 
     final HopLoggingEvent event = new HopLoggingEvent();
 
     final CountDownLatch latch = new CountDownLatch( 1 );
 
-    Thread.UncaughtExceptionHandler errorHandler = new Thread.UncaughtExceptionHandler() {
-      @Override public void uncaughtException( Thread t, Throwable e ) {
-        e.printStackTrace();
-      }
-    };
+    Thread.UncaughtExceptionHandler errorHandler = ( t, e ) -> e.printStackTrace();
 
-    Thread addListeners = new Thread( new Runnable() {
-      @Override public void run() {
-        try {
-          while ( !done.get() ) {
-            buf.addLoggingEventListener( lsnr );
-          }
-        } finally {
-          latch.countDown();
+    Thread addListeners = new Thread( () -> {
+      try {
+        while ( !done.get() ) {
+          buf.addLoggingEventListener( lsnr );
         }
+      } finally {
+        latch.countDown();
       }
     }, "Add Listeners Thread" ) {
 
     };
 
-    Thread addEvents = new Thread( new Runnable() {
-      @Override public void run() {
-        try {
-          for ( int i = 0; i < eventCount; i++ ) {
-            buf.addLogggingEvent( event );
-          }
-          done.set( true );
-        } finally {
-          latch.countDown();
+    Thread addEvents = new Thread( () -> {
+      try {
+        for ( int i = 0; i < eventCount; i++ ) {
+          buf.addLogggingEvent( event );
         }
+        done.set( true );
+      } finally {
+        latch.countDown();
       }
     }, "Add Events Thread" ) {
 

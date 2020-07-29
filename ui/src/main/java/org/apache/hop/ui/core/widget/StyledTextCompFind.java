@@ -138,31 +138,23 @@ public class StyledTextCompFind extends org.eclipse.swt.widgets.Dialog {
     frmData.bottom = new FormAttachment( 100, -10 );
     grpDir.setLayoutData( frmData );
 
-    btnNext.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        if ( !findText() ) {
-          MessageBox messageBox = new MessageBox( sShell, SWT.ICON_INFORMATION | SWT.OK );
-          messageBox.setText( BaseMessages.getString( PKG, "Widget.Styled.Comp.FindItem" ) );
-          messageBox.setMessage( BaseMessages.getString( PKG, "Widget.Styled.CompReplace.ItemNotFound", searchText
-            .getText() ) );
-          messageBox.open();
-        }
+    btnNext.addListener( SWT.Selection, e -> {
+      if ( !findText() ) {
+        MessageBox messageBox = new MessageBox( sShell, SWT.ICON_INFORMATION | SWT.OK );
+        messageBox.setText( BaseMessages.getString( PKG, "Widget.Styled.Comp.FindItem" ) );
+        messageBox.setMessage( BaseMessages.getString( PKG, "Widget.Styled.CompReplace.ItemNotFound", searchText
+          .getText() ) );
+        messageBox.open();
       }
     } );
 
-    btnCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        sShell.dispose();
-      }
-    } );
+    btnCancel.addListener( SWT.Selection, e -> sShell.dispose() );
 
-    searchText.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        if ( searchText.getText() != null && searchText.getText().length() > 0 ) {
-          btnNext.setEnabled( true );
-        } else {
-          btnNext.setEnabled( false );
-        }
+    searchText.addModifyListener( e -> {
+      if ( searchText.getText() != null && searchText.getText().length() > 0 ) {
+        btnNext.setEnabled( true );
+      } else {
+        btnNext.setEnabled( false );
       }
     } );
 

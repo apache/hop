@@ -39,60 +39,16 @@ public class SwitchCaseMetadataInjectionTest extends BaseMetadataInjectionTest<S
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_NAME", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getFieldname();
-      }
-    } );
+    check( "FIELD_NAME", () -> meta.getFieldname() );
     String[] typeNames = ValueMetaBase.getAllTypes();
-    checkStringToInt( "VALUE_TYPE", new IIntGetter() {
-      public int get() {
-        return meta.getCaseValueType();
-      }
-    }, typeNames, getTypeCodes( typeNames ) );
-    check( "VALUE_DECIMAL", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getCaseValueDecimal();
-      }
-    } );
-    check( "VALUE_GROUP", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getCaseValueGroup();
-      }
-    } );
-    check( "VALUE_FORMAT", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getCaseValueFormat();
-      }
-    } );
-    check( "CONTAINS", new IBooleanGetter() {
-      @Override
-      public boolean get() {
-        return meta.isContains();
-      }
-    } );
-    check( "DEFAULT_TARGET_TRANSFORM_NAME", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getDefaultTargetTransformName();
-      }
-    } );
-    check( "SWITCH_CASE_TARGET.CASE_VALUE", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getCaseTargets().get( 0 ).caseValue;
-      }
-    } );
-    check( "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getCaseTargets().get( 0 ).caseTargetTransformName;
-      }
-    } );
+    checkStringToInt( "VALUE_TYPE", () -> meta.getCaseValueType(), typeNames, getTypeCodes( typeNames ) );
+    check( "VALUE_DECIMAL", () -> meta.getCaseValueDecimal() );
+    check( "VALUE_GROUP", () -> meta.getCaseValueGroup() );
+    check( "VALUE_FORMAT", () -> meta.getCaseValueFormat() );
+    check( "CONTAINS", () -> meta.isContains() );
+    check( "DEFAULT_TARGET_TRANSFORM_NAME", () -> meta.getDefaultTargetTransformName() );
+    check( "SWITCH_CASE_TARGET.CASE_VALUE", () -> meta.getCaseTargets().get( 0 ).caseValue );
+    check( "SWITCH_CASE_TARGET.CASE_TARGET_TRANSFORM_NAME", () -> meta.getCaseTargets().get( 0 ).caseTargetTransformName );
   }
 
 }

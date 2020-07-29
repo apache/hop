@@ -695,20 +695,18 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
         if ( actionCopy.isLaunchingInParallel() ) {
           threadEntries.add( nextEntry );
 
-          Runnable runnable = new Runnable() {
-            @Override public void run() {
-              try {
-                Result threadResult = executeFromStart( nr + 1, newResult, nextEntry, actionCopy, nextComment );
-                threadResults.add( threadResult );
-              } catch ( Throwable e ) {
-                log.logError( Const.getStackTracker( e ) );
-                threadExceptions.add( new HopException( BaseMessages.getString( PKG, "Workflow.Log.UnexpectedError",
-                  nextEntry.toString() ), e ) );
-                Result threadResult = new Result();
-                threadResult.setResult( false );
-                threadResult.setNrErrors( 1L );
-                threadResults.add( threadResult );
-              }
+          Runnable runnable = () -> {
+            try {
+              Result threadResult = executeFromStart( nr + 1, newResult, nextEntry, actionCopy, nextComment );
+              threadResults.add( threadResult );
+            } catch ( Throwable e ) {
+              log.logError( Const.getStackTracker( e ) );
+              threadExceptions.add( new HopException( BaseMessages.getString( PKG, "Workflow.Log.UnexpectedError",
+                nextEntry.toString() ), e ) );
+              Result threadResult = new Result();
+              threadResult.setResult( false );
+              threadResult.setNrErrors( 1L );
+              threadResults.add( threadResult );
             }
           };
           Thread thread = new Thread( runnable );

@@ -121,11 +121,7 @@ public class NewSubPipelineDialog extends Dialog {
     fdOk.top = new FormAttachment( wShow, 30, SWT.BOTTOM );
     wOk.setLayoutData( fdOk );
 
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        close();
-      }
-    };
+    lsOk = e -> close();
 
     wOk.addListener( SWT.Selection, lsOk );
 

@@ -277,12 +277,10 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        // pwdFolder=null;
-        connection = null;
-        action.setChanged();
-      }
+    ModifyListener lsMod = e -> {
+      // pwdFolder=null;
+      connection = null;
+      action.setChanged();
     };
     changed = action.hasChanged();
 
@@ -1145,31 +1143,11 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
-    lsCheckFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        checkRemoteFolder( false, true, wMoveToDirectory.getText() );
-      }
-    };
-    lsCheckChangeFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        checkRemoteFolder( true, false, wFtpsDirectory.getText() );
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsTest = e -> test();
+    lsCheckFolder = e -> checkRemoteFolder( false, true, wMoveToDirectory.getText() );
+    lsCheckChangeFolder = e -> checkRemoteFolder( true, false, wFtpsDirectory.getText() );
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

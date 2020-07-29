@@ -40,54 +40,14 @@ public class ExecSqlRowMetaInjectionTest extends BaseMetadataInjectionTest<ExecS
 
   @Test
   public void test() throws Exception {
-    check( "SQL_FIELD_NAME", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getSqlFieldName();
-      }
-    } );
-    check( "COMMIT_SIZE", new IIntGetter() {
-      @Override
-      public int get() {
-        return meta.getCommitSize();
-      }
-    } );
-    check( "READ_SQL_FROM_FILE", new IBooleanGetter() {
-      @Override
-      public boolean get() {
-        return meta.isSqlFromfile();
-      }
-    } );
-    check( "SEND_SINGLE_STATEMENT", new IBooleanGetter() {
-      @Override
-      public boolean get() {
-        return meta.IsSendOneStatement();
-      }
-    } );
-    check( "UPDATE_STATS", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getUpdateField();
-      }
-    } );
-    check( "INSERT_STATS", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getInsertField();
-      }
-    } );
-    check( "DELETE_STATS", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getDeleteField();
-      }
-    } );
-    check( "READ_STATS", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getReadField();
-      }
-    } );
+    check( "SQL_FIELD_NAME", () -> meta.getSqlFieldName() );
+    check( "COMMIT_SIZE", () -> meta.getCommitSize() );
+    check( "READ_SQL_FROM_FILE", () -> meta.isSqlFromfile() );
+    check( "SEND_SINGLE_STATEMENT", () -> meta.IsSendOneStatement() );
+    check( "UPDATE_STATS", () -> meta.getUpdateField() );
+    check( "INSERT_STATS", () -> meta.getInsertField() );
+    check( "DELETE_STATS", () -> meta.getDeleteField() );
+    check( "READ_STATS", () -> meta.getReadField() );
 
     skipPropertyTest( "CONNECTION_NAME" );
 

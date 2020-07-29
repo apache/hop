@@ -88,11 +88,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     setShellImage( shell, m_currentMeta );
 
     // used to listen to a text field (m_wTransformName)
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        m_currentMeta.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> m_currentMeta.setChanged();
 
     changed = m_currentMeta.hasChanged();
 
@@ -179,16 +175,8 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     setButtonPositions( new Button[] { wOk, wCancel }, margin, m_wSeed );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -209,18 +197,10 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     } );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    m_wSampleSize.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        m_wSampleSize.setToolTipText( pipelineMeta.environmentSubstitute( m_wSampleSize.getText() ) );
-      }
-    } );
+    m_wSampleSize.addModifyListener( e -> m_wSampleSize.setToolTipText( pipelineMeta.environmentSubstitute( m_wSampleSize.getText() ) ) );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    m_wSeed.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        m_wSeed.setToolTipText( pipelineMeta.environmentSubstitute( m_wSeed.getText() ) );
-      }
-    } );
+    m_wSeed.addModifyListener( e -> m_wSeed.setToolTipText( pipelineMeta.environmentSubstitute( m_wSeed.getText() ) ) );
 
     // Set the shell size, based upon previous time...
     setSize();

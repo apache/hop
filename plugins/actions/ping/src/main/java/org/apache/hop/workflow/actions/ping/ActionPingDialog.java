@@ -110,11 +110,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -165,11 +161,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wHostname.setLayoutData( fdHostname );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wHostname.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wHostname.setToolTipText( workflowMeta.environmentSubstitute( wHostname.getText() ) );
-      }
-    } );
+    wHostname.addModifyListener( e -> wHostname.setToolTipText( workflowMeta.environmentSubstitute( wHostname.getText() ) ) );
 
     wlPingType = new Label( shell, SWT.RIGHT );
     wlPingType.setText( BaseMessages.getString( PKG, "JobPing.PingType.Label" ) );
@@ -253,16 +245,8 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wCancel.setLayoutData( fd );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

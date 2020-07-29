@@ -77,11 +77,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
 
     changed = input.hasChanged();
 
@@ -164,11 +160,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wConnectTimeOut.setLayoutData( fdConnectTimeOut );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wConnectTimeOut.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wConnectTimeOut.setToolTipText( pipelineMeta.environmentSubstitute( wConnectTimeOut.getText() ) );
-      }
-    } );
+    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( pipelineMeta.environmentSubstitute( wConnectTimeOut.getText() ) ) );
 
     // Read timeout line
     wlReadTimeOut = new Label( shell, SWT.RIGHT );
@@ -191,11 +183,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wReadTimeOut.setLayoutData( fdReadTimeOut );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wReadTimeOut.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wReadTimeOut.setToolTipText( pipelineMeta.environmentSubstitute( wReadTimeOut.getText() ) );
-      }
-    } );
+    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( pipelineMeta.environmentSubstitute( wReadTimeOut.getText() ) ) );
 
     // Result fieldname ...
     wlResult = new Label( shell, SWT.RIGHT );
@@ -226,17 +214,9 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wResult );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
 
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

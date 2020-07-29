@@ -1,0 +1,24 @@
+{
+  "base_filename": "state-data-input.csv",
+  "name": "state-date input",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 50,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "State"
+    },
+    {
+      "field_comment": "",
+      "field_length": 9,
+      "field_type": 5,
+      "field_precision": -1,
+      "field_format": "###,##0",
+      "field_name": "Population"
+    }
+  ],
+  "folder_name": ""
+}

@@ -560,12 +560,7 @@ public class ValueDataUtilTest {
     metaB.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
     Object valueB = "2";
 
-    when( metaA.convertData( metaB, valueB ) ).thenAnswer( new Answer<Long>() {
-      @Override
-      public Long answer( InvocationOnMock invocation ) throws Throwable {
-        return new Long( 2 );
-      }
-    } );
+    when( metaA.convertData( metaB, valueB ) ).thenAnswer( (Answer<Long>) invocation -> new Long( 2 ) );
 
     Object returnValue = ValueDataUtil.sum( metaA, null, metaB, valueB );
     verify( metaA ).convertData( metaB, valueB );

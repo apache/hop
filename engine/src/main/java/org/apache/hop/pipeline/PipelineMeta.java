@@ -2826,21 +2826,17 @@ public class PipelineMeta extends AbstractMeta
       }
     }
 
-    Collections.sort( transforms, new Comparator<TransformMeta>() {
+    Collections.sort( transforms, ( o1, o2 ) -> {
 
-      @Override
-      public int compare( TransformMeta o1, TransformMeta o2 ) {
-
-        Map<TransformMeta, Boolean> beforeMap = transformMap.get( o1 );
-        if ( beforeMap != null ) {
-          if ( beforeMap.get( o2 ) == null ) {
-            return -1;
-          } else {
-            return 1;
-          }
+      Map<TransformMeta, Boolean> beforeMap = transformMap.get( o1 );
+      if ( beforeMap != null ) {
+        if ( beforeMap.get( o2 ) == null ) {
+          return -1;
         } else {
-          return o1.getName().compareToIgnoreCase( o2.getName() );
+          return 1;
         }
+      } else {
+        return o1.getName().compareToIgnoreCase( o2.getName() );
       }
     } );
 

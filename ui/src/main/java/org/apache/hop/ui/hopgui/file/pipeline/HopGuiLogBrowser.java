@@ -218,11 +218,7 @@ public class HopGuiLogBrowser {
 
     // Make sure the timer goes down when the widget is disposed
     //
-    text.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent event ) {
-        logRefreshTimer.cancel();
-      }
-    } );
+    text.addDisposeListener( event -> logRefreshTimer.cancel() );
 
     final Menu menu = new Menu( text );
     MenuItem item = new MenuItem( menu, SWT.NONE );

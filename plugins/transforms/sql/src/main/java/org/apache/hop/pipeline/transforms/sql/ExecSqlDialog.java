@@ -136,11 +136,9 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        changedInDialog = true;
-        input.setChanged();
-      }
+    ModifyListener lsMod = e -> {
+      changedInDialog = true;
+      input.setChanged();
     };
 
     SelectionAdapter lsSel = new SelectionAdapter() {
@@ -196,12 +194,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
-    wSql.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        setPosition();
-      }
-
-    } );
+    wSql.addModifyListener( arg0 -> setPosition() );
 
     wSql.addKeyListener( new KeyAdapter() {
       public void keyPressed( KeyEvent e ) {
@@ -495,21 +488,19 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     // Search the fields in the background
     //
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -517,21 +508,9 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     // Add listeners
     //
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsGet = e -> get();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wGet.addListener( SWT.Selection, lsGet );

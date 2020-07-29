@@ -95,11 +95,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -283,12 +279,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     fdSql.bottom = new FormAttachment( wOk, -4 * margin );
     wSql.setLayoutData(fdSql);
 
-    wSql.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        setPosition();
-      }
-
-    } );
+    wSql.addModifyListener( arg0 -> setPosition() );
 
     wSql.addKeyListener( new KeyAdapter() {
       public void keyPressed( KeyEvent e ) {
@@ -337,16 +328,8 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wlPosition.setLayoutData( fdlPosition );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

@@ -726,41 +726,37 @@ public class BaseTransformDialog extends Dialog {
     for ( int i = 0; i < controls.length; i++ ) {
       final int controlNr = i;
       if ( i < controls.length - 1 ) {
-        controls[ i ].addTraverseListener( new TraverseListener() {
-          public void keyTraversed( TraverseEvent te ) {
-            te.doit = false;
-            // set focus on the next control.
-            // What is the next control?
-            int thisOne = controlNr + 1;
-            while ( !controls[ thisOne ].isEnabled() ) {
-              thisOne++;
-              if ( thisOne >= controls.length ) {
-                thisOne = 0;
-              }
-              if ( thisOne == controlNr ) {
-                return; // already tried all others, time to quit.
-              }
+        controls[ i ].addTraverseListener( te -> {
+          te.doit = false;
+          // set focus on the next control.
+          // What is the next control?
+          int thisOne = controlNr + 1;
+          while ( !controls[ thisOne ].isEnabled() ) {
+            thisOne++;
+            if ( thisOne >= controls.length ) {
+              thisOne = 0;
             }
-            controls[ thisOne ].setFocus();
+            if ( thisOne == controlNr ) {
+              return; // already tried all others, time to quit.
+            }
           }
+          controls[ thisOne ].setFocus();
         } );
       } else { // Link last item to first.
 
-        controls[ i ].addTraverseListener( new TraverseListener() {
-          public void keyTraversed( TraverseEvent te ) {
-            te.doit = false;
-            // set focus on the next control.
-            // set focus on the next control.
-            // What is the next control : 0
-            int thisOne = 0;
-            while ( !controls[ thisOne ].isEnabled() ) {
-              thisOne++;
-              if ( thisOne >= controls.length ) {
-                return; // already tried all others, time to quit.
-              }
+        controls[ i ].addTraverseListener( te -> {
+          te.doit = false;
+          // set focus on the next control.
+          // set focus on the next control.
+          // What is the next control : 0
+          int thisOne = 0;
+          while ( !controls[ thisOne ].isEnabled() ) {
+            thisOne++;
+            if ( thisOne >= controls.length ) {
+              return; // already tried all others, time to quit.
             }
-            controls[ thisOne ].setFocus();
           }
+          controls[ thisOne ].setFocus();
         } );
       }
     }

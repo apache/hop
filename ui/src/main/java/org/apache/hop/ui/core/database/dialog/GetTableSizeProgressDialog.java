@@ -67,49 +67,45 @@ public class GetTableSizeProgressDialog {
   }
 
   public Long open() {
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        db = new Database( HopGui.getInstance().getLoggingObject(), dbMeta );
-        try {
-          db.connect();
+    IRunnableWithProgress op = monitor -> {
+      db = new Database( HopGui.getInstance().getLoggingObject(), dbMeta );
+      try {
+        db.connect();
 
-          String sql = dbMeta.getIDatabase().getSelectCountStatement( tableName );
-          RowMetaAndData row = db.getOneRow( sql );
-          size = row.getRowMeta().getInteger( row.getData(), 0 );
+        String sql = dbMeta.getIDatabase().getSelectCountStatement( tableName );
+        RowMetaAndData row = db.getOneRow( sql );
+        size = row.getRowMeta().getInteger( row.getData(), 0 );
 
-          if ( monitor.isCanceled() ) {
-            throw new InvocationTargetException( new Exception( "This operation was cancelled!" ) );
-          }
-
-        } catch ( HopException e ) {
-          throw new InvocationTargetException( e, "Couldn't get a result because of an error :" + e.toString() );
-        } finally {
-          db.disconnect();
+        if ( monitor.isCanceled() ) {
+          throw new InvocationTargetException( new Exception( "This operation was cancelled!" ) );
         }
+
+      } catch ( HopException e ) {
+        throw new InvocationTargetException( e, "Couldn't get a result because of an error :" + e.toString() );
+      } finally {
+        db.disconnect();
       }
     };
 
     try {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
       // Run something in the background to cancel active database queries, forecably if needed!
-      Runnable run = new Runnable() {
-        public void run() {
-          IProgressMonitor monitor = pmd.getProgressMonitor();
-          while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
-            try {
-              Thread.sleep( 100 );
-            } catch ( InterruptedException e ) {
-              // Ignore
-            }
+      Runnable run = () -> {
+        IProgressMonitor monitor = pmd.getProgressMonitor();
+        while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
+          try {
+            Thread.sleep( 100 );
+          } catch ( InterruptedException e ) {
+            // Ignore
           }
+        }
 
-          if ( monitor.isCanceled() ) { // Disconnect and see what happens!
+        if ( monitor.isCanceled() ) { // Disconnect and see what happens!
 
-            try {
-              db.cancelQuery();
-            } catch ( Exception e ) {
-              // Ignore
-            }
+          try {
+            db.cancelQuery();
+          } catch ( Exception e ) {
+            // Ignore
           }
         }
       };

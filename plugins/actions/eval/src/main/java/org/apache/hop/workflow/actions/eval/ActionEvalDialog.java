@@ -112,11 +112,7 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -180,12 +176,7 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
     fdScript.right = new FormAttachment( 100, -10 );
     fdScript.bottom = new FormAttachment( wlPosition, -margin );
     wScript.setLayoutData( fdScript );
-    wScript.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        setPosition();
-      }
-
-    } );
+    wScript.addModifyListener( arg0 -> setPosition() );
 
     wScript.addKeyListener( new KeyAdapter() {
       public void keyPressed( KeyEvent e ) {
@@ -220,16 +211,8 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
     } );
     wScript.addModifyListener( lsMod );
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

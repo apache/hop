@@ -51,10 +51,6 @@ public class PasswordTextVar extends TextVar {
 
   @Override
   protected ModifyListener getModifyListenerTooltipText( final Text textField ) {
-    return new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        textField.setToolTipText( toolTipText );
-      }
-    };
+    return e -> textField.setToolTipText( toolTipText );
   }
 }

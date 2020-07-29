@@ -66,11 +66,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -128,20 +124,18 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     /*
      * Get the field names from the previous transforms, in the background though
      */
-    Runnable runnable = new Runnable() {
-      public void run() {
-        try {
-          IRowMeta inputfields = pipelineMeta.getPrevTransformFields( transformName );
-          if ( inputfields != null ) {
-            for ( int i = 0; i < inputfields.size(); i++ ) {
-              wFilenameField.add( inputfields.getValueMeta( i ).getName() );
-            }
+    Runnable runnable = () -> {
+      try {
+        IRowMeta inputfields = pipelineMeta.getPrevTransformFields( transformName );
+        if ( inputfields != null ) {
+          for ( int i = 0; i < inputfields.size(); i++ ) {
+            wFilenameField.add( inputfields.getValueMeta( i ).getName() );
           }
-        } catch ( Exception ke ) {
-          new ErrorDialog( shell,
-            BaseMessages.getString( PKG, "FilesToResultDialog.FailedToGetFields.DialogTitle" ),
-            BaseMessages.getString( PKG, "FilesToResultDialog.FailedToGetFields.DialogMessage" ), ke );
         }
+      } catch ( Exception ke ) {
+        new ErrorDialog( shell,
+          BaseMessages.getString( PKG, "FilesToResultDialog.FailedToGetFields.DialogTitle" ),
+          BaseMessages.getString( PKG, "FilesToResultDialog.FailedToGetFields.DialogMessage" ), ke );
       }
     };
     display.asyncExec( runnable );
@@ -177,16 +171,8 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     }
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

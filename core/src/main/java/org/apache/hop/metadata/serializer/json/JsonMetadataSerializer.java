@@ -174,11 +174,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
   }
 
   @Override public List<String> listObjectNames() throws HopException {
-    File[] files = new File( baseFolder ).listFiles( new FilenameFilter() {
-      @Override public boolean accept( File dir, String name ) {
-        return name.endsWith( ".json" );
-      }
-    } );
+    File[] files = new File( baseFolder ).listFiles( ( dir, name ) -> name.endsWith( ".json" ) );
     List<String> names = new ArrayList<>();
     for ( File file : files ) {
       names.add( FilenameUtils.removeExtension( file.getName() ) );

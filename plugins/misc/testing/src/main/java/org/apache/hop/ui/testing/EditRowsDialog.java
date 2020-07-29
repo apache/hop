@@ -146,19 +146,11 @@ public class EditRowsDialog {
 
     wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    } );
+    wOK.addListener( SWT.Selection, e -> ok() );
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    } );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
 
     // Position the buttons...
     //
@@ -261,16 +253,14 @@ public class EditRowsDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   private void getData() {
-    shell.getDisplay().asyncExec( new Runnable() {
-      public void run() {
-        lineNr = 0;
-        for ( int i = 0; i < rowBuffer.size(); i++ ) {
-          TableItem item = wFields.table.getItem( i );
-          Object[] row = rowBuffer.get( i );
-          getDataForRow( item, row );
-        }
-        wFields.optWidth( true, 200 );
+    shell.getDisplay().asyncExec( () -> {
+      lineNr = 0;
+      for ( int i = 0; i < rowBuffer.size(); i++ ) {
+        TableItem item = wFields.table.getItem( i );
+        Object[] row = rowBuffer.get( i );
+        getDataForRow( item, row );
       }
+      wFields.optWidth( true, 200 );
     } );
   }
 

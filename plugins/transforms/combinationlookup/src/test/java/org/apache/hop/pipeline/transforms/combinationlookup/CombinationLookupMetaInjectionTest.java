@@ -38,81 +38,21 @@ public class CombinationLookupMetaInjectionTest extends BaseMetadataInjectionTes
 
   @Test
   public void test() throws Exception {
-    check( "SCHEMA_NAME", new IStringGetter() {
-      public String get() {
-        return meta.getSchemaName();
-      }
-    } );
-    check( "TABLE_NAME", new IStringGetter() {
-      public String get() {
-        return meta.getTableName();
-      }
-    } );
-    check( "REPLACE_FIELDS", new IBooleanGetter() {
-      public boolean get() {
-        return meta.replaceFields();
-      }
-    } );
-    check( "KEY_FIELDS", new IStringGetter() {
-      public String get() {
-        return meta.getKeyField()[ 0 ];
-      }
-    } );
-    check( "KEY_LOOKUP", new IStringGetter() {
-      public String get() {
-        return meta.getKeyLookup()[ 0 ];
-      }
-    } );
-    check( "USE_HASH", new IBooleanGetter() {
-      public boolean get() {
-        return meta.useHash();
-      }
-    } );
-    check( "HASH_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getHashField();
-      }
-    } );
-    check( "TECHNICAL_KEY_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getTechnicalKeyField();
-      }
-    } );
-    check( "SEQUENCE_FROM", new IStringGetter() {
-      public String get() {
-        return meta.getSequenceFrom();
-      }
-    } );
-    check( "COMMIT_SIZE", new IIntGetter() {
-      public int get() {
-        return meta.getCommitSize();
-      }
-    } );
-    check( "PRELOAD_CACHE", new IBooleanGetter() {
-      public boolean get() {
-        return meta.getPreloadCache();
-      }
-    } );
-    check( "CACHE_SIZE", new IIntGetter() {
-      public int get() {
-        return meta.getCacheSize();
-      }
-    } );
-    check( "AUTO_INC", new IBooleanGetter() {
-      public boolean get() {
-        return meta.isUseAutoinc();
-      }
-    } );
-    check( "TECHNICAL_KEY_CREATION", new IStringGetter() {
-      public String get() {
-        return meta.getTechKeyCreation();
-      }
-    } );
-    check( "LAST_UPDATE_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getLastUpdateField();
-      }
-    } );
+    check( "SCHEMA_NAME", () -> meta.getSchemaName() );
+    check( "TABLE_NAME", () -> meta.getTableName() );
+    check( "REPLACE_FIELDS", () -> meta.replaceFields() );
+    check( "KEY_FIELDS", () -> meta.getKeyField()[ 0 ] );
+    check( "KEY_LOOKUP", () -> meta.getKeyLookup()[ 0 ] );
+    check( "USE_HASH", () -> meta.useHash() );
+    check( "HASH_FIELD", () -> meta.getHashField() );
+    check( "TECHNICAL_KEY_FIELD", () -> meta.getTechnicalKeyField() );
+    check( "SEQUENCE_FROM", () -> meta.getSequenceFrom() );
+    check( "COMMIT_SIZE", () -> meta.getCommitSize() );
+    check( "PRELOAD_CACHE", () -> meta.getPreloadCache() );
+    check( "CACHE_SIZE", () -> meta.getCacheSize() );
+    check( "AUTO_INC", () -> meta.isUseAutoinc() );
+    check( "TECHNICAL_KEY_CREATION", () -> meta.getTechKeyCreation() );
+    check( "LAST_UPDATE_FIELD", () -> meta.getLastUpdateField() );
     skipPropertyTest( "CONNECTIONNAME" );
   }
 }

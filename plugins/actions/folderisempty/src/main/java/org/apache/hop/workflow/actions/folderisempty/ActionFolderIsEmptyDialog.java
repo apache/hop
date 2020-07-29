@@ -110,11 +110,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -239,17 +235,9 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     wWildcard.setLayoutData( fdWildcard );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFoldername.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFoldername.setToolTipText( workflowMeta.environmentSubstitute( wFoldername.getText() ) );
-      }
-    } );
+    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( workflowMeta.environmentSubstitute( wFoldername.getText() ) ) );
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wWildcard.setToolTipText( workflowMeta.environmentSubstitute( wWildcard.getText() ) );
-      }
-    } );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( workflowMeta.environmentSubstitute( wWildcard.getText() ) ) );
 
     wbFoldername.addListener(SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFoldername, workflowMeta ));
 
@@ -261,16 +249,8 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wWildcard );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

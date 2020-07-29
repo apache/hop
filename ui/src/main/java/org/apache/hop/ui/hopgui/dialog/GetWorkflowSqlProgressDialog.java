@@ -58,23 +58,21 @@ public class GetWorkflowSqlProgressDialog {
   }
 
   public List<SqlStatement> open() {
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        // This is running in a new process: copy some HopVariables info
-        // LocalVariables.getInstance().createHopVariables(Thread.currentThread(), kettleVariables.getLocalThread(),
-        // true);
-        // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
+    IRunnableWithProgress op = monitor -> {
+      // This is running in a new process: copy some HopVariables info
+      // LocalVariables.getInstance().createHopVariables(Thread.currentThread(), kettleVariables.getLocalThread(),
+      // true);
+      // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
 
-        try {
-          stats = workflowMeta.getSqlStatements( new ProgressMonitorAdapter( monitor ) );
-        } catch ( HopException e ) {
-          throw new InvocationTargetException( e, BaseMessages.getString(
-            PKG, "GetJobSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) ); // Error
-          // generating
-          // SQL for
-          // workflow:
-          // \n{0}
-        }
+      try {
+        stats = workflowMeta.getSqlStatements( new ProgressMonitorAdapter( monitor ) );
+      } catch ( HopException e ) {
+        throw new InvocationTargetException( e, BaseMessages.getString(
+          PKG, "GetJobSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) ); // Error
+        // generating
+        // SQL for
+        // workflow:
+        // \n{0}
       }
     };
 

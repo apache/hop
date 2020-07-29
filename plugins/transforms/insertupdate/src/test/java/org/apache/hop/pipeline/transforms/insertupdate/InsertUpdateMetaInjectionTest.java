@@ -38,61 +38,17 @@ public class InsertUpdateMetaInjectionTest extends BaseMetadataInjectionTest<Ins
 
   @Test
   public void test() throws Exception {
-    check( "SCHEMA_NAME", new IStringGetter() {
-      public String get() {
-        return meta.getSchemaName();
-      }
-    } );
-    check( "TABLE_NAME", new IStringGetter() {
-      public String get() {
-        return meta.getTableName();
-      }
-    } );
-    check( "COMMIT_SIZE", new IStringGetter() {
-      public String get() {
-        return meta.getCommitSizeVar();
-      }
-    } );
-    check( "DO_NOT", new IBooleanGetter() {
-      public boolean get() {
-        return meta.isUpdateBypassed();
-      }
-    } );
-    check( "KEY_STREAM", new IStringGetter() {
-      public String get() {
-        return meta.getKeyStream()[ 0 ];
-      }
-    } );
-    check( "KEY_LOOKUP", new IStringGetter() {
-      public String get() {
-        return meta.getKeyLookup()[ 0 ];
-      }
-    } );
-    check( "KEY_CONDITION", new IStringGetter() {
-      public String get() {
-        return meta.getKeyCondition()[ 0 ];
-      }
-    } );
-    check( "KEY_STREAM2", new IStringGetter() {
-      public String get() {
-        return meta.getKeyStream2()[ 0 ];
-      }
-    } );
-    check( "UPDATE_LOOKUP", new IStringGetter() {
-      public String get() {
-        return meta.getUpdateLookup()[ 0 ];
-      }
-    } );
-    check( "UPDATE_STREAM", new IStringGetter() {
-      public String get() {
-        return meta.getUpdateStream()[ 0 ];
-      }
-    } );
-    check( "UPDATE_FLAG", new IBooleanGetter() {
-      public boolean get() {
-        return meta.getUpdate()[ 0 ];
-      }
-    } );
+    check( "SCHEMA_NAME", () -> meta.getSchemaName() );
+    check( "TABLE_NAME", () -> meta.getTableName() );
+    check( "COMMIT_SIZE", () -> meta.getCommitSizeVar() );
+    check( "DO_NOT", () -> meta.isUpdateBypassed() );
+    check( "KEY_STREAM", () -> meta.getKeyStream()[ 0 ] );
+    check( "KEY_LOOKUP", () -> meta.getKeyLookup()[ 0 ] );
+    check( "KEY_CONDITION", () -> meta.getKeyCondition()[ 0 ] );
+    check( "KEY_STREAM2", () -> meta.getKeyStream2()[ 0 ] );
+    check( "UPDATE_LOOKUP", () -> meta.getUpdateLookup()[ 0 ] );
+    check( "UPDATE_STREAM", () -> meta.getUpdateStream()[ 0 ] );
+    check( "UPDATE_FLAG", () -> meta.getUpdate()[ 0 ] );
     skipPropertyTest( "CONNECTIONNAME" );
   }
 }

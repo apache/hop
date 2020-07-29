@@ -309,22 +309,19 @@ public class GetStatusServlet extends BaseHttpServlet implements IHopServerPlugi
           + BaseMessages.getString( PKG, "GetStatusServlet.StartDate" ) + "</th> <th class=\"cellTableHeader\">"
           + BaseMessages.getString( PKG, "GetStatusServlet.LastLogTime" ) + "</th> </tr>" );
 
-        Comparator<HopServerObjectEntry> jobComparator = new Comparator<HopServerObjectEntry>() {
-          @Override
-          public int compare( HopServerObjectEntry o1, HopServerObjectEntry o2 ) {
-            IWorkflowEngine<WorkflowMeta> t1 = getWorkflowMap().getWorkflow( o1 );
-            IWorkflowEngine<WorkflowMeta> t2 = getWorkflowMap().getWorkflow( o2 );
-            Date d1 = t1.getExecutionStartDate();
-            Date d2 = t2.getExecutionStartDate();
-            // if both workflows have last log date, desc sort by log date
-            if ( d1 != null && d2 != null ) {
-              int logDateCompare = d2.compareTo( d1 );
-              if ( logDateCompare != 0 ) {
-                return logDateCompare;
-              }
+        Comparator<HopServerObjectEntry> jobComparator = ( o1, o2 ) -> {
+          IWorkflowEngine<WorkflowMeta> t1 = getWorkflowMap().getWorkflow( o1 );
+          IWorkflowEngine<WorkflowMeta> t2 = getWorkflowMap().getWorkflow( o2 );
+          Date d1 = t1.getExecutionStartDate();
+          Date d2 = t2.getExecutionStartDate();
+          // if both workflows have last log date, desc sort by log date
+          if ( d1 != null && d2 != null ) {
+            int logDateCompare = d2.compareTo( d1 );
+            if ( logDateCompare != 0 ) {
+              return logDateCompare;
             }
-            return o1.compareTo( o2 );
           }
+          return o1.compareTo( o2 );
         };
 
         Collections.sort( actions, jobComparator );

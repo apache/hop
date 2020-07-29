@@ -38,20 +38,8 @@ public class MergeJoinMetaInjectionTransform extends BaseMetadataInjectionTest<M
 
   @Test
   public void test() throws Exception {
-    check( "JOIN_TYPE", new IStringGetter() {
-      public String get() {
-        return meta.getJoinType();
-      }
-    } );
-    check( "KEY_FIELD1", new IStringGetter() {
-      public String get() {
-        return meta.getKeyFields1()[ 0 ];
-      }
-    } );
-    check( "KEY_FIELD2", new IStringGetter() {
-      public String get() {
-        return meta.getKeyFields2()[ 0 ];
-      }
-    } );
+    check( "JOIN_TYPE", () -> meta.getJoinType() );
+    check( "KEY_FIELD1", () -> meta.getKeyFields1()[ 0 ] );
+    check( "KEY_FIELD2", () -> meta.getKeyFields2()[ 0 ] );
   }
 }

@@ -198,25 +198,23 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     // Search the fields in the background
     //
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        final TransformMeta transformMetaSearchFields =
-          TeraFastDialog.this.pipelineMeta.findTransform( TeraFastDialog.this.transformName );
-        if ( transformMetaSearchFields == null ) {
-          return;
-        }
-        try {
-          final IRowMeta row = TeraFastDialog.this.pipelineMeta.getPrevTransformFields( transformMetaSearchFields );
+    final Runnable runnable = () -> {
+      final TransformMeta transformMetaSearchFields =
+        TeraFastDialog.this.pipelineMeta.findTransform( TeraFastDialog.this.transformName );
+      if ( transformMetaSearchFields == null ) {
+        return;
+      }
+      try {
+        final IRowMeta row = TeraFastDialog.this.pipelineMeta.getPrevTransformFields( transformMetaSearchFields );
 
-          // Remember these fields...
-          for ( int i = 0; i < row.size(); i++ ) {
-            TeraFastDialog.this.inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-          }
-
-          setComboBoxes();
-        } catch ( HopException e ) {
-          TeraFastDialog.this.logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+        // Remember these fields...
+        for ( int i = 0; i < row.size(); i++ ) {
+          TeraFastDialog.this.inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
         }
+
+        setComboBoxes();
+      } catch ( HopException e ) {
+        TeraFastDialog.this.logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
       }
     };
     new Thread( runnable ).start();
@@ -293,16 +291,8 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
    * Configure listeners.
    */
   private void listeners() {
-    this.lsCancel = new Listener() {
-      public void handleEvent( final Event event ) {
-        cancel();
-      }
-    };
-    this.lsOk = new Listener() {
-      public void handleEvent( final Event event ) {
-        ok();
-      }
-    };
+    this.lsCancel = event -> cancel();
+    this.lsOk = event -> ok();
 
     this.wCancel.addListener( SWT.Selection, this.lsCancel );
     this.wOk.addListener( SWT.Selection, this.lsOk );
@@ -314,11 +304,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
       }
     };
 
-    this.lsGetLU = new Listener() {
-      public void handleEvent( final Event event ) {
-        getUpdate();
-      }
-    };
+    this.lsGetLU = event -> getUpdate();
 
     this.wGetLU.addListener( SWT.Selection, this.lsGetLU );
     this.wTransformName.addSelectionListener( this.lsDef );
@@ -330,11 +316,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
       this.shell, this.wFastLoadPath, allFileTypes ) );
     this.wbLogFile.addSelectionListener( new SimpleFileSelection( this.shell, this.wLogFile, allFileTypes ) );
 
-    this.wDoMapping.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( final Event event ) {
-        generateMappings();
-      }
-    } );
+    this.wDoMapping.addListener( SWT.Selection, event -> generateMappings() );
 
 //    this.wAscLink.addListener( SWT.Selection, new Listener() {
 //      public void handleEvent( final Event event ) {
@@ -445,11 +427,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     try {
       final IRowMeta row = this.pipelineMeta.getPrevTransformFields( this.transformName );
       if ( row != null ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( final TableItem tableItem, final IValueMeta value ) {
-            // possible to check format of input fields
-            return true;
-          }
+        ITableItemInsertListener listener = ( tableItem, value ) -> {
+          // possible to check format of input fields
+          return true;
         };
         BaseTransformDialog.getFieldsFromPrevious(
           row, this.wReturn, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, listener );
@@ -508,11 +488,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     final PluginWidgetFactory factory = new PluginWidgetFactory( this.shell, this.pipelineMeta );
     factory.setMiddle( this.props.getMiddlePct() );
     
-    final ModifyListener lsMod = new ModifyListener() {
-        public void modifyText( final ModifyEvent event ) {
-          getMeta().setChanged();
-        }
-      };
+    final ModifyListener lsMod = event -> getMeta().setChanged();
       final SelectionAdapter lsSel = new SelectionAdapter() {
         @Override
         public void widgetSelected( final SelectionEvent event ) {
@@ -918,13 +894,11 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
           if ( this.dialog.shell.isDisposed() ) {
             return;
           }
-          this.dialog.shell.getDisplay().asyncExec( new Runnable() {
-            public void run() {
-              if ( FieldLoader.this.dialog.shell.isDisposed() ) {
-                return;
-              }
-              colInfo.setComboValues( fieldNames );
+          this.dialog.shell.getDisplay().asyncExec( () -> {
+            if ( FieldLoader.this.dialog.shell.isDisposed() ) {
+              return;
             }
+            colInfo.setComboValues( fieldNames );
           } );
         }
       } catch ( HopException e ) {

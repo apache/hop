@@ -226,11 +226,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     props.setLook( shell );
     setShellImage( shell, input );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -446,32 +442,12 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     setButtonPositions( new Button[] { wOk, wCancel, wVars, wTest }, margin, null );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
     // lsGet = new Listener() { public void handleEvent(Event e) { get(); } };
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        newTest();
-      }
-    };
-    lsVars = new Listener() {
-      public void handleEvent( Event e ) {
-        test( true, true );
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsTree = new Listener() {
-      public void handleEvent( Event e ) {
-        treeDblClick( e );
-      }
-    };
+    lsTest = e -> newTest();
+    lsVars = e -> test( true, true );
+    lsOk = e -> ok();
+    lsTree = e -> treeDblClick( e );
     // lsHelp = new Listener(){public void handleEvent(Event e){ wlHelpLabel.setVisible(true); }};
 
     wCancel.addListener( SWT.Selection, lsCancel );
@@ -560,22 +536,20 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     // Search the fields in the background
     //
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            rowPrevTransformFields = pipelineMeta.getPrevTransformFields( transformMeta );
-            if ( rowPrevTransformFields != null ) {
-              setInputOutputFields();
-            } else {
-              // Can not get fields...end of wait message
-              iteminput.removeAll();
-              itemoutput.removeAll();
-            }
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          rowPrevTransformFields = pipelineMeta.getPrevTransformFields( transformMeta );
+          if ( rowPrevTransformFields != null ) {
+            setInputOutputFields();
+          } else {
+            // Can not get fields...end of wait message
+            iteminput.removeAll();
+            itemoutput.removeAll();
           }
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -1590,50 +1564,48 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
   }
 
   private void setInputOutputFields() {
-    shell.getDisplay().syncExec( new Runnable() {
-      public void run() {
-        // fields are got...end of wait message
-        iteminput.removeAll();
-        itemoutput.removeAll();
+    shell.getDisplay().syncExec( () -> {
+      // fields are got...end of wait message
+      iteminput.removeAll();
+      itemoutput.removeAll();
 
-        String strItemInToAdd = "";
-        String strItemToAddOut = "";
+      String strItemInToAdd = "";
+      String strItemToAddOut = "";
 
-        // try{
+      // try{
 
-        // IRowMeta r = pipelineMeta.getPrevTransformFields(transformName);
-        if ( rowPrevTransformFields != null ) {
-          // TreeItem item = new TreeItem(wTree, SWT.NULL);
-          // item.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.OutputFields.Label"));
-          // String strItemToAdd="";
+      // IRowMeta r = pipelineMeta.getPrevTransformFields(transformName);
+      if ( rowPrevTransformFields != null ) {
+        // TreeItem item = new TreeItem(wTree, SWT.NULL);
+        // item.setText(BaseMessages.getString(PKG, "ScriptValuesDialogMod.OutputFields.Label"));
+        // String strItemToAdd="";
 
-          for ( int i = 0; i < rowPrevTransformFields.size(); i++ ) {
-            IValueMeta v = rowPrevTransformFields.getValueMeta( i );
-            strItemToAddOut = v.getName() + ".setValue(var)";
-            strItemInToAdd = v.getName();
-            TreeItem itemFields = new TreeItem( iteminput, SWT.NULL );
-            itemFields.setImage( imageArrowOrange );
-            itemFields.setText( strItemInToAdd );
-            itemFields.setData( strItemInToAdd );
+        for ( int i = 0; i < rowPrevTransformFields.size(); i++ ) {
+          IValueMeta v = rowPrevTransformFields.getValueMeta( i );
+          strItemToAddOut = v.getName() + ".setValue(var)";
+          strItemInToAdd = v.getName();
+          TreeItem itemFields = new TreeItem( iteminput, SWT.NULL );
+          itemFields.setImage( imageArrowOrange );
+          itemFields.setText( strItemInToAdd );
+          itemFields.setData( strItemInToAdd );
 
-            /*
-             * switch(v.getType()){ case IValueMeta.TYPE_STRING : case IValueMeta.TYPE_NUMBER : case
-             * IValueMeta.TYPE_INTEGER: case IValueMeta.TYPE_DATE : case
-             * IValueMeta.TYPE_BOOLEAN: strItemToAdd=v.getName()+".setValue(var)"; break; default:
-             * strItemToAdd=v.getName(); break; }
-             */
-          }
-          TreeItem itemFields = new TreeItem( itemoutput, SWT.NULL );
-          itemFields.setData( "" );
-          itemFields
-            .setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.OutputFiels.CompatibilityOff" ) );
+          /*
+           * switch(v.getType()){ case IValueMeta.TYPE_STRING : case IValueMeta.TYPE_NUMBER : case
+           * IValueMeta.TYPE_INTEGER: case IValueMeta.TYPE_DATE : case
+           * IValueMeta.TYPE_BOOLEAN: strItemToAdd=v.getName()+".setValue(var)"; break; default:
+           * strItemToAdd=v.getName(); break; }
+           */
         }
-        /*
-         * }catch(HopException ke){ new ErrorDialog(shell, BaseMessages.getString(PKG,
-         * "ScriptValuesDialogMod.FailedToGetFields.DialogTitle"), BaseMessages.getString(PKG,
-         * "ScriptValuesDialogMod.FailedToGetFields.DialogMessage"), ke); }
-         */
+        TreeItem itemFields = new TreeItem( itemoutput, SWT.NULL );
+        itemFields.setData( "" );
+        itemFields
+          .setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.OutputFiels.CompatibilityOff" ) );
       }
+      /*
+       * }catch(HopException ke){ new ErrorDialog(shell, BaseMessages.getString(PKG,
+       * "ScriptValuesDialogMod.FailedToGetFields.DialogTitle"), BaseMessages.getString(PKG,
+       * "ScriptValuesDialogMod.FailedToGetFields.DialogMessage"), ke); }
+       */
     } );
   }
 
@@ -1734,115 +1706,101 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     MenuItem addNewItem = new MenuItem( cMenu, SWT.PUSH );
     addNewItem.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.AddNewTab" ) );
     addNewItem.setImage( imageAddScript );
-    addNewItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        addCtab( "", "", ADD_BLANK );
-      }
-    } );
+    addNewItem.addListener( SWT.Selection, e -> addCtab( "", "", ADD_BLANK ) );
 
     MenuItem copyItem = new MenuItem( cMenu, SWT.PUSH );
     copyItem.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.AddCopy" ) );
     copyItem.setImage( imageDuplicateScript );
-    copyItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        CTabItem item = folder.getSelection();
-        StyledTextComp st = (StyledTextComp) item.getControl();
-        addCtab( item.getText(), st.getText(), ADD_COPY );
-      }
+    copyItem.addListener( SWT.Selection, e -> {
+      CTabItem item = folder.getSelection();
+      StyledTextComp st = (StyledTextComp) item.getControl();
+      addCtab( item.getText(), st.getText(), ADD_COPY );
     } );
     new MenuItem( cMenu, SWT.SEPARATOR );
 
     MenuItem setActiveScriptItem = new MenuItem( cMenu, SWT.PUSH );
     setActiveScriptItem.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.SetTransformScript" ) );
     setActiveScriptItem.setImage( imageActiveScript );
-    setActiveScriptItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        CTabItem item = folder.getSelection();
-        for ( int i = 0; i < folder.getItemCount(); i++ ) {
-          if ( folder.getItem( i ).equals( item ) ) {
-            if ( item.getImage().equals( imageActiveScript ) ) {
-              strActiveScript = "";
-            } else if ( item.getImage().equals( imageActiveStartScript ) ) {
-              strActiveStartScript = "";
-            } else if ( item.getImage().equals( imageActiveEndScript ) ) {
-              strActiveEndScript = "";
-            }
-            item.setImage( imageActiveScript );
-            strActiveScript = item.getText();
-          } else if ( folder.getItem( i ).getImage().equals( imageActiveScript ) ) {
-            folder.getItem( i ).setImage( imageInactiveScript );
+    setActiveScriptItem.addListener( SWT.Selection, e -> {
+      CTabItem item = folder.getSelection();
+      for ( int i = 0; i < folder.getItemCount(); i++ ) {
+        if ( folder.getItem( i ).equals( item ) ) {
+          if ( item.getImage().equals( imageActiveScript ) ) {
+            strActiveScript = "";
+          } else if ( item.getImage().equals( imageActiveStartScript ) ) {
+            strActiveStartScript = "";
+          } else if ( item.getImage().equals( imageActiveEndScript ) ) {
+            strActiveEndScript = "";
           }
+          item.setImage( imageActiveScript );
+          strActiveScript = item.getText();
+        } else if ( folder.getItem( i ).getImage().equals( imageActiveScript ) ) {
+          folder.getItem( i ).setImage( imageInactiveScript );
         }
-        modifyScriptTree( item, SET_ACTIVE_ITEM );
       }
+      modifyScriptTree( item, SET_ACTIVE_ITEM );
     } );
 
     MenuItem setStartScriptItem = new MenuItem( cMenu, SWT.PUSH );
     setStartScriptItem.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.SetStartScript" ) );
     setStartScriptItem.setImage( imageActiveStartScript );
-    setStartScriptItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        CTabItem item = folder.getSelection();
-        for ( int i = 0; i < folder.getItemCount(); i++ ) {
-          if ( folder.getItem( i ).equals( item ) ) {
-            if ( item.getImage().equals( imageActiveScript ) ) {
-              strActiveScript = "";
-            } else if ( item.getImage().equals( imageActiveStartScript ) ) {
-              strActiveStartScript = "";
-            } else if ( item.getImage().equals( imageActiveEndScript ) ) {
-              strActiveEndScript = "";
-            }
-            item.setImage( imageActiveStartScript );
-            strActiveStartScript = item.getText();
-          } else if ( folder.getItem( i ).getImage().equals( imageActiveStartScript ) ) {
-            folder.getItem( i ).setImage( imageInactiveScript );
+    setStartScriptItem.addListener( SWT.Selection, e -> {
+      CTabItem item = folder.getSelection();
+      for ( int i = 0; i < folder.getItemCount(); i++ ) {
+        if ( folder.getItem( i ).equals( item ) ) {
+          if ( item.getImage().equals( imageActiveScript ) ) {
+            strActiveScript = "";
+          } else if ( item.getImage().equals( imageActiveStartScript ) ) {
+            strActiveStartScript = "";
+          } else if ( item.getImage().equals( imageActiveEndScript ) ) {
+            strActiveEndScript = "";
           }
+          item.setImage( imageActiveStartScript );
+          strActiveStartScript = item.getText();
+        } else if ( folder.getItem( i ).getImage().equals( imageActiveStartScript ) ) {
+          folder.getItem( i ).setImage( imageInactiveScript );
         }
-        modifyScriptTree( item, SET_ACTIVE_ITEM );
       }
+      modifyScriptTree( item, SET_ACTIVE_ITEM );
     } );
 
     MenuItem setEndScriptItem = new MenuItem( cMenu, SWT.PUSH );
     setEndScriptItem.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.SetEndScript" ) );
     setEndScriptItem.setImage( imageActiveEndScript );
-    setEndScriptItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        CTabItem item = folder.getSelection();
-        for ( int i = 0; i < folder.getItemCount(); i++ ) {
-          if ( folder.getItem( i ).equals( item ) ) {
-            if ( item.getImage().equals( imageActiveScript ) ) {
-              strActiveScript = "";
-            } else if ( item.getImage().equals( imageActiveStartScript ) ) {
-              strActiveStartScript = "";
-            } else if ( item.getImage().equals( imageActiveEndScript ) ) {
-              strActiveEndScript = "";
-            }
-            item.setImage( imageActiveEndScript );
-            strActiveEndScript = item.getText();
-          } else if ( folder.getItem( i ).getImage().equals( imageActiveEndScript ) ) {
-            folder.getItem( i ).setImage( imageInactiveScript );
+    setEndScriptItem.addListener( SWT.Selection, e -> {
+      CTabItem item = folder.getSelection();
+      for ( int i = 0; i < folder.getItemCount(); i++ ) {
+        if ( folder.getItem( i ).equals( item ) ) {
+          if ( item.getImage().equals( imageActiveScript ) ) {
+            strActiveScript = "";
+          } else if ( item.getImage().equals( imageActiveStartScript ) ) {
+            strActiveStartScript = "";
+          } else if ( item.getImage().equals( imageActiveEndScript ) ) {
+            strActiveEndScript = "";
           }
+          item.setImage( imageActiveEndScript );
+          strActiveEndScript = item.getText();
+        } else if ( folder.getItem( i ).getImage().equals( imageActiveEndScript ) ) {
+          folder.getItem( i ).setImage( imageInactiveScript );
         }
-        modifyScriptTree( item, SET_ACTIVE_ITEM );
       }
+      modifyScriptTree( item, SET_ACTIVE_ITEM );
     } );
     new MenuItem( cMenu, SWT.SEPARATOR );
     MenuItem setRemoveScriptItem = new MenuItem( cMenu, SWT.PUSH );
     setRemoveScriptItem.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.RemoveScriptType" ) );
     setRemoveScriptItem.setImage( imageInactiveScript );
-    setRemoveScriptItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        CTabItem item = folder.getSelection();
-        input.setChanged( true );
-        if ( item.getImage().equals( imageActiveScript ) ) {
-          strActiveScript = "";
-        } else if ( item.getImage().equals( imageActiveStartScript ) ) {
-          strActiveStartScript = "";
-        } else if ( item.getImage().equals( imageActiveEndScript ) ) {
-          strActiveEndScript = "";
-        }
-        item.setImage( imageInactiveScript );
+    setRemoveScriptItem.addListener( SWT.Selection, e -> {
+      CTabItem item = folder.getSelection();
+      input.setChanged( true );
+      if ( item.getImage().equals( imageActiveScript ) ) {
+        strActiveScript = "";
+      } else if ( item.getImage().equals( imageActiveStartScript ) ) {
+        strActiveStartScript = "";
+      } else if ( item.getImage().equals( imageActiveEndScript ) ) {
+        strActiveEndScript = "";
       }
+      item.setImage( imageInactiveScript );
     } );
 
     folder.setMenu( cMenu );
@@ -1853,90 +1811,80 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     MenuItem addDeleteItem = new MenuItem( tMenu, SWT.PUSH );
     addDeleteItem.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.Delete.Label" ) );
     addDeleteItem.setImage( imageDeleteScript );
-    addDeleteItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        if ( wTree.getSelectionCount() <= 0 ) {
-          return;
-        }
+    addDeleteItem.addListener( SWT.Selection, e -> {
+      if ( wTree.getSelectionCount() <= 0 ) {
+        return;
+      }
 
-        TreeItem tItem = wTree.getSelection()[ 0 ];
-        if ( tItem != null ) {
-          MessageBox messageBox = new MessageBox( shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES );
-          messageBox.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.DeleteItem.Label" ) );
-          messageBox.setMessage( BaseMessages.getString(
-            PKG, "ScriptValuesDialogMod.ConfirmDeleteItem.Label", tItem.getText() ) );
-          switch ( messageBox.open() ) {
-            case SWT.YES:
-              modifyCTabItem( tItem, DELETE_ITEM, "" );
-              tItem.dispose();
-              input.setChanged();
-              break;
-            default:
-              break;
-          }
+      TreeItem tItem = wTree.getSelection()[ 0 ];
+      if ( tItem != null ) {
+        MessageBox messageBox = new MessageBox( shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES );
+        messageBox.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.DeleteItem.Label" ) );
+        messageBox.setMessage( BaseMessages.getString(
+          PKG, "ScriptValuesDialogMod.ConfirmDeleteItem.Label", tItem.getText() ) );
+        switch ( messageBox.open() ) {
+          case SWT.YES:
+            modifyCTabItem( tItem, DELETE_ITEM, "" );
+            tItem.dispose();
+            input.setChanged();
+            break;
+          default:
+            break;
         }
       }
     } );
 
     MenuItem renItem = new MenuItem( tMenu, SWT.PUSH );
     renItem.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.Rename.Label" ) );
-    renItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        renameFunction( wTree.getSelection()[ 0 ] );
-      }
-    } );
+    renItem.addListener( SWT.Selection, e -> renameFunction( wTree.getSelection()[ 0 ] ) );
 
     new MenuItem( tMenu, SWT.SEPARATOR );
     MenuItem helpItem = new MenuItem( tMenu, SWT.PUSH );
     helpItem.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.Sample.Label" ) );
-    helpItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        String strFunctionName = wTree.getSelection()[ 0 ].getText();
-        String strFunctionNameWithArgs = strFunctionName;
-        strFunctionName = strFunctionName.substring( 0, strFunctionName.indexOf( '(' ) );
-        String strHelpTabName = strFunctionName + "_Sample";
+    helpItem.addListener( SWT.Selection, e -> {
+      String strFunctionName = wTree.getSelection()[ 0 ].getText();
+      String strFunctionNameWithArgs = strFunctionName;
+      strFunctionName = strFunctionName.substring( 0, strFunctionName.indexOf( '(' ) );
+      String strHelpTabName = strFunctionName + "_Sample";
 
-        if ( getCTabPosition( strHelpTabName ) == -1 ) {
-          addCtab( strHelpTabName, scVHelp.getSample( strFunctionName, strFunctionNameWithArgs ), 0 );
-        }
+      if ( getCTabPosition( strHelpTabName ) == -1 ) {
+        addCtab( strHelpTabName, scVHelp.getSample( strFunctionName, strFunctionNameWithArgs ), 0 );
+      }
 
-        if ( getCTabPosition( strHelpTabName ) != -1 ) {
-          setActiveCtab( strHelpTabName );
-        }
+      if ( getCTabPosition( strHelpTabName ) != -1 ) {
+        setActiveCtab( strHelpTabName );
       }
     } );
 
-    wTree.addListener( SWT.MouseDown, new Listener() {
-      public void handleEvent( Event e ) {
-        if ( wTree.getSelectionCount() <= 0 ) {
-          return;
-        }
+    wTree.addListener( SWT.MouseDown, e -> {
+      if ( wTree.getSelectionCount() <= 0 ) {
+        return;
+      }
 
-        TreeItem tItem = wTree.getSelection()[ 0 ];
-        if ( tItem != null ) {
-          TreeItem pItem = tItem.getParentItem();
+      TreeItem tItem = wTree.getSelection()[ 0 ];
+      if ( tItem != null ) {
+        TreeItem pItem = tItem.getParentItem();
 
-          if ( pItem != null && pItem.equals( wTreeScriptsItem ) ) {
-            if ( folder.getItemCount() > 1 ) {
-              tMenu.getItem( 0 ).setEnabled( true );
-            } else {
-              tMenu.getItem( 0 ).setEnabled( false );
-            }
-            tMenu.getItem( 1 ).setEnabled( true );
-            tMenu.getItem( 3 ).setEnabled( false );
-          } else if ( tItem.equals( wTreeClassesitem ) ) {
-            tMenu.getItem( 0 ).setEnabled( false );
-            tMenu.getItem( 1 ).setEnabled( false );
-            tMenu.getItem( 3 ).setEnabled( false );
-          } else if ( tItem.getData() != null && tItem.getData().equals( "jsFunction" ) ) {
-            tMenu.getItem( 0 ).setEnabled( false );
-            tMenu.getItem( 1 ).setEnabled( false );
-            tMenu.getItem( 3 ).setEnabled( true );
+        if ( pItem != null && pItem.equals( wTreeScriptsItem ) ) {
+          if ( folder.getItemCount() > 1 ) {
+            tMenu.getItem( 0 ).setEnabled( true );
           } else {
             tMenu.getItem( 0 ).setEnabled( false );
-            tMenu.getItem( 1 ).setEnabled( false );
-            tMenu.getItem( 3 ).setEnabled( false );
           }
+          tMenu.getItem( 1 ).setEnabled( true );
+          tMenu.getItem( 3 ).setEnabled( false );
+        } else if ( tItem.equals( wTreeClassesitem ) ) {
+          tMenu.getItem( 0 ).setEnabled( false );
+          tMenu.getItem( 1 ).setEnabled( false );
+          tMenu.getItem( 3 ).setEnabled( false );
+        } else if ( tItem.getData() != null && tItem.getData().equals( "jsFunction" ) ) {
+          tMenu.getItem( 0 ).setEnabled( false );
+          tMenu.getItem( 1 ).setEnabled( false );
+          tMenu.getItem( 3 ).setEnabled( true );
+        } else {
+          tMenu.getItem( 0 ).setEnabled( false );
+          tMenu.getItem( 1 ).setEnabled( false );
+          tMenu.getItem( 3 ).setEnabled( false );
         }
       }
     } );
@@ -1946,11 +1894,9 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
   private void addRenameTowTreeScriptItems() {
     lastItem = new TreeItem[ 1 ];
     editor = new TreeEditor( wTree );
-    wTree.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event event ) {
-        final TreeItem item = (TreeItem) event.item;
-        renameFunction( item );
-      }
+    wTree.addListener( SWT.Selection, event -> {
+      final TreeItem item = (TreeItem) event.item;
+      renameFunction( item );
     } );
   }
 
@@ -1966,65 +1912,61 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
         }
         final Text text = new Text( composite, SWT.NONE );
         final int inset = isCarbon ? 0 : 1;
-        composite.addListener( SWT.Resize, new Listener() {
-          public void handleEvent( Event e ) {
-            Rectangle rect = composite.getClientArea();
-            text.setBounds( rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2 );
-          }
+        composite.addListener( SWT.Resize, e -> {
+          Rectangle rect = composite.getClientArea();
+          text.setBounds( rect.x + inset, rect.y + inset, rect.width - inset * 2, rect.height - inset * 2 );
         } );
-        Listener textListener = new Listener() {
-          public void handleEvent( final Event e ) {
-            switch ( e.type ) {
-              case SWT.FocusOut:
-                if ( text.getText().length() > 0 ) {
-                  // Check if the name Exists
-                  if ( getCTabItemByName( text.getText() ) == null ) {
-                    modifyCTabItem( item, RENAME_ITEM, text.getText() );
-                    item.setText( text.getText() );
-                  }
+        Listener textListener = e -> {
+          switch ( e.type ) {
+            case SWT.FocusOut:
+              if ( text.getText().length() > 0 ) {
+                // Check if the name Exists
+                if ( getCTabItemByName( text.getText() ) == null ) {
+                  modifyCTabItem( item, RENAME_ITEM, text.getText() );
+                  item.setText( text.getText() );
                 }
-                composite.dispose();
-                break;
-              case SWT.Verify:
-                String newText = text.getText();
-                String leftText = newText.substring( 0, e.start );
-                String rightText = newText.substring( e.end, newText.length() );
-                GC gc = new GC( text );
-                Point size = gc.textExtent( leftText + e.text + rightText );
-                gc.dispose();
-                size = text.computeSize( size.x, SWT.DEFAULT );
-                editor.horizontalAlignment = SWT.LEFT;
-                Rectangle itemRect = item.getBounds(),
-                  rect = wTree.getClientArea();
-                editor.minimumWidth = Math.max( size.x, itemRect.width ) + inset * 2;
-                int left = itemRect.x,
-                  right = rect.x + rect.width;
-                editor.minimumWidth = Math.min( editor.minimumWidth, right - left );
-                editor.minimumHeight = size.y + inset * 2;
-                editor.layout();
-                break;
-              case SWT.Traverse:
-                switch ( e.detail ) {
-                  case SWT.TRAVERSE_RETURN:
-                    if ( text.getText().length() > 0 ) {
-                      // Check if the name Exists
-                      if ( getCTabItemByName( text.getText() ) == null ) {
-                        modifyCTabItem( item, RENAME_ITEM, text.getText() );
-                        item.setText( text.getText() );
-                      }
+              }
+              composite.dispose();
+              break;
+            case SWT.Verify:
+              String newText = text.getText();
+              String leftText = newText.substring( 0, e.start );
+              String rightText = newText.substring( e.end, newText.length() );
+              GC gc = new GC( text );
+              Point size = gc.textExtent( leftText + e.text + rightText );
+              gc.dispose();
+              size = text.computeSize( size.x, SWT.DEFAULT );
+              editor.horizontalAlignment = SWT.LEFT;
+              Rectangle itemRect = item.getBounds(),
+                rect = wTree.getClientArea();
+              editor.minimumWidth = Math.max( size.x, itemRect.width ) + inset * 2;
+              int left = itemRect.x,
+                right = rect.x + rect.width;
+              editor.minimumWidth = Math.min( editor.minimumWidth, right - left );
+              editor.minimumHeight = size.y + inset * 2;
+              editor.layout();
+              break;
+            case SWT.Traverse:
+              switch ( e.detail ) {
+                case SWT.TRAVERSE_RETURN:
+                  if ( text.getText().length() > 0 ) {
+                    // Check if the name Exists
+                    if ( getCTabItemByName( text.getText() ) == null ) {
+                      modifyCTabItem( item, RENAME_ITEM, text.getText() );
+                      item.setText( text.getText() );
                     }
-                    break;
-                  case SWT.TRAVERSE_ESCAPE:
-                    composite.dispose();
-                    e.doit = false;
-                    break;
-                  default:
-                    break;
-                }
-                break;
-              default:
-                break;
-            }
+                  }
+                  break;
+                case SWT.TRAVERSE_ESCAPE:
+                  composite.dispose();
+                  e.doit = false;
+                  break;
+                default:
+                  break;
+              }
+              break;
+            default:
+              break;
           }
         };
         text.addListener( SWT.FocusOut, textListener );

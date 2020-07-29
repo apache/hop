@@ -36,7 +36,6 @@ import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -47,7 +46,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
@@ -167,11 +165,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -258,11 +252,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wFoldername.setLayoutData( fdFoldername );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFoldername.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFoldername.setToolTipText( workflowMeta.environmentSubstitute( wFoldername.getText() ) );
-      }
-    } );
+    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( workflowMeta.environmentSubstitute( wFoldername.getText() ) ) );
 
     wbFoldername.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFoldername, workflowMeta ) );
 
@@ -550,11 +540,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wWildcard.setLayoutData( fdWildcard );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wWildcard.setToolTipText( workflowMeta.environmentSubstitute( wWildcard.getText() ) );
-      }
-    } );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( workflowMeta.environmentSubstitute( wWildcard.getText() ) ) );
 
     // wWildcardExclude
     wlWildcardExclude = new Label( wLimitTo, SWT.RIGHT );
@@ -578,11 +564,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wWildcardExclude.setLayoutData( fdWildcardExclude );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcardExclude.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wWildcardExclude.setToolTipText( workflowMeta.environmentSubstitute( wWildcardExclude.getText() ) );
-      }
-    } );
+    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( workflowMeta.environmentSubstitute( wWildcardExclude.getText() ) ) );
 
     fdLimitTo = new FormData();
     fdLimitTo.left = new FormAttachment( 0, margin );
@@ -679,16 +661,8 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wSuccessOn );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

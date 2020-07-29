@@ -181,23 +181,21 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     HopGui hopGui = HopGui.getInstance();
 
     List<IGuiContextHandler> handlers = new ArrayList<>();
-    handlers.add( new IGuiContextHandler() {
-      @Override public List<GuiAction> getSupportedActions() {
-        List<GuiAction> actions = new ArrayList<>();
+    handlers.add( () -> {
+      List<GuiAction> actions = new ArrayList<>();
 
-        GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "Pipeline", "Creates a new pipeline. Process your data using a network of transforms running in parallel",
-          BasePropertyHandler.getProperty( "Pipeline_image" ),
-          ( shiftClicked, controlClicked, parameters ) -> {
-            try {
-              HopPipelineFileType.this.newFile( hopGui, hopGui.getVariables() );
-            } catch ( Exception e ) {
-              new ErrorDialog( hopGui.getShell(), "Error", "Error creating new pipeline", e );
-            }
-          } );
-        actions.add( newAction );
+      GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "Pipeline", "Creates a new pipeline. Process your data using a network of transforms running in parallel",
+        BasePropertyHandler.getProperty( "Pipeline_image" ),
+        ( shiftClicked, controlClicked, parameters ) -> {
+          try {
+            HopPipelineFileType.this.newFile( hopGui, hopGui.getVariables() );
+          } catch ( Exception e ) {
+            new ErrorDialog( hopGui.getShell(), "Error", "Error creating new pipeline", e );
+          }
+        } );
+      actions.add( newAction );
 
-        return actions;
-      }
+      return actions;
     } );
     return handlers;
   }

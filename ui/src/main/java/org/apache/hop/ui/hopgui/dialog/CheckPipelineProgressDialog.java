@@ -80,38 +80,34 @@ public class CheckPipelineProgressDialog {
   public void open() {
     final ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
 
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        try {
-          pipelineMeta.checkTransforms(
-            remarks, onlySelected, new ProgressMonitorAdapter( monitor ), variables, metadataProvider );
-        } catch ( Exception e ) {
-          throw new InvocationTargetException( e, BaseMessages.getString(
-            PKG, "AnalyseImpactProgressDialog.RuntimeError.ErrorCheckingPipeline.Exception", e.toString() ) );
-        }
+    IRunnableWithProgress op = monitor -> {
+      try {
+        pipelineMeta.checkTransforms(
+          remarks, onlySelected, new ProgressMonitorAdapter( monitor ), variables, metadataProvider );
+      } catch ( Exception e ) {
+        throw new InvocationTargetException( e, BaseMessages.getString(
+          PKG, "AnalyseImpactProgressDialog.RuntimeError.ErrorCheckingPipeline.Exception", e.toString() ) );
       }
     };
 
     try {
       // Run something in the background to cancel active database queries, force this if needed!
-      Runnable run = new Runnable() {
-        public void run() {
-          IProgressMonitor monitor = pmd.getProgressMonitor();
-          while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
-            try {
-              Thread.sleep( 250 );
-            } catch ( InterruptedException e ) {
-              // Ignore sleep interruption exception
-            }
+      Runnable run = () -> {
+        IProgressMonitor monitor = pmd.getProgressMonitor();
+        while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
+          try {
+            Thread.sleep( 250 );
+          } catch ( InterruptedException e ) {
+            // Ignore sleep interruption exception
           }
+        }
 
-          if ( monitor.isCanceled() ) { // Disconnect and see what happens!
+        if ( monitor.isCanceled() ) { // Disconnect and see what happens!
 
-            try {
-              pipelineMeta.cancelQueries();
-            } catch ( Exception e ) {
-              // Ignore cancel errors
-            }
+          try {
+            pipelineMeta.cancelQueries();
+          } catch ( Exception e ) {
+            // Ignore cancel errors
           }
         }
       };

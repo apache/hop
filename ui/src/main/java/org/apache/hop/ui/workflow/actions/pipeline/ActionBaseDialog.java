@@ -156,11 +156,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected void createElements() {
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        getAction().setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> getAction().setChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 15;
@@ -534,16 +530,8 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wTabFolder.setLayoutData( fdTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

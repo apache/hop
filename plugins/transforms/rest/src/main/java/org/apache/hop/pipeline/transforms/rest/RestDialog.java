@@ -180,11 +180,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
 
     changed = input.hasChanged();
 
@@ -1057,31 +1053,11 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        getParametersFields( wParameters );
-      }
-    };
-    lsMatrixGet = new Listener() {
-      public void handleEvent( Event e ) {
-        getParametersFields( wMatrixParameters );
-      }
-    };
-    Listener lsGetHeaders = new Listener() {
-      public void handleEvent( Event e ) {
-        getHeaders();
-      }
-    };
+    lsOk = e -> ok();
+    lsCancel = e -> cancel();
+    lsGet = e -> getParametersFields( wParameters );
+    lsMatrixGet = e -> getParametersFields( wMatrixParameters );
+    Listener lsGetHeaders = e -> getHeaders();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -1108,13 +1084,11 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
       }
     } );
 
-    lsResize = new Listener() {
-      public void handleEvent( Event event ) {
-        Point size = shell.getSize();
-        wFields.setSize( size.x - 10, size.y - 50 );
-        wFields.table.setSize( size.x - 10, size.y - 50 );
-        wFields.redraw();
-      }
+    lsResize = event -> {
+      Point size = shell.getSize();
+      wFields.setSize( size.x - 10, size.y - 50 );
+      wFields.table.setSize( size.x - 10, size.y - 50 );
+      wFields.redraw();
     };
     shell.addListener( SWT.Resize, lsResize );
 

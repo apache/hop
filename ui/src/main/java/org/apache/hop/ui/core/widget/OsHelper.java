@@ -111,27 +111,15 @@ public class OsHelper {
   public static void initOsHandlers( Display display ) {
 
     // handle OpenDocument
-    display.addListener( SWT.OpenDocument, new Listener() {
-
-      @Override
-      public void handleEvent( Event event ) {
-        HopGui.getInstance().fileDelegate.fileOpen();
-      }
-
-    } );
+    display.addListener( SWT.OpenDocument, event -> HopGui.getInstance().fileDelegate.fileOpen() );
 
     // Handle Shell close i.e. CMD+Q on Mac, for example
-    display.addListener( SWT.Close, new Listener() {
-
-      @Override
-      public void handleEvent( Event event ) {
-        try {
-          HopGui.getInstance().menuFileExit();
-        } catch ( Exception e ) {
-          e.printStackTrace();
-        }
+    display.addListener( SWT.Close, event -> {
+      try {
+        HopGui.getInstance().menuFileExit();
+      } catch ( Exception e ) {
+        e.printStackTrace();
       }
-
     } );
 
     // hook into the system menu on mac
@@ -144,25 +132,15 @@ public class OsHelper {
 
         switch ( item.getID() ) {
           case SWT.ID_ABOUT:
-            item.addListener( SWT.Selection, new Listener() {
+            item.addListener( SWT.Selection, event -> {
 
-              @Override
-              public void handleEvent( Event event ) {
-
-                // HopGui.getInstance().menuHelpAbout(); // TODO: add about dialog
-              }
-
+              // HopGui.getInstance().menuHelpAbout(); // TODO: add about dialog
             } );
 
             break;
           case SWT.ID_PREFERENCES:
-            item.addListener( SWT.Selection, new Listener() {
-
-              @Override
-              public void handleEvent( Event event ) {
-                // HopGui.getInstance().menuToolsOptions(); TODO: add options dialog
-
-              }
+            item.addListener( SWT.Selection, event -> {
+              // HopGui.getInstance().menuToolsOptions(); TODO: add options dialog
 
             } );
 

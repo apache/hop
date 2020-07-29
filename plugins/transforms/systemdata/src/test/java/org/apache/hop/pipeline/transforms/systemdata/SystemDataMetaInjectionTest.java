@@ -35,17 +35,7 @@ public class SystemDataMetaInjectionTest extends BaseMetadataInjectionTest<Syste
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_NAME", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getFieldName()[ 0 ];
-      }
-    } );
-    check( "FIELD_TYPE", new IEnumGetter() {
-      @Override
-      public Enum<?> get() {
-        return meta.getFieldType()[ 0 ];
-      }
-    }, SystemDataTypes.class );
+    check( "FIELD_NAME", () -> meta.getFieldName()[ 0 ] );
+    check( "FIELD_TYPE", () -> meta.getFieldType()[ 0 ], SystemDataTypes.class );
   }
 }

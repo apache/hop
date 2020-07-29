@@ -256,12 +256,10 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        ftpclient = null;
-        pwdFolder = null;
-        action.setChanged();
-      }
+    ModifyListener lsMod = e -> {
+      ftpclient = null;
+      pwdFolder = null;
+      action.setChanged();
     };
     changed = action.hasChanged();
 
@@ -877,21 +875,9 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsTest = e -> test();
     lsCheckRemoteFolder = e -> checkRemoteFolder( workflowMeta.environmentSubstitute( wRemoteDirectory.getText() ) );
     wbLocalDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wLocalDirectory, workflowMeta ) );
 

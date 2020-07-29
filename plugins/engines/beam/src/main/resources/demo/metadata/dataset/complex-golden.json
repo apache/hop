@@ -1,0 +1,128 @@
+{
+  "base_filename": "complex-golden.csv",
+  "name": "complex-golden",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "",
+      "field_name": "id"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "Last name"
+    },
+    {
+      "field_comment": "",
+      "field_length": 20,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "First name"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "cust_zip_code"
+    },
+    {
+      "field_comment": "",
+      "field_length": 8,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "city"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "birthdate"
+    },
+    {
+      "field_comment": "",
+      "field_length": 11,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "street"
+    },
+    {
+      "field_comment": "",
+      "field_length": 15,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "housenr"
+    },
+    {
+      "field_comment": "",
+      "field_length": 9,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "stateCode"
+    },
+    {
+      "field_comment": "",
+      "field_length": 30,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "state"
+    },
+    {
+      "field_comment": "",
+      "field_length": 100,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "state_1"
+    },
+    {
+      "field_comment": "",
+      "field_length": 9,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "",
+      "field_name": "population"
+    },
+    {
+      "field_comment": "",
+      "field_length": 10,
+      "field_type": 5,
+      "field_precision": 0,
+      "field_format": "",
+      "field_name": "nrPerState"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "label"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "Comment"
+    }
+  ],
+  "folder_name": ""
+}

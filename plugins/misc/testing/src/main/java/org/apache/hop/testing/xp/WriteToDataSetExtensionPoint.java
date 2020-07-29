@@ -138,12 +138,10 @@ public class WriteToDataSetExtensionPoint implements IExtensionPoint<IPipelineEn
 
     // At the end of the pipeline, write it...
     //
-    pipeline.addExecutionFinishedListener( new IExecutionFinishedListener<IPipelineEngine<PipelineMeta>>() {
-      @Override public void finished( IPipelineEngine<PipelineMeta> engine ) throws HopException {
-        // Write it
-        //
-        DataSetCsvUtil.writeDataSetData( dataSet, setRowMeta, transformsForDbRows );
-      }
+    pipeline.addExecutionFinishedListener( engine -> {
+      // Write it
+      //
+      DataSetCsvUtil.writeDataSetData( dataSet, setRowMeta, transformsForDbRows );
     } );
 
   }

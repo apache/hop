@@ -200,14 +200,11 @@ public class MailConnectionTest {
       when( a.exists() ).thenReturn( true );
       when( b.exists() ).thenReturn( true );
       when( c.exists() ).thenReturn( cCreated );
-      when( c.create( Mockito.anyInt() ) ).thenAnswer( new Answer<Boolean>() {
-        @Override
-        public Boolean answer( InvocationOnMock invocation ) throws Throwable {
-          Object arg0 = invocation.getArguments()[ 0 ];
-          mode = Integer.class.cast( arg0 );
-          cCreated = true;
-          return true;
-        }
+      when( c.create( Mockito.anyInt() ) ).thenAnswer( (Answer<Boolean>) invocation -> {
+        Object arg0 = invocation.getArguments()[ 0 ];
+        mode = Integer.class.cast( arg0 );
+        cCreated = true;
+        return true;
       } );
 
       when( inbox.getFolder( "a" ) ).thenReturn( a );

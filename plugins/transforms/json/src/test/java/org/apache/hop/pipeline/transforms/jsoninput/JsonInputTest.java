@@ -958,19 +958,11 @@ public class JsonInputTest {
           "json", "ram:///jsonInputTest", -1L, false, new Date( 0 ), "ram:///jsonInputTest/test1.json", "ram:///" },
         new Object[] { "blue",
           "js", "ram:///jsonInputTest", -1L, false, new Date( 0 ), "ram:///jsonInputTest/test2.js", "ram:///" } );
-      rowComparator.setComparator( 3, new RowComparatorListener.Comparison<Object>() {
-        @Override
-        public boolean equals( Object expected, Object actual ) throws Exception {
-          // just want a valid size
-          return ( (long) actual ) > 0L;
-        }
+      rowComparator.setComparator( 3, ( expected, actual ) -> {
+        // just want a valid size
+        return ( (long) actual ) > 0L;
       } );
-      rowComparator.setComparator( 5, new RowComparatorListener.Comparison<Object>() {
-        @Override
-        public boolean equals( Object expected, Object actual ) throws Exception {
-          return ( (Date) actual ).after( new Date( 0 ) );
-        }
-      } );
+      rowComparator.setComparator( 5, ( expected, actual ) -> ( (Date) actual ).after( new Date( 0 ) ) );
       JsonInput jsonInput = createJsonInput( "in file", meta, new Object[][] {
         new Object[] { path1 },
         new Object[] { path2 }

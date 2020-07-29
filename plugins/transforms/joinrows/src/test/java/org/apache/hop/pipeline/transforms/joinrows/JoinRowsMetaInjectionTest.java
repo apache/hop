@@ -37,26 +37,10 @@ public class JoinRowsMetaInjectionTest extends BaseMetadataInjectionTest<JoinRow
 
   @Test
   public void test() throws Exception {
-    check( "TEMP_DIR", new IStringGetter() {
-      public String get() {
-        return meta.getDirectory();
-      }
-    } );
-    check( "TEMP_FILE_PREFIX", new IStringGetter() {
-      public String get() {
-        return meta.getPrefix();
-      }
-    } );
-    check( "MAX_CACHE_SIZE", new IIntGetter() {
-      public int get() {
-        return meta.getCacheSize();
-      }
-    } );
-    check( "MAIN_TRANSFORM", new IStringGetter() {
-      public String get() {
-        return meta.getMainTransformName();
-      }
-    } );
+    check( "TEMP_DIR", () -> meta.getDirectory() );
+    check( "TEMP_FILE_PREFIX", () -> meta.getPrefix() );
+    check( "MAX_CACHE_SIZE", () -> meta.getCacheSize() );
+    check( "MAIN_TRANSFORM", () -> meta.getMainTransformName() );
     skipPropertyTest( "CONDITION" );
   }
 }
