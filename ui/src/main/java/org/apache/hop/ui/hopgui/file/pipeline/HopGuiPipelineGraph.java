@@ -106,7 +106,6 @@ import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
-import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -811,10 +810,19 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         case TRANSFORM_OUTPUT_DATA:
           TransformMeta dataTransform = (TransformMeta) areaOwner.getParent();
           RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();
-          if ( rowBuffer != null && !rowBuffer.isEmpty() ) {
-            PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( hopGui.getShell(), hopGui.getVariables(), SWT.NONE, dataTransform.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
-            previewRowsDialog.setTitleMessage( "First output rows", "These are the first output rows of transform " + dataTransform.getName() );
-            previewRowsDialog.open();
+          if ( rowBuffer != null ) {
+            synchronized ( rowBuffer.getBuffer() ) {
+              if (!rowBuffer.isEmpty()) {
+                try {
+                  PreviewRowsDialog previewRowsDialog =
+                    new PreviewRowsDialog( hopGui.getShell(), hopGui.getVariables(), SWT.NONE, dataTransform.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
+                  previewRowsDialog.setTitleMessage( "First output rows", "These are the first output rows of transform " + dataTransform.getName() );
+                  previewRowsDialog.open();
+                } catch ( Exception ex ) {
+                  new ErrorDialog( hopGui.getShell(), "Error", "Error showing preview dialog", ex );
+                }
+              }
+            }
             return;
           }
           break;
@@ -3606,7 +3614,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 // Linked list for faster adding and removing at the front and end of the list
                 //
                 if ( sampleType == SampleType.Last ) {
-                  rowBuffer.setBuffer( new LinkedList<>() );
+                  rowBuffer.setBuffer( Collections.synchronizedList( new LinkedList<>() ) );
                 }
               }
 

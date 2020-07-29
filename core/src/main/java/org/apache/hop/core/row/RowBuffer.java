@@ -90,7 +90,7 @@ public class RowBuffer {
   }
 
   public boolean isEmpty() {
-    return buffer.isEmpty();
+    return  buffer.isEmpty();
   }
 
   public void addRow( Object[] row ) {
