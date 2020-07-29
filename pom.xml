@@ -736,6 +736,7 @@
             <exclude>**/hop.pwd</exclude>
             <exclude>**/*.list</exclude>
             <exclude>archive-pipeline-transforms/</exclude>
+            <exclude>**/maven-compiler-plugin/</exclude>
             <exclude>archive-samples/</exclude>
             <exclude>pom.xml</exclude>
           </excludes>
