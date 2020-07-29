@@ -235,7 +235,13 @@ public class DataSetConst {
             PipelineUnitTestFieldMapping fieldMapping = location.getFieldMappings().get( i );
 
             transformFieldIndices[ i ] = resultRowMeta.indexOfValue( fieldMapping.getTransformFieldName() );
+            if (transformFieldIndices[i]<0) {
+              throw new HopException( "Unable to find output field '" + fieldMapping.getTransformFieldName() + "' while testing output of transform '" + location.getTransformName()+"'" );
+            }
             goldenIndices[ i ] = goldenRowMeta.indexOfValue( fieldMapping.getDataSetFieldName() );
+            if (goldenIndices[i]<0) {
+              throw new HopException( "Unable to find golden data set field '" + fieldMapping.getDataSetFieldName() + "' while testing output of transform '" + location.getTransformName()+"'" );
+            }
             log.logDetailed( "Field to compare #" + i + " found on transform index : " + transformFieldIndices[ i ] + ", golden index : " + goldenIndices[ i ] );
           }
 
