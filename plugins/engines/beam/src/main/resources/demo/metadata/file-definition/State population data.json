@@ -1,0 +1,22 @@
+{
+  "enclosure": "",
+  "name": "State population data",
+  "description": "",
+  "fieldDefinitions": [
+    {
+      "hopType": "String",
+      "precision": -1,
+      "name": "state",
+      "length": 100,
+      "formatMask": ""
+    },
+    {
+      "hopType": "Integer",
+      "precision": -1,
+      "name": "population",
+      "length": 9,
+      "formatMask": "#"
+    }
+  ],
+  "separator": ";"
+}
