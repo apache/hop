@@ -7,4 +7,5 @@
   <folder>../../transforms/streamlookup</folder>
   <folder>../../transforms/switchcase</folder>
   <folder>../../transforms/uniquerows</folder>
+  <folder>../../transforms/rowgenerator</folder>
 </dependencies>

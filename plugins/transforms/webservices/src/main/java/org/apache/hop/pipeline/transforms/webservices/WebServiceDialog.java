@@ -141,11 +141,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
   private Button wAddInput;
   private Button wAddOutput;
 
-  private ModifyListener lsMod = new ModifyListener() {
-    public void modifyText( ModifyEvent e ) {
-      meta.setChanged();
-    }
-  };
+  private ModifyListener lsMod = e->meta.setChanged();
 
   private void selectWSDLOperation( String anOperationName ) throws HopException {
     // Tab management

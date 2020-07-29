@@ -49,15 +49,15 @@ import org.joda.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-public class BeamWindowStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
+public class BeamWindowTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamWindowStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamWindowTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                    Pipeline pipeline, IRowMeta inputRowMeta, List<TransformMeta> previousSteps,
-                                    PCollection<HopRow> input ) throws HopException {
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta inputRowMeta, List<TransformMeta> previousSteps,
+                                         PCollection<HopRow> input ) throws HopException {
 
     BeamWindowMeta beamWindowMeta = (BeamWindowMeta) transformMeta.getTransform();
 

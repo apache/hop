@@ -25,10 +25,10 @@ package org.apache.hop.beam.pipeline.handler;
 import org.apache.beam.sdk.Pipeline;
 import org.apache.beam.sdk.values.PCollection;
 import org.apache.hop.beam.core.HopRow;
-import org.apache.hop.beam.core.transform.BeamBQOutputTransform;
+import org.apache.hop.beam.core.transform.BeamKafkaOutputTransform;
 import org.apache.hop.beam.core.util.JsonRowMeta;
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
-import org.apache.hop.beam.transforms.bq.BeamBQOutputMeta;
+import org.apache.hop.beam.transforms.kafka.BeamProduceMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
@@ -39,27 +39,25 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 import java.util.Map;
 
-public class BeamBigQueryOutputStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
+public class BeamKafkaOutputTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamBigQueryOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamKafkaOutputTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleStep( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                    Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
-                                    PCollection<HopRow> input  ) throws HopException {
+  @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         PCollection<HopRow> input ) throws HopException {
 
-    BeamBQOutputMeta beamOutputMeta = (BeamBQOutputMeta) beamOutputStepMeta.getTransform();
+    BeamProduceMeta beamProduceMeta = (BeamProduceMeta) beamOutputStepMeta.getTransform();
 
-    BeamBQOutputTransform beamOutputTransform = new BeamBQOutputTransform(
+    BeamKafkaOutputTransform beamOutputTransform = new BeamKafkaOutputTransform(
       beamOutputStepMeta.getName(),
-      pipelineMeta.environmentSubstitute( beamOutputMeta.getProjectId() ),
-      pipelineMeta.environmentSubstitute( beamOutputMeta.getDatasetId() ),
-      pipelineMeta.environmentSubstitute( beamOutputMeta.getTableId() ),
-      beamOutputMeta.isCreatingIfNeeded(),
-      beamOutputMeta.isTruncatingTable(),
-      beamOutputMeta.isFailingIfNotEmpty(),
-      JsonRowMeta.toJson(rowMeta),
+      pipelineMeta.environmentSubstitute( beamProduceMeta.getBootstrapServers() ),
+      pipelineMeta.environmentSubstitute( beamProduceMeta.getTopic() ),
+      pipelineMeta.environmentSubstitute( beamProduceMeta.getKeyField() ),
+      pipelineMeta.environmentSubstitute( beamProduceMeta.getMessageField() ),
+      JsonRowMeta.toJson( rowMeta ),
       transformPluginClasses,
       xpPluginClasses
     );
@@ -75,6 +73,6 @@ public class BeamBigQueryOutputStepHandler extends BeamBaseStepHandler implement
     // No need to store this, it's PDone.
     //
     input.apply( beamOutputTransform );
-    log.logBasic( "Handled transform (BQ OUTPUT) : " + beamOutputStepMeta.getName() + ", gets data from " + previousStep.getName() );
+    log.logBasic( "Handled transform (KAFKA OUTPUT) : " + beamOutputStepMeta.getName() + ", gets data from " + previousStep.getName() );
   }
 }

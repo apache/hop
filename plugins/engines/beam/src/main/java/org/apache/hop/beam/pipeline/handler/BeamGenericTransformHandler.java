@@ -64,7 +64,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class BeamGenericTransformHandler extends BeamBaseStepHandler implements IBeamStepHandler {
+public class BeamGenericTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
   private String metaStoreJson;
 
@@ -73,9 +73,9 @@ public class BeamGenericTransformHandler extends BeamBaseStepHandler implements 
     this.metaStoreJson = metaStoreJson;
   }
 
-  @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                    Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
-                                    PCollection<HopRow> input ) throws HopException {
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         PCollection<HopRow> input ) throws HopException {
 
     // If we have no previous transform, it's an input transform.  We need to start from pipeline
     //

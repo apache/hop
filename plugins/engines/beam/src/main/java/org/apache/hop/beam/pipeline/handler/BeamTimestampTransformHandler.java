@@ -41,15 +41,15 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 import java.util.Map;
 
-public class BeamTimestampStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
+public class BeamTimestampTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamTimestampStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamTimestampTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                    Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
-                                    PCollection<HopRow> input ) throws HopException {
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         PCollection<HopRow> input ) throws HopException {
 
     BeamTimestampMeta beamTimestampMeta = (BeamTimestampMeta) transformMeta.getTransform();
 
