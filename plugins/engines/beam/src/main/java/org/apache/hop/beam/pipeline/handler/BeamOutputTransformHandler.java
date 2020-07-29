@@ -44,15 +44,15 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 import java.util.Map;
 
-public class BeamOutputStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
+public class BeamOutputTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamOutputTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleStep( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                    Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
-                                    PCollection<HopRow> input ) throws HopException {
+  @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         PCollection<HopRow> input ) throws HopException {
 
     BeamOutputMeta beamOutputMeta = (BeamOutputMeta) beamOutputStepMeta.getTransform();
     FileDefinition outputFileDefinition;

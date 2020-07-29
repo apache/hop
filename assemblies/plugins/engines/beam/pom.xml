@@ -147,6 +147,16 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>org.apache.beam</groupId>
+      <artifactId>beam-sdks-java-io-kafka</artifactId>
+      <version>${apache-beam-version}</version>
+      <exclusions>
+        <exclusion><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-core</artifactId></exclusion>
+        <exclusion><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></exclusion>
+        <exclusion><groupId>com.fasterxml.jackson.module</groupId><artifactId>jackson-module-scala_2.11</artifactId></exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>com.google.cloud</groupId>
       <artifactId>google-cloud-storage</artifactId>
       <version>1.53.0</version>
@@ -250,6 +260,11 @@
     <dependency>
       <groupId>org.hop</groupId>
       <artifactId>hop-transform-mergejoin</artifactId>
+      <version>0.40-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-transform-rowgenerator</artifactId>
       <version>0.40-SNAPSHOT</version>
     </dependency>
     <dependency>

@@ -27,12 +27,13 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-public class BeamBaseStepHandler {
+public class BeamBaseTransformHandler {
 
   protected IHopMetadataProvider metadataProvider;
   protected PipelineMeta pipelineMeta;
@@ -42,7 +43,7 @@ public class BeamBaseStepHandler {
   protected boolean output;
   protected IBeamPipelineEngineRunConfiguration runConfiguration;
 
-  public BeamBaseStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, boolean input, boolean output, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamBaseTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, boolean input, boolean output, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     this.runConfiguration = runConfiguration;
     this.input = input;
     this.output = output;
@@ -56,6 +57,11 @@ public class BeamBaseStepHandler {
     String xml = transformMeta.getXml();
     Node transformNode = XmlHandler.getSubNode( XmlHandler.loadXmlString( xml ), TransformMeta.XML_TAG );
     return transformNode;
+  }
+
+  protected void loadTransformMetadata( ITransformMeta meta, TransformMeta transformMeta, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta ) throws HopException {
+    meta.loadXml( getTransformXmlNode(transformMeta), metadataProvider );
+    meta.searchInfoAndTargetTransforms( pipelineMeta.getTransforms() );
   }
 
   /**

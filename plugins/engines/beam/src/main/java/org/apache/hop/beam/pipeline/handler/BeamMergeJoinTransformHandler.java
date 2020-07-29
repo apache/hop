@@ -50,9 +50,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
+public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamMergeJoinStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamMergeJoinTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
@@ -64,15 +64,14 @@ public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements IBe
     return false;
   }
 
-  @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                    Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
-                                    PCollection<HopRow> input ) throws HopException {
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         PCollection<HopRow> input ) throws HopException {
 
     // Don't simply case but serialize/de-serialize the metadata to prevent classloader exceptions
     //
     MergeJoinMeta meta = new MergeJoinMeta();
-    meta.loadXml( getTransformXmlNode(transformMeta), metadataProvider );
-    meta.searchInfoAndTargetTransforms( pipelineMeta.getTransforms() );
+    loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
     String joinType = meta.getJoinType();
     String[] leftKeys = meta.getKeyFields1();

@@ -216,6 +216,7 @@
         <include>org.apache.beam:beam-sdks-java-io-hadoop-common</include>
         <include>org.apache.beam:beam-sdks-java-io-hadoop-file-system</include>
         <include>org.apache.beam:beam-sdks-java-io-kafka</include>
+        <include>org.apache.beam:beam-sdks-java-io-synthetic</include>
         <include>org.apache.beam:beam-vendor-bytebuddy-1_10_8</include>
         <include>org.apache.beam:beam-vendor-grpc-1_26_0</include>
         <include>org.apache.beam:beam-vendor-guava-20_0</include>

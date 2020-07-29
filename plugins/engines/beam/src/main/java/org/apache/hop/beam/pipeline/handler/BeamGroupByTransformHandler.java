@@ -40,22 +40,22 @@ import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
 import java.util.List;
 import java.util.Map;
 
-public class BeamGroupByStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
+public class BeamGroupByTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamGroupByStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+  public BeamGroupByTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleStep( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                    Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
-                                    PCollection<HopRow> input ) throws HopException {
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         PCollection<HopRow> input ) throws HopException {
 
-    MemoryGroupByMeta groupByMeta = new MemoryGroupByMeta();
-    groupByMeta.loadXml( getTransformXmlNode(transformMeta), metadataProvider );
+    MemoryGroupByMeta meta = new MemoryGroupByMeta();
+    loadTransformMetadata(meta, transformMeta, metadataProvider, pipelineMeta);
 
-    String[] aggregates = new String[ groupByMeta.getAggregateType().length ];
+    String[] aggregates = new String[ meta.getAggregateType().length ];
     for ( int i = 0; i < aggregates.length; i++ ) {
-      aggregates[ i ] = MemoryGroupByMeta.getTypeDesc( groupByMeta.getAggregateType()[ i ] );
+      aggregates[ i ] = MemoryGroupByMeta.getTypeDesc( meta.getAggregateType()[ i ] );
     }
 
     PTransform<PCollection<HopRow>, PCollection<HopRow>> stepTransform = new GroupByTransform(
@@ -63,10 +63,10 @@ public class BeamGroupByStepHandler extends BeamBaseStepHandler implements IBeam
       JsonRowMeta.toJson( rowMeta ),  // The io row
       transformPluginClasses,
       xpPluginClasses,
-      groupByMeta.getGroupField(),
-      groupByMeta.getSubjectField(),
+      meta.getGroupField(),
+      meta.getSubjectField(),
       aggregates,
-      groupByMeta.getAggregateField()
+      meta.getAggregateField()
     );
 
     // Apply the transform transform to the previous io transform PCollection(s)

@@ -33,15 +33,15 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 import java.util.Map;
 
-public interface IBeamStepHandler {
+public interface IBeamTransformHandler {
 
-  void handleStep( ILogChannel log,
-                   TransformMeta transformMeta,
-                   Map<String, PCollection<HopRow>> stepCollectionMap,
-                   Pipeline pipeline,
-                   IRowMeta rowMeta,
-                   List<TransformMeta> previousSteps,
-                   PCollection<HopRow> input
+  void handleTransform( ILogChannel log,
+                        TransformMeta transformMeta,
+                        Map<String, PCollection<HopRow>> stepCollectionMap,
+                        Pipeline pipeline,
+                        IRowMeta rowMeta,
+                        List<TransformMeta> previousSteps,
+                        PCollection<HopRow> input
   ) throws HopException;
 
   boolean isInput();
