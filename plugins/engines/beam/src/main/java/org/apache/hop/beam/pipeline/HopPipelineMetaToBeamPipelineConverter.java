@@ -48,7 +48,7 @@ import org.apache.hop.beam.pipeline.handler.BeamKafkaOutputStepHandler;
 import org.apache.hop.beam.pipeline.handler.BeamMergeJoinStepHandler;
 import org.apache.hop.beam.pipeline.handler.BeamOutputStepHandler;
 import org.apache.hop.beam.pipeline.handler.BeamPublisherStepHandler;
-import org.apache.hop.beam.pipeline.handler.BeamStepHandler;
+import org.apache.hop.beam.pipeline.handler.IBeamStepHandler;
 import org.apache.hop.beam.pipeline.handler.BeamSubscriberStepHandler;
 import org.apache.hop.beam.pipeline.handler.BeamTimestampStepHandler;
 import org.apache.hop.beam.pipeline.handler.BeamWindowStepHandler;
@@ -88,8 +88,8 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   protected String metaStoreJson;
   protected List<String> transformPluginClasses;
   protected List<String> xpPluginClasses;
-  protected Map<String, BeamStepHandler> stepHandlers;
-  protected BeamStepHandler genericStepHandler;
+  protected Map<String, IBeamStepHandler> stepHandlers;
+  protected IBeamStepHandler genericStepHandler;
   protected T pipelineRunConfiguration;
 
   public HopPipelineMetaToBeamPipelineConverter() {
@@ -258,7 +258,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
     List<TransformMeta> beamInputStepMetas = findBeamInputs();
     for ( TransformMeta transformMeta : beamInputStepMetas ) {
-      BeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
+      IBeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
       stepHandler.handleStep( log, transformMeta, stepCollectionMap, pipeline, pipelineMeta.getTransformFields( transformMeta ), null, null );
     }
   }
@@ -266,7 +266,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   private void handleBeamOutputSteps( ILogChannel log, Map<String, PCollection<HopRow>> stepCollectionMap, Pipeline pipeline ) throws HopException, IOException {
     List<TransformMeta> beamOutputStepMetas = findBeamOutputs();
     for ( TransformMeta transformMeta : beamOutputStepMetas ) {
-      BeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
+      IBeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
 
       List<TransformMeta> previousSteps = pipelineMeta.findPreviousTransforms( transformMeta, false );
       if ( previousSteps.size() > 1 ) {
@@ -299,7 +299,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
       // Input and output transforms are handled else where.
       //
-      BeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
+      IBeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
       if ( stepHandler == null || ( !stepHandler.isInput() && !stepHandler.isOutput() ) ) {
 
         // Generic transform
@@ -414,7 +414,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     List<TransformMeta> transforms = new ArrayList<>();
     for ( TransformMeta transformMeta : pipelineMeta.getPipelineHopTransforms( false ) ) {
 
-      BeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
+      IBeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
       if ( stepHandler != null && stepHandler.isInput() ) {
         transforms.add( transformMeta );
       }
@@ -425,7 +425,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   private List<TransformMeta> findBeamOutputs() throws HopException {
     List<TransformMeta> transforms = new ArrayList<>();
     for ( TransformMeta transformMeta : pipelineMeta.getPipelineHopTransforms( false ) ) {
-      BeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
+      IBeamStepHandler stepHandler = stepHandlers.get( transformMeta.getTransformPluginId() );
       if ( stepHandler != null && stepHandler.isOutput() ) {
         transforms.add( transformMeta );
       }
@@ -585,14 +585,14 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
    *
    * @return value of stepHandlers
    */
-  public Map<String, BeamStepHandler> getStepHandlers() {
+  public Map<String, IBeamStepHandler> getStepHandlers() {
     return stepHandlers;
   }
 
   /**
    * @param stepHandlers The stepHandlers to set
    */
-  public void setStepHandlers( Map<String, BeamStepHandler> stepHandlers ) {
+  public void setStepHandlers( Map<String, IBeamStepHandler> stepHandlers ) {
     this.stepHandlers = stepHandlers;
   }
 
@@ -601,14 +601,14 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
    *
    * @return value of genericStepHandler
    */
-  public BeamStepHandler getGenericStepHandler() {
+  public IBeamStepHandler getGenericStepHandler() {
     return genericStepHandler;
   }
 
   /**
    * @param genericStepHandler The genericStepHandler to set
    */
-  public void setGenericStepHandler( BeamStepHandler genericStepHandler ) {
+  public void setGenericStepHandler( IBeamStepHandler genericStepHandler ) {
     this.genericStepHandler = genericStepHandler;
   }
 }

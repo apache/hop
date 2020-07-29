@@ -23,8 +23,12 @@
 package org.apache.hop.beam.pipeline.handler;
 
 import org.apache.hop.beam.engines.IBeamPipelineEngineRunConfiguration;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.w3c.dom.Node;
 
 import java.util.List;
 
@@ -46,6 +50,12 @@ public class BeamBaseStepHandler {
     this.pipelineMeta = pipelineMeta;
     this.transformPluginClasses = transformPluginClasses;
     this.xpPluginClasses = xpPluginClasses;
+  }
+
+  protected Node getTransformXmlNode( TransformMeta transformMeta) throws HopException {
+    String xml = transformMeta.getXml();
+    Node transformNode = XmlHandler.getSubNode( XmlHandler.loadXmlString( xml ), TransformMeta.XML_TAG );
+    return transformNode;
   }
 
   /**

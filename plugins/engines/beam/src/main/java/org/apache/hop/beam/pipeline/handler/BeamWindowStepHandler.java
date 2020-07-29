@@ -49,7 +49,7 @@ import org.joda.time.Duration;
 import java.util.List;
 import java.util.Map;
 
-public class BeamWindowStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
+public class BeamWindowStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
 
   public BeamWindowStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );

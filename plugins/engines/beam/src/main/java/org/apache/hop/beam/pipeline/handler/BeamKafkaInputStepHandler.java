@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 import java.util.Map;
 
-public class BeamKafkaInputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
+public class BeamKafkaInputStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
 
   public BeamKafkaInputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, true, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
