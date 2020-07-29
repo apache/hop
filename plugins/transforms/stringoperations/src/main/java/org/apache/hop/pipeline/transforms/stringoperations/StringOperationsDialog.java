@@ -79,11 +79,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -230,40 +226,36 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
     // Search the fields in the background
     //
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
-            if ( row != null ) {
-              // Remember these fields...
-              for ( int i = 0; i < row.size(); i++ ) {
-                inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
-              }
-
-              setComboBoxes();
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          if ( row != null ) {
+            // Remember these fields...
+            for ( int i = 0; i < row.size(); i++ ) {
+              inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
             }
 
-            // Dislay in red missing field names
-            Display.getDefault().asyncExec( new Runnable() {
-              public void run() {
-                if ( !wFields.isDisposed() ) {
-                  for ( int i = 0; i < wFields.table.getItemCount(); i++ ) {
-                    TableItem it = wFields.table.getItem( i );
-                    if ( !Utils.isEmpty( it.getText( 1 ) ) ) {
-                      if ( !inputFields.containsKey( it.getText( 1 ) ) ) {
-                        it.setBackground( GuiResource.getInstance().getColorRed() );
-                      }
-                    }
+            setComboBoxes();
+          }
+
+          // Dislay in red missing field names
+          Display.getDefault().asyncExec( () -> {
+            if ( !wFields.isDisposed() ) {
+              for ( int i = 0; i < wFields.table.getItemCount(); i++ ) {
+                TableItem it = wFields.table.getItem( i );
+                if ( !Utils.isEmpty( it.getText( 1 ) ) ) {
+                  if ( !inputFields.containsKey( it.getText( 1 ) ) ) {
+                    it.setBackground( GuiResource.getInstance().getColorRed() );
                   }
                 }
               }
-            } );
+            }
+          } );
 
-          } catch ( HopException e ) {
-            logError( "Error getting fields from incoming stream!", e );
-          }
+        } catch ( HopException e ) {
+          logError( "Error getting fields from incoming stream!", e );
         }
       }
     };
@@ -373,22 +365,20 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            if ( v.getType() == IValueMeta.TYPE_STRING ) {
-              // Only process strings
-              tableItem.setText( 3, BaseMessages.getString( PKG, "StringOperationsMeta.TrimType.None" ) );
-              tableItem.setText( 4, BaseMessages.getString( PKG, "StringOperationsMeta.LowerUpper.None" ) );
-              tableItem.setText( 5, BaseMessages.getString( PKG, "StringOperationsMeta.Padding.None" ) );
-              tableItem.setText( 8, BaseMessages.getString( PKG, "System.Combo.No" ) );
-              tableItem.setText( 9, BaseMessages.getString( PKG, "StringOperationsMeta.MaskXML.None" ) );
-              tableItem.setText( 10, BaseMessages.getString( PKG, "StringOperationsMeta.Digits.None" ) );
-              tableItem.setText( 11, BaseMessages.getString(
-                PKG, "StringOperationsMeta.RemoveSpecialCharacters.None" ) );
-              return true;
-            } else {
-              return false;
-            }
+        ITableItemInsertListener listener = ( tableItem, v ) -> {
+          if ( v.getType() == IValueMeta.TYPE_STRING ) {
+            // Only process strings
+            tableItem.setText( 3, BaseMessages.getString( PKG, "StringOperationsMeta.TrimType.None" ) );
+            tableItem.setText( 4, BaseMessages.getString( PKG, "StringOperationsMeta.LowerUpper.None" ) );
+            tableItem.setText( 5, BaseMessages.getString( PKG, "StringOperationsMeta.Padding.None" ) );
+            tableItem.setText( 8, BaseMessages.getString( PKG, "System.Combo.No" ) );
+            tableItem.setText( 9, BaseMessages.getString( PKG, "StringOperationsMeta.MaskXML.None" ) );
+            tableItem.setText( 10, BaseMessages.getString( PKG, "StringOperationsMeta.Digits.None" ) );
+            tableItem.setText( 11, BaseMessages.getString(
+              PKG, "StringOperationsMeta.RemoveSpecialCharacters.None" ) );
+            return true;
+          } else {
+            return false;
           }
         };
 

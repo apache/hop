@@ -219,11 +219,9 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        closeMailConnection();
-        input.setChanged();
-      }
+    ModifyListener lsMod = e -> {
+      closeMailConnection();
+      input.setChanged();
     };
 
     SelectionListener lsSelection = new SelectionAdapter() {
@@ -1200,27 +1198,11 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        getFields();
-      }
-    };
+    lsGet = e -> getFields();
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsPreview = e -> preview();
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
 
@@ -1229,26 +1211,14 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
         ok();
       }
     };
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
+    lsTest = e -> test();
     wTest.addListener( SWT.Selection, lsTest );
     wPreview.addListener( SWT.Selection, lsPreview );
     wGet.addListener( SWT.Selection, lsGet );
-    lsTestIMAPFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        checkFolder( pipelineMeta.environmentSubstitute( wIMAPFolder.getText() ) );
-      }
-    };
+    lsTestIMAPFolder = e -> checkFolder( pipelineMeta.environmentSubstitute( wIMAPFolder.getText() ) );
     wTestIMAPFolder.addListener( SWT.Selection, lsTestIMAPFolder );
 
-    lsSelectFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        selectFolder( wIMAPFolder );
-      }
-    };
+    lsSelectFolder = e -> selectFolder( wIMAPFolder );
     wSelectFolder.addListener( SWT.Selection, lsSelectFolder );
 
     wTransformName.addSelectionListener( lsDef );

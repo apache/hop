@@ -116,11 +116,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
 
     changed = input.hasChanged();
 
@@ -386,23 +382,11 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wLogSettings );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
 
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
 
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
+    lsTest = e -> test();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

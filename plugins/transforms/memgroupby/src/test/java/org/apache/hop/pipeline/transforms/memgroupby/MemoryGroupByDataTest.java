@@ -53,11 +53,9 @@ import static org.mockito.Mockito.when;
     data.groupMeta = groupMeta;
     when( groupMeta.size() ).thenReturn( 1 );
     when( groupMeta.getValueMeta( anyInt() ) ).thenReturn( valueMeta );
-    when( valueMeta.convertToNormalStorageType( anyObject() ) ).then( new Answer<Object>() {
-      @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-        Object argument = invocation.getArguments()[ 0 ];
-        return new String( (byte[]) argument );
-      }
+    when( valueMeta.convertToNormalStorageType( anyObject() ) ).then( invocation -> {
+      Object argument = invocation.getArguments()[ 0 ];
+      return new String( (byte[]) argument );
     } );
   }
 

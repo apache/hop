@@ -231,12 +231,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    lsMod = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -991,30 +986,10 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsPreview = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsPreview = e -> preview();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -1133,12 +1108,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // Whenever something changes, set the tooltip to the expanded version of the filename:
-    wFilename.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( "" );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( "" ) );
 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {

@@ -236,14 +236,12 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
     link.setLayoutData( fdlink );
     props.setLook( link );
 
-    link.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event event ) {
-        if ( Desktop.isDesktopSupported() ) {
-          try {
-            Desktop.getDesktop().browse( new URI( Const.getDocUrl( URI_PATH ) ) );
-          } catch ( Exception e ) {
-            log.logError( "Error opening external browser", e );
-          }
+    link.addListener( SWT.Selection, event -> {
+      if ( Desktop.isDesktopSupported() ) {
+        try {
+          Desktop.getDesktop().browse( new URI( Const.getDocUrl( URI_PATH ) ) );
+        } catch ( Exception e ) {
+          log.logError( "Error opening external browser", e );
         }
       }
     } );
@@ -260,11 +258,7 @@ public class BrowserEnvironmentWarningDialog extends Dialog {
     props.setLook( closeButton );
 
     // Add listeners
-    closeButton.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        close();
-      }
-    } );
+    closeButton.addListener( SWT.Selection, e -> close() );
   }
 
   /**

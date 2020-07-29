@@ -135,16 +135,8 @@ public class EnterPreviewRowsDialog extends Dialog {
 
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wShow, wClose }, margin, null );
     // Add listeners
-    lsShow = new Listener() {
-      public void handleEvent( Event e ) {
-        show();
-      }
-    };
-    lsClose = new Listener() {
-      public void handleEvent( Event e ) {
-        close();
-      }
-    };
+    lsShow = e -> show();
+    lsClose = e -> close();
 
     wShow.addListener( SWT.Selection, lsShow );
     wClose.addListener( SWT.Selection, lsClose );

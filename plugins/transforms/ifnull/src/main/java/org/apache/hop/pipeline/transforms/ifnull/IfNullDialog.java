@@ -108,11 +108,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    lsMod = e -> input.setChanged();
 
     changed = input.hasChanged();
     oldlsMod = lsMod;
@@ -340,21 +336,9 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     } );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsGet = e -> get();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -479,11 +463,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener insertListener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            return true;
-          }
-        };
+        ITableItemInsertListener insertListener = ( tableItem, v ) -> true;
 
         BaseTransformDialog
           .getFieldsFromPrevious( r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, insertListener );
@@ -496,24 +476,22 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
   }
 
   private void setComboValues() {
-    Runnable fieldLoader = new Runnable() {
-      public void run() {
-        try {
-          prevFields = pipelineMeta.getPrevTransformFields( transformName );
+    Runnable fieldLoader = () -> {
+      try {
+        prevFields = pipelineMeta.getPrevTransformFields( transformName );
 
-        } catch ( HopException e ) {
-          String msg = BaseMessages.getString( PKG, "IfNullDialog.DoMapping.UnableToFindInput" );
-          logError( msg );
-        }
-        String[] prevTransformFieldNames = prevFields.getFieldNames();
-        if ( prevTransformFieldNames != null ) {
-          Arrays.sort( prevTransformFieldNames );
+      } catch ( HopException e ) {
+        String msg = BaseMessages.getString( PKG, "IfNullDialog.DoMapping.UnableToFindInput" );
+        logError( msg );
+      }
+      String[] prevTransformFieldNames = prevFields.getFieldNames();
+      if ( prevTransformFieldNames != null ) {
+        Arrays.sort( prevTransformFieldNames );
 
-          for ( int i = 0; i < fieldColumns.size(); i++ ) {
-            ColumnInfo colInfo = fieldColumns.get( i );
-            if ( colInfo != null ) {
-              colInfo.setComboValues( prevTransformFieldNames );
-            }
+        for ( int i = 0; i < fieldColumns.size(); i++ ) {
+          ColumnInfo colInfo = fieldColumns.get( i );
+          if ( colInfo != null ) {
+            colInfo.setComboValues( prevTransformFieldNames );
           }
         }
       }

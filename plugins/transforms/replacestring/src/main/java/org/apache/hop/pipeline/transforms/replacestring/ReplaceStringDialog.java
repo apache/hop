@@ -98,11 +98,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -211,22 +207,20 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     // Search the fields in the background
     //
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
-            }
-
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "ReplaceString.Error.CanNotGetFields" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
           }
+
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "ReplaceString.Error.CanNotGetFields" ) );
         }
       }
     };
@@ -248,21 +242,9 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -414,19 +396,17 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            if ( v.getType() == IValueMeta.TYPE_STRING ) {
-              // Only process strings
-              tableItem.setText( 3, BaseMessages.getString( PKG, "System.Combo.No" ) );
-              tableItem.setText( 6, BaseMessages.getString( PKG, "System.Combo.No" ) );
-              tableItem.setText( 8, BaseMessages.getString( PKG, "System.Combo.No" ) );
-              tableItem.setText( 9, BaseMessages.getString( PKG, "System.Combo.No" ) );
-              tableItem.setText( 10, BaseMessages.getString( PKG, "System.Combo.No" ) );
-              return true;
-            } else {
-              return false;
-            }
+        ITableItemInsertListener listener = ( tableItem, v ) -> {
+          if ( v.getType() == IValueMeta.TYPE_STRING ) {
+            // Only process strings
+            tableItem.setText( 3, BaseMessages.getString( PKG, "System.Combo.No" ) );
+            tableItem.setText( 6, BaseMessages.getString( PKG, "System.Combo.No" ) );
+            tableItem.setText( 8, BaseMessages.getString( PKG, "System.Combo.No" ) );
+            tableItem.setText( 9, BaseMessages.getString( PKG, "System.Combo.No" ) );
+            tableItem.setText( 10, BaseMessages.getString( PKG, "System.Combo.No" ) );
+            return true;
+          } else {
+            return false;
           }
         };
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, listener );

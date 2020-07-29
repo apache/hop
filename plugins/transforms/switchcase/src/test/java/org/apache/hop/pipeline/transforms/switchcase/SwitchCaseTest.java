@@ -438,45 +438,37 @@ public class SwitchCaseTest {
       // call to convert value will returns same value.
       data.valueMeta = mock( IValueMeta.class );
       when( data.valueMeta.convertData( any( IValueMeta.class ), any() ) ).thenAnswer(
-        new Answer<Object>() {
-          @Override
-          public Object answer( InvocationOnMock invocation ) throws Throwable {
-            Object[] objArr = invocation.getArguments();
-            return ( objArr != null && objArr.length > 1 ) ? objArr[ 1 ] : null;
-          }
+        invocation -> {
+          Object[] objArr = invocation.getArguments();
+          return ( objArr != null && objArr.length > 1 ) ? objArr[ 1 ] : null;
         } );
       // same when call to convertDataFromString
       when( data.valueMeta.convertDataFromString( Mockito.anyString(), any( IValueMeta.class ),
         Mockito.anyString(), Mockito.anyString(), Mockito.anyInt() ) ).thenAnswer(
         //CHECKSTYLE:Indentation:OFF
-        new Answer<Object>() {
-          public Object answer( InvocationOnMock invocation ) throws Throwable {
-            Object[] objArr = invocation.getArguments();
-            return ( objArr != null && objArr.length > 1 ) ? objArr[ 0 ] : null;
-          }
+        invocation -> {
+          Object[] objArr = invocation.getArguments();
+          return ( objArr != null && objArr.length > 1 ) ? objArr[ 0 ] : null;
         } );
       // null-check
-      when( data.valueMeta.isNull( any() ) ).thenAnswer( new Answer<Object>() {
-        @Override
-        public Object answer( InvocationOnMock invocation ) throws Throwable {
-          Object[] objArr = invocation.getArguments();
-          Object obj = objArr[ 0 ];
-          if ( obj == null ) {
-            return true;
-          }
-          if ( EMPTY_STRING_AND_NULL_ARE_DIFFERENT ) {
-            return false;
-          }
-
-          // If it's a string and the string is empty, it's a null value as well
-          //
-          if ( obj instanceof String ) {
-            if ( ( (String) obj ).length() == 0 ) {
-              return true;
-            }
-          }
+      when( data.valueMeta.isNull( any() ) ).thenAnswer( invocation -> {
+        Object[] objArr = invocation.getArguments();
+        Object obj = objArr[ 0 ];
+        if ( obj == null ) {
+          return true;
+        }
+        if ( EMPTY_STRING_AND_NULL_ARE_DIFFERENT ) {
           return false;
         }
+
+        // If it's a string and the string is empty, it's a null value as well
+        //
+        if ( obj instanceof String ) {
+          if ( ( (String) obj ).length() == 0 ) {
+            return true;
+          }
+        }
+        return false;
       } );
 
     }

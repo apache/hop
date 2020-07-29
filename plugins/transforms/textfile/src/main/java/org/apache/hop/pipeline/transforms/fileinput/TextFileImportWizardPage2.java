@@ -457,24 +457,20 @@ public class TextFileImportWizardPage2 extends WizardPage {
       }
     } );
 
-    wFieldname.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        int idx = wFields.getSelectionIndex();
-        if ( idx >= 0 ) {
-          TextFileInputField field = (TextFileInputField) fields.get( idx );
-          field.setName( wFieldname.getText() );
-          wFields.setItem( idx, wFieldname.getText() );
-        }
+    wFieldname.addModifyListener( e -> {
+      int idx = wFields.getSelectionIndex();
+      if ( idx >= 0 ) {
+        TextFileInputField field = (TextFileInputField) fields.get( idx );
+        field.setName( wFieldname.getText() );
+        wFields.setItem( idx, wFieldname.getText() );
       }
     } );
 
-    wFormat.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        int idx = wFields.getSelectionIndex();
-        if ( idx >= 0 ) {
-          TextFileInputField field = (TextFileInputField) fields.get( idx );
-          field.setFormat( wFormat.getText() );
-        }
+    wFormat.addModifyListener( e -> {
+      int idx = wFields.getSelectionIndex();
+      if ( idx >= 0 ) {
+        TextFileInputField field = (TextFileInputField) fields.get( idx );
+        field.setFormat( wFormat.getText() );
       }
     } );
 
@@ -559,43 +555,35 @@ public class TextFileImportWizardPage2 extends WizardPage {
       }
     } );
 
-    wCurrency.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        int idx = wFields.getSelectionIndex();
-        if ( idx >= 0 ) {
-          TextFileInputField field = (TextFileInputField) fields.get( idx );
-          field.setCurrencySymbol( wCurrency.getText() );
-        }
+    wCurrency.addModifyListener( e -> {
+      int idx = wFields.getSelectionIndex();
+      if ( idx >= 0 ) {
+        TextFileInputField field = (TextFileInputField) fields.get( idx );
+        field.setCurrencySymbol( wCurrency.getText() );
       }
     } );
 
-    wGroup.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        int idx = wFields.getSelectionIndex();
-        if ( idx >= 0 ) {
-          TextFileInputField field = (TextFileInputField) fields.get( idx );
-          field.setGroupSymbol( wGroup.getText() );
-        }
+    wGroup.addModifyListener( e -> {
+      int idx = wFields.getSelectionIndex();
+      if ( idx >= 0 ) {
+        TextFileInputField field = (TextFileInputField) fields.get( idx );
+        field.setGroupSymbol( wGroup.getText() );
       }
     } );
 
-    wDecimal.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        int idx = wFields.getSelectionIndex();
-        if ( idx >= 0 ) {
-          TextFileInputField field = (TextFileInputField) fields.get( idx );
-          field.setDecimalSymbol( wDecimal.getText() );
-        }
+    wDecimal.addModifyListener( e -> {
+      int idx = wFields.getSelectionIndex();
+      if ( idx >= 0 ) {
+        TextFileInputField field = (TextFileInputField) fields.get( idx );
+        field.setDecimalSymbol( wDecimal.getText() );
       }
     } );
 
-    wNull.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        int idx = wFields.getSelectionIndex();
-        if ( idx >= 0 ) {
-          TextFileInputField field = (TextFileInputField) fields.get( idx );
-          field.setNullString( wNull.getText() );
-        }
+    wNull.addModifyListener( e -> {
+      int idx = wFields.getSelectionIndex();
+      if ( idx >= 0 ) {
+        TextFileInputField field = (TextFileInputField) fields.get( idx );
+        field.setNullString( wNull.getText() );
       }
     } );
 

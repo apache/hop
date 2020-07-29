@@ -138,11 +138,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     backupChanged = input.hasChanged();
 
     int middle = props.getMiddlePct();
@@ -642,16 +638,8 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
@@ -700,11 +688,9 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
       }
     } );
 
-    lsResize = new Listener() {
-      public void handleEvent( Event event ) {
-        // Point size = shell.getSize();
+    lsResize = event -> {
+      // Point size = shell.getSize();
 
-      }
     };
     shell.addListener( SWT.Resize, lsResize );
 

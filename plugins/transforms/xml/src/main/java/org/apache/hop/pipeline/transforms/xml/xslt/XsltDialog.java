@@ -118,11 +118,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -487,21 +483,19 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
     // Search the fields in the background
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta stepMeta = pipelineMeta.findTransform( transformName );
-        if ( stepMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( stepMeta );
+    final Runnable runnable = () -> {
+      TransformMeta stepMeta = pipelineMeta.findTransform( transformName );
+      if ( stepMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( stepMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -534,21 +528,9 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsGet = e -> get();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wGet.addListener( SWT.Selection, lsGet );
@@ -565,11 +547,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
     // Whenever something changes, set the tooltip to the expanded version
     // of the filename:
-    wXSLFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wXSLFilename.setToolTipText( pipelineMeta.environmentSubstitute( wXSLFilename.getText() ) );
-      }
-    } );
+    wXSLFilename.addModifyListener( e -> wXSLFilename.setToolTipText( pipelineMeta.environmentSubstitute( wXSLFilename.getText() ) ) );
 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {

@@ -254,17 +254,14 @@ public class MsSqlServerDatabaseMetaTest {
     Mockito.when( db.getReturnRowMeta() ).thenReturn( rm );
     Mockito.when( rm.getString( row1, "column_name", "" ) ).thenReturn( "ROW1COL2" );
     Mockito.when( rm.getString( row2, "column_name", "" ) ).thenReturn( "ROW2COL2" );
-    Mockito.when( db.getRow( rs ) ).thenAnswer( new Answer<Object[]>() {
-      @Override
-      public Object[] answer( InvocationOnMock invocation ) throws Throwable {
-        rowCnt++;
-        if ( rowCnt == 1 ) {
-          return row1;
-        } else if ( rowCnt == 2 ) {
-          return row2;
-        } else {
-          return null;
-        }
+    Mockito.when( db.getRow( rs ) ).thenAnswer( (Answer<Object[]>) invocation -> {
+      rowCnt++;
+      if ( rowCnt == 1 ) {
+        return row1;
+      } else if ( rowCnt == 2 ) {
+        return row2;
+      } else {
+        return null;
       }
     } );
     Mockito.when( db.getDatabaseMeta() ).thenReturn( dm );

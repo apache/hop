@@ -38,20 +38,8 @@ public class MergeRowsMetaInjectionTest extends BaseMetadataInjectionTest<MergeR
 
   @Test
   public void test() throws Exception {
-    check( "FLAG_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getFlagField();
-      }
-    } );
-    check( "KEY_FIELDS", new IStringGetter() {
-      public String get() {
-        return meta.getKeyFields()[ 0 ];
-      }
-    } );
-    check( "VALUE_FIELDS", new IStringGetter() {
-      public String get() {
-        return meta.getValueFields()[ 0 ];
-      }
-    } );
+    check( "FLAG_FIELD", () -> meta.getFlagField() );
+    check( "KEY_FIELDS", () -> meta.getKeyFields()[ 0 ] );
+    check( "VALUE_FIELDS", () -> meta.getValueFields()[ 0 ] );
   }
 }

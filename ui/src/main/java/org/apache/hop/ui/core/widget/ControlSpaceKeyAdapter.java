@@ -236,19 +236,17 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
       }
     }
 
-    Arrays.sort( variableNames, new Comparator<String>() {
-      public int compare( String var1, String var2 ) {
-        if ( var1.endsWith( Const.getDeprecatedPrefix() ) && var2.endsWith( Const.getDeprecatedPrefix() ) ) {
-          return 0;
-        }
-        if ( var1.endsWith( Const.getDeprecatedPrefix() ) && !var2.endsWith( Const.getDeprecatedPrefix() ) ) {
-          return 1;
-        }
-        if ( !var1.endsWith( Const.getDeprecatedPrefix() ) && var2.endsWith( Const.getDeprecatedPrefix() ) ) {
-          return -1;
-        }
-        return var1.compareTo( var2 );
+    Arrays.sort( variableNames, ( var1, var2 ) -> {
+      if ( var1.endsWith( Const.getDeprecatedPrefix() ) && var2.endsWith( Const.getDeprecatedPrefix() ) ) {
+        return 0;
       }
+      if ( var1.endsWith( Const.getDeprecatedPrefix() ) && !var2.endsWith( Const.getDeprecatedPrefix() ) ) {
+        return 1;
+      }
+      if ( !var1.endsWith( Const.getDeprecatedPrefix() ) && var2.endsWith( Const.getDeprecatedPrefix() ) ) {
+        return -1;
+      }
+      return var1.compareTo( var2 );
     } );
     return variableNames;
   }

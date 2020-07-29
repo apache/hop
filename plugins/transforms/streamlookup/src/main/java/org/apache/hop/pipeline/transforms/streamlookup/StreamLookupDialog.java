@@ -97,11 +97,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSelection = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -373,35 +369,33 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     // Search the fields in the background
     //
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
-            Map<String, Integer> prevFields = new HashMap<String, Integer>();
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              prevFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-
-            // Something was changed in the row.
-            //
-            final Map<String, Integer> fields = new HashMap<String, Integer>();
-
-            // Add the currentMeta fields...
-            fields.putAll( prevFields );
-
-            Set<String> keySet = fields.keySet();
-            List<String> entries = new ArrayList<>( keySet );
-
-            String[] fieldNames = entries.toArray( new String[ entries.size() ] );
-            Const.sortStrings( fieldNames );
-            // return fields
-            ciKey[ 0 ].setComboValues( fieldNames );
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          Map<String, Integer> prevFields = new HashMap<String, Integer>();
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            prevFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+
+          // Something was changed in the row.
+          //
+          final Map<String, Integer> fields = new HashMap<String, Integer>();
+
+          // Add the currentMeta fields...
+          fields.putAll( prevFields );
+
+          Set<String> keySet = fields.keySet();
+          List<String> entries = new ArrayList<>( keySet );
+
+          String[] fieldNames = entries.toArray( new String[ entries.size() ] );
+          Const.sortStrings( fieldNames );
+          // return fields
+          ciKey[ 0 ].setComboValues( fieldNames );
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -410,36 +404,34 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
   }
 
   protected void setComboBoxesLookup() {
-    Runnable fieldLoader = new Runnable() {
-      public void run() {
-        TransformMeta lookupTransformMeta = pipelineMeta.findTransform( wTransform.getText() );
-        if ( lookupTransformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getTransformFields( lookupTransformMeta );
-            Map<String, Integer> lookupFields = new HashMap<String, Integer>();
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              lookupFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-
-            // Something was changed in the row.
-            //
-            final Map<String, Integer> fields = new HashMap<String, Integer>();
-
-            // Add the currentMeta fields...
-            fields.putAll( lookupFields );
-
-            Set<String> keySet = fields.keySet();
-            List<String> entries = new ArrayList<>( keySet );
-
-            String[] fieldNames = entries.toArray( new String[ entries.size() ] );
-            Const.sortStrings( fieldNames );
-            // return fields
-            ciReturn[ 0 ].setComboValues( fieldNames );
-            ciKey[ 1 ].setComboValues( fieldNames );
-          } catch ( HopException e ) {
-            logError( "It was not possible to retrieve the list of fields for transform [" + wTransform.getText() + "]!" );
+    Runnable fieldLoader = () -> {
+      TransformMeta lookupTransformMeta = pipelineMeta.findTransform( wTransform.getText() );
+      if ( lookupTransformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getTransformFields( lookupTransformMeta );
+          Map<String, Integer> lookupFields = new HashMap<String, Integer>();
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            lookupFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+
+          // Something was changed in the row.
+          //
+          final Map<String, Integer> fields = new HashMap<String, Integer>();
+
+          // Add the currentMeta fields...
+          fields.putAll( lookupFields );
+
+          Set<String> keySet = fields.keySet();
+          List<String> entries = new ArrayList<>( keySet );
+
+          String[] fieldNames = entries.toArray( new String[ entries.size() ] );
+          Const.sortStrings( fieldNames );
+          // return fields
+          ciReturn[ 0 ].setComboValues( fieldNames );
+          ciKey[ 1 ].setComboValues( fieldNames );
+        } catch ( HopException e ) {
+          logError( "It was not possible to retrieve the list of fields for transform [" + wTransform.getText() + "]!" );
         }
       }
     };

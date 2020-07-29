@@ -42,41 +42,11 @@ public class MemoryGroupByMetaInjectionTest extends BaseMetadataInjectionTest<Me
 
   @Test
   public void test() throws Exception {
-    check( "GROUPFIELD", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getGroupField()[ 0 ];
-      }
-    } );
-    check( "AGGREGATEFIELD", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getAggregateField()[ 0 ];
-      }
-    } );
-    check( "SUBJECTFIELD", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getSubjectField()[ 0 ];
-      }
-    } );
-    check( "AGGREGATETYPE", new IIntGetter() {
-      @Override
-      public int get() {
-        return meta.getAggregateType()[ 0 ];
-      }
-    } );
-    check( "VALUEFIELD", new IStringGetter() {
-      @Override
-      public String get() {
-        return meta.getValueField()[ 0 ];
-      }
-    } );
-    check( "ALWAYSGIVINGBACKONEROW", new IBooleanGetter() {
-      @Override
-      public boolean get() {
-        return meta.isAlwaysGivingBackOneRow();
-      }
-    } );
+    check( "GROUPFIELD", () -> meta.getGroupField()[ 0 ] );
+    check( "AGGREGATEFIELD", () -> meta.getAggregateField()[ 0 ] );
+    check( "SUBJECTFIELD", () -> meta.getSubjectField()[ 0 ] );
+    check( "AGGREGATETYPE", () -> meta.getAggregateType()[ 0 ] );
+    check( "VALUEFIELD", () -> meta.getValueField()[ 0 ] );
+    check( "ALWAYSGIVINGBACKONEROW", () -> meta.isAlwaysGivingBackOneRow() );
   }
 }

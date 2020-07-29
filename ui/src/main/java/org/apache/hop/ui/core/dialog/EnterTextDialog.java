@@ -177,16 +177,8 @@ public class EnterTextDialog extends Dialog {
       BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
       // Add listeners
-      lsCancel = new Listener() {
-        public void handleEvent( Event e ) {
-          cancel();
-        }
-      };
-      lsOk = new Listener() {
-        public void handleEvent( Event e ) {
-          ok();
-        }
-      };
+      lsCancel = e -> cancel();
+      lsOk = e -> ok();
 
       wOk.addListener( SWT.Selection, lsOk );
       wCancel.addListener( SWT.Selection, lsCancel );
@@ -197,11 +189,7 @@ public class EnterTextDialog extends Dialog {
       BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk }, margin, null );
 
       // Add listeners
-      lsOk = new Listener() {
-        public void handleEvent( Event e ) {
-          ok();
-        }
-      };
+      lsOk = e -> ok();
       wOk.addListener( SWT.Selection, lsOk );
     }
 

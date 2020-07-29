@@ -136,11 +136,7 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
 
     changed = input.hasChanged();
 
@@ -193,11 +189,9 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     fdschemaname.top = new FormAttachment( wConnection, 2 * margin );
     fdschemaname.right = new FormAttachment( 100, 0 );
     wschemaname.setLayoutData( fdschemaname );
-    ModifyListener lsModSchema = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-        refreshIncludeCatalog();
-      }
+    ModifyListener lsModSchema = e -> {
+      input.setChanged();
+      refreshIncludeCatalog();
     };
     wschemaname.addModifyListener( lsModSchema );
 
@@ -565,22 +559,10 @@ public class GetTableNamesDialog extends BaseTransformDialog implements ITransfo
     setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wOutputFields );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
 
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsPreview = e -> preview();
     wOk.addListener( SWT.Selection, lsOk );
     wPreview.addListener( SWT.Selection, lsPreview );
     wCancel.addListener( SWT.Selection, lsCancel );

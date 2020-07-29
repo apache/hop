@@ -93,23 +93,21 @@ public class PipelinePreviewProgressDialog {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
 
       // Run something in the background to cancel active database queries, forecably if needed!
-      Runnable run = new Runnable() {
-        public void run() {
-          IProgressMonitor monitor = pmd.getProgressMonitor();
-          while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
-            try {
-              Thread.sleep( 100 );
-            } catch ( InterruptedException e ) {
-              // Ignore
-            }
+      Runnable run = () -> {
+        IProgressMonitor monitor = pmd.getProgressMonitor();
+        while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
+          try {
+            Thread.sleep( 100 );
+          } catch ( InterruptedException e ) {
+            // Ignore
           }
+        }
 
-          if ( monitor.isCanceled() ) { // Disconnect and see what happens!
+        if ( monitor.isCanceled() ) { // Disconnect and see what happens!
 
-            try {
-              pipeline.stopAll();
-            } catch ( Exception e ) { /* Ignore */
-            }
+          try {
+            pipeline.stopAll();
+          } catch ( Exception e ) { /* Ignore */
           }
         }
       };
@@ -177,14 +175,11 @@ public class PipelinePreviewProgressDialog {
     // We add a break-point that is called every time we have a transform with a full preview row buffer
     // That makes it easy and fast to see if we have all the rows we need
     //
-    pipelineDebugMeta.addBreakPointListers( new IBreakPointListener() {
-      public void breakPointHit( PipelineDebugMeta pipelineDebugMeta, TransformDebugMeta transformDebugMeta,
-                                 IRowMeta rowBufferMeta, List<Object[]> rowBuffer ) {
-        String transformName = transformDebugMeta.getTransformMeta().getName();
-        previewComplete.add( transformName );
-        progressMonitor.subTask( BaseMessages.getString(
-          PKG, "PipelinePreviewProgressDialog.SubTask.TransformPreviewFinished", transformName ) );
-      }
+    pipelineDebugMeta.addBreakPointListers( ( pipelineDebugMeta, transformDebugMeta, rowBufferMeta, rowBuffer ) -> {
+      String transformName = transformDebugMeta.getTransformMeta().getName();
+      previewComplete.add( transformName );
+      progressMonitor.subTask( BaseMessages.getString(
+        PKG, "PipelinePreviewProgressDialog.SubTask.TransformPreviewFinished", transformName ) );
     } );
     // set the appropriate listeners on the pipeline...
     //
@@ -195,12 +190,8 @@ public class PipelinePreviewProgressDialog {
     try {
       pipeline.startThreads();
     } catch ( final HopException e ) {
-      shell.getDisplay().asyncExec( new Runnable() {
-        public void run() {
-          new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ), BaseMessages
-            .getString( PKG, "PipelinePreviewProgressDialog.Exception.ErrorPreparingPipeline" ), e );
-        }
-      } );
+      shell.getDisplay().asyncExec( () -> new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.Error.Title" ), BaseMessages
+        .getString( PKG, "PipelinePreviewProgressDialog.Exception.ErrorPreparingPipeline" ), e ) );
 
       // It makes no sense to continue, so just stop running...
       //

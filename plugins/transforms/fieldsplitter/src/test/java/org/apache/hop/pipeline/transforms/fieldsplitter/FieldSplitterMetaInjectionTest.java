@@ -42,76 +42,20 @@ public class FieldSplitterMetaInjectionTest extends BaseMetadataInjectionTest<Fi
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_TO_SPLIT", new IStringGetter() {
-      public String get() {
-        return meta.getSplitField();
-      }
-    } );
-    check( "DELIMITER", new IStringGetter() {
-      public String get() {
-        return meta.getDelimiter();
-      }
-    } );
-    check( "ENCLOSURE", new IStringGetter() {
-      public String get() {
-        return meta.getEnclosure();
-      }
-    } );
-    check( "NAME", new IStringGetter() {
-      public String get() {
-        return meta.getFieldName()[ 0 ];
-      }
-    } );
-    check( "ID", new IStringGetter() {
-      public String get() {
-        return meta.getFieldID()[ 0 ];
-      }
-    } );
-    check( "REMOVE_ID", new IBooleanGetter() {
-      public boolean get() {
-        return meta.getFieldRemoveID()[ 0 ];
-      }
-    } );
-    check( "FORMAT", new IStringGetter() {
-      public String get() {
-        return meta.getFieldFormat()[ 0 ];
-      }
-    } );
-    check( "GROUPING", new IStringGetter() {
-      public String get() {
-        return meta.getFieldGroup()[ 0 ];
-      }
-    } );
-    check( "DECIMAL", new IStringGetter() {
-      public String get() {
-        return meta.getFieldDecimal()[ 0 ];
-      }
-    } );
-    check( "CURRENCY", new IStringGetter() {
-      public String get() {
-        return meta.getFieldCurrency()[ 0 ];
-      }
-    } );
-    check( "LENGTH", new IIntGetter() {
-      public int get() {
-        return meta.getFieldLength()[ 0 ];
-      }
-    } );
-    check( "PRECISION", new IIntGetter() {
-      public int get() {
-        return meta.getFieldPrecision()[ 0 ];
-      }
-    } );
-    check( "NULL_IF", new IStringGetter() {
-      public String get() {
-        return meta.getFieldNullIf()[ 0 ];
-      }
-    } );
-    check( "DEFAULT", new IStringGetter() {
-      public String get() {
-        return meta.getFieldIfNull()[ 0 ];
-      }
-    } );
+    check( "FIELD_TO_SPLIT", () -> meta.getSplitField() );
+    check( "DELIMITER", () -> meta.getDelimiter() );
+    check( "ENCLOSURE", () -> meta.getEnclosure() );
+    check( "NAME", () -> meta.getFieldName()[ 0 ] );
+    check( "ID", () -> meta.getFieldID()[ 0 ] );
+    check( "REMOVE_ID", () -> meta.getFieldRemoveID()[ 0 ] );
+    check( "FORMAT", () -> meta.getFieldFormat()[ 0 ] );
+    check( "GROUPING", () -> meta.getFieldGroup()[ 0 ] );
+    check( "DECIMAL", () -> meta.getFieldDecimal()[ 0 ] );
+    check( "CURRENCY", () -> meta.getFieldCurrency()[ 0 ] );
+    check( "LENGTH", () -> meta.getFieldLength()[ 0 ] );
+    check( "PRECISION", () -> meta.getFieldPrecision()[ 0 ] );
+    check( "NULL_IF", () -> meta.getFieldNullIf()[ 0 ] );
+    check( "DEFAULT", () -> meta.getFieldIfNull()[ 0 ] );
 
     IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "TRIM_TYPE", setValue( mftt, "none" ), "f" );

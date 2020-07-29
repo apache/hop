@@ -173,13 +173,11 @@ public class DataSetConst {
         }
         try {
           log.logDetailed( "Sorting result rows collection on fields: " + location.getFieldOrder() );
-          resultCollection.getRows().sort( new Comparator<Object[]>() {
-            @Override public int compare( Object[] row1, Object[] row2 ) {
-              try {
-                return resultRowMeta.compare( row1, row2, resultFieldIndexes );
-              } catch ( HopValueException e ) {
-                throw new RuntimeException( "Error comparing golden data result rows", e );
-              }
+          resultCollection.getRows().sort( ( row1, row2 ) -> {
+            try {
+              return resultRowMeta.compare( row1, row2, resultFieldIndexes );
+            } catch ( HopValueException e ) {
+              throw new RuntimeException( "Error comparing golden data result rows", e );
             }
           } );
         } catch ( RuntimeException e ) {
@@ -207,13 +205,11 @@ public class DataSetConst {
         try {
           log.logDetailed( "Sorting golden rows collection on fields: " + location.getFieldOrder() );
 
-          goldenRows.sort( new Comparator<Object[]>() {
-            @Override public int compare( Object[] row1, Object[] row2 ) {
-              try {
-                return goldenRowMeta.compare( row1, row2, goldenFieldIndexes );
-              } catch ( HopValueException e ) {
-                throw new RuntimeException( "Error comparing golden data set rows", e );
-              }
+          goldenRows.sort( ( row1, row2 ) -> {
+            try {
+              return goldenRowMeta.compare( row1, row2, goldenFieldIndexes );
+            } catch ( HopValueException e ) {
+              throw new RuntimeException( "Error comparing golden data set rows", e );
             }
           } );
         } catch ( RuntimeException e ) {

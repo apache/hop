@@ -118,11 +118,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, jobEntry );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> jobEntry.setChanged();
     changed = jobEntry.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -179,11 +175,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     wxmlFilename.setLayoutData( fdxmlFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxmlFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wxmlFilename.setToolTipText( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) );
-      }
-    } );
+    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) ) );
 
     wbxmlFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -249,11 +241,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     wdtdFilename.setLayoutData( fddtdFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wdtdFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wdtdFilename.setToolTipText( workflowMeta.environmentSubstitute( wdtdFilename.getText() ) );
-      }
-    } );
+    wdtdFilename.addModifyListener( e -> wdtdFilename.setToolTipText( workflowMeta.environmentSubstitute( wdtdFilename.getText() ) ) );
 
     wbdtdFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -277,16 +265,8 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wdtdFilename );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOK = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOK = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOK.addListener( SWT.Selection, lsOK );

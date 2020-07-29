@@ -197,13 +197,11 @@ public class DataSetCsvUtil {
 
         // Sort the rows...
         //
-        Collections.sort( rows, new Comparator<Object[]>() {
-          @Override public int compare( Object[] o1, Object[] o2 ) {
-            try {
-              return outputRowMeta.compare( o1, o2, sortIndexes );
-            } catch ( HopValueException e ) {
-              throw new RuntimeException( "Unable to compare 2 rows", e );
-            }
+        Collections.sort( rows, ( o1, o2 ) -> {
+          try {
+            return outputRowMeta.compare( o1, o2, sortIndexes );
+          } catch ( HopValueException e ) {
+            throw new RuntimeException( "Unable to compare 2 rows", e );
           }
         } );
       }

@@ -219,11 +219,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -1089,21 +1085,19 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     //
     // Search the fields in the background
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -1135,26 +1129,10 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsMinWidth = new Listener() {
-      public void handleEvent( Event e ) {
-        setMinimalWidth();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsMinWidth = e -> setMinimalWidth();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -1553,51 +1531,49 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
+        ITableItemInsertListener listener = ( tableItem, v ) -> {
 
-            if ( v.isNumeric() ) {
-              // currency symbol
-              tableItem.setText( 6, Const.NVL( v.getCurrencySymbol(), "" ) );
+          if ( v.isNumeric() ) {
+            // currency symbol
+            tableItem.setText( 6, Const.NVL( v.getCurrencySymbol(), "" ) );
 
-              // decimal and grouping
-              tableItem.setText( 7, Const.NVL( v.getDecimalSymbol(), "" ) );
-              tableItem.setText( 8, Const.NVL( v.getGroupingSymbol(), "" ) );
-            }
+            // decimal and grouping
+            tableItem.setText( 7, Const.NVL( v.getDecimalSymbol(), "" ) );
+            tableItem.setText( 8, Const.NVL( v.getGroupingSymbol(), "" ) );
+          }
 
-            // trim type
-            tableItem.setText( 9, Const.NVL( ValueMetaString.getTrimTypeDesc( v.getTrimType() ), "" ) );
+          // trim type
+          tableItem.setText( 9, Const.NVL( ValueMetaString.getTrimTypeDesc( v.getTrimType() ), "" ) );
 
-            // conversion mask
-            if ( !Utils.isEmpty( v.getConversionMask() ) ) {
-              tableItem.setText( 3, v.getConversionMask() );
-            } else {
-              if ( v.isNumber() ) {
-                if ( v.getLength() > 0 ) {
-                  int le = v.getLength();
-                  int pr = v.getPrecision();
+          // conversion mask
+          if ( !Utils.isEmpty( v.getConversionMask() ) ) {
+            tableItem.setText( 3, v.getConversionMask() );
+          } else {
+            if ( v.isNumber() ) {
+              if ( v.getLength() > 0 ) {
+                int le = v.getLength();
+                int pr = v.getPrecision();
 
-                  if ( v.getPrecision() <= 0 ) {
-                    pr = 0;
-                  }
-
-                  String mask = "";
-                  for ( int m = 0; m < le - pr; m++ ) {
-                    mask += "0";
-                  }
-                  if ( pr > 0 ) {
-                    mask += ".";
-                  }
-                  for ( int m = 0; m < pr; m++ ) {
-                    mask += "0";
-                  }
-                  tableItem.setText( 3, mask );
+                if ( v.getPrecision() <= 0 ) {
+                  pr = 0;
                 }
+
+                String mask = "";
+                for ( int m = 0; m < le - pr; m++ ) {
+                  mask += "0";
+                }
+                if ( pr > 0 ) {
+                  mask += ".";
+                }
+                for ( int m = 0; m < pr; m++ ) {
+                  mask += "0";
+                }
+                tableItem.setText( 3, mask );
               }
             }
-
-            return true;
           }
+
+          return true;
         };
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1 }, new int[] { 2 }, 4, 5, listener );
       }

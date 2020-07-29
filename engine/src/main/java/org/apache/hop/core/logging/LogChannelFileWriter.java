@@ -99,34 +99,32 @@ public class LogChannelFileWriter {
     exception = null;
     active.set( true );
 
-    Thread thread = new Thread( new Runnable() {
-      public void run() {
-        try {
+    Thread thread = new Thread( () -> {
+      try {
 
-          while ( active.get() && exception == null ) {
-            flush();
-            Thread.sleep( pollingInterval );
-          }
-          // When done, save the last bit as well...
+        while ( active.get() && exception == null ) {
           flush();
+          Thread.sleep( pollingInterval );
+        }
+        // When done, save the last bit as well...
+        flush();
 
-        } catch ( Exception e ) {
-          exception = new HopException( "There was an error logging to file '" + logFile + "'", e );
-        } finally {
-          try {
-            if ( logFileOutputStream != null ) {
-              logFileOutputStream.close();
-              logFileOutputStream = null;
-            }
-
-            if ( buffer != null ) {
-              LoggingRegistry.getInstance().removeLogChannelFileWriterBuffer( buffer.getLogChannelId() );
-            }
-          } catch ( Exception e ) {
-            exception = new HopException( "There was an error closing log file file '" + logFile + "'", e );
-          } finally {
-            finished.set( true );
+      } catch ( Exception e ) {
+        exception = new HopException( "There was an error logging to file '" + logFile + "'", e );
+      } finally {
+        try {
+          if ( logFileOutputStream != null ) {
+            logFileOutputStream.close();
+            logFileOutputStream = null;
           }
+
+          if ( buffer != null ) {
+            LoggingRegistry.getInstance().removeLogChannelFileWriterBuffer( buffer.getLogChannelId() );
+          }
+        } catch ( Exception e ) {
+          exception = new HopException( "There was an error closing log file file '" + logFile + "'", e );
+        } finally {
+          finished.set( true );
         }
       }
     } );

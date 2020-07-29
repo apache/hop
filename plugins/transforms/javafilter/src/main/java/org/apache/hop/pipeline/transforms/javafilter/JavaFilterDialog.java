@@ -75,11 +75,7 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -221,16 +217,8 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     // ///////////////////////////////////////////////////////////
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -273,25 +261,23 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     // Add the currentMeta fields...
     fields.putAll( inputFields );
 
-    shell.getDisplay().syncExec( new Runnable() {
-      public void run() {
-        // Add the newly create fields.
-        //
-        /*
-         * int nrNonEmptyFields = wFields.nrNonEmpty(); for (int i=0;i<nrNonEmptyFields;i++) { TableItem item =
-         * wFields.getNonEmpty(i); fields.put(item.getText(1), new Integer(1000000+i)); // The number is just to debug
-         * the origin of the fieldname }
-         */
+    shell.getDisplay().syncExec( () -> {
+      // Add the newly create fields.
+      //
+      /*
+       * int nrNonEmptyFields = wFields.nrNonEmpty(); for (int i=0;i<nrNonEmptyFields;i++) { TableItem item =
+       * wFields.getNonEmpty(i); fields.put(item.getText(1), new Integer(1000000+i)); // The number is just to debug
+       * the origin of the fieldname }
+       */
 
-        Set<String> keySet = fields.keySet();
-        List<String> entries = new ArrayList<>( keySet );
+      Set<String> keySet = fields.keySet();
+      List<String> entries = new ArrayList<>( keySet );
 
-        String[] fieldNames = entries.toArray( new String[ entries.size() ] );
+      String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
-        Const.sortStrings( fieldNames );
+      Const.sortStrings( fieldNames );
 
-        colinf[ 5 ].setComboValues( fieldNames );
-      }
+      colinf[ 5 ].setComboValues( fieldNames );
     } );
 
   }

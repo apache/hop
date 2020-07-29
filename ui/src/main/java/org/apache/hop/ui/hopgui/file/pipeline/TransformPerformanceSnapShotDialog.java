@@ -199,20 +199,15 @@ public class TransformPerformanceSnapShotDialog extends Dialog {
       }
     } );
 
-    shell.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent event ) {
-        if ( image != null ) {
-          image.dispose();
-        }
+    shell.addDisposeListener( event -> {
+      if ( image != null ) {
+        image.dispose();
       }
     } );
 
-    canvas.addPaintListener( new PaintListener() {
-
-      public void paintControl( PaintEvent event ) {
-        if ( image != null ) {
-          event.gc.drawImage( image, 0, 0 );
-        }
+    canvas.addPaintListener( event -> {
+      if ( image != null ) {
+        event.gc.drawImage( image, 0, 0 );
       }
     } );
 
@@ -236,14 +231,10 @@ public class TransformPerformanceSnapShotDialog extends Dialog {
 
   private void updateGraph() {
 
-    display.asyncExec( new Runnable() {
-
-      public void run() {
-        if ( !shell.isDisposed() && !canvas.isDisposed() ) {
-          updateCanvas();
-        }
+    display.asyncExec( () -> {
+      if ( !shell.isDisposed() && !canvas.isDisposed() ) {
+        updateCanvas();
       }
-
     } );
   }
 

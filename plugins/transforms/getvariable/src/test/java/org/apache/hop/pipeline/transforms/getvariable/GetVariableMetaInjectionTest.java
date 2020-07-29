@@ -38,55 +38,15 @@ public class GetVariableMetaInjectionTest extends BaseMetadataInjectionTest<GetV
 
   @Test
   public void test() throws Exception {
-    check( "FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.getFieldDefinitions()[ 0 ].getFieldName();
-      }
-    } );
-    check( "VARIABLE", new IStringGetter() {
-      public String get() {
-        return meta.getFieldDefinitions()[ 0 ].getVariableString();
-      }
-    } );
-    check( "FIELDTYPE", new IIntGetter() {
-      public int get() {
-        return meta.getFieldDefinitions()[ 0 ].getFieldType();
-      }
-    } );
-    check( "FIELDFORMAT", new IStringGetter() {
-      public String get() {
-        return meta.getFieldDefinitions()[ 0 ].getFieldFormat();
-      }
-    } );
-    check( "FIELDLENGTH", new IIntGetter() {
-      public int get() {
-        return meta.getFieldDefinitions()[ 0 ].getFieldLength();
-      }
-    } );
-    check( "FIELDPRECISION", new IIntGetter() {
-      public int get() {
-        return meta.getFieldDefinitions()[ 0 ].getFieldPrecision();
-      }
-    } );
-    check( "CURRENCY", new IStringGetter() {
-      public String get() {
-        return meta.getFieldDefinitions()[ 0 ].getCurrency();
-      }
-    } );
-    check( "DECIMAL", new IStringGetter() {
-      public String get() {
-        return meta.getFieldDefinitions()[ 0 ].getDecimal();
-      }
-    } );
-    check( "GROUP", new IStringGetter() {
-      public String get() {
-        return meta.getFieldDefinitions()[ 0 ].getGroup();
-      }
-    } );
-    check( "TRIMTYPE", new IIntGetter() {
-      public int get() {
-        return meta.getFieldDefinitions()[ 0 ].getTrimType();
-      }
-    } );
+    check( "FIELDNAME", () -> meta.getFieldDefinitions()[ 0 ].getFieldName() );
+    check( "VARIABLE", () -> meta.getFieldDefinitions()[ 0 ].getVariableString() );
+    check( "FIELDTYPE", () -> meta.getFieldDefinitions()[ 0 ].getFieldType() );
+    check( "FIELDFORMAT", () -> meta.getFieldDefinitions()[ 0 ].getFieldFormat() );
+    check( "FIELDLENGTH", () -> meta.getFieldDefinitions()[ 0 ].getFieldLength() );
+    check( "FIELDPRECISION", () -> meta.getFieldDefinitions()[ 0 ].getFieldPrecision() );
+    check( "CURRENCY", () -> meta.getFieldDefinitions()[ 0 ].getCurrency() );
+    check( "DECIMAL", () -> meta.getFieldDefinitions()[ 0 ].getDecimal() );
+    check( "GROUP", () -> meta.getFieldDefinitions()[ 0 ].getGroup() );
+    check( "TRIMTYPE", () -> meta.getFieldDefinitions()[ 0 ].getTrimType() );
   }
 }

@@ -101,14 +101,7 @@ public class AuthenticationManager {
       }
     }
 
-    Collections.sort( result, new Comparator<IAuthenticationPerformer<ReturnType, CreateArgType>>() {
-
-      @Override
-      public int compare( IAuthenticationPerformer<ReturnType, CreateArgType> o1,
-                          IAuthenticationPerformer<ReturnType, CreateArgType> o2 ) {
-        return o1.getDisplayName().toUpperCase().compareTo( o2.getDisplayName().toUpperCase() );
-      }
-    } );
+    Collections.sort( result, ( o1, o2 ) -> o1.getDisplayName().toUpperCase().compareTo( o2.getDisplayName().toUpperCase() ) );
 
     return result;
   }

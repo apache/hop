@@ -175,12 +175,9 @@ public class Database implements IVariables, ILoggingObject {
   static {
     try {
       valueMetaPluginClasses = ValueMetaFactory.getValueMetaPluginClasses();
-      Collections.sort( valueMetaPluginClasses, new Comparator<IValueMeta>() {
-        @Override
-        public int compare( IValueMeta o1, IValueMeta o2 ) {
-          // Reverse the sort list
-          return ( Integer.valueOf( o1.getType() ).compareTo( Integer.valueOf( o2.getType() ) ) ) * -1;
-        }
+      Collections.sort( valueMetaPluginClasses, ( o1, o2 ) -> {
+        // Reverse the sort list
+        return ( Integer.valueOf( o1.getType() ).compareTo( Integer.valueOf( o2.getType() ) ) ) * -1;
       } );
     } catch ( Exception e ) {
       throw new RuntimeException( "Unable to get list of instantiated value meta plugin classes", e );

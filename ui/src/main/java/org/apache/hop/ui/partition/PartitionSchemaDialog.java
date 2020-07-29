@@ -118,11 +118,7 @@ public class PartitionSchemaDialog extends Dialog implements IMetadataDialog {
     props.setLook( shell );
     shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        partitionSchema.setChanged();
-      }
-    };
+    lsMod = e -> partitionSchema.setChanged();
 
     middle = props.getMiddlePct();
     margin = props.getMargin();

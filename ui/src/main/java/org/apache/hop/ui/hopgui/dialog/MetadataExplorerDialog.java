@@ -113,11 +113,7 @@ public class MetadataExplorerDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { closeButton, }, margin, null );
 
     // Add listeners
-    closeButton.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        close();
-      }
-    } );
+    closeButton.addListener( SWT.Selection, e -> close() );
 
     tree = new Tree( shell, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( tree );

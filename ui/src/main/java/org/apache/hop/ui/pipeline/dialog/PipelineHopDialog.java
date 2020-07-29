@@ -96,11 +96,7 @@ public class PipelineHopDialog extends Dialog {
     props.setLook( shell );
     shell.setImage( GuiResource.getInstance().getImageHop() );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -222,21 +218,9 @@ public class PipelineHopDialog extends Dialog {
     wCancel.setLayoutData( fdCancel );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsFlip = new Listener() {
-      public void handleEvent( Event e ) {
-        flip();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsFlip = e -> flip();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

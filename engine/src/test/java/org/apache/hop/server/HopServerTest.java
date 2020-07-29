@@ -187,14 +187,11 @@ public class HopServerTest {
     doReturn( uriMock ).when( httpPostMock ).getURI();
 
     HttpClient client = mock( HttpClient.class );
-    when( client.execute( any(), any( HttpContext.class ) ) ).then( new Answer<HttpResponse>() {
-      @Override
-      public HttpResponse answer( InvocationOnMock invocation ) throws Throwable {
-        HttpClientContext context = (HttpClientContext) invocation.getArguments()[ 1 ];
-        Credentials cred = context.getCredentialsProvider().getCredentials( new AuthScope( "hname", 1111 ) );
-        assertEquals( "uname", cred.getUserPrincipal().getName() );
-        return mockResponse( 200, responseContent );
-      }
+    when( client.execute( any(), any( HttpContext.class ) ) ).then( (Answer<HttpResponse>) invocation -> {
+      HttpClientContext context = (HttpClientContext) invocation.getArguments()[ 1 ];
+      Credentials cred = context.getCredentialsProvider().getCredentials( new AuthScope( "hname", 1111 ) );
+      assertEquals( "uname", cred.getUserPrincipal().getName() );
+      return mockResponse( 200, responseContent );
     } );
     // override init
     when( hopServer.getHttpClient() ).thenReturn( client );

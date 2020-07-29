@@ -287,18 +287,10 @@ public class EnterListDialog extends Dialog {
     wCancel.setLayoutData( fdCancel );
 
     // Add listeners
-    wCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        dispose();
-      }
-    } );
+    wCancel.addListener( SWT.Selection, e -> dispose() );
 
     // Add listeners
-    wOk.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        handleOK();
-      }
-    } );
+    wOk.addListener( SWT.Selection, e -> handleOK() );
 
     // Drag & Drop for transforms
     Transfer[] ttypes = new Transfer[] { TextTransfer.getInstance() };

@@ -58,18 +58,16 @@ public class GetSqlProgressDialog {
   }
 
   public List<SqlStatement> open() {
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        // This is running in a new process: copy some HopVariables info
-        // LocalVariables.getInstance().createHopVariables(Thread.currentThread(), parentThread, true);
-        // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
+    IRunnableWithProgress op = monitor -> {
+      // This is running in a new process: copy some HopVariables info
+      // LocalVariables.getInstance().createHopVariables(Thread.currentThread(), parentThread, true);
+      // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
 
-        try {
-          stats = pipelineMeta.getSqlStatements( new ProgressMonitorAdapter( monitor ) );
-        } catch ( HopException e ) {
-          throw new InvocationTargetException( e, BaseMessages.getString(
-            PKG, "GetSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) );
-        }
+      try {
+        stats = pipelineMeta.getSqlStatements( new ProgressMonitorAdapter( monitor ) );
+      } catch ( HopException e ) {
+        throw new InvocationTargetException( e, BaseMessages.getString(
+          PKG, "GetSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) );
       }
     };
 

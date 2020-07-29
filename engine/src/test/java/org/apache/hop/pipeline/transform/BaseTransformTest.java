@@ -110,13 +110,9 @@ public class BaseTransformTest {
     BasePartitioner partitioner = mock( BasePartitioner.class );
 
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenAnswer(
-      new Answer<ILogChannel>() {
-
-        @Override
-        public ILogChannel answer( InvocationOnMock invocation ) throws Throwable {
-          ( (BaseTransform) invocation.getArguments()[ 0 ] ).getLogLevel();
-          return mockHelper.logChannelInterface;
-        }
+      (Answer<ILogChannel>) invocation -> {
+        ( (BaseTransform) invocation.getArguments()[ 0 ] ).getLogLevel();
+        return mockHelper.logChannelInterface;
       } );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
     when( mockHelper.pipelineMeta.findNextTransforms( any( TransformMeta.class ) ) ).thenReturn( transformMetas );
@@ -165,13 +161,9 @@ public class BaseTransformTest {
   @Test
   public void testBaseTransformGetLogLevelWontThrowNPEWithNullLog() {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenAnswer(
-      new Answer<ILogChannel>() {
-
-        @Override
-        public ILogChannel answer( InvocationOnMock invocation ) throws Throwable {
-          ( (BaseTransform) invocation.getArguments()[ 0 ] ).getLogLevel();
-          return mockHelper.logChannelInterface;
-        }
+      (Answer<ILogChannel>) invocation -> {
+        ( (BaseTransform) invocation.getArguments()[ 0 ] ).getLogLevel();
+        return mockHelper.logChannelInterface;
       } );
     new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline )
       .getLogLevel();
@@ -234,20 +226,18 @@ public class BaseTransformTest {
     final AtomicBoolean complete = new AtomicBoolean( false );
 
     final int FILES_AMOUNT = 10 * 1000;
-    Thread filesProducer = new Thread( new Runnable() {
-      @Override public void run() {
-        try {
-          for ( int i = 0; i < FILES_AMOUNT; i++ ) {
-            transform.addResultFile( new ResultFile( 0, new NonAccessibleFileObject( Integer.toString( i ) ), null, null ) );
-            try {
-              Thread.sleep( 1 );
-            } catch ( Exception e ) {
-              fail( e.getMessage() );
-            }
+    Thread filesProducer = new Thread( () -> {
+      try {
+        for ( int i = 0; i < FILES_AMOUNT; i++ ) {
+          transform.addResultFile( new ResultFile( 0, new NonAccessibleFileObject( Integer.toString( i ) ), null, null ) );
+          try {
+            Thread.sleep( 1 );
+          } catch ( Exception e ) {
+            fail( e.getMessage() );
           }
-        } finally {
-          complete.set( true );
         }
+      } finally {
+        complete.set( true );
       }
     } );
 

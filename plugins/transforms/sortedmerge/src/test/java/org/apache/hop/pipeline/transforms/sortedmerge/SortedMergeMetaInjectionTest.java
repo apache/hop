@@ -38,15 +38,7 @@ public class SortedMergeMetaInjectionTest extends BaseMetadataInjectionTest<Sort
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_NAME", new IStringGetter() {
-      public String get() {
-        return meta.getFieldName()[ 0 ];
-      }
-    } );
-    check( "ASCENDING", new IBooleanGetter() {
-      public boolean get() {
-        return meta.getAscending()[ 0 ];
-      }
-    } );
+    check( "FIELD_NAME", () -> meta.getFieldName()[ 0 ] );
+    check( "ASCENDING", () -> meta.getAscending()[ 0 ] );
   }
 }

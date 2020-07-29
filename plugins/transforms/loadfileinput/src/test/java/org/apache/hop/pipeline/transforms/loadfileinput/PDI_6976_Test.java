@@ -64,15 +64,12 @@ public class PDI_6976_Test {
     List<ICheckResult> validationResults = mock( List.class );
 
     // Check we do not get validation errors
-    doAnswer( new Answer<Object>() {
-      @Override
-      public Object answer( InvocationOnMock invocation ) throws Throwable {
-        if ( ( (ICheckResult) invocation.getArguments()[ 0 ] ).getType() != ICheckResult.TYPE_RESULT_OK ) {
-          TestCase.fail( "We've got validation error" );
-        }
-
-        return null;
+    doAnswer( (Answer<Object>) invocation -> {
+      if ( ( (ICheckResult) invocation.getArguments()[ 0 ] ).getType() != ICheckResult.TYPE_RESULT_OK ) {
+        TestCase.fail( "We've got validation error" );
       }
+
+      return null;
     } ).when( validationResults ).add( any( ICheckResult.class ) );
 
     spy.check( validationResults, mock( PipelineMeta.class ), mock( TransformMeta.class ), mock( IRowMeta.class ),

@@ -121,15 +121,13 @@ public class XmlInputFieldsImportProgressDialog {
   }
 
   public RowMetaAndData[] open() {
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        try {
-          fields = doScan( monitor );
-        } catch ( Exception e ) {
-          e.printStackTrace();
-          throw new InvocationTargetException( e, BaseMessages.getString( PKG,
-              "GetXMLDateLoopNodesImportProgressDialog.Exception.ErrorScanningFile", filename, e.toString() ) );
-        }
+    IRunnableWithProgress op = monitor -> {
+      try {
+        fields = doScan( monitor );
+      } catch ( Exception e ) {
+        e.printStackTrace();
+        throw new InvocationTargetException( e, BaseMessages.getString( PKG,
+            "GetXMLDateLoopNodesImportProgressDialog.Exception.ErrorScanningFile", filename, e.toString() ) );
       }
     };
 

@@ -39,25 +39,9 @@ public class CheckSumMetaInjectionTest extends BaseMetadataInjectionTest<CheckSu
 
   @Test
   public void test() throws Exception {
-    check( "RESULT_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getResultFieldName();
-      }
-    } );
-    check( "TYPE", new IStringGetter() {
-      public String get() {
-        return meta.getCheckSumType();
-      }
-    } );   
-    check( "RESULT_TYPE", new IIntGetter() {
-      public int get() {
-        return meta.getResultType();
-      }
-    } );
-    check( "FIELD_NAME", new IStringGetter() {
-      public String get() {
-        return meta.getFieldName()[ 0 ];
-      }
-    } );
+    check( "RESULT_FIELD", () -> meta.getResultFieldName() );
+    check( "TYPE", () -> meta.getCheckSumType() );
+    check( "RESULT_TYPE", () -> meta.getResultType() );
+    check( "FIELD_NAME", () -> meta.getFieldName()[ 0 ] );
   }
 }

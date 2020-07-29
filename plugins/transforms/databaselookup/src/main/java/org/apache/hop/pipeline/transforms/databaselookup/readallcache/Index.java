@@ -94,12 +94,7 @@ abstract class Index {
   abstract int getRestrictionPower();
 
   static Comparator<Index> restrictionComparator() {
-    return new Comparator<Index>() {
-      @Override
-      public int compare( Index o1, Index o2 ) {
-        return Integer.compare( o1.getRestrictionPower(), o2.getRestrictionPower() );
-      }
-    };
+    return ( o1, o2 ) -> Integer.compare( o1.getRestrictionPower(), o2.getRestrictionPower() );
   }
 
 

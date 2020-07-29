@@ -155,16 +155,14 @@ public class HopGuiWorkflowGridDelegate {
       public void run() {
         Display display = workflowGraph.getDisplay();
         if ( display != null && !display.isDisposed() ) {
-          display.asyncExec( new Runnable() {
-            public void run() {
-              // Check if the widgets are not disposed.
-              // This happens is the rest of the window is not yet disposed.
-              // We ARE running in a different thread after all.
-              //
-              // TODO: add a "auto refresh" check box somewhere
-              if ( !wTree.isDisposed() ) {
-                refreshTreeTable();
-              }
+          display.asyncExec( () -> {
+            // Check if the widgets are not disposed.
+            // This happens is the rest of the window is not yet disposed.
+            // We ARE running in a different thread after all.
+            //
+            // TODO: add a "auto refresh" check box somewhere
+            if ( !wTree.isDisposed() ) {
+              refreshTreeTable();
             }
           } );
         }
@@ -172,11 +170,7 @@ public class HopGuiWorkflowGridDelegate {
     };
     tim.schedule( timtask, 10L, 2000L ); // refresh every 2 seconds...
 
-    workflowGraph.workflowLogDelegate.getJobLogTab().addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent disposeEvent ) {
-        tim.cancel();
-      }
-    } );
+    workflowGraph.workflowLogDelegate.getJobLogTab().addDisposeListener( disposeEvent -> tim.cancel() );
 
   }
 

@@ -88,11 +88,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     props.setLook( shell );
     setShellImage( shell );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        partitioningMeta.hasChanged( true );
-      }
-    };
+    ModifyListener lsMod = e -> partitioningMeta.hasChanged( true );
     changed = partitioningMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -145,16 +141,8 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -182,11 +170,7 @@ public class ModPartitionerDialog extends BaseTransformDialog implements ITransf
 
     setSize();
     wOk.setEnabled( !StringUtil.isEmpty( wFieldname.getText() ) );
-    ModifyListener modifyListener = new ModifyListener() {
-      @Override public void modifyText( ModifyEvent modifyEvent ) {
-        wOk.setEnabled( !StringUtil.isEmpty( wFieldname.getText() ) );
-      }
-    };
+    ModifyListener modifyListener = modifyEvent -> wOk.setEnabled( !StringUtil.isEmpty( wFieldname.getText() ) );
     wFieldname.addModifyListener( modifyListener );
 
     shell.open();

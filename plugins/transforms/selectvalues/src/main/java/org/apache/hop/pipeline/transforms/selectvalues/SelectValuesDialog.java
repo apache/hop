@@ -127,18 +127,10 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       }
     };
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
+    lsGet = e -> get();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -263,11 +255,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     wDoMapping = new Button( wSelectComp, SWT.PUSH );
     wDoMapping.setText( BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.Button" ) );
 
-    wDoMapping.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event arg0 ) {
-        generateMappings();
-      }
-    } );
+    wDoMapping.addListener( SWT.Selection, arg0 -> generateMappings() );
 
     fdGetSelect = new FormData();
     fdGetSelect.right = new FormAttachment( 100, 0 );

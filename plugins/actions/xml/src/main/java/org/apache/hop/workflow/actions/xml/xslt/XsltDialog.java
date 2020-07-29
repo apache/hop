@@ -173,11 +173,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, jobEntry );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        jobEntry.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> jobEntry.setChanged();
     changed = jobEntry.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -290,11 +286,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wxmlFilename.setLayoutData( fdxmlFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxmlFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wxmlFilename.setToolTipText( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) );
-      }
-    } );
+    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) ) );
 
     wbxmlFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -336,11 +328,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wxslFilename.setLayoutData( fdxslFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxslFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wxslFilename.setToolTipText( workflowMeta.environmentSubstitute( wxslFilename.getText() ) );
-      }
-    } );
+    wxslFilename.addModifyListener( e -> wxslFilename.setToolTipText( workflowMeta.environmentSubstitute( wxslFilename.getText() ) ) );
 
     wbxslFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -431,11 +419,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wOutputFilename.setLayoutData( fdOutputFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wOutputFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wOutputFilename.setToolTipText( workflowMeta.environmentSubstitute( wOutputFilename.getText() ) );
-      }
-    } );
+    wOutputFilename.addModifyListener( e -> wOutputFilename.setToolTipText( workflowMeta.environmentSubstitute( wOutputFilename.getText() ) ) );
 
     fdFiles = new FormData();
     fdFiles.left = new FormAttachment( 0, margin );
@@ -662,16 +646,8 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOK = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOK = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOK.addListener( SWT.Selection, lsOK );

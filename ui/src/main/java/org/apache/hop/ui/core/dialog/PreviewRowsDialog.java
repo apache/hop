@@ -180,23 +180,13 @@ public class PreviewRowsDialog {
 
     Button wClose = new Button( shell, SWT.PUSH );
     wClose.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
-    wClose.addListener( SWT.Selection, new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        close();
-      }
-    } );
+    wClose.addListener( SWT.Selection, e -> close() );
     buttons.add( wClose );
 
     if ( !Utils.isEmpty( loggingText ) ) {
       Button wLog = new Button( shell, SWT.PUSH );
       wLog.setText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.ShowLog" ) );
-      wLog.addListener( SWT.Selection, new Listener() {
-        @Override
-        public void handleEvent( Event e ) {
-          log();
-        }
-      } );
+      wLog.addListener( SWT.Selection, e -> log() );
       buttons.add( wLog );
     }
 
@@ -204,12 +194,9 @@ public class PreviewRowsDialog {
       Button wStop = new Button( shell, SWT.PUSH );
       wStop.setText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.Stop.Label" ) );
       wStop.setToolTipText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.Stop.ToolTip" ) );
-      wStop.addListener( SWT.Selection, new Listener() {
-        @Override
-        public void handleEvent( Event e ) {
-          askingToStop = true;
-          close();
-        }
+      wStop.addListener( SWT.Selection, e -> {
+        askingToStop = true;
+        close();
       } );
       buttons.add( wStop );
     }
@@ -218,12 +205,9 @@ public class PreviewRowsDialog {
       Button wNext = new Button( shell, SWT.PUSH );
       wNext.setText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.Next.Label" ) );
       wNext.setToolTipText( BaseMessages.getString( PKG, "PreviewRowsDialog.Button.Next.ToolTip" ) );
-      wNext.addListener( SWT.Selection, new Listener() {
-        @Override
-        public void handleEvent( Event e ) {
-          askingForMoreRows = true;
-          close();
-        }
+      wNext.addListener( SWT.Selection, e -> {
+        askingForMoreRows = true;
+        close();
       } );
       buttons.add( wNext );
     }
@@ -534,38 +518,34 @@ public class PreviewRowsDialog {
       return;
     }
 
-    Display.getDefault().syncExec( new Runnable() {
+    Display.getDefault().syncExec( () -> {
 
-      @Override
-      public void run() {
-
-        if ( wFields.isDisposed() ) {
-          return;
-        }
-
-        if ( waitingForRows ) {
-          PreviewRowsDialog.this.rowMeta = rowMeta;
-          addFields();
-        }
-
-        TableItem item = new TableItem( wFields.table, SWT.NONE );
-        getDataForRow( item, rowData );
-        if ( waitingForRows ) {
-          waitingForRows = false;
-          wFields.removeEmptyRows();
-          PreviewRowsDialog.this.rowMeta = rowMeta;
-          if ( wFields.table.getItemCount() < 10 ) {
-            wFields.optWidth( true );
-          }
-        }
-
-        if ( wFields.table.getItemCount() > PropsUi.getInstance().getDefaultPreviewSize() ) {
-          wFields.table.remove( 0 );
-        }
-
-        // wFields.table.setSelection(new TableItem[] { item, });
-        wFields.table.setTopIndex( wFields.table.getItemCount() - 1 );
+      if ( wFields.isDisposed() ) {
+        return;
       }
+
+      if ( waitingForRows ) {
+        PreviewRowsDialog.this.rowMeta = rowMeta;
+        addFields();
+      }
+
+      TableItem item = new TableItem( wFields.table, SWT.NONE );
+      getDataForRow( item, rowData );
+      if ( waitingForRows ) {
+        waitingForRows = false;
+        wFields.removeEmptyRows();
+        PreviewRowsDialog.this.rowMeta = rowMeta;
+        if ( wFields.table.getItemCount() < 10 ) {
+          wFields.optWidth( true );
+        }
+      }
+
+      if ( wFields.table.getItemCount() > PropsUi.getInstance().getDefaultPreviewSize() ) {
+        wFields.table.remove( 0 );
+      }
+
+      // wFields.table.setSelection(new TableItem[] { item, });
+      wFields.table.setTopIndex( wFields.table.getItemCount() - 1 );
     } );
   }
 

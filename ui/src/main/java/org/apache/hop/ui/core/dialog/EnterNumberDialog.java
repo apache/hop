@@ -184,17 +184,9 @@ public class EnterNumberDialog extends Dialog {
       wCancel, Const.isOSX() ? 0 : -BaseDialog.LABEL_SPACING ).result() );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
     if ( !hideCancelButton ) {
-      lsCancel = new Listener() {
-        public void handleEvent( Event e ) {
-          cancel();
-        }
-      };
+      lsCancel = e -> cancel();
     }
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

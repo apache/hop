@@ -302,11 +302,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     wFilename.setLayoutData( fdFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
 
     // Button Delete
     wbdFilename = new Button( shell, SWT.PUSH | SWT.CENTER );

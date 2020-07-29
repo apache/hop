@@ -174,13 +174,11 @@ public class DatabaseLookupUTest {
     meta.setReturnValueDefault( new String[] { "" } );
 
     meta = spy( meta );
-    doAnswer( new Answer() {
-      @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-        IRowMeta row = (IRowMeta) invocation.getArguments()[ 0 ];
-        IValueMeta v = new ValueMetaBinary( BINARY_FIELD );
-        row.addValueMeta( v );
-        return null;
-      }
+    doAnswer( invocation -> {
+      IRowMeta row = (IRowMeta) invocation.getArguments()[ 0 ];
+      IValueMeta v = new ValueMetaBinary( BINARY_FIELD );
+      row.addValueMeta( v );
+      return null;
     } ).when( meta ).getFields(
       any( IRowMeta.class ),
       anyString(),
@@ -275,13 +273,11 @@ public class DatabaseLookupUTest {
     meta.setReturnValueDefault( new String[] { "", "" } );
 
     meta = spy( meta );
-    doAnswer( new Answer() {
-      @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-        IRowMeta row = (IRowMeta) invocation.getArguments()[ 0 ];
-        IValueMeta v = new ValueMetaBinary( BINARY_FIELD );
-        row.addValueMeta( v );
-        return null;
-      }
+    doAnswer( invocation -> {
+      IRowMeta row = (IRowMeta) invocation.getArguments()[ 0 ];
+      IValueMeta v = new ValueMetaBinary( BINARY_FIELD );
+      row.addValueMeta( v );
+      return null;
     } ).when( meta ).getFields(
       any( IRowMeta.class ),
       anyString(),

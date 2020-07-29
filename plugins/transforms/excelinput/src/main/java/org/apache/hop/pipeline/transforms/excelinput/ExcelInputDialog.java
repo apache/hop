@@ -292,12 +292,9 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( shell );
     setShellImage( shell, input );
 
-    lsMod = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-        checkAlerts();
-      }
+    lsMod = e -> {
+      input.setChanged();
+      checkAlerts();
     };
     changed = input.hasChanged();
 
@@ -692,12 +689,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdFilenameList.bottom = new FormAttachment( wbGetSheets, -margin );
     wSheetnameList.setLayoutData( fdFilenameList );
 
-    wSheetnameList.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent arg0 ) {
-        checkAlerts();
-      }
-    } );
+    wSheetnameList.addModifyListener( arg0 -> checkAlerts() );
 
     fdSheetComp = new FormData();
     fdSheetComp.left = new FormAttachment( 0, 0 );
@@ -948,14 +940,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wFields =
       new TableView( pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
     wFields.setSize( FieldsWidth, FieldsHeight );
-    wFields.addModifyListener( new ModifyListener() {
-
-      @Override
-      public void modifyText( ModifyEvent arg0 ) {
-        checkAlerts();
-      }
-
-    } );
+    wFields.addModifyListener( arg0 -> checkAlerts() );
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -994,24 +979,9 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsPreview = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsPreview = e -> preview();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wPreview.addListener( SWT.Selection, lsPreview );
@@ -1089,12 +1059,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Whenever something changes, set the tooltip to the expanded version of the filename:
-    wFilename.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) ) );
 
     // Listen to the Browse... button
     wbbFilename.addListener( SWT.Selection, e -> {

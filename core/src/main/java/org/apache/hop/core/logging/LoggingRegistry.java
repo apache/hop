@@ -107,29 +107,26 @@ public class LoggingRegistry {
 
       if ( ( this.maxSize > 0 ) && ( this.map.size() > this.maxSize ) ) {
         List<ILoggingObject> all = new ArrayList<ILoggingObject>( this.map.values() );
-        Collections.sort( all, new Comparator<ILoggingObject>() {
-          @Override
-          public int compare( ILoggingObject o1, ILoggingObject o2 ) {
-            if ( ( o1 == null ) && ( o2 != null ) ) {
-              return -1;
-            }
-            if ( ( o1 != null ) && ( o2 == null ) ) {
-              return 1;
-            }
-            if ( ( o1 == null ) && ( o2 == null ) ) {
-              return 0;
-            }
-            if ( o1.getRegistrationDate() == null && o2.getRegistrationDate() != null ) {
-              return -1;
-            }
-            if ( o1.getRegistrationDate() != null && o2.getRegistrationDate() == null ) {
-              return 1;
-            }
-            if ( o1.getRegistrationDate() == null && o2.getRegistrationDate() == null ) {
-              return 0;
-            }
-            return ( o1.getRegistrationDate().compareTo( o2.getRegistrationDate() ) );
+        Collections.sort( all, ( o1, o2 ) -> {
+          if ( ( o1 == null ) && ( o2 != null ) ) {
+            return -1;
           }
+          if ( ( o1 != null ) && ( o2 == null ) ) {
+            return 1;
+          }
+          if ( ( o1 == null ) && ( o2 == null ) ) {
+            return 0;
+          }
+          if ( o1.getRegistrationDate() == null && o2.getRegistrationDate() != null ) {
+            return -1;
+          }
+          if ( o1.getRegistrationDate() != null && o2.getRegistrationDate() == null ) {
+            return 1;
+          }
+          if ( o1.getRegistrationDate() == null && o2.getRegistrationDate() == null ) {
+            return 0;
+          }
+          return ( o1.getRegistrationDate().compareTo( o2.getRegistrationDate() ) );
         } );
         int cutCount = this.maxSize < 1000 ? this.maxSize : 1000;
         Set<String> channelsNotToRemove = getLogChannelFileWriterBufferIds();

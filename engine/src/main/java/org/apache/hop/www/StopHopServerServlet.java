@@ -100,12 +100,9 @@ public class StopHopServerServlet extends BaseHttpServlet implements IHopServerP
       out.flush();
     }
     if ( hopServer != null ) {
-      delayedExecutor.execute( new Runnable() {
-        @Override
-        public void run() {
-          hopServer.getWebServer().stopServer();
-          exitJVM( 0 );
-        }
+      delayedExecutor.execute( () -> {
+        hopServer.getWebServer().stopServer();
+        exitJVM( 0 );
       }, 1000 );
     }
   }
@@ -122,16 +119,13 @@ public class StopHopServerServlet extends BaseHttpServlet implements IHopServerP
 
   public static class DelayedExecutor {
     public void execute( final Runnable runnable, final long delay ) {
-      ExecutorUtil.getExecutor().execute( new Runnable() {
-        @Override
-        public void run() {
-          try {
-            Thread.sleep( delay );
-          } catch ( InterruptedException e ) {
-            // Ignore
-          }
-          runnable.run();
+      ExecutorUtil.getExecutor().execute( () -> {
+        try {
+          Thread.sleep( delay );
+        } catch ( InterruptedException e ) {
+          // Ignore
         }
+        runnable.run();
       } );
     }
   }

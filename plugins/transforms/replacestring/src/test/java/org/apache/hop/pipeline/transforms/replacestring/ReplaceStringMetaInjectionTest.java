@@ -41,55 +41,15 @@ public class ReplaceStringMetaInjectionTest extends BaseMetadataInjectionTest<Re
 
   @Test
   public void test() throws Exception {
-    check( "FIELD_IN_STREAM", new IStringGetter() {
-      @Override public String get() {
-        return meta.getFieldInStream()[ 0 ];
-      }
-    } );
-    check( "FIELD_OUT_STREAM", new IStringGetter() {
-      @Override public String get() {
-        return meta.getFieldOutStream()[ 0 ];
-      }
-    } );
-    check( "USE_REGEX", new IIntGetter() {
-      @Override public int get() {
-        return meta.getUseRegEx()[ 0 ];
-      }
-    } );
-    check( "REPLACE_STRING", new IStringGetter() {
-      @Override public String get() {
-        return meta.getReplaceString()[ 0 ];
-      }
-    } );
-    check( "REPLACE_BY", new IStringGetter() {
-      @Override public String get() {
-        return meta.getReplaceByString()[ 0 ];
-      }
-    } );
-    check( "EMPTY_STRING", new IBooleanGetter() {
-      @Override public boolean get() {
-        return meta.isSetEmptyString()[ 0 ];
-      }
-    } );
-    check( "REPLACE_WITH_FIELD", new IStringGetter() {
-      @Override public String get() {
-        return meta.getFieldReplaceByString()[ 0 ];
-      }
-    } );
-    check( "REPLACE_WHOLE_WORD", new IIntGetter() {
-      @Override public int get() {
-        return meta.getWholeWord()[ 0 ];
-      }
-    } );
-    check( "CASE_SENSITIVE", new IIntGetter() {
-      @Override public int get() {
-        return meta.getCaseSensitive()[ 0 ];
-      }
-    } );
-    check( "IS_UNICODE", new IIntGetter() {
-      @Override public int get() {
-        return meta.isUnicode()[ 0 ];
-      }
-    } );
+    check( "FIELD_IN_STREAM", () -> meta.getFieldInStream()[ 0 ] );
+    check( "FIELD_OUT_STREAM", () -> meta.getFieldOutStream()[ 0 ] );
+    check( "USE_REGEX", () -> meta.getUseRegEx()[ 0 ] );
+    check( "REPLACE_STRING", () -> meta.getReplaceString()[ 0 ] );
+    check( "REPLACE_BY", () -> meta.getReplaceByString()[ 0 ] );
+    check( "EMPTY_STRING", () -> meta.isSetEmptyString()[ 0 ] );
+    check( "REPLACE_WITH_FIELD", () -> meta.getFieldReplaceByString()[ 0 ] );
+    check( "REPLACE_WHOLE_WORD", () -> meta.getWholeWord()[ 0 ] );
+    check( "CASE_SENSITIVE", () -> meta.getCaseSensitive()[ 0 ] );
+    check( "IS_UNICODE", () -> meta.isUnicode()[ 0 ] );
   }
 }

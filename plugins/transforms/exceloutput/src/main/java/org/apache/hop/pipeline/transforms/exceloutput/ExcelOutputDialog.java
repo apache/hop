@@ -279,12 +279,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -902,12 +897,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdTempDirectory.top = new FormAttachment( wuseTempFiles, margin );
     fdTempDirectory.right = new FormAttachment( wbTempDir, -margin );
     wTempDirectory.setLayoutData( fdTempDirectory );
-    wTempDirectory.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    } );
+    wTempDirectory.addModifyListener( e -> input.setChanged() );
 
     // ///////////////////////////////
     // START OF Template Group GROUP //
@@ -1468,22 +1458,19 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     //
     // Search the fields in the background
 
-    final Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -1515,30 +1502,10 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsMinWidth = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        setMinimalWidth();
-      }
-    };
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsMinWidth = e -> setMinimalWidth();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -1557,12 +1524,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wTemplateFilename.addSelectionListener( lsDef );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) ) );
     wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateFilename.getText() ) ) );
 
     wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
@@ -1588,14 +1550,11 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
       }
     } );
 
-    lsResize = new Listener() {
-      @Override
-      public void handleEvent( Event event ) {
-        Point size = shell.getSize();
-        wFields.setSize( size.x - 10, size.y - 50 );
-        wFields.table.setSize( size.x - 10, size.y - 50 );
-        wFields.redraw();
-      }
+    lsResize = event -> {
+      Point size = shell.getSize();
+      wFields.setSize( size.x - 10, size.y - 50 );
+      wFields.table.setSize( size.x - 10, size.y - 50 );
+      wFields.redraw();
     };
     shell.addListener( SWT.Resize, lsResize );
 
@@ -1887,33 +1846,30 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          @Override
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            if ( v.isNumber() ) {
-              if ( v.getLength() > 0 ) {
-                int le = v.getLength();
-                int pr = v.getPrecision();
+        ITableItemInsertListener listener = ( tableItem, v ) -> {
+          if ( v.isNumber() ) {
+            if ( v.getLength() > 0 ) {
+              int le = v.getLength();
+              int pr = v.getPrecision();
 
-                if ( v.getPrecision() <= 0 ) {
-                  pr = 0;
-                }
-
-                String mask = "";
-                for ( int m = 0; m < le - pr; m++ ) {
-                  mask += "0";
-                }
-                if ( pr > 0 ) {
-                  mask += ".";
-                }
-                for ( int m = 0; m < pr; m++ ) {
-                  mask += "0";
-                }
-                tableItem.setText( 3, mask );
+              if ( v.getPrecision() <= 0 ) {
+                pr = 0;
               }
+
+              String mask = "";
+              for ( int m = 0; m < le - pr; m++ ) {
+                mask += "0";
+              }
+              if ( pr > 0 ) {
+                mask += ".";
+              }
+              for ( int m = 0; m < pr; m++ ) {
+                mask += "0";
+              }
+              tableItem.setText( 3, mask );
             }
-            return true;
           }
+          return true;
         };
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1 }, new int[] { 2 }, 4, 5, listener );
       }

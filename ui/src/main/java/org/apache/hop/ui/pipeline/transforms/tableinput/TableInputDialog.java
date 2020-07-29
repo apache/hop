@@ -95,11 +95,9 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        changedInDialog = false; // for prompting if dialog is simply closed
-        input.setChanged();
-      }
+    ModifyListener lsMod = e -> {
+      changedInDialog = false; // for prompting if dialog is simply closed
+      input.setChanged();
     };
     changed = input.hasChanged();
 
@@ -294,11 +292,9 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     fdSql.right = new FormAttachment( 100, -2 * margin );
     fdSql.bottom = new FormAttachment( wlPosition, -margin );
     wSql.setLayoutData( fdSql );
-    wSql.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        setSqlToolTip();
-        setPosition();
-      }
+    wSql.addModifyListener( arg0 -> {
+      setSqlToolTip();
+      setPosition();
     } );
 
     wSql.addKeyListener( new KeyAdapter() {
@@ -337,31 +333,11 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     wSql.addLineStyleListener( new SqlValuesHighlight() );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    Listener lsbTable = new Listener() {
-      public void handleEvent( Event e ) {
-        getSql();
-      }
-    };
-    Listener lsDatefrom = new Listener() {
-      public void handleEvent( Event e ) {
-        setFlags();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsPreview = e -> preview();
+    lsOk = e -> ok();
+    Listener lsbTable = e -> getSql();
+    Listener lsDatefrom = e -> setFlags();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wPreview.addListener( SWT.Selection, lsPreview );

@@ -225,11 +225,7 @@ public class HopGuiPipelineGridDelegate {
 
     tim.schedule( timtask, 0L, UPDATE_TIME_VIEW );
 
-    pipelineGridTab.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent disposeEvent ) {
-        tim.cancel();
-      }
-    } );
+    pipelineGridTab.addDisposeListener( disposeEvent -> tim.cancel() );
 
     pipelineGridTab.setControl( pipelineGridComposite );
 
@@ -347,11 +343,7 @@ public class HopGuiPipelineGridDelegate {
       columns.add( copyColumn );
 
       List<IEngineMetric> usedMetrics = new ArrayList( engineMetrics.getMetricsList() );
-      Collections.sort( usedMetrics, new Comparator<IEngineMetric>() {
-        @Override public int compare( IEngineMetric o1, IEngineMetric o2 ) {
-          return o1.getDisplayPriority().compareTo( o2.getDisplayPriority() );
-        }
-      } );
+      Collections.sort( usedMetrics, ( o1, o2 ) -> o1.getDisplayPriority().compareTo( o2.getDisplayPriority() ) );
 
       for ( IEngineMetric metric : usedMetrics ) {
         ColumnInfo column = new ColumnInfo( metric.getHeader(), ColumnInfo.COLUMN_TYPE_TEXT, metric.isNumeric(), true );

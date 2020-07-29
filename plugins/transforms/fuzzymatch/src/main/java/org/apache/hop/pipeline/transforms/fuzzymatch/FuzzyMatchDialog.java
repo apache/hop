@@ -151,11 +151,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSelection = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -645,21 +641,9 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     wTabFolder.setLayoutData( fdTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsGetLU = new Listener() {
-      public void handleEvent( Event e ) {
-        getlookup();
-      }
-    };
+    lsOk = e -> ok();
+    lsCancel = e -> cancel();
+    lsGetLU = e -> getlookup();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
@@ -970,35 +954,33 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
   }
 
   protected void setComboBoxesLookup() {
-    Runnable fieldLoader = new Runnable() {
-      public void run() {
-        TransformMeta lookupTransformMeta = pipelineMeta.findTransform( wTransform.getText() );
-        if ( lookupTransformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getTransformFields( lookupTransformMeta );
-            Map<String, Integer> lookupFields = new HashMap<String, Integer>();
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              lookupFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-
-            // Something was changed in the row.
-            //
-            final Map<String, Integer> fields = new HashMap<String, Integer>();
-
-            // Add the currentMeta fields...
-            fields.putAll( lookupFields );
-
-            Set<String> keySet = fields.keySet();
-            List<String> entries = new ArrayList<>( keySet );
-
-            String[] fieldNames = entries.toArray( new String[ entries.size() ] );
-            Const.sortStrings( fieldNames );
-            // return fields
-            ciReturn[ 0 ].setComboValues( fieldNames );
-          } catch ( HopException e ) {
-            logError( "It was not possible to retrieve the list of fields for transform [" + wTransform.getText() + "]!" );
+    Runnable fieldLoader = () -> {
+      TransformMeta lookupTransformMeta = pipelineMeta.findTransform( wTransform.getText() );
+      if ( lookupTransformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getTransformFields( lookupTransformMeta );
+          Map<String, Integer> lookupFields = new HashMap<String, Integer>();
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            lookupFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+
+          // Something was changed in the row.
+          //
+          final Map<String, Integer> fields = new HashMap<String, Integer>();
+
+          // Add the currentMeta fields...
+          fields.putAll( lookupFields );
+
+          Set<String> keySet = fields.keySet();
+          List<String> entries = new ArrayList<>( keySet );
+
+          String[] fieldNames = entries.toArray( new String[ entries.size() ] );
+          Const.sortStrings( fieldNames );
+          // return fields
+          ciReturn[ 0 ].setComboValues( fieldNames );
+        } catch ( HopException e ) {
+          logError( "It was not possible to retrieve the list of fields for transform [" + wTransform.getText() + "]!" );
         }
       }
     };

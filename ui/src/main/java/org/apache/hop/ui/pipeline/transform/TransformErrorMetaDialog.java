@@ -107,11 +107,7 @@ public class TransformErrorMetaDialog extends Dialog {
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        transformErrorMeta.setChanged();
-      }
-    };
+    lsMod = e -> transformErrorMeta.setChanged();
 
     middle = props.getMiddlePct();
     margin = props.getMargin();
@@ -342,16 +338,8 @@ public class TransformErrorMetaDialog extends Dialog {
     composite.setLayoutData( fdComposite );
 
     // Add listeners
-    wOk.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    } );
-    wCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    } );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
 
     SelectionAdapter selAdapter = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

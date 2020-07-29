@@ -255,15 +255,13 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        pwdFolder = null;
-        ftpclient = null;
-        ftpsclient = null;
-        sftpclient = null;
-        conn = null;
-        action.setChanged();
-      }
+    ModifyListener lsMod = e -> {
+      pwdFolder = null;
+      ftpclient = null;
+      ftpsclient = null;
+      sftpclient = null;
+      conn = null;
+      action.setChanged();
     };
     changed = action.hasChanged();
 
@@ -963,26 +961,10 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
-    lsCheckFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        checkFtpFolder();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsTest = e -> test();
+    lsCheckFolder = e -> checkFtpFolder();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

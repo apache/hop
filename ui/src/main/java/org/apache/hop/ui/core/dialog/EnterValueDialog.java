@@ -164,12 +164,7 @@ public class EnterValueDialog extends Dialog {
     fdValueType.top = new FormAttachment( 0, margin );
     fdValueType.right = new FormAttachment( 100, -margin );
     wValueType.setLayoutData( fdValueType );
-    wValueType.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent arg0 ) {
-        setFormats();
-      }
-    } );
+    wValueType.addModifyListener( arg0 -> setFormats() );
 
     // Value line
     wlInputString = new Label( shell, SWT.RIGHT );
@@ -250,24 +245,9 @@ public class EnterValueDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wTest, wCancel }, margin, wPrecision );
 
     // Add listeners
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsTest = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsTest = e -> test();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

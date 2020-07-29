@@ -189,11 +189,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
     props.setLook( shell );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
 
     FocusListener lsConnectionFocus = new FocusAdapter() {
 
@@ -203,11 +199,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       }
     };
 
-    ModifyListener lsTableMod = new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        input.setChanged();
-        setTableFieldCombo();
-      }
+    ModifyListener lsTableMod = arg0 -> {
+      input.setChanged();
+      setTableFieldCombo();
     };
 
     backupChanged = input.hasChanged();
@@ -566,22 +560,20 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     // Search the fields in the background
     //
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), i );
-            }
-
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), i );
           }
+
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -886,11 +878,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdAltStartDate.right = new FormAttachment( wUseAltStartDate, 200 );
     fdAltStartDate.top = new FormAttachment( wFromdate, margin );
     wAltStartDate.setLayoutData( fdAltStartDate );
-    wAltStartDate.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        setFlags();
-        input.setChanged();
-      }
+    wAltStartDate.addModifyListener( arg0 -> {
+      setFlags();
+      input.setChanged();
     } );
     wAltStartDateField = new CCombo( comp, SWT.SINGLE | SWT.BORDER );
     props.setLook( wAltStartDateField );
@@ -992,26 +982,10 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     sComp.setMinHeight( bounds.height );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsCreate = new Listener() {
-      public void handleEvent( Event e ) {
-        create();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsCreate = e -> create();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -1506,18 +1480,16 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
-          r, wUpIns, 2, new int[] { 1, 2 }, new int[] {}, -1, -1, new ITableItemInsertListener() {
-            public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-              tableItem
-                .setText( 3, BaseMessages.getString( PKG, "DimensionLookupDialog.TableItem.Insert.Label" ) );
+          r, wUpIns, 2, new int[] { 1, 2 }, new int[] {}, -1, -1, ( tableItem, v ) -> {
+            tableItem
+              .setText( 3, BaseMessages.getString( PKG, "DimensionLookupDialog.TableItem.Insert.Label" ) );
 
-              int idx = wKey.indexOfString( v.getName(), 2 );
-              return idx < 0
-                && !v.getName().equalsIgnoreCase( wTk.getText() )
-                && !v.getName().equalsIgnoreCase( wVersion.getText() )
-                && !v.getName().equalsIgnoreCase( wFromdate.getText() )
-                && !v.getName().equalsIgnoreCase( wTodate.getText() );
-            }
+            int idx = wKey.indexOfString( v.getName(), 2 );
+            return idx < 0
+              && !v.getName().equalsIgnoreCase( wTk.getText() )
+              && !v.getName().equalsIgnoreCase( wVersion.getText() )
+              && !v.getName().equalsIgnoreCase( wFromdate.getText() )
+              && !v.getName().equalsIgnoreCase( wTodate.getText() );
           } );
       }
     } catch ( HopException ke ) {
@@ -1530,54 +1502,52 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   // Set table "dimension field" and "technical key" drop downs
   private void setTableFieldCombo() {
 
-    Runnable fieldLoader = new Runnable() {
-      public void run() {
-        if ( !wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed() ) {
-          final String tableName = wTable.getText(), connectionName = wConnection.getText(), schemaName =
-            wSchema.getText();
+    Runnable fieldLoader = () -> {
+      if ( !wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed() ) {
+        final String tableName = wTable.getText(), connectionName = wConnection.getText(), schemaName =
+          wSchema.getText();
 
-          // clear
-          for ( ColumnInfo colInfo : tableFieldColumns ) {
-            colInfo.setComboValues( new String[] {} );
-          }
-          // Ensure other table field dropdowns are refreshed fields when they
-          // next get focus
-          gotTableFields = false;
-          if ( !Utils.isEmpty( tableName ) ) {
-            DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
-            if ( ci != null ) {
-              Database db = new Database( loggingObject, ci );
+        // clear
+        for ( ColumnInfo colInfo : tableFieldColumns ) {
+          colInfo.setComboValues( new String[] {} );
+        }
+        // Ensure other table field dropdowns are refreshed fields when they
+        // next get focus
+        gotTableFields = false;
+        if ( !Utils.isEmpty( tableName ) ) {
+          DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
+          if ( ci != null ) {
+            Database db = new Database( loggingObject, ci );
+            try {
+              db.connect();
+
+              IRowMeta r =
+                db.getTableFieldsMeta(
+                  pipelineMeta.environmentSubstitute( schemaName ),
+                  pipelineMeta.environmentSubstitute( tableName ) );
+              if ( null != r ) {
+                String[] fieldNames = r.getFieldNames();
+                if ( null != fieldNames ) {
+                  for ( ColumnInfo colInfo : tableFieldColumns ) {
+                    colInfo.setComboValues( fieldNames );
+                  }
+                  wTk.setItems( fieldNames );
+                }
+              }
+            } catch ( Exception e ) {
+              for ( ColumnInfo colInfo : tableFieldColumns ) {
+                colInfo.setComboValues( new String[] {} );
+              }
+              // ignore any errors here. drop downs will not be
+              // filled, but no problem for the user
+            } finally {
               try {
-                db.connect();
-
-                IRowMeta r =
-                  db.getTableFieldsMeta(
-                    pipelineMeta.environmentSubstitute( schemaName ),
-                    pipelineMeta.environmentSubstitute( tableName ) );
-                if ( null != r ) {
-                  String[] fieldNames = r.getFieldNames();
-                  if ( null != fieldNames ) {
-                    for ( ColumnInfo colInfo : tableFieldColumns ) {
-                      colInfo.setComboValues( fieldNames );
-                    }
-                    wTk.setItems( fieldNames );
-                  }
+                if ( db != null ) {
+                  db.disconnect();
                 }
-              } catch ( Exception e ) {
-                for ( ColumnInfo colInfo : tableFieldColumns ) {
-                  colInfo.setComboValues( new String[] {} );
-                }
-                // ignore any errors here. drop downs will not be
-                // filled, but no problem for the user
-              } finally {
-                try {
-                  if ( db != null ) {
-                    db.disconnect();
-                  }
-                } catch ( Exception ignored ) {
-                  // ignore any errors here.
-                  db = null;
-                }
+              } catch ( Exception ignored ) {
+                // ignore any errors here.
+                db = null;
               }
             }
           }
@@ -1601,15 +1571,13 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         IRowMeta r = db.getTableFieldsMeta( wSchema.getText(), wTable.getText() );
         if ( r != null && !r.isEmpty() ) {
           BaseTransformDialog.getFieldsFromPrevious(
-            r, wUpIns, 2, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, new ITableItemInsertListener() {
-              public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-                int idx = wKey.indexOfString( v.getName(), 2 );
-                return idx < 0
-                  && !v.getName().equalsIgnoreCase( wTk.getText() )
-                  && !v.getName().equalsIgnoreCase( wVersion.getText() )
-                  && !v.getName().equalsIgnoreCase( wFromdate.getText() )
-                  && !v.getName().equalsIgnoreCase( wTodate.getText() );
-              }
+            r, wUpIns, 2, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, ( tableItem, v ) -> {
+              int idx = wKey.indexOfString( v.getName(), 2 );
+              return idx < 0
+                && !v.getName().equalsIgnoreCase( wTk.getText() )
+                && !v.getName().equalsIgnoreCase( wVersion.getText() )
+                && !v.getName().equalsIgnoreCase( wFromdate.getText() )
+                && !v.getName().equalsIgnoreCase( wTodate.getText() );
             } );
         }
       } catch ( HopException e ) {
@@ -1712,15 +1680,13 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
-          r, wKey, 2, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, new ITableItemInsertListener() {
-            public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-              int idx = wKey.indexOfString( v.getName(), 2 );
-              return idx < 0
-                && !v.getName().equalsIgnoreCase( wTk.getText() )
-                && !v.getName().equalsIgnoreCase( wVersion.getText() )
-                && !v.getName().equalsIgnoreCase( wFromdate.getText() )
-                && !v.getName().equalsIgnoreCase( wTodate.getText() );
-            }
+          r, wKey, 2, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, ( tableItem, v ) -> {
+            int idx = wKey.indexOfString( v.getName(), 2 );
+            return idx < 0
+              && !v.getName().equalsIgnoreCase( wTk.getText() )
+              && !v.getName().equalsIgnoreCase( wVersion.getText() )
+              && !v.getName().equalsIgnoreCase( wFromdate.getText() )
+              && !v.getName().equalsIgnoreCase( wTodate.getText() );
           } );
 
         Table table = wKey.table;

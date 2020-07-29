@@ -63,20 +63,18 @@ public class GetQueryFieldsProgressDialog {
   }
 
   public IRowMeta open() {
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        db = new Database( HopGui.getInstance().getLoggingObject(), dbMeta );
-        try {
-          db.connect();
-          result = db.getQueryFields( sql, false );
-          if ( monitor.isCanceled() ) {
-            throw new InvocationTargetException( new Exception( "This operation was cancelled!" ) );
-          }
-        } catch ( Exception e ) {
-          throw new InvocationTargetException( e, "Problem encountered determining query fields: " + e.toString() );
-        } finally {
-          db.disconnect();
+    IRunnableWithProgress op = monitor -> {
+      db = new Database( HopGui.getInstance().getLoggingObject(), dbMeta );
+      try {
+        db.connect();
+        result = db.getQueryFields( sql, false );
+        if ( monitor.isCanceled() ) {
+          throw new InvocationTargetException( new Exception( "This operation was cancelled!" ) );
         }
+      } catch ( Exception e ) {
+        throw new InvocationTargetException( e, "Problem encountered determining query fields: " + e.toString() );
+      } finally {
+        db.disconnect();
       }
     };
 
@@ -84,24 +82,22 @@ public class GetQueryFieldsProgressDialog {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog( shell );
 
       // Run something in the background to cancel active database queries, forecably if needed!
-      Runnable run = new Runnable() {
-        public void run() {
-          IProgressMonitor monitor = pmd.getProgressMonitor();
-          while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
-            try {
-              Thread.sleep( 250 );
-            } catch ( InterruptedException e ) {
-              // Ignore
-            }
+      Runnable run = () -> {
+        IProgressMonitor monitor = pmd.getProgressMonitor();
+        while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
+          try {
+            Thread.sleep( 250 );
+          } catch ( InterruptedException e ) {
+            // Ignore
           }
+        }
 
-          if ( monitor.isCanceled() ) { // Disconnect and see what happens!
+        if ( monitor.isCanceled() ) { // Disconnect and see what happens!
 
-            try {
-              db.cancelQuery();
-            } catch ( Exception e ) {
-              // Ignore
-            }
+          try {
+            db.cancelQuery();
+          } catch ( Exception e ) {
+            // Ignore
           }
         }
       };

@@ -284,35 +284,25 @@ public class StaxPoiSheetTest {
     XSSFReader reader = mock( XSSFReader.class );
     when( reader.getSharedStringsTable() ).thenReturn( sst );
     when( reader.getStylesTable() ).thenReturn( styles );
-    when( reader.getSheet( sheetId ) ).thenAnswer( new Answer<InputStream>() {
-      public InputStream answer( InvocationOnMock invocation ) throws Throwable {
-        return IOUtils.toInputStream( sheetContent, "UTF-8" );
-      }
-    } );
+    when( reader.getSheet( sheetId ) ).thenAnswer( (Answer<InputStream>) invocation -> IOUtils.toInputStream( sheetContent, "UTF-8" ) );
     return reader;
   }
 
   private StylesTable mockStylesTable( final Map<Integer, Integer> styleToNumFmtId,
                                        final Map<Integer, String> numFmts ) {
     StylesTable styles = mock( StylesTable.class );
-    when( styles.getCellXfAt( any( Integer.class ) ) ).then( new Answer<CTXf>() {
-      public CTXf answer( InvocationOnMock invocation ) throws Throwable {
-        int style = (int) invocation.getArguments()[ 0 ];
-        Integer numFmtId = styleToNumFmtId.get( style );
-        if ( numFmtId != null ) {
-          CTXf ctxf = CTXf.Factory.newInstance();
-          ctxf.setNumFmtId( numFmtId );
-          return ctxf;
-        } else {
-          return null;
-        }
+    when( styles.getCellXfAt( any( Integer.class ) ) ).then( (Answer<CTXf>) invocation -> {
+      int style = (int) invocation.getArguments()[ 0 ];
+      Integer numFmtId = styleToNumFmtId.get( style );
+      if ( numFmtId != null ) {
+        CTXf ctxf = CTXf.Factory.newInstance();
+        ctxf.setNumFmtId( numFmtId );
+        return ctxf;
+      } else {
+        return null;
       }
     } );
-    when( styles.getNumberFormatAt( any( Short.class ) ) ).then( new Answer<String>() {
-      public String answer( InvocationOnMock invocation ) throws Throwable {
-        return numFmts.get( invocation.getArguments()[ 0 ] );
-      }
-    } );
+    when( styles.getNumberFormatAt( any( Short.class ) ) ).then( (Answer<String>) invocation -> numFmts.get( invocation.getArguments()[ 0 ] ) );
     return styles;
   }
 

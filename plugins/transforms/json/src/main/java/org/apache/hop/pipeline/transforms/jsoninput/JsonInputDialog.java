@@ -166,11 +166,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( shell );
     setShellImage( shell, input );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -329,11 +325,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     } );
 
     // Whenever something changes, set the tooltip to the expanded version of the filename:
-    wFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( wFilename.getText() );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( wFilename.getText() ) );
 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {

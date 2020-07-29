@@ -150,71 +150,57 @@ public class StyledTextCompReplace extends org.eclipse.swt.widgets.Dialog {
     frmData.top = new FormAttachment( 72, 0 );
     btnIgnoreCase.setLayoutData( frmData );
 
-    btnNext.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
+    btnNext.addListener( SWT.Selection, e -> {
+      if ( !findText() ) {
+        MessageBox messageBox = new MessageBox( sShell, SWT.ICON_INFORMATION | SWT.OK );
+        messageBox.setText( BaseMessages.getString( PKG, "Widget.Styled.CompReplace.FindItem" ) );
+        messageBox.setMessage( BaseMessages.getString( PKG, "Widget.Styled.CompReplace.ItemNotFound", searchText
+          .getText() ) );
+        messageBox.open();
+      }
+    } );
+
+    btnReplace.addListener( SWT.Selection, e -> {
+      if ( text.getSelectionCount() < 1 ) {
         if ( !findText() ) {
           MessageBox messageBox = new MessageBox( sShell, SWT.ICON_INFORMATION | SWT.OK );
           messageBox.setText( BaseMessages.getString( PKG, "Widget.Styled.CompReplace.FindItem" ) );
-          messageBox.setMessage( BaseMessages.getString( PKG, "Widget.Styled.CompReplace.ItemNotFound", searchText
-            .getText() ) );
+          messageBox.setMessage( BaseMessages.getString(
+            PKG, "Widget.Styled.CompReplace.ItemNotFound", searchText.getText() ) );
           messageBox.open();
         }
+      } else {
+        replaceText();
       }
     } );
 
-    btnReplace.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        if ( text.getSelectionCount() < 1 ) {
-          if ( !findText() ) {
-            MessageBox messageBox = new MessageBox( sShell, SWT.ICON_INFORMATION | SWT.OK );
-            messageBox.setText( BaseMessages.getString( PKG, "Widget.Styled.CompReplace.FindItem" ) );
-            messageBox.setMessage( BaseMessages.getString(
-              PKG, "Widget.Styled.CompReplace.ItemNotFound", searchText.getText() ) );
-            messageBox.open();
-          }
-        } else {
-          replaceText();
-        }
+    btnReplaceAll.addListener( SWT.Selection, e -> {
+      text.setCaretOffset( -1 );
+      while ( findText() ) {
+        replaceText();
       }
     } );
 
-    btnReplaceAll.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        text.setCaretOffset( -1 );
-        while ( findText() ) {
-          replaceText();
-        }
+    btnCancel.addListener( SWT.Selection, e -> sShell.dispose() );
+
+    searchText.addModifyListener( e -> {
+      if ( searchText.getText() != null && searchText.getText().length() > 0 ) {
+        btnNext.setEnabled( true );
+      } else {
+        btnNext.setEnabled( false );
+        btnReplace.setEnabled( false );
+        btnReplaceAll.setEnabled( false );
       }
     } );
 
-    btnCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        sShell.dispose();
-      }
-    } );
+    replaceText.addModifyListener( e -> {
+      if ( replaceText.getText() != null && replaceText.getText().length() > 0 && btnNext.isEnabled() ) {
+        btnReplace.setEnabled( true );
+        btnReplaceAll.setEnabled( true );
 
-    searchText.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        if ( searchText.getText() != null && searchText.getText().length() > 0 ) {
-          btnNext.setEnabled( true );
-        } else {
-          btnNext.setEnabled( false );
-          btnReplace.setEnabled( false );
-          btnReplaceAll.setEnabled( false );
-        }
-      }
-    } );
-
-    replaceText.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        if ( replaceText.getText() != null && replaceText.getText().length() > 0 && btnNext.isEnabled() ) {
-          btnReplace.setEnabled( true );
-          btnReplaceAll.setEnabled( true );
-
-        } else {
-          btnReplace.setEnabled( false );
-          btnReplaceAll.setEnabled( false );
-        }
+      } else {
+        btnReplace.setEnabled( false );
+        btnReplaceAll.setEnabled( false );
       }
     } );
 

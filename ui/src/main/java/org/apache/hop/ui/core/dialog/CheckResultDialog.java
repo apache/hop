@@ -178,26 +178,10 @@ public class CheckResultDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wClose, wView, wEdit }, margin, null );
 
     // Add listeners
-    lsClose = new Listener() {
-      public void handleEvent( Event e ) {
-        close();
-      }
-    };
-    lsView = new Listener() {
-      public void handleEvent( Event e ) {
-        view();
-      }
-    };
-    lsEdit = new Listener() {
-      public void handleEvent( Event e ) {
-        edit();
-      }
-    };
-    lsNoOK = new Listener() {
-      public void handleEvent( Event e ) {
-        noOK();
-      }
-    };
+    lsClose = e -> close();
+    lsView = e -> view();
+    lsEdit = e -> edit();
+    lsNoOK = e -> noOK();
 
     wClose.addListener( SWT.Selection, lsClose );
     wView.addListener( SWT.Selection, lsView );

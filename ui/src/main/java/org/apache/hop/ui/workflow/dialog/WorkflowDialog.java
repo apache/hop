@@ -157,11 +157,7 @@ public class WorkflowDialog extends Dialog {
     props.setLook( shell );
     shell.setImage( GuiResource.getInstance().getImageWorkflowGraph() );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        changed = true;
-      }
-    };
+    lsMod = e -> changed = true;
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;

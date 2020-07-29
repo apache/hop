@@ -42,272 +42,96 @@ public class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTest
 
   @Test
   public void test() throws Exception {
-    check( "FILE_TYPE", new IStringGetter() {
-      public String get() {
-        return meta.content.fileType;
-      }
-    } );
+    check( "FILE_TYPE", () -> meta.content.fileType );
 
-    check( "SEPARATOR", new IStringGetter() {
-      public String get() {
-        return meta.content.separator;
-      }
-    } );
+    check( "SEPARATOR", () -> meta.content.separator );
 
-    check( "ENCLOSURE", new IStringGetter() {
-      public String get() {
-        return meta.content.enclosure;
-      }
-    } );
+    check( "ENCLOSURE", () -> meta.content.enclosure );
 
-    check( "BREAK_IN_ENCLOSURE", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.breakInEnclosureAllowed;
-      }
-    } );
+    check( "BREAK_IN_ENCLOSURE", () -> meta.content.breakInEnclosureAllowed );
 
-    check( "ESCAPE_CHAR", new IStringGetter() {
-      public String get() {
-        return meta.content.escapeCharacter;
-      }
-    } );
+    check( "ESCAPE_CHAR", () -> meta.content.escapeCharacter );
 
-    check( "HEADER_PRESENT", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.header;
-      }
-    } );
+    check( "HEADER_PRESENT", () -> meta.content.header );
 
-    check( "NR_HEADER_LINES", new IIntGetter() {
-      public int get() {
-        return meta.content.nrHeaderLines;
-      }
-    } );
+    check( "NR_HEADER_LINES", () -> meta.content.nrHeaderLines );
 
-    check( "HAS_FOOTER", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.footer;
-      }
-    } );
+    check( "HAS_FOOTER", () -> meta.content.footer );
 
-    check( "NR_FOOTER_LINES", new IIntGetter() {
-      public int get() {
-        return meta.content.nrFooterLines;
-      }
-    } );
+    check( "NR_FOOTER_LINES", () -> meta.content.nrFooterLines );
 
-    check( "HAS_WRAPPED_LINES", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.lineWrapped;
-      }
-    } );
+    check( "HAS_WRAPPED_LINES", () -> meta.content.lineWrapped );
 
-    check( "NR_WRAPS", new IIntGetter() {
-      public int get() {
-        return meta.content.nrWraps;
-      }
-    } );
+    check( "NR_WRAPS", () -> meta.content.nrWraps );
 
-    check( "HAS_PAGED_LAYOUT", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.layoutPaged;
-      }
-    } );
+    check( "HAS_PAGED_LAYOUT", () -> meta.content.layoutPaged );
 
-    check( "NR_LINES_PER_PAGE", new IIntGetter() {
-      public int get() {
-        return meta.content.nrLinesPerPage;
-      }
-    } );
+    check( "NR_LINES_PER_PAGE", () -> meta.content.nrLinesPerPage );
 
-    check( "NR_DOC_HEADER_LINES", new IIntGetter() {
-      public int get() {
-        return meta.content.nrLinesDocHeader;
-      }
-    } );
+    check( "NR_DOC_HEADER_LINES", () -> meta.content.nrLinesDocHeader );
 
-    check( "COMPRESSION_TYPE", new IStringGetter() {
-      public String get() {
-        return meta.content.fileCompression;
-      }
-    } );
+    check( "COMPRESSION_TYPE", () -> meta.content.fileCompression );
 
-    check( "NO_EMPTY_LINES", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.noEmptyLines;
-      }
-    } );
+    check( "NO_EMPTY_LINES", () -> meta.content.noEmptyLines );
 
-    check( "INCLUDE_FILENAME", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.includeFilename;
-      }
-    } );
+    check( "INCLUDE_FILENAME", () -> meta.content.includeFilename );
 
-    check( "FILENAME_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.content.filenameField;
-      }
-    } );
+    check( "FILENAME_FIELD", () -> meta.content.filenameField );
 
-    check( "INCLUDE_ROW_NUMBER", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.includeRowNumber;
-      }
-    } );
+    check( "INCLUDE_ROW_NUMBER", () -> meta.content.includeRowNumber );
 
-    check( "ROW_NUMBER_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.content.rowNumberField;
-      }
-    } );
+    check( "ROW_NUMBER_FIELD", () -> meta.content.rowNumberField );
 
-    check( "ROW_NUMBER_BY_FILE", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.rowNumberByFile;
-      }
-    } );
+    check( "ROW_NUMBER_BY_FILE", () -> meta.content.rowNumberByFile );
 
-    check( "FILE_FORMAT", new IStringGetter() {
-      public String get() {
-        return meta.content.fileFormat;
-      }
-    } );
+    check( "FILE_FORMAT", () -> meta.content.fileFormat );
 
-    check( "ENCODING", new IStringGetter() {
-      public String get() {
-        return meta.content.encoding;
-      }
-    } );
+    check( "ENCODING", () -> meta.content.encoding );
 
-    check( "LENGTH", new IStringGetter() {
-      public String get() {
-        return meta.content.length;
-      }
-    } );
+    check( "LENGTH", () -> meta.content.length );
 
-    check( "ROW_LIMIT", new ILongGetter() {
-      public long get() {
-        return meta.content.rowLimit;
-      }
-    } );
+    check( "ROW_LIMIT", () -> meta.content.rowLimit );
 
-    check( "DATE_FORMAT_LENIENT", new IBooleanGetter() {
-      public boolean get() {
-        return meta.content.dateFormatLenient;
-      }
-    } );
+    check( "DATE_FORMAT_LENIENT", () -> meta.content.dateFormatLenient );
 
-    check( "DATE_FORMAT_LOCALE", new IStringGetter() {
-      public String get() {
-        return meta.content.dateFormatLocale.toString();
-      }
-    }, "en", "en_us" );
+    check( "DATE_FORMAT_LOCALE", () -> meta.content.dateFormatLocale.toString(), "en", "en_us" );
 
     ///////////////////////////////
-    check( "FILTER_POSITION", new IIntGetter() {
-      public int get() {
-        return meta.getFilter()[ 0 ].getFilterPosition();
-      }
-    } );
+    check( "FILTER_POSITION", () -> meta.getFilter()[ 0 ].getFilterPosition() );
 
-    check( "FILTER_STRING", new IStringGetter() {
-      public String get() {
-        return meta.getFilter()[ 0 ].getFilterString();
-      }
-    } );
+    check( "FILTER_STRING", () -> meta.getFilter()[ 0 ].getFilterString() );
 
-    check( "FILTER_LAST_LINE", new IBooleanGetter() {
-      public boolean get() {
-        return meta.getFilter()[ 0 ].isFilterLastLine();
-      }
-    } );
+    check( "FILTER_LAST_LINE", () -> meta.getFilter()[ 0 ].isFilterLastLine() );
 
-    check( "FILTER_POSITIVE", new IBooleanGetter() {
-      public boolean get() {
-        return meta.getFilter()[ 0 ].isFilterPositive();
-      }
-    } );
+    check( "FILTER_POSITIVE", () -> meta.getFilter()[ 0 ].isFilterPositive() );
 
     ///////////////////////////////
-    check( "FILENAME", new IStringGetter() {
-      public String get() {
-        return meta.inputFiles.fileName[ 0 ];
-      }
-    } );
+    check( "FILENAME", () -> meta.inputFiles.fileName[ 0 ] );
 
-    check( "FILEMASK", new IStringGetter() {
-      public String get() {
-        return meta.inputFiles.fileMask[ 0 ];
-      }
-    } );
+    check( "FILEMASK", () -> meta.inputFiles.fileMask[ 0 ] );
 
-    check( "EXCLUDE_FILEMASK", new IStringGetter() {
-      public String get() {
-        return meta.inputFiles.excludeFileMask[ 0 ];
-      }
-    } );
+    check( "EXCLUDE_FILEMASK", () -> meta.inputFiles.excludeFileMask[ 0 ] );
 
-    check( "FILE_REQUIRED", new IStringGetter() {
-      public String get() {
-        return meta.inputFiles.fileRequired[ 0 ];
-      }
-    } );
+    check( "FILE_REQUIRED", () -> meta.inputFiles.fileRequired[ 0 ] );
 
-    check( "INCLUDE_SUBFOLDERS", new IStringGetter() {
-      public String get() {
-        return meta.inputFiles.includeSubFolders[ 0 ];
-      }
-    } );
+    check( "INCLUDE_SUBFOLDERS", () -> meta.inputFiles.includeSubFolders[ 0 ] );
 
-    check( "ACCEPT_FILE_NAMES", new IBooleanGetter() {
-      public boolean get() {
-        return meta.inputFiles.acceptingFilenames;
-      }
-    } );
+    check( "ACCEPT_FILE_NAMES", () -> meta.inputFiles.acceptingFilenames );
 
-    check( "ACCEPT_FILE_TRANSFORM", new IStringGetter() {
-      public String get() {
-        return meta.inputFiles.acceptingTransformName;
-      }
-    } );
+    check( "ACCEPT_FILE_TRANSFORM", () -> meta.inputFiles.acceptingTransformName );
 
-    check( "PASS_THROUGH_FIELDS", new IBooleanGetter() {
-      public boolean get() {
-        return meta.inputFiles.passingThruFields;
-      }
-    } );
+    check( "PASS_THROUGH_FIELDS", () -> meta.inputFiles.passingThruFields );
 
-    check( "ACCEPT_FILE_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.inputFiles.acceptingField;
-      }
-    } );
+    check( "ACCEPT_FILE_FIELD", () -> meta.inputFiles.acceptingField );
 
-    check( "ADD_FILES_TO_RESULT", new IBooleanGetter() {
-      public boolean get() {
-        return meta.inputFiles.isaddresult;
-      }
-    } );
+    check( "ADD_FILES_TO_RESULT", () -> meta.inputFiles.isaddresult );
 
     /////////////////////////////
-    check( "FIELD_NAME", new IStringGetter() {
-      public String get() {
-        return meta.inputFields[ 0 ].getName();
-      }
-    } );
+    check( "FIELD_NAME", () -> meta.inputFields[ 0 ].getName() );
 
-    check( "FIELD_POSITION", new IIntGetter() {
-      public int get() {
-        return meta.inputFields[ 0 ].getPosition();
-      }
-    } );
+    check( "FIELD_POSITION", () -> meta.inputFields[ 0 ].getPosition() );
 
-    check( "FIELD_LENGTH", new IIntGetter() {
-      public int get() {
-        return meta.inputFields[ 0 ].getLength();
-      }
-    } );
+    check( "FIELD_LENGTH", () -> meta.inputFields[ 0 ].getLength() );
 
     // TODO check field type plugins
     // IValueMeta mft = new ValueMetaString( "f" );
@@ -316,17 +140,9 @@ public class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTest
     // assertEquals( 5, meta.inputFiles.inputFields[0].getType() );
     skipPropertyTest( "FIELD_TYPE" );
 
-    check( "FIELD_IGNORE", new IBooleanGetter() {
-      public boolean get() {
-        return meta.inputFields[ 0 ].isIgnored();
-      }
-    } );
+    check( "FIELD_IGNORE", () -> meta.inputFields[ 0 ].isIgnored() );
 
-    check( "FIELD_FORMAT", new IStringGetter() {
-      public String get() {
-        return meta.inputFields[ 0 ].getFormat();
-      }
-    } );
+    check( "FIELD_FORMAT", () -> meta.inputFields[ 0 ].getFormat() );
 
     IValueMeta mftt = new ValueMetaString( "f" );
     injector.setProperty( meta, "FIELD_TRIM_TYPE", setValue( mftt, "left" ), "f" );
@@ -335,171 +151,55 @@ public class TextFileInputMetaNewInjectionTest extends BaseMetadataInjectionTest
     assertEquals( 2, meta.inputFields[ 0 ].getTrimType() );
     skipPropertyTest( "FIELD_TRIM_TYPE" );
 
-    check( "FIELD_PRECISION", new IIntGetter() {
-      public int get() {
-        return meta.inputFields[ 0 ].getPrecision();
-      }
-    } );
+    check( "FIELD_PRECISION", () -> meta.inputFields[ 0 ].getPrecision() );
 
-    check( "FIELD_CURRENCY", new IStringGetter() {
-      public String get() {
-        return meta.inputFields[ 0 ].getCurrencySymbol();
-      }
-    } );
+    check( "FIELD_CURRENCY", () -> meta.inputFields[ 0 ].getCurrencySymbol() );
 
-    check( "FIELD_DECIMAL", new IStringGetter() {
-      public String get() {
-        return meta.inputFields[ 0 ].getDecimalSymbol();
-      }
-    } );
+    check( "FIELD_DECIMAL", () -> meta.inputFields[ 0 ].getDecimalSymbol() );
 
-    check( "FIELD_GROUP", new IStringGetter() {
-      public String get() {
-        return meta.inputFields[ 0 ].getGroupSymbol();
-      }
-    } );
+    check( "FIELD_GROUP", () -> meta.inputFields[ 0 ].getGroupSymbol() );
 
-    check( "FIELD_REPEAT", new IBooleanGetter() {
-      public boolean get() {
-        return meta.inputFields[ 0 ].isRepeated();
-      }
-    } );
+    check( "FIELD_REPEAT", () -> meta.inputFields[ 0 ].isRepeated() );
 
-    check( "FIELD_NULL_STRING", new IStringGetter() {
-      public String get() {
-        return meta.inputFields[ 0 ].getNullString();
-      }
-    } );
+    check( "FIELD_NULL_STRING", () -> meta.inputFields[ 0 ].getNullString() );
 
-    check( "FIELD_IF_NULL", new IStringGetter() {
-      public String get() {
-        return meta.inputFields[ 0 ].getIfNullValue();
-      }
-    } );
+    check( "FIELD_IF_NULL", () -> meta.inputFields[ 0 ].getIfNullValue() );
 
     ///////////////////////////////
-    check( "IGNORE_ERRORS", new IBooleanGetter() {
-      public boolean get() {
-        return meta.errorHandling.errorIgnored;
-      }
-    } );
+    check( "IGNORE_ERRORS", () -> meta.errorHandling.errorIgnored );
 
-    check( "FILE_ERROR_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.errorHandling.fileErrorField;
-      }
-    } );
+    check( "FILE_ERROR_FIELD", () -> meta.errorHandling.fileErrorField );
 
-    check( "FILE_ERROR_MESSAGE_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.errorHandling.fileErrorMessageField;
-      }
-    } );
+    check( "FILE_ERROR_MESSAGE_FIELD", () -> meta.errorHandling.fileErrorMessageField );
 
-    check( "SKIP_BAD_FILES", new IBooleanGetter() {
-      public boolean get() {
-        return meta.errorHandling.skipBadFiles;
-      }
-    } );
+    check( "SKIP_BAD_FILES", () -> meta.errorHandling.skipBadFiles );
 
-    check( "WARNING_FILES_TARGET_DIR", new IStringGetter() {
-      public String get() {
-        return meta.errorHandling.warningFilesDestinationDirectory;
-      }
-    } );
+    check( "WARNING_FILES_TARGET_DIR", () -> meta.errorHandling.warningFilesDestinationDirectory );
 
-    check( "WARNING_FILES_EXTENTION", new IStringGetter() {
-      public String get() {
-        return meta.errorHandling.warningFilesExtension;
-      }
-    } );
+    check( "WARNING_FILES_EXTENTION", () -> meta.errorHandling.warningFilesExtension );
 
-    check( "ERROR_FILES_TARGET_DIR", new IStringGetter() {
-      public String get() {
-        return meta.errorHandling.errorFilesDestinationDirectory;
-      }
-    } );
+    check( "ERROR_FILES_TARGET_DIR", () -> meta.errorHandling.errorFilesDestinationDirectory );
 
-    check( "ERROR_FILES_EXTENTION", new IStringGetter() {
-      public String get() {
-        return meta.errorHandling.errorFilesExtension;
-      }
-    } );
+    check( "ERROR_FILES_EXTENTION", () -> meta.errorHandling.errorFilesExtension );
 
-    check( "LINE_NR_FILES_TARGET_DIR", new IStringGetter() {
-      public String get() {
-        return meta.errorHandling.lineNumberFilesDestinationDirectory;
-      }
-    } );
+    check( "LINE_NR_FILES_TARGET_DIR", () -> meta.errorHandling.lineNumberFilesDestinationDirectory );
 
-    check( "LINE_NR_FILES_EXTENTION", new IStringGetter() {
-      public String get() {
-        return meta.errorHandling.lineNumberFilesExtension;
-      }
-    } );
+    check( "LINE_NR_FILES_EXTENTION", () -> meta.errorHandling.lineNumberFilesExtension );
 
     //////////////////////
-    check( "FILE_SHORT_FILE_FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.additionalOutputFields.shortFilenameField;
-      }
-    } );
-    check( "FILE_EXTENSION_FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.additionalOutputFields.extensionField;
-      }
-    } );
-    check( "FILE_PATH_FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.additionalOutputFields.pathField;
-      }
-    } );
-    check( "FILE_SIZE_FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.additionalOutputFields.sizeField;
-      }
-    } );
-    check( "FILE_HIDDEN_FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.additionalOutputFields.hiddenField;
-      }
-    } );
-    check( "FILE_LAST_MODIFICATION_FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.additionalOutputFields.lastModificationField;
-      }
-    } );
-    check( "FILE_URI_FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.additionalOutputFields.uriField;
-      }
-    } );
-    check( "FILE_ROOT_URI_FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.additionalOutputFields.rootUriField;
-      }
-    } );
+    check( "FILE_SHORT_FILE_FIELDNAME", () -> meta.additionalOutputFields.shortFilenameField );
+    check( "FILE_EXTENSION_FIELDNAME", () -> meta.additionalOutputFields.extensionField );
+    check( "FILE_PATH_FIELDNAME", () -> meta.additionalOutputFields.pathField );
+    check( "FILE_SIZE_FIELDNAME", () -> meta.additionalOutputFields.sizeField );
+    check( "FILE_HIDDEN_FIELDNAME", () -> meta.additionalOutputFields.hiddenField );
+    check( "FILE_LAST_MODIFICATION_FIELDNAME", () -> meta.additionalOutputFields.lastModificationField );
+    check( "FILE_URI_FIELDNAME", () -> meta.additionalOutputFields.uriField );
+    check( "FILE_ROOT_URI_FIELDNAME", () -> meta.additionalOutputFields.rootUriField );
 
     /////////////////
-    check( "ERROR_COUNT_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.errorCountField;
-      }
-    } );
-    check( "ERROR_FIELDS_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.errorFieldsField;
-      }
-    } );
-    check( "ERROR_TEXT_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.errorTextField;
-      }
-    } );
-    check( "ERROR_LINES_SKIPPED", new IBooleanGetter() {
-      public boolean get() {
-        return meta.errorLineSkipped;
-      }
-    } );
+    check( "ERROR_COUNT_FIELD", () -> meta.errorCountField );
+    check( "ERROR_FIELDS_FIELD", () -> meta.errorFieldsField );
+    check( "ERROR_TEXT_FIELD", () -> meta.errorTextField );
+    check( "ERROR_LINES_SKIPPED", () -> meta.errorLineSkipped );
   }
 }
