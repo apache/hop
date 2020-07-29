@@ -3615,6 +3615,8 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                 //
                 if ( sampleType == SampleType.Last ) {
                   rowBuffer.setBuffer( Collections.synchronizedList( new LinkedList<>() ) );
+                } else {
+                  rowBuffer.setBuffer( Collections.synchronizedList( new ArrayList<>() ) );
                 }
               }
 
