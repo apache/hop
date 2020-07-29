@@ -50,7 +50,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
+public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
 
   public BeamMergeJoinStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
@@ -68,7 +68,11 @@ public class BeamMergeJoinStepHandler extends BeamBaseStepHandler implements Bea
                                     Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
                                     PCollection<HopRow> input ) throws HopException {
 
-    MergeJoinMeta meta = (MergeJoinMeta) transformMeta.getTransform();
+    // Don't simply case but serialize/de-serialize the metadata to prevent classloader exceptions
+    //
+    MergeJoinMeta meta = new MergeJoinMeta();
+    meta.loadXml( getTransformXmlNode(transformMeta), metadataProvider );
+    meta.searchInfoAndTargetTransforms( pipelineMeta.getTransforms() );
 
     String joinType = meta.getJoinType();
     String[] leftKeys = meta.getKeyFields1();

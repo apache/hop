@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transforms.memgroupby.MemoryGroupByMeta;
 import java.util.List;
 import java.util.Map;
 
-public class BeamGroupByStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
+public class BeamGroupByStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
 
   public BeamGroupByStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
@@ -50,7 +50,8 @@ public class BeamGroupByStepHandler extends BeamBaseStepHandler implements BeamS
                                     Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
                                     PCollection<HopRow> input ) throws HopException {
 
-    MemoryGroupByMeta groupByMeta = (MemoryGroupByMeta) transformMeta.getTransform();
+    MemoryGroupByMeta groupByMeta = new MemoryGroupByMeta();
+    groupByMeta.loadXml( getTransformXmlNode(transformMeta), metadataProvider );
 
     String[] aggregates = new String[ groupByMeta.getAggregateType().length ];
     for ( int i = 0; i < aggregates.length; i++ ) {

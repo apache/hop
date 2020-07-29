@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 import java.util.Map;
 
-public interface BeamStepHandler {
+public interface IBeamStepHandler {
 
   void handleStep( ILogChannel log,
                    TransformMeta transformMeta,
