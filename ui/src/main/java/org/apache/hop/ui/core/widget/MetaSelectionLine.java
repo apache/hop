@@ -122,6 +122,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     wLabel.setLayoutData( fdLabel );
     wLabel.setText( labelText );
     wLabel.setToolTipText( toolTipText );
+    wLabel.requestLayout(); // Avoid GTK error in log
 
     wManage = new Button( this, SWT.PUSH );
     wManage.setText( BaseMessages.getString( PKG, "System.Button.Manage" ) );

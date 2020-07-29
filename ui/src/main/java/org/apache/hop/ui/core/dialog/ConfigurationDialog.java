@@ -315,37 +315,24 @@ public abstract class ConfigurationDialog extends Dialog {
     // Bottom buttons and separator
 
     wCancel = new Button( shell, SWT.PUSH );
-    FormData fd_wCancel = new FormData();
-    fd_wCancel.bottom = new FormAttachment( 100, -15 );
-    wCancel.setLayoutData( fd_wCancel );
     wCancel.setText( BaseMessages.getString( "System.Button.Cancel" ) );
-    wCancel.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        cancel();
-      }
-    } );
+    wCancel.addListener( SWT.Selection, e-> cancel() );
 
     wOk = new Button( shell, SWT.PUSH );
-    FormData fd_wOk = new FormData();
-    fd_wOk.right = new FormAttachment( wCancel, -5 );
-    fd_wOk.bottom = new FormAttachment( 100, -15 );
-    wOk.setLayoutData( fd_wOk );
     wOk.setText( BaseMessages.getString( "System.Button.Launch" ) );
-    wOk.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        ok();
-      }
-    } );
+    wOk.addListener( SWT.Selection, e-> ok() );
 
-    Button btnHelp = new Button( shell, SWT.NONE );
-    btnHelp.setImage( GuiResource.getInstance().getImageHelpWeb() );
-    btnHelp.setText( BaseMessages.getString( "System.Button.Help" ) );
-    btnHelp.setToolTipText( BaseMessages.getString( "System.Tooltip.Help" ) );
-    FormData fd_btnHelp = new FormData();
-    fd_btnHelp.bottom = new FormAttachment( 100, -15 );
-    fd_btnHelp.left = new FormAttachment( 0, 15 );
-    btnHelp.setLayoutData( fd_btnHelp );
-    btnHelp.addSelectionListener( new SelectionAdapter() {
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
+
+    Button wbHelp = new Button( shell, SWT.NONE );
+    wbHelp.setImage( GuiResource.getInstance().getImageHelpWeb() );
+    wbHelp.setText( BaseMessages.getString( "System.Button.Help" ) );
+    wbHelp.setToolTipText( BaseMessages.getString( "System.Tooltip.Help" ) );
+    FormData fdbHelp = new FormData();
+    fdbHelp.bottom = new FormAttachment( 100, -15 );
+    fdbHelp.left = new FormAttachment( 0, 15 );
+    wbHelp.setLayoutData( fdbHelp );
+    wbHelp.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent evt ) {
         HelpUtils.openHelpDialog( parent.getShell(), docTitle, docUrl, docHeader );
@@ -353,12 +340,11 @@ public abstract class ConfigurationDialog extends Dialog {
     } );
 
     Label separator = new Label( shell, SWT.SEPARATOR | SWT.HORIZONTAL );
-    fd_wCancel.right = new FormAttachment( 100, -15 );
-    FormData fd_separator = new FormData();
-    fd_separator.right = new FormAttachment( 100, -15 );
-    fd_separator.left = new FormAttachment( 0, 15 );
-    fd_separator.bottom = new FormAttachment( wOk, -15 );
-    separator.setLayoutData( fd_separator );
+    FormData fdSeparator = new FormData();
+    fdSeparator.right = new FormAttachment( 100, -15 );
+    fdSeparator.left = new FormAttachment( 0, 15 );
+    fdSeparator.bottom = new FormAttachment( wOk, -2*margin );
+    separator.setLayoutData( fdSeparator );
 
     alwaysShowOption = new Button( shell, SWT.CHECK );
     alwaysShowOption.setText( alwaysShowOptionLabel );
@@ -366,11 +352,10 @@ public abstract class ConfigurationDialog extends Dialog {
     props.setLook( alwaysShowOption );
     alwaysShowOption.setSelection( abstractMeta.isAlwaysShowRunOptions() );
 
-    FormData fd_alwaysShowOption = new FormData();
-    fd_alwaysShowOption.left = new FormAttachment( 0, 15 );
-    fd_alwaysShowOption.bottom = new FormAttachment( separator, -15 );
-    alwaysShowOption.setLayoutData( fd_alwaysShowOption );
-
+    FormData fdAlwaysShowOption = new FormData();
+    fdAlwaysShowOption.left = new FormAttachment( 0, 15 );
+    fdAlwaysShowOption.bottom = new FormAttachment( separator, -15 );
+    alwaysShowOption.setLayoutData( fdAlwaysShowOption );
   }
 
   protected void openDialog() {
@@ -378,7 +363,7 @@ public abstract class ConfigurationDialog extends Dialog {
     BaseTransformDialog.setSize( shell );
 
     // Set the focus on the OK button
-    wOk.setFocus();
+    shell.setDefaultButton( wOk );
 
     shell.open();
     while ( !shell.isDisposed() ) {

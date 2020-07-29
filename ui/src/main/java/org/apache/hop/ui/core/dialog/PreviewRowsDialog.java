@@ -51,9 +51,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -328,24 +326,26 @@ public class PreviewRowsDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   private void getData() {
-    shell.getDisplay().asyncExec( () -> {
-      lineNr = 0;
-      for ( int i = 0; i < buffer.size(); i++ ) {
-        TableItem item;
-        if ( i == 0 ) {
-          item = wFields.table.getItem( i );
-        } else {
-          item = new TableItem( wFields.table, SWT.NONE );
+    synchronized ( buffer ) {
+      shell.getDisplay().asyncExec( () -> {
+        lineNr = 0;
+        for ( int i = 0; i < buffer.size(); i++ ) {
+          TableItem item;
+          if ( i == 0 ) {
+            item = wFields.table.getItem( i );
+          } else {
+            item = new TableItem( wFields.table, SWT.NONE );
+          }
+
+          Object[] row = buffer.get( i );
+
+          getDataForRow( item, row );
         }
-
-        Object[] row = buffer.get( i );
-
-        getDataForRow( item, row );
-      }
-      if ( !wFields.isDisposed() ) {
-        wFields.optWidth( true, 200 );
-      }
-    } );
+        if ( !wFields.isDisposed() ) {
+          wFields.optWidth( true, 200 );
+        }
+      } );
+    }
   }
 
   protected int getDataForRow( TableItem item, Object[] row ) {
