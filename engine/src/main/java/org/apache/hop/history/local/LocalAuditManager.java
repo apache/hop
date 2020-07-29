@@ -40,10 +40,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * The local audit manager stores its history in the hop home directory (~/.hop) under the history folder
@@ -112,7 +110,7 @@ public class LocalAuditManager implements IAuditManager {
     }
 
     ArrayList<AuditEvent> events = new ArrayList<>();
-    Set<String> names = new HashSet<>();
+    Map<String, AuditEvent> eventsMap = new HashMap<>();
 
     String folderPath = calculateTypePath( group, type );
     File folder = new File( folderPath );
@@ -129,9 +127,9 @@ public class LocalAuditManager implements IAuditManager {
       try {
         AuditEvent event = mapper.readValue( eventFile, AuditEvent.class );
         if ( unique ) {
-          if ( !names.contains( event.getName() ) ) {
-            events.add( event );
-            names.add( event.getName() );
+          AuditEvent existing = eventsMap.get( event.getName() );
+          if (existing==null || existing.getDate().compareTo( event.getDate() )<0) {
+            eventsMap.put(event.getName(), event);
           }
         } else {
           events.add( event );
@@ -139,6 +137,9 @@ public class LocalAuditManager implements IAuditManager {
       } catch ( IOException e ) {
         throw new HopException( "Error reading event file '" + eventFile.toString() + "'", e );
       }
+    }
+    if (unique) {
+      events.addAll( eventsMap.values() );
     }
 
     // Sort the events by date descending (most recent first)
