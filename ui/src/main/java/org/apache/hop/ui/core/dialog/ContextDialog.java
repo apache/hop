@@ -445,6 +445,9 @@ public class ContextDialog extends Dialog {
 	}
 
 	private int calculateNrColumns() {
+		if (cellWidth<=0) {
+			return 0;
+		}
 		//System.out.println("Client="+wCanvas.getClientArea() + " bounds="+wCanvas.getBounds());
 		return Math.floorDiv( wCanvas.getClientArea().width, cellWidth );
 	}
