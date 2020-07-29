@@ -91,8 +91,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   private Button wVariables;
 
-  private Button wLazyConversion;
-
   private final TableInputMeta input;
   private boolean changedInDialog;
 
@@ -249,36 +247,13 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    // Lazy conversion?
-    //
-    Label wlLazyConversion = new Label( shell, SWT.RIGHT );
-    wlLazyConversion.setText( BaseMessages.getString( PKG, "TableInputDialog.LazyConversion" ) );
-    props.setLook( wlLazyConversion );
-    FormData fdlLazyConversion = new FormData();
-    fdlLazyConversion.left = new FormAttachment( 0, 0 );
-    fdlLazyConversion.right = new FormAttachment( middle, -margin );
-    fdlLazyConversion.bottom = new FormAttachment( wlVariables, -margin );
-    wlLazyConversion.setLayoutData( fdlLazyConversion );
-    wLazyConversion = new Button( shell, SWT.CHECK );
-    props.setLook( wLazyConversion );
-    FormData fdLazyConversion = new FormData();
-    fdLazyConversion.left = new FormAttachment( middle, 0 );
-    fdLazyConversion.right = new FormAttachment( 100, 0 );
-    fdLazyConversion.bottom = new FormAttachment( wlLazyConversion, 0, SWT.CENTER );
-    wLazyConversion.setLayoutData( fdLazyConversion );
-    wLazyConversion.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent arg0 ) {
-        input.setChanged();
-        setSqlToolTip();
-      }
-    } );
 
     wlPosition = new Label( shell, SWT.NONE );
     props.setLook( wlPosition );
     FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( 0, 0 );
     fdlPosition.right = new FormAttachment( 100, 0 );
-    fdlPosition.bottom = new FormAttachment( wlLazyConversion, -2*margin );
+    fdlPosition.bottom = new FormAttachment( wlVariables, -2*margin );
     wlPosition.setLayoutData( fdlPosition );
 
     // Table line...
@@ -437,7 +412,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     }
 
     wVariables.setSelection( input.isVariableReplacementActive() );
-    wLazyConversion.setSelection( input.isLazyConversionActive() );
 
     setSqlToolTip();
     setFlags();
@@ -475,7 +449,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     infoStream.setTransformMeta( pipelineMeta.findTransform( wDatefrom.getText() ) );
     meta.setExecuteEachInputRow( wEachRow.getSelection() );
     meta.setVariableReplacementActive( wVariables.getSelection() );
-    meta.setLazyConversionActive( wLazyConversion.getSelection() );
   }
 
   private void ok() {
@@ -632,8 +605,6 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
           prd.open();
         }
       }
-
     }
   }
-
 }

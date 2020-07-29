@@ -23,23 +23,21 @@
 package org.apache.hop.pipeline.transforms.tableinput;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.IRowSet;
+import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
@@ -143,7 +141,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> im
       if ( data.thisrow != null ) { // We can expect more rows
 
         try {
-          data.nextrow = data.db.getRow( data.rs, meta.isLazyConversionActive() );
+          data.nextrow = data.db.getRow( data.rs, false );
         } catch ( HopDatabaseException e ) {
           if ( e.getCause() instanceof SQLException && isStopped() ) {
             //This exception indicates we tried reading a row after the statment for this transform was cancelled
@@ -231,11 +229,9 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> im
       logDetailed( "SQL query : " + sql );
     }
     if ( parametersMeta.isEmpty() ) {
-      data.rs = data.db.openQuery( sql, null, null, ResultSet.FETCH_FORWARD, meta.isLazyConversionActive() );
+      data.rs = data.db.openQuery( sql, null, null, ResultSet.FETCH_FORWARD, false );
     } else {
-      data.rs =
-        data.db.openQuery( sql, parametersMeta, parameters, ResultSet.FETCH_FORWARD, meta
-          .isLazyConversionActive() );
+      data.rs = data.db.openQuery( sql, parametersMeta, parameters, ResultSet.FETCH_FORWARD, false );
     }
     if ( data.rs == null ) {
       logError( "Couldn't open Query [" + sql + "]" );

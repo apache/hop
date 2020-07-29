@@ -23,13 +23,12 @@
 package org.apache.hop.pipeline.transforms.tableinput;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
@@ -38,7 +37,6 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -50,13 +48,13 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -90,9 +88,6 @@ public class TableInputMeta
 
   @Injection( name = "REPLACE_VARIABLES" )
   private boolean variableReplacementActive;
-
-  @Injection( name = "LAZY_CONVERSION" )
-  private boolean lazyConversionActive;
 
   public TableInputMeta() {
     super();
@@ -185,7 +180,6 @@ public class TableInputMeta
 
       executeEachInputRow = "Y".equals( XmlHandler.getTagValue( transformNode, "execute_each_row" ) );
       variableReplacementActive = "Y".equals( XmlHandler.getTagValue( transformNode, "variables_active" ) );
-      lazyConversionActive = "Y".equals( XmlHandler.getTagValue( transformNode, "lazy_conversion_active" ) );
     } catch ( Exception e ) {
       throw new HopXmlException( "Unable to load transform info from XML", e );
     }
@@ -267,21 +261,6 @@ public class TableInputMeta
         db.disconnect();
       }
     }
-    if ( isLazyConversionActive() ) {
-      for ( int i = 0; i < row.size(); i++ ) {
-        IValueMeta v = row.getValueMeta( i );
-        try {
-          if ( v.getType() == IValueMeta.TYPE_STRING ) {
-            IValueMeta storageMeta = ValueMetaFactory.cloneValueMeta( v );
-            storageMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
-            v.setStorageMetadata( storageMeta );
-            v.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
-          }
-        } catch ( HopPluginException e ) {
-          throw new HopTransformException( "Unable to clone meta for lazy conversion: " + Const.CR + v, e );
-        }
-      }
-    }
   }
 
   public String getXml() {
@@ -295,7 +274,6 @@ public class TableInputMeta
     retval.append( "    " + XmlHandler.addTagValue( "lookup", infoStream.getTransformName() ) );
     retval.append( "    " + XmlHandler.addTagValue( "execute_each_row", executeEachInputRow ) );
     retval.append( "    " + XmlHandler.addTagValue( "variables_active", variableReplacementActive ) );
-    retval.append( "    " + XmlHandler.addTagValue( "lazy_conversion_active", lazyConversionActive ) );
 
     return retval.toString();
   }
@@ -475,20 +453,6 @@ public class TableInputMeta
    */
   public void setVariableReplacementActive( boolean variableReplacementActive ) {
     this.variableReplacementActive = variableReplacementActive;
-  }
-
-  /**
-   * @return the lazyConversionActive
-   */
-  public boolean isLazyConversionActive() {
-    return lazyConversionActive;
-  }
-
-  /**
-   * @param lazyConversionActive the lazyConversionActive to set
-   */
-  public void setLazyConversionActive( boolean lazyConversionActive ) {
-    this.lazyConversionActive = lazyConversionActive;
   }
 
   /**
