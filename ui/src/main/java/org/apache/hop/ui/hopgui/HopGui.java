@@ -498,17 +498,17 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     fileDelegate.fileSaveAs();
   }
 
-  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EDIT_METASTORE, label = "Edit MetaStore element", parentId = ID_MAIN_MENU_FILE, separator = true )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EDIT_METASTORE, label = "Edit Hop metadata object", parentId = ID_MAIN_MENU_FILE, separator = true )
   public void menuFileEditMetadata() {
     contextDelegate.fileMetadataEdit();
   }
 
-  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_DELETE_METASTORE, label = "Delete MetaStore element", parentId = ID_MAIN_MENU_FILE )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_DELETE_METASTORE, label = "Delete Hop metadata object", parentId = ID_MAIN_MENU_FILE )
   public void menuFileDeleteMetadata() {
     contextDelegate.fileMetadataDelete();
   }
 
-  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXPLORE_METASTORE, label = "Explore the MetaStore", parentId = ID_MAIN_MENU_FILE )
+  @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE_EXPLORE_METASTORE, label = "Explore Hop metadata", parentId = ID_MAIN_MENU_FILE )
   @GuiToolbarElement( root = ID_MAIN_TOOLBAR, id = ID_MAIN_TOOLBAR_METADATA, image = "ui/images/metadata.svg", toolTip = "Explore metadata", separator = true )
   @GuiKeyboardShortcut( control = true, shift = true, key = SWT.F5 )
   @GuiOsxKeyboardShortcut( command = true, shift = true, key = SWT.F5 )
