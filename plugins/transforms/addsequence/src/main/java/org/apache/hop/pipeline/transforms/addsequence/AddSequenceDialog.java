@@ -36,11 +36,21 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 
 public class AddSequenceDialog extends BaseTransformDialog implements ITransformDialog {
@@ -176,7 +186,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wUseDatabase.setToolTipText( BaseMessages.getString( PKG, "AddSequenceDialog.UseDatabase.Tooltip" ) );
     FormData fdUseDatabase = new FormData();
     fdUseDatabase.left = new FormAttachment( middle, 0 );
-    fdUseDatabase.top = new FormAttachment( 0, 0 );
+    fdUseDatabase.top = new FormAttachment( wlUseDatabase, 0, SWT.CENTER );
     wUseDatabase.setLayoutData( fdUseDatabase );
     wUseDatabase.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -270,7 +280,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     wUseCounter.setToolTipText( BaseMessages.getString( PKG, "AddSequenceDialog.UseCounter.Tooltip" ) );
     FormData fdUseCounter = new FormData();
     fdUseCounter.left = new FormAttachment( middle, 0 );
-    fdUseCounter.top = new FormAttachment( wSeqname, margin );
+    fdUseCounter.top = new FormAttachment( wlUseCounter, 0, SWT.CENTER );
     wUseCounter.setLayoutData( fdUseCounter );
     wUseCounter.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -287,7 +297,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     FormData fdlCounterName = new FormData();
     fdlCounterName.left = new FormAttachment( 0, 0 );
     fdlCounterName.right = new FormAttachment( middle, -margin );
-    fdlCounterName.top = new FormAttachment( wUseCounter, margin );
+    fdlCounterName.top = new FormAttachment( wlUseCounter, margin );
     wlCounterName.setLayoutData( fdlCounterName );
     wCounterName = new Text( gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wCounterName.setText( "" );

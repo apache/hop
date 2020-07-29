@@ -155,10 +155,10 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     } );
     FormData fdNeverEnding = new FormData();
     fdNeverEnding.left = new FormAttachment( middle, 0 );
-    fdNeverEnding.top = new FormAttachment( lastControl, margin );
+    fdNeverEnding.top = new FormAttachment( wlNeverEnding, 0, SWT.CENTER );
     fdNeverEnding.right = new FormAttachment( 100, 0 );
     wNeverEnding.setLayoutData( fdNeverEnding );
-    lastControl = wNeverEnding;
+    lastControl = wlNeverEnding;
 
     wlInterval = new Label( shell, SWT.RIGHT );
     wlInterval.setText( BaseMessages.getString( PKG, "RowGeneratorDialog.Interval.Label" ) );
