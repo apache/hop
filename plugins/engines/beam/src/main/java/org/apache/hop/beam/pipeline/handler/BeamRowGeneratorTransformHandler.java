@@ -102,7 +102,10 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler i
       if (intervalMs<0) {
         throw new HopException("The interval in milliseconds is expected to be >= 0, not '"+meta.getIntervalInMs()+"'");
       }
-      options.nextProcessingTimeDelay( intervalMs ); // Random, different from the standard Row Generator step
+
+      // The processing time delay is a random value between 0 and intervalMs so we need to double this to get the same speed on average.
+      //
+      options.nextProcessingTimeDelay( intervalMs * 2 );
       options.forceNumInitialBundles = transformMeta.getCopies();
 
       SyntheticUnboundedSource unboundedSource = new SyntheticUnboundedSource( options );
