@@ -102,7 +102,10 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler i
       if (intervalMs<0) {
         throw new HopException("The interval in milliseconds is expected to be >= 0, not '"+meta.getIntervalInMs()+"'");
       }
-      options.nextProcessingTimeDelay( intervalMs ); // Random, different from the standard Row Generator step
+
+      // The processing time delay is a random value between 0 and intervalMs so we need to double this to get the same speed on average.
+      //
+      options.nextProcessingTimeDelay( intervalMs * 2 );
       options.forceNumInitialBundles = transformMeta.getCopies();
 
       SyntheticUnboundedSource unboundedSource = new SyntheticUnboundedSource( options );
@@ -133,6 +136,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler i
       if (options.numRecords<0) {
         throw new HopException("Please specify a valid number of records to generate, not '"+meta.getRowLimit()+"'");
       }
+      options.nextProcessingTimeDelay( 0 );
       options.forceNumInitialBundles = transformMeta.getCopies();
       SyntheticBoundedSource boundedSource = new SyntheticBoundedSource(options);
       Read.Bounded<KV<byte[], byte[]>> boundedReader = Read.from( boundedSource );

@@ -557,6 +557,10 @@ public class ContextDialog extends Dialog {
 		int pageRows = Math.floorDiv( area.height, cellHeight );
 		int nrColumns = calculateNrColumns();
 		int nrRows = calculateNrRows();
+		if (nrColumns==0 || nrRows==0) {
+			return; // race condition
+		}
+
 		int index = filteredItems.indexOf( selectedItem );
 
 		switch ( event.keyCode ) {
@@ -630,6 +634,9 @@ public class ContextDialog extends Dialog {
 		int startRow = verticalBar.getSelection();
 		int nrColumns = calculateNrColumns();
 		int nrRows = calculateNrRows();
+		if (nrRows==0 || nrColumns==0) {
+			return null; // race condition
+		}
 
 		int canvasRow = Math.min( Math.floorDiv( y, cellHeight ), nrRows );
 		int canvasColumn = Math.min( Math.floorDiv( x, cellWidth ), nrColumns );
