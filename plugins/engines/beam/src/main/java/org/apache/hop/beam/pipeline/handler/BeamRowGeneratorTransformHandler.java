@@ -136,6 +136,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler i
       if (options.numRecords<0) {
         throw new HopException("Please specify a valid number of records to generate, not '"+meta.getRowLimit()+"'");
       }
+      options.nextProcessingTimeDelay( 0 );
       options.forceNumInitialBundles = transformMeta.getCopies();
       SyntheticBoundedSource boundedSource = new SyntheticBoundedSource(options);
       Read.Bounded<KV<byte[], byte[]>> boundedReader = Read.from( boundedSource );
