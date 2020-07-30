@@ -95,13 +95,7 @@ public class HopBeamGuiPlugin {
     }
 
     try {
-      Set<File> jarFiles = new HashSet<>();
-      jarFiles.addAll( FileUtils.listFiles( new File("lib"), new String[] { "jar" }, true ) );
-      jarFiles.addAll( FileUtils.listFiles( new File("libswt/linux/x86_64"), new String[] { "jar" }, true ) );
-      jarFiles.addAll( FileUtils.listFiles( new File("plugins"), new String[] { "jar" }, true ) );
-
-      List<String> jarFilenames = new ArrayList<>();
-      jarFiles.forEach( file -> jarFilenames.add(file.toString()) );
+      List<String> jarFilenames = findInstalledJarFilenames();
 
       IRunnableWithProgress op = monitor -> {
         try {
@@ -128,5 +122,16 @@ public class HopBeamGuiPlugin {
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error", "Error creating fat jar", e );
     }
+  }
+
+  public static final List<String> findInstalledJarFilenames() {
+    Set<File> jarFiles = new HashSet<>();
+    jarFiles.addAll( FileUtils.listFiles( new File("lib"), new String[] { "jar" }, true ) );
+    jarFiles.addAll( FileUtils.listFiles( new File("libswt/linux/x86_64"), new String[] { "jar" }, true ) );
+    jarFiles.addAll( FileUtils.listFiles( new File("plugins"), new String[] { "jar" }, true ) );
+
+    List<String> jarFilenames = new ArrayList<>();
+    jarFiles.forEach( file -> jarFilenames.add(file.toString()) );
+    return jarFilenames;
   }
 }
