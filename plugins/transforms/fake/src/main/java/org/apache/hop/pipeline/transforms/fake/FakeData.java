@@ -20,21 +20,28 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.pipeline.transforms.systemdata;
+package org.apache.hop.pipeline.transforms.fake;
 
+import com.github.javafaker.Faker;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+
+import java.lang.reflect.Method;
+import java.util.List;
 
 /**
  * @author Matt
  * @since 24-jan-2005
  */
-public class SystemDataData extends BaseTransformData implements ITransformData {
-  public boolean readsRows;
+public class FakeData extends BaseTransformData implements ITransformData {
+  public Faker faker;
   public IRowMeta outputRowMeta;
 
-  public SystemDataData() {
+  public List<Object> fakerTypes;
+  public List<Method> fakerMethods;
+
+  public FakeData() {
     super();
   }
 
