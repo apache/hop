@@ -81,6 +81,7 @@
         <module>excelwriter</module>
         <module>execprocess</module>
         <module>execsqlrow</module>
+        <module>fake</module>
         <module>fieldschangesequence</module>
         <module>fieldsplitter</module>
         <module>fileexists</module>
