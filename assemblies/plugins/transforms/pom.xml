@@ -83,6 +83,7 @@
         <module>memgroupby</module>
         <module>mergejoin</module>
         <module>mergerows</module>
+        <module>multimerge</module>
         <module>normaliser</module>
         <module>nullif</module>
         <module>numberrange</module>
@@ -123,6 +124,8 @@
         <module>webservices</module>
         <module>writetolog</module>
         <module>xml</module>
+        <module>yamlinput</module>
+        <module>zipfile</module>
     </modules>
 
 </project>
