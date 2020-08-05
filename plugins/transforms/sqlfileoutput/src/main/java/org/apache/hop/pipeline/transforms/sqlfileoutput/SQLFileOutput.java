@@ -29,7 +29,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -43,30 +43,20 @@ import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 
-/**
- * Writes rows to a sql file.
- *
- * @author Matt
- * @since 6-apr-2003
- */
-public class SQLFileOutput extends BaseTransform implements ITransform {
-  private static Class<?> PKG = SQLFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private SQLFileOutputMeta meta;
-  private SQLFileOutputData data;
+public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutputData> implements ITransform<SQLFileOutputMeta,SQLFileOutputData> {
+  private static Class<?> PKG = SQLFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   String schemaTable;
   String schemaName;
   String tableName;
 
-  public SQLFileOutput( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public SQLFileOutput( TransformMeta transformMeta, SQLFileOutputMeta meta, SQLFileOutputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean processRow() throws HopException {
-    meta = (SQLFileOutputMeta) smi;
-    data = (SQLFileOutputData) sdi;
 
     Object[] r = getRow(); // this also waits for a previous transform to be finished.
     if ( r == null ) { // no more input to be expected...
@@ -202,7 +192,7 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
         // Add this to the result file names...
         ResultFile resultFile =
           new ResultFile(
-            ResultFile.FILE_TYPE_GENERAL, HopVFS.getFileObject( filename, getPipelineMeta() ), getPipelineMeta()
+            ResultFile.FILE_TYPE_GENERAL, HopVfs.getFileObject( filename ), getPipelineMeta()
             .getName(), getTransformName() );
         resultFile.setComment( "This file was created with a text file output transform" );
         addResultFile( resultFile );
@@ -212,7 +202,7 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
       if ( log.isDetailed() ) {
         logDetailed( "Opening output stream in nocompress mode" );
       }
-      OutputStream fos = HopVFS.getOutputStream( filename, getPipelineMeta(), meta.isFileAppended() );
+      OutputStream fos = HopVfs.getOutputStream( filename, meta.isFileAppended() );
       outputStream = fos;
 
       if ( log.isDetailed() ) {
@@ -283,8 +273,6 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
   }
 
   public boolean init() {
-    meta = (SQLFileOutputMeta) smi;
-    data = (SQLFileOutputData) sdi;
 
     if ( super.init() ) {
       try {
@@ -306,7 +294,7 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
           try {
             // Get parent folder
             String filename = environmentSubstitute( meta.getFileName() );
-            parentfolder = HopVFS.getFileObject( filename, getPipelineMeta() ).getParent();
+            parentfolder = HopVfs.getFileObject( filename).getParent();
             if ( !parentfolder.exists() ) {
               log.logBasic( "Folder parent", "Folder parent " + parentfolder.getName() + " does not exist !" );
               parentfolder.createFolder();
@@ -352,30 +340,6 @@ public class SQLFileOutput extends BaseTransform implements ITransform {
       return true;
     }
     return false;
-  }
-
-  public void.dispose() {
-    meta = (SQLFileOutputMeta) smi;
-    data = (SQLFileOutputData) sdi;
-
-    try {
-      if ( data.db != null ) {
-        data.db.closeInsert();
-      }
-      closeFile();
-    } catch ( Exception dbe ) {
-      logError( "Unexpected error committing the database connection: " + dbe.toString() );
-      logError( Const.getStackTracker( dbe ) );
-      setErrors( 1 );
-      stopAll();
-    } finally {
-      setOutputDone();
-
-      if ( data.db != null ) {
-        data.db.disconnect();
-      }
-      super.dispose();
-    }
   }
 
 }

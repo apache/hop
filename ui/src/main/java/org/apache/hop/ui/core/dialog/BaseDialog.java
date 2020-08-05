@@ -127,7 +127,7 @@ public abstract class BaseDialog extends Dialog {
   public static final String presentFileDialog( boolean save, Shell shell, TextVar textVar, IVariables variables,
                                                 String[] filterExtensions, String[] filterNames,
                                                 boolean folderAndFile ) {
-    return presentFileDialog( shell, textVar, variables, null, filterExtensions, filterNames, folderAndFile );
+    return presentFileDialog( save, shell, textVar, variables, null, filterExtensions, filterNames, folderAndFile );
   }
 
   public static final String presentFileDialog( Shell shell, TextVar textVar, IVariables variables,

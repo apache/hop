@@ -24,9 +24,10 @@ package org.apache.hop.pipeline.transforms.sqlfileoutput;
 
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -36,20 +37,19 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.resource.ResourceDefinition;
-import org.apache.hop.resource.IResourceNaming;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.resource.IResourceNaming;
+import org.apache.hop.resource.ResourceDefinition;
 import org.w3c.dom.Node;
 
 import java.text.SimpleDateFormat;
@@ -57,12 +57,17 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-/*
- * Created on 26-may-2007
- *
- */
 
-public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "SQLFileOutput",
+        image = "sqlfileoutput.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.sql",
+        name = "SQLFileOutput.Name",
+        description = "SQLFileOutput.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/sqlfileoutput.html"
+)
+public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMeta<SQLFileOutput, SQLFileOutputData> {
   private static Class<?> PKG = SQLFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta databaseMeta;
@@ -666,12 +671,12 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
+  public ITransform createTransform( TransformMeta transformMeta, SQLFileOutputData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
     return new SQLFileOutput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
-  public ITransformData getTransformData() {
+  public SQLFileOutputData getTransformData() {
     return new SQLFileOutputData();
   }
 
@@ -700,9 +705,9 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
     }
   }
 
-  public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) {
-    SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
+    SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
@@ -817,7 +822,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransform {
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVFS.getFileObject( variables.environmentSubstitute( fileName ), variables );
+      FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
 
       // If the file doesn't exist, forget about this effort too!
       //

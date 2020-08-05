@@ -105,6 +105,7 @@
         <module>sortedmerge</module>
         <module>splitfieldtorows</module>
         <module>sql</module>
+        <module>sqlfileoutput</module>
         <module>streamlookup</module>
         <module>stringcut</module>
         <module>stringoperations</module>
