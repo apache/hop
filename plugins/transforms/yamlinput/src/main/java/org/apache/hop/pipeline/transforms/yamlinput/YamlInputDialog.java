@@ -39,11 +39,7 @@ import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transforms.yamlinput.YamlInputField;
 import org.apache.hop.pipeline.transforms.yamlinput.YamlInputMeta;
 import org.apache.hop.pipeline.transforms.yamlinput.YamlReader;
-import org.apache.hop.ui.core.dialog.EnterNumberDialog;
-import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
-import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
+import org.apache.hop.ui.core.dialog.*;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -932,38 +928,18 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     } );
 
     // Listen to the Browse... button
-    wbbFilename.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        if ( wFilemask.getText() != null && wFilemask.getText().length() > 0 ) { // A mask: a directory!
-          DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
-          if ( wFilename.getText() != null ) {
-            String fpath = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            dialog.setFilterPath( fpath );
-          }
+    if ( wbbFilename != null ) {
+      // Listen to the browse button next to the file name
+      //
+      wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+              new String[] { "*.yaml;*.YAML;*.yml;*.YML", "*" },
+              new String[] {
+                      "Yaml files",
+                      BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
+              true )
+      );
+    }
 
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath();
-            wFilename.setText( str );
-          }
-        } else {
-          FileDialog dialog = new FileDialog( shell, SWT.OPEN );
-          dialog.setFilterExtensions( new String[] { "*.yaml;*.YAML", "*" } );
-          if ( wFilename.getText() != null ) {
-            String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
-            dialog.setFileName( fname );
-          }
-
-          dialog.setFilterNames( new String[] {
-            BaseMessages.getString( PKG, "System.FileType.YAMLFiles" ),
-            BaseMessages.getString( PKG, "System.FileType.AllFiles" ) } );
-
-          if ( dialog.open() != null ) {
-            String str = dialog.getFilterPath() + System.getProperty( "file.separator" ) + dialog.getFileName();
-            wFilename.setText( str );
-          }
-        }
-      }
-    } );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
