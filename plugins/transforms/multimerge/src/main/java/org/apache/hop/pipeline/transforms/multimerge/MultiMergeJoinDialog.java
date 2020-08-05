@@ -131,11 +131,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     props.setLook( shell );
     setShellImage( shell, joinMeta );
 
-    final ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        joinMeta.setChanged();
-      }
-    };
+    final ModifyListener lsMod = e -> joinMeta.setChanged();
     backupChanged = joinMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -180,16 +176,8 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -392,25 +380,23 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     //
     // Search the fields in the background
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        try {
-          CCombo wInputTransform = wInputTransformArray[ inputStreamIndex ];
-          String transformName = wInputTransform.getText();
-          TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-          if ( transformMeta != null ) {
-            prev = pipelineMeta.getTransformFields( transformMeta );
-            if ( prev != null ) {
-              // Remember these fields...
-              for ( int i = 0; i < prev.size(); i++ ) {
-                inputFields.put( prev.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-              }
-              setComboBoxes();
+    final Runnable runnable = () -> {
+      try {
+        CCombo wInputTransform = wInputTransformArray[ inputStreamIndex ];
+        String transformName = wInputTransform.getText();
+        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+        if ( transformMeta != null ) {
+          prev = pipelineMeta.getTransformFields( transformMeta );
+          if ( prev != null ) {
+            // Remember these fields...
+            for ( int i = 0; i < prev.size(); i++ ) {
+              inputFields.put( prev.getValueMeta( i ).getName(), Integer.valueOf( i ) );
             }
+            setComboBoxes();
           }
-        } catch ( HopException e ) {
-          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
+      } catch ( HopException e ) {
+        logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
       }
     };
     Display.getDefault().asyncExec( runnable );

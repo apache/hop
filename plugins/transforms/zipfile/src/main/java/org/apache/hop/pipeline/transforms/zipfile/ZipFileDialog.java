@@ -114,11 +114,7 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
 
     SelectionAdapter lsSel = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -407,17 +403,9 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wMoveToFolderField );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
 
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );
