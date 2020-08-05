@@ -604,6 +604,11 @@
             <goals>
               <goal>prepare-agent</goal>
             </goals>
+            <configuration>
+              <excludes>
+                <exclude>**/*Dialog*</exclude>
+              </excludes>
+            </configuration>
           </execution>
           <execution>
             <id>coverage-report</id>
@@ -611,26 +616,10 @@
             <goals>
               <goal>report</goal>
             </goals>
-          </execution>
-          <!-- Threshold -->
-          <execution>
-            <id>coverage-check</id>
-            <goals>
-              <goal>check</goal>
-            </goals>
             <configuration>
-              <rules>
-                <rule>
-                  <element>CLASS</element>
-                  <limits>
-                    <limit>
-                      <counter>LINE</counter>
-                      <value>COVEREDRATIO</value>
-                      <minimum>0%</minimum>
-                    </limit>
-                  </limits>
-                </rule>
-              </rules>
+              <excludes>
+                <exclude>**/*Dialog*</exclude>
+              </excludes>
             </configuration>
           </execution>
         </executions>
