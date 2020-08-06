@@ -34,9 +34,9 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
@@ -58,7 +58,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class RegexEvalMetaTest implements InitializerInterface<ITransform> {
+public class RegexEvalMetaTest implements IInitializer<ITransform> {
   IRowMeta mockInputRowMeta;
   IVariables mockVariableSpace;
   LoadSaveTester loadSaveTester;
@@ -219,11 +219,11 @@ public class RegexEvalMetaTest implements InitializerInterface<ITransform> {
         put( "fieldType", "setFieldType" );
       }
     };
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldFormat", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldGroup", stringArrayLoadSaveValidator );
@@ -237,7 +237,7 @@ public class RegexEvalMetaTest implements InitializerInterface<ITransform> {
     attrValidatorMap.put( "fieldType", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 9 ), 5 ) );
 
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
@@ -249,11 +249,6 @@ public class RegexEvalMetaTest implements InitializerInterface<ITransform> {
     if ( someMeta instanceof RegexEvalMeta ) {
       ( (RegexEvalMeta) someMeta ).allocate( 5 );
     }
-  }
-
-  @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
   }
 
 

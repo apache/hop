@@ -23,8 +23,9 @@
 package org.apache.hop.pipeline.transforms.regexeval;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -40,16 +41,21 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.*;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-public class RegexEvalMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "RegexEval",
+        image = "regexeval.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.regexeval",
+        name = "RegexEval.Name",
+        description = "RegexEval.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/regexeval.html"
+)
+public class RegexEvalMeta extends BaseTransformMeta implements ITransformMeta<RegexEval,RegexEvalData> {
   private static Class<?> PKG = RegexEvalMeta.class; // for i18n purposes, needed by Translator!!
 
   private String script;
@@ -569,12 +575,12 @@ public class RegexEvalMeta extends BaseTransformMeta implements ITransform {
 
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
-                                PipelineMeta pipelineMeta, Pipeline pipeline ) {
-    return new RegexEval( transformMeta, this, data, cnr, pipelineMeta, pipeline );
+  @Override
+  public ITransform createTransform(TransformMeta transformMeta, RegexEvalData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new RegexEval( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public ITransformData getTransformData() {
+  public RegexEvalData getTransformData() {
     return new RegexEvalData();
   }
 

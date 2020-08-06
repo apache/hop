@@ -24,45 +24,32 @@ package org.apache.hop.pipeline.transforms.regexeval;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Use regular expression to validate a field or capture new fields out of an existing field.
- *
- * @author deinspanjer
- * @author Matt
- * @since 27-03-2008
- * @since 15-08-2007
- */
-public class RegexEval extends BaseTransform implements ITransform {
+
+public class RegexEval extends BaseTransform<RegexEvalMeta,RegexEvalData> implements ITransform<RegexEvalMeta,RegexEvalData> {
   private static Class<?> PKG = RegexEvalMeta.class; // for i18n purposes,
   // needed by
   // Translator!!
 
-  private RegexEvalMeta meta;
-  private RegexEvalData data;
 
-  public RegexEval( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
-                    Pipeline pipeline ) {
+  public RegexEval(TransformMeta transformMeta, RegexEvalMeta meta, RegexEvalData data, int copyNr, PipelineMeta pipelineMeta,
+                   Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean processRow() throws HopException {
-    meta = (RegexEvalMeta) smi;
-    data = (RegexEvalData) sdi;
 
     Object[] row = getRow();
 
@@ -230,8 +217,6 @@ public class RegexEval extends BaseTransform implements ITransform {
   }
 
   public boolean init() {
-    meta = (RegexEvalMeta) smi;
-    data = (RegexEvalData) sdi;
 
     if ( super.init() ) {
       // Embedded options
@@ -254,15 +239,6 @@ public class RegexEval extends BaseTransform implements ITransform {
       return true;
     }
     return false;
-  }
-
-  public void.dispose() {
-    meta = (RegexEvalMeta) smi;
-    data = (RegexEvalData) sdi;
-
-    data.pattern = null;
-
-    super.dispose();
   }
 
 }

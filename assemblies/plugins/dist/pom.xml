@@ -1724,6 +1724,19 @@
 
     <dependency>
       <groupId>org.hop</groupId>
+      <artifactId>hop-assemblies-plugins-transforms-regexeval</artifactId>
+      <version>0.40-SNAPSHOT</version>
+      <type>zip</type>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hop</groupId>
       <artifactId>hop-assemblies-plugins-transforms-replacestring</artifactId>
       <version>0.40-SNAPSHOT</version>
       <type>zip</type>

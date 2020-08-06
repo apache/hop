@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.logging.LoggingObjectInterface;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
@@ -46,7 +46,7 @@ public class RegexEvalUnitTest {
     transformMockHelper =
       new TransformMockHelper<RegexEvalMeta, RegexEvalData>(
         "REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class );
-    when( transformMockHelper.logChannelFactory.create( any(), any( LoggingObjectInterface.class ) ) )
+    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( transformMockHelper.logChannelInterface );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
@@ -68,7 +68,7 @@ public class RegexEvalUnitTest {
     when( transformMockHelper.iTransformMeta.getMatcher() ).thenReturn( "\\.+" );
     transformMockHelper.iTransformData.pattern = Pattern.compile( "(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)" );
     Object[] inputRow = new Object[] {};
-    RowSet inputRowSet = transformMockHelper.getMockInputRowSet( inputRow );
+    IRowSet inputRowSet = transformMockHelper.getMockInputRowSet( inputRow );
     IRowMeta mockInputRowMeta = mock( IRowMeta.class );
     IRowMeta mockOutputRoMeta = mock( IRowMeta.class );
     when( mockOutputRoMeta.size() ).thenReturn( outFields.length );

@@ -24,19 +24,14 @@ package org.apache.hop.pipeline.transforms.regexeval;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.PipelineTestingUtil;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transforms.TransformMockUtil;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.powermock.modules.junit4.PowerMockRunner;
 
@@ -44,9 +39,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Andrey Khayrutdinov
@@ -123,12 +116,12 @@ public class RegexEval_EmptyStringVsNull_Test {
     // needed to activate a branch with conversion from string
     data.pattern = Pattern.compile( "(a)(a)" );
 
-    List<Object[]> actual = PipelineTestingUtil.execute( transform, meta, data, 3, false );
+    List<Object[]> actual = PipelineTestingUtil.execute( transform, 3, false );
     PipelineTestingUtil.assertResult( expected, actual );
   }
 
   private RegexEval createAndInitTransform( RegexEvalMeta meta, RegexEvalData data ) throws Exception {
-    when( helper.transformMeta.getITransform() ).thenReturn( meta );
+    when( helper.transformMeta.getTransform() ).thenReturn( meta );
 
     RegexEval transform = new RegexEval( helper.transformMeta, meta, data, 0, helper.pipelineMeta, helper.pipeline );
     transform.init();

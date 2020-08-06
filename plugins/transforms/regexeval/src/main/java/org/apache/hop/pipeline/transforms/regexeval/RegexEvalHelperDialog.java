@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.regexeval;
+package org.apache.hop.pipeline.transforms.regexeval;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -28,8 +28,8 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.regexeval.RegexEvalMeta;
-import org.apache.hop.ui.core.PropsUI;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -72,7 +72,7 @@ public class RegexEvalHelperDialog extends Dialog {
   private Listener lsOk, lsCancel;
 
   private Shell shell;
-  private PropsUI props;
+  private PropsUi props;
   private String regexscript;
   private String regexoptions;
   private boolean canonicalEqualityFlagSet;
@@ -119,7 +119,7 @@ public class RegexEvalHelperDialog extends Dialog {
   private Text wValueGroup;
   private FormData fdlValueGroup, fdValueGroup;
 
-  GUIResource guiresource = GUIResource.getInstance();
+  GuiResource guiresource = GuiResource.getInstance();
 
   private boolean errorDisplayed;
 
@@ -134,7 +134,7 @@ public class RegexEvalHelperDialog extends Dialog {
   public RegexEvalHelperDialog( Shell parent, PipelineMeta transmeta, String RegexScript, String RegexOptions,
                                 boolean canonicalEqualityFlagSet ) {
     super( parent, SWT.NONE );
-    props = PropsUI.getInstance();
+    props = PropsUi.getInstance();
     this.regexscript = RegexScript;
     this.regexoptions = RegexOptions;
     this.transmeta = transmeta;
