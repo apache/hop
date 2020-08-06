@@ -88,9 +88,11 @@
         <module>nullif</module>
         <module>numberrange</module>
         <module>pgbulkloader</module>
+        <module>processfiles</module>
         <module>propertyinput</module>
         <module>propertyoutput</module>
         <module>randomvalue</module>
+        <module>regexeval</module>
         <module>replacestring</module>
         <module>reservoirsampling</module>
         <module>rest</module>
@@ -105,6 +107,8 @@
         <module>sortedmerge</module>
         <module>splitfieldtorows</module>
         <module>sql</module>
+        <module>sqlfileoutput</module>
+        <module>ssh</module>
         <module>streamlookup</module>
         <module>stringcut</module>
         <module>stringoperations</module>
