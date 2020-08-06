@@ -29,7 +29,7 @@ import org.apache.commons.vfs2.FileContent;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +52,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith( PowerMockRunner.class )
-@PrepareForTest( { SSHData.class, HopVFS.class } )
+@PrepareForTest( { SSHData.class, HopVfs.class } )
 public class SSHDataTest {
 
   @Mock
@@ -78,11 +78,11 @@ public class SSHDataTest {
   @Before
   public void setup() throws Exception {
     PowerMockito.mockStatic( SSHData.class );
-    PowerMockito.mockStatic( HopVFS.class );
+    PowerMockito.mockStatic( HopVfs.class );
     when( SSHData.createConnection( server, port ) ).thenReturn( connection );
     when( SSHData.OpenConnection( any(), anyInt(), any(), any(), anyBoolean(),
       any(), any(), anyInt(), anyObject(), any(), anyInt(), any(), any() ) ).thenCallRealMethod();
-    when( HopVFS.getFileObject( keyFilePath ) ).thenReturn( fileObject );
+    when( HopVfs.getFileObject( keyFilePath ) ).thenReturn( fileObject );
   }
 
   @Test

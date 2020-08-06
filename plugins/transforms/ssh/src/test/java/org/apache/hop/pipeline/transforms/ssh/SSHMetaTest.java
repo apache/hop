@@ -68,7 +68,7 @@ public class SSHMetaTest {
     sshMeta.setProxyPassword( plaintextProxyPassword );
 
     StringBuilder xmlString = new StringBuilder( 50 );
-    xmlString.append( XmlHandler.getXMLHeader() ).append( Const.CR );
+    xmlString.append( XmlHandler.getXmlHeader() ).append( Const.CR );
     xmlString.append( XmlHandler.openTag( "transform" ) ).append( Const.CR );
     xmlString.append( sshMeta.getXml() );
     xmlString.append( XmlHandler.closeTag( "transform" ) ).append( Const.CR );

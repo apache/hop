@@ -141,6 +141,7 @@
         <module>splitfieldtorows</module>
         <module>sql</module>
         <module>sqlfileoutput</module>
+        <module>ssh</module>
         <module>streamlookup</module>
         <module>stringcut</module>
         <module>stringoperations</module>

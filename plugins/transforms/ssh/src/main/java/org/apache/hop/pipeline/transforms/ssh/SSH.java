@@ -44,20 +44,18 @@ import org.apache.hop.pipeline.transform.ITransform;
  * @since 03-Juin-2008
  */
 
-public class SSH extends BaseTransform implements ITransform {
+public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<SSHMeta, SSHData> {
   private static Class<?> PKG = SSHMeta.class; // for i18n purposes, needed by Translator!!
 
   private SSHMeta meta;
   private SSHData data;
 
-  public SSH( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+  public SSH( TransformMeta transformMeta, SSHMeta meta, SSHData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
   public boolean processRow() throws HopException {
-    meta = (SSHMeta) smi;
-    data = (SSHData) sdi;
 
     Object[] row;
     if ( meta.isDynamicCommand() ) {
@@ -199,8 +197,6 @@ public class SSH extends BaseTransform implements ITransform {
 
   @Override
   public boolean init() {
-    meta = (SSHMeta) smi;
-    data = (SSHData) sdi;
 
     if ( super.init() ) {
       String servername = environmentSubstitute( meta.getServerName() );
@@ -255,18 +251,4 @@ public class SSH extends BaseTransform implements ITransform {
     return false;
   }
 
-  @Override
-  public void.dispose() {
-    meta = (SSHMeta) smi;
-    data = (SSHData) sdi;
-
-    if ( data.conn != null ) {
-      data.conn.close();
-      if ( log.isDebug() ) {
-        logDebug( BaseMessages.getString( PKG, "SSH.Log.ConnectionClosed" ) );
-      }
-    }
-
-    super.dispose();
-  }
 }

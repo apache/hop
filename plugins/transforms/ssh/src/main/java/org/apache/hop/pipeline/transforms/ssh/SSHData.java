@@ -32,7 +32,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -80,7 +80,7 @@ public class SSHData extends BaseTransformData implements ITransformData {
         if ( Utils.isEmpty( keyFilename ) ) {
           throw new HopException( BaseMessages.getString( SSHMeta.PKG, "SSH.Error.PrivateKeyFileMissing" ) );
         }
-        FileObject keyFileObject = HopVFS.getFileObject( keyFilename );
+        FileObject keyFileObject = HopVfs.getFileObject( keyFilename );
 
         if ( !keyFileObject.exists() ) {
           throw new HopException( BaseMessages.getString( SSHMeta.PKG, "SSH.Error.PrivateKeyNotExist", keyFilename ) );

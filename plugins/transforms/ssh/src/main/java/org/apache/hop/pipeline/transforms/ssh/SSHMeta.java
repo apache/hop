@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.ssh;
 import com.trilead.ssh2.Connection;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -35,7 +36,7 @@ import org.apache.hop.core.row.value.ValueMetaBoolean;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -44,20 +45,24 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 03-Juin-2008
- *
- */
-
-public class SSHMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "SSH",
+        image = "ssh.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.ssh",
+        name = "SSH.Name",
+        description = "SSH.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ssh.html"
+)
+public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH,SSHData> {
   static Class<?> PKG = SSHMeta.class; // for i18n purposes, needed by Translator!!
   private static int DEFAULT_PORT = 22;
 
@@ -442,7 +447,7 @@ public class SSHMeta extends BaseTransformMeta implements ITransform {
         remarks.add( cr );
         boolean keyFileExists = false;
         try {
-          keyFileExists = HopVFS.fileExists( keyfilename );
+          keyFileExists = HopVfs.fileExists( keyfilename );
         } catch ( Exception e ) { /* Ignore */
         }
         if ( !keyFileExists ) {
@@ -493,13 +498,13 @@ public class SSHMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
+  public ITransform createTransform( TransformMeta transformMeta, SSHData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
     return new SSH( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override
-  public ITransformData getTransformData() {
+  public SSHData getTransformData() {
     return new SSHData();
   }
 
@@ -538,7 +543,7 @@ public class SSHMeta extends BaseTransformMeta implements ITransform {
    * Returns the Input/Output metadata for this transform.
    */
   @Override
-  public TransformIOMetaInterface getTransformIOMeta() {
+  public ITransformIOMeta getTransformIOMeta() {
     return new TransformIOMeta( isDynamicCommand(), true, false, false, false, false );
   }
 }
