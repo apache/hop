@@ -29,37 +29,25 @@ import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
-import org.apache.hop.core.vfs.HopVFS;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
-/**
- * Copy, move or delete file *
- *
- * @author Samatar
- * @since 03-Juin-2008
- */
 
-public class ProcessFiles extends BaseTransform implements ITransform {
+public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesData> implements ITransform<ProcessFilesMeta, ProcessFilesData> {
   private static Class<?> PKG = ProcessFilesMeta.class; // for i18n purposes, needed by Translator!!
 
-  private ProcessFilesMeta meta;
-  private ProcessFilesData data;
 
-  public ProcessFiles( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public ProcessFiles( TransformMeta transformMeta,ProcessFilesMeta meta, ProcessFilesData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean processRow() throws HopException {
-    meta = (ProcessFilesMeta) smi;
-    data = (ProcessFilesData) sdi;
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
     if ( r == null ) { // no more input to be expected...
@@ -112,7 +100,7 @@ public class ProcessFiles extends BaseTransform implements ITransform {
         logError( BaseMessages.getString( PKG, "ProcessFiles.Error.SourceFileEmpty" ) );
         throw new HopException( BaseMessages.getString( PKG, "ProcessFiles.Error.SourceFileEmpty" ) );
       }
-      data.sourceFile = HopVFS.getFileObject( sourceFilename, getPipelineMeta() );
+      data.sourceFile = HopVfs.getFileObject( sourceFilename );
 
       if ( !data.sourceFile.exists() ) {
         logError( BaseMessages.getString( PKG, "ProcessFiles.Error.SourceFileNotExist", sourceFilename ) );
@@ -133,7 +121,7 @@ public class ProcessFiles extends BaseTransform implements ITransform {
           logError( BaseMessages.getString( PKG, "ProcessFiles.Error.TargetFileEmpty" ) );
           throw new HopException( BaseMessages.getString( PKG, "ProcessFiles.Error.TargetFileEmpty" ) );
         }
-        data.targetFile = HopVFS.getFileObject( targetFilename, getPipelineMeta() );
+        data.targetFile = HopVfs.getFileObject( targetFilename );
         if ( data.targetFile.exists() ) {
           if ( log.isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "ProcessFiles.Log.TargetFileExists", targetFilename ) );
@@ -181,7 +169,7 @@ public class ProcessFiles extends BaseTransform implements ITransform {
         case ProcessFilesMeta.OPERATION_TYPE_MOVE:
           if ( ( ( meta.isOverwriteTargetFile() && data.targetFile.exists() ) || !data.targetFile.exists() )
             && !meta.simulate ) {
-            data.sourceFile.moveTo( HopVFS.getFileObject( targetFilename, getPipelineMeta() ) );
+            data.sourceFile.moveTo( HopVfs.getFileObject( targetFilename ));
             if ( log.isDetailed() ) {
               logDetailed( BaseMessages.getString(
                 PKG, "ProcessFiles.Log.SourceFileMoved", sourceFilename, targetFilename ) );
@@ -266,37 +254,11 @@ public class ProcessFiles extends BaseTransform implements ITransform {
   }
 
   public boolean init() {
-    meta = (ProcessFilesMeta) smi;
-    data = (ProcessFilesData) sdi;
 
     if ( super.init() ) {
       return true;
     }
     return false;
-  }
-
-  public void.dispose() {
-    meta = (ProcessFilesMeta) smi;
-    data = (ProcessFilesData) sdi;
-    if ( data.sourceFile != null ) {
-      try {
-        data.sourceFile.close();
-        data.sourceFile = null;
-      } catch ( Exception e ) {
-        // Ignore errors
-      }
-
-    }
-    if ( data.targetFile != null ) {
-      try {
-        data.targetFile.close();
-        data.targetFile = null;
-      } catch ( Exception e ) {
-        // Ignore errors
-      }
-
-    }
-    super.dispose();
   }
 
 }

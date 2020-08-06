@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.processfiles;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
@@ -34,21 +35,22 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 03-Juin-2008
- *
- */
-
-public class ProcessFilesMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "ProcessFiles",
+        image = "processfiles.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.ProcessFiles",
+        description = "ProcessFiles.Description",
+        name = "ProcessFiles.Name",
+        categoryDescription = "BaseTransform.Category.Utility",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/processfiles.html"
+)
+public class ProcessFilesMeta extends BaseTransformMeta implements ITransformMeta<ProcessFiles, ProcessFilesData> {
   private static Class<?> PKG = ProcessFilesMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean addresultfilenames;
@@ -314,13 +316,13 @@ public class ProcessFilesMeta extends BaseTransformMeta implements ITransform {
   }
 
   @Override
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
+  public ITransform createTransform( TransformMeta transformMeta, ProcessFilesData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
     return new ProcessFiles( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   @Override
-  public ITransformData getTransformData() {
+  public ProcessFilesData getTransformData() {
     return new ProcessFilesData();
   }
 
