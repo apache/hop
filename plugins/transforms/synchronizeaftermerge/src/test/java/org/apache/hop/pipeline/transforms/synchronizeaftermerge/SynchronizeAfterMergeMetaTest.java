@@ -22,28 +22,23 @@
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.initializer.InitializerInterface;
+import org.apache.hop.pipeline.transforms.loadsave.initializer.IInitializer;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.BooleanLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.loadsave.validator.FieldLoadSaveValidator;
+import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public class SynchronizeAfterMergeMetaTest implements InitializerInterface<ITransform> {
+public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
   LoadSaveTester loadSaveTester;
   Class<SynchronizeAfterMergeMeta> testMetaClass = SynchronizeAfterMergeMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -70,11 +65,11 @@ public class SynchronizeAfterMergeMetaTest implements InitializerInterface<ITran
         put( "tablenameField", "settablenameField" );
       }
     };
-    FieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
       new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
 
 
-    Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "keyStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyStream2", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyLookup", stringArrayLoadSaveValidator );
@@ -83,7 +78,7 @@ public class SynchronizeAfterMergeMetaTest implements InitializerInterface<ITran
     attrValidatorMap.put( "updateStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "update", new ArrayLoadSaveValidator<Boolean>( new BooleanLoadSaveValidator(), 5 ) );
 
-    Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
@@ -96,11 +91,6 @@ public class SynchronizeAfterMergeMetaTest implements InitializerInterface<ITran
     if ( someMeta instanceof SynchronizeAfterMergeMeta ) {
       ( (SynchronizeAfterMergeMeta) someMeta ).allocate( 5, 5 );
     }
-  }
-
-  @Test
-  public void testSerialization() throws HopException {
-    loadSaveTester.testSerialization();
   }
 
   @Test

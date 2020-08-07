@@ -23,9 +23,10 @@
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
-import org.apache.hop.core.SQLStatement;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.SqlStatement;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -34,9 +35,9 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.AfterInjection;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -46,21 +47,26 @@ import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
 
-/*
- * Created on 13-10-2008
- *
- */
+
 @InjectionSupported( localizationPrefix = "SynchronizeAfterMerge.Injection.", groups = { "KEYS_TO_LOOKUP",
   "UPDATE_FIELDS" } )
-public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "SynchronizeAfterMerge",
+        image = "synchronizeaftermerge.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.synchronizeaftermerge",
+        name = "SynchronizeAfterMerge.Name",
+        description = "SynchronizeAfterMerge.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/synchronizeaftermerge.html"
+)
+public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITransformMeta<SynchronizeAfterMerge,SynchronizeAfterMergeData> {
   private static Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
@@ -831,9 +837,9 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
     }
   }
 
-  public SQLStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    SQLStatement retval = new SQLStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
+    SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
@@ -953,12 +959,13 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
+  @Override
+  public ITransform createTransform( TransformMeta transformMeta, SynchronizeAfterMergeData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
     return new SynchronizeAfterMerge( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
-  public ITransformData getTransformData() {
+  public SynchronizeAfterMergeData getTransformData() {
     return new SynchronizeAfterMergeData();
   }
 

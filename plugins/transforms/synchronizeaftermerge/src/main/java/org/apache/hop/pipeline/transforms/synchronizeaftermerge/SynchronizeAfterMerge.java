@@ -25,7 +25,6 @@ package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.OracleDatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseBatchException;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
@@ -48,20 +47,12 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Performs an insert/update/delete depending on the value of a field.
- *
- * @author Samatar
- * @since 13-10-2008
- */
-public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
+
+public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMeta, SynchronizeAfterMergeData> implements ITransform<SynchronizeAfterMergeMeta, SynchronizeAfterMergeData> {
 
   private static Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
 
-  private SynchronizeAfterMergeMeta meta;
-  private SynchronizeAfterMergeData data;
-
-  public SynchronizeAfterMerge( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public SynchronizeAfterMerge( TransformMeta transformMeta, SynchronizeAfterMergeMeta meta, SynchronizeAfterMergeData data, int copyNr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
@@ -128,7 +119,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
               logDebug( "Preparation of the insert SQL statement: " + sql );
             }
 
-            data.insertStatement = data.db.prepareSQL( sql );
+            data.insertStatement = data.db.prepareSql( sql );
             data.preparedStatements.put( data.realSchemaTable + "insert", data.insertStatement );
           }
         }
@@ -180,7 +171,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
                 logDebug( "Preparating SQL for insert: " + sql );
               }
 
-              data.lookupStatement = data.db.prepareSQL( sql );
+              data.lookupStatement = data.db.prepareSql( sql );
               data.preparedStatements.put( data.realSchemaTable + "lookup", data.lookupStatement );
             }
           }
@@ -243,7 +234,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
               if ( data.updateStatement == null ) {
                 String sql = getUpdateStatement( data.inputRowMeta );
 
-                data.updateStatement = data.db.prepareSQL( sql );
+                data.updateStatement = data.db.prepareSql( sql );
                 data.preparedStatements.put( data.realSchemaTable + "update", data.updateStatement );
                 if ( log.isDebug() ) {
                   logDebug( "Preparation of the Update SQL statement : " + sql );
@@ -294,7 +285,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
 
             if ( data.deleteStatement == null ) {
               String sql = getDeleteStatement( data.inputRowMeta );
-              data.deleteStatement = data.db.prepareSQL( sql );
+              data.deleteStatement = data.db.prepareSql( sql );
               data.preparedStatements.put( data.realSchemaTable + "delete", data.deleteStatement );
               if ( log.isDebug() ) {
                 logDebug( "Preparation of the Delete SQL statement : " + sql );
@@ -656,8 +647,6 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
   }
 
   public boolean processRow() throws HopException {
-    meta = (SynchronizeAfterMergeMeta) smi;
-    data = (SynchronizeAfterMergeData) sdi;
 
     Object[] nextRow = getRow(); // Get row from input rowset & set row busy!
     if ( nextRow == null ) { // no more input to be expected...
@@ -778,7 +767,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
               logDebug( "Preparation of the lookup SQL statement : " + sql );
             }
 
-            data.lookupStatement = data.db.prepareSQL( sql );
+            data.lookupStatement = data.db.prepareSql( sql );
             data.preparedStatements.put( data.realSchemaTable + "lookup", data.lookupStatement );
           }
         }
@@ -792,7 +781,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
             logDebug( "Preparation of the Insert SQL statement : " + sql );
           }
 
-          data.insertStatement = data.db.prepareSQL( sql );
+          data.insertStatement = data.db.prepareSql( sql );
           data.preparedStatements.put( data.realSchemaTable + "insert", data.insertStatement );
         }
 
@@ -802,7 +791,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
         if ( data.updateStatement == null ) {
           String sql = getUpdateStatement( data.inputRowMeta );
 
-          data.updateStatement = data.db.prepareSQL( sql );
+          data.updateStatement = data.db.prepareSql( sql );
           data.preparedStatements.put( data.realSchemaTable + "update", data.updateStatement );
           if ( log.isDebug() ) {
             logDebug( "Preparation of the Update SQL statement : " + sql );
@@ -814,7 +803,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
         if ( data.deleteStatement == null ) {
           String sql = getDeleteStatement( data.inputRowMeta );
 
-          data.deleteStatement = data.db.prepareSQL( sql );
+          data.deleteStatement = data.db.prepareSql( sql );
           data.preparedStatements.put( data.realSchemaTable + "delete", data.deleteStatement );
           if ( log.isDebug() ) {
             logDebug( "Preparation of the Delete SQL statement : " + sql );
@@ -846,9 +835,6 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
   }
 
   public boolean init() {
-    meta = (SynchronizeAfterMergeMeta) smi;
-    data = (SynchronizeAfterMergeData) sdi;
-
     if ( super.init() ) {
       try {
         meta.normalizeAllocationFields();
@@ -863,7 +849,8 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
         data.databaseMeta = meta.getDatabaseMeta();
 
         // if we are using Oracle then set releaseSavepoint to false
-        if ( data.databaseMeta.getIDatabase() instanceof OracleDatabaseMeta ) {
+        //TODO: change when we remove those variants of IDatabase
+        if ( data.databaseMeta.getIDatabase().isOracleVariant() ) {
           data.releaseSavepoint = false;
         }
 
@@ -890,7 +877,7 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
         }
         data.db = new Database( this, meta.getDatabaseMeta() );
         data.db.shareVariablesWith( this );
-        data.db.connect( getPartitionID() );
+        data.db.connect( getPartitionId() );
         data.db.setCommit( data.commitSize );
 
         return true;
@@ -900,11 +887,6 @@ public class SynchronizeAfterMerge extends BaseTransform implements ITransform {
       }
     }
     return false;
-  }
-
-  public void.dispose() {
-    finishTransform();
-    super.dispose();
   }
 
   private void finishTransform() {

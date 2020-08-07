@@ -115,6 +115,7 @@
         <module>syslog</module>
         <module>systemdata</module>
         <module>switchcase</module>
+        <module>synchronizeaftermerge</module>
         <module>tablecompare</module>
         <module>tableexists</module>
         <module>tableoutput</module>
