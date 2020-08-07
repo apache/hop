@@ -121,6 +121,7 @@
         <module>nullif</module>
         <module>numberrange</module>
         <module>pgbulkloader</module>
+        <module>pgp</module>
         <module>processfiles</module>
         <module>propertyinput</module>
         <module>propertyoutput</module>
