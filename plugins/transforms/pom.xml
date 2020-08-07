@@ -121,6 +121,7 @@
         <module>nullif</module>
         <module>numberrange</module>
         <module>pgbulkloader</module>
+        <module>pgp</module>
         <module>processfiles</module>
         <module>propertyinput</module>
         <module>propertyoutput</module>
@@ -146,6 +147,7 @@
         <module>stringcut</module>
         <module>stringoperations</module>
         <module>switchcase</module>
+        <module>synchronizeaftermerge</module>
         <module>syslog</module>
         <module>systemdata</module>
         <module>tablecompare</module>

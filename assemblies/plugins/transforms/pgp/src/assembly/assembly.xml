@@ -1,14 +1,19 @@
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
-    <id>hop-assemblies-plugins-transforms-ssh</id>
+    <id>hop-assemblies-plugins-transforms-pgp</id>
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>transforms/ssh</baseDirectory>
+    <baseDirectory>transforms/pgp</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+        </file>
+        <file>
+            <source>${project.basedir}/src/main/resources/dependencies.xml</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
         </file>
@@ -25,14 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-ssh:jar</include>
-            </includes>
-        </dependencySet>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <outputDirectory>lib</outputDirectory>
-            <includes>
-                <include>com.trilead:trilead-ssh2:jar</include>
+                <include>org.hop:hop-transform-pgp:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

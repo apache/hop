@@ -11,23 +11,18 @@
     </parent>
 
 
-    <artifactId>hop-assemblies-plugins-transforms-ssh</artifactId>
+    <artifactId>hop-assemblies-plugins-transforms-pgp</artifactId>
     <version>0.40-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Hop Assemblies Plugins Transforms SSH</name>
+    <name>Hop Assemblies Plugins Transforms PGP Encrypt/Decrypt</name>
     <description></description>
 
     <dependencies>
         <dependency>
             <groupId>org.hop</groupId>
-            <artifactId>hop-transform-ssh</artifactId>
+            <artifactId>hop-transform-pgp</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.trilead</groupId>
-            <artifactId>trilead-ssh2</artifactId>
-            <version>1.0.0-build222</version>
         </dependency>
     </dependencies>
 </project>
