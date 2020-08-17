@@ -1110,10 +1110,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void mouseExit( MouseEvent event ) {
   }
 
-  public void mouseScrolled( MouseEvent e ) {
-    /*
-     * if (e.count == 3) { // scroll up zoomIn(); } else if (e.count == -3) { // scroll down zoomOut(); }
-     */
+  public void mouseScrolled( MouseEvent event ) {   
+     if ( event.count > 0 ) { 
+    	 // scroll up 
+    	 zoomIn(); 
+     } else if ( event.count < 0 ) { 
+    	 // scroll down 
+    	 zoomOut(); 
+   	}
   }
 
   private void addCandidateAsHop() {
