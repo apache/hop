@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-plugins-transforms</artifactId>
+        <version>0.40-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>hop-transform-metainject</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Hop Plugins Transforms ETL Metadata Injection</name>
+
+    <properties>
+        <mockito.version>1.10.19</mockito.version>
+        <powermock.version>1.7.3</powermock.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.hop</groupId>
+            <artifactId>hop-transform-rowsfromresult</artifactId>
+            <version>0.40-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-mockito</artifactId>
+            <version>${powermock.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
