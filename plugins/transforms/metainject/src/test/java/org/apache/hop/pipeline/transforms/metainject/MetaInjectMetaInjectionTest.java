@@ -22,8 +22,6 @@
 
 package org.apache.hop.pipeline.transforms.metainject;
 
-import static org.junit.Assert.*;
-
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
@@ -32,12 +30,6 @@ import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-//import org.pentaho.di.core.ObjectLocationSpecificationMethod;
-//import org.pentaho.di.core.injection.BaseMetadataInjectionTest;
-//import org.pentaho.di.core.row.ValueMetaInterface;
-//import org.pentaho.di.core.row.value.ValueMetaBase;
-//import org.pentaho.di.core.row.value.ValueMetaString;
-//import org.pentaho.di.junit.rules.RestorePDIEngineEnvironment;
 
 public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTest<MetaInjectMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -51,9 +43,9 @@ public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTest<MetaI
 
   @Test
   public void test() throws Exception {
-    check( "TRANS_NAME", new IStringGetter() {
+    check( "PIPELINE_NAME", new IStringGetter() {
       public String get() {
-        return meta.getTransName();
+        return meta.getPipelineName();
       }
     } );
     check( "FILE_NAME", new IStringGetter() {
@@ -66,9 +58,9 @@ public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTest<MetaI
         return meta.getDirectoryPath();
       }
     } );
-    check( "SOURCE_STEP_NAME", new IStringGetter() {
+    check( "SOURCE_TRANSFORM_NAME", new IStringGetter() {
       public String get() {
-        return meta.getSourceStepName();
+        return meta.getSourceTransformName();
       }
     } );
     check( "TARGET_FILE", new IStringGetter() {
@@ -81,14 +73,14 @@ public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTest<MetaI
         return meta.isNoExecution();
       }
     } );
-    check( "STREAMING_SOURCE_STEP", new IStringGetter() {
+    check( "STREAMING_SOURCE_TRANSFORM", new IStringGetter() {
       public String get() {
-        return meta.getStreamSourceStepname();
+        return meta.getStreamSourceTransformName();
       }
     } );
-    check( "STREAMING_TARGET_STEP", new IStringGetter() {
+    check( "STREAMING_TARGET_TRANSFORM", new IStringGetter() {
       public String get() {
-        return meta.getStreamTargetStepname();
+        return meta.getStreamTargetTransformName();
       }
     } );
     check( "SOURCE_OUTPUT_NAME", new IStringGetter() {
@@ -113,9 +105,9 @@ public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTest<MetaI
         return meta.getSourceOutputFields().get( 0 ).getPrecision();
       }
     } );
-    check( "MAPPING_SOURCE_STEP", new IStringGetter() {
+    check( "MAPPING_SOURCE_TRANSFORM", new IStringGetter() {
       public String get() {
-        return meta.getMetaInjectMapping().get( 0 ).getSourceStep();
+        return meta.getMetaInjectMapping().get( 0 ).getSourceTransform();
       }
     } );
     check( "MAPPING_SOURCE_FIELD", new IStringGetter() {
@@ -123,9 +115,9 @@ public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTest<MetaI
         return meta.getMetaInjectMapping().get( 0 ).getSourceField();
       }
     } );
-    check( "MAPPING_TARGET_STEP", new IStringGetter() {
+    check( "MAPPING_TARGET_TRANSFORM", new IStringGetter() {
       public String get() {
-        return meta.getMetaInjectMapping().get( 0 ).getTargetStep();
+        return meta.getMetaInjectMapping().get( 0 ).getTargetTransform();
       }
     } );
     check( "MAPPING_TARGET_FIELD", new IStringGetter() {
@@ -133,7 +125,7 @@ public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTest<MetaI
         return meta.getMetaInjectMapping().get( 0 ).getTargetField();
       }
     } );
-    check( "TRANS_SEPECIFICATION_METHOD", new IEnumGetter() {
+    check( "PIPELINE_SPECIFICATION_METHOD", new IEnumGetter() {
       @Override
       public Enum<?> get() {
         return meta.getSpecificationMethod();
@@ -142,9 +134,9 @@ public class MetaInjectMetaInjectionTest extends BaseMetadataInjectionTest<MetaI
     }, ObjectLocationSpecificationMethod.class );
 
     IValueMeta mftt = new ValueMetaString( "f" );
-    injector.setProperty( meta, "TRANS_OBJECT_ID", setValue( mftt, TEST_ID ), "f" );
+//    injector.setProperty( meta, "TRANS_OBJECT_ID", setValue( mftt, TEST_ID ), "f" );
 //    assertEquals( TEST_ID, meta.getTransObjectId().getId() );
-    skipPropertyTest( "TRANS_OBJECT_ID" );
+//    skipPropertyTest( "TRANS_OBJECT_ID" );
   }
 
 }

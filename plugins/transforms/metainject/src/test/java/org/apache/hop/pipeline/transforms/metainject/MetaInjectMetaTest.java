@@ -24,9 +24,6 @@ package org.apache.hop.pipeline.transforms.metainject;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doAnswer;
@@ -38,13 +35,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metastore.api.IMetaStore;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.resource.IResourceNaming;
@@ -56,25 +52,23 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 //@PrepareForTest({MetaInject.class})
 public class MetaInjectMetaTest {
 
-  private static final String SOURCE_STEP_NAME = "SOURCE_STEP_NAME";
+  private static final String SOURCE_TRANSFORM_NAME = "SOURCE_TRANSFORM_NAME";
 
-  private static final String SOURCE_FIELD_NAME = "SOURCE_STEP_NAME";
+  private static final String SOURCE_FIELD_NAME = "SOURCE_TRANSFORM_NAME";
 
-  private static final String TARGET_STEP_NAME = "TARGET_STEP_NAME";
+  private static final String TARGET_TRANSFORM_NAME = "TARGET_TRANSFORM_NAME";
 
-  private static final String TARGET_FIELD_NAME = "TARGET_STEP_NAME";
+  private static final String TARGET_FIELD_NAME = "TARGET_TRANSFORM_NAME";
 
   private static final String TEST_FILE_NAME = "TEST_FILE_NAME";
 
-  private static final String EXPORTED_FILE_NAME =
-      "${" + Const.INTERNAL_VARIABLE_ENTRY_CURRENT_DIRECTORY + "}/" + TEST_FILE_NAME;
+  private static final String EXPORTED_FILE_NAME = TEST_FILE_NAME;
 
   private static MetaInjectMeta metaInjectMeta;
 
@@ -96,10 +90,10 @@ public class MetaInjectMetaTest {
 
   @Test
   public void getResourceDependencies() {
-    PipelineMeta transMeta = mock( PipelineMeta.class );
-    TransformMeta stepMeta = mock( TransformMeta.class );
+    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
+    TransformMeta transformMeta = mock( TransformMeta.class );
 
-    List<ResourceReference> actualResult = metaInjectMeta.getResourceDependencies( transMeta, stepMeta );
+    List<ResourceReference> actualResult = metaInjectMeta.getResourceDependencies( pipelineMeta, transformMeta );
     assertEquals( 1, actualResult.size() );
     ResourceReference reference = actualResult.iterator().next();
     assertEquals( 0, reference.getEntries().size() );
@@ -107,25 +101,25 @@ public class MetaInjectMetaTest {
 
   @Test
   public void getResourceDependencies_with_defined_fileName() {
-    PipelineMeta transMeta = mock( PipelineMeta.class );
-    TransformMeta stepMeta = mock( TransformMeta.class );
+    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
+    TransformMeta transformMeta = mock( TransformMeta.class );
     metaInjectMeta.setFileName( "FILE_NAME" );
-    doReturn( "FILE_NAME_WITH_SUBSTITUTIONS" ).when( transMeta ).environmentSubstitute( "FILE_NAME" );
+    doReturn( "FILE_NAME_WITH_SUBSTITUTIONS" ).when( pipelineMeta ).environmentSubstitute( "FILE_NAME" );
 
-    List<ResourceReference> actualResult = metaInjectMeta.getResourceDependencies( transMeta, stepMeta );
+    List<ResourceReference> actualResult = metaInjectMeta.getResourceDependencies( pipelineMeta, transformMeta );
     assertEquals( 1, actualResult.size() );
     ResourceReference reference = actualResult.iterator().next();
     assertEquals( 1, reference.getEntries().size() );
   }
 
   @Test
-  public void getResourceDependencies_with_defined_transName() {
-    PipelineMeta transMeta = mock( PipelineMeta.class );
-    TransformMeta stepMeta = mock( TransformMeta.class );
-    metaInjectMeta.setTransName( "TRANS_NAME" );
-    doReturn( "TRANS_NAME_WITH_SUBSTITUTIONS" ).when( transMeta ).environmentSubstitute( "TRANS_NAME" );
+  public void getResourceDependencies_with_defined_pipelineName() {
+    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
+    TransformMeta transformMeta = mock( TransformMeta.class );
+    metaInjectMeta.setPipelineName( "TRANS_NAME" );
+    doReturn( "TRANS_NAME_WITH_SUBSTITUTIONS" ).when( pipelineMeta ).environmentSubstitute( "TRANS_NAME" );
 
-    List<ResourceReference> actualResult = metaInjectMeta.getResourceDependencies( transMeta, stepMeta );
+    List<ResourceReference> actualResult = metaInjectMeta.getResourceDependencies( pipelineMeta, transformMeta );
     assertEquals( 1, actualResult.size() );
     ResourceReference reference = actualResult.iterator().next();
     assertEquals( 1, reference.getEntries().size() );
@@ -134,14 +128,14 @@ public class MetaInjectMetaTest {
   @Test
   public void getResourceDependencies_repository_full_path() {
     // checks getResourceDependencies() returns action file resource w/ transname including full repository path name
-    PipelineMeta transMeta = mock( PipelineMeta.class );
-    TransformMeta stepMeta = mock( TransformMeta.class );
-    metaInjectMeta.setTransName( "TRANS_NAME" );
+    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
+    TransformMeta transformMeta = mock( TransformMeta.class );
+    metaInjectMeta.setPipelineName( "TRANS_NAME" );
     metaInjectMeta.setDirectoryPath( "/REPO/DIR" );
-    doReturn( "TRANS_NAME_SUBS" ).when( transMeta ).environmentSubstitute( "TRANS_NAME" );
-    doReturn( "/REPO/DIR_SUBS" ).when( transMeta ).environmentSubstitute( "/REPO/DIR" );
+    doReturn( "TRANS_NAME_SUBS" ).when( pipelineMeta ).environmentSubstitute( "TRANS_NAME" );
+    doReturn( "/REPO/DIR_SUBS" ).when( pipelineMeta ).environmentSubstitute( "/REPO/DIR" );
 
-    List<ResourceReference> actualResult = metaInjectMeta.getResourceDependencies( transMeta, stepMeta );
+    List<ResourceReference> actualResult = metaInjectMeta.getResourceDependencies( pipelineMeta, transformMeta );
     assertEquals( 1, actualResult.size() );
     ResourceReference reference = actualResult.iterator().next();
     assertEquals( 1, reference.getEntries().size() );
@@ -156,79 +150,41 @@ public class MetaInjectMetaTest {
   public void exportResources() throws HopException {
     IVariables variableSpace = mock( IVariables.class );
     IResourceNaming resourceNamingInterface = mock( IResourceNaming.class );
-//    Repository repository = mock( Repository.class );
-    IMetaStore metaStore = mock( IMetaStore.class );
+    IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
 
     MetaInjectMeta injectMetaSpy = spy( metaInjectMeta );
-    PipelineMeta transMeta = mock( PipelineMeta.class );
+    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     Map<String, ResourceDefinition> definitions = Collections.<String, ResourceDefinition>emptyMap();
-    doReturn( TEST_FILE_NAME ).when( transMeta ).exportResources( transMeta, definitions, resourceNamingInterface, metaStore );
-    doReturn( transMeta ).when( injectMetaSpy ).loadPipelineMeta(variableSpace );
+    doReturn( TEST_FILE_NAME ).when( pipelineMeta ).exportResources( pipelineMeta, definitions, resourceNamingInterface, metadataProvider );
+    doReturn( pipelineMeta ).when( injectMetaSpy ).loadPipelineMeta(metadataProvider, variableSpace );
 
     String actualExportedFileName =
-        injectMetaSpy.exportResources( variableSpace, definitions, resourceNamingInterface, metaStore );
+        injectMetaSpy.exportResources( variableSpace, definitions, resourceNamingInterface, metadataProvider );
     assertEquals( TEST_FILE_NAME, actualExportedFileName );
     assertEquals( EXPORTED_FILE_NAME, injectMetaSpy.getFileName() );
-    verify( transMeta ).exportResources( transMeta, definitions, resourceNamingInterface, metaStore );
+    verify( pipelineMeta ).exportResources( pipelineMeta, definitions, resourceNamingInterface, metadataProvider );
   }
 
   @Test
   public void convertToMap() {
     MetaInjectMapping metaInjectMapping = new MetaInjectMapping();
-    metaInjectMapping.setSourceStep( SOURCE_STEP_NAME );
+    metaInjectMapping.setSourceTransform(SOURCE_TRANSFORM_NAME);
     metaInjectMapping.setSourceField( SOURCE_FIELD_NAME );
-    metaInjectMapping.setTargetStep( TARGET_STEP_NAME );
+    metaInjectMapping.setTargetTransform(TARGET_TRANSFORM_NAME);
     metaInjectMapping.setTargetField( TARGET_FIELD_NAME );
 
-    Map<TargetStepAttribute, SourceStepField> actualResult =
+    Map<TargetTransformAttribute, SourceTransformField> actualResult =
         MetaInjectMeta.convertToMap( Collections.singletonList( metaInjectMapping ) );
 
     assertEquals( 1, actualResult.size() );
 
-    TargetStepAttribute targetTransformAttribute = actualResult.keySet().iterator().next();
-    assertEquals( TARGET_STEP_NAME, targetTransformAttribute.getStepname() );
+    TargetTransformAttribute targetTransformAttribute = actualResult.keySet().iterator().next();
+    assertEquals(TARGET_TRANSFORM_NAME, targetTransformAttribute.getTransformName() );
     assertEquals( TARGET_FIELD_NAME, targetTransformAttribute.getAttributeKey() );
 
-    SourceStepField sourceTransformField = actualResult.values().iterator().next();
-    assertEquals( SOURCE_STEP_NAME, sourceTransformField.getStepname() );
+    SourceTransformField sourceTransformField = actualResult.values().iterator().next();
+    assertEquals(SOURCE_TRANSFORM_NAME, sourceTransformField.getTransformName() );
     assertEquals( SOURCE_FIELD_NAME, sourceTransformField.getField() );
   }
-
-  @Test
-  public void testLoadMappingMetaWhenConnectedToRep() throws Exception {
-    String variablePath = "Internal.Entry.Current.Directory";
-    String virtualDir = "/testFolder/test";
-    String fileName = "testTrans.ktr";
-
-    IVariables variables = new Variables();
-    variables.setVariable( variablePath, virtualDir );
-
-    MetaInjectMeta metaInjectMetaMock = mock( MetaInjectMeta.class );
-    when( metaInjectMetaMock.getSpecificationMethod() ).thenReturn( ObjectLocationSpecificationMethod.FILENAME );
-    when( metaInjectMetaMock.getFileName() ).thenReturn( "${" + variablePath + "}/" + fileName );
-
-    // mock repo and answers
-//    Repository rep = mock( Repository.class );
-
-    doAnswer( invocation -> {
-      String originalArgument = (String) ( invocation.getArguments() )[ 0 ];
-      // be sure that the variable was replaced by real path
-      assertEquals( originalArgument, virtualDir );
-      return null;
-    } ) //.when( rep ).findDirectory( anyString() )
-     ;
-
-    doAnswer( invocation -> {
-      String originalArgument = (String) ( invocation.getArguments() )[ 0 ];
-      // be sure that transformation name was resolved correctly
-      assertEquals( originalArgument, fileName );
-      return mock( PipelineMeta.class );
-    } )//.when( rep ).loadTransformation( anyString(), any( RepositoryDirectoryInterface.class ),
-      //any( ProgressMonitorListener.class ), anyBoolean(), anyString() )
-     ;
-
-    assertNotNull( MetaInjectMeta.loadPipelineMeta( metaInjectMetaMock, null, variables ) );
-  }
-
 
 }

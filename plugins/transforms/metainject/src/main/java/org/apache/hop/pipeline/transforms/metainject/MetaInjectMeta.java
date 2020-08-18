@@ -60,6 +60,7 @@ import java.util.Map.Entry;
 
 @Transform( id = "MetaInject",
     image = "GenericTransform.svg",
+    i18nPackageName = "org.apache.hop.pipeline.transforms.metainject",
     name = "BaseTransform.TypeLongDesc.MetaInject",
     description = "BaseTransform.TypeTooltipDesc.MetaInject",
     categoryDescription = "",
@@ -106,7 +107,7 @@ public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<
   // description of the transformation to execute...
   //
   @Injection( name = "PIPELINE_NAME" )
-  private String transName;
+  private String pipelineName;
 
   @Injection( name = "FILE_NAME" )
   private String fileName;
@@ -116,7 +117,7 @@ public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<
 
 //  private ObjectId transObjectId;
 
-  @Injection( name = "PIPELINE_SEPECIFICATION_METHOD" )
+  @Injection( name = "PIPELINE_SPECIFICATION_METHOD" )
   private ObjectLocationSpecificationMethod specificationMethod;
 
   @Injection( name = "SOURCE_TRANSFORM_NAME" )
@@ -171,7 +172,7 @@ public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<
 //      : specificationMethod.getCode() ) );
 //    retval.append( "    " ).append( XmlHandler.addTagValue( TRANS_OBJECT_ID, transObjectId == null ? null
 //      : transObjectId.toString() ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( PIPELINE_NAME, transName ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( PIPELINE_NAME, pipelineName) );
     retval.append( "    " ).append( XmlHandler.addTagValue( FILENAME, fileName ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( DIRECTORY_PATH, directoryPath ) );
 
@@ -218,7 +219,7 @@ public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<
   public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
 
-      transName = XmlHandler.getTagValue( transformNode, PIPELINE_NAME );
+      pipelineName = XmlHandler.getTagValue( transformNode, PIPELINE_NAME );
       fileName = XmlHandler.getTagValue( transformNode, FILENAME );
       directoryPath = XmlHandler.getTagValue( transformNode, DIRECTORY_PATH );
 
@@ -293,17 +294,17 @@ public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   /**
-   * @return the transName
+   * @return the pipeline name
    */
-  public String getTransName() {
-    return transName;
+  public String getPipelineName() {
+    return pipelineName;
   }
 
   /**
-   * @param transName the transName to set
+   * @param pipelineName the pipelineName to set
    */
-  public void setTransName( String transName ) {
-    this.transName = transName;
+  public void setPipelineName(String pipelineName ) {
+    this.pipelineName = pipelineName;
   }
 
   /**
@@ -459,7 +460,7 @@ public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<
   public List<ResourceReference> getResourceDependencies(PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
     String realFilename = pipelineMeta.environmentSubstitute( fileName );
-    String realTransname = pipelineMeta.environmentSubstitute( transName );
+    String realPipelineName = pipelineMeta.environmentSubstitute(pipelineName);
     String realDirectoryPath = pipelineMeta.environmentSubstitute( directoryPath );
     ResourceReference reference = new ResourceReference( transformInfo );
     references.add( reference );
@@ -469,9 +470,9 @@ public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<
       // meta data.
       //
       reference.getEntries().add( new ResourceEntry( realFilename, ResourceEntry.ResourceType.ACTIONFILE ) );
-    } else if ( !Utils.isEmpty( realTransname ) ) {
+    } else if ( !Utils.isEmpty( realPipelineName ) ) {
       // Add the trans name (including full repository path) to dependencies
-      String realTransformation = realDirectoryPath + "/" + realTransname;
+      String realTransformation = realDirectoryPath + "/" + realPipelineName;
       reference.getEntries().add( new ResourceEntry( realTransformation, ResourceEntry.ResourceType.ACTIONFILE ) );
     }
     return references;
@@ -587,7 +588,7 @@ public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<
 
   private boolean isTransformationDefined() {
     return !Utils.isEmpty( fileName ) || ( !Utils.isEmpty( this.directoryPath ) && !StringUtil
-      .isEmpty( transName ) );
+      .isEmpty(pipelineName) );
   }
 
   @Override

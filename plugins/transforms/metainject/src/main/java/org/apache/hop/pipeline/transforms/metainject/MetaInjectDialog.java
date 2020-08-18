@@ -967,7 +967,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       case FILENAME:
         metaInjectMeta.setFileName( wPath.getText() );
         metaInjectMeta.setDirectoryPath( null );
-        metaInjectMeta.setTransName( null );
+        metaInjectMeta.setPipelineName( null );
 //        metaInjectMeta.setTransObjectId( null );
         break;
 //      case REPOSITORY_BY_NAME:

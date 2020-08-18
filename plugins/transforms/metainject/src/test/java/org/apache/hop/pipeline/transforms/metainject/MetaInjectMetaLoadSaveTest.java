@@ -45,7 +45,7 @@ public class MetaInjectMetaLoadSaveTest {
   @Before
   public void setUpLoadSave() throws Exception {
     List<String> attributes =
-            Arrays.asList( "transName", "fileName", "directoryPath", "sourceTransformName", "targetFile",
+            Arrays.asList( "pipelineName", "fileName", "directoryPath", "sourceTransformName", "targetFile",
                     "noExecution", "streamSourceTransformName", "streamTargetTransformName",
                     "specificationMethod", "sourceOutputFields" );
 
