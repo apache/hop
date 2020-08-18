@@ -669,6 +669,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         selectionRegion = null;
         stopEntryMouseOverDelayTimers();
         redraw();
+        updateGui();
       } else {
         // Clicked on an icon?
         //
@@ -2758,17 +2759,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
       // Enable/disable the align/distribute toolbar buttons
       //
-      boolean selectedTransform = !workflowMeta.getSelectedEntries().isEmpty();
-      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedTransform );
+      boolean selectedAction = !workflowMeta.getSelectedEntries().isEmpty();
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedAction );
 
-      boolean selectedEntries = !workflowMeta.getSelectedEntries().isEmpty();
-      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedEntries );
-      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_LEFT, selectedEntries );
-      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_RIGHT, selectedEntries );
-      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_TOP, selectedEntries );
-      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedEntries );
-      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedEntries );
-      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedEntries );
+      boolean selectedActions = workflowMeta.getSelectedEntries().size() > 1;
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_LEFT, selectedActions );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_RIGHT, selectedActions );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_TOP, selectedActions );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedActions );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedActions );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedActions );
 
       boolean running = isRunning() && !workflow.isStopped();
       toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_START, !running );
