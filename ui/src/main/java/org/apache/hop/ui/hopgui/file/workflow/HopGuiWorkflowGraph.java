@@ -668,7 +668,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         selectInRect( workflowMeta, selectionRegion );
         selectionRegion = null;
         stopEntryMouseOverDelayTimers();
-        redraw();
         updateGui();
       } else {
         // Clicked on an icon?
