@@ -379,15 +379,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewPipelineTab.id + " trying to handle a new workflow tab", e );
     }
 
-    // Enable menu and toolbar item
-//	GuiMenuWidgets menuWidgets = HopGui.getInstance().getMainMenuWidgets();
-//    menuWidgets.findMenuItem(HopGui.ID_MAIN_MENU_FILE_SAVE).setEnabled(false);
-//  	menuWidgets.findMenuItem(HopGui.ID_MAIN_MENU_FILE_SAVE_AS).setEnabled(false); 
-//  	
-//  	GuiToolbarWidgets toolbarWidgets = HopGui.getInstance().getMainToolbarWidgets();
-//  	toolbarWidgets.enableToolbarItem(HopGui.ID_MAIN_TOOLBAR_SAVE, true);
-//  	toolbarWidgets.enableToolbarItem(HopGui.ID_MAIN_TOOLBAR_SAVE_AS, true);
-    
     jobGraph.setFocus();
 
     return jobGraph;
