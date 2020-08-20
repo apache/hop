@@ -33,13 +33,16 @@ import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
@@ -265,6 +268,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
           activeItem.getTypeHandler().updateGui();
         }
       }
+      
+      // If all tab are closed
+      //
+      if ( tabFolder.getItemCount()==0 ) {    	  
+    	HopGui.getInstance().handleFileCapabilities( new EmptyFileType(), false, false );
+      }
     }
   }
 
@@ -370,6 +379,15 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewPipelineTab.id + " trying to handle a new workflow tab", e );
     }
 
+    // Enable menu and toolbar item
+//	GuiMenuWidgets menuWidgets = HopGui.getInstance().getMainMenuWidgets();
+//    menuWidgets.findMenuItem(HopGui.ID_MAIN_MENU_FILE_SAVE).setEnabled(false);
+//  	menuWidgets.findMenuItem(HopGui.ID_MAIN_MENU_FILE_SAVE_AS).setEnabled(false); 
+//  	
+//  	GuiToolbarWidgets toolbarWidgets = HopGui.getInstance().getMainToolbarWidgets();
+//  	toolbarWidgets.enableToolbarItem(HopGui.ID_MAIN_TOOLBAR_SAVE, true);
+//  	toolbarWidgets.enableToolbarItem(HopGui.ID_MAIN_TOOLBAR_SAVE_AS, true);
+    
     jobGraph.setFocus();
 
     return jobGraph;
