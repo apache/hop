@@ -823,7 +823,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
 
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_START, IHopFileType.CAPABILITY_START, !running );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_STOP, IHopFileType.CAPABILITY_STOP, running );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PAUSE, IHopFileType.CAPABILITY_PAUSE, !paused );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PAUSE, IHopFileType.CAPABILITY_PAUSE, running && !paused );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_RESUME, IHopFileType.CAPABILITY_PAUSE, paused );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PREVIEW, IHopFileType.CAPABILITY_PREVIEW );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_DEBUG, IHopFileType.CAPABILITY_DEBUG );
