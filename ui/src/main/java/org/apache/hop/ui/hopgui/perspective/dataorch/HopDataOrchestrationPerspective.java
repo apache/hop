@@ -33,13 +33,16 @@ import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
@@ -264,6 +267,12 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
           tabFolder.setSelection( activeIndex );
           activeItem.getTypeHandler().updateGui();
         }
+      }
+      
+      // If all tab are closed
+      //
+      if ( tabFolder.getItemCount()==0 ) {    	  
+    	HopGui.getInstance().handleFileCapabilities( new EmptyFileType(), false, false );
       }
     }
   }
