@@ -20,13 +20,12 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.userdefinedjavaclass;
+package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClass;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -47,7 +46,7 @@ public class UserDefinedJavaClassCodeSnippits {
   public static synchronized UserDefinedJavaClassCodeSnippits getSnippitsHelper() throws HopXmlException {
     if ( snippitsHelper == null ) {
       snippitsHelper = new UserDefinedJavaClassCodeSnippits();
-      snippitsHelper.addSnippits( "codeSnippits.xml" );
+      snippitsHelper.addSnippits("org/apache/hop/pipeline/transforms/userdefinedjavaclass/codeSnippits.xml");
     }
     return snippitsHelper;
   }
@@ -58,7 +57,7 @@ public class UserDefinedJavaClassCodeSnippits {
   public void addSnippits( String strFileName ) throws HopXmlException {
     Document doc =
       XmlHandler.loadXmlFile(
-        UserDefinedJavaClassCodeSnippits.class.getResourceAsStream( strFileName ), null, false, false );
+        UserDefinedJavaClassCodeSnippits.class.getClassLoader().getResourceAsStream( strFileName ), null, false, false );
     buildSnippitList( doc );
   }
 

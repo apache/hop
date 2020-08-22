@@ -126,6 +126,7 @@
         <module>uniquerows</module>
         <module>uniquerowsbyhashset</module>
         <module>update</module>
+<!--        <module>userdefinedjavaclass</module>-->
         <module>valuemapper</module>
         <module>webserviceavailable</module>
         <module>webservices</module>

@@ -3,7 +3,7 @@
   <codeSnippit>
     <name>Main</name>
     <category>COMMON</category>
-    <code><![CDATA[public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws HopException {
+    <code><![CDATA[public boolean processRow() throws HopException {
   if (first) {
     first = false;
 
@@ -153,7 +153,7 @@ private final HashMap fieldsToUpdate = new HashMap();
 private int rowsLeftForGenerateMode = -1;
 private int outputRowSize = 0;
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws HopException {
+public boolean processRow() throws HopException {
     // If the global "first" flag is true, perform some initialization that can only happen
     // once we have read the first row of input data
     if (first) {

@@ -28,6 +28,7 @@ import com.google.common.cache.CacheBuilder;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -35,7 +36,7 @@ import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionDeep;
 import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.injection.NullNumberConverter;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -48,10 +49,10 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transforms.fieldsplitter.DataTypeConverter;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
 import org.codehaus.commons.compiler.CompileException;
@@ -69,7 +70,16 @@ import java.util.stream.Collectors;
 
 @InjectionSupported( localizationPrefix = "UserDefinedJavaClass.Injection.", groups = {
   "PARAMETERS", "TARGET_TRANSFORMS", "INFO_TRANSFORMS", "JAVA_CLASSES", "FIELD_INFO" } )
-public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "UserDefinedJavaClass",
+        image = "userdefinedjavaclass.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.userdefinedjavaclass",
+        name = "UserDefinedJavaClass.Name",
+        description = "UserDefinedJavaClass.Description",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/userdefinedjavaclass.html"
+)
+public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
   private static Class<?> PKG = UserDefinedJavaClassMeta.class; // for i18n purposes, needed by Translator!!
 
   public enum ElementNames {
@@ -196,7 +206,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
   @SuppressWarnings( "unchecked" )
   public void cookClasses() {
     cookErrors.clear();
-    ClassLoader clsloader = null;
+    ClassLoader clsloader = UserDefinedJavaClass.class.getClassLoader();
     for ( UserDefinedJavaClassDef def : getDefinitions() ) {
       if ( def.isActive() ) {
         try {
@@ -420,7 +430,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     // classpath.
   }
 
-  private boolean checkClassCookings( LogChannelInterface logChannel ) {
+  private boolean checkClassCookings( ILogChannel logChannel ) {
     boolean ok = cookedTransformClass != null && cookErrors.size() == 0;
     if ( changed ) {
       cookClasses();
@@ -438,7 +448,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
   }
 
   @Override
-  public TransformIOMetaInterface getTransformIOMeta() {
+  public ITransformIOMeta getTransformIOMeta() {
     if ( !checkClassCookings( getLog() ) ) {
       return super.getTransformIOMeta();
     }
@@ -446,7 +456,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     try {
       Method getTransformIOMeta = cookedTransformClass.getMethod( "getTransformIOMeta", UserDefinedJavaClassMeta.class );
       if ( getTransformIOMeta != null ) {
-        TransformIOMetaInterface transformIoMeta = (TransformIOMetaInterface) getTransformIOMeta.invoke( null, this );
+        ITransformIOMeta transformIoMeta = (ITransformIOMeta) getTransformIOMeta.invoke( null, this );
         if ( transformIoMeta == null ) {
           return super.getTransformIOMeta();
         } else {
@@ -583,18 +593,19 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     }
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,
+  @Override
+  public UserDefinedJavaClass createTransform( TransformMeta transformMeta, UserDefinedJavaClassData data, int cnr,
                                 PipelineMeta pipelineMeta, Pipeline pipeline ) {
     UserDefinedJavaClass userDefinedJavaClass =
       new UserDefinedJavaClass( transformMeta, this, data, cnr, pipelineMeta, pipeline );
-    if ( pipeline.hasHaltedTransforms() ) {
+    if ( pipeline.hasHaltedComponents() ) {
       return null;
     }
 
     return userDefinedJavaClass;
   }
 
-  public ITransformData getTransformData() {
+  public UserDefinedJavaClassData getTransformData() {
     return new UserDefinedJavaClassData();
   }
 
