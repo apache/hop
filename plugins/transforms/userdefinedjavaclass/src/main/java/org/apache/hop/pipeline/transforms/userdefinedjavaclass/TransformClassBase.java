@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.core.BlockingRowSet;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -37,18 +37,20 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformData.TransformExecutionStatus;
-import org.apache.hop.pipeline.transform.RowListener;
+import org.apache.hop.pipeline.engine.EngineComponent;
+import org.apache.hop.pipeline.engine.IPipelineEngine;
+import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
-import org.apache.hop.pipeline.transform.TransformIOMetaInterface;
-import org.apache.hop.pipeline.transform.TransformListener;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+//import org.apache.hop.pipeline.transform.ITransformListener;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
-import org.apache.hop.pipeline.transform.errorhandling.StreamInterface.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
+import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 
 import java.util.HashMap;
 import java.util.List;
@@ -105,13 +107,13 @@ public abstract class TransformClassBase {
     parent.addResultFileImpl( resultFile );
   }
 
-  public void addRowListener( RowListener rowListener ) {
+  public void addRowListener( IRowListener rowListener ) {
     parent.addRowListenerImpl( rowListener );
   }
 
-  public void addTransformListener( TransformListener transformListener ) {
-    parent.addTransformListenerImpl( transformListener );
-  }
+//  public void addTransformListener( ITransformListener transformListener ) {
+//    parent.addTransformListenerImpl( transformListener );
+//  }
 
   public boolean checkFeedback( long lines ) {
     return parent.checkFeedbackImpl( lines );
@@ -129,29 +131,26 @@ public abstract class TransformClassBase {
     return parent.decrementLinesWrittenImpl();
   }
 
-  public void.dispose() {
-    parent.disposeImpl( smi, sdi );
-  }
 
-  public RowSet findInputRowSet( String sourceTransform ) throws HopTransformException {
+  public IRowSet findInputRowSet( String sourceTransform ) throws HopTransformException {
     return parent.findInputRowSetImpl( sourceTransform );
   }
 
-  public RowSet findInputRowSet( String from, int fromcopy, String to, int tocopy ) {
+  public IRowSet findInputRowSet( String from, int fromcopy, String to, int tocopy ) {
     return parent.findInputRowSetImpl( from, fromcopy, to, tocopy );
   }
 
-  public RowSet findOutputRowSet( String targetTransform ) throws HopTransformException {
+  public IRowSet findOutputRowSet( String targetTransform ) throws HopTransformException {
     return parent.findOutputRowSetImpl( targetTransform );
   }
 
-  public RowSet findOutputRowSet( String from, int fromcopy, String to, int tocopy ) {
+  public IRowSet findOutputRowSet( String from, int fromcopy, String to, int tocopy ) {
     return parent.findOutputRowSetImpl( from, fromcopy, to, tocopy );
   }
 
-  public int getClusterSize() {
-    return parent.getClusterSizeImpl();
-  }
+//  public int getClusterSize() {
+//    return parent.getClusterSizeImpl();
+//  }ITransformListener
 
   public int getCopy() {
     return parent.getCopyImpl();
@@ -169,7 +168,7 @@ public abstract class TransformClassBase {
     return parent.getInputRowMetaImpl();
   }
 
-  public List<RowSet> getInputRowSets() {
+  public List<IRowSet> getInputRowSets() {
     return parent.getInputRowSetsImpl();
   }
 
@@ -201,13 +200,13 @@ public abstract class TransformClassBase {
     return parent.getLinesWrittenImpl();
   }
 
-  public List<RowSet> getOutputRowSets() {
+  public List<IRowSet> getOutputRowSets() {
     return parent.getOutputRowSetsImpl();
   }
 
-  public String getPartitionID() {
-    return parent.getPartitionIDImpl();
-  }
+//  public String getPartitionID() {
+//    return parent.getPartitionIDImpl();
+//  }
 
   public Map<String, BlockingRowSet> getPartitionTargets() {
     return parent.getPartitionTargetsImpl();
@@ -241,23 +240,23 @@ public abstract class TransformClassBase {
     return row;
   }
 
-  public Object[] getRowFrom( RowSet rowSet ) throws HopTransformException {
+  public Object[] getRowFrom( IRowSet rowSet ) throws HopTransformException {
     return parent.getRowFromImpl( rowSet );
   }
 
-  public List<RowListener> getRowListeners() {
+  public List<IRowListener> getRowListeners() {
     return parent.getRowListenersImpl();
   }
 
-  public long getRuntime() {
-    return parent.getRuntimeImpl();
-  }
+//  public long getRuntime() {
+//    return parent.getRuntimeImpl();
+//  }
+//
+//  public int getServerNr() {
+//    return parent.getServerNrImpl();
+//  }
 
-  public int getServerNr() {
-    return parent.getServerNrImpl();
-  }
-
-  public TransformExecutionStatus getStatus() {
+  public ComponentExecutionStatus getStatus() {
     return parent.getStatusImpl();
   }
 
@@ -273,9 +272,9 @@ public abstract class TransformClassBase {
     return parent.getTransformPluginIdImpl();
   }
 
-  public List<TransformListener> getTransformListeners() {
-    return parent.getTransformListenersImpl();
-  }
+//  public List<TransformListener> getTransformListeners() {
+//    return parent.getTransformListenersImpl();
+//  }
 
   public TransformMeta getTransformMeta() {
     return parent.getTransformMetaImpl();
@@ -285,7 +284,7 @@ public abstract class TransformClassBase {
     return parent.getTransformNameImpl();
   }
 
-  public Pipeline getPipeline() {
+  public IPipelineEngine getPipeline() {
     return parent.getTransImpl();
   }
 
@@ -293,17 +292,17 @@ public abstract class TransformClassBase {
     return parent.getPipelineMetaImpl();
   }
 
-  public String getTypeId() {
-    return parent.getTypeIdImpl();
-  }
-
-  public int getUniqueTransformCountAcrossServers() {
-    return parent.getUniqueTransformCountAcrossServersImpl();
-  }
-
-  public int getUniqueTransformNrAcrossServers() {
-    return parent.getUniqueTransformNrAcrossServersImpl();
-  }
+//  public String getTypeId() {
+//    return parent.getTypeIdImpl();
+//  }
+//
+//  public int getUniqueTransformCountAcrossServers() {
+//    return parent.getUniqueTransformCountAcrossServersImpl();
+//  }
+//
+//  public int getUniqueTransformNrAcrossServers() {
+//    return parent.getUniqueTransformNrAcrossServersImpl();
+//  }
 
   public String getVariable( String variableName ) {
     return parent.getVariableImpl( variableName );
@@ -369,9 +368,9 @@ public abstract class TransformClassBase {
     return parent.isStoppedImpl();
   }
 
-  public boolean isUsingThreadPriorityManagment() {
-    return parent.isUsingThreadPriorityManagmentImpl();
-  }
+//  public boolean isUsingThreadPriorityManagment() {
+//    return parent.isUsingThreadPriorityManagmentImpl();
+//  }
 
   public void logBasic( String s ) {
     parent.logBasicImpl( s );
@@ -413,19 +412,19 @@ public abstract class TransformClassBase {
     parent.markStopImpl();
   }
 
-  public void openRemoteInputTransformSocketsOnce() throws HopTransformException {
-    parent.openRemoteInputTransformSocketsOnceImpl();
-  }
+//  public void openRemoteInputTransformSocketsOnce() throws HopTransformException {
+//    parent.openRemoteInputTransformSocketsOnceImpl();
+//  }
 
-  public void openRemoteOutputTransformSocketsOnce() throws HopTransformException {
-    parent.openRemoteOutputTransformSocketsOnceImpl();
-  }
+//  public void openRemoteOutputTransformSocketsOnce() throws HopTransformException {
+//    parent.openRemoteOutputTransformSocketsOnceImpl();
+//  }
 
   public boolean outputIsDone() {
     return parent.outputIsDoneImpl();
   }
 
-  public abstract boolean.processRow() throws HopException;
+  public abstract boolean processRow() throws HopException;
 
   public void putError( IRowMeta rowMeta, Object[] row, long nrErrors, String errorDescriptions,
                         String fieldNames, String errorCodes ) throws HopTransformException {
@@ -436,11 +435,11 @@ public abstract class TransformClassBase {
     parent.putRowImpl( row, data );
   }
 
-  public void putRowTo( IRowMeta rowMeta, Object[] row, RowSet rowSet ) throws HopTransformException {
+  public void putRowTo( IRowMeta rowMeta, Object[] row, IRowSet rowSet ) throws HopTransformException {
     parent.putRowToImpl( rowMeta, row, rowSet );
   }
 
-  public void removeRowListener( RowListener rowListener ) {
+  public void removeRowListener( IRowListener rowListener ) {
     parent.removeRowListenerImpl( rowListener );
   }
 
@@ -464,7 +463,7 @@ public abstract class TransformClassBase {
     parent.setInputRowMetaImpl( rowMeta );
   }
 
-  public void setInputRowSets( List<RowSet> inputRowSets ) {
+  public void setInputRowSets( List<IRowSet> inputRowSets ) {
     parent.setInputRowSetsImpl( inputRowSets );
   }
 
@@ -500,13 +499,13 @@ public abstract class TransformClassBase {
     parent.setOutputDoneImpl();
   }
 
-  public void setOutputRowSets( List<RowSet> outputRowSets ) {
+  public void setOutputRowSets( List<IRowSet> outputRowSets ) {
     parent.setOutputRowSetsImpl( outputRowSets );
   }
 
-  public void setTransformListeners( List<TransformListener> transformListeners ) {
-    parent.setTransformListenersImpl( transformListeners );
-  }
+//  public void setTransformListeners( List<TransformListener> transformListeners ) {
+//    parent.setTransformListenersImpl( transformListeners );
+//  }
 
   public void setVariable( String variableName, String variableValue ) {
     parent.setVariableImpl( variableName, variableValue );
@@ -547,8 +546,8 @@ public abstract class TransformClassBase {
     }
   }
 
-  public static TransformIOMetaInterface getTransformIOMeta( UserDefinedJavaClassMeta meta ) {
-    TransformIOMetaInterface ioMeta = new TransformIOMeta( true, true, true, false, true, true );
+  public static ITransformIOMeta getTransformIOMeta( UserDefinedJavaClassMeta meta ) {
+    ITransformIOMeta ioMeta = new TransformIOMeta( true, true, true, false, true, true );
 
     for ( InfoTransformDefinition transformDefinition : meta.getInfoTransformDefinitions() ) {
       ioMeta.addStream( new Stream(
@@ -569,7 +568,7 @@ public abstract class TransformClassBase {
     return parent.environmentSubstitute( data.parameterMap.get( tag ) );
   }
 
-  public RowSet findInfoRowSet( String tag ) throws HopException {
+  public IRowSet findInfoRowSet( String tag ) throws HopException {
     if ( tag == null ) {
       return null;
     }
@@ -578,7 +577,7 @@ public abstract class TransformClassBase {
       throw new HopException( BaseMessages.getString(
         PKG, "TransformClassBase.Exception.UnableToFindInfoTransformNameForTag", tag ) );
     }
-    RowSet rowSet = findInputRowSet( transformName );
+    IRowSet rowSet = findInputRowSet( transformName );
     if ( rowSet == null ) {
       throw new HopException( BaseMessages.getString(
         PKG, "TransformClassBase.Exception.UnableToFindInfoRowSetForTransform", transformName ) );
@@ -586,7 +585,7 @@ public abstract class TransformClassBase {
     return rowSet;
   }
 
-  public RowSet findTargetRowSet( String tag ) throws HopException {
+  public IRowSet findTargetRowSet( String tag ) throws HopException {
     if ( tag == null ) {
       return null;
     }
@@ -595,7 +594,7 @@ public abstract class TransformClassBase {
       throw new HopException( BaseMessages.getString(
         PKG, "TransformClassBase.Exception.UnableToFindTargetTransformNameForTag", tag ) );
     }
-    RowSet rowSet = findOutputRowSet( transformName );
+    IRowSet rowSet = findOutputRowSet( transformName );
     if ( rowSet == null ) {
       throw new HopException( BaseMessages.getString(
         PKG, "TransformClassBase.Exception.UnableToFindTargetRowSetForTransform", transformName ) );

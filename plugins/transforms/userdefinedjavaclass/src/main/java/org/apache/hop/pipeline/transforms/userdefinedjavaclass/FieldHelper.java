@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.LogChannelInterface;
+import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaInternetAddress;
@@ -192,7 +192,7 @@ public class FieldHelper {
     try {
       return v.getType() != IValueMeta.TYPE_BINARY ? v.getNativeDataTypeClass().getSimpleName() : "Binary";
     } catch ( HopValueException e ) {
-      LogChannelInterface log = new LogChannel( v );
+      ILogChannel log = new LogChannel( v );
       log.logDebug( BaseMessages.getString( PKG, "FieldHelper.Log.UnknownNativeDataTypeSimpleName" ) );
       return "Object";
     }

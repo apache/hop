@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.userdefinedjavaclass;
+package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -40,52 +40,24 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.rowgenerator.RowGeneratorMeta;
-import org.apache.hop.pipeline.transforms.userdefinedjavaclass.FieldHelper;
-import org.apache.hop.pipeline.transforms.userdefinedjavaclass.InfoTransformDefinition;
-import org.apache.hop.pipeline.transforms.userdefinedjavaclass.TargetTransformDefinition;
-import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UsageParameter;
-import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef;
+import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Category;
+import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassDef.ClassType;
-import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta;
 import org.apache.hop.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassMeta.FieldInfo;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.ShowMessageDialog;
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.StyledTextComp;
 import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.hopui.HopUi;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Category;
-import org.apache.hop.ui.pipeline.transforms.userdefinedjavaclass.UserDefinedJavaClassCodeSnippits.Snippit;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabFolder2Adapter;
-import org.eclipse.swt.custom.CTabFolderEvent;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.custom.TreeEditor;
-import org.eclipse.swt.dnd.DND;
-import org.eclipse.swt.dnd.DragSource;
-import org.eclipse.swt.dnd.DragSourceAdapter;
-import org.eclipse.swt.dnd.DragSourceEvent;
-import org.eclipse.swt.dnd.TextTransfer;
-import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.custom.*;
+import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -93,32 +65,15 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.*;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UserDefinedJavaClassDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = UserDefinedJavaClassMeta.class;
@@ -167,7 +122,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
   private UserDefinedJavaClassMeta input;
   private UserDefinedJavaClassCodeSnippits snippitsHelper;
 
-  private static GUIResource guiResource = GUIResource.getInstance();
+  private static GuiResource guiResource = GuiResource.getInstance();
 
   private TreeItem itemInput, itemInfo, itemOutput;
 
@@ -193,13 +148,16 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
     genMeta = null;
     try {
       // ImageLoader xl = new ImageLoader();
-      imageUnderGreen = guiResource.getImage("ui/images/underGreen.png");
-      imageArrowGreen = guiResource.getImage("ui/images/arrowGreen.png");
-      imageArrowOrange = guiResource.getImage("ui/images/arrowOrange.png");
-      imageInputFields = guiResource.getImage("ui/images/inSmall.png");
-      imageOutputFields = guiResource.getImage("ui/images/outSmall.png");
-      imageActiveScript = guiResource.getImage("ui/images/faScript.png");
-      imageInactiveScript = guiResource.getImage("ui/images/fScript.png");
+      imageUnderGreen = guiResource.getImage("ui/images/paper-clip.svg");
+      imageArrowGreen = guiResource.getImage("ui/images/OK_Arrow.svg");
+      imageArrowOrange = guiResource.getImage("ui/images/Error_Arrow.svg");
+      imageInputFields = guiResource.getImage("ui/images/hop-input.svg");
+      imageOutputFields = guiResource.getImage("ui/images/hop-output.svg");
+      //imageActiveScript = guiResource.getImage("ui/images/faScript.png");
+      //imageInactiveScript = guiResource.getImage("ui/images/fScript.png");
+      //TODO: Find new SVG images
+      imageActiveScript = guiResource.getImageEmpty16x16();
+      imageInactiveScript = guiResource.getImageEmpty16x16();
     } catch ( Exception e ) {
       imageActiveScript = guiResource.getImageEmpty16x16();
       imageInactiveScript = guiResource.getImageEmpty16x16();
@@ -1398,7 +1356,6 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
 
         // OK, now we ask the user to edit this dialog...
         //
-        if ( HopUi.getInstance().editTransform( pipelineMeta, genTransform ) != null ) {
           // Now run this pipeline and grab the results...
           //
           PipelinePreviewProgressDialog progressDialog =
@@ -1430,7 +1387,7 @@ public class UserDefinedJavaClassDialog extends BaseTransformDialog implements I
                 shell, pipelineMeta, SWT.NONE, wTransformName.getText(), previewRowsMeta, previewRows, loggingText );
             prd.open();
           }
-        }
+
 
         return true;
       } else {

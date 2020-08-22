@@ -31,9 +31,9 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.userdefinedjavaclass;
+package org.apache.hop.pipeline.transforms.userdefinedjavaclass;
 
-import org.apache.hop.ui.core.gui.GUIResource;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleEvent;
 import org.eclipse.swt.custom.LineStyleListener;
@@ -100,11 +100,11 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
 
   void initializeColors() {
     // Display display = Display.getDefault();
-    colors = new Color[] { GUIResource.getInstance().getColor( 0, 0, 0 ), // black
-      GUIResource.getInstance().getColor( 63, 127, 95 ), // red
-      GUIResource.getInstance().getColor( 0, 0, 192 ), // green
-      GUIResource.getInstance().getColor( 127, 0, 85 ), // blue
-      GUIResource.getInstance().getColor( 255, 102, 0 ) // Hop Functions / Orange
+    colors = new Color[] { GuiResource.getInstance().getColor( 0, 0, 0 ), // black
+            GuiResource.getInstance().getColor( 63, 127, 95 ), // red
+            GuiResource.getInstance().getColor( 0, 0, 192 ), // green
+            GuiResource.getInstance().getColor( 127, 0, 85 ), // blue
+            GuiResource.getInstance().getColor( 255, 102, 0 ) // Hop Functions / Orange
     };
     tokenColors = new int[ MAXIMUM_TOKEN ];
     tokenColors[ WORD ] = 0;
