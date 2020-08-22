@@ -22,6 +22,12 @@
 
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -62,11 +68,8 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 
 @HopPerspectivePlugin(
   id = "HopDataOrchestrationPerspective",
@@ -96,7 +99,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   private int tabSelectionIndex;
 
   public HopDataOrchestrationPerspective() {
-    items = new ArrayList<>();
+    items = new CopyOnWriteArrayList<>();
+     
     activeItem = null;
     tabSelectionHistory = new Stack<>();
     tabSelectionIndex = 0;
@@ -171,14 +175,60 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
         handleTabCloseEvent( event );
       }
     } );
-    tabFolder.addListener( SWT.Selection, event -> handTabSelectionEvent( event ) );
+    tabFolder.addListener( SWT.Selection, event -> handleTabSelectionEvent( event ) );  
+    
+    
+    // Create tab item context menu
+    Menu menu = new Menu(tabFolder);
+    tabFolder.setMenu(menu);
+    tabFolder.addListener( SWT.MenuDetect, event -> handleTabMenuDetectEvent( event ) );
 
+    // Create menu item
+    MenuItem miClose = new MenuItem(menu, SWT.NONE);
+    miClose.setText("Close");
+    miClose.addListener( SWT.Selection, (event) -> {    	
+      if ( activeItem!=null ) {    	  
+    	  activeItem.getTypeHandler().close();
+      }
+    });
+            
+    MenuItem miCloseOthers = new MenuItem(menu, SWT.NONE);
+    miCloseOthers.setText("Close Others");
+    miCloseOthers.addListener( SWT.Selection, (event) -> {
+    	TabItemHandler currentItem = activeItem; 
+     	items.forEach((item) -> {
+    		if ( !item.equals(currentItem) ) {
+    			// FIXME: Works only if you activate the item
+   				activeItem = item;
+   				item.getTypeHandler().close();
+        	}
+    	});        
+    });
+        
+    MenuItem miCloseAll = new MenuItem(menu, SWT.NONE);
+    miCloseAll.setText("Close All");
+    miCloseAll.addListener( SWT.Selection, (event) -> {    	   
+    	items.forEach((item) -> {
+			// FIXME: Works only if you activate the item
+			activeItem = item;
+       		item.getTypeHandler().close();
+    	});
+    });  
+        
     // Support reorder tab item
     new TabFolderReorder( tabFolder );
 
   }
 
-  private void handTabSelectionEvent( Event event ) {
+  private void handleTabMenuDetectEvent( Event event ) {  
+	  CTabItem tabItem = tabFolder.getSelection();	  
+	  if ( tabItem==null ) {
+		  event.doit=false;
+		  return;
+	  }
+  }
+  
+  private void handleTabSelectionEvent( Event event ) {
     CTabItem tabItem = (CTabItem) event.item;
     activeItem = findTabItemHandler( tabItem );
     if ( activeItem != null ) {
