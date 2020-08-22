@@ -207,9 +207,15 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       hopGui.getLog().logError( "Tab item handler not found for tab item " + tabItem.toString() );
       return;
     }
-    IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();
-    remove( typeHandler );
-
+    IHopFileTypeHandler typeHandler = tabItemHandler.getTypeHandler();   
+    boolean isRemoved = remove( typeHandler );
+    
+    // Ignore event if canceled
+    if ( ! isRemoved ) {    
+    	event.doit = false;
+    	return;
+    }
+    
     // Also switch to the last used tab
     // But first remove all from the selection history
     //
