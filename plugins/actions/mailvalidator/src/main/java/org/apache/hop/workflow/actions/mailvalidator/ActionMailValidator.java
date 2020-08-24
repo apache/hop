@@ -42,12 +42,13 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 @Action(
-  id = "MAIL_VALIDATOR",
-  i18nPackageName = "org.apache.hop.workflow.actions.mailvalidator",
-  name = "ActionMailValidator.Name",
-  description = "ActionMailValidator.Description",
-  image = "MailValidator.svg",
-  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail"
+        id = "MAIL_VALIDATOR",
+        i18nPackageName = "org.apache.hop.workflow.actions.mailvalidator",
+        name = "ActionMailValidator.Name",
+        description = "ActionMailValidator.Description",
+        image = "MailValidator.svg",
+        categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Mail",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mailvalidator.html"
 )
 public class ActionMailValidator extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionMailValidator.class; // for i18n purposes, needed by Translator!!
