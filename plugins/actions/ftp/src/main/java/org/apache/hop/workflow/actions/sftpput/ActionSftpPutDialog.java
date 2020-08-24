@@ -22,8 +22,6 @@
 
 package org.apache.hop.workflow.actions.sftpput;
 
-import java.net.InetAddress;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -44,25 +42,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
+
+import java.net.InetAddress;
 
 /**
  * This dialog allows you to edit the FTP Put action settings.
@@ -71,118 +57,53 @@ import org.eclipse.swt.widgets.Text;
  * @since 19-06-2003
  */
 public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionSftpPut.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSftpPut.class; // for i18n purposes, needed by Translator!!
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobSFTPPUT.Filetype.Pem" ),
     BaseMessages.getString( PKG, "JobSFTPPUT.Filetype.All" ) };
 
-  private Label wlName;
   private Text wName;
-  private FormData fdlName, fdName;
 
-  private Label wlServerName;
   private TextVar wServerName;
-  private FormData fdlServerName, fdServerName;
 
-  private Label wlServerPort;
   private TextVar wServerPort;
-  private FormData fdlServerPort, fdServerPort;
 
-  private Label wlUserName;
   private TextVar wUserName;
-  private FormData fdlUserName, fdUserName;
 
-  private Label wlPassword;
   private TextVar wPassword;
-  private FormData fdlPassword, fdPassword;
 
-  private Label wlScpDirectory;
   private TextVar wScpDirectory;
-  private FormData fdlScpDirectory, fdScpDirectory;
 
   private Label wlLocalDirectory;
   private TextVar wLocalDirectory;
-  private FormData fdlLocalDirectory, fdLocalDirectory;
 
   private Label wlWildcard;
   private TextVar wWildcard;
-  private FormData fdlWildcard, fdWildcard;
-
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private ActionSftpPut action;
   private Shell shell;
 
-  private Label wlCreateRemoteFolder;
   private Button wCreateRemoteFolder;
-  private FormData fdlCreateRemoteFolder, fdCreateRemoteFolder;
-
-  private SelectionAdapter lsDef;
-
-  private Group wServerSettings;
-
-  private FormData fdServerSettings;
-
-  private Group wSourceFiles;
-
-  private FormData fdSourceFiles;
-
-  private Group wTargetFiles;
-
-  private FormData fdTargetFiles;
 
   private Button wbLocalDirectory;
 
-  private FormData fdbLocalDirectory;
-
   private boolean changed;
-
-  private Button wTest;
-
-  private FormData fdTest;
-
-  private Listener lsTest;
-
-  private Listener lsCheckChangeFolder;
 
   private Button wbTestChangeFolderExists;
 
-  private FormData fdbTestChangeFolderExists;
-
-  private Label wlgetPrevious;
-
   private Button wgetPrevious;
-
-  private FormData fdlgetPrevious, fdgetPrevious;
-
-  private Label wlgetPreviousFiles;
 
   private Button wgetPreviousFiles;
 
-  private FormData fdlgetPreviousFiles, fdgetPreviousFiles;
-
-  private Label wlSuccessWhenNoFile;
-
   private Button wSuccessWhenNoFile;
-
-  private FormData fdlSuccessWhenNoFile, fdSuccessWhenNoFile;
 
   private Label wlAddFilenameToResult;
 
   private Button wAddFilenameToResult;
 
-  private FormData fdlAddFilenameToResult, fdAddFilenameToResult;
-
   private LabelTextVar wkeyfilePass;
 
-  private FormData fdkeyfilePass;
-
-  private Label wlusePublicKey;
-
   private Button wusePublicKey;
-
-  private FormData fdlusePublicKey, fdusePublicKey;
 
   private Label wlKeyFilename;
 
@@ -190,47 +111,24 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
 
   private TextVar wKeyFilename;
 
-  private FormData fdlKeyFilename, fdbKeyFilename, fdKeyFilename;
-
-  private CTabFolder wTabFolder;
-  private Composite wGeneralComp, wFilesComp;
-  private CTabItem wGeneralTab, wFilesTab;
-  private FormData fdGeneralComp, fdFilesComp;
-  private FormData fdTabFolder;
-
-  private Label wlCompression;
-  private FormData fdlCompression;
   private CCombo wCompression;
-  private FormData fdCompression;
 
-  private Label wlProxyType;
-  private FormData fdlProxyType;
   private CCombo wProxyType;
-  private FormData fdProxyType;
 
   private LabelTextVar wProxyHost;
-  private FormData fdProxyHost;
   private LabelTextVar wProxyPort;
-  private FormData fdProxyPort;
   private LabelTextVar wProxyUsername;
-  private FormData fdProxyUsername;
   private LabelTextVar wProxyPassword;
-  private FormData fdProxyPasswd;
 
-  private Label wlAfterFtpPut;
   private CCombo wAfterFtpPut;
-  private FormData fdlAfterFtpPut, fdAfterFtpPut;
 
   private Label wlCreateDestinationFolder;
   private Button wCreateDestinationFolder;
-  private FormData fdlCreateDestinationFolder, fdCreateDestinationFolder;
 
   private Label wlDestinationFolder;
   private TextVar wDestinationFolder;
-  private FormData fdlDestinationFolder, fdDestinationFolder;
 
   private Button wbMovetoDirectory;
-  private FormData fdbMovetoDirectory;
 
   private SftpClient sftpclient = null;
 
@@ -267,35 +165,35 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     int margin = Const.MARGIN;
 
     // Filename line
-    wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Name.Label" ) );
-    props.setLook( wlName );
-    fdlName = new FormData();
+    props.setLook(wlName);
+    FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, -margin );
     fdlName.top = new FormAttachment( 0, margin );
-    wlName.setLayoutData( fdlName );
+    wlName.setLayoutData(fdlName);
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.left = new FormAttachment( middle, 0 );
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    wName.setLayoutData(fdName);
 
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
-    wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Tab.General.Label" ) );
 
-    wGeneralComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wGeneralComp );
+    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -305,8 +203,8 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
     // START OF SERVER SETTINGS GROUP///
     // /
-    wServerSettings = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wServerSettings );
+    Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wServerSettings);
     wServerSettings.setText( BaseMessages.getString( PKG, "JobSFTPPUT.ServerSettings.Group.Label" ) );
     FormLayout ServerSettingsgroupLayout = new FormLayout();
     ServerSettingsgroupLayout.marginWidth = 10;
@@ -314,96 +212,96 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wServerSettings.setLayout( ServerSettingsgroupLayout );
 
     // ServerName line
-    wlServerName = new Label( wServerSettings, SWT.RIGHT );
+    Label wlServerName = new Label(wServerSettings, SWT.RIGHT);
     wlServerName.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Server.Label" ) );
-    props.setLook( wlServerName );
-    fdlServerName = new FormData();
+    props.setLook(wlServerName);
+    FormData fdlServerName = new FormData();
     fdlServerName.left = new FormAttachment( 0, 0 );
     fdlServerName.top = new FormAttachment( wName, margin );
     fdlServerName.right = new FormAttachment( middle, -margin );
-    wlServerName.setLayoutData( fdlServerName );
+    wlServerName.setLayoutData(fdlServerName);
     wServerName = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
-    fdServerName = new FormData();
+    FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment( middle, 0 );
     fdServerName.top = new FormAttachment( wName, margin );
     fdServerName.right = new FormAttachment( 100, 0 );
-    wServerName.setLayoutData( fdServerName );
+    wServerName.setLayoutData(fdServerName);
 
     // ServerPort line
-    wlServerPort = new Label( wServerSettings, SWT.RIGHT );
+    Label wlServerPort = new Label(wServerSettings, SWT.RIGHT);
     wlServerPort.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Port.Label" ) );
-    props.setLook( wlServerPort );
-    fdlServerPort = new FormData();
+    props.setLook(wlServerPort);
+    FormData fdlServerPort = new FormData();
     fdlServerPort.left = new FormAttachment( 0, 0 );
     fdlServerPort.top = new FormAttachment( wServerName, margin );
     fdlServerPort.right = new FormAttachment( middle, -margin );
-    wlServerPort.setLayoutData( fdlServerPort );
+    wlServerPort.setLayoutData(fdlServerPort);
     wServerPort = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wServerPort );
     wServerPort.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.Port.Tooltip" ) );
     wServerPort.addModifyListener( lsMod );
-    fdServerPort = new FormData();
+    FormData fdServerPort = new FormData();
     fdServerPort.left = new FormAttachment( middle, 0 );
     fdServerPort.top = new FormAttachment( wServerName, margin );
     fdServerPort.right = new FormAttachment( 100, 0 );
-    wServerPort.setLayoutData( fdServerPort );
+    wServerPort.setLayoutData(fdServerPort);
 
     // UserName line
-    wlUserName = new Label( wServerSettings, SWT.RIGHT );
+    Label wlUserName = new Label(wServerSettings, SWT.RIGHT);
     wlUserName.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Username.Label" ) );
-    props.setLook( wlUserName );
-    fdlUserName = new FormData();
+    props.setLook(wlUserName);
+    FormData fdlUserName = new FormData();
     fdlUserName.left = new FormAttachment( 0, 0 );
     fdlUserName.top = new FormAttachment( wServerPort, margin );
     fdlUserName.right = new FormAttachment( middle, -margin );
-    wlUserName.setLayoutData( fdlUserName );
+    wlUserName.setLayoutData(fdlUserName);
     wUserName = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUserName );
     wUserName.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.Username.Tooltip" ) );
     wUserName.addModifyListener( lsMod );
-    fdUserName = new FormData();
+    FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment( middle, 0 );
     fdUserName.top = new FormAttachment( wServerPort, margin );
     fdUserName.right = new FormAttachment( 100, 0 );
-    wUserName.setLayoutData( fdUserName );
+    wUserName.setLayoutData(fdUserName);
 
     // Password line
-    wlPassword = new Label( wServerSettings, SWT.RIGHT );
+    Label wlPassword = new Label(wServerSettings, SWT.RIGHT);
     wlPassword.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Password.Label" ) );
-    props.setLook( wlPassword );
-    fdlPassword = new FormData();
+    props.setLook(wlPassword);
+    FormData fdlPassword = new FormData();
     fdlPassword.left = new FormAttachment( 0, 0 );
     fdlPassword.top = new FormAttachment( wUserName, margin );
     fdlPassword.right = new FormAttachment( middle, -margin );
-    wlPassword.setLayoutData( fdlPassword );
+    wlPassword.setLayoutData(fdlPassword);
     wPassword = new PasswordTextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
-    fdPassword = new FormData();
+    FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment( middle, 0 );
     fdPassword.top = new FormAttachment( wUserName, margin );
     fdPassword.right = new FormAttachment( 100, 0 );
-    wPassword.setLayoutData( fdPassword );
+    wPassword.setLayoutData(fdPassword);
 
     // usePublicKey
-    wlusePublicKey = new Label( wServerSettings, SWT.RIGHT );
+    Label wlusePublicKey = new Label(wServerSettings, SWT.RIGHT);
     wlusePublicKey.setText( BaseMessages.getString( PKG, "JobSFTPPUT.useKeyFile.Label" ) );
-    props.setLook( wlusePublicKey );
-    fdlusePublicKey = new FormData();
+    props.setLook(wlusePublicKey);
+    FormData fdlusePublicKey = new FormData();
     fdlusePublicKey.left = new FormAttachment( 0, 0 );
     fdlusePublicKey.top = new FormAttachment( wPassword, margin );
     fdlusePublicKey.right = new FormAttachment( middle, -margin );
-    wlusePublicKey.setLayoutData( fdlusePublicKey );
-    wusePublicKey = new Button( wServerSettings, SWT.CHECK );
+    wlusePublicKey.setLayoutData(fdlusePublicKey);
+    wusePublicKey = new Button(wServerSettings, SWT.CHECK );
     wusePublicKey.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.useKeyFile.Tooltip" ) );
     props.setLook( wusePublicKey );
-    fdusePublicKey = new FormData();
+    FormData fdusePublicKey = new FormData();
     fdusePublicKey.left = new FormAttachment( middle, 0 );
     fdusePublicKey.top = new FormAttachment( wPassword, margin );
     fdusePublicKey.right = new FormAttachment( 100, 0 );
-    wusePublicKey.setLayoutData( fdusePublicKey );
+    wusePublicKey.setLayoutData(fdusePublicKey);
     wusePublicKey.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeUseKey();
@@ -412,33 +310,33 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     } );
 
     // Key File
-    wlKeyFilename = new Label( wServerSettings, SWT.RIGHT );
+    wlKeyFilename = new Label(wServerSettings, SWT.RIGHT );
     wlKeyFilename.setText( BaseMessages.getString( PKG, "JobSFTPPUT.KeyFilename.Label" ) );
     props.setLook( wlKeyFilename );
-    fdlKeyFilename = new FormData();
+    FormData fdlKeyFilename = new FormData();
     fdlKeyFilename.left = new FormAttachment( 0, 0 );
     fdlKeyFilename.top = new FormAttachment( wusePublicKey, margin );
     fdlKeyFilename.right = new FormAttachment( middle, -margin );
-    wlKeyFilename.setLayoutData( fdlKeyFilename );
+    wlKeyFilename.setLayoutData(fdlKeyFilename);
 
-    wbKeyFilename = new Button( wServerSettings, SWT.PUSH | SWT.CENTER );
+    wbKeyFilename = new Button(wServerSettings, SWT.PUSH | SWT.CENTER );
     props.setLook( wbKeyFilename );
     wbKeyFilename.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbKeyFilename = new FormData();
+    FormData fdbKeyFilename = new FormData();
     fdbKeyFilename.right = new FormAttachment( 100, 0 );
     fdbKeyFilename.top = new FormAttachment( wusePublicKey, 0 );
     // fdbKeyFilename.height = 22;
-    wbKeyFilename.setLayoutData( fdbKeyFilename );
+    wbKeyFilename.setLayoutData(fdbKeyFilename);
 
     wKeyFilename = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wKeyFilename.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.KeyFilename.Tooltip" ) );
     props.setLook( wKeyFilename );
     wKeyFilename.addModifyListener( lsMod );
-    fdKeyFilename = new FormData();
+    FormData fdKeyFilename = new FormData();
     fdKeyFilename.left = new FormAttachment( middle, 0 );
     fdKeyFilename.top = new FormAttachment( wusePublicKey, margin );
     fdKeyFilename.right = new FormAttachment( wbKeyFilename, -margin );
-    wKeyFilename.setLayoutData( fdKeyFilename );
+    wKeyFilename.setLayoutData(fdKeyFilename);
 
     wbKeyFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wKeyFilename, workflowMeta,
       new String[] { "*.pem", "*" }, FILETYPES, true )
@@ -451,31 +349,31 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         .getString( PKG, "JobSFTPPUT.keyfilePass.Tooltip" ), true );
     props.setLook( wkeyfilePass );
     wkeyfilePass.addModifyListener( lsMod );
-    fdkeyfilePass = new FormData();
+    FormData fdkeyfilePass = new FormData();
     fdkeyfilePass.left = new FormAttachment( 0, -margin );
     fdkeyfilePass.top = new FormAttachment( wKeyFilename, margin );
     fdkeyfilePass.right = new FormAttachment( 100, 0 );
-    wkeyfilePass.setLayoutData( fdkeyfilePass );
+    wkeyfilePass.setLayoutData(fdkeyfilePass);
 
-    wlProxyType = new Label( wServerSettings, SWT.RIGHT );
+    Label wlProxyType = new Label(wServerSettings, SWT.RIGHT);
     wlProxyType.setText( BaseMessages.getString( PKG, "JobSFTPPUT.ProxyType.Label" ) );
-    props.setLook( wlProxyType );
-    fdlProxyType = new FormData();
+    props.setLook(wlProxyType);
+    FormData fdlProxyType = new FormData();
     fdlProxyType.left = new FormAttachment( 0, 0 );
     fdlProxyType.right = new FormAttachment( middle, -margin );
     fdlProxyType.top = new FormAttachment( wkeyfilePass, 2 * margin );
-    wlProxyType.setLayoutData( fdlProxyType );
+    wlProxyType.setLayoutData(fdlProxyType);
 
-    wProxyType = new CCombo( wServerSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wProxyType = new CCombo(wServerSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wProxyType.add( SftpClient.PROXY_TYPE_HTTP );
     wProxyType.add( SftpClient.PROXY_TYPE_SOCKS5 );
     wProxyType.select( 0 ); // +1: starts at -1
     props.setLook( wProxyType );
-    fdProxyType = new FormData();
+    FormData fdProxyType = new FormData();
     fdProxyType.left = new FormAttachment( middle, 0 );
     fdProxyType.top = new FormAttachment( wkeyfilePass, 2 * margin );
     fdProxyType.right = new FormAttachment( 100, 0 );
-    wProxyType.setLayoutData( fdProxyType );
+    wProxyType.setLayoutData(fdProxyType);
     wProxyType.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         setDefaulProxyPort();
@@ -488,11 +386,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
       BaseMessages.getString( PKG, "JobSFTPPUT.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
     wProxyHost.addModifyListener( lsMod );
-    fdProxyHost = new FormData();
+    FormData fdProxyHost = new FormData();
     fdProxyHost.left = new FormAttachment( 0, -2 * margin );
     fdProxyHost.top = new FormAttachment( wProxyType, margin );
     fdProxyHost.right = new FormAttachment( 100, 0 );
-    wProxyHost.setLayoutData( fdProxyHost );
+    wProxyHost.setLayoutData(fdProxyHost);
 
     // Proxy port line
     wProxyPort =
@@ -501,11 +399,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         .getString( PKG, "JobSFTPPUT.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
-    fdProxyPort = new FormData();
+    FormData fdProxyPort = new FormData();
     fdProxyPort.left = new FormAttachment( 0, -2 * margin );
     fdProxyPort.top = new FormAttachment( wProxyHost, margin );
     fdProxyPort.right = new FormAttachment( 100, 0 );
-    wProxyPort.setLayoutData( fdProxyPort );
+    wProxyPort.setLayoutData(fdProxyPort);
 
     // Proxy username line
     wProxyUsername =
@@ -514,11 +412,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         BaseMessages.getString( PKG, "JobSFTPPUT.ProxyUsername.Tooltip" ) );
     props.setLook( wProxyUsername );
     wProxyUsername.addModifyListener( lsMod );
-    fdProxyUsername = new FormData();
+    FormData fdProxyUsername = new FormData();
     fdProxyUsername.left = new FormAttachment( 0, -2 * margin );
     fdProxyUsername.top = new FormAttachment( wProxyPort, margin );
     fdProxyUsername.right = new FormAttachment( 100, 0 );
-    wProxyUsername.setLayoutData( fdProxyUsername );
+    wProxyUsername.setLayoutData(fdProxyUsername);
 
     // Proxy password line
     wProxyPassword =
@@ -527,62 +425,62 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         BaseMessages.getString( PKG, "JobSFTPPUT.ProxyPassword.Tooltip" ), true );
     props.setLook( wProxyPassword );
     wProxyPassword.addModifyListener( lsMod );
-    fdProxyPasswd = new FormData();
+    FormData fdProxyPasswd = new FormData();
     fdProxyPasswd.left = new FormAttachment( 0, -2 * margin );
     fdProxyPasswd.top = new FormAttachment( wProxyUsername, margin );
     fdProxyPasswd.right = new FormAttachment( 100, 0 );
-    wProxyPassword.setLayoutData( fdProxyPasswd );
+    wProxyPassword.setLayoutData(fdProxyPasswd);
 
     // Test connection button
-    wTest = new Button( wServerSettings, SWT.PUSH );
+    Button wTest = new Button(wServerSettings, SWT.PUSH);
     wTest.setText( BaseMessages.getString( PKG, "JobSFTPPUT.TestConnection.Label" ) );
-    props.setLook( wTest );
-    fdTest = new FormData();
+    props.setLook(wTest);
+    FormData fdTest = new FormData();
     wTest.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.TestConnection.Tooltip" ) );
     fdTest.top = new FormAttachment( wProxyPassword, margin );
     fdTest.right = new FormAttachment( 100, 0 );
-    wTest.setLayoutData( fdTest );
+    wTest.setLayoutData(fdTest);
 
-    fdServerSettings = new FormData();
+    FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment( 0, margin );
     fdServerSettings.top = new FormAttachment( wName, margin );
     fdServerSettings.right = new FormAttachment( 100, -margin );
-    wServerSettings.setLayoutData( fdServerSettings );
+    wServerSettings.setLayoutData(fdServerSettings);
     // ///////////////////////////////////////////////////////////
     // / END OF SERVER SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
 
-    wlCompression = new Label( wGeneralComp, SWT.RIGHT );
+    Label wlCompression = new Label(wGeneralComp, SWT.RIGHT);
     wlCompression.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Compression.Label" ) );
-    props.setLook( wlCompression );
-    fdlCompression = new FormData();
+    props.setLook(wlCompression);
+    FormData fdlCompression = new FormData();
     fdlCompression.left = new FormAttachment( 0, -margin );
     fdlCompression.right = new FormAttachment( middle, 0 );
-    fdlCompression.top = new FormAttachment( wServerSettings, margin );
-    wlCompression.setLayoutData( fdlCompression );
+    fdlCompression.top = new FormAttachment(wServerSettings, margin );
+    wlCompression.setLayoutData(fdlCompression);
 
-    wCompression = new CCombo( wGeneralComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wCompression = new CCombo(wGeneralComp, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wCompression.add( "none" );
     wCompression.add( "zlib" );
     wCompression.select( 0 ); // +1: starts at -1
 
     props.setLook( wCompression );
-    fdCompression = new FormData();
+    FormData fdCompression = new FormData();
     fdCompression.left = new FormAttachment( middle, margin );
-    fdCompression.top = new FormAttachment( wServerSettings, margin );
+    fdCompression.top = new FormAttachment(wServerSettings, margin );
     fdCompression.right = new FormAttachment( 100, 0 );
-    wCompression.setLayoutData( fdCompression );
+    wCompression.setLayoutData(fdCompression);
 
-    fdGeneralComp = new FormData();
+    FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
     fdGeneralComp.top = new FormAttachment( 0, 0 );
     fdGeneralComp.right = new FormAttachment( 100, 0 );
     fdGeneralComp.bottom = new FormAttachment( 100, 0 );
-    wGeneralComp.setLayoutData( fdGeneralComp );
+    wGeneralComp.setLayoutData(fdGeneralComp);
 
     wGeneralComp.layout();
-    wGeneralTab.setControl( wGeneralComp );
-    props.setLook( wGeneralComp );
+    wGeneralTab.setControl(wGeneralComp);
+    props.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -592,11 +490,11 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     // START OF Files TAB ///
     // ////////////////////////
 
-    wFilesTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wFilesTab = new CTabItem(wTabFolder, SWT.NONE);
     wFilesTab.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Tab.Files.Label" ) );
 
-    wFilesComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wFilesComp );
+    Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wFilesComp);
 
     FormLayout FilesLayout = new FormLayout();
     FilesLayout.marginWidth = 3;
@@ -606,8 +504,8 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
     // START OF Source files GROUP///
     // /
-    wSourceFiles = new Group( wFilesComp, SWT.SHADOW_NONE );
-    props.setLook( wSourceFiles );
+    Group wSourceFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
+    props.setLook(wSourceFiles);
     wSourceFiles.setText( BaseMessages.getString( PKG, "JobSFTPPUT.SourceFiles.Group.Label" ) );
     FormLayout SourceFilesgroupLayout = new FormLayout();
     SourceFilesgroupLayout.marginWidth = 10;
@@ -615,22 +513,22 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wSourceFiles.setLayout( SourceFilesgroupLayout );
 
     // Get arguments from previous result...
-    wlgetPrevious = new Label( wSourceFiles, SWT.RIGHT );
+    Label wlgetPrevious = new Label(wSourceFiles, SWT.RIGHT);
     wlgetPrevious.setText( BaseMessages.getString( PKG, "JobSFTPPUT.getPrevious.Label" ) );
-    props.setLook( wlgetPrevious );
-    fdlgetPrevious = new FormData();
+    props.setLook(wlgetPrevious);
+    FormData fdlgetPrevious = new FormData();
     fdlgetPrevious.left = new FormAttachment( 0, 0 );
-    fdlgetPrevious.top = new FormAttachment( wServerSettings, 2 * margin );
+    fdlgetPrevious.top = new FormAttachment(wServerSettings, 2 * margin );
     fdlgetPrevious.right = new FormAttachment( middle, -margin );
-    wlgetPrevious.setLayoutData( fdlgetPrevious );
-    wgetPrevious = new Button( wSourceFiles, SWT.CHECK );
+    wlgetPrevious.setLayoutData(fdlgetPrevious);
+    wgetPrevious = new Button(wSourceFiles, SWT.CHECK );
     props.setLook( wgetPrevious );
     wgetPrevious.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.getPrevious.Tooltip" ) );
-    fdgetPrevious = new FormData();
+    FormData fdgetPrevious = new FormData();
     fdgetPrevious.left = new FormAttachment( middle, 0 );
-    fdgetPrevious.top = new FormAttachment( wServerSettings, 2 * margin );
+    fdgetPrevious.top = new FormAttachment(wServerSettings, 2 * margin );
     fdgetPrevious.right = new FormAttachment( 100, 0 );
-    wgetPrevious.setLayoutData( fdgetPrevious );
+    wgetPrevious.setLayoutData(fdgetPrevious);
     wgetPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         if ( wgetPrevious.getSelection() ) {
@@ -642,22 +540,22 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     } );
 
     // Get arguments from previous files result...
-    wlgetPreviousFiles = new Label( wSourceFiles, SWT.RIGHT );
+    Label wlgetPreviousFiles = new Label(wSourceFiles, SWT.RIGHT);
     wlgetPreviousFiles.setText( BaseMessages.getString( PKG, "JobSFTPPUT.getPreviousFiles.Label" ) );
-    props.setLook( wlgetPreviousFiles );
-    fdlgetPreviousFiles = new FormData();
+    props.setLook(wlgetPreviousFiles);
+    FormData fdlgetPreviousFiles = new FormData();
     fdlgetPreviousFiles.left = new FormAttachment( 0, 0 );
     fdlgetPreviousFiles.top = new FormAttachment( wgetPrevious, 2 * margin );
     fdlgetPreviousFiles.right = new FormAttachment( middle, -margin );
-    wlgetPreviousFiles.setLayoutData( fdlgetPreviousFiles );
-    wgetPreviousFiles = new Button( wSourceFiles, SWT.CHECK );
+    wlgetPreviousFiles.setLayoutData(fdlgetPreviousFiles);
+    wgetPreviousFiles = new Button(wSourceFiles, SWT.CHECK );
     props.setLook( wgetPreviousFiles );
     wgetPreviousFiles.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.getPreviousFiles.Tooltip" ) );
-    fdgetPreviousFiles = new FormData();
+    FormData fdgetPreviousFiles = new FormData();
     fdgetPreviousFiles.left = new FormAttachment( middle, 0 );
     fdgetPreviousFiles.top = new FormAttachment( wgetPrevious, 2 * margin );
     fdgetPreviousFiles.right = new FormAttachment( 100, 0 );
-    wgetPreviousFiles.setLayoutData( fdgetPreviousFiles );
+    wgetPreviousFiles.setLayoutData(fdgetPreviousFiles);
     wgetPreviousFiles.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         if ( wgetPreviousFiles.getSelection() ) {
@@ -669,71 +567,71 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     } );
 
     // Local Directory line
-    wlLocalDirectory = new Label( wSourceFiles, SWT.RIGHT );
+    wlLocalDirectory = new Label(wSourceFiles, SWT.RIGHT );
     wlLocalDirectory.setText( BaseMessages.getString( PKG, "JobSFTPPUT.LocalDir.Label" ) );
     props.setLook( wlLocalDirectory );
-    fdlLocalDirectory = new FormData();
+    FormData fdlLocalDirectory = new FormData();
     fdlLocalDirectory.left = new FormAttachment( 0, 0 );
     fdlLocalDirectory.top = new FormAttachment( wgetPreviousFiles, margin );
     fdlLocalDirectory.right = new FormAttachment( middle, -margin );
-    wlLocalDirectory.setLayoutData( fdlLocalDirectory );
+    wlLocalDirectory.setLayoutData(fdlLocalDirectory);
 
     // Browse folders button ...
-    wbLocalDirectory = new Button( wSourceFiles, SWT.PUSH | SWT.CENTER );
+    wbLocalDirectory = new Button(wSourceFiles, SWT.PUSH | SWT.CENTER );
     props.setLook( wbLocalDirectory );
     wbLocalDirectory.setText( BaseMessages.getString( PKG, "JobSFTPPUT.BrowseFolders.Label" ) );
-    fdbLocalDirectory = new FormData();
+    FormData fdbLocalDirectory = new FormData();
     fdbLocalDirectory.right = new FormAttachment( 100, 0 );
     fdbLocalDirectory.top = new FormAttachment( wgetPreviousFiles, margin );
-    wbLocalDirectory.setLayoutData( fdbLocalDirectory );
+    wbLocalDirectory.setLayoutData(fdbLocalDirectory);
     wbLocalDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wLocalDirectory, workflowMeta ) );
 
     wLocalDirectory = new TextVar( workflowMeta, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLocalDirectory );
     wLocalDirectory.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.LocalDir.Tooltip" ) );
     wLocalDirectory.addModifyListener( lsMod );
-    fdLocalDirectory = new FormData();
+    FormData fdLocalDirectory = new FormData();
     fdLocalDirectory.left = new FormAttachment( middle, 0 );
     fdLocalDirectory.top = new FormAttachment( wgetPreviousFiles, margin );
     fdLocalDirectory.right = new FormAttachment( wbLocalDirectory, -margin );
-    wLocalDirectory.setLayoutData( fdLocalDirectory );
+    wLocalDirectory.setLayoutData(fdLocalDirectory);
 
     // Wildcard line
-    wlWildcard = new Label( wSourceFiles, SWT.RIGHT );
+    wlWildcard = new Label(wSourceFiles, SWT.RIGHT );
     wlWildcard.setText( BaseMessages.getString( PKG, "JobSFTPPUT.Wildcard.Label" ) );
     props.setLook( wlWildcard );
-    fdlWildcard = new FormData();
+    FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment( 0, 0 );
     fdlWildcard.top = new FormAttachment( wbLocalDirectory, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
-    wlWildcard.setLayoutData( fdlWildcard );
+    wlWildcard.setLayoutData(fdlWildcard);
     wWildcard = new TextVar( workflowMeta, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWildcard );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.Wildcard.Tooltip" ) );
     wWildcard.addModifyListener( lsMod );
-    fdWildcard = new FormData();
+    FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment( middle, 0 );
     fdWildcard.top = new FormAttachment( wbLocalDirectory, margin );
     fdWildcard.right = new FormAttachment( 100, 0 );
-    wWildcard.setLayoutData( fdWildcard );
+    wWildcard.setLayoutData(fdWildcard);
 
     // Success when there is no file...
-    wlSuccessWhenNoFile = new Label( wSourceFiles, SWT.RIGHT );
+    Label wlSuccessWhenNoFile = new Label(wSourceFiles, SWT.RIGHT);
     wlSuccessWhenNoFile.setText( BaseMessages.getString( PKG, "JobSFTPPUT.SuccessWhenNoFile.Label" ) );
-    props.setLook( wlSuccessWhenNoFile );
-    fdlSuccessWhenNoFile = new FormData();
+    props.setLook(wlSuccessWhenNoFile);
+    FormData fdlSuccessWhenNoFile = new FormData();
     fdlSuccessWhenNoFile.left = new FormAttachment( 0, 0 );
     fdlSuccessWhenNoFile.top = new FormAttachment( wWildcard, margin );
     fdlSuccessWhenNoFile.right = new FormAttachment( middle, -margin );
-    wlSuccessWhenNoFile.setLayoutData( fdlSuccessWhenNoFile );
-    wSuccessWhenNoFile = new Button( wSourceFiles, SWT.CHECK );
+    wlSuccessWhenNoFile.setLayoutData(fdlSuccessWhenNoFile);
+    wSuccessWhenNoFile = new Button(wSourceFiles, SWT.CHECK );
     props.setLook( wSuccessWhenNoFile );
     wSuccessWhenNoFile.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.SuccessWhenNoFile.Tooltip" ) );
-    fdSuccessWhenNoFile = new FormData();
+    FormData fdSuccessWhenNoFile = new FormData();
     fdSuccessWhenNoFile.left = new FormAttachment( middle, 0 );
     fdSuccessWhenNoFile.top = new FormAttachment( wWildcard, margin );
     fdSuccessWhenNoFile.right = new FormAttachment( 100, 0 );
-    wSuccessWhenNoFile.setLayoutData( fdSuccessWhenNoFile );
+    wSuccessWhenNoFile.setLayoutData(fdSuccessWhenNoFile);
     wSuccessWhenNoFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         action.setChanged();
@@ -741,21 +639,21 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     } );
 
     // After FTP Put
-    wlAfterFtpPut = new Label( wSourceFiles, SWT.RIGHT );
+    Label wlAfterFtpPut = new Label(wSourceFiles, SWT.RIGHT);
     wlAfterFtpPut.setText( BaseMessages.getString( PKG, "JobSFTPPUT.AfterFTPPut.Label" ) );
     props.setLook(wlAfterFtpPut);
-    fdlAfterFtpPut = new FormData();
+    FormData fdlAfterFtpPut = new FormData();
     fdlAfterFtpPut.left = new FormAttachment( 0, 0 );
     fdlAfterFtpPut.right = new FormAttachment( middle, -margin );
     fdlAfterFtpPut.top = new FormAttachment( wSuccessWhenNoFile, 2 * margin );
     wlAfterFtpPut.setLayoutData(fdlAfterFtpPut);
-    wAfterFtpPut = new CCombo( wSourceFiles, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wAfterFtpPut = new CCombo(wSourceFiles, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wAfterFtpPut.add( BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.DoNothing.Label" ) );
     wAfterFtpPut.add( BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.Delete.Label" ) );
     wAfterFtpPut.add( BaseMessages.getString( PKG, "JobSFTPPUT.AfterSFTP.Move.Label" ) );
     wAfterFtpPut.select( 0 ); // +1: starts at -1
     props.setLook(wAfterFtpPut);
-    fdAfterFtpPut = new FormData();
+    FormData fdAfterFtpPut = new FormData();
     fdAfterFtpPut.left = new FormAttachment( middle, 0 );
     fdAfterFtpPut.top = new FormAttachment( wSuccessWhenNoFile, 2 * margin );
     fdAfterFtpPut.right = new FormAttachment( 100, -margin );
@@ -768,23 +666,23 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     } );
 
     // moveTo Directory
-    wlDestinationFolder = new Label( wSourceFiles, SWT.RIGHT );
+    wlDestinationFolder = new Label(wSourceFiles, SWT.RIGHT );
     wlDestinationFolder.setText( BaseMessages.getString( PKG, "JobSFTPPUT.DestinationFolder.Label" ) );
     props.setLook( wlDestinationFolder );
-    fdlDestinationFolder = new FormData();
+    FormData fdlDestinationFolder = new FormData();
     fdlDestinationFolder.left = new FormAttachment( 0, 0 );
     fdlDestinationFolder.top = new FormAttachment(wAfterFtpPut, margin );
     fdlDestinationFolder.right = new FormAttachment( middle, -margin );
-    wlDestinationFolder.setLayoutData( fdlDestinationFolder );
+    wlDestinationFolder.setLayoutData(fdlDestinationFolder);
 
     // Browse folders button ...
-    wbMovetoDirectory = new Button( wSourceFiles, SWT.PUSH | SWT.CENTER );
+    wbMovetoDirectory = new Button(wSourceFiles, SWT.PUSH | SWT.CENTER );
     props.setLook( wbMovetoDirectory );
     wbMovetoDirectory.setText( BaseMessages.getString( PKG, "JobSFTPPUT.BrowseFolders.Label" ) );
-    fdbMovetoDirectory = new FormData();
+    FormData fdbMovetoDirectory = new FormData();
     fdbMovetoDirectory.right = new FormAttachment( 100, 0 );
     fdbMovetoDirectory.top = new FormAttachment(wAfterFtpPut, margin );
-    wbMovetoDirectory.setLayoutData( fdbMovetoDirectory );
+    wbMovetoDirectory.setLayoutData(fdbMovetoDirectory);
 
     wbMovetoDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFolder, workflowMeta ) );
 
@@ -792,57 +690,57 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
         PKG, "JobSFTPPUT.DestinationFolder.Tooltip" ) );
     props.setLook( wDestinationFolder );
     wDestinationFolder.addModifyListener( lsMod );
-    fdDestinationFolder = new FormData();
+    FormData fdDestinationFolder = new FormData();
     fdDestinationFolder.left = new FormAttachment( middle, 0 );
     fdDestinationFolder.top = new FormAttachment(wAfterFtpPut, margin );
     fdDestinationFolder.right = new FormAttachment( wbMovetoDirectory, -margin );
-    wDestinationFolder.setLayoutData( fdDestinationFolder );
+    wDestinationFolder.setLayoutData(fdDestinationFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wDestinationFolder.addModifyListener( e -> wDestinationFolder.setToolTipText( workflowMeta.environmentSubstitute( wDestinationFolder.getText() ) ) );
 
     // Create destination folder if necessary ...
-    wlCreateDestinationFolder = new Label( wSourceFiles, SWT.RIGHT );
+    wlCreateDestinationFolder = new Label(wSourceFiles, SWT.RIGHT );
     wlCreateDestinationFolder.setText( BaseMessages.getString( PKG, "JobSFTPPUT.CreateDestinationFolder.Label" ) );
     props.setLook( wlCreateDestinationFolder );
-    fdlCreateDestinationFolder = new FormData();
+    FormData fdlCreateDestinationFolder = new FormData();
     fdlCreateDestinationFolder.left = new FormAttachment( 0, 0 );
     fdlCreateDestinationFolder.top = new FormAttachment( wDestinationFolder, margin );
     fdlCreateDestinationFolder.right = new FormAttachment( middle, -margin );
-    wlCreateDestinationFolder.setLayoutData( fdlCreateDestinationFolder );
-    wCreateDestinationFolder = new Button( wSourceFiles, SWT.CHECK );
+    wlCreateDestinationFolder.setLayoutData(fdlCreateDestinationFolder);
+    wCreateDestinationFolder = new Button(wSourceFiles, SWT.CHECK );
     wCreateDestinationFolder.setToolTipText( BaseMessages.getString(
       PKG, "JobSFTPPUT.CreateDestinationFolder.Tooltip" ) );
     props.setLook( wCreateDestinationFolder );
-    fdCreateDestinationFolder = new FormData();
+    FormData fdCreateDestinationFolder = new FormData();
     fdCreateDestinationFolder.left = new FormAttachment( middle, 0 );
     fdCreateDestinationFolder.top = new FormAttachment( wDestinationFolder, margin );
     fdCreateDestinationFolder.right = new FormAttachment( 100, 0 );
-    wCreateDestinationFolder.setLayoutData( fdCreateDestinationFolder );
+    wCreateDestinationFolder.setLayoutData(fdCreateDestinationFolder);
 
     // Add filenames to result filenames...
-    wlAddFilenameToResult = new Label( wSourceFiles, SWT.RIGHT );
+    wlAddFilenameToResult = new Label(wSourceFiles, SWT.RIGHT );
     wlAddFilenameToResult.setText( BaseMessages.getString( PKG, "JobSFTPPUT.AddfilenametoResult.Label" ) );
     props.setLook( wlAddFilenameToResult );
-    fdlAddFilenameToResult = new FormData();
+    FormData fdlAddFilenameToResult = new FormData();
     fdlAddFilenameToResult.left = new FormAttachment( 0, 0 );
     fdlAddFilenameToResult.top = new FormAttachment( wCreateDestinationFolder, margin );
     fdlAddFilenameToResult.right = new FormAttachment( middle, -margin );
-    wlAddFilenameToResult.setLayoutData( fdlAddFilenameToResult );
-    wAddFilenameToResult = new Button( wSourceFiles, SWT.CHECK );
+    wlAddFilenameToResult.setLayoutData(fdlAddFilenameToResult);
+    wAddFilenameToResult = new Button(wSourceFiles, SWT.CHECK );
     wAddFilenameToResult.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.AddfilenametoResult.Tooltip" ) );
     props.setLook( wAddFilenameToResult );
-    fdAddFilenameToResult = new FormData();
+    FormData fdAddFilenameToResult = new FormData();
     fdAddFilenameToResult.left = new FormAttachment( middle, 0 );
     fdAddFilenameToResult.top = new FormAttachment( wCreateDestinationFolder, margin );
     fdAddFilenameToResult.right = new FormAttachment( 100, 0 );
-    wAddFilenameToResult.setLayoutData( fdAddFilenameToResult );
+    wAddFilenameToResult.setLayoutData(fdAddFilenameToResult);
 
-    fdSourceFiles = new FormData();
+    FormData fdSourceFiles = new FormData();
     fdSourceFiles.left = new FormAttachment( 0, margin );
-    fdSourceFiles.top = new FormAttachment( wServerSettings, 2 * margin );
+    fdSourceFiles.top = new FormAttachment(wServerSettings, 2 * margin );
     fdSourceFiles.right = new FormAttachment( 100, -margin );
-    wSourceFiles.setLayoutData( fdSourceFiles );
+    wSourceFiles.setLayoutData(fdSourceFiles);
     // ///////////////////////////////////////////////////////////
     // / END OF Source files GROUP
     // ///////////////////////////////////////////////////////////
@@ -850,8 +748,8 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     // ////////////////////////
     // START OF Target files GROUP///
     // /
-    wTargetFiles = new Group( wFilesComp, SWT.SHADOW_NONE );
-    props.setLook( wTargetFiles );
+    Group wTargetFiles = new Group(wFilesComp, SWT.SHADOW_NONE);
+    props.setLook(wTargetFiles);
     wTargetFiles.setText( BaseMessages.getString( PKG, "JobSFTPPUT.TargetFiles.Group.Label" ) );
     FormLayout TargetFilesgroupLayout = new FormLayout();
     TargetFilesgroupLayout.marginWidth = 10;
@@ -859,110 +757,110 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wTargetFiles.setLayout( TargetFilesgroupLayout );
 
     // FtpDirectory line
-    wlScpDirectory = new Label( wTargetFiles, SWT.RIGHT );
+    Label wlScpDirectory = new Label(wTargetFiles, SWT.RIGHT);
     wlScpDirectory.setText( BaseMessages.getString( PKG, "JobSFTPPUT.RemoteDir.Label" ) );
-    props.setLook( wlScpDirectory );
-    fdlScpDirectory = new FormData();
+    props.setLook(wlScpDirectory);
+    FormData fdlScpDirectory = new FormData();
     fdlScpDirectory.left = new FormAttachment( 0, 0 );
-    fdlScpDirectory.top = new FormAttachment( wSourceFiles, margin );
+    fdlScpDirectory.top = new FormAttachment(wSourceFiles, margin );
     fdlScpDirectory.right = new FormAttachment( middle, -margin );
-    wlScpDirectory.setLayoutData( fdlScpDirectory );
+    wlScpDirectory.setLayoutData(fdlScpDirectory);
 
     // Test remote folder button ...
-    wbTestChangeFolderExists = new Button( wTargetFiles, SWT.PUSH | SWT.CENTER );
+    wbTestChangeFolderExists = new Button(wTargetFiles, SWT.PUSH | SWT.CENTER );
     props.setLook( wbTestChangeFolderExists );
     wbTestChangeFolderExists.setText( BaseMessages.getString( PKG, "JobSFTPPUT.TestFolderExists.Label" ) );
-    fdbTestChangeFolderExists = new FormData();
+    FormData fdbTestChangeFolderExists = new FormData();
     fdbTestChangeFolderExists.right = new FormAttachment( 100, 0 );
-    fdbTestChangeFolderExists.top = new FormAttachment( wSourceFiles, margin );
-    wbTestChangeFolderExists.setLayoutData( fdbTestChangeFolderExists );
+    fdbTestChangeFolderExists.top = new FormAttachment(wSourceFiles, margin );
+    wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
 
     // Target (remote) folder
     wScpDirectory = new TextVar( workflowMeta, wTargetFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wScpDirectory );
     wScpDirectory.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.RemoteDir.Tooltip" ) );
     wScpDirectory.addModifyListener( lsMod );
-    fdScpDirectory = new FormData();
+    FormData fdScpDirectory = new FormData();
     fdScpDirectory.left = new FormAttachment( middle, 0 );
-    fdScpDirectory.top = new FormAttachment( wSourceFiles, margin );
+    fdScpDirectory.top = new FormAttachment(wSourceFiles, margin );
     fdScpDirectory.right = new FormAttachment( wbTestChangeFolderExists, -margin );
-    wScpDirectory.setLayoutData( fdScpDirectory );
+    wScpDirectory.setLayoutData(fdScpDirectory);
 
     // CreateRemoteFolder files after retrieval...
-    wlCreateRemoteFolder = new Label( wTargetFiles, SWT.RIGHT );
+    Label wlCreateRemoteFolder = new Label(wTargetFiles, SWT.RIGHT);
     wlCreateRemoteFolder.setText( BaseMessages.getString( PKG, "JobSFTPPUT.CreateRemoteFolderFiles.Label" ) );
-    props.setLook( wlCreateRemoteFolder );
-    fdlCreateRemoteFolder = new FormData();
+    props.setLook(wlCreateRemoteFolder);
+    FormData fdlCreateRemoteFolder = new FormData();
     fdlCreateRemoteFolder.left = new FormAttachment( 0, 0 );
     fdlCreateRemoteFolder.top = new FormAttachment( wScpDirectory, margin );
     fdlCreateRemoteFolder.right = new FormAttachment( middle, -margin );
-    wlCreateRemoteFolder.setLayoutData( fdlCreateRemoteFolder );
-    wCreateRemoteFolder = new Button( wTargetFiles, SWT.CHECK );
+    wlCreateRemoteFolder.setLayoutData(fdlCreateRemoteFolder);
+    wCreateRemoteFolder = new Button(wTargetFiles, SWT.CHECK );
     props.setLook( wCreateRemoteFolder );
-    fdCreateRemoteFolder = new FormData();
+    FormData fdCreateRemoteFolder = new FormData();
     wCreateRemoteFolder
       .setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.CreateRemoteFolderFiles.Tooltip" ) );
     fdCreateRemoteFolder.left = new FormAttachment( middle, 0 );
     fdCreateRemoteFolder.top = new FormAttachment( wScpDirectory, margin );
     fdCreateRemoteFolder.right = new FormAttachment( 100, 0 );
-    wCreateRemoteFolder.setLayoutData( fdCreateRemoteFolder );
+    wCreateRemoteFolder.setLayoutData(fdCreateRemoteFolder);
     wCreateRemoteFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         action.setChanged();
       }
     } );
 
-    fdTargetFiles = new FormData();
+    FormData fdTargetFiles = new FormData();
     fdTargetFiles.left = new FormAttachment( 0, margin );
-    fdTargetFiles.top = new FormAttachment( wSourceFiles, margin );
+    fdTargetFiles.top = new FormAttachment(wSourceFiles, margin );
     fdTargetFiles.right = new FormAttachment( 100, -margin );
-    wTargetFiles.setLayoutData( fdTargetFiles );
+    wTargetFiles.setLayoutData(fdTargetFiles);
     // ///////////////////////////////////////////////////////////
     // / END OF Target files GROUP
     // ///////////////////////////////////////////////////////////
 
-    fdFilesComp = new FormData();
+    FormData fdFilesComp = new FormData();
     fdFilesComp.left = new FormAttachment( 0, 0 );
     fdFilesComp.top = new FormAttachment( 0, 0 );
     fdFilesComp.right = new FormAttachment( 100, 0 );
     fdFilesComp.bottom = new FormAttachment( 100, 0 );
-    wFilesComp.setLayoutData( fdFilesComp );
+    wFilesComp.setLayoutData(fdFilesComp);
 
     wFilesComp.layout();
-    wFilesTab.setControl( wFilesComp );
-    props.setLook( wFilesComp );
+    wFilesTab.setControl(wFilesComp);
+    props.setLook(wFilesComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Files TAB
     // ///////////////////////////////////////////////////////////
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wTabFolder );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-    lsTest = e -> test();
-    lsCheckChangeFolder = e -> checkRemoteFolder();
+    Listener lsCancel = e -> cancel();
+    Listener lsOk = e -> ok();
+    Listener lsTest = e -> test();
+    Listener lsCheckChangeFolder = e -> checkRemoteFolder();
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-    wTest.addListener( SWT.Selection, lsTest );
-    wbTestChangeFolderExists.addListener( SWT.Selection, lsCheckChangeFolder );
+    wCancel.addListener( SWT.Selection, lsCancel);
+    wOk.addListener( SWT.Selection, lsOk);
+    wTest.addListener( SWT.Selection, lsTest);
+    wbTestChangeFolderExists.addListener( SWT.Selection, lsCheckChangeFolder);
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
@@ -973,13 +871,13 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
       }
     };
 
-    wName.addSelectionListener( lsDef );
-    wServerName.addSelectionListener( lsDef );
-    wUserName.addSelectionListener( lsDef );
-    wPassword.addSelectionListener( lsDef );
-    wScpDirectory.addSelectionListener( lsDef );
-    wLocalDirectory.addSelectionListener( lsDef );
-    wWildcard.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
+    wServerName.addSelectionListener(lsDef);
+    wUserName.addSelectionListener(lsDef);
+    wPassword.addSelectionListener(lsDef);
+    wScpDirectory.addSelectionListener(lsDef);
+    wLocalDirectory.addSelectionListener(lsDef);
+    wWildcard.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

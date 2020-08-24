@@ -35,23 +35,11 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 /**
  * This dialog allows you to edit the File compare action settings.
@@ -60,35 +48,20 @@ import org.eclipse.swt.widgets.Text;
  * @since 01-02-2007
  */
 public class ActionFileCompareDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionFileCompare.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFileCompare.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobFileCompare.Filetype.All" ) };
 
-  private Label wlName;
   private Text wName;
-  private FormData fdlName, fdName;
 
-  private Label wlFilename1;
-  private Button wbFilename1;
   private TextVar wFilename1;
-  private FormData fdlFilename1, fdbFilename1, fdFilename1;
 
-  private Label wlFilename2;
-  private Button wbFilename2;
   private TextVar wFilename2;
-  private FormData fdlFilename2, fdbFilename2, fdFilename2;
-
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private ActionFileCompare action;
   private Shell shell;
-  private Label wlAddFilenameResult;
   private Button wAddFilenameResult;
-  private FormData fdlAddFilenameResult, fdAddFilenameResult;
-
-  private SelectionAdapter lsDef;
 
   private boolean changed;
 
@@ -122,47 +95,47 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     int margin = Const.MARGIN;
 
     // Name line
-    wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText( BaseMessages.getString( PKG, "JobFileCompare.Name.Label" ) );
-    props.setLook( wlName );
-    fdlName = new FormData();
+    props.setLook(wlName);
+    FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, -margin );
     fdlName.top = new FormAttachment( 0, margin );
-    wlName.setLayoutData( fdlName );
+    wlName.setLayoutData(fdlName);
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.left = new FormAttachment( middle, 0 );
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    wName.setLayoutData(fdName);
 
     // Filename 1 line
-    wlFilename1 = new Label( shell, SWT.RIGHT );
+    Label wlFilename1 = new Label(shell, SWT.RIGHT);
     wlFilename1.setText( BaseMessages.getString( PKG, "JobFileCompare.Filename1.Label" ) );
-    props.setLook( wlFilename1 );
-    fdlFilename1 = new FormData();
+    props.setLook(wlFilename1);
+    FormData fdlFilename1 = new FormData();
     fdlFilename1.left = new FormAttachment( 0, 0 );
     fdlFilename1.top = new FormAttachment( wName, margin );
     fdlFilename1.right = new FormAttachment( middle, -margin );
-    wlFilename1.setLayoutData( fdlFilename1 );
-    wbFilename1 = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbFilename1 );
+    wlFilename1.setLayoutData(fdlFilename1);
+    Button wbFilename1 = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbFilename1);
     wbFilename1.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbFilename1 = new FormData();
+    FormData fdbFilename1 = new FormData();
     fdbFilename1.right = new FormAttachment( 100, 0 );
     fdbFilename1.top = new FormAttachment( wName, 0 );
-    wbFilename1.setLayoutData( fdbFilename1 );
+    wbFilename1.setLayoutData(fdbFilename1);
     wFilename1 = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename1 );
     wFilename1.addModifyListener( lsMod );
-    fdFilename1 = new FormData();
+    FormData fdFilename1 = new FormData();
     fdFilename1.left = new FormAttachment( middle, 0 );
     fdFilename1.top = new FormAttachment( wName, margin );
-    fdFilename1.right = new FormAttachment( wbFilename1, -margin );
-    wFilename1.setLayoutData( fdFilename1 );
+    fdFilename1.right = new FormAttachment(wbFilename1, -margin );
+    wFilename1.setLayoutData(fdFilename1);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wFilename1.addModifyListener( e -> wFilename1.setToolTipText( workflowMeta.environmentSubstitute( wFilename1.getText() ) ) );
@@ -172,29 +145,29 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     );
 
     // Filename 2 line
-    wlFilename2 = new Label( shell, SWT.RIGHT );
+    Label wlFilename2 = new Label(shell, SWT.RIGHT);
     wlFilename2.setText( BaseMessages.getString( PKG, "JobFileCompare.Filename2.Label" ) );
-    props.setLook( wlFilename2 );
-    fdlFilename2 = new FormData();
+    props.setLook(wlFilename2);
+    FormData fdlFilename2 = new FormData();
     fdlFilename2.left = new FormAttachment( 0, 0 );
     fdlFilename2.top = new FormAttachment( wFilename1, margin );
     fdlFilename2.right = new FormAttachment( middle, -margin );
-    wlFilename2.setLayoutData( fdlFilename2 );
-    wbFilename2 = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbFilename2 );
+    wlFilename2.setLayoutData(fdlFilename2);
+    Button wbFilename2 = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbFilename2);
     wbFilename2.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbFilename2 = new FormData();
+    FormData fdbFilename2 = new FormData();
     fdbFilename2.right = new FormAttachment( 100, 0 );
     fdbFilename2.top = new FormAttachment( wFilename1, 0 );
-    wbFilename2.setLayoutData( fdbFilename2 );
+    wbFilename2.setLayoutData(fdbFilename2);
     wFilename2 = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename2 );
     wFilename2.addModifyListener( lsMod );
-    fdFilename2 = new FormData();
+    FormData fdFilename2 = new FormData();
     fdFilename2.left = new FormAttachment( middle, 0 );
     fdFilename2.top = new FormAttachment( wFilename1, margin );
-    fdFilename2.right = new FormAttachment( wbFilename2, -margin );
-    wFilename2.setLayoutData( fdFilename2 );
+    fdFilename2.right = new FormAttachment(wbFilename2, -margin );
+    wFilename2.setLayoutData(fdFilename2);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wFilename2.addModifyListener( e -> wFilename2.setToolTipText( workflowMeta.environmentSubstitute( wFilename2.getText() ) ) );
@@ -204,51 +177,51 @@ public class ActionFileCompareDialog extends ActionDialog implements IActionDial
     );
 
     // Add filename to result filenames
-    wlAddFilenameResult = new Label( shell, SWT.RIGHT );
+    Label wlAddFilenameResult = new Label(shell, SWT.RIGHT);
     wlAddFilenameResult.setText( BaseMessages.getString( PKG, "JobFileCompare.AddFilenameResult.Label" ) );
-    props.setLook( wlAddFilenameResult );
-    fdlAddFilenameResult = new FormData();
+    props.setLook(wlAddFilenameResult);
+    FormData fdlAddFilenameResult = new FormData();
     fdlAddFilenameResult.left = new FormAttachment( 0, 0 );
-    fdlAddFilenameResult.top = new FormAttachment( wbFilename2, margin );
+    fdlAddFilenameResult.top = new FormAttachment(wbFilename2, margin );
     fdlAddFilenameResult.right = new FormAttachment( middle, -margin );
-    wlAddFilenameResult.setLayoutData( fdlAddFilenameResult );
+    wlAddFilenameResult.setLayoutData(fdlAddFilenameResult);
     wAddFilenameResult = new Button( shell, SWT.CHECK );
     props.setLook( wAddFilenameResult );
     wAddFilenameResult.setToolTipText( BaseMessages.getString( PKG, "JobFileCompare.AddFilenameResult.Tooltip" ) );
-    fdAddFilenameResult = new FormData();
+    FormData fdAddFilenameResult = new FormData();
     fdAddFilenameResult.left = new FormAttachment( middle, 0 );
-    fdAddFilenameResult.top = new FormAttachment( wbFilename2, margin );
+    fdAddFilenameResult.top = new FormAttachment(wbFilename2, margin );
     fdAddFilenameResult.right = new FormAttachment( 100, 0 );
-    wAddFilenameResult.setLayoutData( fdAddFilenameResult );
+    wAddFilenameResult.setLayoutData(fdAddFilenameResult);
     wAddFilenameResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         action.setChanged();
       }
     } );
 
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wAddFilenameResult );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, wAddFilenameResult );
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
+    Listener lsCancel = e -> cancel();
+    Listener lsOk = e -> ok();
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
+    wCancel.addListener( SWT.Selection, lsCancel);
+    wOk.addListener( SWT.Selection, lsOk);
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wName.addSelectionListener( lsDef );
-    wFilename1.addSelectionListener( lsDef );
-    wFilename2.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
+    wFilename1.addSelectionListener(lsDef);
+    wFilename2.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
