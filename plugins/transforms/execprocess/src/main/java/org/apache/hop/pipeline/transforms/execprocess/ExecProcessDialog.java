@@ -49,32 +49,19 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ExecProcessDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
-  private CTabFolder wTabFolder;
-  private CTabItem wGeneralTab, wOutputTab;
-  private Composite wGeneralComp, wOutputComp;
-
-  private Label wlProcess;
   private CCombo wProcess;
-  private FormData fdlProcess, fdProcess;
 
-  private Label wlArgumentsInFields;
   private Button wArgumentsInFields;
-  private FormData fdlArgumentsInFields, fdArgumentsInFields;
 
-  private Label wlArgumentFields;
   private TableView wArgumentFields;
-  private FormData fdlArgumentFields, fdArgumentFields;
 
-  private Label wlFailWhenNotSuccess;
   private Button wFailWhenNotSuccess;
-  private FormData fdlFailWhenNotSuccess, fdFailWhenNotSuccess;
 
   private LabelTextVar wOutputDelim, wResult, wExitValue, wError;
-  private FormData fdOutputDelim, fdResult, fdExitValue, fdError;
 
-  private ExecProcessMeta input;
+  private final ExecProcessMeta input;
   private boolean gotPreviousFields = false;
 
   public ExecProcessDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
@@ -125,18 +112,18 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wTransformName.setLayoutData( fdTransformName );
 
     // The Tab Folders
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ///////////////////////
     // START OF GENERAL TAB //
     // ///////////////////////
 
-    wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText( BaseMessages.getString( PKG, "ExecProcessDialog.GeneralTab.TabItem" ) );
 
-    wGeneralComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wGeneralComp );
+    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = margin;
@@ -144,24 +131,24 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wGeneralComp.setLayout( generalLayout );
 
     // filename field
-    wlProcess = new Label( wGeneralComp, SWT.RIGHT );
+    Label wlProcess = new Label(wGeneralComp, SWT.RIGHT);
     wlProcess.setText( BaseMessages.getString( PKG, "ExecProcessDialog.Process.Label" ) );
-    props.setLook( wlProcess );
-    fdlProcess = new FormData();
+    props.setLook(wlProcess);
+    FormData fdlProcess = new FormData();
     fdlProcess.left = new FormAttachment( 0, 0 );
     fdlProcess.right = new FormAttachment( middle, -margin );
     fdlProcess.top = new FormAttachment( wTransformName, margin );
-    wlProcess.setLayoutData( fdlProcess );
+    wlProcess.setLayoutData(fdlProcess);
 
-    wProcess = new CCombo( wGeneralComp, SWT.BORDER | SWT.READ_ONLY );
+    wProcess = new CCombo(wGeneralComp, SWT.BORDER | SWT.READ_ONLY );
     wProcess.setEditable( true );
     props.setLook( wProcess );
     wProcess.addModifyListener( lsMod );
-    fdProcess = new FormData();
+    FormData fdProcess = new FormData();
     fdProcess.left = new FormAttachment( middle, 0 );
     fdProcess.top = new FormAttachment( wTransformName, margin );
     fdProcess.right = new FormAttachment( 100, -margin );
-    wProcess.setLayoutData( fdProcess );
+    wProcess.setLayoutData(fdProcess);
     wProcess.addFocusListener( new FocusListener() {
       @Override
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
@@ -178,22 +165,22 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     } );
 
     // Command Arguments are in separate fields
-    wlArgumentsInFields = new Label( wGeneralComp, SWT.RIGHT );
+    Label wlArgumentsInFields = new Label(wGeneralComp, SWT.RIGHT);
     wlArgumentsInFields.setText( BaseMessages.getString( PKG, "ExecProcessDialog.ArgumentInFields.Label" ) );
-    props.setLook( wlArgumentsInFields );
-    fdlArgumentsInFields = new FormData();
+    props.setLook(wlArgumentsInFields);
+    FormData fdlArgumentsInFields = new FormData();
     fdlArgumentsInFields.left = new FormAttachment( 0, 0 );
     fdlArgumentsInFields.top = new FormAttachment( wProcess, margin );
     fdlArgumentsInFields.right = new FormAttachment( middle, -margin );
-    wlArgumentsInFields.setLayoutData( fdlArgumentsInFields );
-    wArgumentsInFields = new Button( wGeneralComp, SWT.CHECK );
+    wlArgumentsInFields.setLayoutData(fdlArgumentsInFields);
+    wArgumentsInFields = new Button(wGeneralComp, SWT.CHECK );
     wArgumentsInFields.setToolTipText( BaseMessages.getString( PKG, "ExecProcessDialog.ArgumentInFields.Tooltip" ) );
     props.setLook( wArgumentsInFields );
-    fdArgumentsInFields = new FormData();
+    FormData fdArgumentsInFields = new FormData();
     fdArgumentsInFields.left = new FormAttachment( middle, 0 );
     fdArgumentsInFields.top = new FormAttachment( wProcess, margin );
     fdArgumentsInFields.right = new FormAttachment( 100, 0 );
-    wArgumentsInFields.setLayoutData( fdArgumentsInFields );
+    wArgumentsInFields.setLayoutData(fdArgumentsInFields);
     wArgumentsInFields.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
@@ -203,23 +190,23 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     } );
 
     // Fail when status is different than 0
-    wlFailWhenNotSuccess = new Label( wGeneralComp, SWT.RIGHT );
+    Label wlFailWhenNotSuccess = new Label(wGeneralComp, SWT.RIGHT);
     wlFailWhenNotSuccess.setText( BaseMessages.getString( PKG, "ExecProcessDialog.FailWhenNotSuccess.Label" ) );
-    props.setLook( wlFailWhenNotSuccess );
-    fdlFailWhenNotSuccess = new FormData();
+    props.setLook(wlFailWhenNotSuccess);
+    FormData fdlFailWhenNotSuccess = new FormData();
     fdlFailWhenNotSuccess.left = new FormAttachment( 0, 0 );
     fdlFailWhenNotSuccess.top = new FormAttachment( wArgumentsInFields, margin );
     fdlFailWhenNotSuccess.right = new FormAttachment( middle, -margin );
-    wlFailWhenNotSuccess.setLayoutData( fdlFailWhenNotSuccess );
-    wFailWhenNotSuccess = new Button( wGeneralComp, SWT.CHECK );
+    wlFailWhenNotSuccess.setLayoutData(fdlFailWhenNotSuccess);
+    wFailWhenNotSuccess = new Button(wGeneralComp, SWT.CHECK );
     wFailWhenNotSuccess.setToolTipText( BaseMessages.getString(
       PKG, "ExecProcessDialog.FailWhenNotSuccess.Tooltip" ) );
     props.setLook( wFailWhenNotSuccess );
-    fdFailWhenNotSuccess = new FormData();
+    FormData fdFailWhenNotSuccess = new FormData();
     fdFailWhenNotSuccess.left = new FormAttachment( middle, 0 );
     fdFailWhenNotSuccess.top = new FormAttachment( wArgumentsInFields, margin );
     fdFailWhenNotSuccess.right = new FormAttachment( 100, 0 );
-    wFailWhenNotSuccess.setLayoutData( fdFailWhenNotSuccess );
+    wFailWhenNotSuccess.setLayoutData(fdFailWhenNotSuccess);
     wFailWhenNotSuccess.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
@@ -228,14 +215,14 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     } );
 
     // List of Argument Fields when ArgumentsInFields is enabled
-    wlArgumentFields = new Label( wGeneralComp, SWT.LEFT );
+    Label wlArgumentFields = new Label(wGeneralComp, SWT.LEFT);
     wlArgumentFields.setText( BaseMessages.getString( PKG, "ExecProcessDialog.ArgumentFields.Label" ) );
-    props.setLook( wlArgumentFields );
-    fdlArgumentFields = new FormData();
+    props.setLook(wlArgumentFields);
+    FormData fdlArgumentFields = new FormData();
     fdlArgumentFields.left = new FormAttachment( 0, 0 );
     fdlArgumentFields.top = new FormAttachment( wFailWhenNotSuccess, margin );
     fdlArgumentFields.right = new FormAttachment( middle, -margin );
-    wlArgumentFields.setLayoutData( fdlArgumentFields );
+    wlArgumentFields.setLayoutData(fdlArgumentFields);
     ColumnInfo[] colinf = new ColumnInfo[ 1 ];
     colinf[ 0 ] = new ColumnInfo(
       BaseMessages.getString( PKG, "ExecProcessDialog.ArgumentField.Label" ),
@@ -244,12 +231,12 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wArgumentFields =
       new TableView(
         null, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
-    fdArgumentFields = new FormData();
+    FormData fdArgumentFields = new FormData();
     fdArgumentFields.left = new FormAttachment( 0, 0 );
-    fdArgumentFields.top = new FormAttachment( wlArgumentFields, margin );
+    fdArgumentFields.top = new FormAttachment(wlArgumentFields, margin );
     fdArgumentFields.right = new FormAttachment( 100, 0 );
     fdArgumentFields.bottom = new FormAttachment( 100, -margin );
-    wArgumentFields.setLayoutData( fdArgumentFields );
+    wArgumentFields.setLayoutData(fdArgumentFields);
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
@@ -259,7 +246,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wGeneralComp.setLayoutData( fdGeneralComp );
 
     wGeneralComp.layout();
-    wGeneralTab.setControl( wGeneralComp );
+    wGeneralTab.setControl(wGeneralComp);
 
     // /////////////////////
     // END OF GENERAL TAB //
@@ -269,11 +256,11 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     // START OF OUTPUT TAB //
     // //////////////////////
 
-    wOutputTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wOutputTab = new CTabItem(wTabFolder, SWT.NONE);
     wOutputTab.setText( BaseMessages.getString( PKG, "ExecProcessDialog.Output.TabItem" ) );
 
-    wOutputComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wOutputComp );
+    Composite wOutputComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wOutputComp);
 
     FormLayout fdOutputCompLayout = new FormLayout();
     fdOutputCompLayout.marginWidth = margin;
@@ -285,44 +272,44 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
       BaseMessages.getString( PKG, "ExecProcessDialog.OutputDelimiterField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.OutputDelimiterField.Tooltip" ) );
     wOutputDelim.addModifyListener( lsMod );
-    fdOutputDelim = new FormData();
+    FormData fdOutputDelim = new FormData();
     fdOutputDelim.left = new FormAttachment( 0, 0 );
     fdOutputDelim.top = new FormAttachment( 0, margin );
     fdOutputDelim.right = new FormAttachment( 100, 0 );
-    wOutputDelim.setLayoutData( fdOutputDelim );
+    wOutputDelim.setLayoutData(fdOutputDelim);
 
     // Result fieldname ...
     wResult = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.ResultField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.ResultField.Tooltip" ) );
     wResult.addModifyListener( lsMod );
-    fdResult = new FormData();
+    FormData fdResult = new FormData();
     fdResult.left = new FormAttachment( 0, 0 );
     fdResult.top = new FormAttachment( wOutputDelim, margin );
     fdResult.right = new FormAttachment( 100, 0 );
-    wResult.setLayoutData( fdResult );
+    wResult.setLayoutData(fdResult);
 
     // Error fieldname ...
     wError = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.ErrorField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.ErrorField.Tooltip" ) );
     wError.addModifyListener( lsMod );
-    fdError = new FormData();
+    FormData fdError = new FormData();
     fdError.left = new FormAttachment( 0, 0 );
     fdError.top = new FormAttachment( wResult, margin );
     fdError.right = new FormAttachment( 100, 0 );
-    wError.setLayoutData( fdError );
+    wError.setLayoutData(fdError);
 
     // ExitValue fieldname ...
     wExitValue = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.ExitValueField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.ExitValueField.Tooltip" ) );
     wExitValue.addModifyListener( lsMod );
-    fdExitValue = new FormData();
+    FormData fdExitValue = new FormData();
     fdExitValue.left = new FormAttachment( 0, 0 );
     fdExitValue.top = new FormAttachment( wError, margin );
     fdExitValue.right = new FormAttachment( 100, 0 );
-    wExitValue.setLayoutData( fdExitValue );
+    wExitValue.setLayoutData(fdExitValue);
 
     FormData fdOutputComp = new FormData();
     fdOutputComp.left = new FormAttachment( 0, 0 );
@@ -332,7 +319,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wOutputComp.setLayoutData( fdOutputComp );
 
     wOutputComp.layout();
-    wOutputTab.setControl( wOutputComp );
+    wOutputTab.setControl(wOutputComp);
 
     // ////////////////////
     // END OF OUTPUT TAB //
@@ -357,7 +344,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     // Add listeners
     lsOk = e -> ok();

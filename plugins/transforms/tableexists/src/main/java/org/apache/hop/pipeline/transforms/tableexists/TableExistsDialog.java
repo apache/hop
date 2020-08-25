@@ -47,27 +47,17 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class TableExistsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlTableName;
   private CCombo wTableName;
-  private FormData fdlTableName, fdTableName;
 
-  private Label wlResult;
   private Text wResult;
-  private FormData fdlResult, fdResult;
 
-  // Schema name
-  private Label wlSchemaname;
   private TextVar wSchemaname;
-  private FormData fdlSchemaname, fdSchemaname;
 
-  private TableExistsMeta input;
-
-  private FormData fdbSchema;
-  private Button wbSchema;
+  private final TableExistsMeta input;
 
   public TableExistsDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -123,23 +113,24 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     wConnection.addModifyListener( lsMod );
 
     // Schema name line
-    wlSchemaname = new Label( shell, SWT.RIGHT );
+    // Schema name
+    Label wlSchemaname = new Label(shell, SWT.RIGHT);
     wlSchemaname.setText( BaseMessages.getString( PKG, "TableExistsDialog.Schemaname.Label" ) );
-    props.setLook( wlSchemaname );
-    fdlSchemaname = new FormData();
+    props.setLook(wlSchemaname);
+    FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment( 0, 0 );
     fdlSchemaname.right = new FormAttachment( middle, -margin );
     fdlSchemaname.top = new FormAttachment( wConnection, 2 * margin );
-    wlSchemaname.setLayoutData( fdlSchemaname );
+    wlSchemaname.setLayoutData(fdlSchemaname);
 
-    wbSchema = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbSchema );
+    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbSchema);
     wbSchema.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbSchema = new FormData();
+    FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment( wConnection, 2 * margin );
     fdbSchema.right = new FormAttachment( 100, 0 );
-    wbSchema.setLayoutData( fdbSchema );
-    wbSchema.addSelectionListener( new SelectionAdapter() {
+    wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getSchemaNames();
       }
@@ -149,29 +140,29 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "TableExistsDialog.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
-    fdSchemaname = new FormData();
+    FormData fdSchemaname = new FormData();
     fdSchemaname.left = new FormAttachment( middle, 0 );
     fdSchemaname.top = new FormAttachment( wConnection, 2 * margin );
-    fdSchemaname.right = new FormAttachment( wbSchema, -margin );
-    wSchemaname.setLayoutData( fdSchemaname );
+    fdSchemaname.right = new FormAttachment(wbSchema, -margin );
+    wSchemaname.setLayoutData(fdSchemaname);
 
-    wlTableName = new Label( shell, SWT.RIGHT );
+    Label wlTableName = new Label(shell, SWT.RIGHT);
     wlTableName.setText( BaseMessages.getString( PKG, "TableExistsDialog.TableName.Label" ) );
-    props.setLook( wlTableName );
-    fdlTableName = new FormData();
+    props.setLook(wlTableName);
+    FormData fdlTableName = new FormData();
     fdlTableName.left = new FormAttachment( 0, 0 );
     fdlTableName.right = new FormAttachment( middle, -margin );
-    fdlTableName.top = new FormAttachment( wbSchema, margin );
-    wlTableName.setLayoutData( fdlTableName );
+    fdlTableName.top = new FormAttachment(wbSchema, margin );
+    wlTableName.setLayoutData(fdlTableName);
 
     wTableName = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wTableName );
     wTableName.addModifyListener( lsMod );
-    fdTableName = new FormData();
+    FormData fdTableName = new FormData();
     fdTableName.left = new FormAttachment( middle, 0 );
-    fdTableName.top = new FormAttachment( wbSchema, margin );
+    fdTableName.top = new FormAttachment(wbSchema, margin );
     fdTableName.right = new FormAttachment( 100, -margin );
-    wTableName.setLayoutData( fdTableName );
+    wTableName.setLayoutData(fdTableName);
     wTableName.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -186,23 +177,23 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     } );
 
     // Result fieldname ...
-    wlResult = new Label( shell, SWT.RIGHT );
+    Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText( BaseMessages.getString( PKG, "TableExistsDialog.ResultField.Label" ) );
-    props.setLook( wlResult );
-    fdlResult = new FormData();
+    props.setLook(wlResult);
+    FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment( 0, 0 );
     fdlResult.right = new FormAttachment( middle, -margin );
     fdlResult.top = new FormAttachment( wTableName, margin * 2 );
-    wlResult.setLayoutData( fdlResult );
+    wlResult.setLayoutData(fdlResult);
     wResult = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "TableExistsDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
-    fdResult = new FormData();
+    FormData fdResult = new FormData();
     fdResult.left = new FormAttachment( middle, 0 );
     fdResult.top = new FormAttachment( wTableName, margin * 2 );
     fdResult.right = new FormAttachment( 100, 0 );
-    wResult.setLayoutData( fdResult );
+    wResult.setLayoutData(fdResult);
 
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );

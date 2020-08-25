@@ -64,61 +64,39 @@ import java.util.List;
 import java.util.*;
 
 public class InsertUpdateDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlKey;
   private TableView wKey;
-  private FormData fdlKey, fdKey;
 
-  private Label wlSchema;
   private TextVar wSchema;
-  private FormData fdlSchema, fdSchema;
-  private Button wbSchema;
-  private FormData fdbSchema;
 
-  private Label wlTable;
-  private Button wbTable;
   private TextVar wTable;
-  private FormData fdlTable, fdbTable, fdTable;
 
-  private Label wlReturn;
   private TableView wReturn;
-  private FormData fdlReturn, fdReturn;
 
-  private Label wlCommit;
   private TextVar wCommit;
-  private FormData fdlCommit, fdCommit;
 
-  private Label wlUpdateBypassed;
   private Button wUpdateBypassed;
-  private FormData fdlUpdateBypassed, fdUpdateBypassed;
 
-  private Button wGetLU;
-  private FormData fdGetLU;
-  private Listener lsGetLU;
+  private final InsertUpdateMeta input;
 
-  private InsertUpdateMeta input;
-
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciKey;
 
   private ColumnInfo[] ciReturn;
 
-  private Button wDoMapping;
-  private FormData fdDoMapping;
-
   /**
    * List of ColumnInfo that should have the field names of the selected database table
    */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   public InsertUpdateDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (InsertUpdateMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -176,102 +154,102 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     wConnection.addSelectionListener( lsSelection );
 
     // Schema line...
-    wlSchema = new Label( shell, SWT.RIGHT );
+    Label wlSchema = new Label(shell, SWT.RIGHT);
     wlSchema.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.TargetSchema.Label" ) );
-    props.setLook( wlSchema );
-    fdlSchema = new FormData();
+    props.setLook(wlSchema);
+    FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment( 0, 0 );
     fdlSchema.right = new FormAttachment( middle, -margin );
     fdlSchema.top = new FormAttachment( wConnection, margin * 2 );
-    wlSchema.setLayoutData( fdlSchema );
+    wlSchema.setLayoutData(fdlSchema);
 
-    wbSchema = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbSchema );
+    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbSchema);
     wbSchema.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbSchema = new FormData();
+    FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment( wConnection, 2 * margin );
     fdbSchema.right = new FormAttachment( 100, 0 );
-    wbSchema.setLayoutData( fdbSchema );
+    wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsTableMod );
-    fdSchema = new FormData();
+    FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment( middle, 0 );
     fdSchema.top = new FormAttachment( wConnection, margin * 2 );
-    fdSchema.right = new FormAttachment( wbSchema, -margin );
-    wSchema.setLayoutData( fdSchema );
+    fdSchema.right = new FormAttachment(wbSchema, -margin );
+    wSchema.setLayoutData(fdSchema);
 
     // Table line...
-    wlTable = new Label( shell, SWT.RIGHT );
+    Label wlTable = new Label(shell, SWT.RIGHT);
     wlTable.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.TargetTable.Label" ) );
-    props.setLook( wlTable );
-    fdlTable = new FormData();
+    props.setLook(wlTable);
+    FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment( 0, 0 );
     fdlTable.right = new FormAttachment( middle, -margin );
-    fdlTable.top = new FormAttachment( wbSchema, margin );
-    wlTable.setLayoutData( fdlTable );
+    fdlTable.top = new FormAttachment(wbSchema, margin );
+    wlTable.setLayoutData(fdlTable);
 
-    wbTable = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbTable );
+    Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbTable);
     wbTable.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.Browse.Button" ) );
-    fdbTable = new FormData();
+    FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment( 100, 0 );
-    fdbTable.top = new FormAttachment( wbSchema, margin );
-    wbTable.setLayoutData( fdbTable );
+    fdbTable.top = new FormAttachment(wbSchema, margin );
+    wbTable.setLayoutData(fdbTable);
 
     wTable = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsTableMod );
-    fdTable = new FormData();
+    FormData fdTable = new FormData();
     fdTable.left = new FormAttachment( middle, 0 );
-    fdTable.top = new FormAttachment( wbSchema, margin );
-    fdTable.right = new FormAttachment( wbTable, -margin );
-    wTable.setLayoutData( fdTable );
+    fdTable.top = new FormAttachment(wbSchema, margin );
+    fdTable.right = new FormAttachment(wbTable, -margin );
+    wTable.setLayoutData(fdTable);
 
     // Commit line
-    wlCommit = new Label( shell, SWT.RIGHT );
+    Label wlCommit = new Label(shell, SWT.RIGHT);
     wlCommit.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.CommitSize.Label" ) );
-    props.setLook( wlCommit );
-    fdlCommit = new FormData();
+    props.setLook(wlCommit);
+    FormData fdlCommit = new FormData();
     fdlCommit.left = new FormAttachment( 0, 0 );
     fdlCommit.top = new FormAttachment( wTable, margin );
     fdlCommit.right = new FormAttachment( middle, -margin );
-    wlCommit.setLayoutData( fdlCommit );
+    wlCommit.setLayoutData(fdlCommit);
     wCommit = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCommit );
     wCommit.addModifyListener( lsMod );
-    fdCommit = new FormData();
+    FormData fdCommit = new FormData();
     fdCommit.left = new FormAttachment( middle, 0 );
     fdCommit.top = new FormAttachment( wTable, margin );
     fdCommit.right = new FormAttachment( 100, 0 );
-    wCommit.setLayoutData( fdCommit );
+    wCommit.setLayoutData(fdCommit);
 
     // UpdateBypassed line
-    wlUpdateBypassed = new Label( shell, SWT.RIGHT );
+    Label wlUpdateBypassed = new Label(shell, SWT.RIGHT);
     wlUpdateBypassed.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.UpdateBypassed.Label" ) );
-    props.setLook( wlUpdateBypassed );
-    fdlUpdateBypassed = new FormData();
+    props.setLook(wlUpdateBypassed);
+    FormData fdlUpdateBypassed = new FormData();
     fdlUpdateBypassed.left = new FormAttachment( 0, 0 );
     fdlUpdateBypassed.top = new FormAttachment( wCommit, margin );
     fdlUpdateBypassed.right = new FormAttachment( middle, -margin );
-    wlUpdateBypassed.setLayoutData( fdlUpdateBypassed );
+    wlUpdateBypassed.setLayoutData(fdlUpdateBypassed);
     wUpdateBypassed = new Button( shell, SWT.CHECK );
     props.setLook( wUpdateBypassed );
-    fdUpdateBypassed = new FormData();
+    FormData fdUpdateBypassed = new FormData();
     fdUpdateBypassed.left = new FormAttachment( middle, 0 );
     fdUpdateBypassed.top = new FormAttachment( wCommit, margin );
     fdUpdateBypassed.right = new FormAttachment( 100, 0 );
-    wUpdateBypassed.setLayoutData( fdUpdateBypassed );
+    wUpdateBypassed.setLayoutData(fdUpdateBypassed);
     wUpdateBypassed.addSelectionListener( new ComponentSelectionListener( input ) );
 
-    wlKey = new Label( shell, SWT.NONE );
+    Label wlKey = new Label(shell, SWT.NONE);
     wlKey.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.Keys.Label" ) );
-    props.setLook( wlKey );
-    fdlKey = new FormData();
+    props.setLook(wlKey);
+    FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment( 0, 0 );
     fdlKey.top = new FormAttachment( wUpdateBypassed, margin );
-    wlKey.setLayoutData( fdlKey );
+    wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 4;
     int nrKeyRows = ( input.getKeyStream() != null ? input.getKeyStream().length : 1 );
@@ -304,15 +282,15 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     wGet.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.GetFields.Button" ) );
     fdGet = new FormData();
     fdGet.right = new FormAttachment( 100, 0 );
-    fdGet.top = new FormAttachment( wlKey, margin );
+    fdGet.top = new FormAttachment(wlKey, margin );
     wGet.setLayoutData( fdGet );
 
-    fdKey = new FormData();
+    FormData fdKey = new FormData();
     fdKey.left = new FormAttachment( 0, 0 );
-    fdKey.top = new FormAttachment( wlKey, margin );
+    fdKey.top = new FormAttachment(wlKey, margin );
     fdKey.right = new FormAttachment( wGet, -margin );
-    fdKey.bottom = new FormAttachment( wlKey, 190 );
-    wKey.setLayoutData( fdKey );
+    fdKey.bottom = new FormAttachment(wlKey, 190 );
+    wKey.setLayoutData(fdKey);
 
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );
@@ -325,13 +303,13 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     setButtonPositions( new Button[] { wOk, wCancel, wSql }, margin, null );
 
     // THE UPDATE/INSERT TABLE
-    wlReturn = new Label( shell, SWT.NONE );
+    Label wlReturn = new Label(shell, SWT.NONE);
     wlReturn.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.UpdateFields.Label" ) );
-    props.setLook( wlReturn );
-    fdlReturn = new FormData();
+    props.setLook(wlReturn);
+    FormData fdlReturn = new FormData();
     fdlReturn.left = new FormAttachment( 0, 0 );
     fdlReturn.top = new FormAttachment( wKey, margin );
-    wlReturn.setLayoutData( fdlReturn );
+    wlReturn.setLayoutData(fdlReturn);
 
     int UpInsCols = 3;
     int UpInsRows = ( input.getUpdateLookup() != null ? input.getUpdateLookup().length : 1 );
@@ -355,28 +333,28 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
-    wGetLU = new Button( shell, SWT.PUSH );
+    Button wGetLU = new Button(shell, SWT.PUSH);
     wGetLU.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.GetAndUpdateFields.Label" ) );
-    fdGetLU = new FormData();
-    fdGetLU.top = new FormAttachment( wlReturn, margin );
+    FormData fdGetLU = new FormData();
+    fdGetLU.top = new FormAttachment(wlReturn, margin );
     fdGetLU.right = new FormAttachment( 100, 0 );
-    wGetLU.setLayoutData( fdGetLU );
+    wGetLU.setLayoutData(fdGetLU);
 
-    wDoMapping = new Button( shell, SWT.PUSH );
+    Button wDoMapping = new Button(shell, SWT.PUSH);
     wDoMapping.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.EditMapping.Label" ) );
-    fdDoMapping = new FormData();
-    fdDoMapping.top = new FormAttachment( wGetLU, margin );
+    FormData fdDoMapping = new FormData();
+    fdDoMapping.top = new FormAttachment(wGetLU, margin );
     fdDoMapping.right = new FormAttachment( 100, 0 );
-    wDoMapping.setLayoutData( fdDoMapping );
+    wDoMapping.setLayoutData(fdDoMapping);
 
     wDoMapping.addListener( SWT.Selection, arg0 -> generateMappings() );
 
-    fdReturn = new FormData();
+    FormData fdReturn = new FormData();
     fdReturn.left = new FormAttachment( 0, 0 );
-    fdReturn.top = new FormAttachment( wlReturn, margin );
-    fdReturn.right = new FormAttachment( wGetLU, -margin );
+    fdReturn.top = new FormAttachment(wlReturn, margin );
+    fdReturn.right = new FormAttachment(wGetLU, -margin );
     fdReturn.bottom = new FormAttachment( wOk, -2 * margin );
-    wReturn.setLayoutData( fdReturn );
+    wReturn.setLayoutData(fdReturn);
 
     //
     // Search the fields in the background
@@ -404,13 +382,13 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     // Add listeners
     lsOk = e -> ok();
     lsGet = e -> get();
-    lsGetLU = e -> getUpdate();
+    Listener lsGetLU = e -> getUpdate();
     lsSql = e -> create();
     lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
-    wGetLU.addListener( SWT.Selection, lsGetLU );
+    wGetLU.addListener( SWT.Selection, lsGetLU);
     wSql.addListener( SWT.Selection, lsSql );
     wCancel.addListener( SWT.Selection, lsCancel );
 
@@ -432,12 +410,12 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
       }
     } );
 
-    wbSchema.addSelectionListener( new SelectionAdapter() {
+    wbSchema.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getSchemaNames();
       }
     } );
-    wbTable.addSelectionListener( new SelectionAdapter() {
+    wbTable.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getTableName();
       }
@@ -462,7 +440,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
@@ -520,7 +498,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     // Create the existing mapping list...
     // Also copy the update status of targets in to a hashmap
     //
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
     Map<String, String> targetUpdateStatus = new HashMap<>();
     StringBuilder missingSourceFields = new StringBuilder();
     StringBuilder missingTargetFields = new StringBuilder();

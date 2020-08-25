@@ -42,7 +42,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -53,61 +56,37 @@ import java.util.List;
 import java.util.*;
 
 public class XsltDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
 
   private LabelTextVar wResultField;
   private CCombo wField, wXSLField;
-  private FormData fdlXSLFileField, fdXSLFileField;
 
-  private Label wlField, wlFilename, wlXSLField, wlXSLFileField;
+  private Label wlFilename;
+  private Label wlXSLField;
 
   private Button wbbFilename, wXSLFileField;
 
-  private XsltMeta input;
-
-  private Group wOutputField, wXSLFileGroup;
-  private FormData fdOutputField, fdXSLFileGroup;
+  private final XsltMeta input;
 
   private TextVar wXSLFilename;
 
   private Label wlXSLFieldIsAFile;
-  private FormData fdlXSLFieldIsAFile;
   private Button wXSLFieldIsAFile;
-  private FormData fdXSLFieldIsAFile;
 
-  private CTabFolder wTabFolder;
-
-  private CTabItem wGeneralTab;
-  private Composite wGeneralComp;
-  private FormData fdGeneralComp;
-
-  private CTabItem wAdditionalTab;
-
-  private Composite wAdditionalComp;
-  private FormData fdAdditionalComp;
-
-  private Label wlXSLTFactory;
   private CCombo wXSLTFactory;
-  private FormData fdlXSLTFactory, fdXSLTFactory;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
-
-  private Label wlOutputProperties;
-  private FormData fdlOutputProperties;
 
   private TableView wOutputProperties;
-  private FormData fdOutputProperties;
 
   private ColumnInfo[] colinf;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   public XsltDialog(Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (XsltMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -150,18 +129,18 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
-    wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText( BaseMessages.getString( PKG, "XsltDialog.GeneralTab.TabTitle" ) );
 
-    wGeneralComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wGeneralComp );
+    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -169,15 +148,15 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wGeneralComp.setLayout( generalLayout );
 
     // FieldName to evaluate
-    wlField = new Label( wGeneralComp, SWT.RIGHT );
+    Label wlField = new Label(wGeneralComp, SWT.RIGHT);
     wlField.setText( BaseMessages.getString( PKG, "XsltDialog.Field.Label" ) );
-    props.setLook( wlField );
+    props.setLook(wlField);
     FormData fdlField = new FormData();
     fdlField.left = new FormAttachment( 0, 0 );
     fdlField.top = new FormAttachment( wTransformName, 2 * margin );
     fdlField.right = new FormAttachment( middle, -margin );
     wlField.setLayoutData( fdlField );
-    wField = new CCombo( wGeneralComp, SWT.BORDER | SWT.READ_ONLY );
+    wField = new CCombo(wGeneralComp, SWT.BORDER | SWT.READ_ONLY );
     wField.setEditable( true );
     props.setLook( wField );
     wField.addModifyListener( lsMod );
@@ -204,8 +183,8 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // START OF Output Field GROUP
     //
 
-    wOutputField = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wOutputField );
+    Group wOutputField = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wOutputField);
     wOutputField.setText( BaseMessages.getString( PKG, "XsltDialog.ResultField.Group.Label" ) );
 
     FormLayout outputfieldgroupLayout = new FormLayout();
@@ -225,11 +204,11 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     fdResultField.right = new FormAttachment( 100, 0 );
     wResultField.setLayoutData( fdResultField );
 
-    fdOutputField = new FormData();
+    FormData fdOutputField = new FormData();
     fdOutputField.left = new FormAttachment( 0, margin );
     fdOutputField.top = new FormAttachment( wField, margin );
     fdOutputField.right = new FormAttachment( 100, -margin );
-    wOutputField.setLayoutData( fdOutputField );
+    wOutputField.setLayoutData(fdOutputField);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Output Field GROUP
@@ -240,8 +219,8 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     // START OF XSL File GROUP
     //
 
-    wXSLFileGroup = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wXSLFileGroup );
+    Group wXSLFileGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wXSLFileGroup);
     wXSLFileGroup.setText( BaseMessages.getString( PKG, "XsltDialog.XSL.Group.Label" ) );
 
     FormLayout XSLFileGroupLayout = new FormLayout();
@@ -250,21 +229,21 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wXSLFileGroup.setLayout( XSLFileGroupLayout );
 
     // Is XSL source defined in a Field?
-    wlXSLFileField = new Label( wXSLFileGroup, SWT.RIGHT );
+    Label wlXSLFileField = new Label(wXSLFileGroup, SWT.RIGHT);
     wlXSLFileField.setText( BaseMessages.getString( PKG, "XsltDialog.XSLFilenameFileField.Label" ) );
-    props.setLook( wlXSLFileField );
-    fdlXSLFileField = new FormData();
+    props.setLook(wlXSLFileField);
+    FormData fdlXSLFileField = new FormData();
     fdlXSLFileField.left = new FormAttachment( 0, 0 );
     fdlXSLFileField.top = new FormAttachment( wResultField, margin );
     fdlXSLFileField.right = new FormAttachment( middle, -margin );
-    wlXSLFileField.setLayoutData( fdlXSLFileField );
-    wXSLFileField = new Button( wXSLFileGroup, SWT.CHECK );
+    wlXSLFileField.setLayoutData(fdlXSLFileField);
+    wXSLFileField = new Button(wXSLFileGroup, SWT.CHECK );
     props.setLook( wXSLFileField );
     wXSLFileField.setToolTipText( BaseMessages.getString( PKG, "XsltDialog.XSLFilenameFileField.Tooltip" ) );
-    fdXSLFileField = new FormData();
+    FormData fdXSLFileField = new FormData();
     fdXSLFileField.left = new FormAttachment( middle, margin );
     fdXSLFileField.top = new FormAttachment( wResultField, margin );
-    wXSLFileField.setLayoutData( fdXSLFileField );
+    wXSLFileField.setLayoutData(fdXSLFileField);
 
     SelectionAdapter lsXslFile = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -275,7 +254,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wXSLFileField.addSelectionListener( lsXslFile );
 
     // If XSL File name defined in a Field
-    wlXSLField = new Label( wXSLFileGroup, SWT.RIGHT );
+    wlXSLField = new Label(wXSLFileGroup, SWT.RIGHT );
     wlXSLField.setText( BaseMessages.getString( PKG, "XsltDialog.XSLFilenameField.Label" ) );
     props.setLook( wlXSLField );
     FormData fdlXSLField = new FormData();
@@ -283,7 +262,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     fdlXSLField.top = new FormAttachment( wXSLFileField, margin );
     fdlXSLField.right = new FormAttachment( middle, -margin );
     wlXSLField.setLayoutData( fdlXSLField );
-    wXSLField = new CCombo( wXSLFileGroup, SWT.BORDER | SWT.READ_ONLY );
+    wXSLField = new CCombo(wXSLFileGroup, SWT.BORDER | SWT.READ_ONLY );
     wXSLField.setEditable( true );
     props.setLook( wXSLField );
     wXSLField.addModifyListener( lsMod );
@@ -306,21 +285,21 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     } );
 
     // Is XSL field defined in a Field is a file?
-    wlXSLFieldIsAFile = new Label( wXSLFileGroup, SWT.RIGHT );
+    wlXSLFieldIsAFile = new Label(wXSLFileGroup, SWT.RIGHT );
     wlXSLFieldIsAFile.setText( BaseMessages.getString( PKG, "XsltDialog.XSLFieldIsAFile.Label" ) );
     props.setLook( wlXSLFieldIsAFile );
-    fdlXSLFieldIsAFile = new FormData();
+    FormData fdlXSLFieldIsAFile = new FormData();
     fdlXSLFieldIsAFile.left = new FormAttachment( 0, 0 );
     fdlXSLFieldIsAFile.top = new FormAttachment( wXSLField, margin );
     fdlXSLFieldIsAFile.right = new FormAttachment( middle, -margin );
-    wlXSLFieldIsAFile.setLayoutData( fdlXSLFieldIsAFile );
-    wXSLFieldIsAFile = new Button( wXSLFileGroup, SWT.CHECK );
+    wlXSLFieldIsAFile.setLayoutData(fdlXSLFieldIsAFile);
+    wXSLFieldIsAFile = new Button(wXSLFileGroup, SWT.CHECK );
     props.setLook( wXSLFieldIsAFile );
     wXSLFieldIsAFile.setToolTipText( BaseMessages.getString( PKG, "XsltDialog.XSLFieldIsAFile.Tooltip" ) );
-    fdXSLFieldIsAFile = new FormData();
+    FormData fdXSLFieldIsAFile = new FormData();
     fdXSLFieldIsAFile.left = new FormAttachment( middle, margin );
     fdXSLFieldIsAFile.top = new FormAttachment( wXSLField, margin );
-    wXSLFieldIsAFile.setLayoutData( fdXSLFieldIsAFile );
+    wXSLFieldIsAFile.setLayoutData(fdXSLFieldIsAFile);
     wXSLFieldIsAFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         input.setChanged();
@@ -328,7 +307,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     } );
 
     // XSL Filename
-    wlFilename = new Label( wXSLFileGroup, SWT.RIGHT );
+    wlFilename = new Label(wXSLFileGroup, SWT.RIGHT );
     wlFilename.setText( BaseMessages.getString( PKG, "XsltDialog.XSLFilename.Label" ) );
     props.setLook( wlFilename );
     FormData fdlXSLFilename = new FormData();
@@ -337,7 +316,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     fdlXSLFilename.right = new FormAttachment( middle, -margin );
     wlFilename.setLayoutData( fdlXSLFilename );
 
-    wbbFilename = new Button( wXSLFileGroup, SWT.PUSH | SWT.CENTER );
+    wbbFilename = new Button(wXSLFileGroup, SWT.PUSH | SWT.CENTER );
     props.setLook( wbbFilename );
     wbbFilename.setText( BaseMessages.getString( PKG, "XsltDialog.FilenameBrowse.Button" ) );
     wbbFilename.setToolTipText( BaseMessages.getString( PKG, "System.Tooltip.BrowseForFileOrDirAndAdd" ) );
@@ -356,46 +335,46 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wXSLFilename.setLayoutData( fdXSLFilename );
 
     // XSLTFactory
-    wlXSLTFactory = new Label( wXSLFileGroup, SWT.RIGHT );
+    Label wlXSLTFactory = new Label(wXSLFileGroup, SWT.RIGHT);
     wlXSLTFactory.setText( BaseMessages.getString( PKG, "XsltDialog.XSLTFactory.Label" ) );
-    props.setLook( wlXSLTFactory );
-    fdlXSLTFactory = new FormData();
+    props.setLook(wlXSLTFactory);
+    FormData fdlXSLTFactory = new FormData();
     fdlXSLTFactory.left = new FormAttachment( 0, 0 );
     fdlXSLTFactory.top = new FormAttachment( wXSLFilename, 2 * margin );
     fdlXSLTFactory.right = new FormAttachment( middle, -margin );
-    wlXSLTFactory.setLayoutData( fdlXSLTFactory );
-    wXSLTFactory = new CCombo( wXSLFileGroup, SWT.BORDER | SWT.READ_ONLY );
+    wlXSLTFactory.setLayoutData(fdlXSLTFactory);
+    wXSLTFactory = new CCombo(wXSLFileGroup, SWT.BORDER | SWT.READ_ONLY );
     wXSLTFactory.setEditable( true );
     props.setLook( wXSLTFactory );
     wXSLTFactory.addModifyListener( lsMod );
-    fdXSLTFactory = new FormData();
+    FormData fdXSLTFactory = new FormData();
     fdXSLTFactory.left = new FormAttachment( middle, margin );
     fdXSLTFactory.top = new FormAttachment( wXSLFilename, 2 * margin );
     fdXSLTFactory.right = new FormAttachment( 100, 0 );
-    wXSLTFactory.setLayoutData( fdXSLTFactory );
+    wXSLTFactory.setLayoutData(fdXSLTFactory);
     wXSLTFactory.add( "JAXP" );
     wXSLTFactory.add( "SAXON" );
 
-    fdXSLFileGroup = new FormData();
+    FormData fdXSLFileGroup = new FormData();
     fdXSLFileGroup.left = new FormAttachment( 0, margin );
-    fdXSLFileGroup.top = new FormAttachment( wOutputField, margin );
+    fdXSLFileGroup.top = new FormAttachment(wOutputField, margin );
     fdXSLFileGroup.right = new FormAttachment( 100, -margin );
-    wXSLFileGroup.setLayoutData( fdXSLFileGroup );
+    wXSLFileGroup.setLayoutData(fdXSLFileGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF XSL File GROUP
     // ///////////////////////////////////////////////////////////
 
-    fdGeneralComp = new FormData();
+    FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
     fdGeneralComp.top = new FormAttachment( wField, 0 );
     fdGeneralComp.right = new FormAttachment( 100, 0 );
     fdGeneralComp.bottom = new FormAttachment( 100, 0 );
-    wGeneralComp.setLayoutData( fdGeneralComp );
+    wGeneralComp.setLayoutData(fdGeneralComp);
 
     wGeneralComp.layout();
-    wGeneralTab.setControl( wGeneralComp );
-    props.setLook( wGeneralComp );
+    wGeneralTab.setControl(wGeneralComp);
+    props.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -403,25 +382,25 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
     // Additional tab...
     //
-    wAdditionalTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wAdditionalTab = new CTabItem(wTabFolder, SWT.NONE);
     wAdditionalTab.setText( BaseMessages.getString( PKG, "XsltDialog.AdvancedTab.Title" ) );
 
     FormLayout addLayout = new FormLayout();
     addLayout.marginWidth = Const.FORM_MARGIN;
     addLayout.marginHeight = Const.FORM_MARGIN;
 
-    wAdditionalComp = new Composite( wTabFolder, SWT.NONE );
+    Composite wAdditionalComp = new Composite(wTabFolder, SWT.NONE);
     wAdditionalComp.setLayout( addLayout );
-    props.setLook( wAdditionalComp );
+    props.setLook(wAdditionalComp);
 
     // Output properties
-    wlOutputProperties = new Label( wAdditionalComp, SWT.NONE );
+    Label wlOutputProperties = new Label(wAdditionalComp, SWT.NONE);
     wlOutputProperties.setText( BaseMessages.getString( PKG, "XsltDialog.OutputProperties.Label" ) );
-    props.setLook( wlOutputProperties );
-    fdlOutputProperties = new FormData();
+    props.setLook(wlOutputProperties);
+    FormData fdlOutputProperties = new FormData();
     fdlOutputProperties.left = new FormAttachment( 0, 0 );
     fdlOutputProperties.top = new FormAttachment( 0, margin );
-    wlOutputProperties.setLayoutData( fdlOutputProperties );
+    wlOutputProperties.setLayoutData(fdlOutputProperties);
 
     final int OutputPropertiesRows = input.getOutputPropertyName().length;
 
@@ -437,27 +416,27 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wOutputProperties =
         new TableView( pipelineMeta, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf,
             OutputPropertiesRows, lsMod, props );
-    fdOutputProperties = new FormData();
+    FormData fdOutputProperties = new FormData();
     fdOutputProperties.left = new FormAttachment( 0, 0 );
-    fdOutputProperties.top = new FormAttachment( wlOutputProperties, margin );
+    fdOutputProperties.top = new FormAttachment(wlOutputProperties, margin );
     fdOutputProperties.right = new FormAttachment( 100, -margin );
-    fdOutputProperties.bottom = new FormAttachment( wlOutputProperties, 200 );
-    wOutputProperties.setLayoutData( fdOutputProperties );
+    fdOutputProperties.bottom = new FormAttachment(wlOutputProperties, 200 );
+    wOutputProperties.setLayoutData(fdOutputProperties);
 
     // Parameters
 
-    wlFields = new Label( wAdditionalComp, SWT.NONE );
+    Label wlFields = new Label(wAdditionalComp, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "XsltDialog.Parameters.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wOutputProperties, 2 * margin );
-    wlFields.setLayoutData( fdlFields );
+    wlFields.setLayoutData(fdlFields);
 
-    wGet = new Button( wAdditionalComp, SWT.PUSH );
+    wGet = new Button(wAdditionalComp, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "XsltDialog.GetFields.Button" ) );
     FormData fdGet = new FormData();
-    fdGet.top = new FormAttachment( wlFields, margin );
+    fdGet.top = new FormAttachment(wlFields, margin );
     fdGet.right = new FormAttachment( 100, 0 );
     wGet.setLayoutData( fdGet );
 
@@ -474,12 +453,12 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wFields =
         new TableView( pipelineMeta, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows,
             lsMod, props );
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( wGet, -margin );
     fdFields.bottom = new FormAttachment( 100, -margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     // Search the fields in the background
 
@@ -491,7 +470,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -501,15 +480,15 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     };
     new Thread( runnable ).start();
 
-    fdAdditionalComp = new FormData();
+    FormData fdAdditionalComp = new FormData();
     fdAdditionalComp.left = new FormAttachment( 0, 0 );
     fdAdditionalComp.top = new FormAttachment( wTransformName, margin );
     fdAdditionalComp.right = new FormAttachment( 100, 0 );
     fdAdditionalComp.bottom = new FormAttachment( 100, 0 );
-    wAdditionalComp.setLayoutData( fdAdditionalComp );
+    wAdditionalComp.setLayoutData(fdAdditionalComp);
 
     wAdditionalComp.layout();
-    wAdditionalTab.setControl( wAdditionalComp );
+    wAdditionalTab.setControl(wAdditionalComp);
     // ////// END of Additional Tab
 
     FormData fdTabFolder = new FormData();
@@ -525,7 +504,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     // Add listeners
     lsCancel = e -> cancel();
@@ -716,13 +695,13 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>(keySet);
 
     String[] fieldNames = entries.toArray( new String[entries.size()] );
 

@@ -43,14 +43,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = BlockUntilTransformsFinishMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // for i18n purposes, needed by Translator!!
 
   private String[] previousTransforms;
-  private BlockUntilTransformsFinishMeta input;
+  private final BlockUntilTransformsFinishMeta input;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
   public BlockUntilTransformsFinishDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -110,13 +108,13 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implem
     setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     // Table with fields
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "BlockUntilTransformsFinishDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wTransformName, margin );
-    wlFields.setLayoutData( fdlFields );
+    wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 2;
     final int FieldsRows = input.getTransformName().length;
@@ -135,12 +133,12 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implem
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wOk, -2 * margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     // Add listeners
     lsCancel = e -> cancel();
@@ -186,12 +184,12 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implem
     String[] nextTransforms = pipelineMeta.getNextTransformNames( transformMeta );
 
     List<String> entries = new ArrayList<>();
-    for ( int i = 0; i < previousTransforms.length; i++ ) {
-      if ( !previousTransforms[ i ].equals( transformName ) ) {
-        if ( nextTransforms != null ) {
-          for ( int j = 0; j < nextTransforms.length; j++ ) {
-            if ( !nextTransforms[ j ].equals( previousTransforms[ i ] ) ) {
-              entries.add( previousTransforms[ i ] );
+    for (String previousTransform : previousTransforms) {
+      if (!previousTransform.equals(transformName)) {
+        if (nextTransforms != null) {
+          for (String nextTransform : nextTransforms) {
+            if (!nextTransform.equals(previousTransform)) {
+              entries.add(previousTransform);
             }
           }
         }

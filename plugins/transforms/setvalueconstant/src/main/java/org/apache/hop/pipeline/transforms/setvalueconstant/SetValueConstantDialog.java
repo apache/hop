@@ -25,7 +25,6 @@ package org.apache.hop.pipeline.transforms.setvalueconstant;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -48,33 +47,25 @@ import java.util.List;
 import java.util.*;
 
 public class SetValueConstantDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SetValueConstantMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetValueConstantMeta.class; // for i18n purposes, needed by Translator!!
 
-  private SetValueConstantMeta input;
-
-  private ModifyListener lsMod;
-  private ModifyListener oldlsMod;
-  private int middle;
-  private int margin;
+  private final SetValueConstantMeta input;
 
   /**
    * all fields from the previous transforms
    */
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
   private ColumnInfo[] colinf;
 
-  private Label wluseVars;
   private Button wuseVars;
 
   public SetValueConstantDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (SetValueConstantMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -85,15 +76,15 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     props.setLook( shell );
     setShellImage( shell, input );
 
-    lsMod = e -> input.setChanged();
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
-    oldlsMod = lsMod;
+    ModifyListener oldlsMod = lsMod;
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    middle = props.getMiddlePct();
-    margin = props.getMargin();
+    int middle = props.getMiddlePct();
+    int margin = props.getMargin();
 
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "SetValueConstantDialog.Shell.Title" ) );
@@ -104,45 +95,45 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
-    fdlTransformName.right = new FormAttachment( middle, -margin );
-    fdlTransformName.top = new FormAttachment( 0, margin );
+    fdlTransformName.right = new FormAttachment(middle, -margin);
+    fdlTransformName.top = new FormAttachment( 0, margin);
     wlTransformName.setLayoutData( fdlTransformName );
     wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTransformName.setText( transformName );
     props.setLook( wTransformName );
-    wTransformName.addModifyListener( lsMod );
+    wTransformName.addModifyListener(lsMod);
     fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment( middle, 0 );
-    fdTransformName.top = new FormAttachment( 0, margin );
+    fdTransformName.left = new FormAttachment(middle, 0 );
+    fdTransformName.top = new FormAttachment( 0, margin);
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
     // Use variable?
-    wluseVars = new Label( shell, SWT.RIGHT );
+    Label wluseVars = new Label(shell, SWT.RIGHT);
     wluseVars.setText( BaseMessages.getString( PKG, "SetValueConstantDialog.useVars.Label" ) );
-    props.setLook( wluseVars );
+    props.setLook(wluseVars);
     FormData fdlUpdate = new FormData();
     fdlUpdate.left = new FormAttachment( 0, 0 );
-    fdlUpdate.right = new FormAttachment( middle, -margin );
-    fdlUpdate.top = new FormAttachment( wTransformName, 2 * margin );
+    fdlUpdate.right = new FormAttachment(middle, -margin);
+    fdlUpdate.top = new FormAttachment( wTransformName, 2 * margin);
     wluseVars.setLayoutData( fdlUpdate );
     wuseVars = new Button( shell, SWT.CHECK );
     wuseVars.setToolTipText( BaseMessages.getString( PKG, "SetValueConstantDialog.useVars.Tooltip" ) );
     props.setLook( wuseVars );
     FormData fdUpdate = new FormData();
-    fdUpdate.left = new FormAttachment( middle, 0 );
-    fdUpdate.top = new FormAttachment( wTransformName, 2 * margin );
+    fdUpdate.left = new FormAttachment(middle, 0 );
+    fdUpdate.top = new FormAttachment( wTransformName, 2 * margin);
     fdUpdate.right = new FormAttachment( 100, 0 );
     wuseVars.setLayoutData( fdUpdate );
 
     // Table with fields
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "SetValueConstantDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.top = new FormAttachment( wuseVars, margin );
-    wlFields.setLayoutData( fdlFields );
+    fdlFields.top = new FormAttachment( wuseVars, margin);
+    wlFields.setLayoutData(fdlFields);
 
     int FieldsCols = 4;
     final int FieldsRows = input.getFields().size();
@@ -170,13 +161,13 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, oldlsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( 100, -50 );
 
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     //
     // Search the fields in the background
@@ -190,7 +181,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -251,7 +242,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

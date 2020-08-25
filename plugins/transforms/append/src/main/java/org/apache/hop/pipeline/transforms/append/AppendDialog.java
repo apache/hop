@@ -49,15 +49,11 @@ import java.util.List;
 public class AppendDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = AppendDialog.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlHeadHop;
   private CCombo wHeadHop;
-  private FormData fdlHeadHop, fdHeadHop;
 
-  private Label wlTailHop;
   private CCombo wTailHop;
-  private FormData fdlTailHop, fdTailHop;
 
-  private AppendMeta input;
+  private final AppendMeta input;
 
   public AppendDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -108,14 +104,14 @@ public class AppendDialog extends BaseTransformDialog implements ITransformDialo
     // Get the previous transforms...
     String[] previousTransforms = pipelineMeta.getPrevTransformNames( transformName );
 
-    wlHeadHop = new Label( shell, SWT.RIGHT );
+    Label wlHeadHop = new Label(shell, SWT.RIGHT);
     wlHeadHop.setText( BaseMessages.getString( PKG, "AppendDialog.HeadHop.Label" ) );
-    props.setLook( wlHeadHop );
-    fdlHeadHop = new FormData();
+    props.setLook(wlHeadHop);
+    FormData fdlHeadHop = new FormData();
     fdlHeadHop.left = new FormAttachment( 0, 0 );
     fdlHeadHop.right = new FormAttachment( middle, -margin );
     fdlHeadHop.top = new FormAttachment( wTransformName, margin );
-    wlHeadHop.setLayoutData( fdlHeadHop );
+    wlHeadHop.setLayoutData(fdlHeadHop);
     wHeadHop = new CCombo( shell, SWT.BORDER );
     props.setLook( wHeadHop );
 
@@ -124,20 +120,20 @@ public class AppendDialog extends BaseTransformDialog implements ITransformDialo
     }
 
     wHeadHop.addModifyListener( lsMod );
-    fdHeadHop = new FormData();
+    FormData fdHeadHop = new FormData();
     fdHeadHop.left = new FormAttachment( middle, 0 );
     fdHeadHop.top = new FormAttachment( wTransformName, margin );
     fdHeadHop.right = new FormAttachment( 100, 0 );
-    wHeadHop.setLayoutData( fdHeadHop );
+    wHeadHop.setLayoutData(fdHeadHop);
 
-    wlTailHop = new Label( shell, SWT.RIGHT );
+    Label wlTailHop = new Label(shell, SWT.RIGHT);
     wlTailHop.setText( BaseMessages.getString( PKG, "AppendDialog.TailHop.Label" ) );
-    props.setLook( wlTailHop );
-    fdlTailHop = new FormData();
+    props.setLook(wlTailHop);
+    FormData fdlTailHop = new FormData();
     fdlTailHop.left = new FormAttachment( 0, 0 );
     fdlTailHop.right = new FormAttachment( middle, -margin );
     fdlTailHop.top = new FormAttachment( wHeadHop, margin );
-    wlTailHop.setLayoutData( fdlTailHop );
+    wlTailHop.setLayoutData(fdlTailHop);
     wTailHop = new CCombo( shell, SWT.BORDER );
     props.setLook( wTailHop );
 
@@ -146,11 +142,11 @@ public class AppendDialog extends BaseTransformDialog implements ITransformDialo
     }
 
     wTailHop.addModifyListener( lsMod );
-    fdTailHop = new FormData();
+    FormData fdTailHop = new FormData();
     fdTailHop.top = new FormAttachment( wHeadHop, margin );
     fdTailHop.left = new FormAttachment( middle, 0 );
     fdTailHop.right = new FormAttachment( 100, 0 );
-    wTailHop.setLayoutData( fdTailHop );
+    wTailHop.setLayoutData(fdTailHop);
 
     // Some buttons
     wOk = new Button( shell, SWT.PUSH );

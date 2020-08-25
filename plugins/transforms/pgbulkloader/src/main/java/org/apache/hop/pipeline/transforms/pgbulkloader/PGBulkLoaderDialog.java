@@ -63,68 +63,44 @@ import java.util.List;
 import java.util.*;
 
 public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSchema;
   private TextVar wSchema;
-  private FormData fdlSchema, fdSchema;
 
-  private Label wlTable;
-  private Button wbTable;
   private TextVar wTable;
-  private FormData fdlTable, fdbTable, fdTable;
 
-  private Label wlLoadAction;
   private CCombo wLoadAction;
-  private FormData fdlLoadAction, fdLoadAction;
 
-  private Label wlReturn;
   private TableView wReturn;
-  private FormData fdlReturn, fdReturn;
 
-  private Label wlEnclosure;
   private TextVar wEnclosure;
-  private FormData fdlEnclosure, fdEnclosure;
 
-  private Label wlDelimiter;
   private TextVar wDelimiter;
-  private FormData fdlDelimiter, fdDelimiter;
 
-  private Label wlDbNameOverride;
   private TextVar wDbNameOverride;
-  private FormData fdlDbNameOverride, fdDbNameOverride;
 
-  private Button wGetLU;
-  private FormData fdGetLU;
-  private Listener lsGetLU;
-
-  private Button wDoMapping;
-  private FormData fdDoMapping;
-
-  private Label wlStopOnError;
   private Button wStopOnError;
-  private FormData fdlStopOnError, fdStopOnError;
 
-  private PGBulkLoaderMeta input;
+  private final PGBulkLoaderMeta input;
 
   private static final String[] ALL_FILETYPES = new String[] { BaseMessages.getString(
     PKG, "PGBulkLoaderDialog.Filetype.All" ) };
 
   private ColumnInfo[] ciReturn;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   /**
    * List of ColumnInfo that should have the field names of the selected database table
    */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   public PGBulkLoaderDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (PGBulkLoaderMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -176,61 +152,61 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     wConnection = addConnectionLine( shell, wTransformName, input.getDatabaseMeta(), lsMod );
 
     // Schema line...
-    wlSchema = new Label( shell, SWT.RIGHT );
+    Label wlSchema = new Label(shell, SWT.RIGHT);
     wlSchema.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.TargetSchema.Label" ) );
-    props.setLook( wlSchema );
-    fdlSchema = new FormData();
+    props.setLook(wlSchema);
+    FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment( 0, 0 );
     fdlSchema.right = new FormAttachment( middle, -margin );
     fdlSchema.top = new FormAttachment( wConnection, margin * 2 );
-    wlSchema.setLayoutData( fdlSchema );
+    wlSchema.setLayoutData(fdlSchema);
 
     wSchema = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsMod );
     wSchema.addFocusListener( lsFocusLost );
-    fdSchema = new FormData();
+    FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment( middle, 0 );
     fdSchema.top = new FormAttachment( wConnection, margin * 2 );
     fdSchema.right = new FormAttachment( 100, 0 );
-    wSchema.setLayoutData( fdSchema );
+    wSchema.setLayoutData(fdSchema);
 
     // Table line...
-    wlTable = new Label( shell, SWT.RIGHT );
+    Label wlTable = new Label(shell, SWT.RIGHT);
     wlTable.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.TargetTable.Label" ) );
-    props.setLook( wlTable );
-    fdlTable = new FormData();
+    props.setLook(wlTable);
+    FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment( 0, 0 );
     fdlTable.right = new FormAttachment( middle, -margin );
     fdlTable.top = new FormAttachment( wSchema, margin );
-    wlTable.setLayoutData( fdlTable );
+    wlTable.setLayoutData(fdlTable);
 
-    wbTable = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbTable );
+    Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbTable);
     wbTable.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.Browse.Button" ) );
-    fdbTable = new FormData();
+    FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment( 100, 0 );
     fdbTable.top = new FormAttachment( wSchema, margin );
-    wbTable.setLayoutData( fdbTable );
+    wbTable.setLayoutData(fdbTable);
     wTable = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsMod );
     wTable.addFocusListener( lsFocusLost );
-    fdTable = new FormData();
+    FormData fdTable = new FormData();
     fdTable.left = new FormAttachment( middle, 0 );
     fdTable.top = new FormAttachment( wSchema, margin );
-    fdTable.right = new FormAttachment( wbTable, -margin );
-    wTable.setLayoutData( fdTable );
+    fdTable.right = new FormAttachment(wbTable, -margin );
+    wTable.setLayoutData(fdTable);
 
     // Load Action line
-    wlLoadAction = new Label( shell, SWT.RIGHT );
+    Label wlLoadAction = new Label(shell, SWT.RIGHT);
     wlLoadAction.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.LoadAction.Label" ) );
-    props.setLook( wlLoadAction );
-    fdlLoadAction = new FormData();
+    props.setLook(wlLoadAction);
+    FormData fdlLoadAction = new FormData();
     fdlLoadAction.left = new FormAttachment( 0, 0 );
     fdlLoadAction.right = new FormAttachment( middle, -margin );
     fdlLoadAction.top = new FormAttachment( wTable, margin );
-    wlLoadAction.setLayoutData( fdlLoadAction );
+    wlLoadAction.setLayoutData(fdlLoadAction);
     wLoadAction = new CCombo( shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wLoadAction.add( BaseMessages.getString( PKG, "PGBulkLoaderDialog.InsertLoadAction.Label" ) );
     wLoadAction.add( BaseMessages.getString( PKG, "PGBulkLoaderDialog.TruncateLoadAction.Label" ) );
@@ -239,88 +215,88 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     wLoadAction.addModifyListener( lsMod );
 
     props.setLook( wLoadAction );
-    fdLoadAction = new FormData();
+    FormData fdLoadAction = new FormData();
     fdLoadAction.left = new FormAttachment( middle, 0 );
     fdLoadAction.top = new FormAttachment( wTable, margin );
     fdLoadAction.right = new FormAttachment( 100, 0 );
-    wLoadAction.setLayoutData( fdLoadAction );
+    wLoadAction.setLayoutData(fdLoadAction);
 
     fdLoadAction = new FormData();
     fdLoadAction.left = new FormAttachment( middle, 0 );
     fdLoadAction.top = new FormAttachment( wTable, margin );
     fdLoadAction.right = new FormAttachment( 100, 0 );
-    wLoadAction.setLayoutData( fdLoadAction );
+    wLoadAction.setLayoutData(fdLoadAction);
 
     // Db Name Override line
-    wlDbNameOverride = new Label( shell, SWT.RIGHT );
+    Label wlDbNameOverride = new Label(shell, SWT.RIGHT);
     wlDbNameOverride.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.DbNameOverride.Label" ) );
-    props.setLook( wlDbNameOverride );
-    fdlDbNameOverride = new FormData();
+    props.setLook(wlDbNameOverride);
+    FormData fdlDbNameOverride = new FormData();
     fdlDbNameOverride.left = new FormAttachment( 0, 0 );
     fdlDbNameOverride.top = new FormAttachment( wLoadAction, margin );
     fdlDbNameOverride.right = new FormAttachment( middle, -margin );
-    wlDbNameOverride.setLayoutData( fdlDbNameOverride );
+    wlDbNameOverride.setLayoutData(fdlDbNameOverride);
     wDbNameOverride = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDbNameOverride );
     wDbNameOverride.addModifyListener( lsMod );
-    fdDbNameOverride = new FormData();
+    FormData fdDbNameOverride = new FormData();
     fdDbNameOverride.left = new FormAttachment( middle, 0 );
     fdDbNameOverride.top = new FormAttachment( wLoadAction, margin );
     fdDbNameOverride.right = new FormAttachment( 100, 0 );
-    wDbNameOverride.setLayoutData( fdDbNameOverride );
+    wDbNameOverride.setLayoutData(fdDbNameOverride);
 
     // Enclosure line
-    wlEnclosure = new Label( shell, SWT.RIGHT );
+    Label wlEnclosure = new Label(shell, SWT.RIGHT);
     wlEnclosure.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.Enclosure.Label" ) );
-    props.setLook( wlEnclosure );
-    fdlEnclosure = new FormData();
+    props.setLook(wlEnclosure);
+    FormData fdlEnclosure = new FormData();
     fdlEnclosure.left = new FormAttachment( 0, 0 );
     fdlEnclosure.top = new FormAttachment( wDbNameOverride, margin );
     fdlEnclosure.right = new FormAttachment( middle, -margin );
-    wlEnclosure.setLayoutData( fdlEnclosure );
+    wlEnclosure.setLayoutData(fdlEnclosure);
     wEnclosure = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEnclosure );
     wEnclosure.addModifyListener( lsMod );
-    fdEnclosure = new FormData();
+    FormData fdEnclosure = new FormData();
     fdEnclosure.left = new FormAttachment( middle, 0 );
     fdEnclosure.top = new FormAttachment( wDbNameOverride, margin );
     fdEnclosure.right = new FormAttachment( 100, 0 );
-    wEnclosure.setLayoutData( fdEnclosure );
+    wEnclosure.setLayoutData(fdEnclosure);
 
     // Delimiter
-    wlDelimiter = new Label( shell, SWT.RIGHT );
+    Label wlDelimiter = new Label(shell, SWT.RIGHT);
     wlDelimiter.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.Delimiter.Label" ) );
-    props.setLook( wlDelimiter );
-    fdlDelimiter = new FormData();
+    props.setLook(wlDelimiter);
+    FormData fdlDelimiter = new FormData();
     fdlDelimiter.left = new FormAttachment( 0, 0 );
     fdlDelimiter.top = new FormAttachment( wEnclosure, margin );
     fdlDelimiter.right = new FormAttachment( middle, -margin );
-    wlDelimiter.setLayoutData( fdlDelimiter );
+    wlDelimiter.setLayoutData(fdlDelimiter);
     wDelimiter = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDelimiter );
     wDelimiter.addModifyListener( lsMod );
-    fdDelimiter = new FormData();
+    FormData fdDelimiter = new FormData();
     fdDelimiter.left = new FormAttachment( middle, 0 );
     fdDelimiter.top = new FormAttachment( wEnclosure, margin );
     fdDelimiter.right = new FormAttachment( 100, 0 );
-    wDelimiter.setLayoutData( fdDelimiter );
+    wDelimiter.setLayoutData(fdDelimiter);
 
     // Stop on Error line
-    wlStopOnError = new Label( shell, SWT.RIGHT );
+    Label wlStopOnError = new Label(shell, SWT.RIGHT);
     wlStopOnError.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.StopOnError.Label" ) );
-    props.setLook( wlStopOnError );
-    fdlStopOnError = new FormData();
+    props.setLook(wlStopOnError);
+    FormData fdlStopOnError = new FormData();
     fdlStopOnError.left = new FormAttachment( 0, 0 );
     fdlStopOnError.top = new FormAttachment( wDelimiter, margin );
     fdlStopOnError.right = new FormAttachment( middle, -margin );
-    wlStopOnError.setLayoutData( fdlStopOnError );
+    wlStopOnError.setLayoutData(fdlStopOnError);
     wStopOnError = new Button( shell, SWT.CHECK );
     props.setLook( wStopOnError );
-    fdStopOnError = new FormData();
+    FormData fdStopOnError = new FormData();
     fdStopOnError.left = new FormAttachment( middle, 0 );
     fdStopOnError.top = new FormAttachment( wDelimiter, margin );
     fdStopOnError.right = new FormAttachment( 100, 0 );
-    wStopOnError.setLayoutData( fdStopOnError );
+    wStopOnError.setLayoutData(fdStopOnError);
 
     wStopOnError.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -339,13 +315,13 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     setButtonPositions( new Button[] { wOk, wCancel, wSql }, margin, null );
 
     // The field Table
-    wlReturn = new Label( shell, SWT.NONE );
+    Label wlReturn = new Label(shell, SWT.NONE);
     wlReturn.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.Fields.Label" ) );
-    props.setLook( wlReturn );
-    fdlReturn = new FormData();
+    props.setLook(wlReturn);
+    FormData fdlReturn = new FormData();
     fdlReturn.left = new FormAttachment( 0, 0 );
     fdlReturn.top = new FormAttachment( wStopOnError, margin );
-    wlReturn.setLayoutData( fdlReturn );
+    wlReturn.setLayoutData(fdlReturn);
 
     int UpInsCols = 3;
     int UpInsRows = ( input.getFieldTable() != null ? input.getFieldTable().length : 1 );
@@ -372,28 +348,28 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
-    wGetLU = new Button( shell, SWT.PUSH );
+    Button wGetLU = new Button(shell, SWT.PUSH);
     wGetLU.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.GetFields.Label" ) );
-    fdGetLU = new FormData();
-    fdGetLU.top = new FormAttachment( wlReturn, margin );
+    FormData fdGetLU = new FormData();
+    fdGetLU.top = new FormAttachment(wlReturn, margin );
     fdGetLU.right = new FormAttachment( 100, 0 );
-    wGetLU.setLayoutData( fdGetLU );
+    wGetLU.setLayoutData(fdGetLU);
 
-    wDoMapping = new Button( shell, SWT.PUSH );
+    Button wDoMapping = new Button(shell, SWT.PUSH);
     wDoMapping.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.EditMapping.Label" ) );
-    fdDoMapping = new FormData();
-    fdDoMapping.top = new FormAttachment( wGetLU, margin );
+    FormData fdDoMapping = new FormData();
+    fdDoMapping.top = new FormAttachment(wGetLU, margin );
     fdDoMapping.right = new FormAttachment( 100, 0 );
-    wDoMapping.setLayoutData( fdDoMapping );
+    wDoMapping.setLayoutData(fdDoMapping);
 
     wDoMapping.addListener( SWT.Selection, arg0 -> generateMappings() );
 
-    fdReturn = new FormData();
+    FormData fdReturn = new FormData();
     fdReturn.left = new FormAttachment( 0, 0 );
-    fdReturn.top = new FormAttachment( wlReturn, margin );
-    fdReturn.right = new FormAttachment( wDoMapping, -margin ); // fix margin error
+    fdReturn.top = new FormAttachment(wlReturn, margin );
+    fdReturn.right = new FormAttachment(wDoMapping, -margin ); // fix margin error
     fdReturn.bottom = new FormAttachment( wOk, -2 * margin );
-    wReturn.setLayoutData( fdReturn );
+    wReturn.setLayoutData(fdReturn);
 
     //
     // Search the fields in the background
@@ -420,12 +396,12 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
 
     // Add listeners
     lsOk = e -> ok();
-    lsGetLU = e -> getUpdate();
+    Listener lsGetLU = e -> getUpdate();
     lsSql = e -> create();
     lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
-    wGetLU.addListener( SWT.Selection, lsGetLU );
+    wGetLU.addListener( SWT.Selection, lsGetLU);
     wSql.addListener( SWT.Selection, lsSql );
     wCancel.addListener( SWT.Selection, lsCancel );
 
@@ -450,7 +426,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       }
     } );
 
-    wbTable.addSelectionListener( new SelectionAdapter() {
+    wbTable.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getTableName();
       }
@@ -544,7 +520,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
@@ -599,7 +575,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
 
     // Create the existing mapping list...
     //
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
     StringBuilder missingSourceFields = new StringBuilder();
     StringBuilder missingTargetFields = new StringBuilder();
 

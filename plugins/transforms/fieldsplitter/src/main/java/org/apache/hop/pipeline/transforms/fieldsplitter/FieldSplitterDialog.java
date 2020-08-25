@@ -47,23 +47,17 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class FieldSplitterDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlSplitfield;
   private CCombo wSplitfield;
-  private FormData fdlSplitfield, fdSplitfield;
 
-  private Label wlDelimiter;
   private TextVar wDelimiter;
-  private FormData fdlDelimiter, fdDelimiter;
 
   private TextVar wEnclosure;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
-  private FieldSplitterMeta input;
+  private final FieldSplitterMeta input;
 
   private boolean gotPreviousFields = false;
 
@@ -114,23 +108,23 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     wTransformName.setLayoutData( fdTransformName );
 
     // Typefield line
-    wlSplitfield = new Label( shell, SWT.RIGHT );
+    Label wlSplitfield = new Label(shell, SWT.RIGHT);
     wlSplitfield.setText( BaseMessages.getString( PKG, "FieldSplitterDialog.SplitField.Label" ) );
-    props.setLook( wlSplitfield );
-    fdlSplitfield = new FormData();
+    props.setLook(wlSplitfield);
+    FormData fdlSplitfield = new FormData();
     fdlSplitfield.left = new FormAttachment( 0, 0 );
     fdlSplitfield.right = new FormAttachment( middle, -margin );
     fdlSplitfield.top = new FormAttachment( wTransformName, margin );
-    wlSplitfield.setLayoutData( fdlSplitfield );
+    wlSplitfield.setLayoutData(fdlSplitfield);
     wSplitfield = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     wSplitfield.setText( "" );
     props.setLook( wSplitfield );
     wSplitfield.addModifyListener( lsMod );
-    fdSplitfield = new FormData();
+    FormData fdSplitfield = new FormData();
     fdSplitfield.left = new FormAttachment( middle, 0 );
     fdSplitfield.top = new FormAttachment( wTransformName, margin );
     fdSplitfield.right = new FormAttachment( 100, 0 );
-    wSplitfield.setLayoutData( fdSplitfield );
+    wSplitfield.setLayoutData(fdSplitfield);
     wSplitfield.addFocusListener( new FocusListener() {
       @Override
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
@@ -147,24 +141,24 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // Typefield line
-    wlDelimiter = new Label( shell, SWT.RIGHT );
+    Label wlDelimiter = new Label(shell, SWT.RIGHT);
     wlDelimiter.setText( BaseMessages.getString( PKG, "FieldSplitterDialog.Delimiter.Label" ) );
-    props.setLook( wlDelimiter );
-    fdlDelimiter = new FormData();
+    props.setLook(wlDelimiter);
+    FormData fdlDelimiter = new FormData();
     fdlDelimiter.left = new FormAttachment( 0, 0 );
     fdlDelimiter.right = new FormAttachment( middle, -margin );
     fdlDelimiter.top = new FormAttachment( wSplitfield, margin );
-    wlDelimiter.setLayoutData( fdlDelimiter );
+    wlDelimiter.setLayoutData(fdlDelimiter);
     wDelimiter = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wDelimiter.setToolTipText( BaseMessages.getString( PKG, "FieldSplitterDialog.Delimiter.Tooltip" ) );
     wDelimiter.setText( "" );
     props.setLook( wDelimiter );
     wDelimiter.addModifyListener( lsMod );
-    fdDelimiter = new FormData();
+    FormData fdDelimiter = new FormData();
     fdDelimiter.left = new FormAttachment( middle, 0 );
     fdDelimiter.top = new FormAttachment( wSplitfield, margin );
     fdDelimiter.right = new FormAttachment( 100, 0 );
-    wDelimiter.setLayoutData( fdDelimiter );
+    wDelimiter.setLayoutData(fdDelimiter);
 
     // enclosure
     Label wlEnclosure = new Label( shell, SWT.RIGHT );
@@ -185,13 +179,13 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
     fdEnclosure.right = new FormAttachment( 100, 0 );
     wEnclosure.setLayoutData( fdEnclosure );
 
-    wlFields = new Label( shell, SWT.RIGHT );
+    Label wlFields = new Label(shell, SWT.RIGHT);
     wlFields.setText( BaseMessages.getString( PKG, "FieldSplitterDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wEnclosure, margin );
-    wlFields.setLayoutData( fdlFields );
+    wlFields.setLayoutData(fdlFields);
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
@@ -247,12 +241,12 @@ public class FieldSplitterDialog extends BaseTransformDialog implements ITransfo
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wOk, -2 * margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     // Add listeners
     lsOk = e -> ok();

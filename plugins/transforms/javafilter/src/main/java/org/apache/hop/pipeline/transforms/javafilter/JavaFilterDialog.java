@@ -45,20 +45,17 @@ import java.util.List;
 import java.util.*;
 
 public class JavaFilterDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
 
   private Text wTransformName;
   private CCombo wTrueTo;
   private CCombo wFalseTo;
   private StyledTextComp wCondition;
 
-  private JavaFilterMeta input;
+  private final JavaFilterMeta input;
 
   private Map<String, Integer> inputFields;
   private ColumnInfo[] colinf;
-
-  private Group wSettingsGroup;
-  private FormData fdSettingsGroup;
 
   public JavaFilterDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -119,8 +116,8 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     // START OF Settings GROUP
     // /////////////////////////////////
 
-    wSettingsGroup = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wSettingsGroup );
+    Group wSettingsGroup = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wSettingsGroup);
     wSettingsGroup.setText( BaseMessages.getString( PKG, "JavaFIlterDialog.Settings.Label" ) );
     FormLayout settingsLayout = new FormLayout();
     settingsLayout.marginWidth = 10;
@@ -128,7 +125,7 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     wSettingsGroup.setLayout( settingsLayout );
 
     // Send 'True' data to...
-    Label wlTrueTo = new Label( wSettingsGroup, SWT.RIGHT );
+    Label wlTrueTo = new Label(wSettingsGroup, SWT.RIGHT );
     wlTrueTo.setText( BaseMessages.getString( PKG, "JavaFilterDialog.SendTrueTo.Label" ) );
     props.setLook( wlTrueTo );
     FormData fdlTrueTo = new FormData();
@@ -136,15 +133,14 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     fdlTrueTo.right = new FormAttachment( middle, -margin );
     fdlTrueTo.top = new FormAttachment( wTransformName, margin );
     wlTrueTo.setLayoutData( fdlTrueTo );
-    wTrueTo = new CCombo( wSettingsGroup, SWT.BORDER );
+    wTrueTo = new CCombo(wSettingsGroup, SWT.BORDER );
     props.setLook( wTrueTo );
 
     TransformMeta transforminfo = pipelineMeta.findTransform( transformName );
     if ( transforminfo != null ) {
       List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( transforminfo );
-      for ( int i = 0; i < nextTransforms.size(); i++ ) {
-        TransformMeta transformMeta = nextTransforms.get( i );
-        wTrueTo.add( transformMeta.getName() );
+      for (TransformMeta transformMeta : nextTransforms) {
+        wTrueTo.add(transformMeta.getName());
       }
     }
 
@@ -156,7 +152,7 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     wTrueTo.setLayoutData( fdTrueTo );
 
     // Send 'False' data to...
-    Label wlFalseTo = new Label( wSettingsGroup, SWT.RIGHT );
+    Label wlFalseTo = new Label(wSettingsGroup, SWT.RIGHT );
     wlFalseTo.setText( BaseMessages.getString( PKG, "JavaFilterDialog.SendFalseTo.Label" ) );
     props.setLook( wlFalseTo );
     FormData fdlFalseTo = new FormData();
@@ -164,15 +160,14 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     fdlFalseTo.right = new FormAttachment( middle, -margin );
     fdlFalseTo.top = new FormAttachment( wTrueTo, margin );
     wlFalseTo.setLayoutData( fdlFalseTo );
-    wFalseTo = new CCombo( wSettingsGroup, SWT.BORDER );
+    wFalseTo = new CCombo(wSettingsGroup, SWT.BORDER );
     props.setLook( wFalseTo );
 
     transforminfo = pipelineMeta.findTransform( transformName );
     if ( transforminfo != null ) {
       List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( transforminfo );
-      for ( int i = 0; i < nextTransforms.size(); i++ ) {
-        TransformMeta transformMeta = nextTransforms.get( i );
-        wFalseTo.add( transformMeta.getName() );
+      for (TransformMeta transformMeta : nextTransforms) {
+        wFalseTo.add(transformMeta.getName());
       }
     }
 
@@ -185,7 +180,7 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
 
     // bufferSize
     //
-    Label wlCondition = new Label( wSettingsGroup, SWT.RIGHT );
+    Label wlCondition = new Label(wSettingsGroup, SWT.RIGHT );
     wlCondition.setText( BaseMessages.getString( PKG, "JavaFIlterDialog.Condition.Label" ) );
     props.setLook( wlCondition );
     FormData fdlCondition = new FormData();
@@ -205,12 +200,12 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     fdCondition.bottom = new FormAttachment( 100, -margin );
     wCondition.setLayoutData( fdCondition );
 
-    fdSettingsGroup = new FormData();
+    FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment( 0, margin );
     fdSettingsGroup.top = new FormAttachment( wTransformName, margin );
     fdSettingsGroup.right = new FormAttachment( 100, -margin );
     fdSettingsGroup.bottom = new FormAttachment( wOk, -margin );
-    wSettingsGroup.setLayoutData( fdSettingsGroup );
+    wSettingsGroup.setLayoutData(fdSettingsGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings GROUP
@@ -256,7 +251,7 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

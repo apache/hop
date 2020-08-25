@@ -39,14 +39,12 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class DelayDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = DelayMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DelayMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DelayMeta input;
+  private final DelayMeta input;
   private CCombo wScaleTime;
-  private FormData fdScaleTime;
 
   private LabelTextVar wTimeout;
-  private FormData fdTimeout;
 
   public DelayDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -100,11 +98,11 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
         PKG, "DelayDialog.Timeout.Tooltip" ) );
     props.setLook( wTimeout );
     wTimeout.addModifyListener( lsMod );
-    fdTimeout = new FormData();
+    FormData fdTimeout = new FormData();
     fdTimeout.left = new FormAttachment( 0, -margin );
     fdTimeout.top = new FormAttachment( wTransformName, margin );
     fdTimeout.right = new FormAttachment( 100, -margin );
-    wTimeout.setLayoutData( fdTimeout );
+    wTimeout.setLayoutData(fdTimeout);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wTimeout.addModifyListener( e -> wTimeout.setToolTipText( pipelineMeta.environmentSubstitute( wTimeout.getText() ) ) );
@@ -116,11 +114,11 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     wScaleTime.add( BaseMessages.getString( PKG, "DelayDialog.HrScaleTime.Label" ) );
     wScaleTime.select( 0 ); // +1: starts at -1
     props.setLook( wScaleTime );
-    fdScaleTime = new FormData();
+    FormData fdScaleTime = new FormData();
     fdScaleTime.left = new FormAttachment( middle, 0 );
     fdScaleTime.top = new FormAttachment( wTimeout, margin );
     fdScaleTime.right = new FormAttachment( 100, 0 );
-    wScaleTime.setLayoutData( fdScaleTime );
+    wScaleTime.setLayoutData(fdScaleTime);
     wScaleTime.addModifyListener( lsMod );
 
     // Some buttons

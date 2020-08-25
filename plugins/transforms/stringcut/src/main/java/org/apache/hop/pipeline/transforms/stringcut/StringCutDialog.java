@@ -49,24 +49,20 @@ import java.util.*;
 
 public class StringCutDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = StringCutMeta.class; // for i18n purposes, needed by Translator!!
-
-  private Label wlKey;
+  private static final Class<?> PKG = StringCutMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableView wFields;
 
-  private FormData fdlKey, fdKey;
+  private final StringCutMeta input;
 
-  private StringCutMeta input;
-
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciKey;
 
   public StringCutDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (StringCutMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -109,13 +105,13 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    wlKey = new Label( shell, SWT.NONE );
+    Label wlKey = new Label(shell, SWT.NONE);
     wlKey.setText( BaseMessages.getString( PKG, "StringCutDialog.Fields.Label" ) );
-    props.setLook( wlKey );
-    fdlKey = new FormData();
+    props.setLook(wlKey);
+    FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment( 0, 0 );
     fdlKey.top = new FormAttachment( wTransformName, 2 * margin );
-    wlKey.setLayoutData( fdlKey );
+    wlKey.setLayoutData(fdlKey);
 
     int nrFieldCols = 4;
     int nrFieldRows = ( input.getFieldInStream() != null ? input.getFieldInStream().length : 1 );
@@ -146,12 +142,12 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrFieldRows, lsMod, props );
 
-    fdKey = new FormData();
+    FormData fdKey = new FormData();
     fdKey.left = new FormAttachment( 0, 0 );
-    fdKey.top = new FormAttachment( wlKey, margin );
+    fdKey.top = new FormAttachment(wlKey, margin );
     fdKey.right = new FormAttachment( 100, -margin );
     fdKey.bottom = new FormAttachment( 100, -30 );
-    wFields.setLayoutData( fdKey );
+    wFields.setLayoutData(fdKey);
 
     //
     // Search the fields in the background
@@ -164,7 +160,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
 
           setComboBoxes();
@@ -232,7 +228,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

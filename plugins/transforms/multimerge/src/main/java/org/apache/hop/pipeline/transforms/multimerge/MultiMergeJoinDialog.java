@@ -32,11 +32,10 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
-import org.apache.hop.pipeline.transforms.multimerge.MultiMergeJoinMeta;
+import org.apache.hop.pipeline.transform.errorhandling.Stream;
+import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
@@ -45,39 +44,23 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MultiMergeJoinSortWarning";
 
-  private CCombo[] wInputTransformArray;
+  private final CCombo[] wInputTransformArray;
   private CCombo joinTypeCombo;
-  private Text[] keyValTextBox;
+  private final Text[] keyValTextBox;
 
   private Map<String, Integer> inputFields;
   private IRowMeta prev;
@@ -85,7 +68,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
 
   private final int margin = props.getMargin();
 
-  private MultiMergeJoinMeta joinMeta;
+  private final MultiMergeJoinMeta joinMeta;
 
   public MultiMergeJoinDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -106,12 +89,12 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     String[] prevTransformNames = pipelineMeta.getPrevTransformNames( transformName );
     if ( prevTransformNames != null ) {
       String prevTransformName;
-      for ( int i = 0; i < prevTransformNames.length; i++ ) {
-        prevTransformName = prevTransformNames[ i ];
-        if ( nameList.contains( prevTransformName ) ) {
+      for (String name : prevTransformNames) {
+        prevTransformName = name;
+        if (nameList.contains(prevTransformName)) {
           continue;
         }
-        nameList.add( prevTransformName );
+        nameList.add(prevTransformName);
       }
     }
 
@@ -340,7 +323,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
    * @param lsMod
    */
   private void configureKeys( final Text keyValTextBox, final int inputStreamIndex, ModifyListener lsMod ) {
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
 
     final Shell subShell = new Shell( shell, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
     final FormLayout formLayout = new FormLayout();
@@ -464,7 +447,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

@@ -50,33 +50,21 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 
 public class MergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeJoinSortWarning";
 
-  private Label wlTransform1;
   private CCombo wTransform1;
-  private FormData fdlTransform1, fdTransform1;
 
-  private Label wlTransform2;
   private CCombo wTransform2;
-  private FormData fdlTransform2, fdTransform2;
 
-  private Label wlType;
   private CCombo wType;
-  private FormData fdlType, fdType;
 
-  private Label wlKeys1;
   private TableView wKeys1;
-  private Button wbKeys1;
-  private FormData fdlKeys1, fdKeys1, fdbKeys1;
 
-  private Label wlKeys2;
   private TableView wKeys2;
-  private Button wbKeys2;
-  private FormData fdlKeys2, fdKeys2, fdbKeys2;
 
-  private MergeJoinMeta input;
+  private final MergeJoinMeta input;
 
   public MergeJoinDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -127,14 +115,14 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     String[] previousTransforms = pipelineMeta.getPrevTransformNames( transformName );
 
     // First transform
-    wlTransform1 = new Label( shell, SWT.RIGHT );
+    Label wlTransform1 = new Label(shell, SWT.RIGHT);
     wlTransform1.setText( BaseMessages.getString( PKG, "MergeJoinDialog.Transform1.Label" ) );
-    props.setLook( wlTransform1 );
-    fdlTransform1 = new FormData();
+    props.setLook(wlTransform1);
+    FormData fdlTransform1 = new FormData();
     fdlTransform1.left = new FormAttachment( 0, 0 );
     fdlTransform1.right = new FormAttachment( middle, -margin );
     fdlTransform1.top = new FormAttachment( wTransformName, margin );
-    wlTransform1.setLayoutData( fdlTransform1 );
+    wlTransform1.setLayoutData(fdlTransform1);
     wTransform1 = new CCombo( shell, SWT.BORDER );
     props.setLook( wTransform1 );
 
@@ -143,21 +131,21 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     }
 
     wTransform1.addModifyListener( lsMod );
-    fdTransform1 = new FormData();
+    FormData fdTransform1 = new FormData();
     fdTransform1.left = new FormAttachment( middle, 0 );
     fdTransform1.top = new FormAttachment( wTransformName, margin );
     fdTransform1.right = new FormAttachment( 100, 0 );
-    wTransform1.setLayoutData( fdTransform1 );
+    wTransform1.setLayoutData(fdTransform1);
 
     // Second transform
-    wlTransform2 = new Label( shell, SWT.RIGHT );
+    Label wlTransform2 = new Label(shell, SWT.RIGHT);
     wlTransform2.setText( BaseMessages.getString( PKG, "MergeJoinDialog.Transform2.Label" ) );
-    props.setLook( wlTransform2 );
-    fdlTransform2 = new FormData();
+    props.setLook(wlTransform2);
+    FormData fdlTransform2 = new FormData();
     fdlTransform2.left = new FormAttachment( 0, 0 );
     fdlTransform2.right = new FormAttachment( middle, -margin );
     fdlTransform2.top = new FormAttachment( wTransform1, margin );
-    wlTransform2.setLayoutData( fdlTransform2 );
+    wlTransform2.setLayoutData(fdlTransform2);
     wTransform2 = new CCombo( shell, SWT.BORDER );
     props.setLook( wTransform2 );
 
@@ -166,32 +154,32 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     }
 
     wTransform2.addModifyListener( lsMod );
-    fdTransform2 = new FormData();
+    FormData fdTransform2 = new FormData();
     fdTransform2.top = new FormAttachment( wTransform1, margin );
     fdTransform2.left = new FormAttachment( middle, 0 );
     fdTransform2.right = new FormAttachment( 100, 0 );
-    wTransform2.setLayoutData( fdTransform2 );
+    wTransform2.setLayoutData(fdTransform2);
 
     // Join type
-    wlType = new Label( shell, SWT.RIGHT );
+    Label wlType = new Label(shell, SWT.RIGHT);
     wlType.setText( BaseMessages.getString( PKG, "MergeJoinDialog.Type.Label" ) );
-    props.setLook( wlType );
-    fdlType = new FormData();
+    props.setLook(wlType);
+    FormData fdlType = new FormData();
     fdlType.left = new FormAttachment( 0, 0 );
     fdlType.right = new FormAttachment( middle, -margin );
     fdlType.top = new FormAttachment( wTransform2, margin );
-    wlType.setLayoutData( fdlType );
+    wlType.setLayoutData(fdlType);
     wType = new CCombo( shell, SWT.BORDER );
     props.setLook( wType );
 
     wType.setItems( MergeJoinMeta.join_types );
 
     wType.addModifyListener( lsMod );
-    fdType = new FormData();
+    FormData fdType = new FormData();
     fdType.top = new FormAttachment( wTransform2, margin );
     fdType.left = new FormAttachment( middle, 0 );
     fdType.right = new FormAttachment( 100, 0 );
-    wType.setLayoutData( fdType );
+    wType.setLayoutData(fdType);
 
     // Some buttons at the bottom
     //
@@ -203,28 +191,28 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     wCancel.addListener( SWT.Selection, e->cancel() );
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
-    wbKeys1 = new Button( shell, SWT.PUSH );
+    Button wbKeys1 = new Button(shell, SWT.PUSH);
     wbKeys1.setText( BaseMessages.getString( PKG, "MergeJoinDialog.KeyFields1.Button" ) );
-    fdbKeys1 = new FormData();
+    FormData fdbKeys1 = new FormData();
     fdbKeys1.bottom = new FormAttachment( wOk, -2*margin );
     fdbKeys1.left = new FormAttachment( 0, 0 );
     fdbKeys1.right = new FormAttachment( 50, -margin );
-    wbKeys1.setLayoutData( fdbKeys1 );
-    wbKeys1.addSelectionListener( new SelectionAdapter() {
+    wbKeys1.setLayoutData(fdbKeys1);
+    wbKeys1.addSelectionListener(new SelectionAdapter() {
 
       public void widgetSelected( SelectionEvent e ) {
         getKeys1();
       }
     } );
 
-    wbKeys2 = new Button( shell, SWT.PUSH );
+    Button wbKeys2 = new Button(shell, SWT.PUSH);
     wbKeys2.setText( BaseMessages.getString( PKG, "MergeJoinDialog.KeyFields2.Button" ) );
-    fdbKeys2 = new FormData();
+    FormData fdbKeys2 = new FormData();
     fdbKeys2.bottom = new FormAttachment( wOk, -2*margin );
     fdbKeys2.left = new FormAttachment( 50, 0 );
     fdbKeys2.right = new FormAttachment( 100, 0 );
-    wbKeys2.setLayoutData( fdbKeys2 );
-    wbKeys2.addSelectionListener( new SelectionAdapter() {
+    wbKeys2.setLayoutData(fdbKeys2);
+    wbKeys2.addSelectionListener(new SelectionAdapter() {
 
       public void widgetSelected( SelectionEvent e ) {
         getKeys2();
@@ -235,13 +223,13 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     //
 
     // THE KEYS TO MATCH for first transform...
-    wlKeys1 = new Label( shell, SWT.NONE );
+    Label wlKeys1 = new Label(shell, SWT.NONE);
     wlKeys1.setText( BaseMessages.getString( PKG, "MergeJoinDialog.Keys1.Label" ) );
-    props.setLook( wlKeys1 );
-    fdlKeys1 = new FormData();
+    props.setLook(wlKeys1);
+    FormData fdlKeys1 = new FormData();
     fdlKeys1.left = new FormAttachment( 0, 0 );
     fdlKeys1.top = new FormAttachment( wType, margin );
-    wlKeys1.setLayoutData( fdlKeys1 );
+    wlKeys1.setLayoutData(fdlKeys1);
 
     int nrKeyRows1 = ( input.getKeyFields1() != null ? input.getKeyFields1().length : 1 );
 
@@ -252,22 +240,22 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
 
     wKeys1 = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
       ciKeys1, nrKeyRows1, lsMod, props );
-    fdKeys1 = new FormData();
-    fdKeys1.top = new FormAttachment( wlKeys1, margin );
+    FormData fdKeys1 = new FormData();
+    fdKeys1.top = new FormAttachment(wlKeys1, margin );
     fdKeys1.left = new FormAttachment( 0, 0 );
-    fdKeys1.bottom = new FormAttachment( wbKeys1, -2*margin );
+    fdKeys1.bottom = new FormAttachment(wbKeys1, -2*margin );
     fdKeys1.right = new FormAttachment( 50, -margin );
-    wKeys1.setLayoutData( fdKeys1 );
+    wKeys1.setLayoutData(fdKeys1);
 
 
     // THE KEYS TO MATCH for second transform
-    wlKeys2 = new Label( shell, SWT.NONE );
+    Label wlKeys2 = new Label(shell, SWT.NONE);
     wlKeys2.setText( BaseMessages.getString( PKG, "MergeJoinDialog.Keys2.Label" ) );
-    props.setLook( wlKeys2 );
-    fdlKeys2 = new FormData();
+    props.setLook(wlKeys2);
+    FormData fdlKeys2 = new FormData();
     fdlKeys2.left = new FormAttachment( 50, 0 );
     fdlKeys2.top = new FormAttachment( wType, margin );
-    wlKeys2.setLayoutData( fdlKeys2 );
+    wlKeys2.setLayoutData(fdlKeys2);
 
     int nrKeyRows2 = ( input.getKeyFields2() != null ? input.getKeyFields2().length : 1 );
 
@@ -278,12 +266,12 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
 
     wKeys2 = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
       ciKeys2, nrKeyRows2, lsMod, props );
-    fdKeys2 = new FormData();
-    fdKeys2.top = new FormAttachment( wlKeys2, margin );
+    FormData fdKeys2 = new FormData();
+    fdKeys2.top = new FormAttachment(wlKeys2, margin );
     fdKeys2.left = new FormAttachment( 50, 0 );
-    fdKeys2.bottom = new FormAttachment( wbKeys2, -2*margin );
+    fdKeys2.bottom = new FormAttachment(wbKeys2, -2*margin );
     fdKeys2.right = new FormAttachment( 100, 0 );
-    wKeys2.setLayoutData( fdKeys2 );
+    wKeys2.setLayoutData(fdKeys2);
 
 
 

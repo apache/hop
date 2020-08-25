@@ -50,25 +50,21 @@ import java.util.*;
 
 public class StringOperationsDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
-
-  private Label wlKey;
+  private static final Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableView wFields;
 
-  private FormData fdlKey, fdKey;
-
-  private StringOperationsMeta input;
+  private final StringOperationsMeta input;
 
   // holds the names of the fields entering this transform
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciKey;
 
   public StringOperationsDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (StringOperationsMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -124,13 +120,13 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    wlKey = new Label( shell, SWT.NONE );
+    Label wlKey = new Label(shell, SWT.NONE);
     wlKey.setText( BaseMessages.getString( PKG, "StringOperationsDialog.Fields.Label" ) );
-    props.setLook( wlKey );
-    fdlKey = new FormData();
+    props.setLook(wlKey);
+    FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment( 0, 0 );
     fdlKey.top = new FormAttachment( wTransformName, 2 * margin );
-    wlKey.setLayoutData( fdlKey );
+    wlKey.setLayoutData(fdlKey);
 
     int nrFieldCols = 11;
     int nrFieldRows = ( input.getFieldInStream() != null ? input.getFieldInStream().length : 1 );
@@ -194,12 +190,12 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrFieldRows, lsMod, props );
 
-    fdKey = new FormData();
+    FormData fdKey = new FormData();
     fdKey.left = new FormAttachment( 0, 0 );
-    fdKey.top = new FormAttachment( wlKey, margin );
+    fdKey.top = new FormAttachment(wlKey, margin );
     fdKey.right = new FormAttachment( 100, -margin );
     fdKey.bottom = new FormAttachment( wOk, -2*margin );
-    wFields.setLayoutData( fdKey );
+    wFields.setLayoutData(fdKey);
 
 
     lsDef = new SelectionAdapter() {
@@ -234,7 +230,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
           if ( row != null ) {
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
+              inputFields.put( row.getValueMeta( i ).getName(), i);
             }
 
             setComboBoxes();

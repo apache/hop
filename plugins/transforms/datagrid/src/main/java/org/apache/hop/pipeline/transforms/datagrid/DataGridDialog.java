@@ -55,17 +55,16 @@ import java.util.Collection;
 import java.util.List;
 
 public class DataGridDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
-  private CTabItem wMetaTab, wDataTab;
-  private Composite wMetaComp, wDataComp;
+  private Composite wDataComp;
 
   private TableView wFields;
   private TableView wData;
 
-  private DataGridMeta input;
-  private DataGridMeta dataGridMeta;
+  private final DataGridMeta input;
+  private final DataGridMeta dataGridMeta;
   private ModifyListener lsMod;
 
   public DataGridDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
@@ -123,11 +122,11 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     // START OF META TAB ///
     // //////////////////////
 
-    wMetaTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wMetaTab = new CTabItem(wTabFolder, SWT.NONE);
     wMetaTab.setText( BaseMessages.getString( PKG, "DataGridDialog.Meta.Label" ) );
 
-    wMetaComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wMetaComp );
+    Composite wMetaComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wMetaComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -178,13 +177,13 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
     wFields.setLayoutData( fdFields );
 
     wMetaComp.layout();
-    wMetaTab.setControl( wMetaComp );
+    wMetaTab.setControl(wMetaComp);
 
     // //////////////////////
     // START OF DATA TAB ///
     // //////////////////////
 
-    wDataTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wDataTab = new CTabItem(wTabFolder, SWT.NONE);
     wDataTab.setText( BaseMessages.getString( PKG, "DataGridDialog.Data.Label" ) );
 
     wDataComp = new Composite( wTabFolder, SWT.NONE );
@@ -538,7 +537,7 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
   }
 
   private void getDataInfo( DataGridMeta meta ) {
-    List<List<String>> data = new ArrayList<List<String>>();
+    List<List<String>> data = new ArrayList<>();
 
     int nrLines = wData.table.getItemCount();
     int nrFields = meta.getFieldName().length;

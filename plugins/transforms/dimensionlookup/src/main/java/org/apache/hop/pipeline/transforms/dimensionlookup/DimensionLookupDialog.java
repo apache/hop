@@ -48,7 +48,6 @@ import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.apache.hop.ui.util.HelpUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -65,30 +64,21 @@ import java.util.List;
 import java.util.*;
 
 public class DimensionLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
 
-  private CTabItem wKeyTab, wFieldsTab;
-
-  private FormData fdKeyComp, fdFieldsComp;
+  private CTabItem wFieldsTab;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSchema;
   private TextVar wSchema;
-  private Button wbSchema;
-  private FormData fdbSchema;
 
-  private Label wlTable;
-  private Button wbTable;
   private TextVar wTable;
 
   private Label wlCommit;
   private Text wCommit;
 
-  private Label wlUseCache;
   private Button wUseCache;
 
   private Label wlPreloadCache;
@@ -97,13 +87,10 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private Label wlCacheSize;
   private Text wCacheSize;
 
-  private Label wlTk;
   private CCombo wTk;
 
   private Label wlTkRename;
   private Text wTkRename;
-
-  private Group gTechGroup;
 
   private Label wlAutoinc;
   private Button wAutoinc;
@@ -118,13 +105,10 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private Label wlVersion;
   private CCombo wVersion;
 
-  private Label wlDatefield;
   private CCombo wDatefield;
 
-  private Label wlFromdate;
   private CCombo wFromdate;
 
-  private Label wlUseAltStartDate;
   private Button wUseAltStartDate;
   private CCombo wAltStartDate;
   private CCombo wAltStartDateField;
@@ -132,25 +116,20 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   private Label wlMinyear;
   private Text wMinyear;
 
-  private Label wlTodate;
   private CCombo wTodate;
 
   private Label wlMaxyear;
   private Text wMaxyear;
 
-  private Label wlUpdate;
   private Button wUpdate;
 
-  private Label wlKey;
   private TableView wKey;
 
-  private Label wlUpIns;
   private TableView wUpIns;
 
-  private Button wGet, wCreate;
-  private Listener lsGet, lsCreate;
+  private Button wCreate;
 
-  private DimensionLookupMeta input;
+  private final DimensionLookupMeta input;
   private boolean backupUpdate, backupAutoInc;
 
   private DatabaseMeta ci;
@@ -159,7 +138,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
   private ColumnInfo[] ciKey;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private boolean gotPreviousFields = false;
 
@@ -168,18 +147,14 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   /**
    * List of ColumnInfo that should have the field names of the selected database table
    */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
-
-  private ScrolledComposite sComp;
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   private Composite helpComp;
-
-  private Composite comp;
 
   public DimensionLookupDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (DimensionLookupMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -224,7 +199,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     sCompGridData.grabExcessVerticalSpace = true;
     sCompParent.setLayoutData( sCompGridData );
 
-    sComp = new ScrolledComposite( sCompParent, SWT.V_SCROLL | SWT.H_SCROLL );
+    ScrolledComposite sComp = new ScrolledComposite(sCompParent, SWT.V_SCROLL | SWT.H_SCROLL);
     sComp.setLayout( new FormLayout() );
     sComp.setExpandHorizontal( true );
     sComp.setExpandVertical( true );
@@ -237,8 +212,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     helpComp.setLayoutData( helpCompData );
     setShellImage( shell, input );
 
-    comp = new Composite( sComp, SWT.NONE );
-    props.setLook( comp );
+    Composite comp = new Composite(sComp, SWT.NONE);
+    props.setLook(comp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -246,7 +221,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     comp.setLayout( fileLayout );
 
     // TransformName line
-    wlTransformName = new Label( comp, SWT.RIGHT );
+    wlTransformName = new Label(comp, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.TransformName.Label" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
@@ -254,7 +229,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdlTransformName.right = new FormAttachment( middle, -margin );
     fdlTransformName.top = new FormAttachment( 0, margin );
     wlTransformName.setLayoutData( fdlTransformName );
-    wTransformName = new Text( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTransformName = new Text(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTransformName.setText( transformName );
     props.setLook( wTransformName );
     wTransformName.addModifyListener( lsMod );
@@ -265,15 +240,15 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wTransformName.setLayoutData( fdTransformName );
 
     // Update the dimension?
-    wlUpdate = new Label( comp, SWT.RIGHT );
+    Label wlUpdate = new Label(comp, SWT.RIGHT);
     wlUpdate.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Update.Label" ) );
-    props.setLook( wlUpdate );
+    props.setLook(wlUpdate);
     FormData fdlUpdate = new FormData();
     fdlUpdate.left = new FormAttachment( 0, 0 );
     fdlUpdate.right = new FormAttachment( middle, -margin );
     fdlUpdate.top = new FormAttachment( wTransformName, margin );
     wlUpdate.setLayoutData( fdlUpdate );
-    wUpdate = new Button( comp, SWT.CHECK );
+    wUpdate = new Button(comp, SWT.CHECK );
     props.setLook( wUpdate );
     FormData fdUpdate = new FormData();
     fdUpdate.left = new FormAttachment( middle, 0 );
@@ -292,7 +267,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     } );
 
     // Connection line
-    wConnection = addConnectionLine( comp, wUpdate, input.getDatabaseMeta(), lsMod );
+    wConnection = addConnectionLine(comp, wUpdate, input.getDatabaseMeta(), lsMod );
     wConnection.addFocusListener( lsConnectionFocus );
     wConnection.addModifyListener( e -> {
       // We have new content: change ci connection:
@@ -301,22 +276,22 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     } );
 
     // Schema line...
-    wlSchema = new Label( comp, SWT.RIGHT );
+    Label wlSchema = new Label(comp, SWT.RIGHT);
     wlSchema.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.TargetSchema.Label" ) );
-    props.setLook( wlSchema );
+    props.setLook(wlSchema);
     FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment( 0, 0 );
     fdlSchema.right = new FormAttachment( middle, -margin );
     fdlSchema.top = new FormAttachment( wConnection, margin );
     wlSchema.setLayoutData( fdlSchema );
 
-    wbSchema = new Button( comp, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbSchema );
+    Button wbSchema = new Button(comp, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbSchema);
     wbSchema.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbSchema = new FormData();
+    FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment( wConnection, margin );
     fdbSchema.right = new FormAttachment( 100, 0 );
-    wbSchema.setLayoutData( fdbSchema );
+    wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
@@ -324,25 +299,25 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment( middle, 0 );
     fdSchema.top = new FormAttachment( wConnection, margin );
-    fdSchema.right = new FormAttachment( wbSchema, -margin );
+    fdSchema.right = new FormAttachment(wbSchema, -margin );
     wSchema.setLayoutData( fdSchema );
 
     // Table line...
-    wlTable = new Label( comp, SWT.RIGHT );
+    Label wlTable = new Label(comp, SWT.RIGHT);
     wlTable.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.TargeTable.Label" ) );
-    props.setLook( wlTable );
+    props.setLook(wlTable);
     FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment( 0, 0 );
     fdlTable.right = new FormAttachment( middle, -margin );
-    fdlTable.top = new FormAttachment( wbSchema, margin );
+    fdlTable.top = new FormAttachment(wbSchema, margin );
     wlTable.setLayoutData( fdlTable );
 
-    wbTable = new Button( comp, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbTable );
+    Button wbTable = new Button(comp, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbTable);
     wbTable.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Browse.Button" ) );
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment( 100, 0 );
-    fdbTable.top = new FormAttachment( wbSchema, margin );
+    fdbTable.top = new FormAttachment(wbSchema, margin );
     wbTable.setLayoutData( fdbTable );
 
     wTable = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -350,12 +325,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wTable.addModifyListener( lsTableMod );
     FormData fdTable = new FormData();
     fdTable.left = new FormAttachment( middle, 0 );
-    fdTable.top = new FormAttachment( wbSchema, margin );
-    fdTable.right = new FormAttachment( wbTable, 0 );
+    fdTable.top = new FormAttachment(wbSchema, margin );
+    fdTable.right = new FormAttachment(wbTable, 0 );
     wTable.setLayoutData( fdTable );
 
     // Commit size ...
-    wlCommit = new Label( comp, SWT.RIGHT );
+    wlCommit = new Label(comp, SWT.RIGHT );
     wlCommit.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Commit.Label" ) );
     props.setLook( wlCommit );
     FormData fdlCommit = new FormData();
@@ -363,7 +338,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdlCommit.right = new FormAttachment( middle, -margin );
     fdlCommit.top = new FormAttachment( wTable, margin );
     wlCommit.setLayoutData( fdlCommit );
-    wCommit = new Text( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCommit = new Text(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCommit );
     wCommit.addModifyListener( lsMod );
     FormData fdCommit = new FormData();
@@ -373,15 +348,15 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wCommit.setLayoutData( fdCommit );
 
     // Use Cache?
-    wlUseCache = new Label( comp, SWT.RIGHT );
+    Label wlUseCache = new Label(comp, SWT.RIGHT);
     wlUseCache.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.UseCache.Label" ) );
-    props.setLook( wlUseCache );
+    props.setLook(wlUseCache);
     FormData fdlUseCache = new FormData();
     fdlUseCache.left = new FormAttachment( 0, 0 );
     fdlUseCache.right = new FormAttachment( middle, -margin );
     fdlUseCache.top = new FormAttachment( wCommit, margin );
     wlUseCache.setLayoutData( fdlUseCache );
-    wUseCache = new Button( comp, SWT.CHECK );
+    wUseCache = new Button(comp, SWT.CHECK );
     props.setLook( wUseCache );
     wUseCache.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -396,7 +371,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wUseCache.setLayoutData( fdUseCache );
 
     // Preload cache?
-    wlPreloadCache = new Label( comp, SWT.RIGHT );
+    wlPreloadCache = new Label(comp, SWT.RIGHT );
     wlPreloadCache.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.PreloadCache.Label" ) );
     props.setLook( wlPreloadCache );
     FormData fdlPreloadCache = new FormData();
@@ -404,7 +379,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdlPreloadCache.right = new FormAttachment( middle, -margin );
     fdlPreloadCache.top = new FormAttachment( wUseCache, margin );
     wlPreloadCache.setLayoutData( fdlPreloadCache );
-    wPreloadCache = new Button( comp, SWT.CHECK );
+    wPreloadCache = new Button(comp, SWT.CHECK );
     props.setLook( wPreloadCache );
     wPreloadCache.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -419,7 +394,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wPreloadCache.setLayoutData( fdPreloadCache );
 
     // Cache size ...
-    wlCacheSize = new Label( comp, SWT.RIGHT );
+    wlCacheSize = new Label(comp, SWT.RIGHT );
     wlCacheSize.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.CacheSize.Label" ) );
     props.setLook( wlCacheSize );
     FormData fdlCacheSize = new FormData();
@@ -427,7 +402,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdlCacheSize.right = new FormAttachment( middle, -margin );
     fdlCacheSize.top = new FormAttachment( wPreloadCache, margin );
     wlCacheSize.setLayoutData( fdlCacheSize );
-    wCacheSize = new Text( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCacheSize = new Text(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCacheSize );
     wCacheSize.addModifyListener( lsMod );
     FormData fdCacheSize = new FormData();
@@ -436,15 +411,15 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdCacheSize.right = new FormAttachment( 100, 0 );
     wCacheSize.setLayoutData( fdCacheSize );
 
-    wlTkRename = new Label( comp, SWT.RIGHT );
+    wlTkRename = new Label(comp, SWT.RIGHT );
 
-    wTabFolder = new CTabFolder( comp, SWT.BORDER );
+    wTabFolder = new CTabFolder(comp, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF KEY TAB ///
     // /
-    wKeyTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wKeyTab = new CTabItem(wTabFolder, SWT.NONE);
     wKeyTab.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.KeyTab.CTabItem" ) );
 
     FormLayout keyLayout = new FormLayout();
@@ -458,9 +433,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     //
     // The Lookup fields: usually the key
     //
-    wlKey = new Label( wKeyComp, SWT.NONE );
+    Label wlKey = new Label(wKeyComp, SWT.NONE);
     wlKey.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.KeyFields.Label" ) );
-    props.setLook( wlKey );
+    props.setLook(wlKey);
     FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment( 0, 0 );
     fdlKey.top = new FormAttachment( 0, margin );
@@ -486,17 +461,17 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     FormData fdKey = new FormData();
     fdKey.left = new FormAttachment( 0, 0 );
-    fdKey.top = new FormAttachment( wlKey, margin );
+    fdKey.top = new FormAttachment(wlKey, margin );
     fdKey.right = new FormAttachment( 100, 0 );
     fdKey.bottom = new FormAttachment( 100, 0 );
     wKey.setLayoutData( fdKey );
 
-    fdKeyComp = new FormData();
+    FormData fdKeyComp = new FormData();
     fdKeyComp.left = new FormAttachment( 0, 0 );
     fdKeyComp.top = new FormAttachment( 0, 0 );
     fdKeyComp.right = new FormAttachment( 100, 0 );
     fdKeyComp.bottom = new FormAttachment( 100, 0 );
-    wKeyComp.setLayoutData( fdKeyComp );
+    wKeyComp.setLayoutData(fdKeyComp);
 
     wKeyComp.layout();
     wKeyTab.setControl( wKeyComp );
@@ -519,9 +494,9 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wFieldsComp.setLayout( fieldsCompLayout );
 
     // THE UPDATE/INSERT TABLE
-    wlUpIns = new Label( wFieldsComp, SWT.NONE );
+    Label wlUpIns = new Label(wFieldsComp, SWT.NONE);
     wlUpIns.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.UpdateOrInsertFields.Label" ) );
-    props.setLook( wlUpIns );
+    props.setLook(wlUpIns);
     FormData fdlUpIns = new FormData();
     fdlUpIns.left = new FormAttachment( 0, 0 );
     fdlUpIns.top = new FormAttachment( 0, margin );
@@ -551,7 +526,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     FormData fdUpIns = new FormData();
     fdUpIns.left = new FormAttachment( 0, 0 );
-    fdUpIns.top = new FormAttachment( wlUpIns, margin );
+    fdUpIns.top = new FormAttachment(wlUpIns, margin );
     fdUpIns.right = new FormAttachment( 100, 0 );
     fdUpIns.bottom = new FormAttachment( 100, 0 );
     wUpIns.setLayoutData( fdUpIns );
@@ -579,34 +554,34 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     };
     new Thread( runnable ).start();
 
-    fdFieldsComp = new FormData();
+    FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment( 0, 0 );
     fdFieldsComp.top = new FormAttachment( 0, 0 );
     fdFieldsComp.right = new FormAttachment( 100, 0 );
     fdFieldsComp.bottom = new FormAttachment( 100, 0 );
-    wFieldsComp.setLayoutData( fdFieldsComp );
+    wFieldsComp.setLayoutData(fdFieldsComp);
 
     wFieldsComp.layout();
     wFieldsTab.setControl( wFieldsComp );
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wCacheSize, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.height = 200;
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
     // Technical key field:
-    wlTk = new Label( comp, SWT.RIGHT );
+    Label wlTk = new Label(comp, SWT.RIGHT);
     wlTk.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.TechnicalKeyField.Label" ) );
-    props.setLook( wlTk );
+    props.setLook(wlTk);
     FormData fdlTk = new FormData();
     fdlTk.left = new FormAttachment( 0, 0 );
     fdlTk.right = new FormAttachment( middle, -margin );
     fdlTk.top = new FormAttachment( wTabFolder, 2 * margin );
 
     wlTk.setLayoutData( fdlTk );
-    wTk = new CCombo( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTk = new CCombo(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTk );
     wTk.addModifyListener( lsMod );
     FormData fdTk = new FormData();
@@ -633,7 +608,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdlTkRename.left = new FormAttachment( 50 + middle / 2, margin );
     fdlTkRename.top = new FormAttachment( wTabFolder, 2 * margin );
     wlTkRename.setLayoutData( fdlTkRename );
-    wTkRename = new Text( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTkRename = new Text(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTkRename );
     wTkRename.addModifyListener( lsMod );
     FormData fdTkRename = new FormData();
@@ -646,7 +621,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     // The key creation box
     // //////////////////////////////////////////////////
 
-    gTechGroup = new Group( comp, SWT.SHADOW_ETCHED_IN );
+    Group gTechGroup = new Group(comp, SWT.SHADOW_ETCHED_IN);
     gTechGroup.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.TechGroup.Label" ) );
     GridLayout gridLayout = new GridLayout( 3, false );
     gTechGroup.setLayout( gridLayout );
@@ -658,14 +633,14 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     gTechGroup.setLayoutData( fdTechGroup );
 
     // Use maximum of table + 1
-    wTableMax = new Button( gTechGroup, SWT.RADIO );
+    wTableMax = new Button(gTechGroup, SWT.RADIO );
     props.setLook( wTableMax );
     wTableMax.setSelection( false );
     GridData gdTableMax = new GridData();
     wTableMax.setLayoutData( gdTableMax );
     wTableMax
       .setToolTipText( BaseMessages.getString( PKG, "DimensionLookupDialog.TableMaximum.Tooltip", Const.CR ) );
-    wlTableMax = new Label( gTechGroup, SWT.LEFT );
+    wlTableMax = new Label(gTechGroup, SWT.LEFT );
     wlTableMax.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.TableMaximum.Label" ) );
     props.setLook( wlTableMax );
     GridData gdlTableMax = new GridData( GridData.FILL_BOTH );
@@ -674,19 +649,19 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wlTableMax.setLayoutData( gdlTableMax );
 
     // Sequence Check Button
-    wSeqButton = new Button( gTechGroup, SWT.RADIO );
+    wSeqButton = new Button(gTechGroup, SWT.RADIO );
     props.setLook( wSeqButton );
     wSeqButton.setSelection( false );
     GridData gdSeqButton = new GridData();
     wSeqButton.setLayoutData( gdSeqButton );
     wSeqButton.setToolTipText( BaseMessages.getString( PKG, "DimensionLookupDialog.Sequence.Tooltip", Const.CR ) );
-    wlSeqButton = new Label( gTechGroup, SWT.LEFT );
+    wlSeqButton = new Label(gTechGroup, SWT.LEFT );
     wlSeqButton.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Sequence.Label" ) );
     props.setLook( wlSeqButton );
     GridData gdlSeqButton = new GridData();
     wlSeqButton.setLayoutData( gdlSeqButton );
 
-    wSeq = new Text( gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeq = new Text(gTechGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSeq );
     wSeq.addModifyListener( lsMod );
     GridData gdSeq = new GridData( GridData.FILL_HORIZONTAL );
@@ -704,14 +679,14 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     } );
 
     // Use an autoincrement field?
-    wAutoinc = new Button( gTechGroup, SWT.RADIO );
+    wAutoinc = new Button(gTechGroup, SWT.RADIO );
     props.setLook( wAutoinc );
     wAutoinc.setSelection( false );
     GridData gdAutoinc = new GridData();
     wAutoinc.setLayoutData( gdAutoinc );
     wAutoinc
       .setToolTipText( BaseMessages.getString( PKG, "DimensionLookupDialog.AutoincButton.Tooltip", Const.CR ) );
-    wlAutoinc = new Label( gTechGroup, SWT.LEFT );
+    wlAutoinc = new Label(gTechGroup, SWT.LEFT );
     wlAutoinc.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Autoincrement.Label" ) );
     props.setLook( wlAutoinc );
     GridData gdlAutoinc = new GridData();
@@ -722,20 +697,20 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     // //////////////////////////////////////////////////
 
     // Version key field:
-    wlVersion = new Label( comp, SWT.RIGHT );
+    wlVersion = new Label(comp, SWT.RIGHT );
     wlVersion.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Version.Label" ) );
     props.setLook( wlVersion );
     FormData fdlVersion = new FormData();
     fdlVersion.left = new FormAttachment( 0, 0 );
     fdlVersion.right = new FormAttachment( middle, -margin );
-    fdlVersion.top = new FormAttachment( gTechGroup, 2 * margin );
+    fdlVersion.top = new FormAttachment(gTechGroup, 2 * margin );
     wlVersion.setLayoutData( fdlVersion );
-    wVersion = new CCombo( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wVersion = new CCombo(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wVersion );
     wVersion.addModifyListener( lsMod );
     FormData fdVersion = new FormData();
     fdVersion.left = new FormAttachment( middle, 0 );
-    fdVersion.top = new FormAttachment( gTechGroup, 2 * margin );
+    fdVersion.top = new FormAttachment(gTechGroup, 2 * margin );
     fdVersion.right = new FormAttachment( 100, 0 );
     wVersion.setLayoutData( fdVersion );
     wVersion.addFocusListener( new FocusListener() {
@@ -752,15 +727,15 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     } );
 
     // Datefield line
-    wlDatefield = new Label( comp, SWT.RIGHT );
+    Label wlDatefield = new Label(comp, SWT.RIGHT);
     wlDatefield.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Datefield.Label" ) );
-    props.setLook( wlDatefield );
+    props.setLook(wlDatefield);
     FormData fdlDatefield = new FormData();
     fdlDatefield.left = new FormAttachment( 0, 0 );
     fdlDatefield.right = new FormAttachment( middle, -margin );
     fdlDatefield.top = new FormAttachment( wVersion, 2 * margin );
     wlDatefield.setLayoutData( fdlDatefield );
-    wDatefield = new CCombo( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDatefield = new CCombo(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDatefield );
     wDatefield.addModifyListener( lsMod );
     FormData fdDatefield = new FormData();
@@ -786,15 +761,15 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     // 0 [wlFromdate] middle [wFromdate] (100-middle)/3 [wlMinyear]
     // 2*(100-middle)/3 [wMinyear] 100%
     //
-    wlFromdate = new Label( comp, SWT.RIGHT );
+    Label wlFromdate = new Label(comp, SWT.RIGHT);
     wlFromdate.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Fromdate.Label" ) );
-    props.setLook( wlFromdate );
+    props.setLook(wlFromdate);
     FormData fdlFromdate = new FormData();
     fdlFromdate.left = new FormAttachment( 0, 0 );
     fdlFromdate.right = new FormAttachment( middle, -margin );
     fdlFromdate.top = new FormAttachment( wDatefield, 2 * margin );
     wlFromdate.setLayoutData( fdlFromdate );
-    wFromdate = new CCombo( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFromdate = new CCombo(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFromdate );
     wFromdate.addModifyListener( lsMod );
     FormData fdFromdate = new FormData();
@@ -816,7 +791,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     } );
 
     // Minyear line
-    wlMinyear = new Label( comp, SWT.RIGHT );
+    wlMinyear = new Label(comp, SWT.RIGHT );
     wlMinyear.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Minyear.Label" ) );
     props.setLook( wlMinyear );
     FormData fdlMinyear = new FormData();
@@ -824,7 +799,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdlMinyear.right = new FormAttachment( middle + 2 * ( 100 - middle ) / 3, -margin );
     fdlMinyear.top = new FormAttachment( wDatefield, 2 * margin );
     wlMinyear.setLayoutData( fdlMinyear );
-    wMinyear = new Text( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMinyear = new Text(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMinyear );
     wMinyear.addModifyListener( lsMod );
     FormData fdMinyear = new FormData();
@@ -836,16 +811,16 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     // Add a line with an option to specify an alternative start date...
     //
-    wlUseAltStartDate = new Label( comp, SWT.RIGHT );
+    Label wlUseAltStartDate = new Label(comp, SWT.RIGHT);
     wlUseAltStartDate
       .setText( BaseMessages.getString( PKG, "DimensionLookupDialog.UseAlternativeStartDate.Label" ) );
-    props.setLook( wlUseAltStartDate );
+    props.setLook(wlUseAltStartDate);
     FormData fdlUseAltStartDate = new FormData();
     fdlUseAltStartDate.left = new FormAttachment( 0, 0 );
     fdlUseAltStartDate.right = new FormAttachment( middle, -margin );
     fdlUseAltStartDate.top = new FormAttachment( wFromdate, margin );
     wlUseAltStartDate.setLayoutData( fdlUseAltStartDate );
-    wUseAltStartDate = new Button( comp, SWT.CHECK );
+    wUseAltStartDate = new Button(comp, SWT.CHECK );
     props.setLook( wUseAltStartDate );
     wUseAltStartDate.setToolTipText( BaseMessages.getString(
       PKG, "DimensionLookupDialog.UseAlternativeStartDate.Tooltip", Const.CR ) );
@@ -862,7 +837,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     // The choice...
     //
-    wAltStartDate = new CCombo( comp, SWT.BORDER );
+    wAltStartDate = new CCombo(comp, SWT.BORDER );
     props.setLook( wAltStartDate );
     // All options except for "No alternative"...
     wAltStartDate.removeAll();
@@ -882,7 +857,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       setFlags();
       input.setChanged();
     } );
-    wAltStartDateField = new CCombo( comp, SWT.SINGLE | SWT.BORDER );
+    wAltStartDateField = new CCombo(comp, SWT.SINGLE | SWT.BORDER );
     props.setLook( wAltStartDateField );
     wAltStartDateField.setToolTipText( BaseMessages.getString(
       PKG, "DimensionLookupDialog.AlternativeStartDateField.Tooltip", Const.CR ) );
@@ -905,15 +880,15 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     } );
 
     // Todate line
-    wlTodate = new Label( comp, SWT.RIGHT );
+    Label wlTodate = new Label(comp, SWT.RIGHT);
     wlTodate.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Todate.Label" ) );
-    props.setLook( wlTodate );
+    props.setLook(wlTodate);
     FormData fdlTodate = new FormData();
     fdlTodate.left = new FormAttachment( 0, 0 );
     fdlTodate.right = new FormAttachment( middle, -margin );
     fdlTodate.top = new FormAttachment( wAltStartDate, margin );
     wlTodate.setLayoutData( fdlTodate );
-    wTodate = new CCombo( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTodate = new CCombo(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTodate );
     wTodate.addModifyListener( lsMod );
     FormData fdTodate = new FormData();
@@ -935,7 +910,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     } );
 
     // Maxyear line
-    wlMaxyear = new Label( comp, SWT.RIGHT );
+    wlMaxyear = new Label(comp, SWT.RIGHT );
     wlMaxyear.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.Maxyear.Label" ) );
     props.setLook( wlMaxyear );
     FormData fdlMaxyear = new FormData();
@@ -943,7 +918,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdlMaxyear.right = new FormAttachment( middle + 2 * ( 100 - middle ) / 3, -margin );
     fdlMaxyear.top = new FormAttachment( wAltStartDate, margin );
     wlMaxyear.setLayoutData( fdlMaxyear );
-    wMaxyear = new Text( comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaxyear = new Text(comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMaxyear );
     wMaxyear.addModifyListener( lsMod );
     FormData fdMaxyear = new FormData();
@@ -954,13 +929,13 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wMaxyear.setToolTipText( BaseMessages.getString( PKG, "DimensionLookupDialog.Maxyear.ToolTip" ) );
 
     // THE BOTTOM BUTTONS
-    wOk = new Button( comp, SWT.PUSH );
+    wOk = new Button(comp, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wGet = new Button( comp, SWT.PUSH );
+    Button wGet = new Button(comp, SWT.PUSH);
     wGet.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.GetFields.Button" ) );
-    wCreate = new Button( comp, SWT.PUSH );
+    wCreate = new Button(comp, SWT.PUSH );
     wCreate.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.SQL.Button" ) );
-    wCancel = new Button( comp, SWT.PUSH );
+    wCancel = new Button(comp, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     setButtonPositions( new Button[] { wOk, wCancel, wGet, wCreate }, margin, wMaxyear );
@@ -975,7 +950,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     comp.pack();
     Rectangle bounds = comp.getBounds();
 
-    sComp.setContent( comp );
+    sComp.setContent(comp);
     sComp.setExpandHorizontal( true );
     sComp.setExpandVertical( true );
     sComp.setMinWidth( bounds.width );
@@ -983,13 +958,13 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
     // Add listeners
     lsOk = e -> ok();
-    lsGet = e -> get();
-    lsCreate = e -> create();
+    Listener lsGet = e -> get();
+    Listener lsCreate = e -> create();
     lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wCreate.addListener( SWT.Selection, lsCreate );
+    wGet.addListener( SWT.Selection, lsGet);
+    wCreate.addListener( SWT.Selection, lsCreate);
     wCancel.addListener( SWT.Selection, lsCancel );
 
     setTableMax();
@@ -1023,12 +998,12 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         cancel();
       }
     } );
-    wbSchema.addSelectionListener( new SelectionAdapter() {
+    wbSchema.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getSchemaNames();
       }
     } );
-    wbTable.addSelectionListener( new SelectionAdapter() {
+    wbTable.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getTableName();
       }
@@ -1143,7 +1118,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

@@ -40,15 +40,11 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class RowsFromResultDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = RowsFromResultMeta.class; // for i18n purposes, needed by Translator!!
-
-  private Label wlFields;
+  private static final Class<?> PKG = RowsFromResultMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableView wFields;
 
-  private FormData fdlFields, fdFields;
-
-  private RowsFromResultMeta input;
+  private final RowsFromResultMeta input;
 
   public RowsFromResultDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -95,13 +91,13 @@ public class RowsFromResultDialog extends BaseTransformDialog implements ITransf
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "RowsFromResultDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wTransformName, margin );
-    wlFields.setLayoutData( fdlFields );
+    wlFields.setLayoutData(fdlFields);
 
     final int FieldsRows = input.getFieldname().length;
 
@@ -132,12 +128,12 @@ public class RowsFromResultDialog extends BaseTransformDialog implements ITransf
 
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wOk, -margin * 2 );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     // Add listeners
     lsCancel = e -> cancel();

@@ -39,21 +39,17 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class GetServerSequenceDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = GetServerSequenceMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetServerSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlValuename;
   private Text wValuename;
 
-  private Label wlHopServer;
   private ComboVar wHopServer;
 
-  private Label wlSeqname;
   private TextVar wSeqname;
 
-  private Label wlIncrement;
   private TextVar wIncrement;
 
-  private GetServerSequenceMeta input;
+  private final GetServerSequenceMeta input;
 
   public GetServerSequenceDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -101,9 +97,9 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     wTransformName.setLayoutData( fdTransformName );
 
     // Valuename line
-    wlValuename = new Label( shell, SWT.RIGHT );
+    Label wlValuename = new Label(shell, SWT.RIGHT);
     wlValuename.setText( BaseMessages.getString( PKG, "GetSequenceDialog.Valuename.Label" ) );
-    props.setLook( wlValuename );
+    props.setLook(wlValuename);
     FormData fdlValuename = new FormData();
     fdlValuename.left = new FormAttachment( 0, 0 );
     fdlValuename.top = new FormAttachment( wTransformName, margin );
@@ -121,9 +117,9 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
 
     // Connection line
     //
-    wlHopServer = new Label( shell, SWT.RIGHT );
+    Label wlHopServer = new Label(shell, SWT.RIGHT);
     wlHopServer.setText( BaseMessages.getString( PKG, "GetSequenceDialog.HopServer.Label" ) );
-    props.setLook( wlHopServer );
+    props.setLook(wlHopServer);
     FormData fdlHopServer = new FormData();
     fdlHopServer.left = new FormAttachment( 0, 0 );
     fdlHopServer.top = new FormAttachment( wValuename, margin );
@@ -138,9 +134,9 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     wHopServer.setLayoutData( fdHopServer );
 
     // Seqname line
-    wlSeqname = new Label( shell, SWT.RIGHT );
+    Label wlSeqname = new Label(shell, SWT.RIGHT);
     wlSeqname.setText( BaseMessages.getString( PKG, "GetSequenceDialog.Seqname.Label" ) );
-    props.setLook( wlSeqname );
+    props.setLook(wlSeqname);
     FormData fdlSeqname = new FormData();
     fdlSeqname.left = new FormAttachment( 0, 0 );
     fdlSeqname.right = new FormAttachment( middle, -margin );
@@ -158,9 +154,9 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     wSeqname.setLayoutData( fdSeqname );
 
     // Increment line
-    wlIncrement = new Label( shell, SWT.RIGHT );
+    Label wlIncrement = new Label(shell, SWT.RIGHT);
     wlIncrement.setText( BaseMessages.getString( PKG, "GetSequenceDialog.Increment.Label" ) );
-    props.setLook( wlIncrement );
+    props.setLook(wlIncrement);
     FormData fdlIncrement = new FormData();
     fdlIncrement.left = new FormAttachment( 0, 0 );
     fdlIncrement.right = new FormAttachment( middle, -margin );
