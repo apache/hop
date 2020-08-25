@@ -383,12 +383,8 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     helpButton.setLayoutData( fdHelpButton );
 
     // Add listeners
-    wCancel.addListener( SWT.Selection, ( Event e ) -> {
-      cancel();
-    } );
-    wOk.addListener( SWT.Selection, ( Event e ) -> {
-      ok();
-    } );
+    wCancel.addListener( SWT.Selection, ( Event e ) -> cancel());
+    wOk.addListener( SWT.Selection, ( Event e ) -> ok());
 
     SelectionAdapter lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

@@ -52,46 +52,32 @@ import java.util.List;
 import java.util.*;
 
 public class DatabaseJoinDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSql;
   private StyledTextComp wSql;
-  private FormData fdlSql, fdSql;
 
-  private Label wlLimit;
   private Text wLimit;
-  private FormData fdlLimit, fdLimit;
 
-  private Label wlOuter;
   private Button wOuter;
-  private FormData fdlOuter, fdOuter;
 
-  private Label wlParam;
   private TableView wParam;
-  private FormData fdlParam, fdParam;
 
-  private Label wluseVars;
   private Button wuseVars;
-  private FormData fdluseVars, fduseVars;
 
-  private Button wGet;
-  private Listener lsGet;
-
-  private DatabaseJoinMeta input;
+  private final DatabaseJoinMeta input;
 
   private Label wlPosition;
-  private FormData fdlPosition;
 
   private ColumnInfo[] ciKey;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   public DatabaseJoinDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (DatabaseJoinMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -138,10 +124,10 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     wConnection = addConnectionLine( shell, wTransformName, input.getDatabaseMeta(), lsMod );
 
     // SQL editor...
-    wlSql = new Label( shell, SWT.NONE );
+    Label wlSql = new Label(shell, SWT.NONE);
     wlSql.setText( BaseMessages.getString( PKG, "DatabaseJoinDialog.SQL.Label" ) );
     props.setLook(wlSql);
-    fdlSql = new FormData();
+    FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment( 0, 0 );
     fdlSql.top = new FormAttachment( wConnection, margin * 2 );
     wlSql.setLayoutData(fdlSql);
@@ -150,7 +136,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
-    fdSql = new FormData();
+    FormData fdSql = new FormData();
     fdSql.left = new FormAttachment( 0, 0 );
     fdSql.top = new FormAttachment(wlSql, margin );
     fdSql.right = new FormAttachment( 100, -2 * margin );
@@ -196,47 +182,47 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
     wlPosition = new Label( shell, SWT.NONE );
     props.setLook( wlPosition );
-    fdlPosition = new FormData();
+    FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( 0, 0 );
     fdlPosition.top = new FormAttachment( wSql, margin );
     fdlPosition.right = new FormAttachment( 100, 0 );
-    wlPosition.setLayoutData( fdlPosition );
+    wlPosition.setLayoutData(fdlPosition);
 
     // Limit the number of lines returns
-    wlLimit = new Label( shell, SWT.RIGHT );
+    Label wlLimit = new Label(shell, SWT.RIGHT);
     wlLimit.setText( BaseMessages.getString( PKG, "DatabaseJoinDialog.Limit.Label" ) );
-    props.setLook( wlLimit );
-    fdlLimit = new FormData();
+    props.setLook(wlLimit);
+    FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment( 0, 0 );
     fdlLimit.right = new FormAttachment( middle, -margin );
     fdlLimit.top = new FormAttachment( wlPosition, margin );
-    wlLimit.setLayoutData( fdlLimit );
+    wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
-    fdLimit = new FormData();
+    FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment( middle, 0 );
     fdLimit.right = new FormAttachment( 100, 0 );
     fdLimit.top = new FormAttachment( wlPosition, margin );
-    wLimit.setLayoutData( fdLimit );
+    wLimit.setLayoutData(fdLimit);
 
     // Outer join?
-    wlOuter = new Label( shell, SWT.RIGHT );
+    Label wlOuter = new Label(shell, SWT.RIGHT);
     wlOuter.setText( BaseMessages.getString( PKG, "DatabaseJoinDialog.Outerjoin.Label" ) );
     wlOuter.setToolTipText( BaseMessages.getString( PKG, "DatabaseJoinDialog.Outerjoin.Tooltip" ) );
-    props.setLook( wlOuter );
-    fdlOuter = new FormData();
+    props.setLook(wlOuter);
+    FormData fdlOuter = new FormData();
     fdlOuter.left = new FormAttachment( 0, 0 );
     fdlOuter.right = new FormAttachment( middle, -margin );
     fdlOuter.top = new FormAttachment( wLimit, margin );
-    wlOuter.setLayoutData( fdlOuter );
+    wlOuter.setLayoutData(fdlOuter);
     wOuter = new Button( shell, SWT.CHECK );
     props.setLook( wOuter );
     wOuter.setToolTipText( wlOuter.getToolTipText() );
-    fdOuter = new FormData();
+    FormData fdOuter = new FormData();
     fdOuter.left = new FormAttachment( middle, 0 );
     fdOuter.top = new FormAttachment( wLimit, margin );
-    wOuter.setLayoutData( fdOuter );
+    wOuter.setLayoutData(fdOuter);
     wOuter.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -244,22 +230,22 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     } );
 
     // useVars ?
-    wluseVars = new Label( shell, SWT.RIGHT );
+    Label wluseVars = new Label(shell, SWT.RIGHT);
     wluseVars.setText( BaseMessages.getString( PKG, "DatabaseJoinDialog.useVarsjoin.Label" ) );
     wluseVars.setToolTipText( BaseMessages.getString( PKG, "DatabaseJoinDialog.useVarsjoin.Tooltip" ) );
-    props.setLook( wluseVars );
-    fdluseVars = new FormData();
+    props.setLook(wluseVars);
+    FormData fdluseVars = new FormData();
     fdluseVars.left = new FormAttachment( 0, 0 );
     fdluseVars.right = new FormAttachment( middle, -margin );
     fdluseVars.top = new FormAttachment( wOuter, margin );
-    wluseVars.setLayoutData( fdluseVars );
+    wluseVars.setLayoutData(fdluseVars);
     wuseVars = new Button( shell, SWT.CHECK );
     props.setLook( wuseVars );
     wuseVars.setToolTipText( wluseVars.getToolTipText() );
-    fduseVars = new FormData();
+    FormData fduseVars = new FormData();
     fduseVars.left = new FormAttachment( middle, 0 );
     fduseVars.top = new FormAttachment( wOuter, margin );
-    wuseVars.setLayoutData( fduseVars );
+    wuseVars.setLayoutData(fduseVars);
     wuseVars.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -269,21 +255,21 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wGet = new Button( shell, SWT.PUSH );
+    Button wGet = new Button(shell, SWT.PUSH);
     wGet.setText( BaseMessages.getString( PKG, "DatabaseJoinDialog.GetFields.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet}, margin, null );
 
     // The parameters
-    wlParam = new Label( shell, SWT.NONE );
+    Label wlParam = new Label(shell, SWT.NONE);
     wlParam.setText( BaseMessages.getString( PKG, "DatabaseJoinDialog.Param.Label" ) );
-    props.setLook( wlParam );
-    fdlParam = new FormData();
+    props.setLook(wlParam);
+    FormData fdlParam = new FormData();
     fdlParam.left = new FormAttachment( 0, 0 );
     fdlParam.top = new FormAttachment( wuseVars, margin );
-    wlParam.setLayoutData( fdlParam );
+    wlParam.setLayoutData(fdlParam);
 
     int nrKeyCols = 2;
     int nrKeyRows = ( input.getParameterField() != null ? input.getParameterField().length : 1 );
@@ -303,12 +289,12 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrKeyRows, lsMod, props );
 
-    fdParam = new FormData();
+    FormData fdParam = new FormData();
     fdParam.left = new FormAttachment( 0, 0 );
-    fdParam.top = new FormAttachment( wlParam, margin );
+    fdParam.top = new FormAttachment(wlParam, margin );
     fdParam.right = new FormAttachment( 100, 0 );
     fdParam.bottom = new FormAttachment( wOk, -2 * margin );
-    wParam.setLayoutData( fdParam );
+    wParam.setLayoutData(fdParam);
 
     //
     // Search the fields in the background
@@ -321,7 +307,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -333,11 +319,11 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
 
     // Add listeners
     lsOk = e -> ok();
-    lsGet = e -> get();
+    Listener lsGet = e -> get();
     lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
+    wGet.addListener( SWT.Selection, lsGet);
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
@@ -374,7 +360,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

@@ -37,9 +37,9 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class DetectEmptyStreamDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DetectEmptyStreamMeta.class; // for i18n purposes, needed by Translator!!
 
-  private DetectEmptyStreamMeta input;
+  private final DetectEmptyStreamMeta input;
 
   public DetectEmptyStreamDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );

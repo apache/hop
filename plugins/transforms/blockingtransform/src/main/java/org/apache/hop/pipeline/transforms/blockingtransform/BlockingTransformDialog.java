@@ -42,27 +42,22 @@ import org.eclipse.swt.widgets.*;
 public class BlockingTransformDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = BlockingTransformDialog.class; // for i18n purposes, needed by Translator!!
 
-  private BlockingTransformMeta input;
+  private final BlockingTransformMeta input;
 
-  private Label wlPassAllRows;
   private Button wPassAllRows;
 
   private Label wlSpoolDir;
   private Button wbSpoolDir;
   private TextVar wSpoolDir;
-  private FormData fdlSpoolDir, fdbSpoolDir, fdSpoolDir;
 
   private Label wlPrefix;
   private Text wPrefix;
-  private FormData fdlPrefix, fdPrefix;
 
   private Label wlCacheSize;
   private Text wCacheSize;
-  private FormData fdlCacheSize, fdCacheSize;
 
   private Label wlCompress;
   private Button wCompress;
-  private FormData fdlCompress, fdCompress;
 
   public BlockingTransformDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -111,9 +106,9 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wTransformName.setLayoutData( fdTransformName );
 
     // Update the dimension?
-    wlPassAllRows = new Label( shell, SWT.RIGHT );
+    Label wlPassAllRows = new Label(shell, SWT.RIGHT);
     wlPassAllRows.setText( BaseMessages.getString( PKG, "BlockingTransformDialog.PassAllRows.Label" ) );
-    props.setLook( wlPassAllRows );
+    props.setLook(wlPassAllRows);
     FormData fdlUpdate = new FormData();
     fdlUpdate.left = new FormAttachment( 0, 0 );
     fdlUpdate.right = new FormAttachment( middle, -margin );
@@ -139,28 +134,28 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wlSpoolDir = new Label( shell, SWT.RIGHT );
     wlSpoolDir.setText( BaseMessages.getString( PKG, "BlockingTransformDialog.SpoolDir.Label" ) );
     props.setLook( wlSpoolDir );
-    fdlSpoolDir = new FormData();
+    FormData fdlSpoolDir = new FormData();
     fdlSpoolDir.left = new FormAttachment( 0, 0 );
     fdlSpoolDir.right = new FormAttachment( middle, -margin );
     fdlSpoolDir.top = new FormAttachment( wPassAllRows, margin );
-    wlSpoolDir.setLayoutData( fdlSpoolDir );
+    wlSpoolDir.setLayoutData(fdlSpoolDir);
 
     wbSpoolDir = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbSpoolDir );
     wbSpoolDir.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbSpoolDir = new FormData();
+    FormData fdbSpoolDir = new FormData();
     fdbSpoolDir.right = new FormAttachment( 100, 0 );
     fdbSpoolDir.top = new FormAttachment( wPassAllRows, margin );
-    wbSpoolDir.setLayoutData( fdbSpoolDir );
+    wbSpoolDir.setLayoutData(fdbSpoolDir);
 
     wSpoolDir = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSpoolDir );
     wSpoolDir.addModifyListener( lsMod );
-    fdSpoolDir = new FormData();
+    FormData fdSpoolDir = new FormData();
     fdSpoolDir.left = new FormAttachment( middle, 0 );
     fdSpoolDir.top = new FormAttachment( wPassAllRows, margin );
     fdSpoolDir.right = new FormAttachment( wbSpoolDir, -margin );
-    wSpoolDir.setLayoutData( fdSpoolDir );
+    wSpoolDir.setLayoutData(fdSpoolDir);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wSpoolDir.addModifyListener( e -> wSpoolDir.setToolTipText( pipelineMeta.environmentSubstitute( wSpoolDir.getText() ) ) );
@@ -171,54 +166,54 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wlPrefix = new Label( shell, SWT.RIGHT );
     wlPrefix.setText( BaseMessages.getString( PKG, "BlockingTransformDialog.Prefix.Label" ) );
     props.setLook( wlPrefix );
-    fdlPrefix = new FormData();
+    FormData fdlPrefix = new FormData();
     fdlPrefix.left = new FormAttachment( 0, 0 );
     fdlPrefix.right = new FormAttachment( middle, -margin );
     fdlPrefix.top = new FormAttachment( wbSpoolDir, margin * 2 );
-    wlPrefix.setLayoutData( fdlPrefix );
+    wlPrefix.setLayoutData(fdlPrefix);
     wPrefix = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPrefix );
     wPrefix.addModifyListener( lsMod );
-    fdPrefix = new FormData();
+    FormData fdPrefix = new FormData();
     fdPrefix.left = new FormAttachment( middle, 0 );
     fdPrefix.top = new FormAttachment( wbSpoolDir, margin * 2 );
     fdPrefix.right = new FormAttachment( 100, 0 );
-    wPrefix.setLayoutData( fdPrefix );
+    wPrefix.setLayoutData(fdPrefix);
 
     // Maximum number of lines to keep in memory before using temporary files
     wlCacheSize = new Label( shell, SWT.RIGHT );
     wlCacheSize.setText( BaseMessages.getString( PKG, "BlockingTransformDialog.CacheSize.Label" ) );
     props.setLook( wlCacheSize );
-    fdlCacheSize = new FormData();
+    FormData fdlCacheSize = new FormData();
     fdlCacheSize.left = new FormAttachment( 0, 0 );
     fdlCacheSize.right = new FormAttachment( middle, -margin );
     fdlCacheSize.top = new FormAttachment( wPrefix, margin * 2 );
-    wlCacheSize.setLayoutData( fdlCacheSize );
+    wlCacheSize.setLayoutData(fdlCacheSize);
     wCacheSize = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCacheSize );
     wCacheSize.addModifyListener( lsMod );
-    fdCacheSize = new FormData();
+    FormData fdCacheSize = new FormData();
     fdCacheSize.left = new FormAttachment( middle, 0 );
     fdCacheSize.top = new FormAttachment( wPrefix, margin * 2 );
     fdCacheSize.right = new FormAttachment( 100, 0 );
-    wCacheSize.setLayoutData( fdCacheSize );
+    wCacheSize.setLayoutData(fdCacheSize);
 
     // Using compression for temporary files?
     wlCompress = new Label( shell, SWT.RIGHT );
     wlCompress.setText( BaseMessages.getString( PKG, "BlockingTransformDialog.Compress.Label" ) );
     props.setLook( wlCompress );
-    fdlCompress = new FormData();
+    FormData fdlCompress = new FormData();
     fdlCompress.left = new FormAttachment( 0, 0 );
     fdlCompress.right = new FormAttachment( middle, -margin );
     fdlCompress.top = new FormAttachment( wCacheSize, margin * 2 );
-    wlCompress.setLayoutData( fdlCompress );
+    wlCompress.setLayoutData(fdlCompress);
     wCompress = new Button( shell, SWT.CHECK );
     props.setLook( wCompress );
-    fdCompress = new FormData();
+    FormData fdCompress = new FormData();
     fdCompress.left = new FormAttachment( middle, 0 );
     fdCompress.top = new FormAttachment( wCacheSize, margin * 2 );
     fdCompress.right = new FormAttachment( 100, 0 );
-    wCompress.setLayoutData( fdCompress );
+    wCompress.setLayoutData(fdCompress);
     wCompress.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();

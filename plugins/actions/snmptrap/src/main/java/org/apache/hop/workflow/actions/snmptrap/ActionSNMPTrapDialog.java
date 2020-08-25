@@ -22,8 +22,6 @@
 
 package org.apache.hop.workflow.actions.snmptrap;
 
-import java.net.InetAddress;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -42,26 +40,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 import org.snmp4j.UserTarget;
 import org.snmp4j.smi.UdpAddress;
+
+import java.net.InetAddress;
 
 /**
  * This dialog allows you to edit the SNMPTrap action settings.
@@ -70,43 +57,23 @@ import org.snmp4j.smi.UdpAddress;
  * @since 12-09-2008
  */
 public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionSNMPTrap.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSNMPTrap.class; // for i18n purposes, needed by Translator!!
 
   private LabelText wName;
 
-  private FormData fdName;
-
   private LabelTextVar wServerName;
-
-  private FormData fdServerName;
 
   private LabelTextVar wTimeout;
 
-  private FormData fdTimeout;
-
   private LabelTextVar wComString;
-
-  private FormData fdComString;
 
   private LabelTextVar wUser;
 
-  private FormData fdUser;
-
   private LabelTextVar wPassphrase;
-
-  private FormData fdPassphrase;
 
   private LabelTextVar wEngineID;
 
-  private FormData fdEngineID;
-
   private LabelTextVar wRetry;
-
-  private FormData fdRetry;
-
-  private Button wOk, wCancel;
-
-  private Listener lsOk, lsCancel;
 
   private ActionSNMPTrap action;
 
@@ -114,46 +81,15 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
 
   // private Props props;
 
-  private SelectionAdapter lsDef;
-
   private boolean changed;
-
-  private Group wServerSettings;
-  private FormData fdServerSettings;
-
-  private CTabFolder wTabFolder;
-  private Composite wGeneralComp;
-  private CTabItem wGeneralTab;
-  private FormData fdGeneralComp;
-  private FormData fdTabFolder;
-
-  private FormData fdPort;
 
   private LabelTextVar wPort;
 
-  private FormData fdOID;
-
   private LabelTextVar wOID;
 
-  private Button wTest;
-
-  private FormData fdTest;
-
-  private Listener lsTest;
-
-  private Group wAdvancedSettings;
-  private FormData fdAdvancedSettings;
-
-  private Group wMessageGroup;
-  private FormData fdMessageGroup;
-
-  private Label wlMessage;
   private StyledTextComp wMessage;
-  private FormData fdlMessage, fdMessage;
 
-  private Label wlTargetType;
   private CCombo wTargetType;
-  private FormData fdlTargetType, fdTargetType;
 
   public ActionSNMPTrapDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
@@ -189,24 +125,24 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
       new LabelText( shell, BaseMessages.getString( PKG, "JobSNMPTrap.Name.Label" ), BaseMessages.getString(
         PKG, "JobSNMPTrap.Name.Tooltip" ) );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.top = new FormAttachment( 0, 0 );
     fdName.left = new FormAttachment( 0, 0 );
     fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    wName.setLayoutData(fdName);
 
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
-    wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText( BaseMessages.getString( PKG, "JobSNMPTrap.Tab.General.Label" ) );
 
-    wGeneralComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wGeneralComp );
+    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -216,8 +152,8 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // ////////////////////////
     // START OF SERVER SETTINGS GROUP///
     // /
-    wServerSettings = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wServerSettings );
+    Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wServerSettings);
     wServerSettings.setText( BaseMessages.getString( PKG, "JobSNMPTrap.ServerSettings.Group.Label" ) );
 
     FormLayout ServerSettingsgroupLayout = new FormLayout();
@@ -233,11 +169,11 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         .getString( PKG, "JobSNMPTrap.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
-    fdServerName = new FormData();
+    FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment( 0, 0 );
     fdServerName.top = new FormAttachment( wName, margin );
     fdServerName.right = new FormAttachment( 100, 0 );
-    wServerName.setLayoutData( fdServerName );
+    wServerName.setLayoutData(fdServerName);
 
     // Server port line
     wPort =
@@ -246,11 +182,11 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         .getString( PKG, "JobSNMPTrap.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
-    fdPort = new FormData();
+    FormData fdPort = new FormData();
     fdPort.left = new FormAttachment( 0, 0 );
     fdPort.top = new FormAttachment( wServerName, margin );
     fdPort.right = new FormAttachment( 100, 0 );
-    wPort.setLayoutData( fdPort );
+    wPort.setLayoutData(fdPort);
 
     // Server OID line
     wOID =
@@ -259,27 +195,27 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         .getString( PKG, "JobSNMPTrap.OID.Tooltip" ) );
     props.setLook( wOID );
     wOID.addModifyListener( lsMod );
-    fdOID = new FormData();
+    FormData fdOID = new FormData();
     fdOID.left = new FormAttachment( 0, 0 );
     fdOID.top = new FormAttachment( wPort, margin );
     fdOID.right = new FormAttachment( 100, 0 );
-    wOID.setLayoutData( fdOID );
+    wOID.setLayoutData(fdOID);
 
     // Test connection button
-    wTest = new Button( wServerSettings, SWT.PUSH );
+    Button wTest = new Button(wServerSettings, SWT.PUSH);
     wTest.setText( BaseMessages.getString( PKG, "JobSNMPTrap.TestConnection.Label" ) );
-    props.setLook( wTest );
-    fdTest = new FormData();
+    props.setLook(wTest);
+    FormData fdTest = new FormData();
     wTest.setToolTipText( BaseMessages.getString( PKG, "JobSNMPTrap.TestConnection.Tooltip" ) );
     fdTest.top = new FormAttachment( wOID, margin );
     fdTest.right = new FormAttachment( 100, 0 );
-    wTest.setLayoutData( fdTest );
+    wTest.setLayoutData(fdTest);
 
-    fdServerSettings = new FormData();
+    FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment( 0, margin );
     fdServerSettings.top = new FormAttachment( wName, margin );
     fdServerSettings.right = new FormAttachment( 100, -margin );
-    wServerSettings.setLayoutData( fdServerSettings );
+    wServerSettings.setLayoutData(fdServerSettings);
     // ///////////////////////////////////////////////////////////
     // / END OF SERVER SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
@@ -287,8 +223,8 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // ////////////////////////
     // START OF Advanced SETTINGS GROUP///
     // /
-    wAdvancedSettings = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wAdvancedSettings );
+    Group wAdvancedSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wAdvancedSettings);
     wAdvancedSettings.setText( BaseMessages.getString( PKG, "JobSNMPTrap.AdvancedSettings.Group.Label" ) );
     FormLayout AdvancedSettingsgroupLayout = new FormLayout();
     AdvancedSettingsgroupLayout.marginWidth = 10;
@@ -296,23 +232,23 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     wAdvancedSettings.setLayout( AdvancedSettingsgroupLayout );
 
     // Target type
-    wlTargetType = new Label( wAdvancedSettings, SWT.RIGHT );
+    Label wlTargetType = new Label(wAdvancedSettings, SWT.RIGHT);
     wlTargetType.setText( BaseMessages.getString( PKG, "JobSNMPTrap.TargetType.Label" ) );
-    props.setLook( wlTargetType );
-    fdlTargetType = new FormData();
+    props.setLook(wlTargetType);
+    FormData fdlTargetType = new FormData();
     fdlTargetType.left = new FormAttachment( 0, margin );
     fdlTargetType.right = new FormAttachment( middle, -margin );
-    fdlTargetType.top = new FormAttachment( wServerSettings, margin );
-    wlTargetType.setLayoutData( fdlTargetType );
-    wTargetType = new CCombo( wAdvancedSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    fdlTargetType.top = new FormAttachment(wServerSettings, margin );
+    wlTargetType.setLayoutData(fdlTargetType);
+    wTargetType = new CCombo(wAdvancedSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wTargetType.setItems( ActionSNMPTrap.target_type_Desc );
 
     props.setLook( wTargetType );
-    fdTargetType = new FormData();
+    FormData fdTargetType = new FormData();
     fdTargetType.left = new FormAttachment( middle, margin );
-    fdTargetType.top = new FormAttachment( wServerSettings, margin );
+    fdTargetType.top = new FormAttachment(wServerSettings, margin );
     fdTargetType.right = new FormAttachment( 100, 0 );
-    wTargetType.setLayoutData( fdTargetType );
+    wTargetType.setLayoutData(fdTargetType);
     wTargetType.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         CheckuseUserTarget();
@@ -327,11 +263,11 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         .getString( PKG, "JobSNMPTrap.ComString.Tooltip" ) );
     props.setLook( wComString );
     wComString.addModifyListener( lsMod );
-    fdComString = new FormData();
+    FormData fdComString = new FormData();
     fdComString.left = new FormAttachment( 0, 0 );
     fdComString.top = new FormAttachment( wTargetType, margin );
     fdComString.right = new FormAttachment( 100, 0 );
-    wComString.setLayoutData( fdComString );
+    wComString.setLayoutData(fdComString);
 
     // User line
     wUser =
@@ -340,11 +276,11 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         .getString( PKG, "JobSNMPTrap.User.Tooltip" ) );
     props.setLook( wUser );
     wUser.addModifyListener( lsMod );
-    fdUser = new FormData();
+    FormData fdUser = new FormData();
     fdUser.left = new FormAttachment( 0, 0 );
     fdUser.top = new FormAttachment( wComString, margin );
     fdUser.right = new FormAttachment( 100, 0 );
-    wUser.setLayoutData( fdUser );
+    wUser.setLayoutData(fdUser);
 
     // Passphrase String line
     wPassphrase =
@@ -353,11 +289,11 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         BaseMessages.getString( PKG, "JobSNMPTrap.Passphrase.Tooltip" ), true );
     props.setLook( wPassphrase );
     wPassphrase.addModifyListener( lsMod );
-    fdPassphrase = new FormData();
+    FormData fdPassphrase = new FormData();
     fdPassphrase.left = new FormAttachment( 0, 0 );
     fdPassphrase.top = new FormAttachment( wUser, margin );
     fdPassphrase.right = new FormAttachment( 100, 0 );
-    wPassphrase.setLayoutData( fdPassphrase );
+    wPassphrase.setLayoutData(fdPassphrase);
 
     // EngineID String line
     wEngineID =
@@ -366,11 +302,11 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         .getString( PKG, "JobSNMPTrap.EngineID.Tooltip" ) );
     props.setLook( wEngineID );
     wEngineID.addModifyListener( lsMod );
-    fdEngineID = new FormData();
+    FormData fdEngineID = new FormData();
     fdEngineID.left = new FormAttachment( 0, 0 );
     fdEngineID.top = new FormAttachment( wPassphrase, margin );
     fdEngineID.right = new FormAttachment( 100, 0 );
-    wEngineID.setLayoutData( fdEngineID );
+    wEngineID.setLayoutData(fdEngineID);
 
     // Retry line
     wRetry =
@@ -379,11 +315,11 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         .getString( PKG, "JobSNMPTrap.Retry.Tooltip" ) );
     props.setLook( wRetry );
     wRetry.addModifyListener( lsMod );
-    fdRetry = new FormData();
+    FormData fdRetry = new FormData();
     fdRetry.left = new FormAttachment( 0, 0 );
     fdRetry.top = new FormAttachment( wEngineID, margin );
     fdRetry.right = new FormAttachment( 100, 0 );
-    wRetry.setLayoutData( fdRetry );
+    wRetry.setLayoutData(fdRetry);
 
     // Timeout line
     wTimeout =
@@ -392,17 +328,17 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
         .getString( PKG, "JobSNMPTrap.Timeout.Tooltip" ) );
     props.setLook( wTimeout );
     wTimeout.addModifyListener( lsMod );
-    fdTimeout = new FormData();
+    FormData fdTimeout = new FormData();
     fdTimeout.left = new FormAttachment( 0, 0 );
     fdTimeout.top = new FormAttachment( wRetry, margin );
     fdTimeout.right = new FormAttachment( 100, 0 );
-    wTimeout.setLayoutData( fdTimeout );
+    wTimeout.setLayoutData(fdTimeout);
 
-    fdAdvancedSettings = new FormData();
+    FormData fdAdvancedSettings = new FormData();
     fdAdvancedSettings.left = new FormAttachment( 0, margin );
-    fdAdvancedSettings.top = new FormAttachment( wServerSettings, margin );
+    fdAdvancedSettings.top = new FormAttachment(wServerSettings, margin );
     fdAdvancedSettings.right = new FormAttachment( 100, -margin );
-    wAdvancedSettings.setLayoutData( fdAdvancedSettings );
+    wAdvancedSettings.setLayoutData(fdAdvancedSettings);
     // ///////////////////////////////////////////////////////////
     // / END OF Advanced SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
@@ -410,8 +346,8 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // ////////////////////////
     // START OF MESSAGE GROUP///
     // /
-    wMessageGroup = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wMessageGroup );
+    Group wMessageGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wMessageGroup);
     wMessageGroup.setText( BaseMessages.getString( PKG, "JobSNMPTrap.MessageGroup.Group.Label" ) );
     FormLayout MessageGroupgroupLayout = new FormLayout();
     MessageGroupgroupLayout.marginWidth = 10;
@@ -419,83 +355,83 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     wMessageGroup.setLayout( MessageGroupgroupLayout );
 
     // Message line
-    wlMessage = new Label( wMessageGroup, SWT.RIGHT );
+    Label wlMessage = new Label(wMessageGroup, SWT.RIGHT);
     wlMessage.setText( BaseMessages.getString( PKG, "JobSNMPTrap.Message.Label" ) );
-    props.setLook( wlMessage );
-    fdlMessage = new FormData();
+    props.setLook(wlMessage);
+    FormData fdlMessage = new FormData();
     fdlMessage.left = new FormAttachment( 0, 0 );
     fdlMessage.top = new FormAttachment( wComString, margin );
     fdlMessage.right = new FormAttachment( middle, -margin );
-    wlMessage.setLayoutData( fdlMessage );
+    wlMessage.setLayoutData(fdlMessage);
 
     wMessage = new StyledTextComp( action, wMessageGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wMessage );
     wMessage.addModifyListener( lsMod );
-    fdMessage = new FormData();
+    FormData fdMessage = new FormData();
     fdMessage.left = new FormAttachment( middle, 0 );
     fdMessage.top = new FormAttachment( wComString, margin );
     fdMessage.right = new FormAttachment( 100, -2 * margin );
     fdMessage.bottom = new FormAttachment( 100, -margin );
-    wMessage.setLayoutData( fdMessage );
+    wMessage.setLayoutData(fdMessage);
 
-    fdMessageGroup = new FormData();
+    FormData fdMessageGroup = new FormData();
     fdMessageGroup.left = new FormAttachment( 0, margin );
-    fdMessageGroup.top = new FormAttachment( wAdvancedSettings, margin );
+    fdMessageGroup.top = new FormAttachment(wAdvancedSettings, margin );
     fdMessageGroup.right = new FormAttachment( 100, -margin );
     fdMessageGroup.bottom = new FormAttachment( 100, -margin );
-    wMessageGroup.setLayoutData( fdMessageGroup );
+    wMessageGroup.setLayoutData(fdMessageGroup);
     // ///////////////////////////////////////////////////////////
     // / END OF MESSAGE GROUP
     // ///////////////////////////////////////////////////////////
 
-    fdGeneralComp = new FormData();
+    FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
     fdGeneralComp.top = new FormAttachment( 0, 0 );
     fdGeneralComp.right = new FormAttachment( 100, 0 );
     fdGeneralComp.bottom = new FormAttachment( 100, 0 );
-    wGeneralComp.setLayoutData( fdGeneralComp );
+    wGeneralComp.setLayoutData(fdGeneralComp);
 
     wGeneralComp.layout();
-    wGeneralTab.setControl( wGeneralComp );
-    props.setLook( wGeneralComp );
+    wGeneralTab.setControl(wGeneralComp);
+    props.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
     // ///////////////////////////////////////////////////////////
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wTabFolder );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-    lsTest = e -> test();
+    Listener lsCancel = e -> cancel();
+    Listener lsOk = e -> ok();
+    Listener lsTest = e -> test();
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-    wTest.addListener( SWT.Selection, lsTest );
+    wCancel.addListener( SWT.Selection, lsCancel);
+    wOk.addListener( SWT.Selection, lsOk);
+    wTest.addListener( SWT.Selection, lsTest);
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wName.addSelectionListener( lsDef );
-    wServerName.addSelectionListener( lsDef );
-    wTimeout.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
+    wServerName.addSelectionListener(lsDef);
+    wTimeout.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

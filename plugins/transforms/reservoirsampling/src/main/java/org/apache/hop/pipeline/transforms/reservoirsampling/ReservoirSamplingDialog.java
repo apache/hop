@@ -39,29 +39,19 @@ import org.eclipse.swt.widgets.*;
 
 public class ReservoirSamplingDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = ReservoirSamplingMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ReservoirSamplingMeta.class; // for i18n purposes, needed by Translator!!
 
-  // various UI bits and pieces
-  private Label m_wlTransformName;
-  private Text m_wTransformName;
-  private FormData m_fdlTransformName;
-  private FormData m_fdTransformName;
+  private Text mWTransformName;
 
-  private Label m_wlSampleSize;
-  private TextVar m_wSampleSize;
-  private FormData m_fdlSampleSize;
-  private FormData m_fdSampleSize;
+  private TextVar mWSampleSize;
 
-  private Label m_wlSeed;
-  private TextVar m_wSeed;
-  private FormData m_fdlSeed;
-  private FormData m_fdSeed;
+  private TextVar mWSeed;
 
   /**
    * meta data for the transform. A copy is made so that changes, in terms of choices made by the user, can be detected.
    */
-  private ReservoirSamplingMeta m_currentMeta;
-  private ReservoirSamplingMeta m_originalMeta;
+  private final ReservoirSamplingMeta mCurrentMeta;
+  private final ReservoirSamplingMeta mOriginalMeta;
 
   public ReservoirSamplingDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
 
@@ -69,8 +59,8 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
 
     // The order here is important...
     // m_currentMeta is looked at for changes
-    m_currentMeta = (ReservoirSamplingMeta) in;
-    m_originalMeta = (ReservoirSamplingMeta) m_currentMeta.clone();
+    mCurrentMeta = (ReservoirSamplingMeta) in;
+    mOriginalMeta = (ReservoirSamplingMeta) mCurrentMeta.clone();
   }
 
   /**
@@ -85,12 +75,12 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX );
 
     props.setLook( shell );
-    setShellImage( shell, m_currentMeta );
+    setShellImage( shell, mCurrentMeta);
 
     // used to listen to a text field (m_wTransformName)
-    ModifyListener lsMod = e -> m_currentMeta.setChanged();
+    ModifyListener lsMod = e -> mCurrentMeta.setChanged();
 
-    changed = m_currentMeta.hasChanged();
+    changed = mCurrentMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -103,68 +93,69 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     int margin = props.getMargin();
 
     // TransformName line
-    m_wlTransformName = new Label( shell, SWT.RIGHT );
-    m_wlTransformName.setText( BaseMessages.getString( PKG, "ReservoirSamplingDialog.TransformName.Label" ) );
-    props.setLook( m_wlTransformName );
+    // various UI bits and pieces
+    Label mWlTransformName = new Label(shell, SWT.RIGHT);
+    mWlTransformName.setText( BaseMessages.getString( PKG, "ReservoirSamplingDialog.TransformName.Label" ) );
+    props.setLook(mWlTransformName);
 
-    m_fdlTransformName = new FormData();
-    m_fdlTransformName.left = new FormAttachment( 0, 0 );
-    m_fdlTransformName.right = new FormAttachment( middle, -margin );
-    m_fdlTransformName.top = new FormAttachment( 0, margin );
-    m_wlTransformName.setLayoutData( m_fdlTransformName );
-    m_wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    m_wTransformName.setText( transformName );
-    props.setLook( m_wTransformName );
-    m_wTransformName.addModifyListener( lsMod );
+    FormData mFdlTransformName = new FormData();
+    mFdlTransformName.left = new FormAttachment( 0, 0 );
+    mFdlTransformName.right = new FormAttachment( middle, -margin );
+    mFdlTransformName.top = new FormAttachment( 0, margin );
+    mWlTransformName.setLayoutData(mFdlTransformName);
+    mWTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    mWTransformName.setText( transformName );
+    props.setLook(mWTransformName);
+    mWTransformName.addModifyListener( lsMod );
 
     // format the text field
-    m_fdTransformName = new FormData();
-    m_fdTransformName.left = new FormAttachment( middle, 0 );
-    m_fdTransformName.top = new FormAttachment( 0, margin );
-    m_fdTransformName.right = new FormAttachment( 100, 0 );
-    m_wTransformName.setLayoutData( m_fdTransformName );
+    FormData mFdTransformName = new FormData();
+    mFdTransformName.left = new FormAttachment( middle, 0 );
+    mFdTransformName.top = new FormAttachment( 0, margin );
+    mFdTransformName.right = new FormAttachment( 100, 0 );
+    mWTransformName.setLayoutData(mFdTransformName);
 
     // Sample size text field
-    m_wlSampleSize = new Label( shell, SWT.RIGHT );
-    m_wlSampleSize.setText( BaseMessages.getString( PKG, "ReservoirSamplingDialog.SampleSize.Label" ) );
-    props.setLook( m_wlSampleSize );
+    Label mWlSampleSize = new Label(shell, SWT.RIGHT);
+    mWlSampleSize.setText( BaseMessages.getString( PKG, "ReservoirSamplingDialog.SampleSize.Label" ) );
+    props.setLook(mWlSampleSize);
 
-    m_fdlSampleSize = new FormData();
-    m_fdlSampleSize.left = new FormAttachment( 0, 0 );
-    m_fdlSampleSize.right = new FormAttachment( middle, -margin );
-    m_fdlSampleSize.top = new FormAttachment( m_wTransformName, margin );
-    m_wlSampleSize.setLayoutData( m_fdlSampleSize );
+    FormData mFdlSampleSize = new FormData();
+    mFdlSampleSize.left = new FormAttachment( 0, 0 );
+    mFdlSampleSize.right = new FormAttachment( middle, -margin );
+    mFdlSampleSize.top = new FormAttachment(mWTransformName, margin );
+    mWlSampleSize.setLayoutData(mFdlSampleSize);
 
-    m_wSampleSize = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( m_wSampleSize );
-    m_wSampleSize.addModifyListener( lsMod );
-    m_wSampleSize.setText( "" + m_originalMeta.getSampleSize() );
-    m_fdSampleSize = new FormData();
-    m_fdSampleSize.left = new FormAttachment( m_wlSampleSize, margin );
-    m_fdSampleSize.right = new FormAttachment( 100, -margin );
-    m_fdSampleSize.top = new FormAttachment( m_wTransformName, margin );
-    m_wSampleSize.setLayoutData( m_fdSampleSize );
+    mWSampleSize = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook(mWSampleSize);
+    mWSampleSize.addModifyListener( lsMod );
+    mWSampleSize.setText( "" + mOriginalMeta.getSampleSize() );
+    FormData mFdSampleSize = new FormData();
+    mFdSampleSize.left = new FormAttachment(mWlSampleSize, margin );
+    mFdSampleSize.right = new FormAttachment( 100, -margin );
+    mFdSampleSize.top = new FormAttachment(mWTransformName, margin );
+    mWSampleSize.setLayoutData(mFdSampleSize);
 
     // Seed text field
-    m_wlSeed = new Label( shell, SWT.RIGHT );
-    m_wlSeed.setText( BaseMessages.getString( PKG, "ReservoirSamplingDialog.Seed.Label" ) );
-    props.setLook( m_wlSeed );
+    Label mWlSeed = new Label(shell, SWT.RIGHT);
+    mWlSeed.setText( BaseMessages.getString( PKG, "ReservoirSamplingDialog.Seed.Label" ) );
+    props.setLook(mWlSeed);
 
-    m_fdlSeed = new FormData();
-    m_fdlSeed.left = new FormAttachment( 0, 0 );
-    m_fdlSeed.right = new FormAttachment( middle, -margin );
-    m_fdlSeed.top = new FormAttachment( m_wSampleSize, margin );
-    m_wlSeed.setLayoutData( m_fdlSeed );
+    FormData mFdlSeed = new FormData();
+    mFdlSeed.left = new FormAttachment( 0, 0 );
+    mFdlSeed.right = new FormAttachment( middle, -margin );
+    mFdlSeed.top = new FormAttachment(mWSampleSize, margin );
+    mWlSeed.setLayoutData(mFdlSeed);
 
-    m_wSeed = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( m_wSeed );
-    m_wSeed.addModifyListener( lsMod );
-    m_wSeed.setText( "" + m_originalMeta.getSeed() );
-    m_fdSeed = new FormData();
-    m_fdSeed.left = new FormAttachment( m_wlSeed, margin );
-    m_fdSeed.right = new FormAttachment( 100, -margin );
-    m_fdSeed.top = new FormAttachment( m_wSampleSize, margin );
-    m_wSeed.setLayoutData( m_fdSeed );
+    mWSeed = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook(mWSeed);
+    mWSeed.addModifyListener( lsMod );
+    mWSeed.setText( "" + mOriginalMeta.getSeed() );
+    FormData mFdSeed = new FormData();
+    mFdSeed.left = new FormAttachment(mWlSeed, margin );
+    mFdSeed.right = new FormAttachment( 100, -margin );
+    mFdSeed.top = new FormAttachment(mWSampleSize, margin );
+    mWSeed.setLayoutData(mFdSeed);
 
     // Some buttons
     wOk = new Button( shell, SWT.PUSH );
@@ -172,7 +163,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, m_wSeed );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, mWSeed);
 
     // Add listeners
     lsCancel = e -> cancel();
@@ -187,7 +178,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
       }
     };
 
-    m_wTransformName.addSelectionListener( lsDef );
+    mWTransformName.addSelectionListener( lsDef );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -197,15 +188,15 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     } );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    m_wSampleSize.addModifyListener( e -> m_wSampleSize.setToolTipText( pipelineMeta.environmentSubstitute( m_wSampleSize.getText() ) ) );
+    mWSampleSize.addModifyListener(e -> mWSampleSize.setToolTipText( pipelineMeta.environmentSubstitute( mWSampleSize.getText() ) ) );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    m_wSeed.addModifyListener( e -> m_wSeed.setToolTipText( pipelineMeta.environmentSubstitute( m_wSeed.getText() ) ) );
+    mWSeed.addModifyListener(e -> mWSeed.setToolTipText( pipelineMeta.environmentSubstitute( mWSeed.getText() ) ) );
 
     // Set the shell size, based upon previous time...
     setSize();
 
-    m_currentMeta.setChanged( changed );
+    mCurrentMeta.setChanged( changed );
 
     shell.open();
 
@@ -220,22 +211,22 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
 
   private void cancel() {
     transformName = null;
-    m_currentMeta.setChanged( changed );
+    mCurrentMeta.setChanged( changed );
     dispose();
   }
 
   private void ok() {
-    if ( Utils.isEmpty( m_wTransformName.getText() ) ) {
+    if ( Utils.isEmpty( mWTransformName.getText() ) ) {
       return;
     }
 
-    transformName = m_wTransformName.getText(); // return value
+    transformName = mWTransformName.getText(); // return value
 
-    m_currentMeta.setSampleSize( m_wSampleSize.getText() );
-    m_currentMeta.setSeed( m_wSeed.getText() );
-    if ( !m_originalMeta.equals( m_currentMeta ) ) {
-      m_currentMeta.setChanged();
-      changed = m_currentMeta.hasChanged();
+    mCurrentMeta.setSampleSize( mWSampleSize.getText() );
+    mCurrentMeta.setSeed( mWSeed.getText() );
+    if ( !mOriginalMeta.equals(mCurrentMeta) ) {
+      mCurrentMeta.setChanged();
+      changed = mCurrentMeta.hasChanged();
     }
 
     dispose();

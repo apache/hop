@@ -28,7 +28,6 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -55,44 +54,33 @@ import java.util.List;
 import java.util.*;
 
 public class DeleteDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DeleteMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlKey;
   private TableView wKey;
-  private FormData fdlKey, fdKey;
 
-  private Label wlSchema;
   private TextVar wSchema;
-  private FormData fdlSchema, fdSchema;
-  private FormData fdbSchema;
-  private Button wbSchema;
 
-  private Label wlTable;
-  private Button wbTable;
   private TextVar wTable;
-  private FormData fdlTable, fdbTable, fdTable;
 
-  private Label wlCommit;
   private TextVar wCommit;
-  private FormData fdlCommit, fdCommit;
 
-  private DeleteMeta input;
+  private final DeleteMeta input;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciKey;
 
   /**
    * List of ColumnInfo that should have the field names of the selected database table
    */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   public DeleteDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (DeleteMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -154,84 +142,84 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     wConnection.addSelectionListener( lsSelection );
 
     // Schema line...
-    wlSchema = new Label( shell, SWT.RIGHT );
+    Label wlSchema = new Label(shell, SWT.RIGHT);
     wlSchema.setText( BaseMessages.getString( PKG, "DeleteDialog.TargetSchema.Label" ) );
-    props.setLook( wlSchema );
-    fdlSchema = new FormData();
+    props.setLook(wlSchema);
+    FormData fdlSchema = new FormData();
     fdlSchema.left = new FormAttachment( 0, 0 );
     fdlSchema.right = new FormAttachment( middle, -margin );
     fdlSchema.top = new FormAttachment( wConnection, margin * 2 );
-    wlSchema.setLayoutData( fdlSchema );
+    wlSchema.setLayoutData(fdlSchema);
 
-    wbSchema = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbSchema );
+    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbSchema);
     wbSchema.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbSchema = new FormData();
+    FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment( wConnection, 2 * margin );
     fdbSchema.right = new FormAttachment( 100, 0 );
-    wbSchema.setLayoutData( fdbSchema );
+    wbSchema.setLayoutData(fdbSchema);
 
     wSchema = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsTableMod );
-    fdSchema = new FormData();
+    FormData fdSchema = new FormData();
     fdSchema.left = new FormAttachment( middle, 0 );
     fdSchema.top = new FormAttachment( wConnection, margin * 2 );
-    fdSchema.right = new FormAttachment( wbSchema, -margin );
-    wSchema.setLayoutData( fdSchema );
+    fdSchema.right = new FormAttachment(wbSchema, -margin );
+    wSchema.setLayoutData(fdSchema);
 
     // Table line...
-    wlTable = new Label( shell, SWT.RIGHT );
+    Label wlTable = new Label(shell, SWT.RIGHT);
     wlTable.setText( BaseMessages.getString( PKG, "DeleteDialog.TargetTable.Label" ) );
-    props.setLook( wlTable );
-    fdlTable = new FormData();
+    props.setLook(wlTable);
+    FormData fdlTable = new FormData();
     fdlTable.left = new FormAttachment( 0, 0 );
     fdlTable.right = new FormAttachment( middle, -margin );
-    fdlTable.top = new FormAttachment( wbSchema, margin );
-    wlTable.setLayoutData( fdlTable );
+    fdlTable.top = new FormAttachment(wbSchema, margin );
+    wlTable.setLayoutData(fdlTable);
 
-    wbTable = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbTable );
+    Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbTable);
     wbTable.setText( BaseMessages.getString( PKG, "DeleteDialog.Browse.Button" ) );
-    fdbTable = new FormData();
+    FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment( 100, 0 );
-    fdbTable.top = new FormAttachment( wbSchema, margin );
-    wbTable.setLayoutData( fdbTable );
+    fdbTable.top = new FormAttachment(wbSchema, margin );
+    wbTable.setLayoutData(fdbTable);
 
     wTable = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsTableMod );
-    fdTable = new FormData();
+    FormData fdTable = new FormData();
     fdTable.left = new FormAttachment( middle, 0 );
-    fdTable.top = new FormAttachment( wbSchema, margin );
-    fdTable.right = new FormAttachment( wbTable, -margin );
-    wTable.setLayoutData( fdTable );
+    fdTable.top = new FormAttachment(wbSchema, margin );
+    fdTable.right = new FormAttachment(wbTable, -margin );
+    wTable.setLayoutData(fdTable);
 
     // Commit line
-    wlCommit = new Label( shell, SWT.RIGHT );
+    Label wlCommit = new Label(shell, SWT.RIGHT);
     wlCommit.setText( BaseMessages.getString( PKG, "DeleteDialog.Commit.Label" ) );
-    props.setLook( wlCommit );
-    fdlCommit = new FormData();
+    props.setLook(wlCommit);
+    FormData fdlCommit = new FormData();
     fdlCommit.left = new FormAttachment( 0, 0 );
     fdlCommit.top = new FormAttachment( wTable, margin );
     fdlCommit.right = new FormAttachment( middle, -margin );
-    wlCommit.setLayoutData( fdlCommit );
+    wlCommit.setLayoutData(fdlCommit);
     wCommit = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCommit );
     wCommit.addModifyListener( lsMod );
-    fdCommit = new FormData();
+    FormData fdCommit = new FormData();
     fdCommit.left = new FormAttachment( middle, 0 );
     fdCommit.top = new FormAttachment( wTable, margin );
     fdCommit.right = new FormAttachment( 100, 0 );
-    wCommit.setLayoutData( fdCommit );
+    wCommit.setLayoutData(fdCommit);
 
-    wlKey = new Label( shell, SWT.NONE );
+    Label wlKey = new Label(shell, SWT.NONE);
     wlKey.setText( BaseMessages.getString( PKG, "DeleteDialog.Key.Label" ) );
-    props.setLook( wlKey );
-    fdlKey = new FormData();
+    props.setLook(wlKey);
+    FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment( 0, 0 );
     fdlKey.top = new FormAttachment( wCommit, margin );
-    wlKey.setLayoutData( fdlKey );
+    wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 4;
     int nrKeyRows = ( input.getKeyStream() != null ? input.getKeyStream().length : 1 );
@@ -263,15 +251,15 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     wGet.setText( BaseMessages.getString( PKG, "DeleteDialog.GetFields.Button" ) );
     fdGet = new FormData();
     fdGet.right = new FormAttachment( 100, 0 );
-    fdGet.top = new FormAttachment( wlKey, margin );
+    fdGet.top = new FormAttachment(wlKey, margin );
     wGet.setLayoutData( fdGet );
 
-    fdKey = new FormData();
+    FormData fdKey = new FormData();
     fdKey.left = new FormAttachment( 0, 0 );
-    fdKey.top = new FormAttachment( wlKey, margin );
+    fdKey.top = new FormAttachment(wlKey, margin );
     fdKey.right = new FormAttachment( wGet, -margin );
     fdKey.bottom = new FormAttachment( 100, -30 );
-    wKey.setLayoutData( fdKey );
+    wKey.setLayoutData(fdKey);
 
     //
     // Search the fields in the background
@@ -329,12 +317,12 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
         cancel();
       }
     } );
-    wbSchema.addSelectionListener( new SelectionAdapter() {
+    wbSchema.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getSchemaNames();
       }
     } );
-    wbTable.addSelectionListener( new SelectionAdapter() {
+    wbTable.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getTableName();
       }
@@ -359,7 +347,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

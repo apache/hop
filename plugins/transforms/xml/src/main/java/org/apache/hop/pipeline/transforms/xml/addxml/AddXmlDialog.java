@@ -38,7 +38,6 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
@@ -56,52 +55,32 @@ import java.util.List;
 import java.util.*;
 
 public class AddXmlDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = AddXmlMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = AddXmlMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
-
-  private CTabItem wContentTab, wFieldsTab;
-
-  private FormData fdContentComp, fdFieldsComp;
-
-  private Label wlOmitXMLHeader;
   private Button wOmitXMLHeader;
-  private FormData fdlOmitXMLHeader, fdOmitXMLHeader;
 
-  private Label wlOmitNullValues;
   private Button wOmitNullValues;
-  private FormData fdlOmitNullValues, fdOmitNullValues;
 
-  private Label wlEncoding;
   private CCombo wEncoding;
-  private FormData fdlEncoding, fdEncoding;
 
-  private Label wlOutputValue;
   private CCombo wOutputValue;
-  private FormData fdlOutputValue, fdOutputValue;
 
-  private Label wlRepeatElement;
   private CCombo wRepeatElement;
-  private FormData fdlRepeatElement, fdRepeatElement;
 
   private TableView wFields;
-  private FormData fdFields;
 
-  private AddXmlMeta input;
+  private final AddXmlMeta input;
 
-  private Button wMinWidth;
-  private Listener lsMinWidth;
   private boolean gotEncodings = false;
 
   private ColumnInfo[] colinf;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   public AddXmlDialog(Shell parent, Object in, PipelineMeta transMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, transMeta, sname );
     input = (AddXmlMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -144,40 +123,40 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF CONTENT TAB///
     // /
-    wContentTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
     wContentTab.setText( BaseMessages.getString( PKG, "AddXMLDialog.ContentTab.TabTitle" ) );
 
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 3;
     contentLayout.marginHeight = 3;
 
-    Composite wContentComp = new Composite( wTabFolder, SWT.NONE );
+    Composite wContentComp = new Composite(wTabFolder, SWT.NONE );
     props.setLook( wContentComp );
     wContentComp.setLayout( contentLayout );
 
-    wlEncoding = new Label( wContentComp, SWT.RIGHT );
+    Label wlEncoding = new Label(wContentComp, SWT.RIGHT);
     wlEncoding.setText( BaseMessages.getString( PKG, "AddXMLDialog.Encoding.Label" ) );
-    props.setLook( wlEncoding );
-    fdlEncoding = new FormData();
+    props.setLook(wlEncoding);
+    FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment( 0, 0 );
     fdlEncoding.top = new FormAttachment( null, margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
-    wlEncoding.setLayoutData( fdlEncoding );
+    wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new CCombo( wContentComp, SWT.BORDER | SWT.READ_ONLY );
     wEncoding.setEditable( true );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
-    fdEncoding = new FormData();
+    FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment( middle, 0 );
     fdEncoding.top = new FormAttachment( null, margin );
     fdEncoding.right = new FormAttachment( 100, 0 );
-    wEncoding.setLayoutData( fdEncoding );
+    wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -191,90 +170,90 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
       }
     } );
 
-    wlOutputValue = new Label( wContentComp, SWT.RIGHT );
+    Label wlOutputValue = new Label(wContentComp, SWT.RIGHT);
     wlOutputValue.setText( BaseMessages.getString( PKG, "AddXMLDialog.OutputValue.Label" ) );
-    props.setLook( wlOutputValue );
-    fdlOutputValue = new FormData();
+    props.setLook(wlOutputValue);
+    FormData fdlOutputValue = new FormData();
     fdlOutputValue.left = new FormAttachment( 0, 0 );
     fdlOutputValue.top = new FormAttachment( wEncoding, margin );
     fdlOutputValue.right = new FormAttachment( middle, -margin );
-    wlOutputValue.setLayoutData( fdlOutputValue );
+    wlOutputValue.setLayoutData(fdlOutputValue);
     wOutputValue = new CCombo( wContentComp, SWT.BORDER | SWT.READ_ONLY );
     wOutputValue.setEditable( true );
     props.setLook( wOutputValue );
     wOutputValue.addModifyListener( lsMod );
-    fdOutputValue = new FormData();
+    FormData fdOutputValue = new FormData();
     fdOutputValue.left = new FormAttachment( middle, 0 );
     fdOutputValue.top = new FormAttachment( wEncoding, margin );
     fdOutputValue.right = new FormAttachment( 100, 0 );
-    wOutputValue.setLayoutData( fdOutputValue );
+    wOutputValue.setLayoutData(fdOutputValue);
 
-    wlRepeatElement = new Label( wContentComp, SWT.RIGHT );
+    Label wlRepeatElement = new Label(wContentComp, SWT.RIGHT);
     wlRepeatElement.setText( BaseMessages.getString( PKG, "AddXMLDialog.RepeatElement.Label" ) );
-    props.setLook( wlRepeatElement );
-    fdlRepeatElement = new FormData();
+    props.setLook(wlRepeatElement);
+    FormData fdlRepeatElement = new FormData();
     fdlRepeatElement.left = new FormAttachment( 0, 0 );
     fdlRepeatElement.top = new FormAttachment( wOutputValue, margin );
     fdlRepeatElement.right = new FormAttachment( middle, -margin );
-    wlRepeatElement.setLayoutData( fdlRepeatElement );
+    wlRepeatElement.setLayoutData(fdlRepeatElement);
     wRepeatElement = new CCombo( wContentComp, SWT.BORDER | SWT.READ_ONLY );
     wRepeatElement.setEditable( true );
     props.setLook( wRepeatElement );
     wRepeatElement.addModifyListener( lsMod );
-    fdRepeatElement = new FormData();
+    FormData fdRepeatElement = new FormData();
     fdRepeatElement.left = new FormAttachment( middle, 0 );
     fdRepeatElement.top = new FormAttachment( wOutputValue, margin );
     fdRepeatElement.right = new FormAttachment( 100, 0 );
-    wRepeatElement.setLayoutData( fdRepeatElement );
+    wRepeatElement.setLayoutData(fdRepeatElement);
 
-    wlOmitXMLHeader = new Label( wContentComp, SWT.RIGHT );
+    Label wlOmitXMLHeader = new Label(wContentComp, SWT.RIGHT);
     wlOmitXMLHeader.setText( BaseMessages.getString( PKG, "AddXMLDialog.OmitXMLHeader.Label" ) );
-    props.setLook( wlOmitXMLHeader );
-    fdlOmitXMLHeader = new FormData();
+    props.setLook(wlOmitXMLHeader);
+    FormData fdlOmitXMLHeader = new FormData();
     fdlOmitXMLHeader.left = new FormAttachment( 0, 0 );
     fdlOmitXMLHeader.top = new FormAttachment( wRepeatElement, margin );
     fdlOmitXMLHeader.right = new FormAttachment( middle, -margin );
-    wlOmitXMLHeader.setLayoutData( fdlOmitXMLHeader );
+    wlOmitXMLHeader.setLayoutData(fdlOmitXMLHeader);
     wOmitXMLHeader = new Button( wContentComp, SWT.CHECK );
     props.setLook( wOmitXMLHeader );
-    fdOmitXMLHeader = new FormData();
+    FormData fdOmitXMLHeader = new FormData();
     fdOmitXMLHeader.left = new FormAttachment( middle, 0 );
     fdOmitXMLHeader.top = new FormAttachment( wRepeatElement, margin );
     fdOmitXMLHeader.right = new FormAttachment( 100, 0 );
-    wOmitXMLHeader.setLayoutData( fdOmitXMLHeader );
+    wOmitXMLHeader.setLayoutData(fdOmitXMLHeader);
     wOmitXMLHeader.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
     } );
 
-    wlOmitNullValues = new Label( wContentComp, SWT.RIGHT );
+    Label wlOmitNullValues = new Label(wContentComp, SWT.RIGHT);
     wlOmitNullValues.setText( BaseMessages.getString( PKG, "AddXMLDialog.OmitNullValues.Label" ) );
-    props.setLook( wlOmitNullValues );
-    fdlOmitNullValues = new FormData();
+    props.setLook(wlOmitNullValues);
+    FormData fdlOmitNullValues = new FormData();
     fdlOmitNullValues.left = new FormAttachment( 0, 0 );
     fdlOmitNullValues.top = new FormAttachment( wOmitXMLHeader, margin );
     fdlOmitNullValues.right = new FormAttachment( middle, -margin );
-    wlOmitNullValues.setLayoutData( fdlOmitNullValues );
+    wlOmitNullValues.setLayoutData(fdlOmitNullValues);
     wOmitNullValues = new Button( wContentComp, SWT.CHECK );
     props.setLook( wOmitNullValues );
-    fdOmitNullValues = new FormData();
+    FormData fdOmitNullValues = new FormData();
     fdOmitNullValues.left = new FormAttachment( middle, 0 );
     fdOmitNullValues.top = new FormAttachment( wOmitXMLHeader, margin );
     fdOmitNullValues.right = new FormAttachment( 100, 0 );
-    wOmitNullValues.setLayoutData( fdOmitNullValues );
+    wOmitNullValues.setLayoutData(fdOmitNullValues);
     wOmitNullValues.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
     } );
 
-    fdContentComp = new FormData();
+    FormData fdContentComp = new FormData();
     fdContentComp.left = new FormAttachment( 0, 0 );
     fdContentComp.top = new FormAttachment( 0, 0 );
     fdContentComp.right = new FormAttachment( 100, 0 );
     fdContentComp.bottom = new FormAttachment( 100, 0 );
-    wContentComp.setLayoutData( fdContentComp );
+    wContentComp.setLayoutData(fdContentComp);
 
     wContentComp.layout();
     wContentTab.setControl( wContentComp );
@@ -285,14 +264,14 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
 
     // Fields tab...
     //
-    wFieldsTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setText( BaseMessages.getString( PKG, "AddXMLDialog.FieldsTab.TabTitle" ) );
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = Const.FORM_MARGIN;
     fieldsLayout.marginHeight = Const.FORM_MARGIN;
 
-    Composite wFieldsComp = new Composite( wTabFolder, SWT.NONE );
+    Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE );
     wFieldsComp.setLayout( fieldsLayout );
     props.setLook( wFieldsComp );
 
@@ -300,11 +279,11 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     wGet.setText( BaseMessages.getString( PKG, "AddXMLDialog.Get.Button" ) );
     wGet.setToolTipText( BaseMessages.getString( PKG, "AddXMLDialog.Get.Tooltip" ) );
 
-    wMinWidth = new Button( wFieldsComp, SWT.PUSH );
+    Button wMinWidth = new Button(wFieldsComp, SWT.PUSH);
     wMinWidth.setText( BaseMessages.getString( PKG, "AddXMLDialog.MinWidth.Label" ) );
     wMinWidth.setToolTipText( BaseMessages.getString( PKG, "AddXMLDialog.MinWidth.Tooltip" ) );
 
-    setButtonPositions( new Button[] { wGet, wMinWidth }, margin, null );
+    setButtonPositions( new Button[] { wGet, wMinWidth}, margin, null );
 
     final int FieldsRows = input.getOutputFields().length;
 
@@ -350,12 +329,12 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
         new TableView( pipelineMeta, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
             props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( 0, 0 );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wGet, -margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     //
     // Search the fields in the background
@@ -378,22 +357,22 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     };
     new Thread( runnable ).start();
 
-    fdFieldsComp = new FormData();
+    FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment( 0, 0 );
     fdFieldsComp.top = new FormAttachment( 0, 0 );
     fdFieldsComp.right = new FormAttachment( 100, 0 );
     fdFieldsComp.bottom = new FormAttachment( 100, 0 );
-    wFieldsComp.setLayoutData( fdFieldsComp );
+    wFieldsComp.setLayoutData(fdFieldsComp);
 
     wFieldsComp.layout();
     wFieldsTab.setControl( wFieldsComp );
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
@@ -401,17 +380,17 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     // Add listeners
     lsOk = e -> ok();
     lsGet = e -> get();
-    lsMinWidth = e -> setMinimalWidth();
+    Listener lsMinWidth = e -> setMinimalWidth();
     lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
-    wMinWidth.addListener( SWT.Selection, lsMinWidth );
+    wMinWidth.addListener( SWT.Selection, lsMinWidth);
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
@@ -456,13 +435,13 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>(keySet);
 
     String[] fieldNames = entries.toArray( new String[entries.size()] );
 
@@ -476,10 +455,9 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
       gotEncodings = true;
 
       wEncoding.removeAll();
-      List<Charset> values = new ArrayList<Charset>( Charset.availableCharsets().values() );
-      for ( int i = 0; i < values.size(); i++ ) {
-        Charset charSet = values.get( i );
-        wEncoding.add( charSet.displayName() );
+      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
+      for (Charset charSet : values) {
+        wEncoding.add(charSet.displayName());
       }
 
       // Now select the default!

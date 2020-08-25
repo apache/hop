@@ -48,22 +48,16 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 
 public class FilterRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlTrueTo;
   private CCombo wTrueTo;
-  private FormData fdlTrueTo, fdTrueTo;
 
-  private Label wlFalseTo;
   private CCombo wFalseTo;
-  private FormData fdlFalseTo, fdFalseFrom;
 
-  private Label wlCondition;
   private ConditionEditor wCondition;
-  private FormData fdlCondition, fdCondition;
 
-  private FilterRowsMeta input;
-  private Condition condition;
+  private final FilterRowsMeta input;
+  private final Condition condition;
 
   private Condition backupCondition;
 
@@ -117,68 +111,66 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
     wTransformName.setLayoutData( fdTransformName );
 
     // Send 'True' data to...
-    wlTrueTo = new Label( shell, SWT.RIGHT );
+    Label wlTrueTo = new Label(shell, SWT.RIGHT);
     wlTrueTo.setText( BaseMessages.getString( PKG, "FilterRowsDialog.SendTrueTo.Label" ) );
-    props.setLook( wlTrueTo );
-    fdlTrueTo = new FormData();
+    props.setLook(wlTrueTo);
+    FormData fdlTrueTo = new FormData();
     fdlTrueTo.left = new FormAttachment( 0, 0 );
     fdlTrueTo.right = new FormAttachment( middle, -margin );
     fdlTrueTo.top = new FormAttachment( wTransformName, margin );
-    wlTrueTo.setLayoutData( fdlTrueTo );
+    wlTrueTo.setLayoutData(fdlTrueTo);
     wTrueTo = new CCombo( shell, SWT.BORDER );
     props.setLook( wTrueTo );
 
     TransformMeta transforminfo = pipelineMeta.findTransform( transformName );
     if ( transforminfo != null ) {
       List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( transforminfo );
-      for ( int i = 0; i < nextTransforms.size(); i++ ) {
-        TransformMeta transformMeta = nextTransforms.get( i );
-        wTrueTo.add( transformMeta.getName() );
+      for (TransformMeta transformMeta : nextTransforms) {
+        wTrueTo.add(transformMeta.getName());
       }
     }
 
     wTrueTo.addModifyListener( lsMod );
-    fdTrueTo = new FormData();
+    FormData fdTrueTo = new FormData();
     fdTrueTo.left = new FormAttachment( middle, 0 );
     fdTrueTo.top = new FormAttachment( wTransformName, margin );
     fdTrueTo.right = new FormAttachment( 100, 0 );
-    wTrueTo.setLayoutData( fdTrueTo );
+    wTrueTo.setLayoutData(fdTrueTo);
 
     // Send 'False' data to...
-    wlFalseTo = new Label( shell, SWT.RIGHT );
+    Label wlFalseTo = new Label(shell, SWT.RIGHT);
     wlFalseTo.setText( BaseMessages.getString( PKG, "FilterRowsDialog.SendFalseTo.Label" ) );
-    props.setLook( wlFalseTo );
-    fdlFalseTo = new FormData();
+    props.setLook(wlFalseTo);
+    FormData fdlFalseTo = new FormData();
     fdlFalseTo.left = new FormAttachment( 0, 0 );
     fdlFalseTo.right = new FormAttachment( middle, -margin );
     fdlFalseTo.top = new FormAttachment( wTrueTo, margin );
-    wlFalseTo.setLayoutData( fdlFalseTo );
+    wlFalseTo.setLayoutData(fdlFalseTo);
     wFalseTo = new CCombo( shell, SWT.BORDER );
     props.setLook( wFalseTo );
 
     transforminfo = pipelineMeta.findTransform( transformName );
     if ( transforminfo != null ) {
       List<TransformMeta> nextTransforms = pipelineMeta.findNextTransforms( transforminfo );
-      for ( int i = 0; i < nextTransforms.size(); i++ ) {
-        TransformMeta transformMeta = nextTransforms.get( i );
-        wFalseTo.add( transformMeta.getName() );
+      for (TransformMeta transformMeta : nextTransforms) {
+        wFalseTo.add(transformMeta.getName());
       }
     }
 
     wFalseTo.addModifyListener( lsMod );
-    fdFalseFrom = new FormData();
+    FormData fdFalseFrom = new FormData();
     fdFalseFrom.left = new FormAttachment( middle, 0 );
     fdFalseFrom.top = new FormAttachment( wTrueTo, margin );
     fdFalseFrom.right = new FormAttachment( 100, 0 );
-    wFalseTo.setLayoutData( fdFalseFrom );
+    wFalseTo.setLayoutData(fdFalseFrom);
 
-    wlCondition = new Label( shell, SWT.NONE );
+    Label wlCondition = new Label(shell, SWT.NONE);
     wlCondition.setText( BaseMessages.getString( PKG, "FilterRowsDialog.Condition.Label" ) );
-    props.setLook( wlCondition );
-    fdlCondition = new FormData();
+    props.setLook(wlCondition);
+    FormData fdlCondition = new FormData();
     fdlCondition.left = new FormAttachment( 0, 0 );
     fdlCondition.top = new FormAttachment( wFalseTo, margin );
-    wlCondition.setLayoutData( fdlCondition );
+    wlCondition.setLayoutData(fdlCondition);
 
     IRowMeta inputfields = null;
     try {
@@ -200,12 +192,12 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
 
     wCondition = new ConditionEditor( shell, SWT.BORDER, condition, inputfields );
 
-    fdCondition = new FormData();
+    FormData fdCondition = new FormData();
     fdCondition.left = new FormAttachment( 0, 0 );
-    fdCondition.top = new FormAttachment( wlCondition, margin );
+    fdCondition.top = new FormAttachment(wlCondition, margin );
     fdCondition.right = new FormAttachment( 100, 0 );
     fdCondition.bottom = new FormAttachment( wOk, -2 * margin );
-    wCondition.setLayoutData( fdCondition );
+    wCondition.setLayoutData(fdCondition);
     wCondition.addModifyListener( lsMod );
 
     // Add listeners

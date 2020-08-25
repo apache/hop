@@ -44,16 +44,14 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class NumberRangeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = NumberRangeMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = NumberRangeMeta.class; // for i18n purposes, needed by Translator!!
 
-  private NumberRangeMeta input;
+  private final NumberRangeMeta input;
 
   private CCombo inputFieldControl;
   private Text outputFieldControl;
   private Text fallBackValueControl;
   private TableView rulesControl;
-
-  private FormData fdFields;
 
   public NumberRangeDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -177,12 +175,12 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( rulesLable, props.getMargin() );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( 100, -50 );
-    rulesControl.setLayoutData( fdFields );
+    rulesControl.setLayoutData(fdFields);
   }
 
   private Text createLine( ModifyListener lsMod, String lableText, Control prevControl ) {

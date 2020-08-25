@@ -35,29 +35,11 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusAdapter;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 /**
  * This dialog allows you to edit a ActionEval object.
@@ -66,33 +48,17 @@ import org.eclipse.swt.widgets.Text;
  * @since 19-06-2003
  */
 public class ActionEvalDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionEval.class; // for i18n purposes, needed by Translator!!
-
-  private Label wlName;
+  private static final Class<?> PKG = ActionEval.class; // for i18n purposes, needed by Translator!!
 
   private Text wName;
 
-  private FormData fdlName, fdName;
-
-  private Label wlScript;
-
   private StyledTextComp wScript;
 
-  private FormData fdlScript, fdScript;
-
   private Label wlPosition;
-
-  private FormData fdlPosition;
-
-  private Button wOk, wCancel;
-
-  private Listener lsOk, lsCancel;
 
   private ActionEval action;
 
   private Shell shell;
-
-  private SelectionAdapter lsDef;
 
   private boolean changed;
 
@@ -125,57 +91,57 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     // at the bottom
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, null );
 
     // Filename line
-    wlName = new Label( shell, SWT.NONE );
+    Label wlName = new Label(shell, SWT.NONE);
     wlName.setText( BaseMessages.getString( PKG, "ActionEval.Jobname.Label" ) );
-    props.setLook( wlName );
-    fdlName = new FormData();
+    props.setLook(wlName);
+    FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.top = new FormAttachment( 0, margin );
-    wlName.setLayoutData( fdlName );
+    wlName.setLayoutData(fdlName);
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.left = new FormAttachment( middle, 0 );
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    wName.setLayoutData(fdName);
 
     wlPosition = new Label( shell, SWT.NONE );
     wlPosition.setText( BaseMessages.getString( PKG, "ActionEval.LineNr.Label", "0" ) );
     props.setLook( wlPosition );
-    fdlPosition = new FormData();
+    FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( 0, 0 );
-    fdlPosition.bottom = new FormAttachment( wOk, -margin );
-    wlPosition.setLayoutData( fdlPosition );
+    fdlPosition.bottom = new FormAttachment(wOk, -margin );
+    wlPosition.setLayoutData(fdlPosition);
 
     // Script line
-    wlScript = new Label( shell, SWT.NONE );
+    Label wlScript = new Label(shell, SWT.NONE);
     wlScript.setText( BaseMessages.getString( PKG, "ActionEval.Script.Label" ) );
-    props.setLook( wlScript );
-    fdlScript = new FormData();
+    props.setLook(wlScript);
+    FormData fdlScript = new FormData();
     fdlScript.left = new FormAttachment( 0, 0 );
     fdlScript.top = new FormAttachment( wName, margin );
-    wlScript.setLayoutData( fdlScript );
+    wlScript.setLayoutData(fdlScript);
     wScript = new StyledTextComp( action, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     wScript.setText( BaseMessages.getString( PKG, "ActionEval.Script.Default" ) );
     props.setLook( wScript, Props.WIDGET_STYLE_FIXED );
     wScript.addModifyListener( lsMod );
-    fdScript = new FormData();
+    FormData fdScript = new FormData();
     fdScript.left = new FormAttachment( 0, 0 );
-    fdScript.top = new FormAttachment( wlScript, margin );
+    fdScript.top = new FormAttachment(wlScript, margin );
     fdScript.right = new FormAttachment( 100, -10 );
     fdScript.bottom = new FormAttachment( wlPosition, -margin );
-    wScript.setLayoutData( fdScript );
+    wScript.setLayoutData(fdScript);
     wScript.addModifyListener( arg0 -> setPosition() );
 
     wScript.addKeyListener( new KeyAdapter() {
@@ -211,19 +177,19 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
     } );
     wScript.addModifyListener( lsMod );
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
+    Listener lsCancel = e -> cancel();
+    Listener lsOk = e -> ok();
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
+    wCancel.addListener( SWT.Selection, lsCancel);
+    wOk.addListener( SWT.Selection, lsOk);
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wName.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

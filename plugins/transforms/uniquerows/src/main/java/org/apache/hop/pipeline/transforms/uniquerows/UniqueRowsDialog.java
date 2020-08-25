@@ -52,43 +52,32 @@ import java.util.*;
 import java.util.stream.IntStream;
 
 public class UniqueRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = UniqueRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UniqueRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_SORT_WARNING_PARAMETER = "UniqueSortWarning";
 
-  private UniqueRowsMeta input;
+  private final UniqueRowsMeta input;
 
-  private Label wlCount;
   private Button wCount;
-  private FormData fdlCount, fdCount;
 
   private Label wlCountField;
   private Text wCountField;
-  private FormData fdlCountField, fdCountField;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
   private ColumnInfo[] colinf;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
-  private Label wlRejectDuplicateRow;
   private Button wRejectDuplicateRow;
-  private FormData fdlRejectDuplicateRow, fdRejectDuplicateRow;
 
   private Label wlErrorDesc;
   private TextVar wErrorDesc;
-  private FormData fdlErrorDesc, fdErrorDesc;
-
-  private Group wSettings;
-  private FormData fdSettings;
 
   public UniqueRowsDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (UniqueRowsMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -135,8 +124,8 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     // START OF Settings GROUP //
     // ///////////////////////////////
 
-    wSettings = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wSettings );
+    Group wSettings = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wSettings);
     wSettings.setText( BaseMessages.getString( PKG, "UniqueRowsDialog.Settings.Label" ) );
 
     FormLayout SettingsgroupLayout = new FormLayout();
@@ -144,22 +133,22 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     SettingsgroupLayout.marginHeight = 10;
     wSettings.setLayout( SettingsgroupLayout );
 
-    wlCount = new Label( wSettings, SWT.RIGHT );
+    Label wlCount = new Label(wSettings, SWT.RIGHT);
     wlCount.setText( BaseMessages.getString( PKG, "UniqueRowsDialog.Count.Label" ) );
-    props.setLook( wlCount );
-    fdlCount = new FormData();
+    props.setLook(wlCount);
+    FormData fdlCount = new FormData();
     fdlCount.left = new FormAttachment( 0, 0 );
     fdlCount.top = new FormAttachment( wTransformName, margin );
     fdlCount.right = new FormAttachment( middle, -margin );
-    wlCount.setLayoutData( fdlCount );
+    wlCount.setLayoutData(fdlCount);
 
-    wCount = new Button( wSettings, SWT.CHECK );
+    wCount = new Button(wSettings, SWT.CHECK );
     props.setLook( wCount );
     wCount.setToolTipText( BaseMessages.getString( PKG, "UniqueRowsDialog.Count.ToolTip", Const.CR ) );
-    fdCount = new FormData();
+    FormData fdCount = new FormData();
     fdCount.left = new FormAttachment( middle, 0 );
     fdCount.top = new FormAttachment( wTransformName, margin );
-    wCount.setLayoutData( fdCount );
+    wCount.setLayoutData(fdCount);
     wCount.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -167,39 +156,39 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    wlCountField = new Label( wSettings, SWT.LEFT );
+    wlCountField = new Label(wSettings, SWT.LEFT );
     wlCountField.setText( BaseMessages.getString( PKG, "UniqueRowsDialog.CounterField.Label" ) );
     props.setLook( wlCountField );
-    fdlCountField = new FormData();
+    FormData fdlCountField = new FormData();
     fdlCountField.left = new FormAttachment( wCount, margin );
     fdlCountField.top = new FormAttachment( wTransformName, margin );
-    wlCountField.setLayoutData( fdlCountField );
-    wCountField = new Text( wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wlCountField.setLayoutData(fdlCountField);
+    wCountField = new Text(wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCountField );
     wCountField.addModifyListener( lsMod );
-    fdCountField = new FormData();
+    FormData fdCountField = new FormData();
     fdCountField.left = new FormAttachment( wlCountField, margin );
     fdCountField.top = new FormAttachment( wTransformName, margin );
     fdCountField.right = new FormAttachment( 100, 0 );
-    wCountField.setLayoutData( fdCountField );
+    wCountField.setLayoutData(fdCountField);
 
-    wlRejectDuplicateRow = new Label( wSettings, SWT.RIGHT );
+    Label wlRejectDuplicateRow = new Label(wSettings, SWT.RIGHT);
     wlRejectDuplicateRow.setText( BaseMessages.getString( PKG, "UniqueRowsDialog.RejectDuplicateRow.Label" ) );
-    props.setLook( wlRejectDuplicateRow );
-    fdlRejectDuplicateRow = new FormData();
+    props.setLook(wlRejectDuplicateRow);
+    FormData fdlRejectDuplicateRow = new FormData();
     fdlRejectDuplicateRow.left = new FormAttachment( 0, 0 );
     fdlRejectDuplicateRow.top = new FormAttachment( wCountField, margin );
     fdlRejectDuplicateRow.right = new FormAttachment( middle, -margin );
-    wlRejectDuplicateRow.setLayoutData( fdlRejectDuplicateRow );
+    wlRejectDuplicateRow.setLayoutData(fdlRejectDuplicateRow);
 
-    wRejectDuplicateRow = new Button( wSettings, SWT.CHECK );
+    wRejectDuplicateRow = new Button(wSettings, SWT.CHECK );
     props.setLook( wRejectDuplicateRow );
     wRejectDuplicateRow.setToolTipText( BaseMessages.getString(
       PKG, "UniqueRowsDialog.RejectDuplicateRow.ToolTip", Const.CR ) );
-    fdRejectDuplicateRow = new FormData();
+    FormData fdRejectDuplicateRow = new FormData();
     fdRejectDuplicateRow.left = new FormAttachment( middle, margin );
     fdRejectDuplicateRow.top = new FormAttachment( wCountField, margin );
-    wRejectDuplicateRow.setLayoutData( fdRejectDuplicateRow );
+    wRejectDuplicateRow.setLayoutData(fdRejectDuplicateRow);
     wRejectDuplicateRow.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -207,27 +196,27 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    wlErrorDesc = new Label( wSettings, SWT.LEFT );
+    wlErrorDesc = new Label(wSettings, SWT.LEFT );
     wlErrorDesc.setText( BaseMessages.getString( PKG, "UniqueRowsDialog.ErrorDescription.Label" ) );
     props.setLook( wlErrorDesc );
-    fdlErrorDesc = new FormData();
+    FormData fdlErrorDesc = new FormData();
     fdlErrorDesc.left = new FormAttachment( wRejectDuplicateRow, margin );
     fdlErrorDesc.top = new FormAttachment( wCountField, margin );
-    wlErrorDesc.setLayoutData( fdlErrorDesc );
+    wlErrorDesc.setLayoutData(fdlErrorDesc);
     wErrorDesc = new TextVar( pipelineMeta, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrorDesc );
     wErrorDesc.addModifyListener( lsMod );
-    fdErrorDesc = new FormData();
+    FormData fdErrorDesc = new FormData();
     fdErrorDesc.left = new FormAttachment( wlErrorDesc, margin );
     fdErrorDesc.top = new FormAttachment( wCountField, margin );
     fdErrorDesc.right = new FormAttachment( 100, 0 );
-    wErrorDesc.setLayoutData( fdErrorDesc );
+    wErrorDesc.setLayoutData(fdErrorDesc);
 
-    fdSettings = new FormData();
+    FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment( 0, margin );
     fdSettings.top = new FormAttachment( wTransformName, margin );
     fdSettings.right = new FormAttachment( 100, -margin );
-    wSettings.setLayoutData( fdSettings );
+    wSettings.setLayoutData(fdSettings);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings GROUP
@@ -244,13 +233,13 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
 
     setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
 
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "UniqueRowsDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.top = new FormAttachment( wSettings, margin );
-    wlFields.setLayoutData( fdlFields );
+    fdlFields.top = new FormAttachment(wSettings, margin );
+    wlFields.setLayoutData(fdlFields);
 
     final int FieldsRows = input.getCompareFields() == null ? 0 : input.getCompareFields().length;
 
@@ -268,12 +257,12 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wOk, -2 * margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     //
     // Search the fields in the background
@@ -286,7 +275,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -344,7 +333,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

@@ -59,38 +59,21 @@ import java.util.List;
 import java.util.*;
 
 public class SelectValuesDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
 
-  private CTabItem wSelectTab, wRemoveTab, wMetaTab;
-
-  private Composite wSelectComp, wRemoveComp, wMetaComp;
-  private FormData fdSelectComp, fdRemoveComp, fdMetaComp;
-
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
-  private Label wlUnspecified;
   private Button wUnspecified;
-  private FormData fdlUnspecified, fdUnspecified;
 
-  private Label wlRemove;
   private TableView wRemove;
-  private FormData fdlRemove, fdRemove;
 
-  private Label wlMeta;
   private TableView wMeta;
-  private FormData fdlMeta, fdMeta;
 
-  private Button wGetSelect, wGetRemove, wGetMeta, wDoMapping;
-  private FormData fdGetSelect, fdGetRemove, fdGetMeta;
+  private final SelectValuesMeta input;
 
-  private SelectValuesMeta input;
-
-  private List<ColumnInfo> fieldColumns = new ArrayList<ColumnInfo>();
+  private final List<ColumnInfo> fieldColumns = new ArrayList<>();
 
   private String[] charsets = null;
 
@@ -105,12 +88,12 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
    */
   private boolean bPreviousFieldsLoaded = false;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   public SelectValuesDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SelectValuesMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -180,42 +163,42 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     // START OF SELECT TAB ///
     // ////////////////////////
 
-    wSelectTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wSelectTab = new CTabItem(wTabFolder, SWT.NONE);
     wSelectTab.setText( BaseMessages.getString( PKG, "SelectValuesDialog.SelectTab.TabItem" ) );
 
-    wSelectComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wSelectComp );
+    Composite wSelectComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wSelectComp);
 
     FormLayout selectLayout = new FormLayout();
     selectLayout.marginWidth = margin;
     selectLayout.marginHeight = margin;
     wSelectComp.setLayout( selectLayout );
 
-    wlUnspecified = new Label( wSelectComp, SWT.RIGHT );
+    Label wlUnspecified = new Label(wSelectComp, SWT.RIGHT);
     wlUnspecified.setText( BaseMessages.getString( PKG, "SelectValuesDialog.Unspecified.Label" ) );
-    props.setLook( wlUnspecified );
-    fdlUnspecified = new FormData();
+    props.setLook(wlUnspecified);
+    FormData fdlUnspecified = new FormData();
     fdlUnspecified.left = new FormAttachment( 0, 0 );
     fdlUnspecified.right = new FormAttachment( middle, 0 );
     fdlUnspecified.bottom = new FormAttachment( 100, 0 );
-    wlUnspecified.setLayoutData( fdlUnspecified );
+    wlUnspecified.setLayoutData(fdlUnspecified);
 
-    wUnspecified = new Button( wSelectComp, SWT.CHECK );
+    wUnspecified = new Button(wSelectComp, SWT.CHECK );
     props.setLook( wUnspecified );
-    fdUnspecified = new FormData();
+    FormData fdUnspecified = new FormData();
     fdUnspecified.left = new FormAttachment( middle, margin );
     fdUnspecified.right = new FormAttachment( 100, 0 );
     fdUnspecified.bottom = new FormAttachment( 100, 0 );
-    wUnspecified.setLayoutData( fdUnspecified );
+    wUnspecified.setLayoutData(fdUnspecified);
     wUnspecified.addSelectionListener( lsSel );
 
-    wlFields = new Label( wSelectComp, SWT.NONE );
+    Label wlFields = new Label(wSelectComp, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "SelectValuesDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( 0, 0 );
-    wlFields.setLayoutData( fdlFields );
+    wlFields.setLayoutData(fdlFields);
 
     final int fieldsCols = 4;
     final int fieldsRows = input.getSelectFields().length;
@@ -244,40 +227,40 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       new TableView(
         pipelineMeta, wSelectComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
 
-    wGetSelect = new Button( wSelectComp, SWT.PUSH );
+    Button wGetSelect = new Button(wSelectComp, SWT.PUSH);
     wGetSelect.setText( BaseMessages.getString( PKG, "SelectValuesDialog.GetSelect.Button" ) );
     wGetSelect.addListener( SWT.Selection, lsGet );
-    fdGetSelect = new FormData();
+    FormData fdGetSelect = new FormData();
     fdGetSelect.right = new FormAttachment( 100, 0 );
-    fdGetSelect.top = new FormAttachment( wlFields, margin );
-    wGetSelect.setLayoutData( fdGetSelect );
+    fdGetSelect.top = new FormAttachment(wlFields, margin );
+    wGetSelect.setLayoutData(fdGetSelect);
 
-    wDoMapping = new Button( wSelectComp, SWT.PUSH );
+    Button wDoMapping = new Button(wSelectComp, SWT.PUSH);
     wDoMapping.setText( BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.Button" ) );
 
     wDoMapping.addListener( SWT.Selection, arg0 -> generateMappings() );
 
     fdGetSelect = new FormData();
     fdGetSelect.right = new FormAttachment( 100, 0 );
-    fdGetSelect.top = new FormAttachment( wGetSelect, 0 );
-    wDoMapping.setLayoutData( fdGetSelect );
+    fdGetSelect.top = new FormAttachment(wGetSelect, 0 );
+    wDoMapping.setLayoutData(fdGetSelect);
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
-    fdFields.right = new FormAttachment( wGetSelect, -margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
+    fdFields.right = new FormAttachment(wGetSelect, -margin );
     fdFields.bottom = new FormAttachment( wUnspecified, -margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
-    fdSelectComp = new FormData();
+    FormData fdSelectComp = new FormData();
     fdSelectComp.left = new FormAttachment( 0, 0 );
     fdSelectComp.top = new FormAttachment( 0, 0 );
     fdSelectComp.right = new FormAttachment( 100, 0 );
     fdSelectComp.bottom = new FormAttachment( 100, 0 );
-    wSelectComp.setLayoutData( fdSelectComp );
+    wSelectComp.setLayoutData(fdSelectComp);
 
     wSelectComp.layout();
-    wSelectTab.setControl( wSelectComp );
+    wSelectTab.setControl(wSelectComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF SELECT TAB
@@ -286,24 +269,24 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     // ///////////////////////////////////////////////////////////
     // START OF REMOVE TAB
     // ///////////////////////////////////////////////////////////
-    wRemoveTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wRemoveTab = new CTabItem(wTabFolder, SWT.NONE);
     wRemoveTab.setText( BaseMessages.getString( PKG, "SelectValuesDialog.RemoveTab.TabItem" ) );
 
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = margin;
     contentLayout.marginHeight = margin;
 
-    wRemoveComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wRemoveComp );
+    Composite wRemoveComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wRemoveComp);
     wRemoveComp.setLayout( contentLayout );
 
-    wlRemove = new Label( wRemoveComp, SWT.NONE );
+    Label wlRemove = new Label(wRemoveComp, SWT.NONE);
     wlRemove.setText( BaseMessages.getString( PKG, "SelectValuesDialog.Remove.Label" ) );
-    props.setLook( wlRemove );
-    fdlRemove = new FormData();
+    props.setLook(wlRemove);
+    FormData fdlRemove = new FormData();
     fdlRemove.left = new FormAttachment( 0, 0 );
     fdlRemove.top = new FormAttachment( 0, 0 );
-    wlRemove.setLayoutData( fdlRemove );
+    wlRemove.setLayoutData(fdlRemove);
 
     final int RemoveCols = 1;
     final int RemoveRows = input.getDeleteName().length;
@@ -319,30 +302,30 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       new TableView(
         pipelineMeta, wRemoveComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colrem, RemoveRows, lsMod, props );
 
-    wGetRemove = new Button( wRemoveComp, SWT.PUSH );
+    Button wGetRemove = new Button(wRemoveComp, SWT.PUSH);
     wGetRemove.setText( BaseMessages.getString( PKG, "SelectValuesDialog.GetRemove.Button" ) );
     wGetRemove.addListener( SWT.Selection, lsGet );
-    fdGetRemove = new FormData();
+    FormData fdGetRemove = new FormData();
     fdGetRemove.right = new FormAttachment( 100, 0 );
     fdGetRemove.top = new FormAttachment( 50, 0 );
-    wGetRemove.setLayoutData( fdGetRemove );
+    wGetRemove.setLayoutData(fdGetRemove);
 
-    fdRemove = new FormData();
+    FormData fdRemove = new FormData();
     fdRemove.left = new FormAttachment( 0, 0 );
-    fdRemove.top = new FormAttachment( wlRemove, margin );
-    fdRemove.right = new FormAttachment( wGetRemove, -margin );
+    fdRemove.top = new FormAttachment(wlRemove, margin );
+    fdRemove.right = new FormAttachment(wGetRemove, -margin );
     fdRemove.bottom = new FormAttachment( 100, 0 );
-    wRemove.setLayoutData( fdRemove );
+    wRemove.setLayoutData(fdRemove);
 
-    fdRemoveComp = new FormData();
+    FormData fdRemoveComp = new FormData();
     fdRemoveComp.left = new FormAttachment( 0, 0 );
     fdRemoveComp.top = new FormAttachment( 0, 0 );
     fdRemoveComp.right = new FormAttachment( 100, 0 );
     fdRemoveComp.bottom = new FormAttachment( 100, 0 );
-    wRemoveComp.setLayoutData( fdRemoveComp );
+    wRemoveComp.setLayoutData(fdRemoveComp);
 
     wRemoveComp.layout();
-    wRemoveTab.setControl( wRemoveComp );
+    wRemoveTab.setControl(wRemoveComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF REMOVE TAB
@@ -352,24 +335,24 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     // START OF META TAB ///
     // ////////////////////////
 
-    wMetaTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wMetaTab = new CTabItem(wTabFolder, SWT.NONE);
     wMetaTab.setText( BaseMessages.getString( PKG, "SelectValuesDialog.MetaTab.TabItem" ) );
 
-    wMetaComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wMetaComp );
+    Composite wMetaComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wMetaComp);
 
     FormLayout metaLayout = new FormLayout();
     metaLayout.marginWidth = margin;
     metaLayout.marginHeight = margin;
     wMetaComp.setLayout( metaLayout );
 
-    wlMeta = new Label( wMetaComp, SWT.NONE );
+    Label wlMeta = new Label(wMetaComp, SWT.NONE);
     wlMeta.setText( BaseMessages.getString( PKG, "SelectValuesDialog.Meta.Label" ) );
-    props.setLook( wlMeta );
-    fdlMeta = new FormData();
+    props.setLook(wlMeta);
+    FormData fdlMeta = new FormData();
     fdlMeta.left = new FormAttachment( 0, 0 );
     fdlMeta.top = new FormAttachment( 0, 0 );
-    wlMeta.setLayoutData( fdlMeta );
+    wlMeta.setLayoutData(fdlMeta);
 
     final int MetaRows = input.getMeta().length;
 
@@ -430,41 +413,41 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       new TableView(
         pipelineMeta, wMetaComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colmeta, MetaRows, lsMod, props );
 
-    wGetMeta = new Button( wMetaComp, SWT.PUSH );
+    Button wGetMeta = new Button(wMetaComp, SWT.PUSH);
     wGetMeta.setText( BaseMessages.getString( PKG, "SelectValuesDialog.GetMeta.Button" ) );
     wGetMeta.addListener( SWT.Selection, lsGet );
-    fdGetMeta = new FormData();
+    FormData fdGetMeta = new FormData();
     fdGetMeta.right = new FormAttachment( 100, 0 );
     fdGetMeta.top = new FormAttachment( 50, 0 );
-    wGetMeta.setLayoutData( fdGetMeta );
+    wGetMeta.setLayoutData(fdGetMeta);
 
-    fdMeta = new FormData();
+    FormData fdMeta = new FormData();
     fdMeta.left = new FormAttachment( 0, 0 );
-    fdMeta.top = new FormAttachment( wlMeta, margin );
-    fdMeta.right = new FormAttachment( wGetMeta, -margin );
+    fdMeta.top = new FormAttachment(wlMeta, margin );
+    fdMeta.right = new FormAttachment(wGetMeta, -margin );
     fdMeta.bottom = new FormAttachment( 100, 0 );
-    wMeta.setLayoutData( fdMeta );
+    wMeta.setLayoutData(fdMeta);
 
-    fdMetaComp = new FormData();
+    FormData fdMetaComp = new FormData();
     fdMetaComp.left = new FormAttachment( 0, 0 );
     fdMetaComp.top = new FormAttachment( 0, 0 );
     fdMetaComp.right = new FormAttachment( 100, 0 );
     fdMetaComp.bottom = new FormAttachment( 100, 0 );
-    wMetaComp.setLayoutData( fdMetaComp );
+    wMetaComp.setLayoutData(fdMetaComp);
 
     wMetaComp.layout();
-    wMetaTab.setControl( wMetaComp );
+    wMetaTab.setControl(wMetaComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF META TAB
     // ///////////////////////////////////////////////////////////
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
     // ///////////////////////////////////////////////////////////
     // / END OF TAB FOLDER
@@ -496,7 +479,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
           prevFields = row;
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -536,9 +519,8 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       String[] prevTransformFieldNames = prevFields != null ? prevFields.getFieldNames() : new String[ 0 ];
       Arrays.sort( prevTransformFieldNames );
       bPreviousFieldsLoaded = true;
-      for ( int i = 0; i < fieldColumns.size(); i++ ) {
-        ColumnInfo colInfo = fieldColumns.get( i );
-        colInfo.setComboValues( prevTransformFieldNames );
+      for (ColumnInfo colInfo : fieldColumns) {
+        colInfo.setComboValues(prevTransformFieldNames);
       }
     };
     shell.getDisplay().asyncExec( fieldLoader );
@@ -776,23 +758,22 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     if ( ( wRemove.getItemCount() > 0 ) || ( wMeta.getItemCount() > 0 ) ) {
       for ( int i = 0; i < wRemove.getItemCount(); i++ ) {
         String[] columns = wRemove.getItem( i );
-        for ( int a = 0; a < columns.length; a++ ) {
-          if ( columns[ a ].length() > 0 ) {
-            MessageDialog.openError( shell, BaseMessages.getString(
-              PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle" ), BaseMessages.getString(
-              PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta" ) );
+        for (String column : columns) {
+          if (column.length() > 0) {
+            MessageDialog.openError(shell, BaseMessages.getString(
+                    PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"), BaseMessages.getString(
+                    PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta"));
             return;
           }
         }
       }
       for ( int i = 0; i < wMeta.getItemCount(); i++ ) {
         String[] columns = wMeta.getItem( i );
-        for ( int a = 0; a < columns.length; a++ ) {
-          String col = columns[ a ];
-          if ( col.length() > 0 ) {
-            MessageDialog.openError( shell, BaseMessages.getString(
-              PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle" ), BaseMessages.getString(
-              PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta" ) );
+        for (String col : columns) {
+          if (col.length() > 0) {
+            MessageDialog.openError(shell, BaseMessages.getString(
+                    PKG, "SelectValuesDialog.DoMapping.NoDeletOrMetaTitle"), BaseMessages.getString(
+                    PKG, "SelectValuesDialog.DoMapping.NoDeletOrMeta"));
             return;
           }
         }
@@ -836,7 +817,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       selectRename[ i ] = wFields.getItem( i, 2 );
     }
 
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
     StringBuilder missingFields = new StringBuilder();
     for ( int i = 0; i < selectName.length; i++ ) {
       String valueName = selectName[ i ];
@@ -892,7 +873,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
@@ -905,9 +886,8 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     Const.sortStrings( fieldNames );
 
     bPreviousFieldsLoaded = true;
-    for ( int i = 0; i < fieldColumns.size(); i++ ) {
-      ColumnInfo colInfo = fieldColumns.get( i );
-      colInfo.setComboValues( fieldNames );
+    for (ColumnInfo colInfo : fieldColumns) {
+      colInfo.setComboValues(fieldNames);
     }
   }
 }

@@ -25,7 +25,6 @@ package org.apache.hop.pipeline.transforms.denormaliser;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -37,7 +36,6 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
@@ -50,27 +48,17 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class DenormaliserDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
+  private static final Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
 
   public static final String STRING_SORT_WARNING_PARAMETER = "PivotSortWarning";
 
-  private Label wlGroup;
   private TableView wGroup;
-  private FormData fdlGroup, fdGroup;
 
-  private Label wlTarget;
   private TableView wTarget;
-  private FormData fdlTarget, fdTarget;
 
-  private Label wlKeyField;
   private CCombo wKeyField;
-  private FormData fdlKeyField, fdKeyField;
 
-  private Button wGet, wGetAgg;
-  private FormData fdGet, fdGetAgg;
-  private Listener lsGet, lsGetAgg;
-
-  private DenormaliserMeta input;
+  private final DenormaliserMeta input;
 
   private boolean gotPreviousFields = false;
 
@@ -121,23 +109,23 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
     wTransformName.setLayoutData( fdTransformName );
 
     // Key field...
-    wlKeyField = new Label( shell, SWT.RIGHT );
+    Label wlKeyField = new Label(shell, SWT.RIGHT);
     wlKeyField.setText( BaseMessages.getString( PKG, "DenormaliserDialog.KeyField.Label" ) );
-    props.setLook( wlKeyField );
-    fdlKeyField = new FormData();
+    props.setLook(wlKeyField);
+    FormData fdlKeyField = new FormData();
     fdlKeyField.left = new FormAttachment( 0, 0 );
     fdlKeyField.right = new FormAttachment( middle, -margin );
     fdlKeyField.top = new FormAttachment( wTransformName, margin );
-    wlKeyField.setLayoutData( fdlKeyField );
+    wlKeyField.setLayoutData(fdlKeyField);
 
     wKeyField = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wKeyField );
     wKeyField.addModifyListener( lsMod );
-    fdKeyField = new FormData();
+    FormData fdKeyField = new FormData();
     fdKeyField.left = new FormAttachment( middle, 0 );
     fdKeyField.top = new FormAttachment( wTransformName, margin );
     fdKeyField.right = new FormAttachment( 100, 0 );
-    wKeyField.setLayoutData( fdKeyField );
+    wKeyField.setLayoutData(fdKeyField);
     //    wKeyField.addFocusListener( new FocusListener() {
     //      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
     //      }
@@ -167,13 +155,13 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
       }
     } );
 
-    wlGroup = new Label( shell, SWT.NONE );
+    Label wlGroup = new Label(shell, SWT.NONE);
     wlGroup.setText( BaseMessages.getString( PKG, "DenormaliserDialog.Group.Label" ) );
-    props.setLook( wlGroup );
-    fdlGroup = new FormData();
+    props.setLook(wlGroup);
+    FormData fdlGroup = new FormData();
     fdlGroup.left = new FormAttachment( 0, 0 );
     fdlGroup.top = new FormAttachment( wKeyField, margin );
-    wlGroup.setLayoutData( fdlGroup );
+    wlGroup.setLayoutData(fdlGroup);
 
     int nrKeyCols = 1;
     int nrKeyRows = ( input.getGroupField() != null ? input.getGroupField().length : 1 );
@@ -189,28 +177,28 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrKeyRows, lsMod, props );
 
-    wGet = new Button( shell, SWT.PUSH );
+    Button wGet = new Button(shell, SWT.PUSH);
     wGet.setText( BaseMessages.getString( PKG, "DenormaliserDialog.GetFields.Button" ) );
-    fdGet = new FormData();
-    fdGet.top = new FormAttachment( wlGroup, margin );
+    FormData fdGet = new FormData();
+    fdGet.top = new FormAttachment(wlGroup, margin );
     fdGet.right = new FormAttachment( 100, 0 );
-    wGet.setLayoutData( fdGet );
+    wGet.setLayoutData(fdGet);
 
-    fdGroup = new FormData();
+    FormData fdGroup = new FormData();
     fdGroup.left = new FormAttachment( 0, 0 );
-    fdGroup.top = new FormAttachment( wlGroup, margin );
-    fdGroup.right = new FormAttachment( wGet, -margin );
+    fdGroup.top = new FormAttachment(wlGroup, margin );
+    fdGroup.right = new FormAttachment(wGet, -margin );
     fdGroup.bottom = new FormAttachment( 30, 0 );
-    wGroup.setLayoutData( fdGroup );
+    wGroup.setLayoutData(fdGroup);
 
     // THE unpivot target field fields
-    wlTarget = new Label( shell, SWT.NONE );
+    Label wlTarget = new Label(shell, SWT.NONE);
     wlTarget.setText( BaseMessages.getString( PKG, "DenormaliserDialog.Target.Label" ) );
-    props.setLook( wlTarget );
-    fdlTarget = new FormData();
+    props.setLook(wlTarget);
+    FormData fdlTarget = new FormData();
     fdlTarget.left = new FormAttachment( 0, 0 );
     fdlTarget.top = new FormAttachment( wGroup, margin );
-    wlTarget.setLayoutData( fdlTarget );
+    wlTarget.setLayoutData(fdlTarget);
 
     int UpInsRows = ( input.getDenormaliserTargetField() != null ? input.getDenormaliserTargetField().length : 1 );
 
@@ -261,12 +249,12 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciTarget,
         UpInsRows, lsMod, props );
 
-    wGetAgg = new Button( shell, SWT.PUSH );
+    Button wGetAgg = new Button(shell, SWT.PUSH);
     wGetAgg.setText( BaseMessages.getString( PKG, "DenormaliserDialog.GetLookupFields.Button" ) );
-    fdGetAgg = new FormData();
-    fdGetAgg.top = new FormAttachment( wlTarget, margin );
+    FormData fdGetAgg = new FormData();
+    fdGetAgg.top = new FormAttachment(wlTarget, margin );
     fdGetAgg.right = new FormAttachment( 100, 0 );
-    wGetAgg.setLayoutData( fdGetAgg );
+    wGetAgg.setLayoutData(fdGetAgg);
 
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );
@@ -276,22 +264,22 @@ public class DenormaliserDialog extends BaseTransformDialog implements ITransfor
 
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
-    fdTarget = new FormData();
+    FormData fdTarget = new FormData();
     fdTarget.left = new FormAttachment( 0, 0 );
-    fdTarget.top = new FormAttachment( wlTarget, margin );
-    fdTarget.right = new FormAttachment( wGetAgg, -margin );
+    fdTarget.top = new FormAttachment(wlTarget, margin );
+    fdTarget.right = new FormAttachment(wGetAgg, -margin );
     fdTarget.bottom = new FormAttachment( wOk, -margin );
-    wTarget.setLayoutData( fdTarget );
+    wTarget.setLayoutData(fdTarget);
 
     // Add listeners
     lsOk = e -> ok();
-    lsGet = e -> get();
-    lsGetAgg = e -> getAgg();
+    Listener lsGet = e -> get();
+    Listener lsGetAgg = e -> getAgg();
     lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wGetAgg.addListener( SWT.Selection, lsGetAgg );
+    wGet.addListener( SWT.Selection, lsGet);
+    wGetAgg.addListener( SWT.Selection, lsGetAgg);
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {

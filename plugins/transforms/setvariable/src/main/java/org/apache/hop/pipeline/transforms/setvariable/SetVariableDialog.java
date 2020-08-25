@@ -50,25 +50,19 @@ import java.util.List;
 import java.util.*;
 
 public class SetVariableDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_USAGE_WARNING_PARAMETER = "SetVariableUsageWarning";
 
-  private Label wlTransformName;
   private Text wTransformName;
-  private FormData fdlTransformName, fdTransformName;
 
-  private Label wlFormat;
   private Button wFormat;
-  private FormData fdlFormat, fdFormat;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
-  private SetVariableMeta input;
+  private final SetVariableMeta input;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] colinf;
 
@@ -100,48 +94,48 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
     int margin = props.getMargin();
 
     // TransformName line
-    wlTransformName = new Label( shell, SWT.RIGHT );
+    Label wlTransformName = new Label(shell, SWT.RIGHT);
     wlTransformName.setText( BaseMessages.getString( PKG, "SetVariableDialog.TransformName.Label" ) );
-    props.setLook( wlTransformName );
-    fdlTransformName = new FormData();
+    props.setLook(wlTransformName);
+    FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
     fdlTransformName.right = new FormAttachment( middle, -margin );
     fdlTransformName.top = new FormAttachment( 0, margin );
-    wlTransformName.setLayoutData( fdlTransformName );
+    wlTransformName.setLayoutData(fdlTransformName);
     wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTransformName );
     wTransformName.addModifyListener( lsMod );
-    fdTransformName = new FormData();
+    FormData fdTransformName = new FormData();
     fdTransformName.left = new FormAttachment( middle, 0 );
     fdTransformName.top = new FormAttachment( 0, margin );
     fdTransformName.right = new FormAttachment( 100, 0 );
-    wTransformName.setLayoutData( fdTransformName );
+    wTransformName.setLayoutData(fdTransformName);
 
-    wlFormat = new Label( shell, SWT.RIGHT );
+    Label wlFormat = new Label(shell, SWT.RIGHT);
     wlFormat.setText( BaseMessages.getString( PKG, "SetVariableDialog.Format.Label" ) );
     wlFormat.setToolTipText( BaseMessages.getString( PKG, "SetVariableDialog.Format.Tooltip" ) );
-    props.setLook( wlFormat );
-    fdlFormat = new FormData();
+    props.setLook(wlFormat);
+    FormData fdlFormat = new FormData();
     fdlFormat.left = new FormAttachment( 0, 0 );
     fdlFormat.right = new FormAttachment( middle, -margin );
     fdlFormat.top = new FormAttachment( wTransformName, margin );
-    wlFormat.setLayoutData( fdlFormat );
+    wlFormat.setLayoutData(fdlFormat);
     wFormat = new Button( shell, SWT.CHECK );
     wFormat.setToolTipText( BaseMessages.getString( PKG, "SetVariableDialog.Format.Tooltip" ) );
     props.setLook( wFormat );
-    fdFormat = new FormData();
+    FormData fdFormat = new FormData();
     fdFormat.left = new FormAttachment( middle, 0 );
     fdFormat.top = new FormAttachment( wTransformName, margin );
-    wFormat.setLayoutData( fdFormat );
+    wFormat.setLayoutData(fdFormat);
     wFormat.addSelectionListener( new ComponentSelectionListener( input ) );
 
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "SetVariableDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wFormat, margin );
-    wlFields.setLayoutData( fdlFields );
+    wlFields.setLayoutData(fdlFields);
 
     final int FieldsRows = input.getFieldName().length;
     colinf = new ColumnInfo[ 4 ];
@@ -168,12 +162,12 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( 100, -50 );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     //
     // Search the fields in the background
@@ -186,7 +180,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -248,7 +242,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

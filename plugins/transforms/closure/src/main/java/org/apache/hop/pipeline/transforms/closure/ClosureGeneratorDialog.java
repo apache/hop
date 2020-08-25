@@ -44,23 +44,15 @@ import org.eclipse.swt.widgets.*;
 public class ClosureGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ClosureGeneratorDialog.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlRootZero;
   private Button wRootZero;
-  private FormData fdlRootZero, fdRootZero;
 
-  private Label wlParent;
   private CCombo wParent;
-  private FormData fdlParent, fdParent;
 
-  private Label wlChild;
   private CCombo wChild;
-  private FormData fdlChild, fdChild;
 
-  private Label wlDistance;
   private Text wDistance;
-  private FormData fdlDistance, fdDistance;
 
-  private ClosureGeneratorMeta input;
+  private final ClosureGeneratorMeta input;
 
   private IRowMeta inputFields;
 
@@ -113,82 +105,82 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
 
     // Parent ...
     //
-    wlParent = new Label( shell, SWT.RIGHT );
+    Label wlParent = new Label(shell, SWT.RIGHT);
     wlParent.setText( BaseMessages.getString( PKG, "ClosureGeneratorDialog.ParentField.Label" ) );
-    props.setLook( wlParent );
-    fdlParent = new FormData();
+    props.setLook(wlParent);
+    FormData fdlParent = new FormData();
     fdlParent.left = new FormAttachment( 0, 0 );
     fdlParent.right = new FormAttachment( middle, -margin );
     fdlParent.top = new FormAttachment( wTransformName, margin );
-    wlParent.setLayoutData( fdlParent );
+    wlParent.setLayoutData(fdlParent);
 
     wParent = new CCombo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wParent );
     wParent.addModifyListener( lsMod );
-    fdParent = new FormData();
+    FormData fdParent = new FormData();
     fdParent.left = new FormAttachment( middle, 0 );
     fdParent.right = new FormAttachment( 100, 0 );
     fdParent.top = new FormAttachment( wTransformName, margin );
-    wParent.setLayoutData( fdParent );
+    wParent.setLayoutData(fdParent);
 
     // Child ...
     //
-    wlChild = new Label( shell, SWT.RIGHT );
+    Label wlChild = new Label(shell, SWT.RIGHT);
     wlChild.setText( BaseMessages.getString( PKG, "ClosureGeneratorDialog.ChildField.Label" ) );
-    props.setLook( wlChild );
-    fdlChild = new FormData();
+    props.setLook(wlChild);
+    FormData fdlChild = new FormData();
     fdlChild.left = new FormAttachment( 0, 0 );
     fdlChild.right = new FormAttachment( middle, -margin );
     fdlChild.top = new FormAttachment( wParent, margin );
-    wlChild.setLayoutData( fdlChild );
+    wlChild.setLayoutData(fdlChild);
 
     wChild = new CCombo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wChild );
     wChild.addModifyListener( lsMod );
-    fdChild = new FormData();
+    FormData fdChild = new FormData();
     fdChild.left = new FormAttachment( middle, 0 );
     fdChild.right = new FormAttachment( 100, 0 );
     fdChild.top = new FormAttachment( wParent, margin );
-    wChild.setLayoutData( fdChild );
+    wChild.setLayoutData(fdChild);
 
     // Distance ...
     //
-    wlDistance = new Label( shell, SWT.RIGHT );
+    Label wlDistance = new Label(shell, SWT.RIGHT);
     wlDistance.setText( BaseMessages.getString( PKG, "ClosureGeneratorDialog.DistanceField.Label" ) );
-    props.setLook( wlDistance );
-    fdlDistance = new FormData();
+    props.setLook(wlDistance);
+    FormData fdlDistance = new FormData();
     fdlDistance.left = new FormAttachment( 0, 0 );
     fdlDistance.right = new FormAttachment( middle, -margin );
     fdlDistance.top = new FormAttachment( wChild, margin );
-    wlDistance.setLayoutData( fdlDistance );
+    wlDistance.setLayoutData(fdlDistance);
 
     wDistance = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDistance );
     wDistance.addModifyListener( lsMod );
-    fdDistance = new FormData();
+    FormData fdDistance = new FormData();
     fdDistance.left = new FormAttachment( middle, 0 );
     fdDistance.right = new FormAttachment( 100, 0 );
     fdDistance.top = new FormAttachment( wChild, margin );
-    wDistance.setLayoutData( fdDistance );
+    wDistance.setLayoutData(fdDistance);
 
     // Root is zero(Integer)?
     //
-    wlRootZero = new Label( shell, SWT.RIGHT );
+    Label wlRootZero = new Label(shell, SWT.RIGHT);
     wlRootZero.setText( BaseMessages.getString( PKG, "ClosureGeneratorDialog.RootZero.Label" ) );
-    props.setLook( wlRootZero );
-    fdlRootZero = new FormData();
+    props.setLook(wlRootZero);
+    FormData fdlRootZero = new FormData();
     fdlRootZero.left = new FormAttachment( 0, 0 );
     fdlRootZero.right = new FormAttachment( middle, -margin );
     fdlRootZero.top = new FormAttachment( wDistance, margin );
-    wlRootZero.setLayoutData( fdlRootZero );
+    wlRootZero.setLayoutData(fdlRootZero);
 
     wRootZero = new Button( shell, SWT.CHECK );
     props.setLook( wRootZero );
-    fdRootZero = new FormData();
+    FormData fdRootZero = new FormData();
     fdRootZero.left = new FormAttachment( middle, 0 );
     fdRootZero.right = new FormAttachment( 100, 0 );
     fdRootZero.top = new FormAttachment( wDistance, margin );
-    wRootZero.setLayoutData( fdRootZero );
+    wRootZero.setLayoutData(fdRootZero);
     wRootZero.addSelectionListener( new ComponentSelectionListener( input ) );
 
     // Search the fields in the background

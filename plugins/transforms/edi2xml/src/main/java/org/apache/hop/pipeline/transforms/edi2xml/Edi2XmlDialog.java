@@ -40,14 +40,11 @@ import org.eclipse.swt.widgets.*;
 
 public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
+  private static final Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
 
-  private Edi2XmlMeta input;
+  private final Edi2XmlMeta input;
 
-  // output field name
-  private Label wlXmlField;
   private TextVar wXmlField;
-  private FormData fdlXmlField, fdXmlField;
 
   private ComboVar wEdiField;
 
@@ -130,24 +127,25 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     } );
 
     // xml output field value
-    wlXmlField = new Label( shell, SWT.RIGHT );
+    // output field name
+    Label wlXmlField = new Label(shell, SWT.RIGHT);
     wlXmlField.setText( BaseMessages.getString( PKG, "Edi2Xml.OutputField.Label" ) );
-    props.setLook( wlXmlField );
-    fdlXmlField = new FormData();
+    props.setLook(wlXmlField);
+    FormData fdlXmlField = new FormData();
     fdlXmlField.left = new FormAttachment( 0, 0 );
     fdlXmlField.right = new FormAttachment( middle, -margin );
     fdlXmlField.top = new FormAttachment( wEdiField, margin );
-    wlXmlField.setLayoutData( fdlXmlField );
+    wlXmlField.setLayoutData(fdlXmlField);
 
     wXmlField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wXmlField );
     wXmlField.setToolTipText( BaseMessages.getString( PKG, "Edi2Xml.OutputField.Tooltip" ) );
     wXmlField.addModifyListener( lsMod );
-    fdXmlField = new FormData();
+    FormData fdXmlField = new FormData();
     fdXmlField.left = new FormAttachment( middle, 0 );
     fdXmlField.right = new FormAttachment( 100, 0 );
     fdXmlField.top = new FormAttachment( wEdiField, margin );
-    wXmlField.setLayoutData( fdXmlField );
+    wXmlField.setLayoutData(fdXmlField);
 
     // OK and cancel buttons
     wOk = new Button( shell, SWT.PUSH );

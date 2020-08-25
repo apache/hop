@@ -62,17 +62,9 @@ import java.util.ArrayList;
 public class GetXmlDataDialog extends BaseTransformDialog implements ITransformDialog {
   private String XMLSource = null;
 
-  private static Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
-
-  private static String EMPTY_FIELDS = "<EMPTY>";
+  private static final Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
 
   private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
-
-  private CTabItem wFileTab, wContentTab, wFieldsTab;
-
-  private Composite wFileComp, wContentComp, wFieldsComp;
-  private FormData fdFileComp, fdContentComp, fdFieldsComp;
 
   private Label wlFilename, wlXMLIsAFile;
   private Button wbbFilename; // Browse: add file or directory
@@ -80,142 +72,81 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
   private Button wbeFilename; // Edit
   private Button wbaFilename; // Add or change
   private TextVar wFilename;
-  private FormData fdlFilename, fdbFilename, fdbdFilename, fdbeFilename, fdbaFilename, fdFilename;
 
   private Label wlFilenameList;
   private TableView wFilenameList;
-  private FormData fdlFilenameList, fdFilenameList;
 
   private Label wlFilemask;
   private TextVar wFilemask;
-  private FormData fdlFilemask, fdFilemask;
 
   private Button wbShowFiles;
-  private FormData fdbShowFiles;
 
-  private Label wluseToken;
   private Button wuseToken;
-  private FormData fdluseToken, fduseToken;
 
-  private FormData fdlXMLField, fdlXMLStreamField, fdlXMLIsAFile;
-  private FormData fdXMLField, fdXSDFileField;
-  private FormData fdOutputField, fdXMLIsAFile, fdAdditionalFields, fdAddFileResult, fdXmlConf;
-  private Label wlXMLField, wlXmlStreamField;
+  private Label wlXMLField;
   private CCombo wXMLField;
   private Button wXMLStreamField, wXMLIsAFile;
 
   private Label wlInclFilename;
   private Button wInclFilename, wAddResult;
-  private FormData fdlInclFilename, fdInclFilename, fdAddResult, fdlAddResult;
 
-  private Label wlNameSpaceAware;
   private Button wNameSpaceAware;
-  private FormData fdlNameSpaceAware, fdNameSpaceAware;
 
   private Label wlreadUrl;
   private Button wreadUrl;
-  private FormData fdlreadUrl, fdreadUrl;
 
-  private Label wlIgnoreComment;
   private Button wIgnoreComment;
-  private FormData fdlIgnoreComment, fdIgnoreComment;
 
-  private Label wlValidating;
   private Button wValidating;
-  private FormData fdlValidating, fdValidating;
 
   private Label wlInclFilenameField;
   private TextVar wInclFilenameField;
-  private FormData fdlInclFilenameField, fdInclFilenameField;
 
-  private Label wlInclRownum, wlAddResult;
+  private Label wlAddResult;
   private Button wInclRownum;
-  private FormData fdlInclRownum, fdRownum;
 
   private Label wlInclRownumField;
   private TextVar wInclRownumField;
-  private FormData fdlInclRownumField, fdInclRownumField;
 
   private Label wlLimit;
   private Text wLimit;
-  private FormData fdlLimit, fdLimit;
 
-  private Label wlLoopXPath;
   private TextVar wLoopXPath;
-  private FormData fdlLoopXPath, fdLoopXPath;
 
   private Label wlPrunePath;
   private TextVar wPrunePath;
-  private FormData fdlPrunePath, fdPrunePath;
 
   private Label wlEncoding;
   private CCombo wEncoding;
-  private FormData fdlEncoding, fdEncoding;
 
   private TableView wFields;
-  private FormData fdFields;
-
-  private Group wOutputField;
-  private Group wAdditionalFields;
-  private Group wAddFileResult;
-  private Group wXmlConf;
-
-  private Button wbbLoopPathList;
-  private FormData fdbLoopPathList;
 
   private Label wlExcludeFilemask;
   private TextVar wExcludeFilemask;
-  private FormData fdlExcludeFilemask, fdExcludeFilemask;
 
-  // ignore empty files flag
-  private Label wlIgnoreEmptyFile;
   private Button wIgnoreEmptyFile;
-  private FormData fdlIgnoreEmptyFile, fdIgnoreEmptyFile;
 
-  // do not fail if no files?
-  private Label wldoNotFailIfNoFile;
   private Button wdoNotFailIfNoFile;
-  private FormData fdldoNotFailIfNoFile, fddoNotFailIfNoFile;
-
-  private CTabItem wAdditionalFieldsTab;
-  private Composite wAdditionalFieldsComp;
-  private FormData fdAdditionalFieldsComp;
 
   private Label wlShortFileFieldName;
-  private FormData fdlShortFileFieldName;
   private TextVar wShortFileFieldName;
-  private FormData fdShortFileFieldName;
   private Label wlPathFieldName;
-  private FormData fdlPathFieldName;
   private TextVar wPathFieldName;
-  private FormData fdPathFieldName;
 
   private Label wlIsHiddenName;
-  private FormData fdlIsHiddenName;
   private TextVar wIsHiddenName;
-  private FormData fdIsHiddenName;
   private Label wlLastModificationTimeName;
-  private FormData fdlLastModificationTimeName;
   private TextVar wLastModificationTimeName;
-  private FormData fdLastModificationTimeName;
   private Label wlUriName;
-  private FormData fdlUriName;
   private TextVar wUriName;
-  private FormData fdUriName;
   private Label wlRootUriName;
-  private FormData fdlRootUriName;
   private TextVar wRootUriName;
-  private FormData fdRootUriName;
   private Label wlExtensionFieldName;
-  private FormData fdlExtensionFieldName;
   private TextVar wExtensionFieldName;
-  private FormData fdExtensionFieldName;
   private Label wlSizeFieldName;
-  private FormData fdlSizeFieldName;
   private TextVar wSizeFieldName;
-  private FormData fdSizeFieldName;
 
-  private GetXmlDataMeta input;
+  private final GetXmlDataMeta input;
 
   private int middle;
   private int margin;
@@ -278,11 +209,11 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     // ////////////////////////
     // START OF FILE TAB ///
     // ////////////////////////
-    wFileTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wFileTab = new CTabItem(wTabFolder, SWT.NONE);
     wFileTab.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.File.Tab" ) );
 
-    wFileComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wFileComp );
+    Composite wFileComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wFileComp);
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -293,8 +224,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     // START OF Output Field GROUP //
     // ///////////////////////////////
 
-    wOutputField = new Group( wFileComp, SWT.SHADOW_NONE );
-    props.setLook( wOutputField );
+    Group wOutputField = new Group(wFileComp, SWT.SHADOW_NONE);
+    props.setLook(wOutputField);
     wOutputField.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.wOutputField.Label" ) );
 
     FormLayout outputfieldgroupLayout = new FormLayout();
@@ -303,22 +234,22 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     wOutputField.setLayout( outputfieldgroupLayout );
 
     // Is XML string defined in a Field
-    wlXmlStreamField = new Label( wOutputField, SWT.RIGHT );
+    Label wlXmlStreamField = new Label(wOutputField, SWT.RIGHT);
     wlXmlStreamField.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.wlXmlStreamField.Label" ) );
-    props.setLook( wlXmlStreamField );
-    fdlXMLStreamField = new FormData();
+    props.setLook(wlXmlStreamField);
+    FormData fdlXMLStreamField = new FormData();
     fdlXMLStreamField.left = new FormAttachment( 0, -margin );
     fdlXMLStreamField.top = new FormAttachment( 0, margin );
     fdlXMLStreamField.right = new FormAttachment( middle, -2 * margin );
-    wlXmlStreamField.setLayoutData( fdlXMLStreamField );
+    wlXmlStreamField.setLayoutData(fdlXMLStreamField);
 
-    wXMLStreamField = new Button( wOutputField, SWT.CHECK );
+    wXMLStreamField = new Button(wOutputField, SWT.CHECK );
     props.setLook( wXMLStreamField );
     wXMLStreamField.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.wXmlStreamField.Tooltip" ) );
-    fdXSDFileField = new FormData();
+    FormData fdXSDFileField = new FormData();
     fdXSDFileField.left = new FormAttachment( middle, -margin );
     fdXSDFileField.top = new FormAttachment( 0, margin );
-    wXMLStreamField.setLayoutData( fdXSDFileField );
+    wXMLStreamField.setLayoutData(fdXSDFileField);
     SelectionAdapter lsxmlstream = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         XMLSource = null;
@@ -329,22 +260,22 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     wXMLStreamField.addSelectionListener( lsxmlstream );
 
     // Is XML source is a file?
-    wlXMLIsAFile = new Label( wOutputField, SWT.RIGHT );
+    wlXMLIsAFile = new Label(wOutputField, SWT.RIGHT );
     wlXMLIsAFile.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.XMLIsAFile.Label" ) );
     props.setLook( wlXMLIsAFile );
-    fdlXMLIsAFile = new FormData();
+    FormData fdlXMLIsAFile = new FormData();
     fdlXMLIsAFile.left = new FormAttachment( 0, -margin );
     fdlXMLIsAFile.top = new FormAttachment( wXMLStreamField, margin );
     fdlXMLIsAFile.right = new FormAttachment( middle, -2 * margin );
-    wlXMLIsAFile.setLayoutData( fdlXMLIsAFile );
+    wlXMLIsAFile.setLayoutData(fdlXMLIsAFile);
 
-    wXMLIsAFile = new Button( wOutputField, SWT.CHECK );
+    wXMLIsAFile = new Button(wOutputField, SWT.CHECK );
     props.setLook( wXMLIsAFile );
     wXMLIsAFile.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.XMLIsAFile.Tooltip" ) );
-    fdXMLIsAFile = new FormData();
+    FormData fdXMLIsAFile = new FormData();
     fdXMLIsAFile.left = new FormAttachment( middle, -margin );
     fdXMLIsAFile.top = new FormAttachment( wXMLStreamField, margin );
-    wXMLIsAFile.setLayoutData( fdXMLIsAFile );
+    wXMLIsAFile.setLayoutData(fdXMLIsAFile);
     SelectionAdapter lsxmlisafile = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         XMLSource = null;
@@ -357,21 +288,21 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     wXMLIsAFile.addSelectionListener( lsxmlisafile );
 
     // read url as source ?
-    wlreadUrl = new Label( wOutputField, SWT.RIGHT );
+    wlreadUrl = new Label(wOutputField, SWT.RIGHT );
     wlreadUrl.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.readUrl.Label" ) );
     props.setLook( wlreadUrl );
-    fdlreadUrl = new FormData();
+    FormData fdlreadUrl = new FormData();
     fdlreadUrl.left = new FormAttachment( 0, -margin );
     fdlreadUrl.top = new FormAttachment( wXMLIsAFile, margin );
     fdlreadUrl.right = new FormAttachment( middle, -2 * margin );
-    wlreadUrl.setLayoutData( fdlreadUrl );
-    wreadUrl = new Button( wOutputField, SWT.CHECK );
+    wlreadUrl.setLayoutData(fdlreadUrl);
+    wreadUrl = new Button(wOutputField, SWT.CHECK );
     props.setLook( wreadUrl );
     wreadUrl.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.readUrl.Tooltip" ) );
-    fdreadUrl = new FormData();
+    FormData fdreadUrl = new FormData();
     fdreadUrl.left = new FormAttachment( middle, -margin );
     fdreadUrl.top = new FormAttachment( wXMLIsAFile, margin );
-    wreadUrl.setLayoutData( fdreadUrl );
+    wreadUrl.setLayoutData(fdreadUrl);
     SelectionAdapter lsreadurl = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         XMLSource = null;
@@ -384,24 +315,24 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     wreadUrl.addSelectionListener( lsreadurl );
 
     // If XML string defined in a Field
-    wlXMLField = new Label( wOutputField, SWT.RIGHT );
+    wlXMLField = new Label(wOutputField, SWT.RIGHT );
     wlXMLField.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.wlXMLField.Label" ) );
     props.setLook( wlXMLField );
-    fdlXMLField = new FormData();
+    FormData fdlXMLField = new FormData();
     fdlXMLField.left = new FormAttachment( 0, -margin );
     fdlXMLField.top = new FormAttachment( wreadUrl, margin );
     fdlXMLField.right = new FormAttachment( middle, -2 * margin );
-    wlXMLField.setLayoutData( fdlXMLField );
+    wlXMLField.setLayoutData(fdlXMLField);
 
-    wXMLField = new CCombo( wOutputField, SWT.BORDER | SWT.READ_ONLY );
+    wXMLField = new CCombo(wOutputField, SWT.BORDER | SWT.READ_ONLY );
     wXMLField.setEditable( true );
     props.setLook( wXMLField );
     wXMLField.addModifyListener( lsMod );
-    fdXMLField = new FormData();
+    FormData fdXMLField = new FormData();
     fdXMLField.left = new FormAttachment( middle, -margin );
     fdXMLField.top = new FormAttachment( wreadUrl, margin );
     fdXMLField.right = new FormAttachment( 100, -margin );
-    wXMLField.setLayoutData( fdXMLField );
+    wXMLField.setLayoutData(fdXMLField);
     wXMLField.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -415,124 +346,124 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    fdOutputField = new FormData();
+    FormData fdOutputField = new FormData();
     fdOutputField.left = new FormAttachment( 0, margin );
     fdOutputField.top = new FormAttachment( wFilenameList, margin );
     fdOutputField.right = new FormAttachment( 100, -margin );
-    wOutputField.setLayoutData( fdOutputField );
+    wOutputField.setLayoutData(fdOutputField);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Output Field GROUP
     // ///////////////////////////////////////////////////////////
 
     // Filename line
-    wlFilename = new Label( wFileComp, SWT.RIGHT );
+    wlFilename = new Label(wFileComp, SWT.RIGHT );
     wlFilename.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.Filename.Label" ) );
     props.setLook( wlFilename );
-    fdlFilename = new FormData();
+    FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment( 0, 0 );
-    fdlFilename.top = new FormAttachment( wOutputField, margin );
+    fdlFilename.top = new FormAttachment(wOutputField, margin );
     fdlFilename.right = new FormAttachment( middle, -margin );
-    wlFilename.setLayoutData( fdlFilename );
+    wlFilename.setLayoutData(fdlFilename);
 
-    wbbFilename = new Button( wFileComp, SWT.PUSH | SWT.CENTER );
+    wbbFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER );
     props.setLook( wbbFilename );
     wbbFilename.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.FilenameBrowse.Button" ) );
     wbbFilename.setToolTipText( BaseMessages.getString( PKG, "System.Tooltip.BrowseForFileOrDirAndAdd" ) );
-    fdbFilename = new FormData();
+    FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment( 100, 0 );
-    fdbFilename.top = new FormAttachment( wOutputField, margin );
-    wbbFilename.setLayoutData( fdbFilename );
+    fdbFilename.top = new FormAttachment(wOutputField, margin );
+    wbbFilename.setLayoutData(fdbFilename);
 
-    wbaFilename = new Button( wFileComp, SWT.PUSH | SWT.CENTER );
+    wbaFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER );
     props.setLook( wbaFilename );
     wbaFilename.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.FilenameAdd.Button" ) );
     wbaFilename.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.FilenameAdd.Tooltip" ) );
-    fdbaFilename = new FormData();
+    FormData fdbaFilename = new FormData();
     fdbaFilename.right = new FormAttachment( wbbFilename, -margin );
-    fdbaFilename.top = new FormAttachment( wOutputField, margin );
-    wbaFilename.setLayoutData( fdbaFilename );
+    fdbaFilename.top = new FormAttachment(wOutputField, margin );
+    wbaFilename.setLayoutData(fdbaFilename);
 
     wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
-    fdFilename = new FormData();
+    FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment( middle, 0 );
     fdFilename.right = new FormAttachment( wbaFilename, -margin );
-    fdFilename.top = new FormAttachment( wOutputField, margin );
-    wFilename.setLayoutData( fdFilename );
+    fdFilename.top = new FormAttachment(wOutputField, margin );
+    wFilename.setLayoutData(fdFilename);
 
-    wlFilemask = new Label( wFileComp, SWT.RIGHT );
+    wlFilemask = new Label(wFileComp, SWT.RIGHT );
     wlFilemask.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.RegExp.Label" ) );
     props.setLook( wlFilemask );
-    fdlFilemask = new FormData();
+    FormData fdlFilemask = new FormData();
     fdlFilemask.left = new FormAttachment( 0, 0 );
     fdlFilemask.top = new FormAttachment( wFilename, margin );
     fdlFilemask.right = new FormAttachment( middle, -margin );
-    wlFilemask.setLayoutData( fdlFilemask );
+    wlFilemask.setLayoutData(fdlFilemask);
     wFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilemask );
     wFilemask.addModifyListener( lsMod );
-    fdFilemask = new FormData();
+    FormData fdFilemask = new FormData();
     fdFilemask.left = new FormAttachment( middle, 0 );
     fdFilemask.top = new FormAttachment( wFilename, margin );
     fdFilemask.right = new FormAttachment( 100, 0 );
-    wFilemask.setLayoutData( fdFilemask );
+    wFilemask.setLayoutData(fdFilemask);
 
-    wlExcludeFilemask = new Label( wFileComp, SWT.RIGHT );
+    wlExcludeFilemask = new Label(wFileComp, SWT.RIGHT );
     wlExcludeFilemask.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.ExcludeFilemask.Label" ) );
     props.setLook( wlExcludeFilemask );
-    fdlExcludeFilemask = new FormData();
+    FormData fdlExcludeFilemask = new FormData();
     fdlExcludeFilemask.left = new FormAttachment( 0, 0 );
     fdlExcludeFilemask.top = new FormAttachment( wFilemask, margin );
     fdlExcludeFilemask.right = new FormAttachment( middle, -margin );
-    wlExcludeFilemask.setLayoutData( fdlExcludeFilemask );
+    wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
     wExcludeFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExcludeFilemask );
     wExcludeFilemask.addModifyListener( lsMod );
-    fdExcludeFilemask = new FormData();
+    FormData fdExcludeFilemask = new FormData();
     fdExcludeFilemask.left = new FormAttachment( middle, 0 );
     fdExcludeFilemask.top = new FormAttachment( wFilemask, margin );
     fdExcludeFilemask.right = new FormAttachment( wFilename, 0, SWT.RIGHT );
-    wExcludeFilemask.setLayoutData( fdExcludeFilemask );
+    wExcludeFilemask.setLayoutData(fdExcludeFilemask);
 
     // Filename list line
-    wlFilenameList = new Label( wFileComp, SWT.RIGHT );
+    wlFilenameList = new Label(wFileComp, SWT.RIGHT );
     wlFilenameList.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.FilenameList.Label" ) );
     props.setLook( wlFilenameList );
-    fdlFilenameList = new FormData();
+    FormData fdlFilenameList = new FormData();
     fdlFilenameList.left = new FormAttachment( 0, 0 );
     fdlFilenameList.top = new FormAttachment( wExcludeFilemask, margin );
     fdlFilenameList.right = new FormAttachment( middle, -margin );
-    wlFilenameList.setLayoutData( fdlFilenameList );
+    wlFilenameList.setLayoutData(fdlFilenameList);
 
     // Buttons to the right of the screen...
-    wbdFilename = new Button( wFileComp, SWT.PUSH | SWT.CENTER );
+    wbdFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER );
     props.setLook( wbdFilename );
     wbdFilename.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.FilenameRemove.Button" ) );
     wbdFilename.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.FilenameRemove.Tooltip" ) );
-    fdbdFilename = new FormData();
+    FormData fdbdFilename = new FormData();
     fdbdFilename.right = new FormAttachment( 100, 0 );
     fdbdFilename.top = new FormAttachment( wExcludeFilemask, 40 );
-    wbdFilename.setLayoutData( fdbdFilename );
+    wbdFilename.setLayoutData(fdbdFilename);
 
-    wbeFilename = new Button( wFileComp, SWT.PUSH | SWT.CENTER );
+    wbeFilename = new Button(wFileComp, SWT.PUSH | SWT.CENTER );
     props.setLook( wbeFilename );
     wbeFilename.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.FilenameEdit.Button" ) );
     wbeFilename.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.FilenameEdit.Tooltip" ) );
-    fdbeFilename = new FormData();
+    FormData fdbeFilename = new FormData();
     fdbeFilename.right = new FormAttachment( 100, 0 );
     fdbeFilename.left = new FormAttachment( wbdFilename, 0, SWT.LEFT );
     fdbeFilename.top = new FormAttachment( wbdFilename, margin );
-    wbeFilename.setLayoutData( fdbeFilename );
+    wbeFilename.setLayoutData(fdbeFilename);
 
-    wbShowFiles = new Button( wFileComp, SWT.PUSH | SWT.CENTER );
+    wbShowFiles = new Button(wFileComp, SWT.PUSH | SWT.CENTER );
     props.setLook( wbShowFiles );
     wbShowFiles.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.ShowFiles.Button" ) );
-    fdbShowFiles = new FormData();
+    FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment( middle, 0 );
     fdbShowFiles.bottom = new FormAttachment( 100, 0 );
-    wbShowFiles.setLayoutData( fdbShowFiles );
+    wbShowFiles.setLayoutData(fdbShowFiles);
 
     ColumnInfo[] colinfo = new ColumnInfo[5];
     colinfo[0] =
@@ -562,22 +493,22 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     wFilenameList =
         new TableView( pipelineMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 2, lsMod, props );
     props.setLook( wFilenameList );
-    fdFilenameList = new FormData();
+    FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment( middle, 0 );
     fdFilenameList.right = new FormAttachment( wbdFilename, -margin );
     fdFilenameList.top = new FormAttachment( wExcludeFilemask, margin );
     fdFilenameList.bottom = new FormAttachment( wbShowFiles, -margin );
-    wFilenameList.setLayoutData( fdFilenameList );
+    wFilenameList.setLayoutData(fdFilenameList);
 
-    fdFileComp = new FormData();
+    FormData fdFileComp = new FormData();
     fdFileComp.left = new FormAttachment( 0, 0 );
     fdFileComp.top = new FormAttachment( 0, 0 );
     fdFileComp.right = new FormAttachment( 100, 0 );
     fdFileComp.bottom = new FormAttachment( 100, 0 );
-    wFileComp.setLayoutData( fdFileComp );
+    wFileComp.setLayoutData(fdFileComp);
 
     wFileComp.layout();
-    wFileTab.setControl( wFileComp );
+    wFileTab.setControl(wFileComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF FILE TAB
@@ -586,23 +517,23 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     // ////////////////////////
     // START OF CONTENT TAB///
     // /
-    wContentTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wContentTab = new CTabItem(wTabFolder, SWT.NONE);
     wContentTab.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.Content.Tab" ) );
 
     FormLayout contentLayout = new FormLayout();
     contentLayout.marginWidth = 3;
     contentLayout.marginHeight = 3;
 
-    wContentComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wContentComp );
+    Composite wContentComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wContentComp);
     wContentComp.setLayout( contentLayout );
 
     // ///////////////////////////////
     // START OF XmlConf Field GROUP //
     // ///////////////////////////////
 
-    wXmlConf = new Group( wContentComp, SWT.SHADOW_NONE );
-    props.setLook( wXmlConf );
+    Group wXmlConf = new Group(wContentComp, SWT.SHADOW_NONE);
+    props.setLook(wXmlConf);
     wXmlConf.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.wXmlConf.Label" ) );
 
     FormLayout XmlConfgroupLayout = new FormLayout();
@@ -610,56 +541,56 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     XmlConfgroupLayout.marginHeight = 10;
     wXmlConf.setLayout( XmlConfgroupLayout );
 
-    wbbLoopPathList = new Button( wXmlConf, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbbLoopPathList );
+    Button wbbLoopPathList = new Button(wXmlConf, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbbLoopPathList);
     wbbLoopPathList.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.LoopPathList.Button" ) );
     wbbLoopPathList.setToolTipText( BaseMessages.getString( PKG, "System.Tooltip.BrowseForFileOrDirAndAdd" ) );
-    fdbLoopPathList = new FormData();
+    FormData fdbLoopPathList = new FormData();
     fdbLoopPathList.right = new FormAttachment( 100, 0 );
     fdbLoopPathList.top = new FormAttachment( 0, 0 );
-    wbbLoopPathList.setLayoutData( fdbLoopPathList );
+    wbbLoopPathList.setLayoutData(fdbLoopPathList);
 
-    wbbLoopPathList.addSelectionListener( new SelectionAdapter() {
+    wbbLoopPathList.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getLoopPathList();
       }
     } );
 
-    wlLoopXPath = new Label( wXmlConf, SWT.RIGHT );
+    Label wlLoopXPath = new Label(wXmlConf, SWT.RIGHT);
     wlLoopXPath.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.LoopXPath.Label" ) );
-    props.setLook( wlLoopXPath );
-    fdlLoopXPath = new FormData();
+    props.setLook(wlLoopXPath);
+    FormData fdlLoopXPath = new FormData();
     fdlLoopXPath.left = new FormAttachment( 0, 0 );
     fdlLoopXPath.top = new FormAttachment( 0, margin );
     fdlLoopXPath.right = new FormAttachment( middle, -margin );
-    wlLoopXPath.setLayoutData( fdlLoopXPath );
+    wlLoopXPath.setLayoutData(fdlLoopXPath);
     wLoopXPath = new TextVar( pipelineMeta, wXmlConf, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLoopXPath.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.LoopXPath.Tooltip" ) );
     props.setLook( wLoopXPath );
     wLoopXPath.addModifyListener( lsMod );
-    fdLoopXPath = new FormData();
+    FormData fdLoopXPath = new FormData();
     fdLoopXPath.left = new FormAttachment( middle, 0 );
     fdLoopXPath.top = new FormAttachment( 0, margin );
-    fdLoopXPath.right = new FormAttachment( wbbLoopPathList, -margin );
-    wLoopXPath.setLayoutData( fdLoopXPath );
+    fdLoopXPath.right = new FormAttachment(wbbLoopPathList, -margin );
+    wLoopXPath.setLayoutData(fdLoopXPath);
 
-    wlEncoding = new Label( wXmlConf, SWT.RIGHT );
+    wlEncoding = new Label(wXmlConf, SWT.RIGHT );
     wlEncoding.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.Encoding.Label" ) );
     props.setLook( wlEncoding );
-    fdlEncoding = new FormData();
+    FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment( 0, 0 );
     fdlEncoding.top = new FormAttachment( wLoopXPath, margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
-    wlEncoding.setLayoutData( fdlEncoding );
-    wEncoding = new CCombo( wXmlConf, SWT.BORDER | SWT.READ_ONLY );
+    wlEncoding.setLayoutData(fdlEncoding);
+    wEncoding = new CCombo(wXmlConf, SWT.BORDER | SWT.READ_ONLY );
     wEncoding.setEditable( true );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
-    fdEncoding = new FormData();
+    FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment( middle, 0 );
     fdEncoding.top = new FormAttachment( wLoopXPath, margin );
     fdEncoding.right = new FormAttachment( 100, 0 );
-    wEncoding.setLayoutData( fdEncoding );
+    wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -674,148 +605,150 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Set Namespace aware ?
-    wlNameSpaceAware = new Label( wXmlConf, SWT.RIGHT );
+    Label wlNameSpaceAware = new Label(wXmlConf, SWT.RIGHT);
     wlNameSpaceAware.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.NameSpaceAware.Label" ) );
-    props.setLook( wlNameSpaceAware );
-    fdlNameSpaceAware = new FormData();
+    props.setLook(wlNameSpaceAware);
+    FormData fdlNameSpaceAware = new FormData();
     fdlNameSpaceAware.left = new FormAttachment( 0, 0 );
     fdlNameSpaceAware.top = new FormAttachment( wEncoding, margin );
     fdlNameSpaceAware.right = new FormAttachment( middle, -margin );
-    wlNameSpaceAware.setLayoutData( fdlNameSpaceAware );
-    wNameSpaceAware = new Button( wXmlConf, SWT.CHECK );
+    wlNameSpaceAware.setLayoutData(fdlNameSpaceAware);
+    wNameSpaceAware = new Button(wXmlConf, SWT.CHECK );
     props.setLook( wNameSpaceAware );
     wNameSpaceAware.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.NameSpaceAware.Tooltip" ) );
-    fdNameSpaceAware = new FormData();
+    FormData fdNameSpaceAware = new FormData();
     fdNameSpaceAware.left = new FormAttachment( middle, 0 );
     fdNameSpaceAware.top = new FormAttachment( wEncoding, margin );
-    wNameSpaceAware.setLayoutData( fdNameSpaceAware );
+    wNameSpaceAware.setLayoutData(fdNameSpaceAware);
 
     // Ignore comments ?
-    wlIgnoreComment = new Label( wXmlConf, SWT.RIGHT );
+    Label wlIgnoreComment = new Label(wXmlConf, SWT.RIGHT);
     wlIgnoreComment.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.IgnoreComment.Label" ) );
-    props.setLook( wlIgnoreComment );
-    fdlIgnoreComment = new FormData();
+    props.setLook(wlIgnoreComment);
+    FormData fdlIgnoreComment = new FormData();
     fdlIgnoreComment.left = new FormAttachment( 0, 0 );
     fdlIgnoreComment.top = new FormAttachment( wNameSpaceAware, margin );
     fdlIgnoreComment.right = new FormAttachment( middle, -margin );
-    wlIgnoreComment.setLayoutData( fdlIgnoreComment );
-    wIgnoreComment = new Button( wXmlConf, SWT.CHECK );
+    wlIgnoreComment.setLayoutData(fdlIgnoreComment);
+    wIgnoreComment = new Button(wXmlConf, SWT.CHECK );
     props.setLook( wIgnoreComment );
     wIgnoreComment.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.IgnoreComment.Tooltip" ) );
-    fdIgnoreComment = new FormData();
+    FormData fdIgnoreComment = new FormData();
     fdIgnoreComment.left = new FormAttachment( middle, 0 );
     fdIgnoreComment.top = new FormAttachment( wNameSpaceAware, margin );
-    wIgnoreComment.setLayoutData( fdIgnoreComment );
+    wIgnoreComment.setLayoutData(fdIgnoreComment);
 
     // Validate XML?
-    wlValidating = new Label( wXmlConf, SWT.RIGHT );
+    Label wlValidating = new Label(wXmlConf, SWT.RIGHT);
     wlValidating.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.Validating.Label" ) );
-    props.setLook( wlValidating );
-    fdlValidating = new FormData();
+    props.setLook(wlValidating);
+    FormData fdlValidating = new FormData();
     fdlValidating.left = new FormAttachment( 0, 0 );
     fdlValidating.top = new FormAttachment( wIgnoreComment, margin );
     fdlValidating.right = new FormAttachment( middle, -margin );
-    wlValidating.setLayoutData( fdlValidating );
-    wValidating = new Button( wXmlConf, SWT.CHECK );
+    wlValidating.setLayoutData(fdlValidating);
+    wValidating = new Button(wXmlConf, SWT.CHECK );
     props.setLook( wValidating );
     wValidating.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.Validating.Tooltip" ) );
-    fdValidating = new FormData();
+    FormData fdValidating = new FormData();
     fdValidating.left = new FormAttachment( middle, 0 );
     fdValidating.top = new FormAttachment( wIgnoreComment, margin );
-    wValidating.setLayoutData( fdValidating );
+    wValidating.setLayoutData(fdValidating);
 
     // use Token ?
-    wluseToken = new Label( wXmlConf, SWT.RIGHT );
+    Label wluseToken = new Label(wXmlConf, SWT.RIGHT);
     wluseToken.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.useToken.Label" ) );
-    props.setLook( wluseToken );
-    fdluseToken = new FormData();
+    props.setLook(wluseToken);
+    FormData fdluseToken = new FormData();
     fdluseToken.left = new FormAttachment( 0, 0 );
     fdluseToken.top = new FormAttachment( wValidating, margin );
     fdluseToken.right = new FormAttachment( middle, -margin );
-    wluseToken.setLayoutData( fdluseToken );
-    wuseToken = new Button( wXmlConf, SWT.CHECK );
+    wluseToken.setLayoutData(fdluseToken);
+    wuseToken = new Button(wXmlConf, SWT.CHECK );
     props.setLook( wuseToken );
     wuseToken.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.useToken.Tooltip" ) );
-    fduseToken = new FormData();
+    FormData fduseToken = new FormData();
     fduseToken.left = new FormAttachment( middle, 0 );
     fduseToken.top = new FormAttachment( wValidating, margin );
-    wuseToken.setLayoutData( fduseToken );
+    wuseToken.setLayoutData(fduseToken);
 
     // Ignore Empty File
-    wlIgnoreEmptyFile = new Label( wXmlConf, SWT.RIGHT );
+    // ignore empty files flag
+    Label wlIgnoreEmptyFile = new Label(wXmlConf, SWT.RIGHT);
     wlIgnoreEmptyFile.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.IgnoreEmptyFile.Label" ) );
-    props.setLook( wlIgnoreEmptyFile );
-    fdlIgnoreEmptyFile = new FormData();
+    props.setLook(wlIgnoreEmptyFile);
+    FormData fdlIgnoreEmptyFile = new FormData();
     fdlIgnoreEmptyFile.left = new FormAttachment( 0, 0 );
     fdlIgnoreEmptyFile.top = new FormAttachment( wuseToken, margin );
     fdlIgnoreEmptyFile.right = new FormAttachment( middle, -margin );
-    wlIgnoreEmptyFile.setLayoutData( fdlIgnoreEmptyFile );
-    wIgnoreEmptyFile = new Button( wXmlConf, SWT.CHECK );
+    wlIgnoreEmptyFile.setLayoutData(fdlIgnoreEmptyFile);
+    wIgnoreEmptyFile = new Button(wXmlConf, SWT.CHECK );
     props.setLook( wIgnoreEmptyFile );
     wIgnoreEmptyFile.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.IgnoreEmptyFile.Tooltip" ) );
-    fdIgnoreEmptyFile = new FormData();
+    FormData fdIgnoreEmptyFile = new FormData();
     fdIgnoreEmptyFile.left = new FormAttachment( middle, 0 );
     fdIgnoreEmptyFile.top = new FormAttachment( wuseToken, margin );
-    wIgnoreEmptyFile.setLayoutData( fdIgnoreEmptyFile );
+    wIgnoreEmptyFile.setLayoutData(fdIgnoreEmptyFile);
 
     // do not fail if no files?
-    wldoNotFailIfNoFile = new Label( wXmlConf, SWT.RIGHT );
+    // do not fail if no files?
+    Label wldoNotFailIfNoFile = new Label(wXmlConf, SWT.RIGHT);
     wldoNotFailIfNoFile.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.doNotFailIfNoFile.Label" ) );
-    props.setLook( wldoNotFailIfNoFile );
-    fdldoNotFailIfNoFile = new FormData();
+    props.setLook(wldoNotFailIfNoFile);
+    FormData fdldoNotFailIfNoFile = new FormData();
     fdldoNotFailIfNoFile.left = new FormAttachment( 0, 0 );
     fdldoNotFailIfNoFile.top = new FormAttachment( wIgnoreEmptyFile, margin );
     fdldoNotFailIfNoFile.right = new FormAttachment( middle, -margin );
-    wldoNotFailIfNoFile.setLayoutData( fdldoNotFailIfNoFile );
-    wdoNotFailIfNoFile = new Button( wXmlConf, SWT.CHECK );
+    wldoNotFailIfNoFile.setLayoutData(fdldoNotFailIfNoFile);
+    wdoNotFailIfNoFile = new Button(wXmlConf, SWT.CHECK );
     props.setLook( wdoNotFailIfNoFile );
     wdoNotFailIfNoFile.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.doNotFailIfNoFile.Tooltip" ) );
-    fddoNotFailIfNoFile = new FormData();
+    FormData fddoNotFailIfNoFile = new FormData();
     fddoNotFailIfNoFile.left = new FormAttachment( middle, 0 );
     fddoNotFailIfNoFile.top = new FormAttachment( wIgnoreEmptyFile, margin );
-    wdoNotFailIfNoFile.setLayoutData( fddoNotFailIfNoFile );
+    wdoNotFailIfNoFile.setLayoutData(fddoNotFailIfNoFile);
 
-    wlLimit = new Label( wXmlConf, SWT.RIGHT );
+    wlLimit = new Label(wXmlConf, SWT.RIGHT );
     wlLimit.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.Limit.Label" ) );
     props.setLook( wlLimit );
-    fdlLimit = new FormData();
+    FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment( 0, 0 );
     fdlLimit.top = new FormAttachment( wdoNotFailIfNoFile, margin );
     fdlLimit.right = new FormAttachment( middle, -margin );
-    wlLimit.setLayoutData( fdlLimit );
-    wLimit = new Text( wXmlConf, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wlLimit.setLayoutData(fdlLimit);
+    wLimit = new Text(wXmlConf, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
-    fdLimit = new FormData();
+    FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment( middle, 0 );
     fdLimit.top = new FormAttachment( wdoNotFailIfNoFile, margin );
     fdLimit.right = new FormAttachment( 100, 0 );
-    wLimit.setLayoutData( fdLimit );
+    wLimit.setLayoutData(fdLimit);
 
     // Prune path to handle large files (streaming mode)
-    wlPrunePath = new Label( wXmlConf, SWT.RIGHT );
+    wlPrunePath = new Label(wXmlConf, SWT.RIGHT );
     wlPrunePath.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.StreamingMode.Label" ) );
     props.setLook( wlPrunePath );
-    fdlPrunePath = new FormData();
+    FormData fdlPrunePath = new FormData();
     fdlPrunePath.left = new FormAttachment( 0, 0 );
     fdlPrunePath.top = new FormAttachment( wLimit, margin );
     fdlPrunePath.right = new FormAttachment( middle, -margin );
-    wlPrunePath.setLayoutData( fdlPrunePath );
+    wlPrunePath.setLayoutData(fdlPrunePath);
     wPrunePath = new TextVar( pipelineMeta, wXmlConf, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wPrunePath.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.StreamingMode.Tooltip" ) );
     props.setLook( wPrunePath );
     wPrunePath.addModifyListener( lsMod );
-    fdPrunePath = new FormData();
+    FormData fdPrunePath = new FormData();
     fdPrunePath.left = new FormAttachment( middle, 0 );
     fdPrunePath.top = new FormAttachment( wLimit, margin );
     fdPrunePath.right = new FormAttachment( 100, 0 );
-    wPrunePath.setLayoutData( fdPrunePath );
+    wPrunePath.setLayoutData(fdPrunePath);
 
-    fdXmlConf = new FormData();
+    FormData fdXmlConf = new FormData();
     fdXmlConf.left = new FormAttachment( 0, margin );
     fdXmlConf.top = new FormAttachment( 0, margin );
     fdXmlConf.right = new FormAttachment( 100, -margin );
-    wXmlConf.setLayoutData( fdXmlConf );
+    wXmlConf.setLayoutData(fdXmlConf);
 
     // ///////////////////////////////////////////////////////////
     // / END OF XmlConf Field GROUP
@@ -825,8 +758,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     // START OF Additional Fields GROUP //
     // ///////////////////////////////
 
-    wAdditionalFields = new Group( wContentComp, SWT.SHADOW_NONE );
-    props.setLook( wAdditionalFields );
+    Group wAdditionalFields = new Group(wContentComp, SWT.SHADOW_NONE);
+    props.setLook(wAdditionalFields);
     wAdditionalFields.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.wAdditionalFields.Label" ) );
 
     FormLayout AdditionalFieldsgroupLayout = new FormLayout();
@@ -834,75 +767,75 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     AdditionalFieldsgroupLayout.marginHeight = 10;
     wAdditionalFields.setLayout( AdditionalFieldsgroupLayout );
 
-    wlInclFilename = new Label( wAdditionalFields, SWT.RIGHT );
+    wlInclFilename = new Label(wAdditionalFields, SWT.RIGHT );
     wlInclFilename.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.InclFilename.Label" ) );
     props.setLook( wlInclFilename );
-    fdlInclFilename = new FormData();
+    FormData fdlInclFilename = new FormData();
     fdlInclFilename.left = new FormAttachment( 0, 0 );
-    fdlInclFilename.top = new FormAttachment( wXmlConf, 4 * margin );
+    fdlInclFilename.top = new FormAttachment(wXmlConf, 4 * margin );
     fdlInclFilename.right = new FormAttachment( middle, -margin );
-    wlInclFilename.setLayoutData( fdlInclFilename );
-    wInclFilename = new Button( wAdditionalFields, SWT.CHECK );
+    wlInclFilename.setLayoutData(fdlInclFilename);
+    wInclFilename = new Button(wAdditionalFields, SWT.CHECK );
     props.setLook( wInclFilename );
     wInclFilename.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.InclFilename.Tooltip" ) );
-    fdInclFilename = new FormData();
+    FormData fdInclFilename = new FormData();
     fdInclFilename.left = new FormAttachment( middle, 0 );
-    fdInclFilename.top = new FormAttachment( wXmlConf, 4 * margin );
-    wInclFilename.setLayoutData( fdInclFilename );
+    fdInclFilename.top = new FormAttachment(wXmlConf, 4 * margin );
+    wInclFilename.setLayoutData(fdInclFilename);
 
-    wlInclFilenameField = new Label( wAdditionalFields, SWT.LEFT );
+    wlInclFilenameField = new Label(wAdditionalFields, SWT.LEFT );
     wlInclFilenameField.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.InclFilenameField.Label" ) );
     props.setLook( wlInclFilenameField );
-    fdlInclFilenameField = new FormData();
+    FormData fdlInclFilenameField = new FormData();
     fdlInclFilenameField.left = new FormAttachment( wInclFilename, margin );
     fdlInclFilenameField.top = new FormAttachment( wLimit, 4 * margin );
-    wlInclFilenameField.setLayoutData( fdlInclFilenameField );
+    wlInclFilenameField.setLayoutData(fdlInclFilenameField);
     wInclFilenameField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclFilenameField );
     wInclFilenameField.addModifyListener( lsMod );
-    fdInclFilenameField = new FormData();
+    FormData fdInclFilenameField = new FormData();
     fdInclFilenameField.left = new FormAttachment( wlInclFilenameField, margin );
     fdInclFilenameField.top = new FormAttachment( wLimit, 4 * margin );
     fdInclFilenameField.right = new FormAttachment( 100, 0 );
-    wInclFilenameField.setLayoutData( fdInclFilenameField );
+    wInclFilenameField.setLayoutData(fdInclFilenameField);
 
-    wlInclRownum = new Label( wAdditionalFields, SWT.RIGHT );
+    Label wlInclRownum = new Label(wAdditionalFields, SWT.RIGHT);
     wlInclRownum.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.InclRownum.Label" ) );
-    props.setLook( wlInclRownum );
-    fdlInclRownum = new FormData();
+    props.setLook(wlInclRownum);
+    FormData fdlInclRownum = new FormData();
     fdlInclRownum.left = new FormAttachment( 0, 0 );
     fdlInclRownum.top = new FormAttachment( wInclFilenameField, margin );
     fdlInclRownum.right = new FormAttachment( middle, -margin );
-    wlInclRownum.setLayoutData( fdlInclRownum );
-    wInclRownum = new Button( wAdditionalFields, SWT.CHECK );
+    wlInclRownum.setLayoutData(fdlInclRownum);
+    wInclRownum = new Button(wAdditionalFields, SWT.CHECK );
     props.setLook( wInclRownum );
     wInclRownum.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.InclRownum.Tooltip" ) );
-    fdRownum = new FormData();
+    FormData fdRownum = new FormData();
     fdRownum.left = new FormAttachment( middle, 0 );
     fdRownum.top = new FormAttachment( wInclFilenameField, margin );
-    wInclRownum.setLayoutData( fdRownum );
+    wInclRownum.setLayoutData(fdRownum);
 
-    wlInclRownumField = new Label( wAdditionalFields, SWT.RIGHT );
+    wlInclRownumField = new Label(wAdditionalFields, SWT.RIGHT );
     wlInclRownumField.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.InclRownumField.Label" ) );
     props.setLook( wlInclRownumField );
-    fdlInclRownumField = new FormData();
+    FormData fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment( wInclRownum, margin );
     fdlInclRownumField.top = new FormAttachment( wInclFilenameField, margin );
-    wlInclRownumField.setLayoutData( fdlInclRownumField );
+    wlInclRownumField.setLayoutData(fdlInclRownumField);
     wInclRownumField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclRownumField );
     wInclRownumField.addModifyListener( lsMod );
-    fdInclRownumField = new FormData();
+    FormData fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment( wlInclRownumField, margin );
     fdInclRownumField.top = new FormAttachment( wInclFilenameField, margin );
     fdInclRownumField.right = new FormAttachment( 100, 0 );
-    wInclRownumField.setLayoutData( fdInclRownumField );
+    wInclRownumField.setLayoutData(fdInclRownumField);
 
-    fdAdditionalFields = new FormData();
+    FormData fdAdditionalFields = new FormData();
     fdAdditionalFields.left = new FormAttachment( 0, margin );
-    fdAdditionalFields.top = new FormAttachment( wXmlConf, margin );
+    fdAdditionalFields.top = new FormAttachment(wXmlConf, margin );
     fdAdditionalFields.right = new FormAttachment( 100, -margin );
-    wAdditionalFields.setLayoutData( fdAdditionalFields );
+    wAdditionalFields.setLayoutData(fdAdditionalFields);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Additional Fields GROUP
@@ -912,8 +845,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     // START OF AddFileResult GROUP //
     // ///////////////////////////////
 
-    wAddFileResult = new Group( wContentComp, SWT.SHADOW_NONE );
-    props.setLook( wAddFileResult );
+    Group wAddFileResult = new Group(wContentComp, SWT.SHADOW_NONE);
+    props.setLook(wAddFileResult);
     wAddFileResult.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.wAddFileResult.Label" ) );
 
     FormLayout AddFileResultgroupLayout = new FormLayout();
@@ -921,41 +854,41 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     AddFileResultgroupLayout.marginHeight = 10;
     wAddFileResult.setLayout( AddFileResultgroupLayout );
 
-    wlAddResult = new Label( wAddFileResult, SWT.RIGHT );
+    wlAddResult = new Label(wAddFileResult, SWT.RIGHT );
     wlAddResult.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.AddResult.Label" ) );
     props.setLook( wlAddResult );
-    fdlAddResult = new FormData();
+    FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment( 0, 0 );
-    fdlAddResult.top = new FormAttachment( wAdditionalFields, margin );
+    fdlAddResult.top = new FormAttachment(wAdditionalFields, margin );
     fdlAddResult.right = new FormAttachment( middle, -margin );
-    wlAddResult.setLayoutData( fdlAddResult );
-    wAddResult = new Button( wAddFileResult, SWT.CHECK );
+    wlAddResult.setLayoutData(fdlAddResult);
+    wAddResult = new Button(wAddFileResult, SWT.CHECK );
     props.setLook( wAddResult );
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "GetXMLDataDialog.AddResult.Tooltip" ) );
-    fdAddResult = new FormData();
+    FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wAdditionalFields, margin );
-    wAddResult.setLayoutData( fdAddResult );
+    fdAddResult.top = new FormAttachment(wAdditionalFields, margin );
+    wAddResult.setLayoutData(fdAddResult);
 
-    fdAddFileResult = new FormData();
+    FormData fdAddFileResult = new FormData();
     fdAddFileResult.left = new FormAttachment( 0, margin );
-    fdAddFileResult.top = new FormAttachment( wAdditionalFields, margin );
+    fdAddFileResult.top = new FormAttachment(wAdditionalFields, margin );
     fdAddFileResult.right = new FormAttachment( 100, -margin );
-    wAddFileResult.setLayoutData( fdAddFileResult );
+    wAddFileResult.setLayoutData(fdAddFileResult);
 
     // ///////////////////////////////////////////////////////////
     // / END OF AddFileResult GROUP
     // ///////////////////////////////////////////////////////////
 
-    fdContentComp = new FormData();
+    FormData fdContentComp = new FormData();
     fdContentComp.left = new FormAttachment( 0, 0 );
     fdContentComp.top = new FormAttachment( 0, 0 );
     fdContentComp.right = new FormAttachment( 100, 0 );
     fdContentComp.bottom = new FormAttachment( 100, 0 );
-    wContentComp.setLayoutData( fdContentComp );
+    wContentComp.setLayoutData(fdContentComp);
 
     wContentComp.layout();
-    wContentTab.setControl( wContentComp );
+    wContentTab.setControl(wContentComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF CONTENT TAB
@@ -963,18 +896,18 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
 
     // Fields tab...
     //
-    wFieldsTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.Fields.Tab" ) );
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = Const.FORM_MARGIN;
     fieldsLayout.marginHeight = Const.FORM_MARGIN;
 
-    wFieldsComp = new Composite( wTabFolder, SWT.NONE );
+    Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE);
     wFieldsComp.setLayout( fieldsLayout );
-    props.setLook( wFieldsComp );
+    props.setLook(wFieldsComp);
 
-    wGet = new Button( wFieldsComp, SWT.PUSH );
+    wGet = new Button(wFieldsComp, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.GetFields.Button" ) );
     fdGet = new FormData();
     fdGet.left = new FormAttachment( 50, 0 );
@@ -1022,31 +955,31 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
 
     wFields = new TableView( pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( 0, 0 );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wGet, -margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
-    fdFieldsComp = new FormData();
+    FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment( 0, 0 );
     fdFieldsComp.top = new FormAttachment( 0, 0 );
     fdFieldsComp.right = new FormAttachment( 100, 0 );
     fdFieldsComp.bottom = new FormAttachment( 100, 0 );
-    wFieldsComp.setLayoutData( fdFieldsComp );
+    wFieldsComp.setLayoutData(fdFieldsComp);
 
     wFieldsComp.layout();
-    wFieldsTab.setControl( wFieldsComp );
+    wFieldsTab.setControl(wFieldsComp);
 
     addAdditionalFieldsTab();
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
@@ -1241,8 +1174,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         String[] fieldNames = r.getFieldNames();
         if ( fieldNames != null ) {
 
-          for ( int i = 0; i < fieldNames.length; i++ ) {
-            wXMLField.add( fieldNames[i] );
+          for (String fieldName : fieldNames) {
+            wXMLField.add(fieldName);
           }
         }
       }
@@ -1250,8 +1183,9 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
       if ( !Const.isOSX() ) { // see PDI-8871 for details
         shell.setFocus();
       }
-      wXMLField.add( EMPTY_FIELDS );
-      wXMLField.setText( EMPTY_FIELDS );
+      String EMPTY_FIELDS = "<EMPTY>";
+      wXMLField.add(EMPTY_FIELDS);
+      wXMLField.setText(EMPTY_FIELDS);
       new ErrorDialog( shell, BaseMessages.getString( PKG, "GetXMLDataDialog.FailedToGetFields.DialogTitle" ),
           BaseMessages.getString( PKG, "GetXMLDataDialog.FailedToGetFields.DialogMessage" ), ke );
     }
@@ -1489,10 +1423,9 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
       gotEncodings = true;
 
       wEncoding.removeAll();
-      ArrayList<Charset> values = new ArrayList<Charset>( Charset.availableCharsets().values() );
-      for ( int i = 0; i < values.size(); i++ ) {
-        Charset charSet = values.get( i );
-        wEncoding.add( charSet.displayName() );
+      ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
+      for (Charset charSet : values) {
+        wEncoding.add(charSet.displayName());
       }
 
       // Now select the default!
@@ -1824,178 +1757,178 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     // ////////////////////////
     // START OF ADDITIONAL FIELDS TAB ///
     // ////////////////////////
-    wAdditionalFieldsTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wAdditionalFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wAdditionalFieldsTab.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.AdditionalFieldsTab.TabTitle" ) );
 
-    wAdditionalFieldsComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wAdditionalFieldsComp );
+    Composite wAdditionalFieldsComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wAdditionalFieldsComp);
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = 3;
     fieldsLayout.marginHeight = 3;
     wAdditionalFieldsComp.setLayout( fieldsLayout );
     // ShortFileFieldName line
-    wlShortFileFieldName = new Label( wAdditionalFieldsComp, SWT.RIGHT );
+    wlShortFileFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT );
     wlShortFileFieldName.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.ShortFileFieldName.Label" ) );
     props.setLook( wlShortFileFieldName );
-    fdlShortFileFieldName = new FormData();
+    FormData fdlShortFileFieldName = new FormData();
     fdlShortFileFieldName.left = new FormAttachment( 0, 0 );
     fdlShortFileFieldName.top = new FormAttachment( wInclRownumField, margin );
     fdlShortFileFieldName.right = new FormAttachment( middle, -margin );
-    wlShortFileFieldName.setLayoutData( fdlShortFileFieldName );
+    wlShortFileFieldName.setLayoutData(fdlShortFileFieldName);
 
     wShortFileFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wShortFileFieldName );
     wShortFileFieldName.addModifyListener( lsMod );
-    fdShortFileFieldName = new FormData();
+    FormData fdShortFileFieldName = new FormData();
     fdShortFileFieldName.left = new FormAttachment( middle, 0 );
     fdShortFileFieldName.right = new FormAttachment( 100, -margin );
     fdShortFileFieldName.top = new FormAttachment( wInclRownumField, margin );
-    wShortFileFieldName.setLayoutData( fdShortFileFieldName );
+    wShortFileFieldName.setLayoutData(fdShortFileFieldName);
 
     // ExtensionFieldName line
-    wlExtensionFieldName = new Label( wAdditionalFieldsComp, SWT.RIGHT );
+    wlExtensionFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT );
     wlExtensionFieldName.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.ExtensionFieldName.Label" ) );
     props.setLook( wlExtensionFieldName );
-    fdlExtensionFieldName = new FormData();
+    FormData fdlExtensionFieldName = new FormData();
     fdlExtensionFieldName.left = new FormAttachment( 0, 0 );
     fdlExtensionFieldName.top = new FormAttachment( wShortFileFieldName, margin );
     fdlExtensionFieldName.right = new FormAttachment( middle, -margin );
-    wlExtensionFieldName.setLayoutData( fdlExtensionFieldName );
+    wlExtensionFieldName.setLayoutData(fdlExtensionFieldName);
 
     wExtensionFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExtensionFieldName );
     wExtensionFieldName.addModifyListener( lsMod );
-    fdExtensionFieldName = new FormData();
+    FormData fdExtensionFieldName = new FormData();
     fdExtensionFieldName.left = new FormAttachment( middle, 0 );
     fdExtensionFieldName.right = new FormAttachment( 100, -margin );
     fdExtensionFieldName.top = new FormAttachment( wShortFileFieldName, margin );
-    wExtensionFieldName.setLayoutData( fdExtensionFieldName );
+    wExtensionFieldName.setLayoutData(fdExtensionFieldName);
 
     // PathFieldName line
-    wlPathFieldName = new Label( wAdditionalFieldsComp, SWT.RIGHT );
+    wlPathFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT );
     wlPathFieldName.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.PathFieldName.Label" ) );
     props.setLook( wlPathFieldName );
-    fdlPathFieldName = new FormData();
+    FormData fdlPathFieldName = new FormData();
     fdlPathFieldName.left = new FormAttachment( 0, 0 );
     fdlPathFieldName.top = new FormAttachment( wExtensionFieldName, margin );
     fdlPathFieldName.right = new FormAttachment( middle, -margin );
-    wlPathFieldName.setLayoutData( fdlPathFieldName );
+    wlPathFieldName.setLayoutData(fdlPathFieldName);
 
     wPathFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPathFieldName );
     wPathFieldName.addModifyListener( lsMod );
-    fdPathFieldName = new FormData();
+    FormData fdPathFieldName = new FormData();
     fdPathFieldName.left = new FormAttachment( middle, 0 );
     fdPathFieldName.right = new FormAttachment( 100, -margin );
     fdPathFieldName.top = new FormAttachment( wExtensionFieldName, margin );
-    wPathFieldName.setLayoutData( fdPathFieldName );
+    wPathFieldName.setLayoutData(fdPathFieldName);
 
     // SizeFieldName line
-    wlSizeFieldName = new Label( wAdditionalFieldsComp, SWT.RIGHT );
+    wlSizeFieldName = new Label(wAdditionalFieldsComp, SWT.RIGHT );
     wlSizeFieldName.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.SizeFieldName.Label" ) );
     props.setLook( wlSizeFieldName );
-    fdlSizeFieldName = new FormData();
+    FormData fdlSizeFieldName = new FormData();
     fdlSizeFieldName.left = new FormAttachment( 0, 0 );
     fdlSizeFieldName.top = new FormAttachment( wPathFieldName, margin );
     fdlSizeFieldName.right = new FormAttachment( middle, -margin );
-    wlSizeFieldName.setLayoutData( fdlSizeFieldName );
+    wlSizeFieldName.setLayoutData(fdlSizeFieldName);
 
     wSizeFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSizeFieldName );
     wSizeFieldName.addModifyListener( lsMod );
-    fdSizeFieldName = new FormData();
+    FormData fdSizeFieldName = new FormData();
     fdSizeFieldName.left = new FormAttachment( middle, 0 );
     fdSizeFieldName.right = new FormAttachment( 100, -margin );
     fdSizeFieldName.top = new FormAttachment( wPathFieldName, margin );
-    wSizeFieldName.setLayoutData( fdSizeFieldName );
+    wSizeFieldName.setLayoutData(fdSizeFieldName);
 
     // IsHiddenName line
-    wlIsHiddenName = new Label( wAdditionalFieldsComp, SWT.RIGHT );
+    wlIsHiddenName = new Label(wAdditionalFieldsComp, SWT.RIGHT );
     wlIsHiddenName.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.IsHiddenName.Label" ) );
     props.setLook( wlIsHiddenName );
-    fdlIsHiddenName = new FormData();
+    FormData fdlIsHiddenName = new FormData();
     fdlIsHiddenName.left = new FormAttachment( 0, 0 );
     fdlIsHiddenName.top = new FormAttachment( wSizeFieldName, margin );
     fdlIsHiddenName.right = new FormAttachment( middle, -margin );
-    wlIsHiddenName.setLayoutData( fdlIsHiddenName );
+    wlIsHiddenName.setLayoutData(fdlIsHiddenName);
 
     wIsHiddenName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIsHiddenName );
     wIsHiddenName.addModifyListener( lsMod );
-    fdIsHiddenName = new FormData();
+    FormData fdIsHiddenName = new FormData();
     fdIsHiddenName.left = new FormAttachment( middle, 0 );
     fdIsHiddenName.right = new FormAttachment( 100, -margin );
     fdIsHiddenName.top = new FormAttachment( wSizeFieldName, margin );
-    wIsHiddenName.setLayoutData( fdIsHiddenName );
+    wIsHiddenName.setLayoutData(fdIsHiddenName);
 
     // LastModificationTimeName line
-    wlLastModificationTimeName = new Label( wAdditionalFieldsComp, SWT.RIGHT );
+    wlLastModificationTimeName = new Label(wAdditionalFieldsComp, SWT.RIGHT );
     wlLastModificationTimeName
         .setText( BaseMessages.getString( PKG, "GetXMLDataDialog.LastModificationTimeName.Label" ) );
     props.setLook( wlLastModificationTimeName );
-    fdlLastModificationTimeName = new FormData();
+    FormData fdlLastModificationTimeName = new FormData();
     fdlLastModificationTimeName.left = new FormAttachment( 0, 0 );
     fdlLastModificationTimeName.top = new FormAttachment( wIsHiddenName, margin );
     fdlLastModificationTimeName.right = new FormAttachment( middle, -margin );
-    wlLastModificationTimeName.setLayoutData( fdlLastModificationTimeName );
+    wlLastModificationTimeName.setLayoutData(fdlLastModificationTimeName);
 
     wLastModificationTimeName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLastModificationTimeName );
     wLastModificationTimeName.addModifyListener( lsMod );
-    fdLastModificationTimeName = new FormData();
+    FormData fdLastModificationTimeName = new FormData();
     fdLastModificationTimeName.left = new FormAttachment( middle, 0 );
     fdLastModificationTimeName.right = new FormAttachment( 100, -margin );
     fdLastModificationTimeName.top = new FormAttachment( wIsHiddenName, margin );
-    wLastModificationTimeName.setLayoutData( fdLastModificationTimeName );
+    wLastModificationTimeName.setLayoutData(fdLastModificationTimeName);
 
     // UriName line
-    wlUriName = new Label( wAdditionalFieldsComp, SWT.RIGHT );
+    wlUriName = new Label(wAdditionalFieldsComp, SWT.RIGHT );
     wlUriName.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.UriName.Label" ) );
     props.setLook( wlUriName );
-    fdlUriName = new FormData();
+    FormData fdlUriName = new FormData();
     fdlUriName.left = new FormAttachment( 0, 0 );
     fdlUriName.top = new FormAttachment( wLastModificationTimeName, margin );
     fdlUriName.right = new FormAttachment( middle, -margin );
-    wlUriName.setLayoutData( fdlUriName );
+    wlUriName.setLayoutData(fdlUriName);
 
     wUriName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUriName );
     wUriName.addModifyListener( lsMod );
-    fdUriName = new FormData();
+    FormData fdUriName = new FormData();
     fdUriName.left = new FormAttachment( middle, 0 );
     fdUriName.right = new FormAttachment( 100, -margin );
     fdUriName.top = new FormAttachment( wLastModificationTimeName, margin );
-    wUriName.setLayoutData( fdUriName );
+    wUriName.setLayoutData(fdUriName);
 
     // RootUriName line
-    wlRootUriName = new Label( wAdditionalFieldsComp, SWT.RIGHT );
+    wlRootUriName = new Label(wAdditionalFieldsComp, SWT.RIGHT );
     wlRootUriName.setText( BaseMessages.getString( PKG, "GetXMLDataDialog.RootUriName.Label" ) );
     props.setLook( wlRootUriName );
-    fdlRootUriName = new FormData();
+    FormData fdlRootUriName = new FormData();
     fdlRootUriName.left = new FormAttachment( 0, 0 );
     fdlRootUriName.top = new FormAttachment( wUriName, margin );
     fdlRootUriName.right = new FormAttachment( middle, -margin );
-    wlRootUriName.setLayoutData( fdlRootUriName );
+    wlRootUriName.setLayoutData(fdlRootUriName);
 
     wRootUriName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRootUriName );
     wRootUriName.addModifyListener( lsMod );
-    fdRootUriName = new FormData();
+    FormData fdRootUriName = new FormData();
     fdRootUriName.left = new FormAttachment( middle, 0 );
     fdRootUriName.right = new FormAttachment( 100, -margin );
     fdRootUriName.top = new FormAttachment( wUriName, margin );
-    wRootUriName.setLayoutData( fdRootUriName );
+    wRootUriName.setLayoutData(fdRootUriName);
 
-    fdAdditionalFieldsComp = new FormData();
+    FormData fdAdditionalFieldsComp = new FormData();
     fdAdditionalFieldsComp.left = new FormAttachment( 0, 0 );
     fdAdditionalFieldsComp.top = new FormAttachment( wTransformName, margin );
     fdAdditionalFieldsComp.right = new FormAttachment( 100, 0 );
     fdAdditionalFieldsComp.bottom = new FormAttachment( 100, 0 );
-    wAdditionalFieldsComp.setLayoutData( fdAdditionalFieldsComp );
+    wAdditionalFieldsComp.setLayoutData(fdAdditionalFieldsComp);
 
     wAdditionalFieldsComp.layout();
-    wAdditionalFieldsTab.setControl( wAdditionalFieldsComp );
+    wAdditionalFieldsTab.setControl(wAdditionalFieldsComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF ADDITIONAL FIELDS TAB
@@ -2057,15 +1990,13 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
           wFields.clearAll( false );
         }
         int nr = fields.length;
-        for ( int i = 0; i < nr; i++ ) {
-          RowMetaAndData row = fields[i];
-
-          TableItem item = new TableItem( wFields.table, SWT.NONE );
-          item.setText( 1, row.getString( 0, "" ) );
-          item.setText( 2, row.getString( 1, GetXmlDataField.ElementTypeDesc[0] ) );
-          item.setText( 3, row.getString( 2, "" ) );
-          item.setText( 4, row.getString( 3, "" ) );
-          item.setText( 5, row.getString( 4, "" ) );
+        for (RowMetaAndData row : fields) {
+          TableItem item = new TableItem(wFields.table, SWT.NONE);
+          item.setText(1, row.getString(0, ""));
+          item.setText(2, row.getString(1, GetXmlDataField.ElementTypeDesc[0]));
+          item.setText(3, row.getString(2, ""));
+          item.setText(4, row.getString(3, ""));
+          item.setText(5, row.getString(4, ""));
         }
         wFields.removeEmptyRows();
         wFields.setRowNums();
