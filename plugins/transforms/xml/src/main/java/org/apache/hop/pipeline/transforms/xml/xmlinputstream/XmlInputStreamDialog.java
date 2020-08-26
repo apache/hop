@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.*;
 //TODO correct sizing of window
 
 public class XmlInputStreamDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = XmlInputStreamMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlInputStreamMeta.class; // for i18n purposes, needed by Translator2!!
 
   // for tabs later on:
   // private CTabFolder wTabFolder;
@@ -125,7 +125,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
   private Button wIncludeXmlDataValue;
   private Text wXmlDataValueField;
 
-  private XmlInputStreamMeta inputMeta;
+  private final XmlInputStreamMeta inputMeta;
 
   private boolean isReceivingInput;
 

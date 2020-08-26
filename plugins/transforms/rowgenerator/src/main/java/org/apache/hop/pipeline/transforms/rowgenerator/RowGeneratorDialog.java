@@ -50,12 +50,11 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class RowGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlLimit;
   private TextVar wLimit;
 
-  private Label wlNeverEnding;
   private Button wNeverEnding;
 
   private Label wlInterval;
@@ -67,10 +66,9 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
   private Label wlLastTimeField;
   private TextVar wLastTimeField;
 
-  private Label wlFields;
   private TableView wFields;
 
-  private RowGeneratorMeta input;
+  private final RowGeneratorMeta input;
 
   public RowGeneratorDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -136,9 +134,9 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     wLimit.setLayoutData( fdLimit );
     lastControl = wLimit;
 
-    wlNeverEnding = new Label( shell, SWT.RIGHT );
+    Label wlNeverEnding = new Label(shell, SWT.RIGHT);
     wlNeverEnding.setText( BaseMessages.getString( PKG, "RowGeneratorDialog.NeverEnding.Label" ) );
-    props.setLook( wlNeverEnding );
+    props.setLook(wlNeverEnding);
     FormData fdlNeverEnding = new FormData();
     fdlNeverEnding.left = new FormAttachment( 0, 0 );
     fdlNeverEnding.right = new FormAttachment( middle, -margin );
@@ -155,7 +153,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     } );
     FormData fdNeverEnding = new FormData();
     fdNeverEnding.left = new FormAttachment( middle, 0 );
-    fdNeverEnding.top = new FormAttachment( wlNeverEnding, 0, SWT.CENTER );
+    fdNeverEnding.top = new FormAttachment(wlNeverEnding, 0, SWT.CENTER );
     fdNeverEnding.right = new FormAttachment( 100, 0 );
     wNeverEnding.setLayoutData( fdNeverEnding );
     lastControl = wlNeverEnding;
@@ -226,9 +224,9 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
 
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "RowGeneratorDialog.Fields.Label" ) );
-    props.setLook( wlFields );
+    props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( lastControl, margin );

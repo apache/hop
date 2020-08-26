@@ -34,14 +34,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.swt.widgets.*;
 
 import javax.mail.Folder;
 import javax.mail.MessagingException;
@@ -53,19 +46,16 @@ import javax.mail.MessagingException;
  * @since 12-08-2009
  */
 public class SelectFolderDialog extends Dialog {
-  private static Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
 
-  private PropsUi props;
+  private final PropsUi props;
   private Shell shell;
 
   private Tree wTree;
   private TreeItem tiTree;
-  private Button wOk;
-  private Button wRefresh;
-  private Button wCancel;
   private String selection;
-  private Folder folder;
-  private GuiResource guiresource = GuiResource.getInstance();
+  private final Folder folder;
+  private final GuiResource guiresource = GuiResource.getInstance();
 
   public SelectFolderDialog( Shell parent, int style, Folder folder ) {
     super( parent, style );
@@ -96,13 +86,13 @@ public class SelectFolderDialog extends Dialog {
     }
 
     // Buttons
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
-    wRefresh = new Button( shell, SWT.PUSH );
+    Button wRefresh = new Button(shell, SWT.PUSH);
     wRefresh.setText( BaseMessages.getString( PKG, "System.Button.Refresh" ) );
 
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     FormData fdTree = new FormData();
@@ -112,7 +102,7 @@ public class SelectFolderDialog extends Dialog {
     fdTree.bottom = new FormAttachment( 100, -50 );
     wTree.setLayoutData( fdTree );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wRefresh, wCancel }, Const.MARGIN, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wRefresh, wCancel}, Const.MARGIN, null );
 
     // Add listeners
     wCancel.addListener( SWT.Selection, e -> dispose() );
@@ -158,13 +148,13 @@ public class SelectFolderDialog extends Dialog {
   private void buildFoldersTree( Folder folder, TreeItem parentTreeItem, boolean topfolder ) throws MessagingException {
     if ( ( folder.getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
       Folder[] f = folder.list();
-      for ( int i = 0; i < f.length; i++ ) {
-        tiTree = topfolder ? new TreeItem( wTree, SWT.NONE ) : new TreeItem( parentTreeItem, SWT.NONE );
-        tiTree.setImage( guiresource.getImageBol() );
-        tiTree.setText( f[ i ].getName() );
+      for (Folder value : f) {
+        tiTree = topfolder ? new TreeItem(wTree, SWT.NONE) : new TreeItem(parentTreeItem, SWT.NONE);
+        tiTree.setImage(guiresource.getImageBol());
+        tiTree.setText(value.getName());
         // Search for sub folders
-        if ( ( f[ i ].getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
-          buildFoldersTree( f[ i ], tiTree, false );
+        if ((value.getType() & Folder.HOLDS_FOLDERS) != 0) {
+          buildFoldersTree(value, tiTree, false);
         }
       }
     }

@@ -35,23 +35,11 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 /**
  * This dialog allows you to edit the Create Folder action settings.
@@ -60,28 +48,16 @@ import org.eclipse.swt.widgets.Text;
  * @since 17-10-2007
  */
 public class ActionCreateFolderDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionCreateFolder.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionCreateFolder.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlName;
   private Text wName;
-  private FormData fdlName, fdName;
 
-  private Label wlFoldername;
-  private Button wbFoldername;
   private TextVar wFoldername;
-  private FormData fdlFoldername, fdbFoldername, fdFoldername;
 
-  private Label wlAbortExists;
   private Button wAbortExists;
-  private FormData fdlAbortExists, fdAbortExists;
-
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private ActionCreateFolder action;
   private Shell shell;
-
-  private SelectionAdapter lsDef;
 
   private boolean changed;
 
@@ -115,99 +91,99 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     int margin = Const.MARGIN;
 
     // Foldername line
-    wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText( BaseMessages.getString( PKG, "JobCreateFolder.Name.Label" ) );
-    props.setLook( wlName );
-    fdlName = new FormData();
+    props.setLook(wlName);
+    FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, -margin );
     fdlName.top = new FormAttachment( 0, margin );
-    wlName.setLayoutData( fdlName );
+    wlName.setLayoutData(fdlName);
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.left = new FormAttachment( middle, 0 );
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    wName.setLayoutData(fdName);
 
     // Foldername line
-    wlFoldername = new Label( shell, SWT.RIGHT );
+    Label wlFoldername = new Label(shell, SWT.RIGHT);
     wlFoldername.setText( BaseMessages.getString( PKG, "JobCreateFolder.Foldername.Label" ) );
-    props.setLook( wlFoldername );
-    fdlFoldername = new FormData();
+    props.setLook(wlFoldername);
+    FormData fdlFoldername = new FormData();
     fdlFoldername.left = new FormAttachment( 0, 0 );
     fdlFoldername.top = new FormAttachment( wName, margin );
     fdlFoldername.right = new FormAttachment( middle, -margin );
-    wlFoldername.setLayoutData( fdlFoldername );
+    wlFoldername.setLayoutData(fdlFoldername);
 
-    wbFoldername = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbFoldername );
+    Button wbFoldername = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbFoldername);
     wbFoldername.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbFoldername = new FormData();
+    FormData fdbFoldername = new FormData();
     fdbFoldername.right = new FormAttachment( 100, 0 );
     fdbFoldername.top = new FormAttachment( wName, 0 );
-    wbFoldername.setLayoutData( fdbFoldername );
+    wbFoldername.setLayoutData(fdbFoldername);
 
     wFoldername = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFoldername );
     wFoldername.addModifyListener( lsMod );
-    fdFoldername = new FormData();
+    FormData fdFoldername = new FormData();
     fdFoldername.left = new FormAttachment( middle, 0 );
     fdFoldername.top = new FormAttachment( wName, margin );
-    fdFoldername.right = new FormAttachment( wbFoldername, -margin );
-    wFoldername.setLayoutData( fdFoldername );
+    fdFoldername.right = new FormAttachment(wbFoldername, -margin );
+    wFoldername.setLayoutData(fdFoldername);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wFoldername.addModifyListener( e -> wFoldername.setToolTipText( workflowMeta.environmentSubstitute( wFoldername.getText() ) ) );
 
     wbFoldername.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFoldername, workflowMeta ) );
 
-    wlAbortExists = new Label( shell, SWT.RIGHT );
+    Label wlAbortExists = new Label(shell, SWT.RIGHT);
     wlAbortExists.setText( BaseMessages.getString( PKG, "JobCreateFolder.FailIfExists.Label" ) );
-    props.setLook( wlAbortExists );
-    fdlAbortExists = new FormData();
+    props.setLook(wlAbortExists);
+    FormData fdlAbortExists = new FormData();
     fdlAbortExists.left = new FormAttachment( 0, 0 );
     fdlAbortExists.top = new FormAttachment( wFoldername, margin );
     fdlAbortExists.right = new FormAttachment( middle, -margin );
-    wlAbortExists.setLayoutData( fdlAbortExists );
+    wlAbortExists.setLayoutData(fdlAbortExists);
     wAbortExists = new Button( shell, SWT.CHECK );
     props.setLook( wAbortExists );
     wAbortExists.setToolTipText( BaseMessages.getString( PKG, "JobCreateFolder.FailIfExists.Tooltip" ) );
-    fdAbortExists = new FormData();
+    FormData fdAbortExists = new FormData();
     fdAbortExists.left = new FormAttachment( middle, 0 );
     fdAbortExists.top = new FormAttachment( wFoldername, margin );
     fdAbortExists.right = new FormAttachment( 100, 0 );
-    wAbortExists.setLayoutData( fdAbortExists );
+    wAbortExists.setLayoutData(fdAbortExists);
     wAbortExists.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         action.setChanged();
       }
     } );
 
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wAbortExists );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, wAbortExists );
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
+    Listener lsCancel = e -> cancel();
+    Listener lsOk = e -> ok();
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
+    wCancel.addListener( SWT.Selection, lsCancel);
+    wOk.addListener( SWT.Selection, lsOk);
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wName.addSelectionListener( lsDef );
-    wFoldername.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
+    wFoldername.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

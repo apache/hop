@@ -48,43 +48,23 @@ import java.util.ArrayList;
 public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ChangeFileEncodingDialog.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlFileName;
   private CCombo wFileName;
-  private FormData fdlFileName, fdfileName;
 
-  private Label wlTargetFileName;
   private CCombo wTargetFileName;
-  private FormData fdlTargetFileName, fdTargetFileName;
 
-  private Label wlTargetEncoding;
   private ComboVar wTargetEncoding;
-  private FormData fdlTargetEncoding, fdTargetEncoding;
 
-  private Label wlSourceEncoding;
   private ComboVar wSourceEncoding;
-  private FormData fdlSourceEncoding, fdSourceEncoding;
 
   private Button wSourceAddResult;
-  private FormData fdSourceAddResult, fdlSourceAddResult;
-  private Label wlSourceAddResult;
 
   private Button wTargetAddResult;
-  private FormData fdTargetAddResult, fdlTargetAddResult;
-  private Label wlTargetAddResult;
 
   private Button wCreateParentFolder;
-  private FormData fdCreateParentFolder, fdlCreateParentFolder;
-  private Label wlCreateParentFolder;
 
-  private ChangeFileEncodingMeta input;
+  private final ChangeFileEncodingMeta input;
 
   private boolean gotPreviousFields = false;
-
-  private Group wSourceFileGroup;
-  private FormData fdSourceFileGroup;
-
-  private Group wTargetFileGroup;
-  private FormData fdTargetFileGroup;
 
   public ChangeFileEncodingDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -137,8 +117,8 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     // START OF SourceFile GROUP
     // /////////////////////////////////
 
-    wSourceFileGroup = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wSourceFileGroup );
+    Group wSourceFileGroup = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wSourceFileGroup);
     wSourceFileGroup.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.Group.SourceFileGroup.Label" ) );
 
     FormLayout SourceFilegroupLayout = new FormLayout();
@@ -147,24 +127,24 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     wSourceFileGroup.setLayout( SourceFilegroupLayout );
 
     // filename field
-    wlFileName = new Label( wSourceFileGroup, SWT.RIGHT );
+    Label wlFileName = new Label(wSourceFileGroup, SWT.RIGHT);
     wlFileName.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.FileName.Label" ) );
-    props.setLook( wlFileName );
-    fdlFileName = new FormData();
+    props.setLook(wlFileName);
+    FormData fdlFileName = new FormData();
     fdlFileName.left = new FormAttachment( 0, 0 );
     fdlFileName.right = new FormAttachment( middle, -margin );
     fdlFileName.top = new FormAttachment( wTransformName, margin );
-    wlFileName.setLayoutData( fdlFileName );
+    wlFileName.setLayoutData(fdlFileName);
 
-    wFileName = new CCombo( wSourceFileGroup, SWT.BORDER | SWT.READ_ONLY );
+    wFileName = new CCombo(wSourceFileGroup, SWT.BORDER | SWT.READ_ONLY );
     wFileName.setEditable( true );
     props.setLook( wFileName );
     wFileName.addModifyListener( lsMod );
-    fdfileName = new FormData();
+    FormData fdfileName = new FormData();
     fdfileName.left = new FormAttachment( middle, 0 );
     fdfileName.top = new FormAttachment( wTransformName, margin );
     fdfileName.right = new FormAttachment( 100, -margin );
-    wFileName.setLayoutData( fdfileName );
+    wFileName.setLayoutData(fdfileName);
     wFileName.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -174,23 +154,23 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
       }
     } );
 
-    wlSourceEncoding = new Label( wSourceFileGroup, SWT.RIGHT );
+    Label wlSourceEncoding = new Label(wSourceFileGroup, SWT.RIGHT);
     wlSourceEncoding.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.SourceEncoding.Label" ) );
-    props.setLook( wlSourceEncoding );
-    fdlSourceEncoding = new FormData();
+    props.setLook(wlSourceEncoding);
+    FormData fdlSourceEncoding = new FormData();
     fdlSourceEncoding.left = new FormAttachment( 0, 0 );
     fdlSourceEncoding.top = new FormAttachment( wFileName, margin );
     fdlSourceEncoding.right = new FormAttachment( middle, -margin );
-    wlSourceEncoding.setLayoutData( fdlSourceEncoding );
+    wlSourceEncoding.setLayoutData(fdlSourceEncoding);
     wSourceEncoding = new ComboVar( pipelineMeta, wSourceFileGroup, SWT.BORDER | SWT.READ_ONLY );
     wSourceEncoding.setEditable( true );
     props.setLook( wSourceEncoding );
     wSourceEncoding.addModifyListener( lsMod );
-    fdSourceEncoding = new FormData();
+    FormData fdSourceEncoding = new FormData();
     fdSourceEncoding.left = new FormAttachment( middle, 0 );
     fdSourceEncoding.top = new FormAttachment( wFileName, margin );
     fdSourceEncoding.right = new FormAttachment( 100, 0 );
-    wSourceEncoding.setLayoutData( fdSourceEncoding );
+    wSourceEncoding.setLayoutData(fdSourceEncoding);
     wSourceEncoding.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -201,29 +181,29 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     } );
 
     // Add filename to result filenames?
-    wlSourceAddResult = new Label( wSourceFileGroup, SWT.RIGHT );
+    Label wlSourceAddResult = new Label(wSourceFileGroup, SWT.RIGHT);
     wlSourceAddResult.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.AddSourceResult.Label" ) );
-    props.setLook( wlSourceAddResult );
-    fdlSourceAddResult = new FormData();
+    props.setLook(wlSourceAddResult);
+    FormData fdlSourceAddResult = new FormData();
     fdlSourceAddResult.left = new FormAttachment( 0, 0 );
     fdlSourceAddResult.top = new FormAttachment( wSourceEncoding, margin );
     fdlSourceAddResult.right = new FormAttachment( middle, -margin );
-    wlSourceAddResult.setLayoutData( fdlSourceAddResult );
-    wSourceAddResult = new Button( wSourceFileGroup, SWT.CHECK );
+    wlSourceAddResult.setLayoutData(fdlSourceAddResult);
+    wSourceAddResult = new Button(wSourceFileGroup, SWT.CHECK );
     props.setLook( wSourceAddResult );
     wSourceAddResult
       .setToolTipText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.AddSourceResult.Tooltip" ) );
-    fdSourceAddResult = new FormData();
+    FormData fdSourceAddResult = new FormData();
     fdSourceAddResult.left = new FormAttachment( middle, 0 );
     fdSourceAddResult.top = new FormAttachment( wSourceEncoding, margin );
-    wSourceAddResult.setLayoutData( fdSourceAddResult );
+    wSourceAddResult.setLayoutData(fdSourceAddResult);
     wSourceAddResult.addSelectionListener( new ComponentSelectionListener( input ) );
 
-    fdSourceFileGroup = new FormData();
+    FormData fdSourceFileGroup = new FormData();
     fdSourceFileGroup.left = new FormAttachment( 0, margin );
     fdSourceFileGroup.top = new FormAttachment( wTransformName, margin );
     fdSourceFileGroup.right = new FormAttachment( 100, -margin );
-    wSourceFileGroup.setLayoutData( fdSourceFileGroup );
+    wSourceFileGroup.setLayoutData(fdSourceFileGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF SourceFile GROUP
@@ -233,8 +213,8 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     // START OF TargetFile GROUP
     // /////////////////////////////////
 
-    wTargetFileGroup = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wTargetFileGroup );
+    Group wTargetFileGroup = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wTargetFileGroup);
     wTargetFileGroup.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.Group.TargetFileGroup.Label" ) );
 
     FormLayout TargetFilegroupLayout = new FormLayout();
@@ -243,24 +223,24 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     wTargetFileGroup.setLayout( TargetFilegroupLayout );
 
     // TargetFileName field
-    wlTargetFileName = new Label( wTargetFileGroup, SWT.RIGHT );
+    Label wlTargetFileName = new Label(wTargetFileGroup, SWT.RIGHT);
     wlTargetFileName.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.TargetFileName.Label" ) );
-    props.setLook( wlTargetFileName );
-    fdlTargetFileName = new FormData();
+    props.setLook(wlTargetFileName);
+    FormData fdlTargetFileName = new FormData();
     fdlTargetFileName.left = new FormAttachment( 0, 0 );
     fdlTargetFileName.right = new FormAttachment( middle, -margin );
     fdlTargetFileName.top = new FormAttachment( wSourceEncoding, margin );
-    wlTargetFileName.setLayoutData( fdlTargetFileName );
+    wlTargetFileName.setLayoutData(fdlTargetFileName);
 
-    wTargetFileName = new CCombo( wTargetFileGroup, SWT.BORDER | SWT.READ_ONLY );
+    wTargetFileName = new CCombo(wTargetFileGroup, SWT.BORDER | SWT.READ_ONLY );
     wTargetFileName.setEditable( true );
     props.setLook( wTargetFileName );
     wTargetFileName.addModifyListener( lsMod );
-    fdTargetFileName = new FormData();
+    FormData fdTargetFileName = new FormData();
     fdTargetFileName.left = new FormAttachment( middle, 0 );
     fdTargetFileName.top = new FormAttachment( wSourceEncoding, margin );
     fdTargetFileName.right = new FormAttachment( 100, -margin );
-    wTargetFileName.setLayoutData( fdTargetFileName );
+    wTargetFileName.setLayoutData(fdTargetFileName);
     wTargetFileName.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -271,41 +251,41 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     } );
 
     // Create parent folder
-    wlCreateParentFolder = new Label( wTargetFileGroup, SWT.RIGHT );
+    Label wlCreateParentFolder = new Label(wTargetFileGroup, SWT.RIGHT);
     wlCreateParentFolder.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.CreateParentFolder.Label" ) );
-    props.setLook( wlCreateParentFolder );
-    fdlCreateParentFolder = new FormData();
+    props.setLook(wlCreateParentFolder);
+    FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment( 0, 0 );
     fdlCreateParentFolder.top = new FormAttachment( wTargetFileName, margin );
     fdlCreateParentFolder.right = new FormAttachment( middle, -margin );
-    wlCreateParentFolder.setLayoutData( fdlCreateParentFolder );
-    wCreateParentFolder = new Button( wTargetFileGroup, SWT.CHECK );
+    wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
+    wCreateParentFolder = new Button(wTargetFileGroup, SWT.CHECK );
     props.setLook( wCreateParentFolder );
     wCreateParentFolder
       .setToolTipText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.CreateParentFolder.Tooltip" ) );
-    fdCreateParentFolder = new FormData();
+    FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
     fdCreateParentFolder.top = new FormAttachment( wTargetFileName, margin );
-    wCreateParentFolder.setLayoutData( fdCreateParentFolder );
+    wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener( new ComponentSelectionListener( input ) );
 
-    wlTargetEncoding = new Label( wTargetFileGroup, SWT.RIGHT );
+    Label wlTargetEncoding = new Label(wTargetFileGroup, SWT.RIGHT);
     wlTargetEncoding.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.TargetEncoding.Label" ) );
-    props.setLook( wlTargetEncoding );
-    fdlTargetEncoding = new FormData();
+    props.setLook(wlTargetEncoding);
+    FormData fdlTargetEncoding = new FormData();
     fdlTargetEncoding.left = new FormAttachment( 0, 0 );
     fdlTargetEncoding.top = new FormAttachment( wCreateParentFolder, margin );
     fdlTargetEncoding.right = new FormAttachment( middle, -margin );
-    wlTargetEncoding.setLayoutData( fdlTargetEncoding );
+    wlTargetEncoding.setLayoutData(fdlTargetEncoding);
     wTargetEncoding = new ComboVar( pipelineMeta, wTargetFileGroup, SWT.BORDER | SWT.READ_ONLY );
     wTargetEncoding.setEditable( true );
     props.setLook( wTargetEncoding );
     wTargetEncoding.addModifyListener( lsMod );
-    fdTargetEncoding = new FormData();
+    FormData fdTargetEncoding = new FormData();
     fdTargetEncoding.left = new FormAttachment( middle, 0 );
     fdTargetEncoding.top = new FormAttachment( wCreateParentFolder, margin );
     fdTargetEncoding.right = new FormAttachment( 100, 0 );
-    wTargetEncoding.setLayoutData( fdTargetEncoding );
+    wTargetEncoding.setLayoutData(fdTargetEncoding);
     wTargetEncoding.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -315,29 +295,29 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
       }
     } );
     // Add filename to result filenames?
-    wlTargetAddResult = new Label( wTargetFileGroup, SWT.RIGHT );
+    Label wlTargetAddResult = new Label(wTargetFileGroup, SWT.RIGHT);
     wlTargetAddResult.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.AddTargetResult.Label" ) );
-    props.setLook( wlTargetAddResult );
-    fdlTargetAddResult = new FormData();
+    props.setLook(wlTargetAddResult);
+    FormData fdlTargetAddResult = new FormData();
     fdlTargetAddResult.left = new FormAttachment( 0, 0 );
     fdlTargetAddResult.top = new FormAttachment( wTargetEncoding, margin );
     fdlTargetAddResult.right = new FormAttachment( middle, -margin );
-    wlTargetAddResult.setLayoutData( fdlTargetAddResult );
-    wTargetAddResult = new Button( wTargetFileGroup, SWT.CHECK );
+    wlTargetAddResult.setLayoutData(fdlTargetAddResult);
+    wTargetAddResult = new Button(wTargetFileGroup, SWT.CHECK );
     props.setLook( wTargetAddResult );
     wTargetAddResult
       .setToolTipText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.AddTargetResult.Tooltip" ) );
-    fdTargetAddResult = new FormData();
+    FormData fdTargetAddResult = new FormData();
     fdTargetAddResult.left = new FormAttachment( middle, 0 );
     fdTargetAddResult.top = new FormAttachment( wTargetEncoding, margin );
-    wTargetAddResult.setLayoutData( fdTargetAddResult );
+    wTargetAddResult.setLayoutData(fdTargetAddResult);
     wTargetAddResult.addSelectionListener( new ComponentSelectionListener( input ) );
 
-    fdTargetFileGroup = new FormData();
+    FormData fdTargetFileGroup = new FormData();
     fdTargetFileGroup.left = new FormAttachment( 0, margin );
-    fdTargetFileGroup.top = new FormAttachment( wSourceFileGroup, margin );
+    fdTargetFileGroup.top = new FormAttachment(wSourceFileGroup, margin );
     fdTargetFileGroup.right = new FormAttachment( 100, -margin );
-    wTargetFileGroup.setLayoutData( fdTargetFileGroup );
+    wTargetFileGroup.setLayoutData(fdTargetFileGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF TargetFile GROUP
@@ -350,7 +330,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
     setButtonPositions( new Button[] {
-      wOk, wCancel }, margin, wTargetFileGroup );
+      wOk, wCancel }, margin, wTargetFileGroup);
 
     // Add listeners
     lsOk = e -> ok();
@@ -473,10 +453,9 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     // Encoding of the text file:
     String encoding = Const.NVL( var.getText(), Const.getEnvironmentVariable( "file.encoding", "UTF-8" ) );
     var.removeAll();
-    ArrayList<Charset> values = new ArrayList<Charset>( Charset.availableCharsets().values() );
-    for ( int i = 0; i < values.size(); i++ ) {
-      Charset charSet = values.get( i );
-      var.add( charSet.displayName() );
+    ArrayList<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
+    for (Charset charSet : values) {
+      var.add(charSet.displayName());
     }
 
     // Now select the default!

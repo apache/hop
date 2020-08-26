@@ -22,8 +22,11 @@
 
 package org.apache.hop.workflow.actions.ftpdelete;
 
-import java.net.InetAddress;
-
+import com.enterprisedt.net.ftp.FTPClient;
+import com.trilead.ssh2.Connection;
+import com.trilead.ssh2.HTTPProxyData;
+import com.trilead.ssh2.SFTPv3Client;
+import com.trilead.ssh2.SFTPv3FileAttributes;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -45,31 +48,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.*;
 
-import com.enterprisedt.net.ftp.FTPClient;
-import com.trilead.ssh2.Connection;
-import com.trilead.ssh2.HTTPProxyData;
-import com.trilead.ssh2.SFTPv3Client;
-import com.trilead.ssh2.SFTPv3FileAttributes;
+import java.net.InetAddress;
 
 /**
  * This dialog allows you to edit the FTP Delete action settings.
@@ -78,142 +63,63 @@ import com.trilead.ssh2.SFTPv3FileAttributes;
  * @since 27-04-2008
  */
 public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!
 
   private LabelText wName;
 
-  private FormData fdName;
-
   private LabelTextVar wServerName;
-
-  private FormData fdServerName;
 
   private LabelTextVar wUserName;
 
-  private FormData fdUserName;
-
   private LabelTextVar wPassword;
-
-  private FormData fdPassword;
 
   private TextVar wFtpDirectory;
   private Label wlFtpDirectory;
 
-  private FormData fdFtpDirectory;
-  private FormData fdlFtpDirectory;
-
   private LabelTextVar wWildcard;
-
-  private FormData fdWildcard;
-
-  private Label wluseProxy;
 
   private Button wuseProxy;
 
-  private FormData fdluseProxy, fduseProxy;
-
   private LabelTextVar wTimeout;
-
-  private FormData fdTimeout;
-
-  private Label wlActive;
 
   private Button wActive;
 
-  private FormData fdlActive, fdActive;
-
   private Label wlConnectionType;
-  private FormData fdlConnectionType;
   private CCombo wConnectionType;
-  private FormData fdConnectionType;
-
-  private Button wOk, wCancel;
-
-  private Listener lsOk, lsCancel;
 
   private ActionFtpDelete action;
 
   private Shell shell;
 
-  private SelectionAdapter lsDef;
-
-  private Label wlProtocol;
-
   private Combo wProtocol;
-
-  private FormData fdlProtocol, fdProtocol;
 
   private Label wlusePublicKey;
 
   private Button wusePublicKey;
 
-  private FormData fdlusePublicKey, fdusePublicKey;
-
   private boolean changed;
 
-  private Group wServerSettings;
-  private FormData fdServerSettings;
-
-  private CTabFolder wTabFolder;
-  private Composite wGeneralComp, wFilesComp, wSocksProxyComp;
-  private CTabItem wGeneralTab, wFilesTab, wSocksProxyTab;
-  private FormData fdGeneralComp, fdFilesComp;
-  private FormData fdTabFolder;
   private Group wSocksProxy;
   private LabelTextVar wSocksProxyHost, wSocksProxyPort, wSocksProxyUsername, wSocksProxyPassword;
-  private FormData fdSocksProxyComp, fdSocksProxyHost, fdSocksProxyPort, fdSocksProxyUsername, fdSocksProxyPassword;
 
   private LabelTextVar wPort;
 
-  private FormData fdPort;
-
   private LabelTextVar wProxyHost;
-
-  private FormData fdProxyHost;
 
   private LabelTextVar wProxyPort;
 
-  private FormData fdProxyPort;
-
   private LabelTextVar wProxyUsername;
-
-  private FormData fdProxyUsername;
 
   private LabelTextVar wProxyPassword;
 
-  private FormData fdProxyPasswd;
-
-  private Button wTest;
-
-  private FormData fdTest;
-
-  private Listener lsTest;
-
-  private Listener lsCheckFolder;
-
-  private Group wAdvancedSettings;
-  private FormData fdAdvancedSettings;
-
-  private Group wRemoteSettings;
-  private FormData fdRemoteSettings;
-
   private Button wbTestChangeFolderExists;
-  private FormData fdbTestChangeFolderExists;
-
-  private Group wSuccessOn;
-  private FormData fdSuccessOn;
 
   private Label wlNrErrorsLessThan;
   private TextVar wNrErrorsLessThan;
-  private FormData fdlNrErrorsLessThan, fdNrErrorsLessThan;
 
-  private Label wlSuccessCondition;
   private CCombo wSuccessCondition;
-  private FormData fdlSuccessCondition, fdSuccessCondition;
 
   private LabelTextVar wkeyfilePass;
-
-  private FormData fdkeyfilePass;
 
   private Label wlKeyFilename;
 
@@ -221,13 +127,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
   private TextVar wKeyFilename;
 
-  private FormData fdlKeyFilename, fdbKeyFilename, fdKeyFilename;
-
-  private Label wlgetPrevious;
-
   private Button wgetPrevious;
-
-  private FormData fdlgetPrevious, fdgetPrevious;
 
   private FtpsConnection ftpsclient = null;
   private FTPClient ftpclient = null;
@@ -280,24 +180,24 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
       new LabelText( shell, BaseMessages.getString( PKG, "JobFTPDelete.Name.Label" ), BaseMessages.getString(
         PKG, "JobFTPDelete.Name.Tooltip" ) );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.top = new FormAttachment( 0, 0 );
     fdName.left = new FormAttachment( 0, 0 );
     fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    wName.setLayoutData(fdName);
 
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
-    wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText( BaseMessages.getString( PKG, "JobFTPDelete.Tab.General.Label" ) );
 
-    wGeneralComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wGeneralComp );
+    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -307,8 +207,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // ////////////////////////
     // START OF SERVER SETTINGS GROUP///
     // /
-    wServerSettings = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wServerSettings );
+    Group wServerSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wServerSettings);
     wServerSettings.setText( BaseMessages.getString( PKG, "JobFTPDelete.ServerSettings.Group.Label" ) );
 
     FormLayout ServerSettingsgroupLayout = new FormLayout();
@@ -318,26 +218,26 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wServerSettings.setLayout( ServerSettingsgroupLayout );
 
     // Protocol
-    wlProtocol = new Label( wServerSettings, SWT.RIGHT );
+    Label wlProtocol = new Label(wServerSettings, SWT.RIGHT);
     wlProtocol.setText( BaseMessages.getString( PKG, "JobFTPDelete.Protocol.Label" ) );
-    props.setLook( wlProtocol );
-    fdlProtocol = new FormData();
+    props.setLook(wlProtocol);
+    FormData fdlProtocol = new FormData();
     fdlProtocol.left = new FormAttachment( 0, 0 );
     fdlProtocol.top = new FormAttachment( wName, margin );
     fdlProtocol.right = new FormAttachment( middle, 0 );
-    wlProtocol.setLayoutData( fdlProtocol );
-    wProtocol = new Combo( wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wlProtocol.setLayoutData(fdlProtocol);
+    wProtocol = new Combo(wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wProtocol.setToolTipText( BaseMessages.getString( PKG, "JobFTPDelete.Protocol.Tooltip" ) );
     wProtocol.add( ActionFtpDelete.PROTOCOL_FTP );
     wProtocol.add( ActionFtpDelete.PROTOCOL_FTPS );
     wProtocol.add( ActionFtpDelete.PROTOCOL_SFTP );
     wProtocol.add( ActionFtpDelete.PROTOCOL_SSH );
     props.setLook( wProtocol );
-    fdProtocol = new FormData();
+    FormData fdProtocol = new FormData();
     fdProtocol.left = new FormAttachment( middle, margin );
     fdProtocol.top = new FormAttachment( wName, margin );
     fdProtocol.right = new FormAttachment( 100, 0 );
-    wProtocol.setLayoutData( fdProtocol );
+    wProtocol.setLayoutData(fdProtocol);
     wProtocol.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeFtpProtocol();
@@ -352,11 +252,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
-    fdServerName = new FormData();
+    FormData fdServerName = new FormData();
     fdServerName.left = new FormAttachment( 0, 0 );
     fdServerName.top = new FormAttachment( wProtocol, margin );
     fdServerName.right = new FormAttachment( 100, 0 );
-    wServerName.setLayoutData( fdServerName );
+    wServerName.setLayoutData(fdServerName);
 
     // Proxy port line
     wPort =
@@ -365,11 +265,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
-    fdPort = new FormData();
+    FormData fdPort = new FormData();
     fdPort.left = new FormAttachment( 0, 0 );
     fdPort.top = new FormAttachment( wServerName, margin );
     fdPort.right = new FormAttachment( 100, 0 );
-    wPort.setLayoutData( fdPort );
+    wPort.setLayoutData(fdPort);
 
     // UserName line
     wUserName =
@@ -378,11 +278,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.User.Tooltip" ) );
     props.setLook( wUserName );
     wUserName.addModifyListener( lsMod );
-    fdUserName = new FormData();
+    FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment( 0, 0 );
     fdUserName.top = new FormAttachment( wPort, margin );
     fdUserName.right = new FormAttachment( 100, 0 );
-    wUserName.setLayoutData( fdUserName );
+    wUserName.setLayoutData(fdUserName);
 
     // Password line
     wPassword =
@@ -391,47 +291,47 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.Password.Tooltip" ), true );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
-    fdPassword = new FormData();
+    FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment( 0, 0 );
     fdPassword.top = new FormAttachment( wUserName, margin );
     fdPassword.right = new FormAttachment( 100, 0 );
-    wPassword.setLayoutData( fdPassword );
+    wPassword.setLayoutData(fdPassword);
 
-    wlConnectionType = new Label( wServerSettings, SWT.RIGHT );
+    wlConnectionType = new Label(wServerSettings, SWT.RIGHT );
     wlConnectionType.setText( BaseMessages.getString( PKG, "JobFTPDelete.ConnectionType.Label" ) );
     props.setLook( wlConnectionType );
-    fdlConnectionType = new FormData();
+    FormData fdlConnectionType = new FormData();
     fdlConnectionType.left = new FormAttachment( 0, 0 );
     fdlConnectionType.right = new FormAttachment( middle, 0 );
     fdlConnectionType.top = new FormAttachment( wPassword, 2 * margin );
-    wlConnectionType.setLayoutData( fdlConnectionType );
-    wConnectionType = new CCombo( wServerSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wlConnectionType.setLayoutData(fdlConnectionType);
+    wConnectionType = new CCombo(wServerSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wConnectionType.setItems( FtpsConnection.connection_type_Desc );
     props.setLook( wConnectionType );
-    fdConnectionType = new FormData();
+    FormData fdConnectionType = new FormData();
     fdConnectionType.left = new FormAttachment( middle, margin );
     fdConnectionType.top = new FormAttachment( wPassword, 2 * margin );
     fdConnectionType.right = new FormAttachment( 100, 0 );
-    wConnectionType.setLayoutData( fdConnectionType );
+    wConnectionType.setLayoutData(fdConnectionType);
     wConnectionType.addModifyListener( lsMod );
 
     // Use proxy...
-    wluseProxy = new Label( wServerSettings, SWT.RIGHT );
+    Label wluseProxy = new Label(wServerSettings, SWT.RIGHT);
     wluseProxy.setText( BaseMessages.getString( PKG, "JobFTPDelete.useProxy.Label" ) );
-    props.setLook( wluseProxy );
-    fdluseProxy = new FormData();
+    props.setLook(wluseProxy);
+    FormData fdluseProxy = new FormData();
     fdluseProxy.left = new FormAttachment( 0, 0 );
     fdluseProxy.top = new FormAttachment( wConnectionType, margin );
     fdluseProxy.right = new FormAttachment( middle, 0 );
-    wluseProxy.setLayoutData( fdluseProxy );
-    wuseProxy = new Button( wServerSettings, SWT.CHECK );
+    wluseProxy.setLayoutData(fdluseProxy);
+    wuseProxy = new Button(wServerSettings, SWT.CHECK );
     props.setLook( wuseProxy );
     wuseProxy.setToolTipText( BaseMessages.getString( PKG, "JobFTPDelete.useProxy.Tooltip" ) );
-    fduseProxy = new FormData();
+    FormData fduseProxy = new FormData();
     fduseProxy.left = new FormAttachment( middle, margin );
     fduseProxy.top = new FormAttachment( wConnectionType, margin );
     fduseProxy.right = new FormAttachment( 100, 0 );
-    wuseProxy.setLayoutData( fduseProxy );
+    wuseProxy.setLayoutData(fduseProxy);
     wuseProxy.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeProxy();
@@ -446,11 +346,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
     wProxyHost.addModifyListener( lsMod );
-    fdProxyHost = new FormData();
+    FormData fdProxyHost = new FormData();
     fdProxyHost.left = new FormAttachment( 0, 0 );
     fdProxyHost.top = new FormAttachment( wuseProxy, margin );
     fdProxyHost.right = new FormAttachment( 100, 0 );
-    wProxyHost.setLayoutData( fdProxyHost );
+    wProxyHost.setLayoutData(fdProxyHost);
 
     // Proxy port line
     wProxyPort =
@@ -459,11 +359,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
-    fdProxyPort = new FormData();
+    FormData fdProxyPort = new FormData();
     fdProxyPort.left = new FormAttachment( 0, 0 );
     fdProxyPort.top = new FormAttachment( wProxyHost, margin );
     fdProxyPort.right = new FormAttachment( 100, 0 );
-    wProxyPort.setLayoutData( fdProxyPort );
+    wProxyPort.setLayoutData(fdProxyPort);
 
     // Proxy username line
     wProxyUsername =
@@ -472,11 +372,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         BaseMessages.getString( PKG, "JobFTPDelete.ProxyUsername.Tooltip" ) );
     props.setLook( wProxyUsername );
     wProxyUsername.addModifyListener( lsMod );
-    fdProxyUsername = new FormData();
+    FormData fdProxyUsername = new FormData();
     fdProxyUsername.left = new FormAttachment( 0, 0 );
     fdProxyUsername.top = new FormAttachment( wProxyPort, margin );
     fdProxyUsername.right = new FormAttachment( 100, 0 );
-    wProxyUsername.setLayoutData( fdProxyUsername );
+    wProxyUsername.setLayoutData(fdProxyUsername);
 
     // Proxy password line
     wProxyPassword =
@@ -485,29 +385,29 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         BaseMessages.getString( PKG, "JobFTPDelete.ProxyPassword.Tooltip" ), true );
     props.setLook( wProxyPassword );
     wProxyPassword.addModifyListener( lsMod );
-    fdProxyPasswd = new FormData();
+    FormData fdProxyPasswd = new FormData();
     fdProxyPasswd.left = new FormAttachment( 0, 0 );
     fdProxyPasswd.top = new FormAttachment( wProxyUsername, margin );
     fdProxyPasswd.right = new FormAttachment( 100, 0 );
-    wProxyPassword.setLayoutData( fdProxyPasswd );
+    wProxyPassword.setLayoutData(fdProxyPasswd);
 
     // usePublicKey
-    wlusePublicKey = new Label( wServerSettings, SWT.RIGHT );
+    wlusePublicKey = new Label(wServerSettings, SWT.RIGHT );
     wlusePublicKey.setText( BaseMessages.getString( PKG, "JobFTPDelete.usePublicKeyFiles.Label" ) );
     props.setLook( wlusePublicKey );
-    fdlusePublicKey = new FormData();
+    FormData fdlusePublicKey = new FormData();
     fdlusePublicKey.left = new FormAttachment( 0, 0 );
     fdlusePublicKey.top = new FormAttachment( wProxyPassword, margin );
     fdlusePublicKey.right = new FormAttachment( middle, 0 );
-    wlusePublicKey.setLayoutData( fdlusePublicKey );
-    wusePublicKey = new Button( wServerSettings, SWT.CHECK );
+    wlusePublicKey.setLayoutData(fdlusePublicKey);
+    wusePublicKey = new Button(wServerSettings, SWT.CHECK );
     wusePublicKey.setToolTipText( BaseMessages.getString( PKG, "JobFTPDelete.usePublicKeyFiles.Tooltip" ) );
     props.setLook( wusePublicKey );
-    fdusePublicKey = new FormData();
+    FormData fdusePublicKey = new FormData();
     fdusePublicKey.left = new FormAttachment( middle, margin );
     fdusePublicKey.top = new FormAttachment( wProxyPassword, margin );
     fdusePublicKey.right = new FormAttachment( 100, 0 );
-    wusePublicKey.setLayoutData( fdusePublicKey );
+    wusePublicKey.setLayoutData(fdusePublicKey);
     wusePublicKey.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeUsePublicKey();
@@ -516,33 +416,33 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     } );
 
     // Key File
-    wlKeyFilename = new Label( wServerSettings, SWT.RIGHT );
+    wlKeyFilename = new Label(wServerSettings, SWT.RIGHT );
     wlKeyFilename.setText( BaseMessages.getString( PKG, "JobFTPDelete.KeyFilename.Label" ) );
     props.setLook( wlKeyFilename );
-    fdlKeyFilename = new FormData();
+    FormData fdlKeyFilename = new FormData();
     fdlKeyFilename.left = new FormAttachment( 0, 0 );
     fdlKeyFilename.top = new FormAttachment( wusePublicKey, margin );
     fdlKeyFilename.right = new FormAttachment( middle, -margin );
-    wlKeyFilename.setLayoutData( fdlKeyFilename );
+    wlKeyFilename.setLayoutData(fdlKeyFilename);
 
-    wbKeyFilename = new Button( wServerSettings, SWT.PUSH | SWT.CENTER );
+    wbKeyFilename = new Button(wServerSettings, SWT.PUSH | SWT.CENTER );
     props.setLook( wbKeyFilename );
     wbKeyFilename.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbKeyFilename = new FormData();
+    FormData fdbKeyFilename = new FormData();
     fdbKeyFilename.right = new FormAttachment( 100, 0 );
     fdbKeyFilename.top = new FormAttachment( wusePublicKey, 0 );
     // fdbKeyFilename.height = 22;
-    wbKeyFilename.setLayoutData( fdbKeyFilename );
+    wbKeyFilename.setLayoutData(fdbKeyFilename);
 
     wKeyFilename = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wKeyFilename.setToolTipText( BaseMessages.getString( PKG, "JobFTPDelete.KeyFilename.Tooltip" ) );
     props.setLook( wKeyFilename );
     wKeyFilename.addModifyListener( lsMod );
-    fdKeyFilename = new FormData();
+    FormData fdKeyFilename = new FormData();
     fdKeyFilename.left = new FormAttachment( middle, margin );
     fdKeyFilename.top = new FormAttachment( wusePublicKey, margin );
     fdKeyFilename.right = new FormAttachment( wbKeyFilename, -margin );
-    wKeyFilename.setLayoutData( fdKeyFilename );
+    wKeyFilename.setLayoutData(fdKeyFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wKeyFilename.addModifyListener( e -> wKeyFilename.setToolTipText( workflowMeta.environmentSubstitute( wKeyFilename.getText() ) ) );
@@ -558,42 +458,42 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         BaseMessages.getString( PKG, "JobFTPDelete.keyfilePass.Tooltip" ), true );
     props.setLook( wkeyfilePass );
     wkeyfilePass.addModifyListener( lsMod );
-    fdkeyfilePass = new FormData();
+    FormData fdkeyfilePass = new FormData();
     fdkeyfilePass.left = new FormAttachment( 0, 0 );
     fdkeyfilePass.top = new FormAttachment( wKeyFilename, margin );
     fdkeyfilePass.right = new FormAttachment( 100, 0 );
-    wkeyfilePass.setLayoutData( fdkeyfilePass );
+    wkeyfilePass.setLayoutData(fdkeyfilePass);
 
     // Test connection button
-    wTest = new Button( wServerSettings, SWT.PUSH );
+    Button wTest = new Button(wServerSettings, SWT.PUSH);
     wTest.setText( BaseMessages.getString( PKG, "JobFTPDelete.TestConnection.Label" ) );
-    props.setLook( wTest );
-    fdTest = new FormData();
+    props.setLook(wTest);
+    FormData fdTest = new FormData();
     wTest.setToolTipText( BaseMessages.getString( PKG, "JobFTPDelete.TestConnection.Tooltip" ) );
     // fdTest.left = new FormAttachment(middle, 0);
     fdTest.top = new FormAttachment( wkeyfilePass, margin );
     fdTest.right = new FormAttachment( 100, 0 );
-    wTest.setLayoutData( fdTest );
+    wTest.setLayoutData(fdTest);
 
-    fdServerSettings = new FormData();
+    FormData fdServerSettings = new FormData();
     fdServerSettings.left = new FormAttachment( 0, margin );
     fdServerSettings.top = new FormAttachment( wName, margin );
     fdServerSettings.right = new FormAttachment( 100, -margin );
-    wServerSettings.setLayoutData( fdServerSettings );
+    wServerSettings.setLayoutData(fdServerSettings);
     // ///////////////////////////////////////////////////////////
     // / END OF SERVER SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
 
-    fdGeneralComp = new FormData();
+    FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
     fdGeneralComp.top = new FormAttachment( 0, 0 );
     fdGeneralComp.right = new FormAttachment( 100, 0 );
     fdGeneralComp.bottom = new FormAttachment( 100, 0 );
-    wGeneralComp.setLayoutData( fdGeneralComp );
+    wGeneralComp.setLayoutData(fdGeneralComp);
 
     wGeneralComp.layout();
-    wGeneralTab.setControl( wGeneralComp );
-    props.setLook( wGeneralComp );
+    wGeneralTab.setControl(wGeneralComp);
+    props.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -603,11 +503,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // START OF Advanced TAB ///
     // ////////////////////////
 
-    wFilesTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wFilesTab = new CTabItem(wTabFolder, SWT.NONE);
     wFilesTab.setText( BaseMessages.getString( PKG, "JobFTPDelete.Tab.Files.Label" ) );
 
-    wFilesComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wFilesComp );
+    Composite wFilesComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wFilesComp);
 
     FormLayout AdvancedLayout = new FormLayout();
     AdvancedLayout.marginWidth = 3;
@@ -617,8 +517,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // ////////////////////////
     // START OF Advanced SETTINGS GROUP///
     // /
-    wAdvancedSettings = new Group( wFilesComp, SWT.SHADOW_NONE );
-    props.setLook( wAdvancedSettings );
+    Group wAdvancedSettings = new Group(wFilesComp, SWT.SHADOW_NONE);
+    props.setLook(wAdvancedSettings);
     wAdvancedSettings.setText( BaseMessages.getString( PKG, "JobFTPDelete.AdvancedSettings.Group.Label" ) );
 
     FormLayout AdvancedSettingsgroupLayout = new FormLayout();
@@ -634,35 +534,35 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.Timeout.Tooltip" ) );
     props.setLook( wTimeout );
     wTimeout.addModifyListener( lsMod );
-    fdTimeout = new FormData();
+    FormData fdTimeout = new FormData();
     fdTimeout.left = new FormAttachment( 0, 0 );
     fdTimeout.top = new FormAttachment( wActive, margin );
     fdTimeout.right = new FormAttachment( 100, 0 );
-    wTimeout.setLayoutData( fdTimeout );
+    wTimeout.setLayoutData(fdTimeout);
 
     // active connection?
-    wlActive = new Label( wAdvancedSettings, SWT.RIGHT );
+    Label wlActive = new Label(wAdvancedSettings, SWT.RIGHT);
     wlActive.setText( BaseMessages.getString( PKG, "JobFTPDelete.ActiveConns.Label" ) );
-    props.setLook( wlActive );
-    fdlActive = new FormData();
+    props.setLook(wlActive);
+    FormData fdlActive = new FormData();
     fdlActive.left = new FormAttachment( 0, 0 );
     fdlActive.top = new FormAttachment( wTimeout, margin );
     fdlActive.right = new FormAttachment( middle, 0 );
-    wlActive.setLayoutData( fdlActive );
-    wActive = new Button( wAdvancedSettings, SWT.CHECK );
+    wlActive.setLayoutData(fdlActive);
+    wActive = new Button(wAdvancedSettings, SWT.CHECK );
     wActive.setToolTipText( BaseMessages.getString( PKG, "JobFTPDelete.ActiveConns.Tooltip" ) );
     props.setLook( wActive );
-    fdActive = new FormData();
+    FormData fdActive = new FormData();
     fdActive.left = new FormAttachment( middle, margin );
     fdActive.top = new FormAttachment( wTimeout, margin );
     fdActive.right = new FormAttachment( 100, 0 );
-    wActive.setLayoutData( fdActive );
+    wActive.setLayoutData(fdActive);
 
-    fdAdvancedSettings = new FormData();
+    FormData fdAdvancedSettings = new FormData();
     fdAdvancedSettings.left = new FormAttachment( 0, margin );
     fdAdvancedSettings.top = new FormAttachment( 0, margin );
     fdAdvancedSettings.right = new FormAttachment( 100, -margin );
-    wAdvancedSettings.setLayoutData( fdAdvancedSettings );
+    wAdvancedSettings.setLayoutData(fdAdvancedSettings);
     // ///////////////////////////////////////////////////////////
     // / END OF Advanced SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
@@ -670,8 +570,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // ////////////////////////
     // START OF Remote SETTINGS GROUP///
     // /
-    wRemoteSettings = new Group( wFilesComp, SWT.SHADOW_NONE );
-    props.setLook( wRemoteSettings );
+    Group wRemoteSettings = new Group(wFilesComp, SWT.SHADOW_NONE);
+    props.setLook(wRemoteSettings);
     wRemoteSettings.setText( BaseMessages.getString( PKG, "JobFTPDelete.RemoteSettings.Group.Label" ) );
 
     FormLayout RemoteSettinsgroupLayout = new FormLayout();
@@ -681,22 +581,22 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wRemoteSettings.setLayout( RemoteSettinsgroupLayout );
 
     // Get arguments from previous result...
-    wlgetPrevious = new Label( wRemoteSettings, SWT.RIGHT );
+    Label wlgetPrevious = new Label(wRemoteSettings, SWT.RIGHT);
     wlgetPrevious.setText( BaseMessages.getString( PKG, "JobFTPDelete.getPrevious.Label" ) );
-    props.setLook( wlgetPrevious );
-    fdlgetPrevious = new FormData();
+    props.setLook(wlgetPrevious);
+    FormData fdlgetPrevious = new FormData();
     fdlgetPrevious.left = new FormAttachment( 0, 0 );
-    fdlgetPrevious.top = new FormAttachment( wAdvancedSettings, margin );
+    fdlgetPrevious.top = new FormAttachment(wAdvancedSettings, margin );
     fdlgetPrevious.right = new FormAttachment( middle, 0 );
-    wlgetPrevious.setLayoutData( fdlgetPrevious );
-    wgetPrevious = new Button( wRemoteSettings, SWT.CHECK );
+    wlgetPrevious.setLayoutData(fdlgetPrevious);
+    wgetPrevious = new Button(wRemoteSettings, SWT.CHECK );
     props.setLook( wgetPrevious );
     wgetPrevious.setToolTipText( BaseMessages.getString( PKG, "JobFTPDelete.getPrevious.Tooltip" ) );
-    fdgetPrevious = new FormData();
+    FormData fdgetPrevious = new FormData();
     fdgetPrevious.left = new FormAttachment( middle, margin );
-    fdgetPrevious.top = new FormAttachment( wAdvancedSettings, margin );
+    fdgetPrevious.top = new FormAttachment(wAdvancedSettings, margin );
     fdgetPrevious.right = new FormAttachment( 100, 0 );
-    wgetPrevious.setLayoutData( fdgetPrevious );
+    wgetPrevious.setLayoutData(fdgetPrevious);
     wgetPrevious.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeCopyFromPrevious();
@@ -705,34 +605,34 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     } );
 
     // FTP directory
-    wlFtpDirectory = new Label( wRemoteSettings, SWT.RIGHT );
+    wlFtpDirectory = new Label(wRemoteSettings, SWT.RIGHT );
     wlFtpDirectory.setText( BaseMessages.getString( PKG, "JobFTPDelete.RemoteDir.Label" ) );
     props.setLook( wlFtpDirectory );
-    fdlFtpDirectory = new FormData();
+    FormData fdlFtpDirectory = new FormData();
     fdlFtpDirectory.left = new FormAttachment( 0, 0 );
     fdlFtpDirectory.top = new FormAttachment( wgetPrevious, margin );
     fdlFtpDirectory.right = new FormAttachment( middle, 0 );
-    wlFtpDirectory.setLayoutData( fdlFtpDirectory );
+    wlFtpDirectory.setLayoutData(fdlFtpDirectory);
 
     // Test remote folder button ...
-    wbTestChangeFolderExists = new Button( wRemoteSettings, SWT.PUSH | SWT.CENTER );
+    wbTestChangeFolderExists = new Button(wRemoteSettings, SWT.PUSH | SWT.CENTER );
     props.setLook( wbTestChangeFolderExists );
     wbTestChangeFolderExists.setText( BaseMessages.getString( PKG, "JobFTPDelete.TestFolderExists.Label" ) );
-    fdbTestChangeFolderExists = new FormData();
+    FormData fdbTestChangeFolderExists = new FormData();
     fdbTestChangeFolderExists.right = new FormAttachment( 100, 0 );
     fdbTestChangeFolderExists.top = new FormAttachment( wgetPrevious, margin );
-    wbTestChangeFolderExists.setLayoutData( fdbTestChangeFolderExists );
+    wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
 
     wFtpDirectory =
       new TextVar( workflowMeta, wRemoteSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobFTPDelete.RemoteDir.Tooltip" ) );
     props.setLook( wFtpDirectory );
     wFtpDirectory.addModifyListener( lsMod );
-    fdFtpDirectory = new FormData();
+    FormData fdFtpDirectory = new FormData();
     fdFtpDirectory.left = new FormAttachment( middle, margin );
     fdFtpDirectory.top = new FormAttachment( wgetPrevious, margin );
     fdFtpDirectory.right = new FormAttachment( wbTestChangeFolderExists, -margin );
-    wFtpDirectory.setLayoutData( fdFtpDirectory );
+    wFtpDirectory.setLayoutData(fdFtpDirectory);
 
     // Wildcard line
     wWildcard =
@@ -741,17 +641,17 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
-    fdWildcard = new FormData();
+    FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment( 0, 0 );
     fdWildcard.top = new FormAttachment( wFtpDirectory, margin );
     fdWildcard.right = new FormAttachment( 100, 0 );
-    wWildcard.setLayoutData( fdWildcard );
+    wWildcard.setLayoutData(fdWildcard);
 
-    fdRemoteSettings = new FormData();
+    FormData fdRemoteSettings = new FormData();
     fdRemoteSettings.left = new FormAttachment( 0, margin );
-    fdRemoteSettings.top = new FormAttachment( wAdvancedSettings, margin );
+    fdRemoteSettings.top = new FormAttachment(wAdvancedSettings, margin );
     fdRemoteSettings.right = new FormAttachment( 100, -margin );
-    wRemoteSettings.setLayoutData( fdRemoteSettings );
+    wRemoteSettings.setLayoutData(fdRemoteSettings);
     // ///////////////////////////////////////////////////////////
     // / END OF Remote SETTINGSGROUP
     // ///////////////////////////////////////////////////////////
@@ -760,8 +660,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // ////////////////////////
     // START OF SUCCESS ON GROUP///
     // /
-    wSuccessOn = new Group( wFilesComp, SWT.SHADOW_NONE );
-    props.setLook( wSuccessOn );
+    Group wSuccessOn = new Group(wFilesComp, SWT.SHADOW_NONE);
+    props.setLook(wSuccessOn);
     wSuccessOn.setText( BaseMessages.getString( PKG, "JobFTPDelete.SuccessOn.Group.Label" ) );
 
     FormLayout successongroupLayout = new FormLayout();
@@ -771,26 +671,26 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wSuccessOn.setLayout( successongroupLayout );
 
     // Success Condition
-    wlSuccessCondition = new Label( wSuccessOn, SWT.RIGHT );
+    Label wlSuccessCondition = new Label(wSuccessOn, SWT.RIGHT);
     wlSuccessCondition.setText( BaseMessages.getString( PKG, "JobFTPDelete.SuccessCondition.Label" ) + " " );
-    props.setLook( wlSuccessCondition );
-    fdlSuccessCondition = new FormData();
+    props.setLook(wlSuccessCondition);
+    FormData fdlSuccessCondition = new FormData();
     fdlSuccessCondition.left = new FormAttachment( 0, 0 );
     fdlSuccessCondition.right = new FormAttachment( middle, 0 );
-    fdlSuccessCondition.top = new FormAttachment( wRemoteSettings, margin );
-    wlSuccessCondition.setLayoutData( fdlSuccessCondition );
-    wSuccessCondition = new CCombo( wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    fdlSuccessCondition.top = new FormAttachment(wRemoteSettings, margin );
+    wlSuccessCondition.setLayoutData(fdlSuccessCondition);
+    wSuccessCondition = new CCombo(wSuccessOn, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wSuccessCondition.add( BaseMessages.getString( PKG, "JobFTPDelete.SuccessWhenAllWorksFine.Label" ) );
     wSuccessCondition.add( BaseMessages.getString( PKG, "JobFTPDelete.SuccessWhenAtLeat.Label" ) );
     wSuccessCondition.add( BaseMessages.getString( PKG, "JobFTPDelete.SuccessWhenNrErrorsLessThan.Label" ) );
     wSuccessCondition.select( 0 ); // +1: starts at -1
 
     props.setLook( wSuccessCondition );
-    fdSuccessCondition = new FormData();
+    FormData fdSuccessCondition = new FormData();
     fdSuccessCondition.left = new FormAttachment( middle, 0 );
-    fdSuccessCondition.top = new FormAttachment( wRemoteSettings, margin );
+    fdSuccessCondition.top = new FormAttachment(wRemoteSettings, margin );
     fdSuccessCondition.right = new FormAttachment( 100, 0 );
-    wSuccessCondition.setLayoutData( fdSuccessCondition );
+    wSuccessCondition.setLayoutData(fdSuccessCondition);
     wSuccessCondition.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeSuccessCondition();
@@ -799,45 +699,45 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     } );
 
     // Success when number of errors less than
-    wlNrErrorsLessThan = new Label( wSuccessOn, SWT.RIGHT );
+    wlNrErrorsLessThan = new Label(wSuccessOn, SWT.RIGHT );
     wlNrErrorsLessThan.setText( BaseMessages.getString( PKG, "JobFTPDelete.NrBadFormedLessThan.Label" ) + " " );
     props.setLook( wlNrErrorsLessThan );
-    fdlNrErrorsLessThan = new FormData();
+    FormData fdlNrErrorsLessThan = new FormData();
     fdlNrErrorsLessThan.left = new FormAttachment( 0, 0 );
     fdlNrErrorsLessThan.top = new FormAttachment( wSuccessCondition, margin );
     fdlNrErrorsLessThan.right = new FormAttachment( middle, -margin );
-    wlNrErrorsLessThan.setLayoutData( fdlNrErrorsLessThan );
+    wlNrErrorsLessThan.setLayoutData(fdlNrErrorsLessThan);
 
     wNrErrorsLessThan =
       new TextVar( workflowMeta, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobFTPDelete.NrBadFormedLessThan.Tooltip" ) );
     props.setLook( wNrErrorsLessThan );
     wNrErrorsLessThan.addModifyListener( lsMod );
-    fdNrErrorsLessThan = new FormData();
+    FormData fdNrErrorsLessThan = new FormData();
     fdNrErrorsLessThan.left = new FormAttachment( middle, 0 );
     fdNrErrorsLessThan.top = new FormAttachment( wSuccessCondition, margin );
     fdNrErrorsLessThan.right = new FormAttachment( 100, -margin );
-    wNrErrorsLessThan.setLayoutData( fdNrErrorsLessThan );
+    wNrErrorsLessThan.setLayoutData(fdNrErrorsLessThan);
 
-    fdSuccessOn = new FormData();
+    FormData fdSuccessOn = new FormData();
     fdSuccessOn.left = new FormAttachment( 0, margin );
-    fdSuccessOn.top = new FormAttachment( wRemoteSettings, margin );
+    fdSuccessOn.top = new FormAttachment(wRemoteSettings, margin );
     fdSuccessOn.right = new FormAttachment( 100, -margin );
-    wSuccessOn.setLayoutData( fdSuccessOn );
+    wSuccessOn.setLayoutData(fdSuccessOn);
     // ///////////////////////////////////////////////////////////
     // / END OF Success ON GROUP
     // ///////////////////////////////////////////////////////////
 
-    fdFilesComp = new FormData();
+    FormData fdFilesComp = new FormData();
     fdFilesComp.left = new FormAttachment( 0, 0 );
     fdFilesComp.top = new FormAttachment( 0, 0 );
     fdFilesComp.right = new FormAttachment( 100, 0 );
     fdFilesComp.bottom = new FormAttachment( 100, 0 );
-    wFilesComp.setLayoutData( fdFilesComp );
+    wFilesComp.setLayoutData(fdFilesComp);
 
     wFilesComp.layout();
-    wFilesTab.setControl( wFilesComp );
-    props.setLook( wFilesComp );
+    wFilesTab.setControl(wFilesComp);
+    props.setLook(wFilesComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Advanced TAB
@@ -846,11 +746,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // ///////////////////////////////////////////////////////////
     // Start of Socks Proxy Tab
     // ///////////////////////////////////////////////////////////
-    wSocksProxyTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wSocksProxyTab = new CTabItem(wTabFolder, SWT.NONE);
     wSocksProxyTab.setText( BaseMessages.getString( PKG, "JobFTPDelete.Tab.Socks.Label" ) );
 
-    wSocksProxyComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wSocksProxyComp );
+    Composite wSocksProxyComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wSocksProxyComp);
 
     FormLayout SoxProxyLayout = new FormLayout();
     SoxProxyLayout.marginWidth = 3;
@@ -860,7 +760,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // ////////////////////////////////////////////////////////
     // Start of Proxy Group
     // ////////////////////////////////////////////////////////
-    wSocksProxy = new Group( wSocksProxyComp, SWT.SHADOW_NONE );
+    wSocksProxy = new Group(wSocksProxyComp, SWT.SHADOW_NONE );
     props.setLook( wSocksProxy );
     wSocksProxy.setText( BaseMessages.getString( PKG, "JobFTPDelete.SocksProxy.Group.Label" ) );
 
@@ -876,11 +776,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.SocksProxyHost.Tooltip" ) );
     props.setLook( wSocksProxyHost );
     wSocksProxyHost.addModifyListener( lsMod );
-    fdSocksProxyHost = new FormData();
+    FormData fdSocksProxyHost = new FormData();
     fdSocksProxyHost.left = new FormAttachment( 0, 0 );
     fdSocksProxyHost.top = new FormAttachment( wName, margin );
     fdSocksProxyHost.right = new FormAttachment( 100, margin );
-    wSocksProxyHost.setLayoutData( fdSocksProxyHost );
+    wSocksProxyHost.setLayoutData(fdSocksProxyHost);
 
     // port line
     wSocksProxyPort =
@@ -889,11 +789,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         .getString( PKG, "JobFTPDelete.SocksProxyPort.Tooltip" ) );
     props.setLook( wSocksProxyPort );
     wSocksProxyPort.addModifyListener( lsMod );
-    fdSocksProxyPort = new FormData();
+    FormData fdSocksProxyPort = new FormData();
     fdSocksProxyPort.left = new FormAttachment( 0, 0 );
     fdSocksProxyPort.top = new FormAttachment( wSocksProxyHost, margin );
     fdSocksProxyPort.right = new FormAttachment( 100, margin );
-    wSocksProxyPort.setLayoutData( fdSocksProxyPort );
+    wSocksProxyPort.setLayoutData(fdSocksProxyPort);
 
     // username line
     wSocksProxyUsername =
@@ -902,11 +802,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyPassword.Tooltip" ) );
     props.setLook( wSocksProxyUsername );
     wSocksProxyUsername.addModifyListener( lsMod );
-    fdSocksProxyUsername = new FormData();
+    FormData fdSocksProxyUsername = new FormData();
     fdSocksProxyUsername.left = new FormAttachment( 0, 0 );
     fdSocksProxyUsername.top = new FormAttachment( wSocksProxyPort, margin );
     fdSocksProxyUsername.right = new FormAttachment( 100, margin );
-    wSocksProxyUsername.setLayoutData( fdSocksProxyUsername );
+    wSocksProxyUsername.setLayoutData(fdSocksProxyUsername);
 
     // password line
     wSocksProxyPassword =
@@ -915,76 +815,76 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyPassword.Tooltip" ), true );
     props.setLook( wSocksProxyPort );
     wSocksProxyPassword.addModifyListener( lsMod );
-    fdSocksProxyPassword = new FormData();
+    FormData fdSocksProxyPassword = new FormData();
     fdSocksProxyPassword.left = new FormAttachment( 0, 0 );
     fdSocksProxyPassword.top = new FormAttachment( wSocksProxyUsername, margin );
     fdSocksProxyPassword.right = new FormAttachment( 100, margin );
-    wSocksProxyPassword.setLayoutData( fdSocksProxyPassword );
+    wSocksProxyPassword.setLayoutData(fdSocksProxyPassword);
 
     // ///////////////////////////////////////////////////////////////
     // End of socks proxy group
     // ///////////////////////////////////////////////////////////////
 
-    fdSocksProxyComp = new FormData();
+    FormData fdSocksProxyComp = new FormData();
     fdSocksProxyComp.left = new FormAttachment( 0, margin );
     fdSocksProxyComp.top = new FormAttachment( 0, margin );
     fdSocksProxyComp.right = new FormAttachment( 100, -margin );
-    wSocksProxy.setLayoutData( fdSocksProxyComp );
+    wSocksProxy.setLayoutData(fdSocksProxyComp);
 
     wSocksProxyComp.layout();
-    wSocksProxyTab.setControl( wSocksProxyComp );
-    props.setLook( wSocksProxyComp );
+    wSocksProxyTab.setControl(wSocksProxyComp);
+    props.setLook(wSocksProxyComp);
 
     // ////////////////////////////////////////////////////////
     // End of Socks Proxy Tab
     // ////////////////////////////////////////////////////////
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
     fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wTabFolder );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, wTabFolder);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-    lsTest = e -> test();
-    lsCheckFolder = e -> checkFtpFolder();
+    Listener lsCancel = e -> cancel();
+    Listener lsOk = e -> ok();
+    Listener lsTest = e -> test();
+    Listener lsCheckFolder = e -> checkFtpFolder();
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-    wTest.addListener( SWT.Selection, lsTest );
-    wbTestChangeFolderExists.addListener( SWT.Selection, lsCheckFolder );
+    wCancel.addListener( SWT.Selection, lsCancel);
+    wOk.addListener( SWT.Selection, lsOk);
+    wTest.addListener( SWT.Selection, lsTest);
+    wbTestChangeFolderExists.addListener( SWT.Selection, lsCheckFolder);
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wName.addSelectionListener( lsDef );
-    wServerName.addSelectionListener( lsDef );
-    wUserName.addSelectionListener( lsDef );
-    wPassword.addSelectionListener( lsDef );
-    wFtpDirectory.addSelectionListener( lsDef );
-    wFtpDirectory.addSelectionListener( lsDef );
-    wWildcard.addSelectionListener( lsDef );
-    wTimeout.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
+    wServerName.addSelectionListener(lsDef);
+    wUserName.addSelectionListener(lsDef);
+    wPassword.addSelectionListener(lsDef);
+    wFtpDirectory.addSelectionListener(lsDef);
+    wFtpDirectory.addSelectionListener(lsDef);
+    wWildcard.addSelectionListener(lsDef);
+    wTimeout.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

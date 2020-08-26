@@ -25,7 +25,6 @@ package org.apache.hop.pipeline.transforms.checksum;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -51,32 +50,25 @@ import java.util.*;
 public class CheckSumDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = CheckSumDialog.class; // for i18n purposes, needed by Translator!!
 
-  private CheckSumMeta input;
-  private Label wlType;
+  private final CheckSumMeta input;
 
   private CCombo wType;
-  private FormData fdlType, fdType;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
-  private Label wlResult;
   private Text wResult;
-  private FormData fdlResult, fdResult;
 
   private ColumnInfo[] colinf;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private Label wlResultType;
   private CCombo wResultType;
-  private FormData fdlResultType, fdResultType;
 
   public CheckSumDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (CheckSumMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   @Override
@@ -121,25 +113,25 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     wTransformName.setLayoutData( fdTransformName );
 
     // Type
-    wlType = new Label( shell, SWT.RIGHT );
+    Label wlType = new Label(shell, SWT.RIGHT);
     wlType.setText( BaseMessages.getString( PKG, "CheckSumDialog.Type.Label" ) );
-    props.setLook( wlType );
-    fdlType = new FormData();
+    props.setLook(wlType);
+    FormData fdlType = new FormData();
     fdlType.left = new FormAttachment( 0, 0 );
     fdlType.right = new FormAttachment( middle, -margin );
     fdlType.top = new FormAttachment( wTransformName, margin );
-    wlType.setLayoutData( fdlType );
+    wlType.setLayoutData(fdlType);
     wType = new CCombo( shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     for ( int i = 0; i < input.getChecksumtypeDescs().length; i++ ) {
       wType.add( input.getChecksumtypeDescs()[ i ] );
     }
     wType.select( 0 );
     props.setLook( wType );
-    fdType = new FormData();
+    FormData fdType = new FormData();
     fdType.left = new FormAttachment( middle, 0 );
     fdType.top = new FormAttachment( wTransformName, margin );
     fdType.right = new FormAttachment( 100, 0 );
-    wType.setLayoutData( fdType );
+    wType.setLayoutData(fdType);
     wType.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
@@ -152,20 +144,20 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     wlResultType = new Label( shell, SWT.RIGHT );
     wlResultType.setText( BaseMessages.getString( PKG, "CheckSumDialog.ResultType.Label" ) );
     props.setLook( wlResultType );
-    fdlResultType = new FormData();
+    FormData fdlResultType = new FormData();
     fdlResultType.left = new FormAttachment( 0, 0 );
     fdlResultType.right = new FormAttachment( middle, -margin );
     fdlResultType.top = new FormAttachment( wType, 2 * margin );
-    wlResultType.setLayoutData( fdlResultType );
+    wlResultType.setLayoutData(fdlResultType);
     wResultType = new CCombo( shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wResultType.setItems( input.getResultTypeDescs() );
     wResultType.select( 0 );
     props.setLook( wResultType );
-    fdResultType = new FormData();
+    FormData fdResultType = new FormData();
     fdResultType.left = new FormAttachment( middle, 0 );
     fdResultType.top = new FormAttachment( wType, 2 * margin );
     fdResultType.right = new FormAttachment( 100, 0 );
-    wResultType.setLayoutData( fdResultType );
+    wResultType.setLayoutData(fdResultType);
     wResultType.addSelectionListener( new SelectionAdapter() {
 
       @Override
@@ -175,22 +167,22 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     } );
 
     // Result line...
-    wlResult = new Label( shell, SWT.RIGHT );
+    Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText( BaseMessages.getString( PKG, "CheckSumDialog.Result.Label" ) );
-    props.setLook( wlResult );
-    fdlResult = new FormData();
+    props.setLook(wlResult);
+    FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment( 0, 0 );
     fdlResult.right = new FormAttachment( middle, -margin );
     fdlResult.top = new FormAttachment( wResultType, margin * 2 );
-    wlResult.setLayoutData( fdlResult );
+    wlResult.setLayoutData(fdlResult);
     wResult = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
-    fdResult = new FormData();
+    FormData fdResult = new FormData();
     fdResult.left = new FormAttachment( middle, 0 );
     fdResult.top = new FormAttachment( wResultType, margin * 2 );
     fdResult.right = new FormAttachment( 100, 0 );
-    wResult.setLayoutData( fdResult );
+    wResult.setLayoutData(fdResult);
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
@@ -202,13 +194,13 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
     setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     // Table with fields
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "CheckSumDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wResult, margin );
-    wlFields.setLayoutData( fdlFields );
+    wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 1;
     final int FieldsRows = input.getFieldName().length;
@@ -222,12 +214,12 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wOk, -2 * margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     //
     // Search the fields in the background
@@ -240,7 +232,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
 
           setComboBoxes();
@@ -304,7 +296,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

@@ -42,21 +42,15 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class FileLockedDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlFileName;
   private CCombo wFileName;
-  private FormData fdlFileName, fdfileName;
 
-  private Label wlResult;
   private TextVar wResult;
-  private FormData fdlResult, fdResult;
 
   private Button wAddResult;
-  private FormData fdAddResult, fdlAddResult;
-  private Label wlAddResult;
 
-  private FileLockedMeta input;
+  private final FileLockedMeta input;
 
   private boolean gotPreviousFields = false;
 
@@ -107,24 +101,24 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     wTransformName.setLayoutData( fdTransformName );
 
     // filename field
-    wlFileName = new Label( shell, SWT.RIGHT );
+    Label wlFileName = new Label(shell, SWT.RIGHT);
     wlFileName.setText( BaseMessages.getString( PKG, "FileLockedDialog.FileName.Label" ) );
-    props.setLook( wlFileName );
-    fdlFileName = new FormData();
+    props.setLook(wlFileName);
+    FormData fdlFileName = new FormData();
     fdlFileName.left = new FormAttachment( 0, 0 );
     fdlFileName.right = new FormAttachment( middle, -margin );
     fdlFileName.top = new FormAttachment( wTransformName, margin );
-    wlFileName.setLayoutData( fdlFileName );
+    wlFileName.setLayoutData(fdlFileName);
 
     wFileName = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     wFileName.setEditable( true );
     props.setLook( wFileName );
     wFileName.addModifyListener( lsMod );
-    fdfileName = new FormData();
+    FormData fdfileName = new FormData();
     fdfileName.left = new FormAttachment( middle, 0 );
     fdfileName.top = new FormAttachment( wTransformName, margin );
     fdfileName.right = new FormAttachment( 100, -margin );
-    wFileName.setLayoutData( fdfileName );
+    wFileName.setLayoutData(fdfileName);
     wFileName.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -135,41 +129,41 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Result fieldname ...
-    wlResult = new Label( shell, SWT.RIGHT );
+    Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText( BaseMessages.getString( PKG, "FileLockedDialog.ResultField.Label" ) );
-    props.setLook( wlResult );
-    fdlResult = new FormData();
+    props.setLook(wlResult);
+    FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment( 0, 0 );
     fdlResult.right = new FormAttachment( middle, -margin );
     fdlResult.top = new FormAttachment( wFileName, margin * 2 );
-    wlResult.setLayoutData( fdlResult );
+    wlResult.setLayoutData(fdlResult);
 
     wResult = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "FileLockedDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
-    fdResult = new FormData();
+    FormData fdResult = new FormData();
     fdResult.left = new FormAttachment( middle, 0 );
     fdResult.top = new FormAttachment( wFileName, margin * 2 );
     fdResult.right = new FormAttachment( 100, 0 );
-    wResult.setLayoutData( fdResult );
+    wResult.setLayoutData(fdResult);
 
     // Add filename to result filenames?
-    wlAddResult = new Label( shell, SWT.RIGHT );
+    Label wlAddResult = new Label(shell, SWT.RIGHT);
     wlAddResult.setText( BaseMessages.getString( PKG, "FileLockedDialog.AddResult.Label" ) );
-    props.setLook( wlAddResult );
-    fdlAddResult = new FormData();
+    props.setLook(wlAddResult);
+    FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment( 0, 0 );
     fdlAddResult.top = new FormAttachment( wResult, 2 * margin );
     fdlAddResult.right = new FormAttachment( middle, -margin );
-    wlAddResult.setLayoutData( fdlAddResult );
+    wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button( shell, SWT.CHECK );
     props.setLook( wAddResult );
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "FileLockedDialog.AddResult.Tooltip" ) );
-    fdAddResult = new FormData();
+    FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
     fdAddResult.top = new FormAttachment( wResult, 2 * margin );
-    wAddResult.setLayoutData( fdAddResult );
+    wAddResult.setLayoutData(fdAddResult);
 
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );

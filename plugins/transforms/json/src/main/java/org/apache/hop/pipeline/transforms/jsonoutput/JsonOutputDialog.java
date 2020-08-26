@@ -32,8 +32,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.jsonoutput.JsonOutputField;
-import org.apache.hop.pipeline.transforms.jsonoutput.JsonOutputMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -45,135 +43,79 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class JsonOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
-
-  private CTabFolder wTabFolder;
-  private FormData fdTabFolder;
-
-  private CTabItem wGeneralTab, wFieldsTab;
-
-  private FormData fdGeneralComp, fdFieldsComp;
+  private static final Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
   private Label wlEncoding;
   private ComboVar wEncoding;
-  private FormData fdlEncoding, fdEncoding;
 
   private Label wlOutputValue;
   private TextVar wOutputValue;
-  private FormData fdlOutputValue, fdOutputValue;
 
-  private Label wlCompatibilityMode;
   private Button wCompatibilityMode;
-  private FormData fdlCompatibilityMode, fdCompatibilityMode;
 
-  private Label wlBlocName;
   private TextVar wBlocName;
-  private FormData fdlBlocName, fdBlocName;
 
-  private Label wlNrRowsInBloc;
   private TextVar wNrRowsInBloc;
-  private FormData fdlNrRowsInBloc, fdNrRowsInBloc;
 
   private TableView wFields;
-  private FormData fdFields;
 
-  private JsonOutputMeta input;
+  private final JsonOutputMeta input;
 
   private boolean gotEncodings = false;
-  private boolean gotPreviousFields = false;
 
   private ColumnInfo[] colinf;
 
   private Label wlAddToResult;
   private Button wAddToResult;
-  private FormData fdlAddToResult, fdAddToResult;
-
-  private Group wFileName;
-  private FormData fdFileName;
 
   private Label wlFilename;
   private Button wbFilename;
   private TextVar wFilename;
-  private FormData fdlFilename, fdbFilename, fdFilename;
 
   private Label wlExtension;
   private TextVar wExtension;
-  private FormData fdlExtension, fdExtension;
 
   private Label wlServletOutput;
   private Button wServletOutput;
-  private FormData fdlServletOutput, fdServletOutput;
 
   private Label wlCreateParentFolder;
   private Button wCreateParentFolder;
-  private FormData fdlCreateParentFolder, fdCreateParentFolder;
 
   private Label wlDoNotOpenNewFileInit;
   private Button wDoNotOpenNewFileInit;
-  private FormData fdlDoNotOpenNewFileInit, fdDoNotOpenNewFileInit;
 
   private Label wlAddDate;
   private Button wAddDate;
-  private FormData fdlAddDate, fdAddDate;
 
   private Label wlAddTime;
   private Button wAddTime;
-  private FormData fdlAddTime, fdAddTime;
 
   private Button wbShowFiles;
-  private FormData fdbShowFiles;
 
   private Label wlAppend;
   private Button wAppend;
-  private FormData fdlAppend, fdAppend;
 
-  private Label wlOperation;
   private CCombo wOperation;
-  private FormData fdlOperation;
-  private FormData fdOperation;
 
-  private Group wSettings;
-  private FormData fdSettings;
-
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   public JsonOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (JsonOutputMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -216,41 +158,41 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF General TAB///
     // /
-    wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText( BaseMessages.getString( PKG, "JsonOutputDialog.GeneralTab.TabTitle" ) );
 
     FormLayout GeneralLayout = new FormLayout();
     GeneralLayout.marginWidth = 3;
     GeneralLayout.marginHeight = 3;
 
-    Composite wGeneralComp = new Composite( wTabFolder, SWT.NONE );
+    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE );
     props.setLook( wGeneralComp );
     wGeneralComp.setLayout( GeneralLayout );
 
     // Operation
-    wlOperation = new Label( wGeneralComp, SWT.RIGHT );
+    Label wlOperation = new Label(wGeneralComp, SWT.RIGHT);
     wlOperation.setText( BaseMessages.getString( PKG, "JsonOutputDialog.Operation.Label" ) );
-    props.setLook( wlOperation );
-    fdlOperation = new FormData();
+    props.setLook(wlOperation);
+    FormData fdlOperation = new FormData();
     fdlOperation.left = new FormAttachment( 0, 0 );
     fdlOperation.right = new FormAttachment( middle, -margin );
     fdlOperation.top = new FormAttachment( wNrRowsInBloc, margin );
-    wlOperation.setLayoutData( fdlOperation );
+    wlOperation.setLayoutData(fdlOperation);
 
     wOperation = new CCombo( wGeneralComp, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wOperation );
     wOperation.addModifyListener( lsMod );
-    fdOperation = new FormData();
+    FormData fdOperation = new FormData();
     fdOperation.left = new FormAttachment( middle, 0 );
     fdOperation.top = new FormAttachment( wNrRowsInBloc, margin );
     fdOperation.right = new FormAttachment( 100, -margin );
-    wOperation.setLayoutData( fdOperation );
+    wOperation.setLayoutData(fdOperation);
     wOperation.setItems( JsonOutputMeta.operationTypeDesc );
     wOperation.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -264,8 +206,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     // START OF Settings GROUP
     //
 
-    wSettings = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wSettings );
+    Group wSettings = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wSettings);
     wSettings.setText( BaseMessages.getString( PKG, "JsonOutputDialog.Group.Settings.Label" ) );
 
     FormLayout groupFileLayout = new FormLayout();
@@ -273,89 +215,89 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     groupFileLayout.marginHeight = 10;
     wSettings.setLayout( groupFileLayout );
 
-    wlBlocName = new Label( wSettings, SWT.RIGHT );
+    Label wlBlocName = new Label(wSettings, SWT.RIGHT);
     wlBlocName.setText( BaseMessages.getString( PKG, "JsonOutputDialog.BlocName.Label" ) );
-    props.setLook( wlBlocName );
-    fdlBlocName = new FormData();
+    props.setLook(wlBlocName);
+    FormData fdlBlocName = new FormData();
     fdlBlocName.left = new FormAttachment( 0, 0 );
     fdlBlocName.top = new FormAttachment( wOperation, margin );
     fdlBlocName.right = new FormAttachment( middle, -margin );
-    wlBlocName.setLayoutData( fdlBlocName );
+    wlBlocName.setLayoutData(fdlBlocName);
     wBlocName = new TextVar( pipelineMeta, wSettings, SWT.BORDER | SWT.READ_ONLY );
     wBlocName.setEditable( true );
     props.setLook( wBlocName );
     wBlocName.addModifyListener( lsMod );
-    fdBlocName = new FormData();
+    FormData fdBlocName = new FormData();
     fdBlocName.left = new FormAttachment( middle, 0 );
     fdBlocName.top = new FormAttachment( wOperation, margin );
     fdBlocName.right = new FormAttachment( 100, 0 );
-    wBlocName.setLayoutData( fdBlocName );
+    wBlocName.setLayoutData(fdBlocName);
 
-    wlNrRowsInBloc = new Label( wSettings, SWT.RIGHT );
+    Label wlNrRowsInBloc = new Label(wSettings, SWT.RIGHT);
     wlNrRowsInBloc.setText( BaseMessages.getString( PKG, "JsonOutputDialog.NrRowsInBloc.Label" ) );
-    props.setLook( wlNrRowsInBloc );
-    fdlNrRowsInBloc = new FormData();
+    props.setLook(wlNrRowsInBloc);
+    FormData fdlNrRowsInBloc = new FormData();
     fdlNrRowsInBloc.left = new FormAttachment( 0, 0 );
     fdlNrRowsInBloc.top = new FormAttachment( wBlocName, margin );
     fdlNrRowsInBloc.right = new FormAttachment( middle, -margin );
-    wlNrRowsInBloc.setLayoutData( fdlNrRowsInBloc );
+    wlNrRowsInBloc.setLayoutData(fdlNrRowsInBloc);
     wNrRowsInBloc = new TextVar( pipelineMeta, wSettings, SWT.BORDER | SWT.READ_ONLY );
     wNrRowsInBloc.setToolTipText( BaseMessages.getString( PKG, "JsonOutputDialog.NrRowsInBloc.ToolTip" ) );
     wNrRowsInBloc.setEditable( true );
     props.setLook( wNrRowsInBloc );
     wNrRowsInBloc.addModifyListener( lsMod );
-    fdNrRowsInBloc = new FormData();
+    FormData fdNrRowsInBloc = new FormData();
     fdNrRowsInBloc.left = new FormAttachment( middle, 0 );
     fdNrRowsInBloc.top = new FormAttachment( wBlocName, margin );
     fdNrRowsInBloc.right = new FormAttachment( 100, 0 );
-    wNrRowsInBloc.setLayoutData( fdNrRowsInBloc );
+    wNrRowsInBloc.setLayoutData(fdNrRowsInBloc);
 
-    wlOutputValue = new Label( wSettings, SWT.RIGHT );
+    wlOutputValue = new Label(wSettings, SWT.RIGHT );
     wlOutputValue.setText( BaseMessages.getString( PKG, "JsonOutputDialog.OutputValue.Label" ) );
     props.setLook( wlOutputValue );
-    fdlOutputValue = new FormData();
+    FormData fdlOutputValue = new FormData();
     fdlOutputValue.left = new FormAttachment( 0, 0 );
     fdlOutputValue.top = new FormAttachment( wNrRowsInBloc, margin );
     fdlOutputValue.right = new FormAttachment( middle, -margin );
-    wlOutputValue.setLayoutData( fdlOutputValue );
+    wlOutputValue.setLayoutData(fdlOutputValue);
     wOutputValue = new TextVar( pipelineMeta, wSettings, SWT.BORDER | SWT.READ_ONLY );
     wOutputValue.setEditable( true );
     props.setLook( wOutputValue );
     wOutputValue.addModifyListener( lsMod );
-    fdOutputValue = new FormData();
+    FormData fdOutputValue = new FormData();
     fdOutputValue.left = new FormAttachment( middle, 0 );
     fdOutputValue.top = new FormAttachment( wNrRowsInBloc, margin );
     fdOutputValue.right = new FormAttachment( 100, 0 );
-    wOutputValue.setLayoutData( fdOutputValue );
+    wOutputValue.setLayoutData(fdOutputValue);
 
     // ////////////////////////// start of compatibility mode
-    wlCompatibilityMode = new Label( wSettings, SWT.RIGHT );
+    Label wlCompatibilityMode = new Label(wSettings, SWT.RIGHT);
     wlCompatibilityMode.setText( BaseMessages.getString( PKG, "JsonOutputDialog.CompatibilityMode.Label" ) );
-    props.setLook( wlCompatibilityMode );
-    fdlCompatibilityMode = new FormData();
+    props.setLook(wlCompatibilityMode);
+    FormData fdlCompatibilityMode = new FormData();
     fdlCompatibilityMode.left = new FormAttachment( 0, 0 );
     fdlCompatibilityMode.top = new FormAttachment( wOutputValue, margin );
     fdlCompatibilityMode.right = new FormAttachment( middle, -margin );
-    wlCompatibilityMode.setLayoutData( fdlCompatibilityMode );
-    wCompatibilityMode = new Button( wSettings, SWT.CHECK );
+    wlCompatibilityMode.setLayoutData(fdlCompatibilityMode);
+    wCompatibilityMode = new Button(wSettings, SWT.CHECK );
     wCompatibilityMode.setToolTipText( BaseMessages.getString( PKG, "JsonOutputDialog.CompatibilityMode.Tooltip" ) );
     props.setLook( wCompatibilityMode );
-    fdCompatibilityMode = new FormData();
+    FormData fdCompatibilityMode = new FormData();
     fdCompatibilityMode.left = new FormAttachment( middle, 0 );
     fdCompatibilityMode.top = new FormAttachment( wOutputValue, margin );
     fdCompatibilityMode.right = new FormAttachment( 100, 0 );
-    wCompatibilityMode.setLayoutData( fdCompatibilityMode );
+    wCompatibilityMode.setLayoutData(fdCompatibilityMode);
     wCompatibilityMode.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
     } );
 
-    fdSettings = new FormData();
+    FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment( 0, margin );
     fdSettings.top = new FormAttachment( wOperation, 2 * margin );
     fdSettings.right = new FormAttachment( 100, -margin );
-    wSettings.setLayoutData( fdSettings );
+    wSettings.setLayoutData(fdSettings);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings GROUP
@@ -366,8 +308,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     // START OF FileName GROUP
     //
 
-    wFileName = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wFileName );
+    Group wFileName = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wFileName);
     wFileName.setText( BaseMessages.getString( PKG, "JsonOutputDialog.Group.File.Label" ) );
 
     FormLayout groupfilenameayout = new FormLayout();
@@ -376,22 +318,22 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wFileName.setLayout( groupfilenameayout );
 
     // Filename line
-    wlFilename = new Label( wFileName, SWT.RIGHT );
+    wlFilename = new Label(wFileName, SWT.RIGHT );
     wlFilename.setText( BaseMessages.getString( PKG, "JsonOutputDialog.Filename.Label" ) );
     props.setLook( wlFilename );
-    fdlFilename = new FormData();
+    FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment( 0, 0 );
-    fdlFilename.top = new FormAttachment( wSettings, margin );
+    fdlFilename.top = new FormAttachment(wSettings, margin );
     fdlFilename.right = new FormAttachment( middle, -margin );
-    wlFilename.setLayoutData( fdlFilename );
+    wlFilename.setLayoutData(fdlFilename);
 
-    wbFilename = new Button( wFileName, SWT.PUSH | SWT.CENTER );
+    wbFilename = new Button(wFileName, SWT.PUSH | SWT.CENTER );
     props.setLook( wbFilename );
     wbFilename.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbFilename = new FormData();
+    FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment( 100, 0 );
-    fdbFilename.top = new FormAttachment( wSettings, 0 );
-    wbFilename.setLayoutData( fdbFilename );
+    fdbFilename.top = new FormAttachment(wSettings, 0 );
+    wbFilename.setLayoutData(fdbFilename);
     wbFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
@@ -419,29 +361,29 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wFilename = new TextVar( pipelineMeta, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
-    fdFilename = new FormData();
+    FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment( middle, 0 );
     fdFilename.top = new FormAttachment( wOutputValue, margin );
     fdFilename.right = new FormAttachment( wbFilename, -margin );
-    wFilename.setLayoutData( fdFilename );
+    wFilename.setLayoutData(fdFilename);
 
     // Append to end of file?
-    wlAppend = new Label( wFileName, SWT.RIGHT );
+    wlAppend = new Label(wFileName, SWT.RIGHT );
     wlAppend.setText( BaseMessages.getString( PKG, "JsonOutputDialog.Append.Label" ) );
     props.setLook( wlAppend );
-    fdlAppend = new FormData();
+    FormData fdlAppend = new FormData();
     fdlAppend.left = new FormAttachment( 0, 0 );
     fdlAppend.top = new FormAttachment( wFilename, margin );
     fdlAppend.right = new FormAttachment( middle, -margin );
-    wlAppend.setLayoutData( fdlAppend );
-    wAppend = new Button( wFileName, SWT.CHECK );
+    wlAppend.setLayoutData(fdlAppend);
+    wAppend = new Button(wFileName, SWT.CHECK );
     wAppend.setToolTipText( BaseMessages.getString( PKG, "JsonOutputDialog.Append.Tooltip" ) );
     props.setLook( wAppend );
-    fdAppend = new FormData();
+    FormData fdAppend = new FormData();
     fdAppend.left = new FormAttachment( middle, 0 );
     fdAppend.top = new FormAttachment( wFilename, margin );
     fdAppend.right = new FormAttachment( 100, 0 );
-    wAppend.setLayoutData( fdAppend );
+    wAppend.setLayoutData(fdAppend);
     wAppend.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -449,22 +391,22 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Create Parent Folder
-    wlCreateParentFolder = new Label( wFileName, SWT.RIGHT );
+    wlCreateParentFolder = new Label(wFileName, SWT.RIGHT );
     wlCreateParentFolder.setText( BaseMessages.getString( PKG, "JsonOutputDialog.CreateParentFolder.Label" ) );
     props.setLook( wlCreateParentFolder );
-    fdlCreateParentFolder = new FormData();
+    FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment( 0, 0 );
     fdlCreateParentFolder.top = new FormAttachment( wAppend, margin );
     fdlCreateParentFolder.right = new FormAttachment( middle, -margin );
-    wlCreateParentFolder.setLayoutData( fdlCreateParentFolder );
-    wCreateParentFolder = new Button( wFileName, SWT.CHECK );
+    wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
+    wCreateParentFolder = new Button(wFileName, SWT.CHECK );
     wCreateParentFolder.setToolTipText( BaseMessages.getString( PKG, "JsonOutputDialog.CreateParentFolder.Tooltip" ) );
     props.setLook( wCreateParentFolder );
-    fdCreateParentFolder = new FormData();
+    FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
     fdCreateParentFolder.top = new FormAttachment( wAppend, margin );
     fdCreateParentFolder.right = new FormAttachment( 100, 0 );
-    wCreateParentFolder.setLayoutData( fdCreateParentFolder );
+    wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -472,23 +414,23 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Open new File at Init
-    wlDoNotOpenNewFileInit = new Label( wFileName, SWT.RIGHT );
+    wlDoNotOpenNewFileInit = new Label(wFileName, SWT.RIGHT );
     wlDoNotOpenNewFileInit.setText( BaseMessages.getString( PKG, "JsonOutputDialog.DoNotOpenNewFileInit.Label" ) );
     props.setLook( wlDoNotOpenNewFileInit );
-    fdlDoNotOpenNewFileInit = new FormData();
+    FormData fdlDoNotOpenNewFileInit = new FormData();
     fdlDoNotOpenNewFileInit.left = new FormAttachment( 0, 0 );
     fdlDoNotOpenNewFileInit.top = new FormAttachment( wCreateParentFolder, margin );
     fdlDoNotOpenNewFileInit.right = new FormAttachment( middle, -margin );
-    wlDoNotOpenNewFileInit.setLayoutData( fdlDoNotOpenNewFileInit );
-    wDoNotOpenNewFileInit = new Button( wFileName, SWT.CHECK );
+    wlDoNotOpenNewFileInit.setLayoutData(fdlDoNotOpenNewFileInit);
+    wDoNotOpenNewFileInit = new Button(wFileName, SWT.CHECK );
     wDoNotOpenNewFileInit
         .setToolTipText( BaseMessages.getString( PKG, "JsonOutputDialog.DoNotOpenNewFileInit.Tooltip" ) );
     props.setLook( wDoNotOpenNewFileInit );
-    fdDoNotOpenNewFileInit = new FormData();
+    FormData fdDoNotOpenNewFileInit = new FormData();
     fdDoNotOpenNewFileInit.left = new FormAttachment( middle, 0 );
     fdDoNotOpenNewFileInit.top = new FormAttachment( wCreateParentFolder, margin );
     fdDoNotOpenNewFileInit.right = new FormAttachment( 100, 0 );
-    wDoNotOpenNewFileInit.setLayoutData( fdDoNotOpenNewFileInit );
+    wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -496,41 +438,41 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Extension line
-    wlExtension = new Label( wFileName, SWT.RIGHT );
+    wlExtension = new Label(wFileName, SWT.RIGHT );
     wlExtension.setText( BaseMessages.getString( PKG, "System.Label.Extension" ) );
     props.setLook( wlExtension );
-    fdlExtension = new FormData();
+    FormData fdlExtension = new FormData();
     fdlExtension.left = new FormAttachment( 0, 0 );
     fdlExtension.top = new FormAttachment( wDoNotOpenNewFileInit, margin );
     fdlExtension.right = new FormAttachment( middle, -margin );
-    wlExtension.setLayoutData( fdlExtension );
+    wlExtension.setLayoutData(fdlExtension);
 
     wExtension = new TextVar( pipelineMeta, wFileName, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExtension );
     wExtension.addModifyListener( lsMod );
-    fdExtension = new FormData();
+    FormData fdExtension = new FormData();
     fdExtension.left = new FormAttachment( middle, 0 );
     fdExtension.top = new FormAttachment( wDoNotOpenNewFileInit, margin );
     fdExtension.right = new FormAttachment( 100, -margin );
-    wExtension.setLayoutData( fdExtension );
+    wExtension.setLayoutData(fdExtension);
 
-    wlEncoding = new Label( wFileName, SWT.RIGHT );
+    wlEncoding = new Label(wFileName, SWT.RIGHT );
     wlEncoding.setText( BaseMessages.getString( PKG, "JsonOutputDialog.Encoding.Label" ) );
     props.setLook( wlEncoding );
-    fdlEncoding = new FormData();
+    FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment( 0, 0 );
     fdlEncoding.top = new FormAttachment( wExtension, margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
-    wlEncoding.setLayoutData( fdlEncoding );
+    wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new ComboVar( pipelineMeta, wFileName, SWT.BORDER | SWT.READ_ONLY );
     wEncoding.setEditable( true );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
-    fdEncoding = new FormData();
+    FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment( middle, 0 );
     fdEncoding.top = new FormAttachment( wExtension, margin );
     fdEncoding.right = new FormAttachment( 100, 0 );
-    wEncoding.setLayoutData( fdEncoding );
+    wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -546,22 +488,22 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
     // Output to servlet (browser, ws)
     //
-    wlServletOutput = new Label( wFileName, SWT.RIGHT );
+    wlServletOutput = new Label(wFileName, SWT.RIGHT );
     wlServletOutput.setText( BaseMessages.getString( PKG, "JsonOutputDialog.ServletOutput.Label" ) );
     props.setLook( wlServletOutput );
-    fdlServletOutput = new FormData();
+    FormData fdlServletOutput = new FormData();
     fdlServletOutput.left = new FormAttachment( 0, 0 );
     fdlServletOutput.top = new FormAttachment( wEncoding, margin );
     fdlServletOutput.right = new FormAttachment( middle, -margin );
-    wlServletOutput.setLayoutData( fdlServletOutput );
-    wServletOutput = new Button( wFileName, SWT.CHECK );
+    wlServletOutput.setLayoutData(fdlServletOutput);
+    wServletOutput = new Button(wFileName, SWT.CHECK );
     wServletOutput.setToolTipText( BaseMessages.getString( PKG, "JsonOutputDialog.ServletOutput.Tooltip" ) );
     props.setLook( wServletOutput );
-    fdServletOutput = new FormData();
+    FormData fdServletOutput = new FormData();
     fdServletOutput.left = new FormAttachment( middle, 0 );
     fdServletOutput.top = new FormAttachment( wEncoding, margin );
     fdServletOutput.right = new FormAttachment( 100, 0 );
-    wServletOutput.setLayoutData( fdServletOutput );
+    wServletOutput.setLayoutData(fdServletOutput);
     wServletOutput.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -570,55 +512,55 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Create multi-part file?
-    wlAddDate = new Label( wFileName, SWT.RIGHT );
+    wlAddDate = new Label(wFileName, SWT.RIGHT );
     wlAddDate.setText( BaseMessages.getString( PKG, "JsonOutputDialog.AddDate.Label" ) );
     props.setLook( wlAddDate );
-    fdlAddDate = new FormData();
+    FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment( 0, 0 );
     fdlAddDate.top = new FormAttachment( wServletOutput, margin );
     fdlAddDate.right = new FormAttachment( middle, -margin );
-    wlAddDate.setLayoutData( fdlAddDate );
-    wAddDate = new Button( wFileName, SWT.CHECK );
+    wlAddDate.setLayoutData(fdlAddDate);
+    wAddDate = new Button(wFileName, SWT.CHECK );
     props.setLook( wAddDate );
-    fdAddDate = new FormData();
+    FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment( middle, 0 );
     fdAddDate.top = new FormAttachment( wServletOutput, margin );
     fdAddDate.right = new FormAttachment( 100, 0 );
-    wAddDate.setLayoutData( fdAddDate );
+    wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
     } );
     // Create multi-part file?
-    wlAddTime = new Label( wFileName, SWT.RIGHT );
+    wlAddTime = new Label(wFileName, SWT.RIGHT );
     wlAddTime.setText( BaseMessages.getString( PKG, "JsonOutputDialog.AddTime.Label" ) );
     props.setLook( wlAddTime );
-    fdlAddTime = new FormData();
+    FormData fdlAddTime = new FormData();
     fdlAddTime.left = new FormAttachment( 0, 0 );
     fdlAddTime.top = new FormAttachment( wAddDate, margin );
     fdlAddTime.right = new FormAttachment( middle, -margin );
-    wlAddTime.setLayoutData( fdlAddTime );
-    wAddTime = new Button( wFileName, SWT.CHECK );
+    wlAddTime.setLayoutData(fdlAddTime);
+    wAddTime = new Button(wFileName, SWT.CHECK );
     props.setLook( wAddTime );
-    fdAddTime = new FormData();
+    FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment( middle, 0 );
     fdAddTime.top = new FormAttachment( wAddDate, margin );
     fdAddTime.right = new FormAttachment( 100, 0 );
-    wAddTime.setLayoutData( fdAddTime );
+    wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
     } );
 
-    wbShowFiles = new Button( wFileName, SWT.PUSH | SWT.CENTER );
+    wbShowFiles = new Button(wFileName, SWT.PUSH | SWT.CENTER );
     props.setLook( wbShowFiles );
     wbShowFiles.setText( BaseMessages.getString( PKG, "JsonOutputDialog.ShowFiles.Button" ) );
-    fdbShowFiles = new FormData();
+    FormData fdbShowFiles = new FormData();
     fdbShowFiles.left = new FormAttachment( middle, 0 );
     fdbShowFiles.top = new FormAttachment( wAddTime, margin * 2 );
-    wbShowFiles.setLayoutData( fdbShowFiles );
+    wbShowFiles.setLayoutData(fdbShowFiles);
     wbShowFiles.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         JsonOutputMeta tfoi = new JsonOutputMeta();
@@ -641,22 +583,22 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Add File to the result files name
-    wlAddToResult = new Label( wFileName, SWT.RIGHT );
+    wlAddToResult = new Label(wFileName, SWT.RIGHT );
     wlAddToResult.setText( BaseMessages.getString( PKG, "JsonOutputDialog.AddFileToResult.Label" ) );
     props.setLook( wlAddToResult );
-    fdlAddToResult = new FormData();
+    FormData fdlAddToResult = new FormData();
     fdlAddToResult.left = new FormAttachment( 0, 0 );
     fdlAddToResult.top = new FormAttachment( wbShowFiles, margin );
     fdlAddToResult.right = new FormAttachment( middle, -margin );
-    wlAddToResult.setLayoutData( fdlAddToResult );
-    wAddToResult = new Button( wFileName, SWT.CHECK );
+    wlAddToResult.setLayoutData(fdlAddToResult);
+    wAddToResult = new Button(wFileName, SWT.CHECK );
     wAddToResult.setToolTipText( BaseMessages.getString( PKG, "JsonOutputDialog.AddFileToResult.Tooltip" ) );
     props.setLook( wAddToResult );
-    fdAddToResult = new FormData();
+    FormData fdAddToResult = new FormData();
     fdAddToResult.left = new FormAttachment( middle, 0 );
     fdAddToResult.top = new FormAttachment( wbShowFiles, margin );
     fdAddToResult.right = new FormAttachment( 100, 0 );
-    wAddToResult.setLayoutData( fdAddToResult );
+    wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelR = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         input.setChanged();
@@ -664,22 +606,22 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     };
     wAddToResult.addSelectionListener( lsSelR );
 
-    fdFileName = new FormData();
+    FormData fdFileName = new FormData();
     fdFileName.left = new FormAttachment( 0, margin );
-    fdFileName.top = new FormAttachment( wSettings, 2 * margin );
+    fdFileName.top = new FormAttachment(wSettings, 2 * margin );
     fdFileName.right = new FormAttachment( 100, -margin );
-    wFileName.setLayoutData( fdFileName );
+    wFileName.setLayoutData(fdFileName);
 
     // ///////////////////////////////////////////////////////////
     // / END OF FileName GROUP
     // ///////////////////////////////////////////////////////////
 
-    fdGeneralComp = new FormData();
+    FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
     fdGeneralComp.top = new FormAttachment( wTransformName, margin );
     fdGeneralComp.right = new FormAttachment( 100, 0 );
     fdGeneralComp.bottom = new FormAttachment( 100, 0 );
-    wGeneralComp.setLayoutData( fdGeneralComp );
+    wGeneralComp.setLayoutData(fdGeneralComp);
 
     wGeneralComp.layout();
     wGeneralTab.setControl( wGeneralComp );
@@ -690,14 +632,14 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
     // Fields tab...
     //
-    wFieldsTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wFieldsTab = new CTabItem(wTabFolder, SWT.NONE);
     wFieldsTab.setText( BaseMessages.getString( PKG, "JsonOutputDialog.FieldsTab.TabTitle" ) );
 
     FormLayout fieldsLayout = new FormLayout();
     fieldsLayout.marginWidth = Const.FORM_MARGIN;
     fieldsLayout.marginHeight = Const.FORM_MARGIN;
 
-    Composite wFieldsComp = new Composite( wTabFolder, SWT.NONE );
+    Composite wFieldsComp = new Composite(wTabFolder, SWT.NONE );
     wFieldsComp.setLayout( fieldsLayout );
     props.setLook( wFieldsComp );
 
@@ -720,12 +662,12 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         new TableView( pipelineMeta, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
             props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( 0, 0 );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wGet, -margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     //
     // Search the fields in the background
@@ -738,7 +680,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -748,22 +690,22 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     };
     new Thread( runnable ).start();
 
-    fdFieldsComp = new FormData();
+    FormData fdFieldsComp = new FormData();
     fdFieldsComp.left = new FormAttachment( 0, 0 );
     fdFieldsComp.top = new FormAttachment( 0, 0 );
     fdFieldsComp.right = new FormAttachment( 100, 0 );
     fdFieldsComp.bottom = new FormAttachment( 100, 0 );
-    wFieldsComp.setLayoutData( fdFieldsComp );
+    wFieldsComp.setLayoutData(fdFieldsComp);
 
     wFieldsComp.layout();
     wFieldsTab.setControl( wFieldsComp );
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
@@ -773,7 +715,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     wCancel.addListener( SWT.Selection, e->cancel() );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -839,13 +781,13 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>(keySet);
 
     String[] fieldNames = entries.toArray( new String[entries.size()] );
 
@@ -859,10 +801,9 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
       gotEncodings = true;
 
       wEncoding.removeAll();
-      List<Charset> values = new ArrayList<Charset>( Charset.availableCharsets().values() );
-      for ( int i = 0; i < values.size(); i++ ) {
-        Charset charSet = values.get( i );
-        wEncoding.add( charSet.displayName() );
+      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
+      for (Charset charSet : values) {
+        wEncoding.add(charSet.displayName());
       }
 
       // Now select the default!
@@ -971,7 +912,8 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void get() {
-    if ( gotPreviousFields ) {
+    boolean gotPreviousFields = false;
+    if (gotPreviousFields) {
       return;
     }
     try {

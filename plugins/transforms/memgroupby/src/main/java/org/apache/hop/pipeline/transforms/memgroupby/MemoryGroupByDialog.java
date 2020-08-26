@@ -46,35 +46,25 @@ import java.util.List;
 import java.util.*;
 
 public class MemoryGroupByDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlGroup;
   private TableView wGroup;
-  private FormData fdlGroup, fdGroup;
 
-  private Label wlAgg;
   private TableView wAgg;
-  private FormData fdlAgg, fdAgg;
 
-  private Label wlAlwaysAddResult;
   private Button wAlwaysAddResult;
-  private FormData fdlAlwaysAddResult, fdAlwaysAddResult;
 
-  private Button wGet, wGetAgg;
-  private FormData fdGet, fdGetAgg;
-  private Listener lsGet, lsGetAgg;
-
-  private MemoryGroupByMeta input;
+  private final MemoryGroupByMeta input;
 
   private ColumnInfo[] ciKey;
   private ColumnInfo[] ciReturn;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   public MemoryGroupByDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (MemoryGroupByMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   @Override
@@ -126,32 +116,32 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
     // Always pass a result rows as output
     //
-    wlAlwaysAddResult = new Label( shell, SWT.RIGHT );
+    Label wlAlwaysAddResult = new Label(shell, SWT.RIGHT);
     wlAlwaysAddResult.setText( BaseMessages.getString( PKG, "MemoryGroupByDialog.AlwaysAddResult.Label" ) );
     wlAlwaysAddResult.setToolTipText( BaseMessages.getString( PKG, "MemoryGroupByDialog.AlwaysAddResult.ToolTip" ) );
-    props.setLook( wlAlwaysAddResult );
-    fdlAlwaysAddResult = new FormData();
+    props.setLook(wlAlwaysAddResult);
+    FormData fdlAlwaysAddResult = new FormData();
     fdlAlwaysAddResult.left = new FormAttachment( 0, 0 );
     fdlAlwaysAddResult.top = new FormAttachment( wTransformName, margin );
     fdlAlwaysAddResult.right = new FormAttachment( middle, -margin );
-    wlAlwaysAddResult.setLayoutData( fdlAlwaysAddResult );
+    wlAlwaysAddResult.setLayoutData(fdlAlwaysAddResult);
     wAlwaysAddResult = new Button( shell, SWT.CHECK );
     wAlwaysAddResult.setToolTipText( BaseMessages.getString( PKG, "MemoryGroupByDialog.AlwaysAddResult.ToolTip" ) );
     props.setLook( wAlwaysAddResult );
-    fdAlwaysAddResult = new FormData();
+    FormData fdAlwaysAddResult = new FormData();
     fdAlwaysAddResult.left = new FormAttachment( middle, 0 );
-    fdAlwaysAddResult.top = new FormAttachment( wlAlwaysAddResult, 0, SWT.CENTER );
+    fdAlwaysAddResult.top = new FormAttachment(wlAlwaysAddResult, 0, SWT.CENTER );
     fdAlwaysAddResult.right = new FormAttachment( 100, 0 );
-    wAlwaysAddResult.setLayoutData( fdAlwaysAddResult );
+    wAlwaysAddResult.setLayoutData(fdAlwaysAddResult);
     wAlwaysAddResult.addSelectionListener( lsSel );
 
-    wlGroup = new Label( shell, SWT.NONE );
+    Label wlGroup = new Label(shell, SWT.NONE);
     wlGroup.setText( BaseMessages.getString( PKG, "MemoryGroupByDialog.Group.Label" ) );
-    props.setLook( wlGroup );
-    fdlGroup = new FormData();
+    props.setLook(wlGroup);
+    FormData fdlGroup = new FormData();
     fdlGroup.left = new FormAttachment( 0, 0 );
-    fdlGroup.top = new FormAttachment( wlAlwaysAddResult, 2*margin );
-    wlGroup.setLayoutData( fdlGroup );
+    fdlGroup.top = new FormAttachment(wlAlwaysAddResult, 2*margin );
+    wlGroup.setLayoutData(fdlGroup);
 
     int nrKeyCols = 1;
     int nrKeyRows = ( input.getGroupField() != null ? input.getGroupField().length : 1 );
@@ -167,28 +157,28 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrKeyRows, lsMod, props );
 
-    wGet = new Button( shell, SWT.PUSH );
+    Button wGet = new Button(shell, SWT.PUSH);
     wGet.setText( BaseMessages.getString( PKG, "MemoryGroupByDialog.GetFields.Button" ) );
-    fdGet = new FormData();
-    fdGet.top = new FormAttachment( wlGroup, margin );
+    FormData fdGet = new FormData();
+    fdGet.top = new FormAttachment(wlGroup, margin );
     fdGet.right = new FormAttachment( 100, 0 );
-    wGet.setLayoutData( fdGet );
+    wGet.setLayoutData(fdGet);
 
-    fdGroup = new FormData();
+    FormData fdGroup = new FormData();
     fdGroup.left = new FormAttachment( 0, 0 );
-    fdGroup.top = new FormAttachment( wlGroup, margin );
-    fdGroup.right = new FormAttachment( wGet, -margin );
+    fdGroup.top = new FormAttachment(wlGroup, margin );
+    fdGroup.right = new FormAttachment(wGet, -margin );
     fdGroup.bottom = new FormAttachment( 45, 0 );
-    wGroup.setLayoutData( fdGroup );
+    wGroup.setLayoutData(fdGroup);
 
     // THE Aggregate fields
-    wlAgg = new Label( shell, SWT.NONE );
+    Label wlAgg = new Label(shell, SWT.NONE);
     wlAgg.setText( BaseMessages.getString( PKG, "MemoryGroupByDialog.Aggregates.Label" ) );
-    props.setLook( wlAgg );
-    fdlAgg = new FormData();
+    props.setLook(wlAgg);
+    FormData fdlAgg = new FormData();
     fdlAgg.left = new FormAttachment( 0, 0 );
     fdlAgg.top = new FormAttachment( wGroup, margin );
-    wlAgg.setLayoutData( fdlAgg );
+    wlAgg.setLayoutData(fdlAgg);
 
     int UpInsCols = 4;
     int UpInsRows = ( input.getAggregateField() != null ? input.getAggregateField().length : 1 );
@@ -218,12 +208,12 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
-    wGetAgg = new Button( shell, SWT.PUSH );
+    Button wGetAgg = new Button(shell, SWT.PUSH);
     wGetAgg.setText( BaseMessages.getString( PKG, "MemoryGroupByDialog.GetLookupFields.Button" ) );
-    fdGetAgg = new FormData();
-    fdGetAgg.top = new FormAttachment( wlAgg, margin );
+    FormData fdGetAgg = new FormData();
+    fdGetAgg.top = new FormAttachment(wlAgg, margin );
     fdGetAgg.right = new FormAttachment( 100, 0 );
-    wGetAgg.setLayoutData( fdGetAgg );
+    wGetAgg.setLayoutData(fdGetAgg);
 
     //
     // Search the fields in the background
@@ -236,7 +226,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -254,22 +244,22 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
-    fdAgg = new FormData();
+    FormData fdAgg = new FormData();
     fdAgg.left = new FormAttachment( 0, 0 );
-    fdAgg.top = new FormAttachment( wlAgg, margin );
-    fdAgg.right = new FormAttachment( wGetAgg, -margin );
+    fdAgg.top = new FormAttachment(wlAgg, margin );
+    fdAgg.right = new FormAttachment(wGetAgg, -margin );
     fdAgg.bottom = new FormAttachment( wOk, -margin );
-    wAgg.setLayoutData( fdAgg );
+    wAgg.setLayoutData(fdAgg);
 
     // Add listeners
     lsOk = e -> ok();
-    lsGet = e -> get();
-    lsGetAgg = e -> getAgg();
+    Listener lsGet = e -> get();
+    Listener lsGetAgg = e -> getAgg();
     lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wGetAgg.addListener( SWT.Selection, lsGetAgg );
+    wGet.addListener( SWT.Selection, lsGet);
+    wGetAgg.addListener( SWT.Selection, lsGetAgg);
     wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
@@ -307,7 +297,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

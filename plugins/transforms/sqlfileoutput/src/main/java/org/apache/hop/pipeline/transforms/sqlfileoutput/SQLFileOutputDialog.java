@@ -640,8 +640,8 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
     fdFormat.right = new FormAttachment( 100, 0 );
     wFormat.setLayoutData(fdFormat);
 
-    for ( int x = 0; x < dats.length; x++ ) {
-      wFormat.add( dats[ x ] );
+    for (String dat : dats) {
+      wFormat.add(dat);
     }
 
     // Encoding
@@ -788,9 +788,8 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
 
       wEncoding.removeAll();
       List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
-      for ( int i = 0; i < values.size(); i++ ) {
-        Charset charSet = values.get( i );
-        wEncoding.add( charSet.displayName() );
+      for (Charset charSet : values) {
+        wEncoding.add(charSet.displayName());
       }
 
       // Now select the default!

@@ -41,13 +41,11 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ConstantDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
-  private ConstantMeta input;
+  private final ConstantMeta input;
 
   public ConstantDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -105,13 +103,13 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "ConstantDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wTransformName, margin );
-    wlFields.setLayoutData( fdlFields );
+    wlFields.setLayoutData(fdlFields);
 
     final int FieldsCols = 10;
     final int FieldsRows = input.getFieldName().length;
@@ -156,12 +154,12 @@ public class ConstantDialog extends BaseTransformDialog implements ITransformDia
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wOk, -2*margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
 
 

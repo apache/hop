@@ -44,35 +44,25 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class SwitchCaseDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SwitchCaseMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SwitchCaseMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlFieldName;
   private CCombo wFieldName;
 
-  private Label wlDataType;
   private CCombo wDataType;
 
-  private Label wlConversionMask;
   private Text wConversionMask;
 
-  private Label wlDecimalSymbol;
   private Text wDecimalSymbol;
 
-  private Label wlGroupingSymbol;
   private Text wGroupingSymbol;
 
-  private Label wlValues;
   private TableView wValues;
 
-  private Label wlDefaultTarget;
   private CCombo wDefaultTarget;
 
-  private Label wlContains;
   private Button wContains;
-  private FormData fdlContains, fdContains;
 
-  private SwitchCaseMeta input;
-  private IRowMeta inputFields;
+  private final SwitchCaseMeta input;
 
   public SwitchCaseDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -126,9 +116,9 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
 
     // The name of the field to validate
     //
-    wlFieldName = new Label( shell, SWT.RIGHT );
+    Label wlFieldName = new Label(shell, SWT.RIGHT);
     wlFieldName.setText( BaseMessages.getString( PKG, "SwitchCaseDialog.FieldName.Label" ) );
-    props.setLook( wlFieldName );
+    props.setLook(wlFieldName);
     FormData fdlFieldName = new FormData();
     fdlFieldName.left = new FormAttachment( 0, 0 );
     fdlFieldName.right = new FormAttachment( middle, 0 );
@@ -146,7 +136,7 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
     // TODO: grab field list in thread in the background...
     //
     try {
-      inputFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      IRowMeta inputFields = pipelineMeta.getPrevTransformFields(transformMeta);
       wFieldName.setItems( inputFields.getFieldNames() );
     } catch ( HopTransformException ex ) {
       new ErrorDialog( shell,
@@ -154,29 +144,29 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
         BaseMessages.getString( PKG, "SwitchCaseDialog.Exception.CantGetFieldsFromPreviousTransforms.Message" ), ex );
     }
 
-    wlContains = new Label( shell, SWT.RIGHT );
+    Label wlContains = new Label(shell, SWT.RIGHT);
     wlContains.setText( BaseMessages.getString( PKG, "SwitchCaseDialog.Contains.Label" ) );
-    props.setLook( wlContains );
-    fdlContains = new FormData();
+    props.setLook(wlContains);
+    FormData fdlContains = new FormData();
     fdlContains.left = new FormAttachment( 0, 0 );
     fdlContains.right = new FormAttachment( middle, -margin );
     fdlContains.top = new FormAttachment( wFieldName, margin * 2 );
-    wlContains.setLayoutData( fdlContains );
+    wlContains.setLayoutData(fdlContains);
     wContains = new Button( shell, SWT.CHECK );
     wContains.setToolTipText( BaseMessages.getString( PKG, "SwitchCaseDialog.Contains.Tooltip" ) );
     props.setLook( wContains );
-    fdContains = new FormData();
+    FormData fdContains = new FormData();
     fdContains.left = new FormAttachment( middle, 0 );
     fdContains.top = new FormAttachment( wFieldName, margin * 2 );
     fdContains.right = new FormAttachment( 100, 0 );
-    wContains.setLayoutData( fdContains );
+    wContains.setLayoutData(fdContains);
     wContains.addSelectionListener( lsSel );
 
     // Data type
     //
-    wlDataType = new Label( shell, SWT.RIGHT );
+    Label wlDataType = new Label(shell, SWT.RIGHT);
     wlDataType.setText( BaseMessages.getString( PKG, "SwitchCaseDialog.DataType.Label" ) );
-    props.setLook( wlDataType );
+    props.setLook(wlDataType);
     FormData fdlDataType = new FormData();
     fdlDataType.left = new FormAttachment( 0, 0 );
     fdlDataType.right = new FormAttachment( middle, 0 );
@@ -194,9 +184,9 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
 
     // Conversion mask
     //
-    wlConversionMask = new Label( shell, SWT.RIGHT );
+    Label wlConversionMask = new Label(shell, SWT.RIGHT);
     wlConversionMask.setText( BaseMessages.getString( PKG, "SwitchCaseDialog.ConversionMask.Label" ) );
-    props.setLook( wlConversionMask );
+    props.setLook(wlConversionMask);
     FormData fdlConversionMask = new FormData();
     fdlConversionMask.left = new FormAttachment( 0, 0 );
     fdlConversionMask.right = new FormAttachment( middle, 0 );
@@ -213,9 +203,9 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
 
     // Decimal Symbol
     //
-    wlDecimalSymbol = new Label( shell, SWT.RIGHT );
+    Label wlDecimalSymbol = new Label(shell, SWT.RIGHT);
     wlDecimalSymbol.setText( BaseMessages.getString( PKG, "SwitchCaseDialog.DecimalSymbol.Label" ) );
-    props.setLook( wlDecimalSymbol );
+    props.setLook(wlDecimalSymbol);
     FormData fdlDecimalSymbol = new FormData();
     fdlDecimalSymbol.left = new FormAttachment( 0, 0 );
     fdlDecimalSymbol.right = new FormAttachment( middle, 0 );
@@ -232,9 +222,9 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
 
     // Grouping Symbol
     //
-    wlGroupingSymbol = new Label( shell, SWT.RIGHT );
+    Label wlGroupingSymbol = new Label(shell, SWT.RIGHT);
     wlGroupingSymbol.setText( BaseMessages.getString( PKG, "SwitchCaseDialog.GroupingSymbol.Label" ) );
-    props.setLook( wlGroupingSymbol );
+    props.setLook(wlGroupingSymbol);
     FormData fdlGroupingSymbol = new FormData();
     fdlGroupingSymbol.left = new FormAttachment( 0, 0 );
     fdlGroupingSymbol.right = new FormAttachment( middle, 0 );
@@ -253,9 +243,9 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
 
     // The values to switch on...
     //
-    wlValues = new Label( shell, SWT.RIGHT );
+    Label wlValues = new Label(shell, SWT.RIGHT);
     wlValues.setText( BaseMessages.getString( PKG, "SwitchCaseDialog.ValueCases.Label" ) );
-    props.setLook( wlValues );
+    props.setLook(wlValues);
     FormData fdlValues = new FormData();
     fdlValues.left = new FormAttachment( 0, 0 );
     fdlValues.top = new FormAttachment( wGroupingSymbol, margin );
@@ -285,9 +275,9 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
 
     // The name of the field to validate
     //
-    wlDefaultTarget = new Label( shell, SWT.RIGHT );
+    Label wlDefaultTarget = new Label(shell, SWT.RIGHT);
     wlDefaultTarget.setText( BaseMessages.getString( PKG, "SwitchCaseDialog.DefaultTarget.Label" ) );
-    props.setLook( wlDefaultTarget );
+    props.setLook(wlDefaultTarget);
     FormData fdlDefaultTarget = new FormData();
     fdlDefaultTarget.left = new FormAttachment( 0, 0 );
     fdlDefaultTarget.right = new FormAttachment( middle, 0 );

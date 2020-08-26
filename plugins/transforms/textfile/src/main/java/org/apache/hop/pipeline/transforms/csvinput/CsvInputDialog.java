@@ -83,25 +83,21 @@ import java.util.stream.Collectors;
 
 public class CsvInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {
-  private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
-  private CsvInputMeta inputMeta;
+  private final CsvInputMeta inputMeta;
 
   private TextVar wFilename;
   private CCombo wFilenameField;
   private Button wbbFilename; // Browse for a file
   private Button wIncludeFilename;
   private TextVar wRowNumField;
-  private Button wbDelimiter;
   private TextVar wDelimiter;
   private TextVar wEnclosure;
   private TextVar wBufferSize;
   private Button wLazyConversion;
   private Button wHeaderPresent;
-  private FormData fdAddResult;
-  private FormData fdlAddResult;
   private TableView wFields;
-  private Label wlAddResult;
   private Button wAddResult;
   private boolean isReceivingInput;
   private Button wRunningInParallel;
@@ -274,8 +270,8 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     fdlDelimiter.left = new FormAttachment( 0, 0 );
     fdlDelimiter.right = new FormAttachment( middle, -margin );
     wlDelimiter.setLayoutData( fdlDelimiter );
-    wbDelimiter = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbDelimiter );
+    Button wbDelimiter = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbDelimiter);
     wbDelimiter.setText( BaseMessages.getString( PKG, "CsvInputDialog.Delimiter.Button" ) );
     FormData fdbDelimiter = new FormData();
     fdbDelimiter.top = new FormAttachment( lastControl, margin );
@@ -287,7 +283,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     FormData fdDelimiter = new FormData();
     fdDelimiter.top = new FormAttachment( lastControl, margin );
     fdDelimiter.left = new FormAttachment( middle, 0 );
-    fdDelimiter.right = new FormAttachment( wbDelimiter, -margin );
+    fdDelimiter.right = new FormAttachment(wbDelimiter, -margin );
     wDelimiter.setLayoutData( fdDelimiter );
     wDelimiter.addModifyListener( lsContent );
     lastControl = wDelimiter;
@@ -375,21 +371,21 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
      */
     lastControl = wlHeaderPresent;
 
-    wlAddResult = new Label( shell, SWT.RIGHT );
+    Label wlAddResult = new Label(shell, SWT.RIGHT);
     wlAddResult.setText( BaseMessages.getString( PKG, "CsvInputDialog.AddResult.Label" ) );
-    props.setLook( wlAddResult );
-    fdlAddResult = new FormData();
+    props.setLook(wlAddResult);
+    FormData fdlAddResult = new FormData();
     fdlAddResult.left = new FormAttachment( 0, 0 );
     fdlAddResult.top = new FormAttachment( lastControl, margin );
     fdlAddResult.right = new FormAttachment( middle, -margin );
-    wlAddResult.setLayoutData( fdlAddResult );
+    wlAddResult.setLayoutData(fdlAddResult);
     wAddResult = new Button( shell, SWT.CHECK );
     props.setLook( wAddResult );
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "CsvInputDialog.AddResult.Tooltip" ) );
-    fdAddResult = new FormData();
+    FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
-    wAddResult.setLayoutData( fdAddResult );
+    fdAddResult.top = new FormAttachment(wlAddResult, 0, SWT.CENTER );
+    wAddResult.setLayoutData(fdAddResult);
     lastControl = wlAddResult;
 
     // The field itself...
@@ -574,7 +570,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     wRowNumField.addSelectionListener( lsDef );
 
     // Allow the insertion of tabs as separator...
-    wbDelimiter.addSelectionListener( new SelectionAdapter() {
+    wbDelimiter.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent se ) {
         Text t = wDelimiter.getTextWidget();
         if ( t != null ) {
@@ -643,10 +639,9 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
       gotEncodings = true;
 
       wEncoding.removeAll();
-      List<Charset> values = new ArrayList<Charset>( Charset.availableCharsets().values() );
-      for ( int i = 0; i < values.size(); i++ ) {
-        Charset charSet = values.get( i );
-        wEncoding.add( charSet.displayName() );
+      List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
+      for (Charset charSet : values) {
+        wEncoding.add(charSet.displayName());
       }
 
       // Now select the default!
@@ -937,7 +932,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
       // TransformMeta transformMeta = new TransformMeta(transformName, meta);
       StringBuffer buffer = new StringBuffer();
-      final List<Object[]> rowsData = new ArrayList<Object[]>();
+      final List<Object[]> rowsData = new ArrayList<>();
       final IRowMeta rowMeta = new RowMeta();
 
       try {

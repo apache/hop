@@ -47,40 +47,27 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = DynamicSqlRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DynamicSqlRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean gotPreviousFields = false;
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
-  private Label wlSql;
   private StyledTextComp wSql;
-  private FormData fdlSql, fdSql;
 
-  private Label wlLimit;
   private Text wLimit;
-  private FormData fdlLimit, fdLimit;
 
-  private Label wlOuter;
   private Button wOuter;
-  private FormData fdlOuter, fdOuter;
 
-  private Label wluseVars;
   private Button wuseVars;
-  private FormData fdluseVars, fduseVars;
 
   private Label wlPosition;
-  private FormData fdlPosition;
 
-  private Label wlSqlFieldName;
   private CCombo wSqlFieldName;
-  private FormData fdlSqlFieldName, fdSqlFieldName;
 
-  private Label wlqueryOnlyOnChange;
   private Button wqueryOnlyOnChange;
-  private FormData fdlqueryOnlyOnChange, fdqueryOnlyOnChange;
 
-  private DynamicSqlRowMeta input;
+  private final DynamicSqlRowMeta input;
 
   public DynamicSqlRowDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -135,10 +122,10 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wConnection.addModifyListener( lsMod );
 
     // SQLFieldName field
-    wlSqlFieldName = new Label( shell, SWT.RIGHT );
+    Label wlSqlFieldName = new Label(shell, SWT.RIGHT);
     wlSqlFieldName.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.SQLFieldName.Label" ) );
     props.setLook(wlSqlFieldName);
-    fdlSqlFieldName = new FormData();
+    FormData fdlSqlFieldName = new FormData();
     fdlSqlFieldName.left = new FormAttachment( 0, 0 );
     fdlSqlFieldName.right = new FormAttachment( middle, -margin );
     fdlSqlFieldName.top = new FormAttachment( wConnection, 2 * margin );
@@ -147,7 +134,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wSqlFieldName.setEditable( true );
     props.setLook( wSqlFieldName );
     wSqlFieldName.addModifyListener( lsMod );
-    fdSqlFieldName = new FormData();
+    FormData fdSqlFieldName = new FormData();
     fdSqlFieldName.left = new FormAttachment( middle, 0 );
     fdSqlFieldName.top = new FormAttachment( wConnection, 2 * margin );
     fdSqlFieldName.right = new FormAttachment( 100, -margin );
@@ -174,62 +161,62 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // Limit the number of lines returns
-    wlLimit = new Label( shell, SWT.RIGHT );
+    Label wlLimit = new Label(shell, SWT.RIGHT);
     wlLimit.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.Limit.Label" ) );
-    props.setLook( wlLimit );
-    fdlLimit = new FormData();
+    props.setLook(wlLimit);
+    FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment( 0, 0 );
     fdlLimit.right = new FormAttachment( middle, -margin );
     fdlLimit.top = new FormAttachment( wSqlFieldName, margin );
-    wlLimit.setLayoutData( fdlLimit );
+    wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
-    fdLimit = new FormData();
+    FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment( middle, 0 );
     fdLimit.right = new FormAttachment( 100, 0 );
     fdLimit.top = new FormAttachment( wSqlFieldName, margin );
-    wLimit.setLayoutData( fdLimit );
+    wLimit.setLayoutData(fdLimit);
 
     // Outer join?
-    wlOuter = new Label( shell, SWT.RIGHT );
+    Label wlOuter = new Label(shell, SWT.RIGHT);
     wlOuter.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.Outerjoin.Label" ) );
     wlOuter.setToolTipText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.Outerjoin.Tooltip" ) );
-    props.setLook( wlOuter );
-    fdlOuter = new FormData();
+    props.setLook(wlOuter);
+    FormData fdlOuter = new FormData();
     fdlOuter.left = new FormAttachment( 0, 0 );
     fdlOuter.right = new FormAttachment( middle, -margin );
     fdlOuter.top = new FormAttachment( wLimit, margin );
-    wlOuter.setLayoutData( fdlOuter );
+    wlOuter.setLayoutData(fdlOuter);
     wOuter = new Button( shell, SWT.CHECK );
     props.setLook( wOuter );
     wOuter.setToolTipText( wlOuter.getToolTipText() );
-    fdOuter = new FormData();
+    FormData fdOuter = new FormData();
     fdOuter.left = new FormAttachment( middle, 0 );
     fdOuter.top = new FormAttachment( wLimit, margin );
-    wOuter.setLayoutData( fdOuter );
+    wOuter.setLayoutData(fdOuter);
     wOuter.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
     } );
     // useVars ?
-    wluseVars = new Label( shell, SWT.RIGHT );
+    Label wluseVars = new Label(shell, SWT.RIGHT);
     wluseVars.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.useVarsjoin.Label" ) );
     wluseVars.setToolTipText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.useVarsjoin.Tooltip" ) );
-    props.setLook( wluseVars );
-    fdluseVars = new FormData();
+    props.setLook(wluseVars);
+    FormData fdluseVars = new FormData();
     fdluseVars.left = new FormAttachment( 0, 0 );
     fdluseVars.right = new FormAttachment( middle, -margin );
     fdluseVars.top = new FormAttachment( wOuter, margin );
-    wluseVars.setLayoutData( fdluseVars );
+    wluseVars.setLayoutData(fdluseVars);
     wuseVars = new Button( shell, SWT.CHECK );
     props.setLook( wuseVars );
     wuseVars.setToolTipText( wluseVars.getToolTipText() );
-    fduseVars = new FormData();
+    FormData fduseVars = new FormData();
     fduseVars.left = new FormAttachment( middle, 0 );
     fduseVars.top = new FormAttachment( wOuter, margin );
-    wuseVars.setLayoutData( fduseVars );
+    wuseVars.setLayoutData(fduseVars);
     wuseVars.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -237,23 +224,23 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // queryOnlyOnChange ?
-    wlqueryOnlyOnChange = new Label( shell, SWT.RIGHT );
+    Label wlqueryOnlyOnChange = new Label(shell, SWT.RIGHT);
     wlqueryOnlyOnChange.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.queryOnlyOnChangejoin.Label" ) );
     wlqueryOnlyOnChange.setToolTipText( BaseMessages.getString(
       PKG, "DynamicSQLRowDialog.queryOnlyOnChangejoin.Tooltip" ) );
-    props.setLook( wlqueryOnlyOnChange );
-    fdlqueryOnlyOnChange = new FormData();
+    props.setLook(wlqueryOnlyOnChange);
+    FormData fdlqueryOnlyOnChange = new FormData();
     fdlqueryOnlyOnChange.left = new FormAttachment( 0, 0 );
     fdlqueryOnlyOnChange.right = new FormAttachment( middle, -margin );
     fdlqueryOnlyOnChange.top = new FormAttachment( wuseVars, margin );
-    wlqueryOnlyOnChange.setLayoutData( fdlqueryOnlyOnChange );
+    wlqueryOnlyOnChange.setLayoutData(fdlqueryOnlyOnChange);
     wqueryOnlyOnChange = new Button( shell, SWT.CHECK );
     props.setLook( wqueryOnlyOnChange );
     wqueryOnlyOnChange.setToolTipText( wlqueryOnlyOnChange.getToolTipText() );
-    fdqueryOnlyOnChange = new FormData();
+    FormData fdqueryOnlyOnChange = new FormData();
     fdqueryOnlyOnChange.left = new FormAttachment( middle, 0 );
     fdqueryOnlyOnChange.top = new FormAttachment( wuseVars, margin );
-    wqueryOnlyOnChange.setLayoutData( fdqueryOnlyOnChange );
+    wqueryOnlyOnChange.setLayoutData(fdqueryOnlyOnChange);
     wqueryOnlyOnChange.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -261,10 +248,10 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // SQL editor...
-    wlSql = new Label( shell, SWT.NONE );
+    Label wlSql = new Label(shell, SWT.NONE);
     wlSql.setText( BaseMessages.getString( PKG, "DynamicSQLRowDialog.SQL.Label" ) );
     props.setLook(wlSql);
-    fdlSql = new FormData();
+    FormData fdlSql = new FormData();
     fdlSql.left = new FormAttachment( 0, 0 );
     fdlSql.top = new FormAttachment( wqueryOnlyOnChange, margin );
     wlSql.setLayoutData(fdlSql);
@@ -272,7 +259,7 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wSql =
       new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
-    fdSql = new FormData();
+    FormData fdSql = new FormData();
     fdSql.left = new FormAttachment( 0, 0 );
     fdSql.top = new FormAttachment(wlSql, margin );
     fdSql.right = new FormAttachment( 100, -2 * margin );
@@ -321,11 +308,11 @@ public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransfo
     wlPosition = new Label( shell, SWT.NONE );
     // wlPosition.setText(BaseMessages.getString(PKG, "DynamicSqlRowDialog.Position.Label"));
     props.setLook( wlPosition );
-    fdlPosition = new FormData();
+    FormData fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( 0, 0 );
     fdlPosition.top = new FormAttachment( wSql, margin );
     fdlPosition.right = new FormAttachment( 100, 0 );
-    wlPosition.setLayoutData( fdlPosition );
+    wlPosition.setLayoutData(fdlPosition);
 
     // Add listeners
     lsOk = e -> ok();

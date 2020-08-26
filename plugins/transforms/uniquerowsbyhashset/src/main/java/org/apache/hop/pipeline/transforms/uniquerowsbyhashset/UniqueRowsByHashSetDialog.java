@@ -47,37 +47,27 @@ import java.util.List;
 import java.util.*;
 
 public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!
 
-  private UniqueRowsByHashSetMeta input;
+  private final UniqueRowsByHashSetMeta input;
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
 
-  private Label wlStoreValues;
   private Button wStoreValues;
-  private FormData fdlStoreValues, fdStoreValues;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] colinf;
 
-  private Label wlRejectDuplicateRow;
   private Button wRejectDuplicateRow;
-  private FormData fdlRejectDuplicateRow, fdRejectDuplicateRow;
 
   private Label wlErrorDesc;
   private TextVar wErrorDesc;
-  private FormData fdlErrorDesc, fdErrorDesc;
-
-  private Group wSettings;
-  private FormData fdSettings;
 
   public UniqueRowsByHashSetDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (UniqueRowsByHashSetMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -124,8 +114,8 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
     // START OF Settings GROUP //
     // ///////////////////////////////
 
-    wSettings = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wSettings );
+    Group wSettings = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wSettings);
     wSettings.setText( BaseMessages.getString( PKG, "UniqueRowsByHashSetDialog.Settings.Label" ) );
 
     FormLayout SettingsgroupLayout = new FormLayout();
@@ -133,47 +123,47 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
     SettingsgroupLayout.marginHeight = 10;
     wSettings.setLayout( SettingsgroupLayout );
 
-    wlStoreValues = new Label( wSettings, SWT.RIGHT );
+    Label wlStoreValues = new Label(wSettings, SWT.RIGHT);
     wlStoreValues.setText( BaseMessages.getString( PKG, "UniqueRowsByHashSetDialog.StoreValues.Label" ) );
-    props.setLook( wlStoreValues );
-    fdlStoreValues = new FormData();
+    props.setLook(wlStoreValues);
+    FormData fdlStoreValues = new FormData();
     fdlStoreValues.left = new FormAttachment( 0, 0 );
     fdlStoreValues.top = new FormAttachment( wTransformName, margin );
     fdlStoreValues.right = new FormAttachment( middle, -margin );
-    wlStoreValues.setLayoutData( fdlStoreValues );
+    wlStoreValues.setLayoutData(fdlStoreValues);
 
-    wStoreValues = new Button( wSettings, SWT.CHECK );
+    wStoreValues = new Button(wSettings, SWT.CHECK );
     props.setLook( wStoreValues );
     wStoreValues.setToolTipText( BaseMessages.getString(
       PKG, "UniqueRowsByHashSetDialog.StoreValues.ToolTip", Const.CR ) );
-    fdStoreValues = new FormData();
+    FormData fdStoreValues = new FormData();
     fdStoreValues.left = new FormAttachment( middle, 0 );
     fdStoreValues.top = new FormAttachment( wTransformName, margin );
-    wStoreValues.setLayoutData( fdStoreValues );
+    wStoreValues.setLayoutData(fdStoreValues);
     wStoreValues.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
     } );
 
-    wlRejectDuplicateRow = new Label( wSettings, SWT.RIGHT );
+    Label wlRejectDuplicateRow = new Label(wSettings, SWT.RIGHT);
     wlRejectDuplicateRow.setText( BaseMessages.getString(
       PKG, "UniqueRowsByHashSetDialog.RejectDuplicateRow.Label" ) );
-    props.setLook( wlRejectDuplicateRow );
-    fdlRejectDuplicateRow = new FormData();
+    props.setLook(wlRejectDuplicateRow);
+    FormData fdlRejectDuplicateRow = new FormData();
     fdlRejectDuplicateRow.left = new FormAttachment( 0, 0 );
     fdlRejectDuplicateRow.top = new FormAttachment( wStoreValues, margin );
     fdlRejectDuplicateRow.right = new FormAttachment( middle, -margin );
-    wlRejectDuplicateRow.setLayoutData( fdlRejectDuplicateRow );
+    wlRejectDuplicateRow.setLayoutData(fdlRejectDuplicateRow);
 
-    wRejectDuplicateRow = new Button( wSettings, SWT.CHECK );
+    wRejectDuplicateRow = new Button(wSettings, SWT.CHECK );
     props.setLook( wRejectDuplicateRow );
     wRejectDuplicateRow.setToolTipText( BaseMessages.getString(
       PKG, "UniqueRowsByHashSetDialog.RejectDuplicateRow.ToolTip", Const.CR ) );
-    fdRejectDuplicateRow = new FormData();
+    FormData fdRejectDuplicateRow = new FormData();
     fdRejectDuplicateRow.left = new FormAttachment( middle, 0 );
     fdRejectDuplicateRow.top = new FormAttachment( wStoreValues, margin );
-    wRejectDuplicateRow.setLayoutData( fdRejectDuplicateRow );
+    wRejectDuplicateRow.setLayoutData(fdRejectDuplicateRow);
     wRejectDuplicateRow.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -181,27 +171,27 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
       }
     } );
 
-    wlErrorDesc = new Label( wSettings, SWT.LEFT );
+    wlErrorDesc = new Label(wSettings, SWT.LEFT );
     wlErrorDesc.setText( BaseMessages.getString( PKG, "UniqueRowsByHashSetDialog.ErrorDescription.Label" ) );
     props.setLook( wlErrorDesc );
-    fdlErrorDesc = new FormData();
+    FormData fdlErrorDesc = new FormData();
     fdlErrorDesc.left = new FormAttachment( wRejectDuplicateRow, margin );
     fdlErrorDesc.top = new FormAttachment( wStoreValues, margin );
-    wlErrorDesc.setLayoutData( fdlErrorDesc );
+    wlErrorDesc.setLayoutData(fdlErrorDesc);
     wErrorDesc = new TextVar( pipelineMeta, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrorDesc );
     wErrorDesc.addModifyListener( lsMod );
-    fdErrorDesc = new FormData();
+    FormData fdErrorDesc = new FormData();
     fdErrorDesc.left = new FormAttachment( wlErrorDesc, margin );
     fdErrorDesc.top = new FormAttachment( wStoreValues, margin );
     fdErrorDesc.right = new FormAttachment( 100, 0 );
-    wErrorDesc.setLayoutData( fdErrorDesc );
+    wErrorDesc.setLayoutData(fdErrorDesc);
 
-    fdSettings = new FormData();
+    FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment( 0, margin );
     fdSettings.top = new FormAttachment( wTransformName, margin );
     fdSettings.right = new FormAttachment( 100, -margin );
-    wSettings.setLayoutData( fdSettings );
+    wSettings.setLayoutData(fdSettings);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings GROUP
@@ -218,13 +208,13 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
 
     setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
 
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "UniqueRowsByHashSetDialog.Fields.Label" ) );
-    props.setLook( wlFields );
-    fdlFields = new FormData();
+    props.setLook(wlFields);
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.top = new FormAttachment( wSettings, margin );
-    wlFields.setLayoutData( fdlFields );
+    fdlFields.top = new FormAttachment(wSettings, margin );
+    wlFields.setLayoutData(fdlFields);
 
     final int FieldsRows = input.getCompareFields() == null ? 0 : input.getCompareFields().length;
 
@@ -237,12 +227,12 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wOk, -2 * margin );
-    wFields.setLayoutData( fdFields );
+    wFields.setLayoutData(fdFields);
 
     //
     // Search the fields in the background
@@ -255,7 +245,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -313,7 +303,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );

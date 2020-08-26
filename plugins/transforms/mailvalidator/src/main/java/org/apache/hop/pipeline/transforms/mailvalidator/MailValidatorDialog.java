@@ -43,70 +43,41 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class MailValidatorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = MailValidatorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailValidatorMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean gotPreviousFields = false;
 
-  private Label wlemailFieldName;
   private CCombo wemailFieldName;
-  private FormData fdlemailFieldName, fdemailFieldName;
 
   private Label wldefaultSMTPField;
   private CCombo wdefaultSMTPField;
-  private FormData fdldefaultSMTPField, fddefaultSMTPField;
 
-  private Label wlResult;
   private TextVar wResult;
-  private FormData fdlResult, fdResult;
 
   private Label wleMailSender;
   private TextVar weMailSender;
-  private FormData fdleMailSender, fdeMailSender;
 
   private Label wlTimeOut;
   private TextVar wTimeOut;
-  private FormData fdlTimeOut, fdTimeOut;
 
   private Label wlDefaultSMTP;
   private TextVar wDefaultSMTP;
-  private FormData fdlDefaultSMTP, fdDefaultSMTP;
 
   private Label wldynamicDefaultSMTP;
   private Button wdynamicDefaultSMTP;
-  private FormData fdldynamicDefaultSMTP;
-  private FormData fddynamicDefaultSMTP;
 
-  private Group wResultGroup;
-  private FormData fdResultGroup;
-
-  private Group wSettingsGroup;
-  private FormData fdSettingsGroup;
-
-  private Label wlResultAsString;
-  private FormData fdlResultAsString;
   private Button wResultAsString;
-  private FormData fdResultAsString;
 
-  private Label wlSMTPCheck;
-  private FormData fdlSMTPCheck;
   private Button wSMTPCheck;
-  private FormData fdSMTPCheck;
 
   private Label wlResultStringFalse;
-  private FormData fdlResultStringFalse;
   private Label wlResultStringTrue;
-  private FormData fdlResultStringTrue;
-  private FormData fdResultStringTrue;
-  private FormData fdResultStringFalse;
   private TextVar wResultStringFalse;
   private TextVar wResultStringTrue;
 
   private TextVar wErrorMsg;
-  private Label wlErrorMsg;
-  private FormData fdlErrorMsg;
-  private FormData fdErrorMsg;
 
-  private MailValidatorMeta input;
+  private final MailValidatorMeta input;
 
   public MailValidatorDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -155,23 +126,23 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wTransformName.setLayoutData( fdTransformName );
 
     // emailFieldName field
-    wlemailFieldName = new Label( shell, SWT.RIGHT );
+    Label wlemailFieldName = new Label(shell, SWT.RIGHT);
     wlemailFieldName.setText( BaseMessages.getString( PKG, "MailValidatorDialog.emailFieldName.Label" ) );
-    props.setLook( wlemailFieldName );
-    fdlemailFieldName = new FormData();
+    props.setLook(wlemailFieldName);
+    FormData fdlemailFieldName = new FormData();
     fdlemailFieldName.left = new FormAttachment( 0, 0 );
     fdlemailFieldName.right = new FormAttachment( middle, -margin );
     fdlemailFieldName.top = new FormAttachment( wTransformName, margin );
-    wlemailFieldName.setLayoutData( fdlemailFieldName );
+    wlemailFieldName.setLayoutData(fdlemailFieldName);
 
     wemailFieldName = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wemailFieldName );
     wemailFieldName.addModifyListener( lsMod );
-    fdemailFieldName = new FormData();
+    FormData fdemailFieldName = new FormData();
     fdemailFieldName.left = new FormAttachment( middle, 0 );
     fdemailFieldName.top = new FormAttachment( wTransformName, margin );
     fdemailFieldName.right = new FormAttachment( 100, -margin );
-    wemailFieldName.setLayoutData( fdemailFieldName );
+    wemailFieldName.setLayoutData(fdemailFieldName);
     wemailFieldName.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -189,8 +160,8 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     // START OF Settings GROUP
     //
 
-    wSettingsGroup = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wSettingsGroup );
+    Group wSettingsGroup = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wSettingsGroup);
     wSettingsGroup.setText( BaseMessages.getString( PKG, "MailValidatorDialog.SettingsGroup.Label" ) );
 
     FormLayout groupSettings = new FormLayout();
@@ -199,21 +170,21 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wSettingsGroup.setLayout( groupSettings );
 
     // perform SMTP check?
-    wlSMTPCheck = new Label( wSettingsGroup, SWT.RIGHT );
+    Label wlSMTPCheck = new Label(wSettingsGroup, SWT.RIGHT);
     wlSMTPCheck.setText( BaseMessages.getString( PKG, "MailValidatorDialog.SMTPCheck.Label" ) );
-    props.setLook( wlSMTPCheck );
-    fdlSMTPCheck = new FormData();
+    props.setLook(wlSMTPCheck);
+    FormData fdlSMTPCheck = new FormData();
     fdlSMTPCheck.left = new FormAttachment( 0, 0 );
     fdlSMTPCheck.top = new FormAttachment( wResult, margin );
     fdlSMTPCheck.right = new FormAttachment( middle, -2 * margin );
-    wlSMTPCheck.setLayoutData( fdlSMTPCheck );
-    wSMTPCheck = new Button( wSettingsGroup, SWT.CHECK );
+    wlSMTPCheck.setLayoutData(fdlSMTPCheck);
+    wSMTPCheck = new Button(wSettingsGroup, SWT.CHECK );
     props.setLook( wSMTPCheck );
     wSMTPCheck.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.SMTPCheck.Tooltip" ) );
-    fdSMTPCheck = new FormData();
+    FormData fdSMTPCheck = new FormData();
     fdSMTPCheck.left = new FormAttachment( middle, -margin );
     fdSMTPCheck.top = new FormAttachment( wemailFieldName, margin );
-    wSMTPCheck.setLayoutData( fdSMTPCheck );
+    wSMTPCheck.setLayoutData(fdSMTPCheck);
     wSMTPCheck.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeSMTPCheck();
@@ -222,82 +193,82 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // TimeOut fieldname ...
-    wlTimeOut = new Label( wSettingsGroup, SWT.RIGHT );
+    wlTimeOut = new Label(wSettingsGroup, SWT.RIGHT );
     wlTimeOut.setText( BaseMessages.getString( PKG, "MailValidatorDialog.TimeOutField.Label" ) );
     props.setLook( wlTimeOut );
-    fdlTimeOut = new FormData();
+    FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment( 0, 0 );
     fdlTimeOut.right = new FormAttachment( middle, -2 * margin );
     fdlTimeOut.top = new FormAttachment( wSMTPCheck, margin );
-    wlTimeOut.setLayoutData( fdlTimeOut );
+    wlTimeOut.setLayoutData(fdlTimeOut);
 
     wTimeOut = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTimeOut.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.TimeOutField.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
-    fdTimeOut = new FormData();
+    FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment( middle, -margin );
     fdTimeOut.top = new FormAttachment( wSMTPCheck, margin );
     fdTimeOut.right = new FormAttachment( 100, 0 );
-    wTimeOut.setLayoutData( fdTimeOut );
+    wTimeOut.setLayoutData(fdTimeOut);
 
     // eMailSender fieldname ...
-    wleMailSender = new Label( wSettingsGroup, SWT.RIGHT );
+    wleMailSender = new Label(wSettingsGroup, SWT.RIGHT );
     wleMailSender.setText( BaseMessages.getString( PKG, "MailValidatorDialog.eMailSenderField.Label" ) );
     props.setLook( wleMailSender );
-    fdleMailSender = new FormData();
+    FormData fdleMailSender = new FormData();
     fdleMailSender.left = new FormAttachment( 0, 0 );
     fdleMailSender.right = new FormAttachment( middle, -2 * margin );
     fdleMailSender.top = new FormAttachment( wTimeOut, margin );
-    wleMailSender.setLayoutData( fdleMailSender );
+    wleMailSender.setLayoutData(fdleMailSender);
 
     weMailSender = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     weMailSender.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.eMailSenderField.Tooltip" ) );
     props.setLook( weMailSender );
     weMailSender.addModifyListener( lsMod );
-    fdeMailSender = new FormData();
+    FormData fdeMailSender = new FormData();
     fdeMailSender.left = new FormAttachment( middle, -margin );
     fdeMailSender.top = new FormAttachment( wTimeOut, margin );
     fdeMailSender.right = new FormAttachment( 100, 0 );
-    weMailSender.setLayoutData( fdeMailSender );
+    weMailSender.setLayoutData(fdeMailSender);
 
     // DefaultSMTP fieldname ...
-    wlDefaultSMTP = new Label( wSettingsGroup, SWT.RIGHT );
+    wlDefaultSMTP = new Label(wSettingsGroup, SWT.RIGHT );
     wlDefaultSMTP.setText( BaseMessages.getString( PKG, "MailValidatorDialog.DefaultSMTPField.Label" ) );
     props.setLook( wlDefaultSMTP );
-    fdlDefaultSMTP = new FormData();
+    FormData fdlDefaultSMTP = new FormData();
     fdlDefaultSMTP.left = new FormAttachment( 0, 0 );
     fdlDefaultSMTP.right = new FormAttachment( middle, -2 * margin );
     fdlDefaultSMTP.top = new FormAttachment( weMailSender, margin );
-    wlDefaultSMTP.setLayoutData( fdlDefaultSMTP );
+    wlDefaultSMTP.setLayoutData(fdlDefaultSMTP);
 
     wDefaultSMTP = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wDefaultSMTP.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.DefaultSMTPField.Tooltip" ) );
     props.setLook( wDefaultSMTP );
     wDefaultSMTP.addModifyListener( lsMod );
-    fdDefaultSMTP = new FormData();
+    FormData fdDefaultSMTP = new FormData();
     fdDefaultSMTP.left = new FormAttachment( middle, -margin );
     fdDefaultSMTP.top = new FormAttachment( weMailSender, margin );
     fdDefaultSMTP.right = new FormAttachment( 100, 0 );
-    wDefaultSMTP.setLayoutData( fdDefaultSMTP );
+    wDefaultSMTP.setLayoutData(fdDefaultSMTP);
 
     // dynamic SMTP server?
-    wldynamicDefaultSMTP = new Label( wSettingsGroup, SWT.RIGHT );
+    wldynamicDefaultSMTP = new Label(wSettingsGroup, SWT.RIGHT );
     wldynamicDefaultSMTP.setText( BaseMessages.getString( PKG, "MailValidatorDialog.dynamicDefaultSMTP.Label" ) );
     props.setLook( wldynamicDefaultSMTP );
-    fdldynamicDefaultSMTP = new FormData();
+    FormData fdldynamicDefaultSMTP = new FormData();
     fdldynamicDefaultSMTP.left = new FormAttachment( 0, 0 );
     fdldynamicDefaultSMTP.top = new FormAttachment( wDefaultSMTP, margin );
     fdldynamicDefaultSMTP.right = new FormAttachment( middle, -2 * margin );
-    wldynamicDefaultSMTP.setLayoutData( fdldynamicDefaultSMTP );
-    wdynamicDefaultSMTP = new Button( wSettingsGroup, SWT.CHECK );
+    wldynamicDefaultSMTP.setLayoutData(fdldynamicDefaultSMTP);
+    wdynamicDefaultSMTP = new Button(wSettingsGroup, SWT.CHECK );
     props.setLook( wdynamicDefaultSMTP );
     wdynamicDefaultSMTP.setToolTipText( BaseMessages.getString(
       PKG, "MailValidatorDialog.dynamicDefaultSMTP.Tooltip" ) );
-    fddynamicDefaultSMTP = new FormData();
+    FormData fddynamicDefaultSMTP = new FormData();
     fddynamicDefaultSMTP.left = new FormAttachment( middle, -margin );
     fddynamicDefaultSMTP.top = new FormAttachment( wDefaultSMTP, margin );
-    wdynamicDefaultSMTP.setLayoutData( fddynamicDefaultSMTP );
+    wdynamicDefaultSMTP.setLayoutData(fddynamicDefaultSMTP);
     wdynamicDefaultSMTP.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activedynamicDefaultSMTP();
@@ -306,23 +277,23 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // defaultSMTPField field
-    wldefaultSMTPField = new Label( wSettingsGroup, SWT.RIGHT );
+    wldefaultSMTPField = new Label(wSettingsGroup, SWT.RIGHT );
     wldefaultSMTPField.setText( BaseMessages.getString( PKG, "MailValidatorDialog.defaultSMTPField.Label" ) );
     props.setLook( wldefaultSMTPField );
-    fdldefaultSMTPField = new FormData();
+    FormData fdldefaultSMTPField = new FormData();
     fdldefaultSMTPField.left = new FormAttachment( 0, 0 );
     fdldefaultSMTPField.right = new FormAttachment( middle, -2 * margin );
     fdldefaultSMTPField.top = new FormAttachment( wdynamicDefaultSMTP, margin );
-    wldefaultSMTPField.setLayoutData( fdldefaultSMTPField );
+    wldefaultSMTPField.setLayoutData(fdldefaultSMTPField);
 
-    wdefaultSMTPField = new CCombo( wSettingsGroup, SWT.BORDER | SWT.READ_ONLY );
+    wdefaultSMTPField = new CCombo(wSettingsGroup, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wdefaultSMTPField );
     wdefaultSMTPField.addModifyListener( lsMod );
-    fddefaultSMTPField = new FormData();
+    FormData fddefaultSMTPField = new FormData();
     fddefaultSMTPField.left = new FormAttachment( middle, -margin );
     fddefaultSMTPField.top = new FormAttachment( wdynamicDefaultSMTP, margin );
     fddefaultSMTPField.right = new FormAttachment( 100, -margin );
-    wdefaultSMTPField.setLayoutData( fddefaultSMTPField );
+    wdefaultSMTPField.setLayoutData(fddefaultSMTPField);
     wdefaultSMTPField.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -336,11 +307,11 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
       }
     } );
 
-    fdSettingsGroup = new FormData();
+    FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment( 0, margin );
     fdSettingsGroup.top = new FormAttachment( wemailFieldName, margin );
     fdSettingsGroup.right = new FormAttachment( 100, -margin );
-    wSettingsGroup.setLayoutData( fdSettingsGroup );
+    wSettingsGroup.setLayoutData(fdSettingsGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings GROUP
@@ -350,8 +321,8 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     // START OF Result GROUP
     //
 
-    wResultGroup = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wResultGroup );
+    Group wResultGroup = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wResultGroup);
     wResultGroup.setText( BaseMessages.getString( PKG, "MailValidatorDialog.ResultGroup.label" ) );
 
     FormLayout groupResult = new FormLayout();
@@ -360,41 +331,41 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wResultGroup.setLayout( groupResult );
 
     // Result fieldname ...
-    wlResult = new Label( wResultGroup, SWT.RIGHT );
+    Label wlResult = new Label(wResultGroup, SWT.RIGHT);
     wlResult.setText( BaseMessages.getString( PKG, "MailValidatorDialog.ResultField.Label" ) );
-    props.setLook( wlResult );
-    fdlResult = new FormData();
+    props.setLook(wlResult);
+    FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment( 0, 0 );
     fdlResult.right = new FormAttachment( middle, -2 * margin );
-    fdlResult.top = new FormAttachment( wSettingsGroup, margin * 2 );
-    wlResult.setLayoutData( fdlResult );
+    fdlResult.top = new FormAttachment(wSettingsGroup, margin * 2 );
+    wlResult.setLayoutData(fdlResult);
 
     wResult = new TextVar( pipelineMeta, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
-    fdResult = new FormData();
+    FormData fdResult = new FormData();
     fdResult.left = new FormAttachment( middle, -margin );
-    fdResult.top = new FormAttachment( wSettingsGroup, margin * 2 );
+    fdResult.top = new FormAttachment(wSettingsGroup, margin * 2 );
     fdResult.right = new FormAttachment( 100, 0 );
-    wResult.setLayoutData( fdResult );
+    wResult.setLayoutData(fdResult);
 
     // is Result as String
-    wlResultAsString = new Label( wResultGroup, SWT.RIGHT );
+    Label wlResultAsString = new Label(wResultGroup, SWT.RIGHT);
     wlResultAsString.setText( BaseMessages.getString( PKG, "MailValidatorDialog.ResultAsString.Label" ) );
-    props.setLook( wlResultAsString );
-    fdlResultAsString = new FormData();
+    props.setLook(wlResultAsString);
+    FormData fdlResultAsString = new FormData();
     fdlResultAsString.left = new FormAttachment( 0, 0 );
     fdlResultAsString.top = new FormAttachment( wResult, margin );
     fdlResultAsString.right = new FormAttachment( middle, -2 * margin );
-    wlResultAsString.setLayoutData( fdlResultAsString );
-    wResultAsString = new Button( wResultGroup, SWT.CHECK );
+    wlResultAsString.setLayoutData(fdlResultAsString);
+    wResultAsString = new Button(wResultGroup, SWT.CHECK );
     props.setLook( wResultAsString );
     wResultAsString.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.ResultAsString.Tooltip" ) );
-    fdResultAsString = new FormData();
+    FormData fdResultAsString = new FormData();
     fdResultAsString.left = new FormAttachment( middle, -margin );
     fdResultAsString.top = new FormAttachment( wResult, margin );
-    wResultAsString.setLayoutData( fdResultAsString );
+    wResultAsString.setLayoutData(fdResultAsString);
     wResultAsString.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeResultAsString();
@@ -403,73 +374,73 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // ResultStringTrue fieldname ...
-    wlResultStringTrue = new Label( wResultGroup, SWT.RIGHT );
+    wlResultStringTrue = new Label(wResultGroup, SWT.RIGHT );
     wlResultStringTrue.setText( BaseMessages.getString( PKG, "MailValidatorDialog.ResultStringTrueField.Label" ) );
     props.setLook( wlResultStringTrue );
-    fdlResultStringTrue = new FormData();
+    FormData fdlResultStringTrue = new FormData();
     fdlResultStringTrue.left = new FormAttachment( 0, 0 );
     fdlResultStringTrue.right = new FormAttachment( middle, -2 * margin );
     fdlResultStringTrue.top = new FormAttachment( wResultAsString, margin );
-    wlResultStringTrue.setLayoutData( fdlResultStringTrue );
+    wlResultStringTrue.setLayoutData(fdlResultStringTrue);
 
     wResultStringTrue = new TextVar( pipelineMeta, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResultStringTrue.setToolTipText( BaseMessages.getString(
       PKG, "MailValidatorDialog.ResultStringTrueField.Tooltip" ) );
     props.setLook( wResultStringTrue );
     wResultStringTrue.addModifyListener( lsMod );
-    fdResultStringTrue = new FormData();
+    FormData fdResultStringTrue = new FormData();
     fdResultStringTrue.left = new FormAttachment( middle, -margin );
     fdResultStringTrue.top = new FormAttachment( wResultAsString, margin );
     fdResultStringTrue.right = new FormAttachment( 100, 0 );
-    wResultStringTrue.setLayoutData( fdResultStringTrue );
+    wResultStringTrue.setLayoutData(fdResultStringTrue);
 
     // ResultStringFalse fieldname ...
-    wlResultStringFalse = new Label( wResultGroup, SWT.RIGHT );
+    wlResultStringFalse = new Label(wResultGroup, SWT.RIGHT );
     wlResultStringFalse
       .setText( BaseMessages.getString( PKG, "MailValidatorDialog.ResultStringFalseField.Label" ) );
     props.setLook( wlResultStringFalse );
-    fdlResultStringFalse = new FormData();
+    FormData fdlResultStringFalse = new FormData();
     fdlResultStringFalse.left = new FormAttachment( 0, 0 );
     fdlResultStringFalse.right = new FormAttachment( middle, -2 * margin );
     fdlResultStringFalse.top = new FormAttachment( wResultStringTrue, margin );
-    wlResultStringFalse.setLayoutData( fdlResultStringFalse );
+    wlResultStringFalse.setLayoutData(fdlResultStringFalse);
 
     wResultStringFalse = new TextVar( pipelineMeta, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResultStringFalse.setToolTipText( BaseMessages.getString(
       PKG, "MailValidatorDialog.ResultStringFalseField.Tooltip" ) );
     props.setLook( wResultStringFalse );
     wResultStringFalse.addModifyListener( lsMod );
-    fdResultStringFalse = new FormData();
+    FormData fdResultStringFalse = new FormData();
     fdResultStringFalse.left = new FormAttachment( middle, -margin );
     fdResultStringFalse.top = new FormAttachment( wResultStringTrue, margin );
     fdResultStringFalse.right = new FormAttachment( 100, 0 );
-    wResultStringFalse.setLayoutData( fdResultStringFalse );
+    wResultStringFalse.setLayoutData(fdResultStringFalse);
 
     // ErrorMsg fieldname ...
-    wlErrorMsg = new Label( wResultGroup, SWT.RIGHT );
+    Label wlErrorMsg = new Label(wResultGroup, SWT.RIGHT);
     wlErrorMsg.setText( BaseMessages.getString( PKG, "MailValidatorDialog.ErrorMsgField.Label" ) );
-    props.setLook( wlErrorMsg );
-    fdlErrorMsg = new FormData();
+    props.setLook(wlErrorMsg);
+    FormData fdlErrorMsg = new FormData();
     fdlErrorMsg.left = new FormAttachment( 0, 0 );
     fdlErrorMsg.right = new FormAttachment( middle, -2 * margin );
     fdlErrorMsg.top = new FormAttachment( wResultStringFalse, margin );
-    wlErrorMsg.setLayoutData( fdlErrorMsg );
+    wlErrorMsg.setLayoutData(fdlErrorMsg);
 
     wErrorMsg = new TextVar( pipelineMeta, wResultGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wErrorMsg.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.ErrorMsgField.Tooltip" ) );
     props.setLook( wErrorMsg );
     wErrorMsg.addModifyListener( lsMod );
-    fdErrorMsg = new FormData();
+    FormData fdErrorMsg = new FormData();
     fdErrorMsg.left = new FormAttachment( middle, -margin );
     fdErrorMsg.top = new FormAttachment( wResultStringFalse, margin );
     fdErrorMsg.right = new FormAttachment( 100, 0 );
-    wErrorMsg.setLayoutData( fdErrorMsg );
+    wErrorMsg.setLayoutData(fdErrorMsg);
 
-    fdResultGroup = new FormData();
+    FormData fdResultGroup = new FormData();
     fdResultGroup.left = new FormAttachment( 0, margin );
-    fdResultGroup.top = new FormAttachment( wSettingsGroup, 2 * margin );
+    fdResultGroup.top = new FormAttachment(wSettingsGroup, 2 * margin );
     fdResultGroup.right = new FormAttachment( 100, -margin );
-    wResultGroup.setLayoutData( fdResultGroup );
+    wResultGroup.setLayoutData(fdResultGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Result GROUP
@@ -481,7 +452,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wResultGroup );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, wResultGroup);
 
     // Add listeners
     lsOk = e -> ok();

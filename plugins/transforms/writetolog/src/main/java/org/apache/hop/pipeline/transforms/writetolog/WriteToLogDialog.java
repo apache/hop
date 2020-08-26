@@ -51,9 +51,9 @@ import java.util.List;
 import java.util.*;
 
 public class WriteToLogDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = WriteToLogDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WriteToLogDialog.class; // for i18n purposes, needed by Translator!!
 
-  private WriteToLogMeta input;
+  private final WriteToLogMeta input;
 
   private CCombo wLoglevel;
 
@@ -68,7 +68,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
   Label wlLimitRowsNumber;
   private Text wLimitRowsNumber;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] colinf;
 
@@ -278,7 +278,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            inputFields.put( row.getValueMeta( i ).getName(), i);
           }
           setComboBoxes();
         } catch ( HopException e ) {

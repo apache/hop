@@ -34,23 +34,11 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
 
 /**
  * This dialog allows you to edit the Create Folder action settings.
@@ -59,31 +47,20 @@ import org.eclipse.swt.widgets.Text;
  * @since 27-10-2007
  */
 public class ActionDeleteResultFilenamesDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionDeleteResultFilenames.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionDeleteResultFilenames.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlName;
   private Text wName;
-  private FormData fdlName, fdName;
 
-  private Label wlSpecifyWildcard;
   private Button wSpecifyWildcard;
-  private FormData fdlSpecifyWildcard, fdSpecifyWildcard;
 
   private Label wlWildcard;
   private TextVar wWildcard;
-  private FormData fdlWildcard, fdWildcard;
 
   private Label wlWildcardExclude;
   private TextVar wWildcardExclude;
-  private FormData fdlWildcardExclude, fdWildcardExclude;
-
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private ActionDeleteResultFilenames action;
   private Shell shell;
-
-  private SelectionAdapter lsDef;
 
   private boolean changed;
 
@@ -119,42 +96,42 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     int margin = Const.MARGIN;
 
     // Foldername line
-    wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Name.Label" ) );
-    props.setLook( wlName );
-    fdlName = new FormData();
+    props.setLook(wlName);
+    FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, -margin );
     fdlName.top = new FormAttachment( 0, margin );
-    wlName.setLayoutData( fdlName );
+    wlName.setLayoutData(fdlName);
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.left = new FormAttachment( middle, 0 );
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    wName.setLayoutData(fdName);
 
     // Specify wildcard?
-    wlSpecifyWildcard = new Label( shell, SWT.RIGHT );
+    Label wlSpecifyWildcard = new Label(shell, SWT.RIGHT);
     wlSpecifyWildcard
       .setText( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.SpecifyWildcard.Label" ) );
-    props.setLook( wlSpecifyWildcard );
-    fdlSpecifyWildcard = new FormData();
+    props.setLook(wlSpecifyWildcard);
+    FormData fdlSpecifyWildcard = new FormData();
     fdlSpecifyWildcard.left = new FormAttachment( 0, 0 );
     fdlSpecifyWildcard.top = new FormAttachment( wName, margin );
     fdlSpecifyWildcard.right = new FormAttachment( middle, -margin );
-    wlSpecifyWildcard.setLayoutData( fdlSpecifyWildcard );
+    wlSpecifyWildcard.setLayoutData(fdlSpecifyWildcard);
     wSpecifyWildcard = new Button( shell, SWT.CHECK );
     props.setLook( wSpecifyWildcard );
     wSpecifyWildcard.setToolTipText( BaseMessages.getString(
       PKG, "ActionDeleteResultFilenames.SpecifyWildcard.Tooltip" ) );
-    fdSpecifyWildcard = new FormData();
+    FormData fdSpecifyWildcard = new FormData();
     fdSpecifyWildcard.left = new FormAttachment( middle, 0 );
     fdSpecifyWildcard.top = new FormAttachment( wName, margin );
     fdSpecifyWildcard.right = new FormAttachment( 100, 0 );
-    wSpecifyWildcard.setLayoutData( fdSpecifyWildcard );
+    wSpecifyWildcard.setLayoutData(fdSpecifyWildcard);
     wSpecifyWildcard.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         action.setChanged();
@@ -166,20 +143,20 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wlWildcard = new Label( shell, SWT.RIGHT );
     wlWildcard.setText( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Wildcard.Label" ) );
     props.setLook( wlWildcard );
-    fdlWildcard = new FormData();
+    FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment( 0, 0 );
     fdlWildcard.top = new FormAttachment( wSpecifyWildcard, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
-    wlWildcard.setLayoutData( fdlWildcard );
+    wlWildcard.setLayoutData(fdlWildcard);
     wWildcard = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
-    fdWildcard = new FormData();
+    FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment( middle, 0 );
     fdWildcard.top = new FormAttachment( wSpecifyWildcard, margin );
     fdWildcard.right = new FormAttachment( 100, -margin );
-    wWildcard.setLayoutData( fdWildcard );
+    wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wWildcard.addModifyListener( e -> wWildcard.setToolTipText( workflowMeta.environmentSubstitute( wWildcard.getText() ) ) );
@@ -189,46 +166,46 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wlWildcardExclude
       .setText( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.WildcardExclude.Label" ) );
     props.setLook( wlWildcardExclude );
-    fdlWildcardExclude = new FormData();
+    FormData fdlWildcardExclude = new FormData();
     fdlWildcardExclude.left = new FormAttachment( 0, 0 );
     fdlWildcardExclude.top = new FormAttachment( wWildcard, margin );
     fdlWildcardExclude.right = new FormAttachment( middle, -margin );
-    wlWildcardExclude.setLayoutData( fdlWildcardExclude );
+    wlWildcardExclude.setLayoutData(fdlWildcardExclude);
     wWildcardExclude = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcardExclude.setToolTipText( BaseMessages.getString(
       PKG, "ActionDeleteResultFilenames.WildcardExclude.Tooltip" ) );
     props.setLook( wWildcardExclude );
     wWildcardExclude.addModifyListener( lsMod );
-    fdWildcardExclude = new FormData();
+    FormData fdWildcardExclude = new FormData();
     fdWildcardExclude.left = new FormAttachment( middle, 0 );
     fdWildcardExclude.top = new FormAttachment( wWildcard, margin );
     fdWildcardExclude.right = new FormAttachment( 100, -margin );
-    wWildcardExclude.setLayoutData( fdWildcardExclude );
+    wWildcardExclude.setLayoutData(fdWildcardExclude);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( workflowMeta.environmentSubstitute( wWildcardExclude.getText() ) ) );
 
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wWildcardExclude );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, wWildcardExclude );
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
+    Listener lsCancel = e -> cancel();
+    Listener lsOk = e -> ok();
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
+    wCancel.addListener( SWT.Selection, lsCancel);
+    wOk.addListener( SWT.Selection, lsOk);
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wName.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
       public void shellClosed( ShellEvent e ) {

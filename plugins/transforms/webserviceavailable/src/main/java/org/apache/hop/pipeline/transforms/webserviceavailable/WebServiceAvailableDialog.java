@@ -42,25 +42,17 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class WebServiceAvailableDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = WebServiceAvailableMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WebServiceAvailableMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlURL;
   private CCombo wURL;
-  private FormData fdlURL, fdURL;
 
-  private Label wlResult;
   private TextVar wResult;
-  private FormData fdlResult, fdResult;
 
-  private Label wlConnectTimeOut;
   private TextVar wConnectTimeOut;
-  private FormData fdlConnectTimeOut, fdConnectTimeOut;
 
-  private Label wlReadTimeOut;
   private TextVar wReadTimeOut;
-  private FormData fdlReadTimeOut, fdReadTimeOut;
 
-  private WebServiceAvailableMeta input;
+  private final WebServiceAvailableMeta input;
 
   private boolean gotPreviousFields = false;
 
@@ -111,24 +103,24 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wTransformName.setLayoutData( fdTransformName );
 
     // filename field
-    wlURL = new Label( shell, SWT.RIGHT );
+    Label wlURL = new Label(shell, SWT.RIGHT);
     wlURL.setText( BaseMessages.getString( PKG, "WebServiceAvailableDialog.URL.Label" ) );
-    props.setLook( wlURL );
-    fdlURL = new FormData();
+    props.setLook(wlURL);
+    FormData fdlURL = new FormData();
     fdlURL.left = new FormAttachment( 0, 0 );
     fdlURL.right = new FormAttachment( middle, -margin );
     fdlURL.top = new FormAttachment( wTransformName, margin );
-    wlURL.setLayoutData( fdlURL );
+    wlURL.setLayoutData(fdlURL);
 
     wURL = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     wURL.setEditable( true );
     props.setLook( wURL );
     wURL.addModifyListener( lsMod );
-    fdURL = new FormData();
+    FormData fdURL = new FormData();
     fdURL.left = new FormAttachment( middle, 0 );
     fdURL.top = new FormAttachment( wTransformName, margin );
     fdURL.right = new FormAttachment( 100, -margin );
-    wURL.setLayoutData( fdURL );
+    wURL.setLayoutData(fdURL);
     wURL.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -139,71 +131,71 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     } );
 
     // connect timeout line
-    wlConnectTimeOut = new Label( shell, SWT.RIGHT );
+    Label wlConnectTimeOut = new Label(shell, SWT.RIGHT);
     wlConnectTimeOut.setText( BaseMessages.getString( PKG, "WebServiceAvailableDialog.ConnectTimeOut.Label" ) );
-    props.setLook( wlConnectTimeOut );
-    fdlConnectTimeOut = new FormData();
+    props.setLook(wlConnectTimeOut);
+    FormData fdlConnectTimeOut = new FormData();
     fdlConnectTimeOut.left = new FormAttachment( 0, 0 );
     fdlConnectTimeOut.top = new FormAttachment( wURL, margin );
     fdlConnectTimeOut.right = new FormAttachment( middle, -margin );
-    wlConnectTimeOut.setLayoutData( fdlConnectTimeOut );
+    wlConnectTimeOut.setLayoutData(fdlConnectTimeOut);
 
     wConnectTimeOut = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wConnectTimeOut.setToolTipText( BaseMessages.getString(
       PKG, "WebServiceAvailableDialog.ConnectTimeOut.Tooltip" ) );
     props.setLook( wConnectTimeOut );
     wConnectTimeOut.addModifyListener( lsMod );
-    fdConnectTimeOut = new FormData();
+    FormData fdConnectTimeOut = new FormData();
     fdConnectTimeOut.left = new FormAttachment( middle, 0 );
     fdConnectTimeOut.top = new FormAttachment( wURL, margin );
     fdConnectTimeOut.right = new FormAttachment( 100, -margin );
-    wConnectTimeOut.setLayoutData( fdConnectTimeOut );
+    wConnectTimeOut.setLayoutData(fdConnectTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( pipelineMeta.environmentSubstitute( wConnectTimeOut.getText() ) ) );
 
     // Read timeout line
-    wlReadTimeOut = new Label( shell, SWT.RIGHT );
+    Label wlReadTimeOut = new Label(shell, SWT.RIGHT);
     wlReadTimeOut.setText( BaseMessages.getString( PKG, "WebServiceAvailableDialog.ReadTimeOut.Label" ) );
-    props.setLook( wlReadTimeOut );
-    fdlReadTimeOut = new FormData();
+    props.setLook(wlReadTimeOut);
+    FormData fdlReadTimeOut = new FormData();
     fdlReadTimeOut.left = new FormAttachment( 0, 0 );
     fdlReadTimeOut.top = new FormAttachment( wConnectTimeOut, margin );
     fdlReadTimeOut.right = new FormAttachment( middle, -margin );
-    wlReadTimeOut.setLayoutData( fdlReadTimeOut );
+    wlReadTimeOut.setLayoutData(fdlReadTimeOut);
 
     wReadTimeOut = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReadTimeOut.setToolTipText( BaseMessages.getString( PKG, "WebServiceAvailableDialog.ReadTimeOut.Tooltip" ) );
     props.setLook( wReadTimeOut );
     wReadTimeOut.addModifyListener( lsMod );
-    fdReadTimeOut = new FormData();
+    FormData fdReadTimeOut = new FormData();
     fdReadTimeOut.left = new FormAttachment( middle, 0 );
     fdReadTimeOut.top = new FormAttachment( wConnectTimeOut, margin );
     fdReadTimeOut.right = new FormAttachment( 100, -margin );
-    wReadTimeOut.setLayoutData( fdReadTimeOut );
+    wReadTimeOut.setLayoutData(fdReadTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( pipelineMeta.environmentSubstitute( wReadTimeOut.getText() ) ) );
 
     // Result fieldname ...
-    wlResult = new Label( shell, SWT.RIGHT );
+    Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText( BaseMessages.getString( PKG, "WebServiceAvailableDialog.ResultField.Label" ) );
-    props.setLook( wlResult );
-    fdlResult = new FormData();
+    props.setLook(wlResult);
+    FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment( 0, 0 );
     fdlResult.right = new FormAttachment( middle, -margin );
     fdlResult.top = new FormAttachment( wReadTimeOut, margin * 2 );
-    wlResult.setLayoutData( fdlResult );
+    wlResult.setLayoutData(fdlResult);
 
     wResult = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "WebServiceAvailableDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
-    fdResult = new FormData();
+    FormData fdResult = new FormData();
     fdResult.left = new FormAttachment( middle, 0 );
     fdResult.top = new FormAttachment( wReadTimeOut, margin * 2 );
     fdResult.right = new FormAttachment( 100, 0 );
-    wResult.setLayoutData( fdResult );
+    wResult.setLayoutData(fdResult);
 
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );

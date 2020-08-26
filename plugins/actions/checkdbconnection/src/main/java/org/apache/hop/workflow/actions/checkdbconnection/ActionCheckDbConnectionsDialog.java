@@ -70,15 +70,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   private ActionCheckDbConnections action;
 
-  private SelectionAdapter lsDef;
-
   private boolean changed;
 
   private TableView wFields;
-
-  private FormData fdbdSourceFileFolder;
-
-  private FormData fdbgetConnections;
 
   public ActionCheckDbConnectionsDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
@@ -143,10 +137,10 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     wbdSourceFileFolder.setText( BaseMessages.getString( PKG, "ActionCheckDbConnections.DeleteEntry" ) );
     wbdSourceFileFolder.setToolTipText( BaseMessages.getString(
       PKG, "ActionCheckDbConnections.DeleteSourceFileButton.Label" ) );
-    fdbdSourceFileFolder = new FormData();
+    FormData fdbdSourceFileFolder = new FormData();
     fdbdSourceFileFolder.right = new FormAttachment( 100, -margin );
     fdbdSourceFileFolder.top = new FormAttachment( wlFields, 50 );
-    wbdSourceFileFolder.setLayoutData( fdbdSourceFileFolder );
+    wbdSourceFileFolder.setLayoutData(fdbdSourceFileFolder);
 
     // Buttons to the right of the screen...
     Button wbgetConnections = new Button( shell, SWT.PUSH | SWT.CENTER );
@@ -154,10 +148,10 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     wbgetConnections.setText( BaseMessages.getString( PKG, "ActionCheckDbConnections.GetConnections" ) );
     wbgetConnections
       .setToolTipText( BaseMessages.getString( PKG, "ActionCheckDbConnections.GetConnections.Tooltip" ) );
-    fdbgetConnections = new FormData();
+    FormData fdbgetConnections = new FormData();
     fdbgetConnections.right = new FormAttachment( 100, -margin );
     fdbgetConnections.top = new FormAttachment( wlFields, 20 );
-    wbgetConnections.setLayoutData( fdbgetConnections );
+    wbgetConnections.setLayoutData(fdbgetConnections);
 
     int rows = action.getConnections() == null ? 1
       : ( action.getConnections().length == 0 ? 0 : action.getConnections().length );
@@ -198,9 +192,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wOk.setLayoutData( fd );
-    wOk.addListener( SWT.Selection, ( Event e ) -> {
-      ok();
-    } );
+    wOk.addListener( SWT.Selection, ( Event e ) -> ok());
 
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
@@ -209,9 +201,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     fd.bottom = new FormAttachment( 100, 0 );
     fd.width = 100;
     wCancel.setLayoutData( fd );
-    wCancel.addListener( SWT.Selection, ( Event e ) -> {
-      cancel();
-    } );
+    wCancel.addListener( SWT.Selection, ( Event e ) -> cancel());
 
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
 
@@ -233,13 +223,13 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     } );
 
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wName.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -269,10 +259,9 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
   public void getDatabases() {
     wFields.removeAll();
     List<DatabaseMeta> databases = workflowMeta.getDatabases();
-    for ( int i = 0; i < databases.size(); i++ ) {
-      DatabaseMeta ci = databases.get( i );
-      if ( ci != null ) {
-        wFields.add( new String[] { ci.getName(), "0", ActionCheckDbConnections.unitTimeDesc[ 0 ] } );
+    for (DatabaseMeta ci : databases) {
+      if (ci != null) {
+        wFields.add(new String[]{ci.getName(), "0", ActionCheckDbConnections.unitTimeDesc[0]});
       }
     }
     wFields.removeEmptyRows();

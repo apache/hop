@@ -31,6 +31,7 @@ import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -39,6 +40,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
@@ -208,6 +210,42 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
       toolItem.setEnabled( enabled );
     }
   }
+    
+  /**
+   * Find the toolbar item with the given ID.
+   * Check the capability in the given file type
+   * Enable or disable accordingly.
+   *
+   * @param fileType
+   * @param id         The ID of the widget to look for
+   * @param permission
+   * @return The toolbar item or null if nothing is found
+   */
+  public ToolItem enableToolbarItem( IHopFileType fileType, String id, String permission ) {
+    return enableToolbarItem( fileType, id, permission, true );
+  }
+
+  /**
+   * Find the toolbar item with the given ID.
+   * Check the capability in the given file type
+   * Enable or disable accordingly.
+   *
+   * @param fileType
+   * @param id         The ID of the widget to look for
+   * @param permission
+   * @param active     The state if the permission is available
+   * @return The toolbar item or null if nothing is found
+   */
+  public ToolItem enableToolbarItem( IHopFileType fileType, String id, String permission, boolean active ) {
+    ToolItem item = findToolItem( id );
+    if (item == null ) {
+      return null;
+    }
+    boolean hasCapability = fileType.hasCapability( permission );
+    item.setEnabled( hasCapability && active );
+    return item;
+  }
+  
 
   public ToolItem findToolItem( String id ) {
     return toolItemMap.get( id );

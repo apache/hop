@@ -145,8 +145,8 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wMessageAbort );
 
     // Add listeners
-    wCancel.addListener( SWT.Selection, (Event e) -> { cancel(); } );
-    wOk.addListener( SWT.Selection, (Event e) -> { ok();  } );
+    wCancel.addListener( SWT.Selection, (Event e) -> cancel());
+    wOk.addListener( SWT.Selection, (Event e) -> ok());
 
     SelectionAdapter lsDef = new SelectionAdapter() {
       @Override

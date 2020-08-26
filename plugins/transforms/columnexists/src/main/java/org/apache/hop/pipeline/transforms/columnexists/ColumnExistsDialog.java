@@ -55,35 +55,19 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
 
   private Label wlTableName;
   private CCombo wTableName;
-  private FormData fdlTableName, fdTableName;
 
-  private Label wlResult;
   private Text wResult;
-  private FormData fdlResult, fdResult;
 
   private Label wlTablenameText;
   private TextVar wTablenameText;
-  private FormData fdlTablenameText, fdTablenameText;
 
-  private Label wlColumnName;
   private CCombo wColumnName;
-  private FormData fdlColumnName, fdColumnName;
 
-  private Label wlTablenameInField;
   private Button wTablenameInField;
-  private FormData fdlTablenameInField, fdTablenameInField;
 
-  // Schema name
-  private Label wlSchemaname;
   private TextVar wSchemaname;
-  private FormData fdlSchemaname, fdSchemaname;
 
-  private FormData fdbSchema;
-  private Button wbSchema;
-
-  private Button wbTable;
-
-  private ColumnExistsMeta input;
+  private final ColumnExistsMeta input;
 
   public ColumnExistsDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
@@ -136,23 +120,24 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wConnection = addConnectionLine( shell, wTransformName, input.getDatabase(), lsMod );
 
     // Schema name line
-    wlSchemaname = new Label( shell, SWT.RIGHT );
+    // Schema name
+    Label wlSchemaname = new Label(shell, SWT.RIGHT);
     wlSchemaname.setText( BaseMessages.getString( PKG, "ColumnExistsDialog.Schemaname.Label" ) );
-    props.setLook( wlSchemaname );
-    fdlSchemaname = new FormData();
+    props.setLook(wlSchemaname);
+    FormData fdlSchemaname = new FormData();
     fdlSchemaname.left = new FormAttachment( 0, 0 );
     fdlSchemaname.right = new FormAttachment( middle, -margin );
     fdlSchemaname.top = new FormAttachment( wConnection, margin * 2 );
-    wlSchemaname.setLayoutData( fdlSchemaname );
+    wlSchemaname.setLayoutData(fdlSchemaname);
 
-    wbSchema = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbSchema );
+    Button wbSchema = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbSchema);
     wbSchema.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbSchema = new FormData();
+    FormData fdbSchema = new FormData();
     fdbSchema.top = new FormAttachment( wConnection, 2 * margin );
     fdbSchema.right = new FormAttachment( 100, 0 );
-    wbSchema.setLayoutData( fdbSchema );
-    wbSchema.addSelectionListener( new SelectionAdapter() {
+    wbSchema.setLayoutData(fdbSchema);
+    wbSchema.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getSchemaNames();
       }
@@ -162,30 +147,30 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "ColumnExistsDialog.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
-    fdSchemaname = new FormData();
+    FormData fdSchemaname = new FormData();
     fdSchemaname.left = new FormAttachment( middle, 0 );
     fdSchemaname.top = new FormAttachment( wConnection, margin * 2 );
-    fdSchemaname.right = new FormAttachment( wbSchema, -margin );
-    wSchemaname.setLayoutData( fdSchemaname );
+    fdSchemaname.right = new FormAttachment(wbSchema, -margin );
+    wSchemaname.setLayoutData(fdSchemaname);
 
     // TablenameText fieldname ...
     wlTablenameText = new Label( shell, SWT.RIGHT );
     wlTablenameText.setText( BaseMessages.getString( PKG, "ColumnExistsDialog.TablenameTextField.Label" ) );
     props.setLook( wlTablenameText );
-    fdlTablenameText = new FormData();
+    FormData fdlTablenameText = new FormData();
     fdlTablenameText.left = new FormAttachment( 0, 0 );
     fdlTablenameText.right = new FormAttachment( middle, -margin );
-    fdlTablenameText.top = new FormAttachment( wbSchema, margin );
-    wlTablenameText.setLayoutData( fdlTablenameText );
+    fdlTablenameText.top = new FormAttachment(wbSchema, margin );
+    wlTablenameText.setLayoutData(fdlTablenameText);
 
-    wbTable = new Button( shell, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbTable );
+    Button wbTable = new Button(shell, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbTable);
     wbTable.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
     FormData fdbTable = new FormData();
     fdbTable.right = new FormAttachment( 100, 0 );
-    fdbTable.top = new FormAttachment( wbSchema, margin );
+    fdbTable.top = new FormAttachment(wbSchema, margin );
     wbTable.setLayoutData( fdbTable );
-    wbTable.addSelectionListener( new SelectionAdapter() {
+    wbTable.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         getTableName();
       }
@@ -195,29 +180,29 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wTablenameText.setToolTipText( BaseMessages.getString( PKG, "ColumnExistsDialog.TablenameTextField.Tooltip" ) );
     props.setLook( wTablenameText );
     wTablenameText.addModifyListener( lsMod );
-    fdTablenameText = new FormData();
+    FormData fdTablenameText = new FormData();
     fdTablenameText.left = new FormAttachment( middle, 0 );
-    fdTablenameText.top = new FormAttachment( wbSchema, margin );
-    fdTablenameText.right = new FormAttachment( wbTable, -margin );
-    wTablenameText.setLayoutData( fdTablenameText );
+    fdTablenameText.top = new FormAttachment(wbSchema, margin );
+    fdTablenameText.right = new FormAttachment(wbTable, -margin );
+    wTablenameText.setLayoutData(fdTablenameText);
 
     // Is tablename is field?
-    wlTablenameInField = new Label( shell, SWT.RIGHT );
+    Label wlTablenameInField = new Label(shell, SWT.RIGHT);
     wlTablenameInField.setText( BaseMessages.getString( PKG, "ColumnExistsDialog.TablenameInfield.Label" ) );
-    props.setLook( wlTablenameInField );
-    fdlTablenameInField = new FormData();
+    props.setLook(wlTablenameInField);
+    FormData fdlTablenameInField = new FormData();
     fdlTablenameInField.left = new FormAttachment( 0, 0 );
     fdlTablenameInField.top = new FormAttachment( wTablenameText, margin );
     fdlTablenameInField.right = new FormAttachment( middle, -margin );
-    wlTablenameInField.setLayoutData( fdlTablenameInField );
+    wlTablenameInField.setLayoutData(fdlTablenameInField);
     wTablenameInField = new Button( shell, SWT.CHECK );
     wTablenameInField.setToolTipText( BaseMessages.getString( PKG, "ColumnExistsDialog.TablenameInfield.Tooltip" ) );
     props.setLook( wTablenameInField );
-    fdTablenameInField = new FormData();
+    FormData fdTablenameInField = new FormData();
     fdTablenameInField.left = new FormAttachment( middle, 0 );
     fdTablenameInField.top = new FormAttachment( wTablenameText, margin );
     fdTablenameInField.right = new FormAttachment( 100, 0 );
-    wTablenameInField.setLayoutData( fdTablenameInField );
+    wTablenameInField.setLayoutData(fdTablenameInField);
     SelectionAdapter lsSelR = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         input.setChanged();
@@ -230,20 +215,20 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     wlTableName = new Label( shell, SWT.RIGHT );
     wlTableName.setText( BaseMessages.getString( PKG, "ColumnExistsDialog.TableName.Label" ) );
     props.setLook( wlTableName );
-    fdlTableName = new FormData();
+    FormData fdlTableName = new FormData();
     fdlTableName.left = new FormAttachment( 0, 0 );
     fdlTableName.right = new FormAttachment( middle, -margin );
     fdlTableName.top = new FormAttachment( wTablenameInField, margin * 2 );
-    wlTableName.setLayoutData( fdlTableName );
+    wlTableName.setLayoutData(fdlTableName);
 
     wTableName = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wTableName );
     wTableName.addModifyListener( lsMod );
-    fdTableName = new FormData();
+    FormData fdTableName = new FormData();
     fdTableName.left = new FormAttachment( middle, 0 );
     fdTableName.top = new FormAttachment( wTablenameInField, margin * 2 );
     fdTableName.right = new FormAttachment( 100, -margin );
-    wTableName.setLayoutData( fdTableName );
+    wTableName.setLayoutData(fdTableName);
     wTableName.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -258,23 +243,23 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     } );
 
     // Dynamic column name field
-    wlColumnName = new Label( shell, SWT.RIGHT );
+    Label wlColumnName = new Label(shell, SWT.RIGHT);
     wlColumnName.setText( BaseMessages.getString( PKG, "ColumnExistsDialog.ColumnName.Label" ) );
-    props.setLook( wlColumnName );
-    fdlColumnName = new FormData();
+    props.setLook(wlColumnName);
+    FormData fdlColumnName = new FormData();
     fdlColumnName.left = new FormAttachment( 0, 0 );
     fdlColumnName.right = new FormAttachment( middle, -margin );
     fdlColumnName.top = new FormAttachment( wTableName, margin );
-    wlColumnName.setLayoutData( fdlColumnName );
+    wlColumnName.setLayoutData(fdlColumnName);
 
     wColumnName = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wColumnName );
     wColumnName.addModifyListener( lsMod );
-    fdColumnName = new FormData();
+    FormData fdColumnName = new FormData();
     fdColumnName.left = new FormAttachment( middle, 0 );
     fdColumnName.top = new FormAttachment( wTableName, margin );
     fdColumnName.right = new FormAttachment( 100, -margin );
-    wColumnName.setLayoutData( fdColumnName );
+    wColumnName.setLayoutData(fdColumnName);
     wColumnName.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -289,23 +274,23 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     } );
 
     // Result fieldname ...
-    wlResult = new Label( shell, SWT.RIGHT );
+    Label wlResult = new Label(shell, SWT.RIGHT);
     wlResult.setText( BaseMessages.getString( PKG, "ColumnExistsDialog.ResultField.Label" ) );
-    props.setLook( wlResult );
-    fdlResult = new FormData();
+    props.setLook(wlResult);
+    FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment( 0, 0 );
     fdlResult.right = new FormAttachment( middle, -margin );
     fdlResult.top = new FormAttachment( wColumnName, margin * 2 );
-    wlResult.setLayoutData( fdlResult );
+    wlResult.setLayoutData(fdlResult);
     wResult = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "ColumnExistsDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
-    fdResult = new FormData();
+    FormData fdResult = new FormData();
     fdResult.left = new FormAttachment( middle, 0 );
     fdResult.top = new FormAttachment( wColumnName, margin * 2 );
     fdResult.right = new FormAttachment( 100, 0 );
-    wResult.setLayoutData( fdResult );
+    wResult.setLayoutData(fdResult);
 
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );

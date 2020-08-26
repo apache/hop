@@ -41,17 +41,13 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class FilesToResultDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = FilesToResultMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FilesToResultMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlFilenameField;
   private CCombo wFilenameField;
-  private FormData fdlFilenameField, fdFilenameField;
 
-  private Label wlTypes;
   private List wTypes;
-  private FormData fdlTypes, fdTypes;
 
-  private FilesToResultMeta input;
+  private final FilesToResultMeta input;
 
   public FilesToResultDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -102,24 +98,24 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     // The rest...
 
     // FilenameField line
-    wlFilenameField = new Label( shell, SWT.RIGHT );
+    Label wlFilenameField = new Label(shell, SWT.RIGHT);
     wlFilenameField.setText( BaseMessages.getString( PKG, "FilesToResultDialog.FilenameField.Label" ) );
-    props.setLook( wlFilenameField );
-    fdlFilenameField = new FormData();
+    props.setLook(wlFilenameField);
+    FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment( 0, 0 );
     fdlFilenameField.top = new FormAttachment( wTransformName, margin );
     fdlFilenameField.right = new FormAttachment( middle, -margin );
-    wlFilenameField.setLayoutData( fdlFilenameField );
+    wlFilenameField.setLayoutData(fdlFilenameField);
 
     wFilenameField = new CCombo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wFilenameField.setToolTipText( BaseMessages.getString( PKG, "FilesToResultDialog.FilenameField.Tooltip" ) );
     props.setLook( wFilenameField );
     wFilenameField.addModifyListener( lsMod );
-    fdFilenameField = new FormData();
+    FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment( middle, 0 );
     fdFilenameField.top = new FormAttachment( wTransformName, margin );
     fdFilenameField.right = new FormAttachment( 100, 0 );
-    wFilenameField.setLayoutData( fdFilenameField );
+    wFilenameField.setLayoutData(fdFilenameField);
 
     /*
      * Get the field names from the previous transforms, in the background though
@@ -149,23 +145,23 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // Include Files?
-    wlTypes = new Label( shell, SWT.RIGHT );
+    Label wlTypes = new Label(shell, SWT.RIGHT);
     wlTypes.setText( BaseMessages.getString( PKG, "FilesToResultDialog.TypeOfFile.Label" ) );
-    props.setLook( wlTypes );
-    fdlTypes = new FormData();
+    props.setLook(wlTypes);
+    FormData fdlTypes = new FormData();
     fdlTypes.left = new FormAttachment( 0, 0 );
     fdlTypes.top = new FormAttachment( wFilenameField, margin );
     fdlTypes.right = new FormAttachment( middle, -margin );
-    wlTypes.setLayoutData( fdlTypes );
+    wlTypes.setLayoutData(fdlTypes);
     wTypes = new List( shell, SWT.SINGLE | SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL );
     wTypes.setToolTipText( BaseMessages.getString( PKG, "FilesToResultDialog.TypeOfFile.Tooltip" ) );
     props.setLook( wTypes );
-    fdTypes = new FormData();
+    FormData fdTypes = new FormData();
     fdTypes.left = new FormAttachment( middle, 0 );
     fdTypes.top = new FormAttachment( wFilenameField, margin );
     fdTypes.bottom = new FormAttachment( wOk, -margin * 3 );
     fdTypes.right = new FormAttachment( 100, 0 );
-    wTypes.setLayoutData( fdTypes );
+    wTypes.setLayoutData(fdTypes);
     for ( int i = 0; i < ResultFile.getAllTypeDesc().length; i++ ) {
       wTypes.add( ResultFile.getAllTypeDesc()[ i ] );
     }

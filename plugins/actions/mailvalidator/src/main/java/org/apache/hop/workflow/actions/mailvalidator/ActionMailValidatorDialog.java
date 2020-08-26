@@ -42,51 +42,28 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ActionMailValidatorDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionMailValidator.class; // for i18n purposes, needed by Translator!!
-
-  private Label wlName;
+  private static final Class<?> PKG = ActionMailValidator.class; // for i18n purposes, needed by Translator!!
 
   private Text wName;
-
-  private FormData fdlName, fdName;
-
-  private Button wOk, wCancel;
-
-  private Listener lsOk, lsCancel;
 
   private ActionMailValidator action;
 
   private Shell shell;
 
-  private SelectionAdapter lsDef;
-
   private boolean changed;
 
   private LabelTextVar wMailAddress;
 
-  private FormData fdMailAddress;
-
-  private Display display;
-
-  private Group wSettingsGroup;
-  private FormData fdSettingsGroup;
-
   private Label wleMailSender;
   private TextVar weMailSender;
-  private FormData fdleMailSender, fdeMailSender;
 
   private Label wlTimeOut;
   private TextVar wTimeOut;
-  private FormData fdlTimeOut, fdTimeOut;
 
   private Label wlDefaultSMTP;
   private TextVar wDefaultSMTP;
-  private FormData fdlDefaultSMTP, fdDefaultSMTP;
 
-  private Label wlSMTPCheck;
-  private FormData fdlSMTPCheck;
   private Button wSMTPCheck;
-  private FormData fdSMTPCheck;
 
   public ActionMailValidatorDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
     super( parent, action, workflowMeta );
@@ -99,17 +76,13 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
 
   public IAction open() {
     Shell parent = getParent();
-    display = parent.getDisplay();
+    Display display = parent.getDisplay();
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -123,40 +96,40 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     int margin = Const.MARGIN;
 
     // Filename line
-    wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText( BaseMessages.getString( PKG, "ActionMailValidatorDialog.Label" ) );
-    props.setLook( wlName );
-    fdlName = new FormData();
+    props.setLook(wlName);
+    FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, 0 );
     fdlName.top = new FormAttachment( 0, margin );
-    wlName.setLayoutData( fdlName );
+    wlName.setLayoutData(fdlName);
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.left = new FormAttachment( middle, margin );
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    wName.setLayoutData(fdName);
 
     // eMail address
     wMailAddress = new LabelTextVar( workflowMeta, shell,
       BaseMessages.getString( PKG, "ActionMailValidatorDialog.MailAddress.Label" ),
       BaseMessages.getString( PKG, "ActionMailValidatorDialog.MailAddress.Tooltip" ) );
     wMailAddress.addModifyListener( lsMod );
-    fdMailAddress = new FormData();
+    FormData fdMailAddress = new FormData();
     fdMailAddress.left = new FormAttachment( 0, 0 );
     fdMailAddress.top = new FormAttachment( wName, margin );
     fdMailAddress.right = new FormAttachment( 100, 0 );
-    wMailAddress.setLayoutData( fdMailAddress );
+    wMailAddress.setLayoutData(fdMailAddress);
 
     // ////////////////////////
     // START OF Settings GROUP
     // ////////////////////////
 
-    wSettingsGroup = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wSettingsGroup );
+    Group wSettingsGroup = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wSettingsGroup);
     wSettingsGroup.setText( BaseMessages
       .getString( PKG, "ActionMailValidatorDialog.Group.SettingsAddress.Label" ) );
 
@@ -166,21 +139,21 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     wSettingsGroup.setLayout( SettingsgroupLayout );
 
     // perform SMTP check?
-    wlSMTPCheck = new Label( wSettingsGroup, SWT.RIGHT );
+    Label wlSMTPCheck = new Label(wSettingsGroup, SWT.RIGHT);
     wlSMTPCheck.setText( BaseMessages.getString( PKG, "ActionMailValidatorDialog.SMTPCheck.Label" ) );
-    props.setLook( wlSMTPCheck );
-    fdlSMTPCheck = new FormData();
+    props.setLook(wlSMTPCheck);
+    FormData fdlSMTPCheck = new FormData();
     fdlSMTPCheck.left = new FormAttachment( 0, 0 );
     fdlSMTPCheck.top = new FormAttachment( wMailAddress, margin );
     fdlSMTPCheck.right = new FormAttachment( middle, -2 * margin );
-    wlSMTPCheck.setLayoutData( fdlSMTPCheck );
-    wSMTPCheck = new Button( wSettingsGroup, SWT.CHECK );
+    wlSMTPCheck.setLayoutData(fdlSMTPCheck);
+    wSMTPCheck = new Button(wSettingsGroup, SWT.CHECK );
     props.setLook( wSMTPCheck );
     wSMTPCheck.setToolTipText( BaseMessages.getString( PKG, "ActionMailValidatorDialog.SMTPCheck.Tooltip" ) );
-    fdSMTPCheck = new FormData();
+    FormData fdSMTPCheck = new FormData();
     fdSMTPCheck.left = new FormAttachment( middle, -margin );
     fdSMTPCheck.top = new FormAttachment( wMailAddress, margin );
-    wSMTPCheck.setLayoutData( fdSMTPCheck );
+    wSMTPCheck.setLayoutData(fdSMTPCheck);
     wSMTPCheck.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeSMTPCheck();
@@ -188,107 +161,99 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     } );
 
     // TimeOut fieldname ...
-    wlTimeOut = new Label( wSettingsGroup, SWT.RIGHT );
+    wlTimeOut = new Label(wSettingsGroup, SWT.RIGHT );
     wlTimeOut.setText( BaseMessages.getString( PKG, "ActionMailValidatorDialog.TimeOutField.Label" ) );
     props.setLook( wlTimeOut );
-    fdlTimeOut = new FormData();
+    FormData fdlTimeOut = new FormData();
     fdlTimeOut.left = new FormAttachment( 0, 0 );
     fdlTimeOut.right = new FormAttachment( middle, -2 * margin );
     fdlTimeOut.top = new FormAttachment( wSMTPCheck, margin );
-    wlTimeOut.setLayoutData( fdlTimeOut );
+    wlTimeOut.setLayoutData(fdlTimeOut);
 
     wTimeOut = new TextVar( workflowMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTimeOut.setToolTipText( BaseMessages.getString( PKG, "ActionMailValidatorDialog.TimeOutField.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
-    fdTimeOut = new FormData();
+    FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment( middle, -margin );
     fdTimeOut.top = new FormAttachment( wSMTPCheck, margin );
     fdTimeOut.right = new FormAttachment( 100, 0 );
-    wTimeOut.setLayoutData( fdTimeOut );
+    wTimeOut.setLayoutData(fdTimeOut);
 
     // eMailSender fieldname ...
-    wleMailSender = new Label( wSettingsGroup, SWT.RIGHT );
+    wleMailSender = new Label(wSettingsGroup, SWT.RIGHT );
     wleMailSender.setText( BaseMessages.getString( PKG, "ActionMailValidatorDialog.eMailSenderField.Label" ) );
     props.setLook( wleMailSender );
-    fdleMailSender = new FormData();
+    FormData fdleMailSender = new FormData();
     fdleMailSender.left = new FormAttachment( 0, 0 );
     fdleMailSender.right = new FormAttachment( middle, -2 * margin );
     fdleMailSender.top = new FormAttachment( wTimeOut, margin );
-    wleMailSender.setLayoutData( fdleMailSender );
+    wleMailSender.setLayoutData(fdleMailSender);
 
     weMailSender = new TextVar( workflowMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     weMailSender.setToolTipText( BaseMessages.getString(
       PKG, "ActionMailValidatorDialog.eMailSenderField.Tooltip" ) );
     props.setLook( weMailSender );
     weMailSender.addModifyListener( lsMod );
-    fdeMailSender = new FormData();
+    FormData fdeMailSender = new FormData();
     fdeMailSender.left = new FormAttachment( middle, -margin );
     fdeMailSender.top = new FormAttachment( wTimeOut, margin );
     fdeMailSender.right = new FormAttachment( 100, 0 );
-    weMailSender.setLayoutData( fdeMailSender );
+    weMailSender.setLayoutData(fdeMailSender);
 
     // DefaultSMTP fieldname ...
-    wlDefaultSMTP = new Label( wSettingsGroup, SWT.RIGHT );
+    wlDefaultSMTP = new Label(wSettingsGroup, SWT.RIGHT );
     wlDefaultSMTP.setText( BaseMessages.getString( PKG, "ActionMailValidatorDialog.DefaultSMTPField.Label" ) );
     props.setLook( wlDefaultSMTP );
-    fdlDefaultSMTP = new FormData();
+    FormData fdlDefaultSMTP = new FormData();
     fdlDefaultSMTP.left = new FormAttachment( 0, 0 );
     fdlDefaultSMTP.right = new FormAttachment( middle, -2 * margin );
     fdlDefaultSMTP.top = new FormAttachment( weMailSender, margin );
-    wlDefaultSMTP.setLayoutData( fdlDefaultSMTP );
+    wlDefaultSMTP.setLayoutData(fdlDefaultSMTP);
 
     wDefaultSMTP = new TextVar( workflowMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wDefaultSMTP.setToolTipText( BaseMessages.getString(
       PKG, "ActionMailValidatorDialog.DefaultSMTPField.Tooltip" ) );
     props.setLook( wDefaultSMTP );
     wDefaultSMTP.addModifyListener( lsMod );
-    fdDefaultSMTP = new FormData();
+    FormData fdDefaultSMTP = new FormData();
     fdDefaultSMTP.left = new FormAttachment( middle, -margin );
     fdDefaultSMTP.top = new FormAttachment( weMailSender, margin );
     fdDefaultSMTP.right = new FormAttachment( 100, 0 );
-    wDefaultSMTP.setLayoutData( fdDefaultSMTP );
+    wDefaultSMTP.setLayoutData(fdDefaultSMTP);
 
-    fdSettingsGroup = new FormData();
+    FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment( 0, margin );
     fdSettingsGroup.top = new FormAttachment( wMailAddress, margin );
     fdSettingsGroup.right = new FormAttachment( 100, -margin );
-    wSettingsGroup.setLayoutData( fdSettingsGroup );
+    wSettingsGroup.setLayoutData(fdSettingsGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings GROUP
     // ///////////////////////////////////////////////////////////
 
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     // at the bottom
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wSettingsGroup );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, wSettingsGroup);
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    Listener lsCancel = e -> cancel();
 
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
+    Listener lsOk = e -> ok();
+
+    wCancel.addListener( SWT.Selection, lsCancel);
+    wOk.addListener( SWT.Selection, lsOk);
+
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
-        ok();
-      }
-    };
-
-    wName.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

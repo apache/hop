@@ -22,9 +22,6 @@
 
 package org.apache.hop.workflow.actions.writetofile;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -40,25 +37,14 @@ import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.*;
+
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 
 /**
  * This dialog allows you to edit the Write to file action settings.
@@ -67,49 +53,25 @@ import org.eclipse.swt.widgets.Text;
  * @since 28-01-2007
  */
 public class ActionWriteToFileDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionWriteToFile.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionWriteToFile.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobWriteToFile.Filetype.All" ) };
 
-  private Label wlName;
   private Text wName;
-  private FormData fdlName, fdName;
 
-  private Label wlFilename;
-  private Button wbFilename;
   private TextVar wFilename;
-  private FormData fdlFilename, fdbFilename, fdFilename;
 
-  private Label wlCreateParentFolder;
   private Button wCreateParentFolder;
-  private FormData fdlCreateParentFolder, fdCreateParentFolder;
 
-  private Label wlAppendFile;
   private Button wAppendFile;
-  private FormData fdlAppendFile, fdAppendFile;
 
-  private Label wlEncoding;
   private ComboVar wEncoding;
-  private FormData fdlEncoding, fdEncoding;
 
-  private Group wFileGroup;
-  private FormData fdFileGroup;
-
-  private Group wContentGroup;
-  private FormData fdContentGroup;
-
-  private Label wlContent;
   private Text wContent;
-  private FormData fdlContent, fdContent;
-
-  private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private ActionWriteToFile action;
   private Shell shell;
-
-  private SelectionAdapter lsDef;
 
   private boolean changed;
 
@@ -145,36 +107,36 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     int margin = Const.MARGIN;
 
     // Filename line
-    wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label(shell, SWT.RIGHT);
     wlName.setText( BaseMessages.getString( PKG, "JobWriteToFile.Name.Label" ) );
-    props.setLook( wlName );
-    fdlName = new FormData();
+    props.setLook(wlName);
+    FormData fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, -margin );
     fdlName.top = new FormAttachment( 0, margin );
-    wlName.setLayoutData( fdlName );
+    wlName.setLayoutData(fdlName);
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     wName.addModifyListener( lsMod );
-    fdName = new FormData();
+    FormData fdName = new FormData();
     fdName.left = new FormAttachment( middle, 0 );
     fdName.top = new FormAttachment( 0, margin );
     fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
+    wName.setLayoutData(fdName);
 
-    wOk = new Button( shell, SWT.PUSH );
+    Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
+    Button wCancel = new Button(shell, SWT.PUSH);
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] {wOk, wCancel}, margin, null );
 
     // ////////////////////////
     // START OF File GROUP
     // ////////////////////////
 
-    wFileGroup = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wFileGroup );
+    Group wFileGroup = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wFileGroup);
     wFileGroup.setText( BaseMessages.getString( PKG, "JobWriteToFile.Group.File.Label" ) );
 
     FormLayout FileGroupLayout = new FormLayout();
@@ -183,31 +145,31 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wFileGroup.setLayout( FileGroupLayout );
 
     // Filename line
-    wlFilename = new Label( wFileGroup, SWT.RIGHT );
+    Label wlFilename = new Label(wFileGroup, SWT.RIGHT);
     wlFilename.setText( BaseMessages.getString( PKG, "JobWriteToFile.Filename.Label" ) );
-    props.setLook( wlFilename );
-    fdlFilename = new FormData();
+    props.setLook(wlFilename);
+    FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment( 0, 0 );
     fdlFilename.top = new FormAttachment( wName, margin );
     fdlFilename.right = new FormAttachment( middle, -margin );
-    wlFilename.setLayoutData( fdlFilename );
+    wlFilename.setLayoutData(fdlFilename);
 
-    wbFilename = new Button( wFileGroup, SWT.PUSH | SWT.CENTER );
-    props.setLook( wbFilename );
+    Button wbFilename = new Button(wFileGroup, SWT.PUSH | SWT.CENTER);
+    props.setLook(wbFilename);
     wbFilename.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
-    fdbFilename = new FormData();
+    FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment( 100, 0 );
     fdbFilename.top = new FormAttachment( wName, 0 );
-    wbFilename.setLayoutData( fdbFilename );
+    wbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar( workflowMeta, wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
-    fdFilename = new FormData();
+    FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment( middle, 0 );
     fdFilename.top = new FormAttachment( wName, margin );
-    fdFilename.right = new FormAttachment( wbFilename, -margin );
-    wFilename.setLayoutData( fdFilename );
+    fdFilename.right = new FormAttachment(wbFilename, -margin );
+    wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
     wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
@@ -216,56 +178,56 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
       new String[] { "*" }, FILETYPES, true )
     );
 
-    wlCreateParentFolder = new Label( wFileGroup, SWT.RIGHT );
+    Label wlCreateParentFolder = new Label(wFileGroup, SWT.RIGHT);
     wlCreateParentFolder.setText( BaseMessages.getString( PKG, "JobWriteToFile.CreateParentFolder.Label" ) );
-    props.setLook( wlCreateParentFolder );
-    fdlCreateParentFolder = new FormData();
+    props.setLook(wlCreateParentFolder);
+    FormData fdlCreateParentFolder = new FormData();
     fdlCreateParentFolder.left = new FormAttachment( 0, 0 );
     fdlCreateParentFolder.top = new FormAttachment( wFilename, margin );
     fdlCreateParentFolder.right = new FormAttachment( middle, -margin );
-    wlCreateParentFolder.setLayoutData( fdlCreateParentFolder );
-    wCreateParentFolder = new Button( wFileGroup, SWT.CHECK );
+    wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
+    wCreateParentFolder = new Button(wFileGroup, SWT.CHECK );
     props.setLook( wCreateParentFolder );
     wCreateParentFolder
       .setToolTipText( BaseMessages.getString( PKG, "JobWriteToFile.CreateParentFolder.Tooltip" ) );
-    fdCreateParentFolder = new FormData();
+    FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
     fdCreateParentFolder.top = new FormAttachment( wFilename, margin );
     fdCreateParentFolder.right = new FormAttachment( 100, 0 );
-    wCreateParentFolder.setLayoutData( fdCreateParentFolder );
+    wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         action.setChanged();
       }
     } );
 
-    wlAppendFile = new Label( wFileGroup, SWT.RIGHT );
+    Label wlAppendFile = new Label(wFileGroup, SWT.RIGHT);
     wlAppendFile.setText( BaseMessages.getString( PKG, "JobWriteToFile.AppendFile.Label" ) );
-    props.setLook( wlAppendFile );
-    fdlAppendFile = new FormData();
+    props.setLook(wlAppendFile);
+    FormData fdlAppendFile = new FormData();
     fdlAppendFile.left = new FormAttachment( 0, 0 );
     fdlAppendFile.top = new FormAttachment( wCreateParentFolder, margin );
     fdlAppendFile.right = new FormAttachment( middle, -margin );
-    wlAppendFile.setLayoutData( fdlAppendFile );
-    wAppendFile = new Button( wFileGroup, SWT.CHECK );
+    wlAppendFile.setLayoutData(fdlAppendFile);
+    wAppendFile = new Button(wFileGroup, SWT.CHECK );
     props.setLook( wAppendFile );
     wAppendFile.setToolTipText( BaseMessages.getString( PKG, "JobWriteToFile.AppendFile.Tooltip" ) );
-    fdAppendFile = new FormData();
+    FormData fdAppendFile = new FormData();
     fdAppendFile.left = new FormAttachment( middle, 0 );
     fdAppendFile.top = new FormAttachment( wCreateParentFolder, margin );
     fdAppendFile.right = new FormAttachment( 100, 0 );
-    wAppendFile.setLayoutData( fdAppendFile );
+    wAppendFile.setLayoutData(fdAppendFile);
     wAppendFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         action.setChanged();
       }
     } );
 
-    fdFileGroup = new FormData();
+    FormData fdFileGroup = new FormData();
     fdFileGroup.left = new FormAttachment( 0, margin );
     fdFileGroup.top = new FormAttachment( wName, margin );
     fdFileGroup.right = new FormAttachment( 100, -margin );
-    wFileGroup.setLayoutData( fdFileGroup );
+    wFileGroup.setLayoutData(fdFileGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF File GROUP
@@ -275,8 +237,8 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     // START OF Content GROUP
     // ////////////////////////
 
-    wContentGroup = new Group( shell, SWT.SHADOW_NONE );
-    props.setLook( wContentGroup );
+    Group wContentGroup = new Group(shell, SWT.SHADOW_NONE);
+    props.setLook(wContentGroup);
     wContentGroup.setText( BaseMessages.getString( PKG, "JobWriteToFile.Group.Content.Label" ) );
 
     FormLayout ContentGroupLayout = new FormLayout();
@@ -285,23 +247,23 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wContentGroup.setLayout( ContentGroupLayout );
 
     // Encoding
-    wlEncoding = new Label( wContentGroup, SWT.RIGHT );
+    Label wlEncoding = new Label(wContentGroup, SWT.RIGHT);
     wlEncoding.setText( BaseMessages.getString( PKG, "JobWriteToFile.Encoding.Label" ) );
-    props.setLook( wlEncoding );
-    fdlEncoding = new FormData();
+    props.setLook(wlEncoding);
+    FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment( 0, -margin );
     fdlEncoding.top = new FormAttachment( wAppendFile, margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
-    wlEncoding.setLayoutData( fdlEncoding );
+    wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new ComboVar( workflowMeta, wContentGroup, SWT.BORDER | SWT.READ_ONLY );
     wEncoding.setEditable( true );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
-    fdEncoding = new FormData();
+    FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment( middle, 0 );
     fdEncoding.top = new FormAttachment( wAppendFile, margin );
     fdEncoding.right = new FormAttachment( 100, 0 );
-    wEncoding.setLayoutData( fdEncoding );
+    wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -311,51 +273,51 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
       }
     } );
 
-    wlContent = new Label( wContentGroup, SWT.RIGHT );
+    Label wlContent = new Label(wContentGroup, SWT.RIGHT);
     wlContent.setText( BaseMessages.getString( PKG, "JobWriteToFile.Content.Label" ) );
-    props.setLook( wlContent );
-    fdlContent = new FormData();
+    props.setLook(wlContent);
+    FormData fdlContent = new FormData();
     fdlContent.left = new FormAttachment( 0, 0 );
     fdlContent.top = new FormAttachment( wEncoding, margin );
     fdlContent.right = new FormAttachment( middle, -margin );
-    wlContent.setLayoutData( fdlContent );
+    wlContent.setLayoutData(fdlContent);
 
-    wContent = new Text( wContentGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
+    wContent = new Text(wContentGroup, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( wContent, PropsUi.WIDGET_STYLE_FIXED );
     wContent.addModifyListener( lsMod );
-    fdContent = new FormData();
+    FormData fdContent = new FormData();
     fdContent.left = new FormAttachment( middle, 0 );
     fdContent.top = new FormAttachment( wEncoding, margin );
     fdContent.right = new FormAttachment( 100, 0 );
     fdContent.bottom = new FormAttachment( 100, -margin );
-    wContent.setLayoutData( fdContent );
+    wContent.setLayoutData(fdContent);
 
-    fdContentGroup = new FormData();
+    FormData fdContentGroup = new FormData();
     fdContentGroup.left = new FormAttachment( 0, margin );
-    fdContentGroup.top = new FormAttachment( wFileGroup, margin );
+    fdContentGroup.top = new FormAttachment(wFileGroup, margin );
     fdContentGroup.right = new FormAttachment( 100, -margin );
-    fdContentGroup.bottom = new FormAttachment( wOk, -margin );
-    wContentGroup.setLayoutData( fdContentGroup );
+    fdContentGroup.bottom = new FormAttachment(wOk, -margin );
+    wContentGroup.setLayoutData(fdContentGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Content GROUP
     // ///////////////////////////////////////////////////////////
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
+    Listener lsCancel = e -> cancel();
+    Listener lsOk = e -> ok();
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
+    wCancel.addListener( SWT.Selection, lsCancel);
+    wOk.addListener( SWT.Selection, lsOk);
 
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wName.addSelectionListener( lsDef );
-    wFilename.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
+    wFilename.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -383,7 +345,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
       gotEncodings = true;
 
       wEncoding.removeAll();
-      java.util.List<Charset> values = new ArrayList<Charset>( Charset.availableCharsets().values() );
+      java.util.List<Charset> values = new ArrayList<>(Charset.availableCharsets().values());
       for ( Charset charSet : values ) {
         wEncoding.add( charSet.displayName() );
       }

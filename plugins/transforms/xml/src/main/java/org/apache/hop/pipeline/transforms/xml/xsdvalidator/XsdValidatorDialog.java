@@ -39,7 +39,10 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -47,40 +50,22 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class XsdValidatorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
-
-  private FormData fdResultField, fdlXMLStream, fdXMLStream, fdTabFolder, fdOutputStringField;
-  private FormData fdlOutputStringField, fdlFilename, fdbFilename, fdFilename, fdValidationMsg;
-  private FormData fdIfXMLValid, fdIfXMLUnValid, fdXSDSource, fdlXSDSource, fdXMLSourceFile;
-  private FormData fdlXMLSourceFile, fdXSDDefinedColumn, fdlXSDDefinedColumn;
+  private static final Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 
   private LabelTextVar wResultField, wValidationMsg, wIfXMLValid, wIfXMLUnValid;
 
   private CCombo wXMLStream, wXSDSource, wXSDDefinedColumn;
 
-  private FormData fdlAddValidationMsg, fdAddValidationMsg;
-
-  private Label wlXMLStream, wlFilename, wlAddValidationMsg, wlOutputStringField;
-  private Label wlXSDSource, wlXMLSourceFile, wlXSDDefinedColumn;
+  private Label wlFilename;
+  private Label wlXSDDefinedColumn;
 
   private Button wbbFilename, wAddValidationMsg, wOutputStringField, wXMLSourceFile;
 
-  private XsdValidatorMeta input;
-
-  private Group wOutputFields, wXSD, wXML;
-  private FormData fdOutputFields, fdXSD, fdXML;
+  private final XsdValidatorMeta input;
 
   private TextVar wFilename;
 
-  private CTabFolder wTabFolder;
-
-  private CTabItem wGeneralTab;
-  private Composite wGeneralComp;
-  private FormData fdGeneralComp;
-
-  private Label wlAllowExternalEntities;
   private Button wAllowExternalEntities;
-  private FormData fdlAllowExternalEntities, fdAllowExternalEntities;
 
   private boolean gotPrevious = false;
 
@@ -129,18 +114,18 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
-    props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
+    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
+    props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
 
-    wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
+    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
     wGeneralTab.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.GeneralTab.TabTitle" ) );
 
-    wGeneralComp = new Composite( wTabFolder, SWT.NONE );
-    props.setLook( wGeneralComp );
+    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
+    props.setLook(wGeneralComp);
 
     FormLayout generalLayout = new FormLayout();
     generalLayout.marginWidth = 3;
@@ -151,8 +136,8 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     // START OF XML GROUP
     //
 
-    wXML = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wXML );
+    Group wXML = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wXML);
     wXML.setText( "XML source" );
 
     FormLayout groupXML = new FormLayout();
@@ -161,41 +146,41 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wXML.setLayout( groupXML );
 
     // XML Source = file ?
-    wlXMLSourceFile = new Label( wXML, SWT.RIGHT );
+    Label wlXMLSourceFile = new Label(wXML, SWT.RIGHT);
     wlXMLSourceFile.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.XMLSourceFile.Label" ) );
-    props.setLook( wlXMLSourceFile );
-    fdlXMLSourceFile = new FormData();
+    props.setLook(wlXMLSourceFile);
+    FormData fdlXMLSourceFile = new FormData();
     fdlXMLSourceFile.left = new FormAttachment( 0, 0 );
     fdlXMLSourceFile.top = new FormAttachment( wTransformName, 2 * margin );
     fdlXMLSourceFile.right = new FormAttachment( middle, -margin );
-    wlXMLSourceFile.setLayoutData( fdlXMLSourceFile );
-    wXMLSourceFile = new Button( wXML, SWT.CHECK );
+    wlXMLSourceFile.setLayoutData(fdlXMLSourceFile);
+    wXMLSourceFile = new Button(wXML, SWT.CHECK );
     props.setLook( wXMLSourceFile );
     wXMLSourceFile.setToolTipText( BaseMessages.getString( PKG, "XsdValidatorDialog.XMLSourceFile.Tooltip" ) );
-    fdXMLSourceFile = new FormData();
+    FormData fdXMLSourceFile = new FormData();
     fdXMLSourceFile.left = new FormAttachment( middle, margin );
     fdXMLSourceFile.top = new FormAttachment( wTransformName, 2 * margin );
-    wXMLSourceFile.setLayoutData( fdXMLSourceFile );
+    wXMLSourceFile.setLayoutData(fdXMLSourceFile);
     wXMLSourceFile.addSelectionListener( new ComponentSelectionListener( input ) );
 
     // XML Stream Field
-    wlXMLStream = new Label( wXML, SWT.RIGHT );
+    Label wlXMLStream = new Label(wXML, SWT.RIGHT);
     wlXMLStream.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.XMLStream.Label" ) );
-    props.setLook( wlXMLStream );
-    fdlXMLStream = new FormData();
+    props.setLook(wlXMLStream);
+    FormData fdlXMLStream = new FormData();
     fdlXMLStream.left = new FormAttachment( 0, 0 );
     fdlXMLStream.top = new FormAttachment( wXMLSourceFile, margin );
     fdlXMLStream.right = new FormAttachment( middle, -margin );
-    wlXMLStream.setLayoutData( fdlXMLStream );
-    wXMLStream = new CCombo( wXML, SWT.BORDER | SWT.READ_ONLY );
+    wlXMLStream.setLayoutData(fdlXMLStream);
+    wXMLStream = new CCombo(wXML, SWT.BORDER | SWT.READ_ONLY );
     wXMLStream.setEditable( true );
     props.setLook( wXMLStream );
     wXMLStream.addModifyListener( lsMod );
-    fdXMLStream = new FormData();
+    FormData fdXMLStream = new FormData();
     fdXMLStream.left = new FormAttachment( middle, margin );
     fdXMLStream.top = new FormAttachment( wXMLSourceFile, margin );
     fdXMLStream.right = new FormAttachment( 100, -margin );
-    wXMLStream.setLayoutData( fdXMLStream );
+    wXMLStream.setLayoutData(fdXMLStream);
     wXMLStream.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -209,11 +194,11 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
       }
     } );
 
-    fdXML = new FormData();
+    FormData fdXML = new FormData();
     fdXML.left = new FormAttachment( 0, margin );
     fdXML.top = new FormAttachment( wTransformName, margin );
     fdXML.right = new FormAttachment( 100, -margin );
-    wXML.setLayoutData( fdXML );
+    wXML.setLayoutData(fdXML);
 
     // ///////////////////////////////////////////////////////////
     // / END OF XML GROUP
@@ -223,8 +208,8 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     // START OF OutputFields GROUP
     //
 
-    wOutputFields = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wOutputFields );
+    Group wOutputFields = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wOutputFields);
     wOutputFields.setText( "Output Fields" );
 
     FormLayout groupLayout = new FormLayout();
@@ -239,28 +224,28 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
             "XsdValidatorDialog.ResultField.Tooltip" ) );
     props.setLook( wResultField );
     wResultField.addModifyListener( lsMod );
-    fdResultField = new FormData();
+    FormData fdResultField = new FormData();
     fdResultField.left = new FormAttachment( 0, 0 );
-    fdResultField.top = new FormAttachment( wXML, margin );
+    fdResultField.top = new FormAttachment(wXML, margin );
     fdResultField.right = new FormAttachment( 100, 0 );
-    wResultField.setLayoutData( fdResultField );
+    wResultField.setLayoutData(fdResultField);
 
     // Output String Field ?
-    wlOutputStringField = new Label( wOutputFields, SWT.RIGHT );
+    Label wlOutputStringField = new Label(wOutputFields, SWT.RIGHT);
     wlOutputStringField.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.OutputStringField.Label" ) );
-    props.setLook( wlOutputStringField );
-    fdlOutputStringField = new FormData();
+    props.setLook(wlOutputStringField);
+    FormData fdlOutputStringField = new FormData();
     fdlOutputStringField.left = new FormAttachment( 0, 0 );
     fdlOutputStringField.top = new FormAttachment( wResultField, 2 * margin );
     fdlOutputStringField.right = new FormAttachment( middle, -margin );
-    wlOutputStringField.setLayoutData( fdlOutputStringField );
-    wOutputStringField = new Button( wOutputFields, SWT.CHECK );
+    wlOutputStringField.setLayoutData(fdlOutputStringField);
+    wOutputStringField = new Button(wOutputFields, SWT.CHECK );
     props.setLook( wOutputStringField );
     wOutputStringField.setToolTipText( BaseMessages.getString( PKG, "XsdValidatorDialog.OutputStringField.Tooltip" ) );
-    fdOutputStringField = new FormData();
+    FormData fdOutputStringField = new FormData();
     fdOutputStringField.left = new FormAttachment( middle, margin );
     fdOutputStringField.top = new FormAttachment( wResultField, 2 * margin );
-    wOutputStringField.setLayoutData( fdOutputStringField );
+    wOutputStringField.setLayoutData(fdOutputStringField);
     wOutputStringField.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeOutputStringField();
@@ -275,11 +260,11 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
                 "XsdValidatorDialog.IfXMLValid.Tooltip" ) );
     props.setLook( wIfXMLValid );
     wIfXMLValid.addModifyListener( lsMod );
-    fdIfXMLValid = new FormData();
+    FormData fdIfXMLValid = new FormData();
     fdIfXMLValid.left = new FormAttachment( 0, 0 );
     fdIfXMLValid.top = new FormAttachment( wOutputStringField, margin );
     fdIfXMLValid.right = new FormAttachment( 100, 0 );
-    wIfXMLValid.setLayoutData( fdIfXMLValid );
+    wIfXMLValid.setLayoutData(fdIfXMLValid);
 
     // Output if XML is not valid field
     wIfXMLUnValid =
@@ -288,28 +273,28 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
             "XsdValidatorDialog.IfXMLUnValid.Tooltip" ) );
     props.setLook( wIfXMLUnValid );
     wIfXMLUnValid.addModifyListener( lsMod );
-    fdIfXMLUnValid = new FormData();
+    FormData fdIfXMLUnValid = new FormData();
     fdIfXMLUnValid.left = new FormAttachment( 0, 0 );
     fdIfXMLUnValid.top = new FormAttachment( wIfXMLValid, margin );
     fdIfXMLUnValid.right = new FormAttachment( 100, 0 );
-    wIfXMLUnValid.setLayoutData( fdIfXMLUnValid );
+    wIfXMLUnValid.setLayoutData(fdIfXMLUnValid);
 
     // Add validation message ?
-    wlAddValidationMsg = new Label( wOutputFields, SWT.RIGHT );
+    Label wlAddValidationMsg = new Label(wOutputFields, SWT.RIGHT);
     wlAddValidationMsg.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.AddValidationMsg.Label" ) );
-    props.setLook( wlAddValidationMsg );
-    fdlAddValidationMsg = new FormData();
+    props.setLook(wlAddValidationMsg);
+    FormData fdlAddValidationMsg = new FormData();
     fdlAddValidationMsg.left = new FormAttachment( 0, 0 );
     fdlAddValidationMsg.top = new FormAttachment( wIfXMLUnValid, 2 * margin );
     fdlAddValidationMsg.right = new FormAttachment( middle, -margin );
-    wlAddValidationMsg.setLayoutData( fdlAddValidationMsg );
-    wAddValidationMsg = new Button( wOutputFields, SWT.CHECK );
+    wlAddValidationMsg.setLayoutData(fdlAddValidationMsg);
+    wAddValidationMsg = new Button(wOutputFields, SWT.CHECK );
     props.setLook( wAddValidationMsg );
     wAddValidationMsg.setToolTipText( BaseMessages.getString( PKG, "XsdValidatorDialog.AddValidationMsg.Tooltip" ) );
-    fdAddValidationMsg = new FormData();
+    FormData fdAddValidationMsg = new FormData();
     fdAddValidationMsg.left = new FormAttachment( middle, margin );
     fdAddValidationMsg.top = new FormAttachment( wIfXMLUnValid, 2 * margin );
-    wAddValidationMsg.setLayoutData( fdAddValidationMsg );
+    wAddValidationMsg.setLayoutData(fdAddValidationMsg);
     wAddValidationMsg.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activeValidationMsg();
@@ -324,17 +309,17 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
             "XsdValidatorDialog.ValidationMsg.Tooltip" ) );
     props.setLook( wValidationMsg );
     wValidationMsg.addModifyListener( lsMod );
-    fdValidationMsg = new FormData();
+    FormData fdValidationMsg = new FormData();
     fdValidationMsg.left = new FormAttachment( 0, 0 );
     fdValidationMsg.top = new FormAttachment( wAddValidationMsg, margin );
     fdValidationMsg.right = new FormAttachment( 100, 0 );
-    wValidationMsg.setLayoutData( fdValidationMsg );
+    wValidationMsg.setLayoutData(fdValidationMsg);
 
-    fdOutputFields = new FormData();
+    FormData fdOutputFields = new FormData();
     fdOutputFields.left = new FormAttachment( 0, margin );
-    fdOutputFields.top = new FormAttachment( wXML, margin );
+    fdOutputFields.top = new FormAttachment(wXML, margin );
     fdOutputFields.right = new FormAttachment( 100, -margin );
-    wOutputFields.setLayoutData( fdOutputFields );
+    wOutputFields.setLayoutData(fdOutputFields);
 
     // ///////////////////////////////////////////////////////////
     // / END OF OUTPUT FIELDS GROUP
@@ -344,8 +329,8 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     // START OF XSD GROUP
     //
 
-    wXSD = new Group( wGeneralComp, SWT.SHADOW_NONE );
-    props.setLook( wXSD );
+    Group wXSD = new Group(wGeneralComp, SWT.SHADOW_NONE);
+    props.setLook(wXSD);
     wXSD.setText( "XML Schema Definition" );
 
     FormLayout groupXSD = new FormLayout();
@@ -354,21 +339,21 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wXSD.setLayout( groupLayout );
 
     // Enable/Disable external entity for XSD validation.
-    wlAllowExternalEntities = new Label( wXSD, SWT.RIGHT );
+    Label wlAllowExternalEntities = new Label(wXSD, SWT.RIGHT);
     wlAllowExternalEntities.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.AllowExternalEntities.Label" ) );
-    props.setLook( wlAllowExternalEntities );
-    fdlAllowExternalEntities = new FormData();
+    props.setLook(wlAllowExternalEntities);
+    FormData fdlAllowExternalEntities = new FormData();
     fdlAllowExternalEntities.left = new FormAttachment( 0, 0 );
     fdlAllowExternalEntities.right = new FormAttachment( middle, -margin );
     fdlAllowExternalEntities.top = new FormAttachment( wTransformName, margin );
-    wlAllowExternalEntities.setLayoutData( fdlAllowExternalEntities );
-    wAllowExternalEntities = new Button( wXSD, SWT.CHECK );
+    wlAllowExternalEntities.setLayoutData(fdlAllowExternalEntities);
+    wAllowExternalEntities = new Button(wXSD, SWT.CHECK );
     props.setLook( wAllowExternalEntities );
-    fdAllowExternalEntities = new FormData();
+    FormData fdAllowExternalEntities = new FormData();
     fdAllowExternalEntities.left = new FormAttachment( middle, margin );
     fdAllowExternalEntities.top = new FormAttachment( wTransformName, margin );
     fdAllowExternalEntities.right = new FormAttachment( 100, -margin );
-    wAllowExternalEntities.setLayoutData( fdAllowExternalEntities );
+    wAllowExternalEntities.setLayoutData(fdAllowExternalEntities);
     wAllowExternalEntities.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -376,23 +361,23 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     } );
 
     // XSD Source?
-    wlXSDSource = new Label( wXSD, SWT.RIGHT );
+    Label wlXSDSource = new Label(wXSD, SWT.RIGHT);
     wlXSDSource.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.XSDSource.Label" ) );
-    props.setLook( wlXSDSource );
-    fdlXSDSource = new FormData();
+    props.setLook(wlXSDSource);
+    FormData fdlXSDSource = new FormData();
     fdlXSDSource.left = new FormAttachment( 0, 0 );
     fdlXSDSource.top = new FormAttachment( wAllowExternalEntities, margin );
     fdlXSDSource.right = new FormAttachment( middle, -margin );
-    wlXSDSource.setLayoutData( fdlXSDSource );
-    wXSDSource = new CCombo( wXSD, SWT.BORDER | SWT.READ_ONLY );
+    wlXSDSource.setLayoutData(fdlXSDSource);
+    wXSDSource = new CCombo(wXSD, SWT.BORDER | SWT.READ_ONLY );
     wXSDSource.setEditable( true );
     props.setLook( wXSDSource );
     wXSDSource.addModifyListener( lsMod );
-    fdXSDSource = new FormData();
+    FormData fdXSDSource = new FormData();
     fdXSDSource.left = new FormAttachment( middle, margin );
     fdXSDSource.top = new FormAttachment( wAllowExternalEntities, margin );
     fdXSDSource.right = new FormAttachment( 100, -margin );
-    wXSDSource.setLayoutData( fdXSDSource );
+    wXSDSource.setLayoutData(fdXSDSource);
     wXSDSource.add( BaseMessages.getString( PKG, "XsdValidatorDialog.XSDSource.IS_A_FILE" ) );
     wXSDSource.add( BaseMessages.getString( PKG, "XsdValidatorDialog.XSDSource.IS_A_FIELD" ) );
     wXSDSource.add( BaseMessages.getString( PKG, "XsdValidatorDialog.XSDSource.NO_NEED" ) );
@@ -403,51 +388,51 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     } );
 
     // XSD Filename
-    wlFilename = new Label( wXSD, SWT.RIGHT );
+    wlFilename = new Label(wXSD, SWT.RIGHT );
     wlFilename.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.XSDFilename.Label" ) );
     props.setLook( wlFilename );
-    fdlFilename = new FormData();
+    FormData fdlFilename = new FormData();
     fdlFilename.left = new FormAttachment( 0, 0 );
     fdlFilename.top = new FormAttachment( wXSDSource, margin );
     fdlFilename.right = new FormAttachment( middle, -margin );
-    wlFilename.setLayoutData( fdlFilename );
+    wlFilename.setLayoutData(fdlFilename);
 
-    wbbFilename = new Button( wXSD, SWT.PUSH | SWT.CENTER );
+    wbbFilename = new Button(wXSD, SWT.PUSH | SWT.CENTER );
     props.setLook( wbbFilename );
     wbbFilename.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.FilenameBrowse.Button" ) );
     wbbFilename.setToolTipText( BaseMessages.getString( PKG, "System.Tooltip.BrowseForFileOrDirAndAdd" ) );
-    fdbFilename = new FormData();
+    FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment( 100, 0 );
     fdbFilename.top = new FormAttachment( wXSDSource, margin );
-    wbbFilename.setLayoutData( fdbFilename );
+    wbbFilename.setLayoutData(fdbFilename);
 
     wFilename = new TextVar( pipelineMeta, wXSD, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
-    fdFilename = new FormData();
+    FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment( middle, margin );
     fdFilename.right = new FormAttachment( wbbFilename, -margin );
     fdFilename.top = new FormAttachment( wXSDSource, margin );
-    wFilename.setLayoutData( fdFilename );
+    wFilename.setLayoutData(fdFilename);
 
     // XSD file defined in a column
-    wlXSDDefinedColumn = new Label( wXSD, SWT.RIGHT );
+    wlXSDDefinedColumn = new Label(wXSD, SWT.RIGHT );
     wlXSDDefinedColumn.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.XSDDefinedColumn.Label" ) );
     props.setLook( wlXSDDefinedColumn );
-    fdlXSDDefinedColumn = new FormData();
+    FormData fdlXSDDefinedColumn = new FormData();
     fdlXSDDefinedColumn.left = new FormAttachment( 0, 0 );
     fdlXSDDefinedColumn.top = new FormAttachment( wFilename, 2 * margin );
     fdlXSDDefinedColumn.right = new FormAttachment( middle, -margin );
-    wlXSDDefinedColumn.setLayoutData( fdlXSDDefinedColumn );
-    wXSDDefinedColumn = new CCombo( wXSD, SWT.BORDER | SWT.READ_ONLY );
+    wlXSDDefinedColumn.setLayoutData(fdlXSDDefinedColumn);
+    wXSDDefinedColumn = new CCombo(wXSD, SWT.BORDER | SWT.READ_ONLY );
     wXSDDefinedColumn.setEditable( true );
     props.setLook( wXSDDefinedColumn );
     wXSDDefinedColumn.addModifyListener( lsMod );
-    fdXSDDefinedColumn = new FormData();
+    FormData fdXSDDefinedColumn = new FormData();
     fdXSDDefinedColumn.left = new FormAttachment( middle, margin );
     fdXSDDefinedColumn.top = new FormAttachment( wFilename, 2 * margin );
     fdXSDDefinedColumn.right = new FormAttachment( 100, -margin );
-    wXSDDefinedColumn.setLayoutData( fdXSDDefinedColumn );
+    wXSDDefinedColumn.setLayoutData(fdXSDDefinedColumn);
     wXSDDefinedColumn.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
@@ -461,26 +446,26 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
       }
     } );
 
-    fdXSD = new FormData();
+    FormData fdXSD = new FormData();
     fdXSD.left = new FormAttachment( 0, margin );
-    fdXSD.top = new FormAttachment( wOutputFields, margin );
+    fdXSD.top = new FormAttachment(wOutputFields, margin );
     fdXSD.right = new FormAttachment( 100, -margin );
-    wXSD.setLayoutData( fdXSD );
+    wXSD.setLayoutData(fdXSD);
 
     // ///////////////////////////////////////////////////////////
     // / END OF XSD GROUP
     // ///////////////////////////////////////////////////////////
 
-    fdGeneralComp = new FormData();
+    FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
     fdGeneralComp.top = new FormAttachment( 0, 0 );
     fdGeneralComp.right = new FormAttachment( 100, 0 );
     fdGeneralComp.bottom = new FormAttachment( 100, 0 );
-    wGeneralComp.setLayoutData( fdGeneralComp );
+    wGeneralComp.setLayoutData(fdGeneralComp);
 
     wGeneralComp.layout();
-    wGeneralTab.setControl( wGeneralComp );
-    props.setLook( wGeneralComp );
+    wGeneralTab.setControl(wGeneralComp);
+    props.setLook(wGeneralComp);
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -490,12 +475,12 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     // / END OF GENERAL TAB
     // ///////////////////////////////////////////////////////////
 
-    fdTabFolder = new FormData();
+    FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( 100, -50 );
-    wTabFolder.setLayoutData( fdTabFolder );
+    wTabFolder.setLayoutData(fdTabFolder);
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
@@ -503,7 +488,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     // Add listeners
     lsCancel = e -> cancel();

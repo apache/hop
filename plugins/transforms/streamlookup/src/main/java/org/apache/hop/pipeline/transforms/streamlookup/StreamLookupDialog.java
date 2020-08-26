@@ -49,35 +49,22 @@ import java.util.List;
 import java.util.*;
 
 public class StreamLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlTransform;
   private CCombo wTransform;
-  private FormData fdlTransform, fdTransform;
 
-  private Label wlKey;
   private TableView wKey;
-  private FormData fdlKey, fdKey;
 
-  private Label wlReturn;
   private TableView wReturn;
-  private FormData fdlReturn, fdReturn;
 
-  private Label wlPreserveMemory;
   private Button wPreserveMemory;
-  private FormData fdlPreserveMemory, fdPreserveMemory;
 
-  private Label wlSortedList;
   private Button wSortedList;
-  private FormData fdlSortedList, fdSortedList;
 
-  private Label wlIntegerPair;
   private Button wIntegerPair;
-  private FormData fdlIntegerPair, fdIntegerPair;
 
-  private StreamLookupMeta input;
+  private final StreamLookupMeta input;
 
-  private Button wGetLU;
   private Listener lsGetLU;
 
   private ColumnInfo[] ciKey;
@@ -124,14 +111,14 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "StreamLookupDialog.GetFields.Button" ) );
     wGet.addListener( SWT.Selection, e->get() );
-    wGetLU = new Button( shell, SWT.PUSH );
+    Button wGetLU = new Button(shell, SWT.PUSH);
     wGetLU.setText( BaseMessages.getString( PKG, "StreamLookupDialog.GetLookupFields.Button" ) );
     wGetLU.addListener( SWT.Selection, e->getlookup() );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     wCancel.addListener( SWT.Selection, e->cancel() );
 
-    setButtonPositions( new Button[] { wOk, wCancel, wGet, wGetLU }, margin, null );
+    setButtonPositions( new Button[] { wOk, wCancel, wGet, wGetLU}, margin, null );
 
 
 
@@ -155,14 +142,14 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wTransformName.setLayoutData( fdTransformName );
 
     // Lookup transform line...
-    wlTransform = new Label( shell, SWT.RIGHT );
+    Label wlTransform = new Label(shell, SWT.RIGHT);
     wlTransform.setText( BaseMessages.getString( PKG, "StreamLookupDialog.LookupTransform.Label" ) );
-    props.setLook( wlTransform );
-    fdlTransform = new FormData();
+    props.setLook(wlTransform);
+    FormData fdlTransform = new FormData();
     fdlTransform.left = new FormAttachment( 0, 0 );
     fdlTransform.right = new FormAttachment( middle, -margin );
     fdlTransform.top = new FormAttachment( wTransformName, margin * 2 );
-    wlTransform.setLayoutData( fdlTransform );
+    wlTransform.setLayoutData(fdlTransform);
     wTransform = new CCombo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTransform );
 
@@ -175,19 +162,19 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wTransform.addModifyListener( lsMod );
     wTransform.addSelectionListener( lsSelection );
 
-    fdTransform = new FormData();
+    FormData fdTransform = new FormData();
     fdTransform.left = new FormAttachment( middle, 0 );
     fdTransform.top = new FormAttachment( wTransformName, margin * 2 );
     fdTransform.right = new FormAttachment( 100, 0 );
-    wTransform.setLayoutData( fdTransform );
+    wTransform.setLayoutData(fdTransform);
 
-    wlKey = new Label( shell, SWT.NONE );
+    Label wlKey = new Label(shell, SWT.NONE);
     wlKey.setText( BaseMessages.getString( PKG, "StreamLookupDialog.Key.Label" ) );
-    props.setLook( wlKey );
-    fdlKey = new FormData();
+    props.setLook(wlKey);
+    FormData fdlKey = new FormData();
     fdlKey.left = new FormAttachment( 0, 0 );
     fdlKey.top = new FormAttachment( wTransform, margin );
-    wlKey.setLayoutData( fdlKey );
+    wlKey.setLayoutData(fdlKey);
 
     int nrKeyCols = 2;
     int nrKeyRows = ( input.getKeystream() != null ? input.getKeystream().length : 1 );
@@ -205,31 +192,30 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     wKey = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrKeyRows, lsMod, props );
 
-    fdKey = new FormData();
+    FormData fdKey = new FormData();
     fdKey.left = new FormAttachment( 0, 0 );
-    fdKey.top = new FormAttachment( wlKey, margin );
+    fdKey.top = new FormAttachment(wlKey, margin );
     fdKey.right = new FormAttachment( 100, 0 );
-    fdKey.bottom = new FormAttachment( wlKey, (int)(props.getZoomFactor()*120) );
-    wKey.setLayoutData( fdKey );
+    fdKey.bottom = new FormAttachment(wlKey, (int)(props.getZoomFactor()*120) );
+    wKey.setLayoutData(fdKey);
 
 
-
-    wlSortedList = new Label( shell, SWT.RIGHT );
+    Label wlSortedList = new Label(shell, SWT.RIGHT);
     wlSortedList.setText( BaseMessages.getString( PKG, "StreamLookupDialog.SortedList.Label" ) );
-    props.setLook( wlSortedList );
-    fdlSortedList = new FormData();
+    props.setLook(wlSortedList);
+    FormData fdlSortedList = new FormData();
     fdlSortedList.left = new FormAttachment( 0, 0 );
     fdlSortedList.bottom = new FormAttachment( wOk, -2*margin );
     fdlSortedList.right = new FormAttachment( middle, -margin );
-    wlSortedList.setLayoutData( fdlSortedList );
+    wlSortedList.setLayoutData(fdlSortedList);
     wSortedList = new Button( shell, SWT.RADIO );
     wSortedList.setEnabled( false );
     props.setLook( wSortedList );
-    fdSortedList = new FormData();
+    FormData fdSortedList = new FormData();
     fdSortedList.left = new FormAttachment( middle, 0 );
-    fdSortedList.top = new FormAttachment( wlSortedList, 0, SWT.CENTER );
+    fdSortedList.top = new FormAttachment(wlSortedList, 0, SWT.CENTER );
     fdSortedList.right = new FormAttachment( 100, 0 );
-    wSortedList.setLayoutData( fdSortedList );
+    wSortedList.setLayoutData(fdSortedList);
     wSortedList.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -237,44 +223,43 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     } );
 
 
-
-    wlIntegerPair = new Label( shell, SWT.RIGHT );
+    Label wlIntegerPair = new Label(shell, SWT.RIGHT);
     wlIntegerPair.setText( BaseMessages.getString( PKG, "StreamLookupDialog.IntegerPair.Label" ) );
-    props.setLook( wlIntegerPair );
-    fdlIntegerPair = new FormData();
+    props.setLook(wlIntegerPair);
+    FormData fdlIntegerPair = new FormData();
     fdlIntegerPair.left = new FormAttachment( 0, 0 );
     fdlIntegerPair.bottom = new FormAttachment( wSortedList, -margin );
     fdlIntegerPair.right = new FormAttachment( middle, -margin );
-    wlIntegerPair.setLayoutData( fdlIntegerPair );
+    wlIntegerPair.setLayoutData(fdlIntegerPair);
     wIntegerPair = new Button( shell, SWT.RADIO );
     wIntegerPair.setEnabled( false );
     props.setLook( wIntegerPair );
-    fdIntegerPair = new FormData();
+    FormData fdIntegerPair = new FormData();
     fdIntegerPair.left = new FormAttachment( middle, 0 );
-    fdIntegerPair.top = new FormAttachment( wlIntegerPair, 0, SWT.CENTER );
+    fdIntegerPair.top = new FormAttachment(wlIntegerPair, 0, SWT.CENTER );
     fdIntegerPair.right = new FormAttachment( 100, 0 );
-    wIntegerPair.setLayoutData( fdIntegerPair );
+    wIntegerPair.setLayoutData(fdIntegerPair);
     wIntegerPair.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
     } );
 
-    wlPreserveMemory = new Label( shell, SWT.RIGHT );
+    Label wlPreserveMemory = new Label(shell, SWT.RIGHT);
     wlPreserveMemory.setText( BaseMessages.getString( PKG, "StreamLookupDialog.PreserveMemory.Label" ) );
-    props.setLook( wlPreserveMemory );
-    fdlPreserveMemory = new FormData();
+    props.setLook(wlPreserveMemory);
+    FormData fdlPreserveMemory = new FormData();
     fdlPreserveMemory.left = new FormAttachment( 0, 0 );
-    fdlPreserveMemory.bottom = new FormAttachment( wlIntegerPair, -margin );
+    fdlPreserveMemory.bottom = new FormAttachment(wlIntegerPair, -margin );
     fdlPreserveMemory.right = new FormAttachment( middle, -margin );
-    wlPreserveMemory.setLayoutData( fdlPreserveMemory );
+    wlPreserveMemory.setLayoutData(fdlPreserveMemory);
     wPreserveMemory = new Button( shell, SWT.CHECK );
     props.setLook( wPreserveMemory );
-    fdPreserveMemory = new FormData();
+    FormData fdPreserveMemory = new FormData();
     fdPreserveMemory.left = new FormAttachment( middle, 0 );
-    fdPreserveMemory.top = new FormAttachment( wlPreserveMemory, 0, SWT.CENTER );
+    fdPreserveMemory.top = new FormAttachment(wlPreserveMemory, 0, SWT.CENTER );
     fdPreserveMemory.right = new FormAttachment( 100, 0 );
-    wPreserveMemory.setLayoutData( fdPreserveMemory );
+    wPreserveMemory.setLayoutData(fdPreserveMemory);
     wPreserveMemory.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -288,13 +273,13 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     } );
 
     // THE UPDATE/INSERT TABLE
-    wlReturn = new Label( shell, SWT.NONE );
+    Label wlReturn = new Label(shell, SWT.NONE);
     wlReturn.setText( BaseMessages.getString( PKG, "StreamLookupDialog.ReturnFields.Label" ) );
-    props.setLook( wlReturn );
-    fdlReturn = new FormData();
+    props.setLook(wlReturn);
+    FormData fdlReturn = new FormData();
     fdlReturn.left = new FormAttachment( 0, 0 );
     fdlReturn.top = new FormAttachment( wKey, margin );
-    wlReturn.setLayoutData( fdlReturn );
+    wlReturn.setLayoutData(fdlReturn);
 
     int UpInsCols = 4;
     int UpInsRows = ( input.getValue() != null ? input.getValue().length : 1 );
@@ -322,12 +307,12 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
-    fdReturn = new FormData();
+    FormData fdReturn = new FormData();
     fdReturn.left = new FormAttachment( 0, 0 );
-    fdReturn.top = new FormAttachment( wlReturn, margin );
+    fdReturn.top = new FormAttachment(wlReturn, margin );
     fdReturn.right = new FormAttachment( 100, 0 );
-    fdReturn.bottom = new FormAttachment( wlPreserveMemory, -2*margin );
-    wReturn.setLayoutData( fdReturn );
+    fdReturn.bottom = new FormAttachment(wlPreserveMemory, -2*margin );
+    wReturn.setLayoutData(fdReturn);
 
 
 
@@ -374,15 +359,15 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
       if ( transformMeta != null ) {
         try {
           IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
-          Map<String, Integer> prevFields = new HashMap<String, Integer>();
+          Map<String, Integer> prevFields = new HashMap<>();
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            prevFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            prevFields.put( row.getValueMeta( i ).getName(), i);
           }
 
           // Something was changed in the row.
           //
-          final Map<String, Integer> fields = new HashMap<String, Integer>();
+          final Map<String, Integer> fields = new HashMap<>();
 
           // Add the currentMeta fields...
           fields.putAll( prevFields );
@@ -409,15 +394,15 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
       if ( lookupTransformMeta != null ) {
         try {
           IRowMeta row = pipelineMeta.getTransformFields( lookupTransformMeta );
-          Map<String, Integer> lookupFields = new HashMap<String, Integer>();
+          Map<String, Integer> lookupFields = new HashMap<>();
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            lookupFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
+            lookupFields.put( row.getValueMeta( i ).getName(), i);
           }
 
           // Something was changed in the row.
           //
-          final Map<String, Integer> fields = new HashMap<String, Integer>();
+          final Map<String, Integer> fields = new HashMap<>();
 
           // Add the currentMeta fields...
           fields.putAll( lookupFields );

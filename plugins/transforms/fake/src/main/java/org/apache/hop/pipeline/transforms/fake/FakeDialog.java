@@ -51,13 +51,13 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class FakeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = FakeMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FakeMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableView wFields;
   
   private ComboVar wLocale;
 
-  private FakeMeta input;
+  private final FakeMeta input;
   private ModifyListener lsMod;
 
   public FakeDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {

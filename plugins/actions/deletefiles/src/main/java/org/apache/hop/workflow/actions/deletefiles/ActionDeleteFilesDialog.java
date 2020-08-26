@@ -76,16 +76,12 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
   private Button wbDirectory;
   private TextVar wFilename;
 
-  private Label wlIncludeSubfolders;
   private Button wIncludeSubfolders;
 
   private ActionDeleteFiles action;
 
-  private SelectionAdapter lsDef;
-
   private boolean changed;
 
-  private Label wlPrevious;
   private Button wPrevious;
 
   private Label wlFields;
@@ -161,9 +157,9 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     groupLayout.marginHeight = 10;
     wSettings.setLayout( groupLayout );
 
-    wlIncludeSubfolders = new Label( wSettings, SWT.RIGHT );
+    Label wlIncludeSubfolders = new Label(wSettings, SWT.RIGHT);
     wlIncludeSubfolders.setText( BaseMessages.getString( PKG, "JobDeleteFiles.IncludeSubfolders.Label" ) );
-    props.setLook( wlIncludeSubfolders );
+    props.setLook(wlIncludeSubfolders);
     FormData fdlIncludeSubfolders = new FormData();
     fdlIncludeSubfolders.left = new FormAttachment( 0, 0 );
     fdlIncludeSubfolders.top = new FormAttachment( wName, margin );
@@ -183,9 +179,9 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
       }
     } );
 
-    wlPrevious = new Label( wSettings, SWT.RIGHT );
+    Label wlPrevious = new Label(wSettings, SWT.RIGHT);
     wlPrevious.setText( BaseMessages.getString( PKG, "JobDeleteFiles.Previous.Label" ) );
-    props.setLook( wlPrevious );
+    props.setLook(wlPrevious);
     FormData fdlPrevious = new FormData();
     fdlPrevious.left = new FormAttachment( 0, 0 );
     fdlPrevious.top = new FormAttachment( wIncludeSubfolders, margin );
@@ -264,9 +260,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wFilename.setLayoutData( fdFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( ( ModifyEvent e ) -> {
-      wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) );
-    } );
+    wFilename.addModifyListener( ( ModifyEvent e ) -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ));
 
     wbFilename.addListener( SWT.Selection, e -> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
       new String[] { "*" }, FILETYPES, true )
@@ -393,27 +387,23 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     Button wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, ( Event e ) -> {
-      ok();
-    } );
+    wOk.addListener( SWT.Selection, ( Event e ) -> ok());
 
     Button wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, ( Event e ) -> {
-      cancel();
-    } );
+    wCancel.addListener( SWT.Selection, ( Event e ) -> cancel());
 
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wFields );
 
     // Add listeners
-    lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
+    SelectionAdapter lsDef = new SelectionAdapter() {
+      public void widgetDefaultSelected(SelectionEvent e) {
         ok();
       }
     };
 
-    wName.addSelectionListener( lsDef );
-    wFilename.addSelectionListener( lsDef );
+    wName.addSelectionListener(lsDef);
+    wFilename.addSelectionListener(lsDef);
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

@@ -320,7 +320,9 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     addMainToolbar();
     addPerspectivesToolbar();
     addMainPerspectivesComposite();
-
+    
+    handleFileCapabilities( new EmptyFileType(), false, false );
+    
     loadPerspectives();
 
     replaceKeyboardShortcutListeners( this );
@@ -455,7 +457,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
 
     shell.setMenuBar( mainMenu );
     setUndoMenu( null );
-    handleFileCapabilities( new EmptyFileType(), false, false );
+
   }
 
   @GuiMenuElement( root = ID_MAIN_MENU, id = ID_MAIN_MENU_FILE, label = "&File", parentId = ID_MAIN_MENU )
@@ -821,13 +823,16 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
 
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_START, IHopFileType.CAPABILITY_START, !running );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_STOP, IHopFileType.CAPABILITY_STOP, running );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PAUSE, IHopFileType.CAPABILITY_PAUSE, !paused );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PAUSE, IHopFileType.CAPABILITY_PAUSE, running && !paused );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_RESUME, IHopFileType.CAPABILITY_PAUSE, paused );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_PREVIEW, IHopFileType.CAPABILITY_PREVIEW );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_RUN_DEBUG, IHopFileType.CAPABILITY_DEBUG );
 
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_PREV, IHopFileType.CAPABILITY_FILE_HISTORY, getActivePerspective().hasNavigationPreviousFile() );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_NEXT, IHopFileType.CAPABILITY_FILE_HISTORY, getActivePerspective().hasNavigationNextFile() );
+        
+	mainToolbarWidgets.enableToolbarItem(fileType, ID_MAIN_TOOLBAR_SAVE,  IHopFileType.CAPABILITY_SAVE );
+	mainToolbarWidgets.enableToolbarItem(fileType, ID_MAIN_TOOLBAR_SAVE_AS,  IHopFileType.CAPABILITY_SAVE );
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {

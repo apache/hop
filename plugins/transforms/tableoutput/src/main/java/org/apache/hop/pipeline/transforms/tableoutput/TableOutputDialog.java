@@ -63,7 +63,7 @@ import java.util.List;
 import java.util.*;
 
 public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -108,20 +108,16 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
 
   private Label wlReturnField;
   private TextVar wReturnField;
-  private FormData fdReturnField;
 
-  private Label wlFields;
   private TableView wFields;
 
   private Button wGetFields;
-  private FormData fdGetFields;
 
   private Button wDoMapping;
-  private FormData fdDoMapping;
 
-  private TableOutputMeta input;
+  private final TableOutputMeta input;
 
-  private Map<String, Integer> inputFields;
+  private final Map<String, Integer> inputFields;
 
   private ColumnInfo[] ciFields;
 
@@ -130,7 +126,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
   /**
    * List of ColumnInfo that should have the field names of the selected database table
    */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
+  private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
   /**
    * Constructor.
@@ -138,7 +134,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
   public TableOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (TableOutputMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   /**
@@ -599,11 +595,11 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wlReturnField.setLayoutData( fdlReturnField );
     wReturnField = new TextVar( pipelineMeta, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wReturnField );
-    fdReturnField = new FormData();
+    FormData fdReturnField = new FormData();
     fdReturnField.left = new FormAttachment( middle, 0 );
     fdReturnField.top = new FormAttachment( wlReturnField, 0, SWT.CENTER );
     fdReturnField.right = new FormAttachment( 100, 0 );
-    wReturnField.setLayoutData( fdReturnField );
+    wReturnField.setLayoutData(fdReturnField);
 
     FormData fdMainComp = new FormData();
     fdMainComp.left = new FormAttachment( 0, 0 );
@@ -630,9 +626,9 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     wFieldsComp.setLayout( fieldsCompLayout );
 
     // The fields table
-    wlFields = new Label( wFieldsComp, SWT.NONE );
+    Label wlFields = new Label(wFieldsComp, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "TableOutputDialog.InsertFields.Label" ) );
-    props.setLook( wlFields );
+    props.setLook(wlFields);
     FormData fdlUpIns = new FormData();
     fdlUpIns.left = new FormAttachment( 0, 0 );
     fdlUpIns.top = new FormAttachment( 0, margin );
@@ -657,23 +653,23 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
 
     wGetFields = new Button( wFieldsComp, SWT.PUSH );
     wGetFields.setText( BaseMessages.getString( PKG, "TableOutputDialog.GetFields.Button" ) );
-    fdGetFields = new FormData();
-    fdGetFields.top = new FormAttachment( wlFields, margin );
+    FormData fdGetFields = new FormData();
+    fdGetFields.top = new FormAttachment(wlFields, margin );
     fdGetFields.right = new FormAttachment( 100, 0 );
-    wGetFields.setLayoutData( fdGetFields );
+    wGetFields.setLayoutData(fdGetFields);
 
     wDoMapping = new Button( wFieldsComp, SWT.PUSH );
     wDoMapping.setText( BaseMessages.getString( PKG, "TableOutputDialog.DoMapping.Button" ) );
-    fdDoMapping = new FormData();
+    FormData fdDoMapping = new FormData();
     fdDoMapping.top = new FormAttachment( wGetFields, margin );
     fdDoMapping.right = new FormAttachment( 100, 0 );
-    wDoMapping.setLayoutData( fdDoMapping );
+    wDoMapping.setLayoutData(fdDoMapping);
 
     wDoMapping.addListener( SWT.Selection, arg0 -> generateMappings() );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment( wlFields, margin );
+    fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( wDoMapping, -margin );
     fdFields.bottom = new FormAttachment( 100, -2 * margin );
     wFields.setLayoutData( fdFields );
@@ -854,7 +850,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
 
     // Create the existing mapping list...
     //
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
     StringBuilder missingSourceFields = new StringBuilder();
     StringBuilder missingTargetFields = new StringBuilder();
 
@@ -1047,7 +1043,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
