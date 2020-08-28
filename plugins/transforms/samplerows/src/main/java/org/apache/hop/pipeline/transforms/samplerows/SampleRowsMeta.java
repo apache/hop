@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.samplerows;
 
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -36,10 +37,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
@@ -50,7 +48,16 @@ import java.util.List;
  *
  */
 
-public class SampleRowsMeta extends BaseTransformMeta implements ITransform {
+@Transform(
+        id = "SampleRows",
+        image = "samplerows.svg",
+        i18nPackageName = "org.apache.hop.pipeline.transforms.samplerows",
+        name = "BaseTransform.TypeLongDesc.SampleRows",
+        description = "BaseTransform.TypeTooltipDesc.SampleRows",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/samplerows.html"
+)
+public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<SampleRows, SampleRowsData> {
   private static Class<?> PKG = SampleRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private String linesrange;
@@ -160,12 +167,13 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransform {
     remarks.add( cr );
   }
 
-  public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr, PipelineMeta tr,
-                                Pipeline pipeline ) {
-    return new SampleRows( transformMeta, this, data, cnr, tr, pipeline );
+  @Override
+  public ITransform createTransform(TransformMeta transformMeta, SampleRowsData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new SampleRows( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
-  public ITransformData getTransformData() {
+
+  public SampleRowsData getTransformData() {
     return new SampleRowsData();
   }
 

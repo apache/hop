@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.pipeline.transforms.samplerows;
+package org.apache.hop.pipeline.transforms.samplerows;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
