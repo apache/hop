@@ -43,20 +43,18 @@ import org.apache.hop.pipeline.transform.ITransform;
  * @since 2-jun-2003
  */
 
-public class SampleRows extends BaseTransform implements ITransform {
+public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData> implements ITransform<SampleRowsMeta, SampleRowsData> {
   private static Class<?> PKG = SampleRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private SampleRowsMeta meta;
   private SampleRowsData data;
 
-  public SampleRows( TransformMeta transformMeta, ITransformData data, int copyNr, PipelineMeta pipelineMeta,
+  public SampleRows( TransformMeta transformMeta, SampleRowsMeta meta, SampleRowsData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   public boolean processRow() throws HopException {
-    meta = (SampleRowsMeta) smi;
-    data = (SampleRowsData) sdi;
 
     Object[] r = getRow(); // get row, set busy!
     if ( r == null ) { // no more input to be expected...
@@ -138,8 +136,6 @@ public class SampleRows extends BaseTransform implements ITransform {
   }
 
   public boolean init() {
-    meta = (SampleRowsMeta) smi;
-    data = (SampleRowsData) sdi;
 
     if ( super.init() ) {
       // Add init code here.
