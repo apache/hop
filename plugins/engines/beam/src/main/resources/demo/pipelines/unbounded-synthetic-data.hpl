@@ -57,8 +57,8 @@
     <end_window_field>endWindow</end_window_field>
     <attributes/>
     <GUI>
-      <xloc>368</xloc>
-      <yloc>32</yloc>
+      <xloc>400</xloc>
+      <yloc>64</yloc>
     </GUI>
   </transform>
   <transform>
@@ -93,8 +93,8 @@
     <last_time_field>previous</last_time_field>
     <attributes/>
     <GUI>
-      <xloc>48</xloc>
-      <yloc>32</yloc>
+      <xloc>80</xloc>
+      <yloc>64</yloc>
     </GUI>
   </transform>
   <transform>
@@ -132,8 +132,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>208</xloc>
-      <yloc>32</yloc>
+      <xloc>240</xloc>
+      <yloc>64</yloc>
     </GUI>
   </transform>
   <transform>
@@ -154,8 +154,8 @@
     <windowed>Y</windowed>
     <attributes/>
     <GUI>
-      <xloc>544</xloc>
-      <yloc>32</yloc>
+      <xloc>576</xloc>
+      <yloc>64</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
