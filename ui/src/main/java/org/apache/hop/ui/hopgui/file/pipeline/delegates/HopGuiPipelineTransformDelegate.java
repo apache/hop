@@ -48,7 +48,6 @@ import org.apache.hop.ui.core.dialog.ShowBrowserDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
-import org.apache.hop.ui.hopgui.file.pipeline.IPartitionSchemaSelection;
 import org.apache.hop.ui.hopgui.partition.PartitionMethodSelector;
 import org.apache.hop.ui.hopgui.partition.PartitionSettings;
 import org.apache.hop.ui.hopgui.partition.processor.IMethodProcessor;
@@ -69,7 +68,7 @@ import java.util.List;
 public class HopGuiPipelineTransformDelegate {
 
   // TODO: move i18n package to HopGui
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
 
   private HopGui hopGui;
@@ -86,6 +85,10 @@ public class HopGuiPipelineTransformDelegate {
 
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin( TransformPluginType.class, transformMeta );
+    if ( plugin==null ) {    	
+        throw new HopException( "Missing transform plugin for '" +  transformName  + "'");
+    }    
+        
     String dialogClassName = plugin.getClassMap().get( ITransformDialog.class );
 
     if ( dialogClassName == null ) {
