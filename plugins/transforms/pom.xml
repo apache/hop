@@ -86,6 +86,7 @@
         <module>fieldsplitter</module>
         <module>fileexists</module>
         <module>filelocked</module>
+        <module>filemetadata</module>
         <module>filesfromresult</module>
         <module>filestoresult</module>
         <module>filterrows</module>
