@@ -55,6 +55,7 @@
         <module>fieldsplitter</module>
         <module>fileexists</module>
         <module>filelocked</module>
+        <module>filemetadata</module>
         <module>filterrows</module>
         <module>flattener</module>
         <module>fuzzymatch</module>
