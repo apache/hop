@@ -42,7 +42,7 @@
     <!-- Third-party dependencies -->
     <dependency>
       <groupId>org.eclipse.platform</groupId>
-      <artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+      <artifactId>${swt.artifactId}</artifactId>
       <version>${org.eclipse.platform.version}</version>
       <exclusions>
         <exclusion>
@@ -51,7 +51,6 @@
         </exclusion>
       </exclusions>
     </dependency>
-
     <dependency>
       <groupId>org.eclipse.platform</groupId>
       <artifactId>org.eclipse.jface</artifactId>
