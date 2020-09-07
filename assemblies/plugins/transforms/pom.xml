@@ -55,6 +55,7 @@
         <module>fieldsplitter</module>
         <module>fileexists</module>
         <module>filelocked</module>
+        <module>filemetadata</module>
         <module>filterrows</module>
         <module>flattener</module>
         <module>fuzzymatch</module>
@@ -114,6 +115,7 @@
         <module>sqlfileoutput</module>
         <module>ssh</module>
         <module>streamlookup</module>
+        <module>streamschemamerge</module>
         <module>stringcut</module>
         <module>stringoperations</module>
         <module>syslog</module>

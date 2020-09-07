@@ -86,6 +86,7 @@
         <module>fieldsplitter</module>
         <module>fileexists</module>
         <module>filelocked</module>
+        <module>filemetadata</module>
         <module>filesfromresult</module>
         <module>filestoresult</module>
         <module>filterrows</module>
@@ -147,6 +148,7 @@
         <module>sqlfileoutput</module>
         <module>ssh</module>
         <module>streamlookup</module>
+        <module>streamschemamerge</module>
         <module>stringcut</module>
         <module>stringoperations</module>
         <module>switchcase</module>

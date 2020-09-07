@@ -1,11 +1,11 @@
 <assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
-    <id>hop-assemblies-plugins-transforms-as400</id>
+    <id>hop-assemblies-plugins-transforms-streamschemamerge</id>
     <formats>
         <format>zip</format>
     </formats>
-    <baseDirectory>transforms/databasejoin</baseDirectory>
+    <baseDirectory>transforms/streamschemamerge</baseDirectory>
     <files>
         <file>
             <source>${project.basedir}/src/main/resources/version.xml</source>
@@ -25,7 +25,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-databasejoin:jar</include>
+                <include>org.hop:hop-transform-streamschemamerge:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>
