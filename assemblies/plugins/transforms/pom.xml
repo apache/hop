@@ -80,6 +80,7 @@
         <module>mail</module>
         <module>mailinput</module>
         <module>mailvalidator</module>
+        <module>mapping</module>
         <module>memgroupby</module>
         <module>mergejoin</module>
         <module>mergerows</module>

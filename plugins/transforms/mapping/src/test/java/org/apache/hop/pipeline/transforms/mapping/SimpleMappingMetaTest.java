@@ -46,7 +46,7 @@ public class SimpleMappingMetaTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-      Arrays.asList( "fileName", "inputMapping", "outputMapping", "mappingParameters" );
+      Arrays.asList( "filename", "inputMapping", "outputMapping", "mappingParameters" );
 
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
