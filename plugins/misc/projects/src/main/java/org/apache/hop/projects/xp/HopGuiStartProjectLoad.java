@@ -80,7 +80,7 @@ public class HopGuiStartProjectLoad implements IExtensionPoint {
           );
           if ( !auditEvents.isEmpty() ) {
 
-            logChannelInterface.logBasic( "Audit events found for hop-gui/project : " + auditEvents.size() );
+            logChannelInterface.logDetailed( "Audit events found for hop-gui/project : " + auditEvents.size() );
 
             for ( AuditEvent auditEvent : auditEvents ) {
               String lastProjectName = auditEvent.getName();

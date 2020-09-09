@@ -214,7 +214,6 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
       passParametersToPipeline( lastIncomingFieldValues != null && !lastIncomingFieldValues.isEmpty() ? lastIncomingFieldValues : incomingFieldValues );
     }
 
-
     // keep track for drill down in HopGui...
     getPipeline().addActiveSubPipeline( getTransformName(), executorPipeline );
 

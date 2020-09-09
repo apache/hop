@@ -65,8 +65,8 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler i
     return false;
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> transformCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
     // Don't simply case but serialize/de-serialize the metadata to prevent classloader exceptions
@@ -156,7 +156,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler i
     }
 
 
-    stepCollectionMap.put( transformMeta.getName(), afterInput );
+    transformCollectionMap.put( transformMeta.getName(), afterInput );
     log.logBasic( "Handled transform (ROW GENERATOR) : " + transformMeta.getName() );
   }
 

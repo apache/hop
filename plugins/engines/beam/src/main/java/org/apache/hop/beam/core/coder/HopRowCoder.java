@@ -121,8 +121,8 @@ public class HopRowCoder extends AtomicCoder<HopRow> {
       }
       break;
       case IValueMeta.TYPE_BOOLEAN: {
-        Long lng = ( (Date) object ).getTime();
-        out.writeLong( lng );
+        boolean b = (Boolean) object;
+        out.writeBoolean( b );
       }
       break;
       case IValueMeta.TYPE_NUMBER: {

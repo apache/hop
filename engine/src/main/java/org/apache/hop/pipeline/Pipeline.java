@@ -3632,4 +3632,27 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
   @Override public void setPipelineRunConfiguration( PipelineRunConfiguration pipelineRunConfiguration ) {
     this.pipelineRunConfiguration = pipelineRunConfiguration;
   }
+
+  /**
+   * Gets activeSubPipelines
+   *
+   * @return value of activeSubPipelines
+   */
+  public Map<String, IPipelineEngine> getActiveSubPipelines() {
+    return activeSubPipelines;
+  }
+
+  /**
+   * @param activeSubPipelines The activeSubPipelines to set
+   */
+  public void setActiveSubPipelines( Map<String, IPipelineEngine> activeSubPipelines ) {
+    this.activeSubPipelines = activeSubPipelines;
+  }
+
+  /**
+   * @param activeSubWorkflows The activeSubWorkflows to set
+   */
+  public void setActiveSubWorkflows( Map<String, IWorkflowEngine<WorkflowMeta>> activeSubWorkflows ) {
+    this.activeSubWorkflows = activeSubWorkflows;
+  }
 }

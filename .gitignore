@@ -22,8 +22,9 @@ out/
 logs/
 .directory
 \.attach*
-
 Pipeline Run Configuration/
 Workflow Run Configuration/
 Hop Server/
 Relational Database Connection/
+\.temp-beam-*/
+
