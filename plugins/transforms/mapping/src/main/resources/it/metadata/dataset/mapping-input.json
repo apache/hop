@@ -1,0 +1,24 @@
+{
+  "base_filename": "mapping-input.csv",
+  "name": "mapping-input",
+  "description": "",
+  "dataset_fields": [
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "first"
+    },
+    {
+      "field_comment": "",
+      "field_length": -1,
+      "field_type": 2,
+      "field_precision": -1,
+      "field_format": "",
+      "field_name": "last"
+    }
+  ],
+  "folder_name": ""
+}
