@@ -152,18 +152,18 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     genMeta = null;
     try {
       // ImageLoader xl = new ImageLoader();
-      imageUnderGreen = guiresource.getImage("ui/images/underGreen.png");
-      imageArrowGreen = guiresource.getImage("ui/images/arrowGreen.png");
-      imageArrowOrange = guiresource.getImage("ui/images/arrowOrange.png");
-      imageInputFields = guiresource.getImage("ui/images/inSmall.png");
-      imageOutputFields = guiresource.getImage("ui/images/outSmall.png");
-      imageActiveScript = guiresource.getImage("ui/images/faScript.png");
-      imageInactiveScript = guiresource.getImage("ui/images/hide-inactive.png");
-      imageActiveStartScript = guiresource.getImage("ui/images/SQLbutton.png");
-      imageActiveEndScript = guiresource.getImage("ui/images/edfScript.png");
-      imageDeleteScript = guiresource.getImage("ui/images/deleteSmall.png");
-      imageAddScript = guiresource.getImage("ui/images/addSmall.png");
-      imageDuplicateScript = guiresource.getImage("ui/images/copySmall.png");
+      imageUnderGreen = guiresource.getImage("ui/images/add_all.svg");
+      imageArrowGreen = guiresource.getImage("ui/images/add_all.svg");
+      imageArrowOrange = guiresource.getImage("ui/images/add_all.svg");
+      imageInputFields = guiresource.getImage("ui/images/hop-input.svg");
+      imageOutputFields = guiresource.getImage("ui/images/hop-output.svg");
+      imageActiveScript = guiresource.getImage("ui/images/active-script");
+      imageInactiveScript = guiresource.getImage("ui/images/inactive-script.svg");
+      imageActiveStartScript = guiresource.getImage("ui/images/script.svg");
+      imageActiveEndScript = guiresource.getImage("ui/images/end-script.svg");
+      imageDeleteScript = guiresource.getImage("ui/images/generic-delete.svg");
+      imageAddScript = guiresource.getImage("ui/images/addSmall.svg");
+      imageDuplicateScript = guiresource.getImage("ui/images/copy-hop.svg");
     } catch ( Exception e ) {
       imageActiveScript = guiresource.getImageEmpty16x16();
       imageInactiveScript = guiresource.getImageEmpty16x16();
