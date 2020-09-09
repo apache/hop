@@ -47,7 +47,6 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.input.MappingInputMeta;
-import org.apache.hop.pipeline.transforms.output.MappingOutputMeta;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
 import org.apache.hop.resource.ResourceReference;
@@ -172,19 +171,17 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
     // Then see which fields get added to the row.
     //
-    PipelineMeta mappingPipelineMeta = null;
+    PipelineMeta mappingPipelineMeta;
     try {
-      mappingPipelineMeta =
-        loadMappingMeta( this, metadataProvider, variables, mappingParameters.isInheritingAllVariables() );
+      mappingPipelineMeta = loadMappingMeta( this, metadataProvider, variables, mappingParameters.isInheritingAllVariables() );
     } catch ( HopException e ) {
       throw new HopTransformException( BaseMessages.getString(
         PKG, "SimpleMappingMeta.Exception.UnableToLoadMappingPipeline" ), e );
     }
 
-    // The field structure may depend on the input parameters as well (think of parameter replacements in MDX queries
-    // for instance)
+    // The field structure may depend on the input parameters as well
+    //
     if ( mappingParameters != null && mappingPipelineMeta != null ) {
-
       // Just set the variables in the pipeline statically.
       // This just means: set a number of variables or parameter values:
       //
@@ -192,15 +189,9 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
         mappingParameters.getVariable(), mappingParameters.getInputField(), mappingParameters.isInheritingAllVariables() );
     }
 
-    // Keep track of all the fields that need renaming...
-    //
-    List<MappingValueRename> inputRenameList = new ArrayList<MappingValueRename>();
-
-    //
     // Before we ask the mapping outputs anything, we should teach the mapping
     // input transforms in the sub- pipeline about the data coming in...
     //
-
     IRowMeta inputRowMeta;
 
     // The row metadata, what we pass to the mapping input transform
@@ -212,8 +203,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
       for ( MappingValueRename valueRename : inputMapping.getValueRenames() ) {
         IValueMeta valueMeta = inputRowMeta.searchValueMeta( valueRename.getSourceValueName() );
         if ( valueMeta == null ) {
-          throw new HopTransformException( BaseMessages.getString(
-            PKG, "SimpleMappingMeta.Exception.UnableToFindField", valueRename.getSourceValueName() ) );
+          throw new HopTransformException( BaseMessages.getString( PKG, "SimpleMappingMeta.Exception.UnableToFindField", valueRename.getSourceValueName() ) );
         }
         valueMeta.setName( valueRename.getTargetValueName() );
       }
@@ -222,8 +212,9 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     // What is this mapping input transform?
     //
     TransformMeta mappingInputTransform = mappingPipelineMeta.findMappingInputTransform( null );
+    TransformMeta mappingOutputTransform = mappingPipelineMeta.findMappingOutputTransform( null );
 
-    // We're certain it's a MappingInput transform...
+    // We're certain of these classes at least
     //
     MappingInputMeta mappingInputMeta = (MappingInputMeta) mappingInputTransform.getTransform();
 
@@ -231,29 +222,30 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
     //
     mappingInputMeta.setInputRowMeta( inputRowMeta );
 
-    // Keep a list of the input rename values that need to be changed back at
-    // the output
-    //
-    if ( inputMapping.isRenamingOnOutput() ) {
-      SimpleMapping.addInputRenames( inputRenameList, inputMapping.getValueRenames() );
-    }
-
-    TransformMeta mappingOutputTransform = mappingPipelineMeta.findMappingOutputTransform( null );
-
-    // We know it's a mapping output transform...
-    MappingOutputMeta mappingOutputMeta = (MappingOutputMeta) mappingOutputTransform.getTransform();
-
-    // Change a few columns.
-    mappingOutputMeta.setOutputValueRenames( outputMapping.getValueRenames() );
-
-    // Perhaps we need to change a few input columns back to the original?
-    //
-    mappingOutputMeta.setInputValueRenames( inputRenameList );
-
-    // Now we know wat's going to come out of there...
-    // This is going to be the full row, including all the remapping, etc.
+    // Now we know wat's going to come out of the mapping pipeline...
+    // This is going to be the full row that's being written.
     //
     IRowMeta mappingOutputRowMeta = mappingPipelineMeta.getTransformFields( mappingOutputTransform );
+
+    // We're renaming some stuff back:
+    //
+    if (inputMapping.isRenamingOnOutput()) {
+      for (MappingValueRename rename : inputMapping.getValueRenames()) {
+        IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta( rename.getTargetValueName() );
+        if (valueMeta!=null) {
+          valueMeta.setName( rename.getSourceValueName() );
+        }
+      }
+    }
+
+    // Also rename output values back
+    //
+    for (MappingValueRename rename : outputMapping.getValueRenames()) {
+      IValueMeta valueMeta = mappingOutputRowMeta.searchValueMeta( rename.getSourceValueName() );
+      if (valueMeta!=null) {
+        valueMeta.setName( rename.getTargetValueName() );
+      }
+    }
 
     row.clear();
     row.addRowMeta( mappingOutputRowMeta );

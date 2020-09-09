@@ -26,5 +26,5 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 
 public interface IPutRow {
-  public void putRow( IRowMeta rowMeta, Object[] rowData ) throws HopTransformException;
+  void putRow( IRowMeta rowMeta, Object[] rowData ) throws HopTransformException;
 }

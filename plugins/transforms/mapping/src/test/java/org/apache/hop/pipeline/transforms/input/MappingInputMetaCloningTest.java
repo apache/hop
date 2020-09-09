@@ -35,13 +35,11 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValid
 import org.apache.hop.pipeline.transforms.loadsave.validator.NonZeroIntLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
-import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +62,6 @@ public class MappingInputMetaCloningTest {
     meta.setFieldLength( new int[] { 1, 2 } );
     meta.setFieldPrecision( new int[] { 3, 4 } );
     meta.setChanged();
-    meta.setValueRenames( Collections.singletonList( new MappingValueRename( "f1", "r1" ) ) );
 
     Object clone = meta.clone();
     if ( !EqualsBuilder.reflectionEquals( meta, clone ) ) {
@@ -84,12 +81,11 @@ public class MappingInputMetaCloningTest {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-      Arrays.asList( "selectingAndSortingUnspecifiedFields", "fieldName", "fieldType", "fieldLength",
+      Arrays.asList( "fieldName", "fieldType", "fieldLength",
         "fieldPrecision" );
 
     Map<String, String> getterMap = new HashMap<String, String>() {
       {
-        put( "selectingAndSortingUnspecifiedFields", "isSelectingAndSortingUnspecifiedFields" );
         put( "fieldName", "getFieldName" );
         put( "fieldType", "getFieldType" );
         put( "fieldLength", "getFieldLength" );
@@ -99,23 +95,21 @@ public class MappingInputMetaCloningTest {
 
     Map<String, String> setterMap = new HashMap<String, String>() {
       {
-        put( "selectingAndSortingUnspecifiedFields", "setSelectingAndSortingUnspecifiedFields" );
         put( "fieldName", "setFieldName" );
         put( "fieldType", "setFieldType" );
         put( "fieldLength", "setFieldLength" );
         put( "fieldPrecision", "setFieldPrecision" );
       }
     };
-    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator = new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
     typeValidatorMap.put( int[].class.getCanonicalName(),
       new PrimitiveIntArrayLoadSaveValidator( new NonZeroIntLoadSaveValidator( 6 ), 5 ) );
 
-    loadSaveTester = new LoadSaveTester<MappingInputMeta>( MappingInputMeta.class, attributes, getterMap,
+    loadSaveTester = new LoadSaveTester<>( MappingInputMeta.class, attributes, getterMap,
       setterMap, attrValidatorMap, typeValidatorMap );
   }
 

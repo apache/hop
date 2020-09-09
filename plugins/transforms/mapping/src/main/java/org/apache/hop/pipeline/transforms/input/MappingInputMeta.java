@@ -31,7 +31,6 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -43,11 +42,8 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Transform(
@@ -67,18 +63,10 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
 
   private int[] fieldPrecision;
 
-  /**
-   * Select: flag to indicate that the non-selected fields should also be taken along, ordered by fieldname
-   */
-  private boolean selectingAndSortingUnspecifiedFields;
-
   private volatile IRowMeta inputRowMeta;
-
-  private volatile List<MappingValueRename> valueRenames;
 
   public MappingInputMeta() {
     super(); // allocate BaseTransformMeta
-    valueRenames = new ArrayList<>();
   }
 
   /**
@@ -174,15 +162,9 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
 
         fieldName[ i ] = XmlHandler.getTagValue( fnode, "name" );
         fieldType[ i ] = ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, "type" ) );
-        String slength = XmlHandler.getTagValue( fnode, "length" );
-        String sprecision = XmlHandler.getTagValue( fnode, "precision" );
-
-        fieldLength[ i ] = Const.toInt( slength, -1 );
-        fieldPrecision[ i ] = Const.toInt( sprecision, -1 );
+        fieldLength[ i ] = Const.toInt( XmlHandler.getTagValue( fnode, "length" ), -1 );
+        fieldPrecision[ i ] = Const.toInt( XmlHandler.getTagValue( fnode, "precision" ), -1 );
       }
-
-      selectingAndSortingUnspecifiedFields =
-        "Y".equalsIgnoreCase( XmlHandler.getTagValue( fields, "select_unspecified" ) );
     } catch ( Exception e ) {
       throw new HopXmlException( BaseMessages.getString(
         PKG, "MappingInputMeta.Exception.UnableToLoadTransformMetaFromXML" ), e );
@@ -190,34 +172,27 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 300 );
+    StringBuilder xml = new StringBuilder( 300 );
 
-    retval.append( "    <fields>" ).append( Const.CR );
+    xml.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < fieldName.length; i++ ) {
       if ( fieldName[ i ] != null && fieldName[ i ].length() != 0 ) {
-        retval.append( "      <field>" ).append( Const.CR );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "name", fieldName[ i ] ) );
-        retval
-          .append( "        " ).append( XmlHandler.addTagValue( "type",
-          ValueMetaFactory.getValueMetaName( fieldType[ i ] ) ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "length", fieldLength[ i ] ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
-        retval.append( "      </field>" ).append( Const.CR );
+        xml.append( "      <field>" ).append( Const.CR );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "name", fieldName[ i ] ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "type", ValueMetaFactory.getValueMetaName( fieldType[ i ] ) ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "length", fieldLength[ i ] ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "precision", fieldPrecision[ i ] ) );
+        xml.append( "      </field>" ).append( Const.CR );
       }
     }
 
-    retval.append( "        " ).append(
-      XmlHandler.addTagValue( "select_unspecified", selectingAndSortingUnspecifiedFields ) );
+    xml.append( "    </fields>" ).append( Const.CR );
 
-    retval.append( "    </fields>" ).append( Const.CR );
-
-    return retval.toString();
+    return xml.toString();
   }
 
   public void setDefault() {
     int nrFields = 0;
-
-    selectingAndSortingUnspecifiedFields = false;
 
     allocate( nrFields );
 
@@ -242,55 +217,15 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
       // this gets set only in the parent pipeline...
       // It includes all the renames that needed to be done
       //
+      row.mergeRowMeta( inputRowMeta );
 
-      if ( selectingAndSortingUnspecifiedFields ) {
-        // Select the specified fields from the input, re-order everything and put the other fields at the back,
-        // sorted...
-        //
-        IRowMeta newRow = new RowMeta();
-
+      // Validate the existence of all the specified fields...
+      //
+      if ( !row.isEmpty() ) {
         for ( int i = 0; i < fieldName.length; i++ ) {
-          int index = inputRowMeta.indexOfValue( fieldName[ i ] );
-          if ( index < 0 ) {
+          if ( row.indexOfValue( fieldName[ i ] ) < 0 ) {
             throw new HopTransformException( BaseMessages.getString(
               PKG, "MappingInputMeta.Exception.UnknownField", fieldName[ i ] ) );
-          }
-
-          newRow.addValueMeta( inputRowMeta.getValueMeta( index ) );
-        }
-
-        // Now get the unspecified fields.
-        // Sort the fields
-        // Add them after the specified fields...
-        //
-        List<String> extra = new ArrayList<>();
-        for ( int i = 0; i < inputRowMeta.size(); i++ ) {
-          String fieldName = inputRowMeta.getValueMeta( i ).getName();
-          if ( newRow.indexOfValue( fieldName ) < 0 ) {
-            extra.add( fieldName );
-          }
-        }
-        Collections.sort( extra );
-        for ( String fieldName : extra ) {
-          IValueMeta extraValue = inputRowMeta.searchValueMeta( fieldName );
-          newRow.addValueMeta( extraValue );
-        }
-
-        // now merge the new row...
-        // This is basically the input row meta data with the fields re-ordered.
-        //
-        row.mergeRowMeta( newRow );
-      } else {
-        row.mergeRowMeta( inputRowMeta );
-
-        // Validate the existence of all the specified fields...
-        //
-        if ( !row.isEmpty() ) {
-          for ( int i = 0; i < fieldName.length; i++ ) {
-            if ( row.indexOfValue( fieldName[ i ] ) < 0 ) {
-              throw new HopTransformException( BaseMessages.getString(
-                PKG, "MappingInputMeta.Exception.UnknownField", fieldName[ i ] ) );
-            }
           }
         }
       }
@@ -326,26 +261,22 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
     if ( prev == null || prev.size() == 0 ) {
-      cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "MappingInputMeta.CheckResult.NotReceivingFieldsError" ), transformMeta );
       remarks.add( cr );
     } else {
-      cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "MappingInputMeta.CheckResult.TransformReceivingDatasFromPreviousOne", prev.size() + "" ), transformMeta );
       remarks.add( cr );
     }
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
-      cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "MappingInputMeta.CheckResult.TransformReceivingInfoFromOtherTransforms" ), transformMeta );
       remarks.add( cr );
     } else {
-      cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "MappingInputMeta.CheckResult.NoInputReceived" ), transformMeta );
       remarks.add( cr );
     }
@@ -369,35 +300,5 @@ public class MappingInputMeta extends BaseTransformMeta implements ITransformMet
    */
   public IRowMeta getInputRowMeta() {
     return inputRowMeta;
-  }
-
-  /**
-   * @return the selectingAndSortingUnspecifiedFields
-   */
-  public boolean isSelectingAndSortingUnspecifiedFields() {
-    return selectingAndSortingUnspecifiedFields;
-  }
-
-  /**
-   * @param selectingAndSortingUnspecifiedFields the selectingAndSortingUnspecifiedFields to set
-   */
-  public void setSelectingAndSortingUnspecifiedFields( boolean selectingAndSortingUnspecifiedFields ) {
-    this.selectingAndSortingUnspecifiedFields = selectingAndSortingUnspecifiedFields;
-  }
-
-  /**
-   * Gets valueRenames
-   *
-   * @return value of valueRenames
-   */
-  public List<MappingValueRename> getValueRenames() {
-    return valueRenames;
-  }
-
-  /**
-   * @param valueRenames The valueRenames to set
-   */
-  public void setValueRenames( List<MappingValueRename> valueRenames ) {
-    this.valueRenames = valueRenames;
   }
 }

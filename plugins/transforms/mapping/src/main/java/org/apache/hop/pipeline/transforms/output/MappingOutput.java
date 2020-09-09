@@ -56,43 +56,10 @@ public class MappingOutput
       return false;
     }
 
-    if ( first ) {
-      first = false;
-
-      data.outputRowMeta = getInputRowMeta().clone();
-      meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
-
-      //
-      // Wait until the parent pipeline has started completely.
-      // However, don't wait forever, if we don't have a connection after 60 seconds: bail out!
-      //
-      int totalsleep = 0;
-      if ( getPipeline().getParentPipeline() != null ) {
-        while ( !isStopped() && !getPipeline().getParentPipeline().isRunning() ) {
-          try {
-            totalsleep += 10;
-            Thread.sleep( 10 );
-          } catch ( InterruptedException e ) {
-            stopAll();
-          }
-          if ( totalsleep > 60000 ) {
-            throw new HopException( BaseMessages.getString(
-              PKG, "MappingOutput.Exception.UnableToConnectWithParentMapping", "" + ( totalsleep / 1000 ) ) );
-          }
-        }
-      }
-      // Now see if there is a target transform to send data to.
-      // If not, simply eat the data...
-      //
-      if ( data.targetTransforms == null ) {
-        logDetailed( BaseMessages.getString( PKG, "MappingOutput.NoTargetTransformSpecified", getTransformName() ) );
-      }
-    }
-
     // Copy row to possible alternate rowset(s).
     // Rowsets where added for all the possible targets in the setter for data.targetTransforms...
     //
-    putRow( data.outputRowMeta, r );
+    putRow( getInputRowMeta(), r );
 
     if ( checkFeedback( getLinesRead() ) ) {
       logBasic( BaseMessages.getString( PKG, "MappingOutput.Log.LineNumber" ) + getLinesRead() );

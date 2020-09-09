@@ -33,15 +33,12 @@ import org.apache.hop.pipeline.transform.ITransformData;
  */
 public class MappingInputData extends BaseTransformData implements ITransformData {
 
-  public boolean finished;
   public ITransform[] sourceTransforms;
-  public boolean linked;
   public IRowMeta outputRowMeta;
   public int[] fieldNrs;
 
   public MappingInputData() {
     super();
-    linked = false;
   }
 
 }

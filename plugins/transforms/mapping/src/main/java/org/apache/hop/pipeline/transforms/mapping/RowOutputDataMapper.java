@@ -39,13 +39,13 @@ public class RowOutputDataMapper extends RowAdapter {
   private MappingIODefinition outputDefinition;
   private boolean first = true;
   private IRowMeta renamedRowMeta;
-  private IPutRow putRowInterface;
+  private IPutRow iPutRow;
 
   public RowOutputDataMapper( MappingIODefinition inputDefinition, MappingIODefinition outputDefinition,
-                              IPutRow putRowInterface ) {
+                              IPutRow iPutRow ) {
     this.inputDefinition = inputDefinition;
     this.outputDefinition = outputDefinition;
-    this.putRowInterface = putRowInterface;
+    this.iPutRow = iPutRow;
   }
 
   @Override
@@ -71,6 +71,6 @@ public class RowOutputDataMapper extends RowAdapter {
       }
     }
 
-    putRowInterface.putRow( renamedRowMeta, row );
+    iPutRow.putRow( renamedRowMeta, row );
   }
 }

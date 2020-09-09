@@ -1582,7 +1582,7 @@ public class PipelineMeta extends AbstractMeta
   public IRowMeta getPrevTransformFields(
     TransformMeta transformMeta, final String transformName, IProgressMonitor monitor )
     throws HopTransformException {
-    clearTransformFieldsCachce();
+    clearTransformFieldsCache();
     IRowMeta row = new RowMeta();
 
     if ( transformMeta == null ) {
@@ -1963,7 +1963,7 @@ public class PipelineMeta extends AbstractMeta
     }
 
     if ( metadataProvider == null ) {
-      throw new HopXmlException( "MetaStore references can't be null. When loading a pipeline Hop needs to be able to reference external metadata objects" );
+      throw new HopXmlException( "API error: metadata provider can't be null. When loading a pipeline Hop needs to be able to reference external metadata objects" );
     }
 
     this.metadataProvider = metadataProvider;
@@ -3785,15 +3785,15 @@ public class PipelineMeta extends AbstractMeta
    * Clears the transform fields and loop caches.
    */
   public void clearCaches() {
-    clearTransformFieldsCachce();
+    clearTransformFieldsCache();
     clearLoopCache();
     clearPreviousTransformCache();
   }
 
   /**
-   * Clears the transform fields cachce.
+   * Clears the transform fields cache.
    */
-  private void clearTransformFieldsCachce() {
+  private void clearTransformFieldsCache() {
     transformFieldsCache.clear();
   }
 

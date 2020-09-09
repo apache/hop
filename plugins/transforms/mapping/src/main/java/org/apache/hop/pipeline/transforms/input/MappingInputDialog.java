@@ -55,12 +55,7 @@ import org.eclipse.swt.widgets.Text;
 public class MappingInputDialog extends BaseTransformDialog implements ITransformDialog {
   private static Class<?> PKG = MappingInputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Label wlFields;
   private TableView wFields;
-  private FormData fdlFields, fdFields;
-
-  private Button wUnspecified;
-  private FormData fdUnspecified;
 
   private MappingInputMeta input;
 
@@ -121,28 +116,14 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
-    // The check box to pass through and sort unspecified fields...
-    //
-    wUnspecified = new Button( shell, SWT.CHECK );
-    wUnspecified.setText( BaseMessages.getString( PKG, "MappingInputDialog.Unspecified.Label" ) );
-    props.setLook( wUnspecified );
-    fdUnspecified = new FormData();
-    fdUnspecified.left = new FormAttachment( 0, 0 );
-    fdUnspecified.right = new FormAttachment( 100, 0 );
-    fdUnspecified.bottom = new FormAttachment( wOk, -margin * 2 );
-    wUnspecified.setLayoutData( fdUnspecified );
-    wUnspecified.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-      }
-    } );
+
 
     // The grid goes in between the transform name and the check box...
     //
-    wlFields = new Label( shell, SWT.NONE );
+    Label wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "MappingInputDialog.Fields.Label" ) );
     props.setLook( wlFields );
-    fdlFields = new FormData();
+    FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wTransformName, margin );
     wlFields.setLayoutData( fdlFields );
@@ -168,11 +149,11 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
       new TableView(
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
-    fdFields = new FormData();
+    FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( wUnspecified, -margin * 2 );
+    fdFields.bottom = new FormAttachment( 0, 0 );
     wFields.setLayoutData( fdFields );
 
     // Add listeners
@@ -242,7 +223,6 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
         }
       }
     }
-    wUnspecified.setSelection( input.isSelectingAndSortingUnspecifiedFields() );
 
     wFields.setRowNums();
     wFields.optWidth( true );
@@ -273,13 +253,9 @@ public class MappingInputDialog extends BaseTransformDialog implements ITransfor
       TableItem item = wFields.getNonEmpty( i );
       input.getFieldName()[ i ] = item.getText( 1 );
       input.getFieldType()[ i ] = ValueMetaFactory.getIdForValueMeta( item.getText( 2 ) );
-      String slength = item.getText( 3 );
-      String sprec = item.getText( 4 );
-
-      input.getFieldLength()[ i ] = Const.toInt( slength, -1 );
-      input.getFieldPrecision()[ i ] = Const.toInt( sprec, -1 );
+      input.getFieldLength()[ i ] = Const.toInt( item.getText( 3 ), -1 );
+      input.getFieldPrecision()[ i ] = Const.toInt( item.getText( 4 ), -1 );
     }
-    input.setSelectingAndSortingUnspecifiedFields( wUnspecified.getSelection() );
 
     dispose();
   }

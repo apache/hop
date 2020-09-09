@@ -34,9 +34,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.mapping.MappingValueRename;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /*
@@ -53,19 +51,12 @@ public class MappingOutputMeta extends BaseTransformMeta implements ITransformMe
 
   private static Class<?> PKG = MappingOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private volatile List<MappingValueRename> inputValueRenames;
-  private volatile List<MappingValueRename> outputValueRenames;
-
   public MappingOutputMeta() {
     super(); // allocate BaseTransformMeta
-    inputValueRenames = new ArrayList<>();
-    outputValueRenames = new ArrayList<>();
   }
 
   public Object clone() {
     MappingOutputMeta retval = new MappingOutputMeta();
-    retval.inputValueRenames.addAll( inputValueRenames );
-    retval.outputValueRenames.addAll( outputValueRenames );
     return retval;
   }
 
@@ -105,38 +96,5 @@ public class MappingOutputMeta extends BaseTransformMeta implements ITransformMe
 
   public MappingOutputData getTransformData() {
     return new MappingOutputData();
-  }
-
-
-  /**
-   * Gets inputValueRenames
-   *
-   * @return value of inputValueRenames
-   */
-  public List<MappingValueRename> getInputValueRenames() {
-    return inputValueRenames;
-  }
-
-  /**
-   * @param inputValueRenames The inputValueRenames to set
-   */
-  public void setInputValueRenames( List<MappingValueRename> inputValueRenames ) {
-    this.inputValueRenames = inputValueRenames;
-  }
-
-  /**
-   * Gets outputValueRenames
-   *
-   * @return value of outputValueRenames
-   */
-  public List<MappingValueRename> getOutputValueRenames() {
-    return outputValueRenames;
-  }
-
-  /**
-   * @param outputValueRenames The outputValueRenames to set
-   */
-  public void setOutputValueRenames( List<MappingValueRename> outputValueRenames ) {
-    this.outputValueRenames = outputValueRenames;
   }
 }

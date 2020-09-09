@@ -33,11 +33,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
  */
 public class MappingOutputData extends BaseTransformData implements ITransformData {
 
-  public ITransform[] targetTransforms;
-  public String[] outputField;
-  public String[] outputMapping;
-  public IRowMeta outputRowMeta;
-
   public MappingOutputData() {
     super();
   }

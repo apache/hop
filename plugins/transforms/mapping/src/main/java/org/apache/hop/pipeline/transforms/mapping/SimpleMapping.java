@@ -32,7 +32,6 @@ import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.PipelineTransformUtil;
@@ -78,9 +77,9 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
         // Rows produced by the mapping are read and passed on.
         //
         String mappingOutputTransformName = data.mappingOutput.getTransformName();
-        ITransform outputTransformInterface = data.mappingPipeline.findTransformInterface( mappingOutputTransformName, 0 );
+        ITransform iOutputTransform = data.mappingPipeline.findTransformInterface( mappingOutputTransformName, 0 );
         RowOutputDataMapper outputDataMapper = new RowOutputDataMapper( meta.getInputMapping(), meta.getOutputMapping(), this::putRow );
-        outputTransformInterface.addRowListener( outputDataMapper );
+        iOutputTransform.addRowListener( outputDataMapper );
 
         // Start the mapping/sub- pipeline threads
         //
@@ -220,14 +219,6 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     PipelineTransformUtil.initServletConfig( getPipeline(), getData().getMappingPipeline() );
   }
 
-  public static void addInputRenames( List<MappingValueRename> renameList, List<MappingValueRename> addRenameList ) {
-    for ( MappingValueRename rename : addRenameList ) {
-      if ( renameList.indexOf( rename ) < 0 ) {
-        renameList.add( rename );
-      }
-    }
-  }
-
   public boolean init() {
 
     if ( super.init() ) {
@@ -235,7 +226,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
       try {
         // Pass the MetaStore down to the metadata object...
         //
-        data.mappingPipelineMeta = SimpleMappingMeta.loadMappingMeta( meta, meta.getMetadataProvider(), this, meta.getMappingParameters().isInheritingAllVariables() );
+        data.mappingPipelineMeta = SimpleMappingMeta.loadMappingMeta( meta, getMetadataProvider(), this, meta.getMappingParameters().isInheritingAllVariables() );
         if ( data.mappingPipelineMeta != null ) { // Do we have a mapping at all?
 
           // OK, now prepare the execution of the mapping.
@@ -298,19 +289,4 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
     return data.mappingPipeline;
   }
 
-  /**
-   * For preview of the main data path, make sure we pass the row listener down to the Mapping Output transform...
-   */
-  public void addRowListener( IRowListener rowListener ) {
-    List<MappingOutput> mappingOutputs = findMappingOutputs( data.mappingPipeline );
-    if ( mappingOutputs.isEmpty()) {
-      return; // Nothing to do here...
-    }
-
-    // Add the row listener to all the outputs in the mapping...
-    //
-    for ( MappingOutput mappingOutput : mappingOutputs ) {
-      mappingOutput.addRowListener( rowListener );
-    }
-  }
 }

@@ -47,7 +47,6 @@ import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -182,11 +181,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     props.setLook( shell );
     setShellImage( shell, mappingMeta );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        mappingMeta.setChanged();
-      }
-    };
+    lsMod = e -> mappingMeta.setChanged();
     changed = mappingMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -218,7 +213,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wTransformName );
     wTransformName.addModifyListener( lsMod );
     fdTransformName = new FormData();
-    fdTransformName.width = 250;
+    fdTransformName.right = new FormAttachment(100, 0);
     fdTransformName.left = new FormAttachment( 0, 0 );
     fdTransformName.top = new FormAttachment( wlTransformName, 5 );
     wTransformName.setLayoutData( fdTransformName );
@@ -239,27 +234,23 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     fdlTransformation.right = new FormAttachment( 50, 0 );
     wlPath.setLayoutData( fdlTransformation );
 
+    wbBrowse = new Button( shell, SWT.PUSH );
+    props.setLook( wbBrowse );
+    wbBrowse.setText( BaseMessages.getString( PKG, "SimpleMappingDialog.Browse.Label" ) );
+    FormData fdBrowse = new FormData();
+    fdBrowse.right = new FormAttachment( 100, 0 );
+    fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
+    wbBrowse.setLayoutData( fdBrowse );
+    wbBrowse.addListener( SWT.Selection, e->selectFilePipeline() );
+
     wPath = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment( 0, 0 );
     fdTransformation.top = new FormAttachment( wlPath, 5 );
-    fdTransformation.width = 350;
+    fdTransformation.right = new FormAttachment(wbBrowse, -5);
     wPath.setLayoutData( fdTransformation );
 
-    wbBrowse = new Button( shell, SWT.PUSH );
-    props.setLook( wbBrowse );
-    wbBrowse.setText( BaseMessages.getString( PKG, "SimpleMappingDialog.Browse.Label" ) );
-    FormData fdBrowse = new FormData();
-    fdBrowse.left = new FormAttachment( wPath, 5 );
-    fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
-    wbBrowse.setLayoutData( fdBrowse );
-
-    wbBrowse.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        selectFilePipeline();
-      }
-    } );
     //
     // Add a tab folder for the parameters and various input and output
     // streams
