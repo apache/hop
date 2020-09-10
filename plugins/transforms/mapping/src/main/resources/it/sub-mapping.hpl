@@ -82,7 +82,7 @@ It can be re-used by other pipelines in a generic way.</note>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>112</xloc>
+      <xloc>128</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -99,7 +99,7 @@ It can be re-used by other pipelines in a generic way.</note>
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>464</xloc>
+      <xloc>480</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
@@ -137,7 +137,7 @@ var name = firstName + " " + lastName;
     </fields>
     <attributes/>
     <GUI>
-      <xloc>288</xloc>
+      <xloc>304</xloc>
       <yloc>64</yloc>
     </GUI>
   </transform>
