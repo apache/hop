@@ -77,6 +77,7 @@ import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
@@ -814,9 +815,34 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             synchronized ( rowBuffer.getBuffer() ) {
               if (!rowBuffer.isEmpty()) {
                 try {
-                  PreviewRowsDialog previewRowsDialog =
-                    new PreviewRowsDialog( hopGui.getShell(), hopGui.getVariables(), SWT.NONE, dataTransform.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
-                  previewRowsDialog.setTitleMessage( "First output rows", "These are the first output rows of transform " + dataTransform.getName() );
+                  String title = "Output of "+dataTransform.getName();
+                  String message = "output rows of transform " + dataTransform.getName();
+                  String prefix = "";
+
+                  if (pipeline!=null && pipeline.getPipelineRunConfiguration()!=null) {
+                    PipelineRunConfiguration pipelineRunConfiguration = pipeline.getPipelineRunConfiguration();
+                    if (pipelineRunConfiguration.getEngineRunConfiguration() instanceof LocalPipelineRunConfiguration) {
+                      String sampleTypeInGui = ( (LocalPipelineRunConfiguration) pipelineRunConfiguration.getEngineRunConfiguration() ).getSampleTypeInGui();
+                      if (StringUtils.isNotEmpty( sampleTypeInGui )) {
+                        try {
+                          SampleType sampleType = SampleType.valueOf( sampleTypeInGui );
+                          switch(sampleType) {
+                            case None: break;
+                            case First: prefix="First "; break;
+                            case Last: prefix="Last "; break;
+                            case Random: prefix+="Random "; break;
+                            default: break;
+                          }
+                        } catch(Exception ex) {
+                          LogChannel.UI.logError( "Unknown sample type: "+sampleTypeInGui );
+                        }
+
+                      }
+                    }
+                  }
+
+                  PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( hopGui.getShell(), hopGui.getVariables(), SWT.NONE, dataTransform.getName(), rowBuffer.getRowMeta(), rowBuffer.getBuffer() );
+                  previewRowsDialog.setTitleMessage( title, prefix+message );
                   previewRowsDialog.open();
                 } catch ( Exception ex ) {
                   new ErrorDialog( hopGui.getShell(), "Error", "Error showing preview dialog", ex );
