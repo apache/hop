@@ -337,7 +337,6 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
   private TextFileInputMeta input;
 
   private Button wMinWidth;
-  private Listener lsMinWidth;
 
   // Wizard info...
   private Vector<ITextFileInputField> fields;
@@ -453,6 +452,19 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "TextFileInputDialog.Preview.Button" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
+
+
     wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
     wTabFolder.setSimple( false );
@@ -468,36 +480,14 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "TextFileInputDialog.Preview.Button" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
-
-    // Add listeners
-    lsOk = e -> ok();
-    lsFirst = e -> first( false );
-    lsFirstHeader = e -> first( true );
-    lsGet = e -> get();
-    lsPreview = e -> preview();
-    lsMinWidth = e -> setMinimalWidth();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wFirst.addListener( SWT.Selection, lsFirst );
-    wFirstHeader.addListener( SWT.Selection, lsFirstHeader );
-    wGet.addListener( SWT.Selection, lsGet );
-    wMinWidth.addListener( SWT.Selection, lsMinWidth );
-    wPreview.addListener( SWT.Selection, lsPreview );
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wFirst.addListener( SWT.Selection, e -> first( false ) );
+    wFirstHeader.addListener( SWT.Selection, e -> first( true ) );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wMinWidth.addListener( SWT.Selection, e -> setMinimalWidth() );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -840,7 +830,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wAccFilenames.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.AcceptFilenames.Tooltip" ) );
     props.setLook( wAccFilenames );
     fdAccFilenames = new FormData();
-    fdAccFilenames.top = new FormAttachment( 0, margin );
+    fdAccFilenames.top = new FormAttachment( wlAccFilenames, 0, SWT.CENTER );
     fdAccFilenames.left = new FormAttachment( middle, 0 );
     fdAccFilenames.right = new FormAttachment( 100, 0 );
     wAccFilenames.setLayoutData( fdAccFilenames );
@@ -859,7 +849,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wPassThruFields.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.PassThruFields.Tooltip" ) );
     props.setLook( wPassThruFields );
     fdPassThruFields = new FormData();
-    fdPassThruFields.top = new FormAttachment( wAccFilenames, margin );
+    fdPassThruFields.top = new FormAttachment( wlPassThruFields, 0, SWT.CENTER );
     fdPassThruFields.left = new FormAttachment( middle, 0 );
     fdPassThruFields.right = new FormAttachment( 100, 0 );
     wPassThruFields.setLayoutData( fdPassThruFields );
@@ -1067,7 +1057,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wEnclBreaks );
     fdEnclBreaks = new FormData();
     fdEnclBreaks.left = new FormAttachment( middle, 0 );
-    fdEnclBreaks.top = new FormAttachment( wEnclosure, margin );
+    fdEnclBreaks.top = new FormAttachment( wlEnclBreaks, 0, SWT.CENTER );
     wEnclBreaks.setLayoutData( fdEnclBreaks );
 
     // Disable until the logic works...
@@ -1105,7 +1095,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wHeader );
     fdHeader = new FormData();
     fdHeader.left = new FormAttachment( middle, 0 );
-    fdHeader.top = new FormAttachment( wEscape, margin );
+    fdHeader.top = new FormAttachment( wlHeader, 0, SWT.CENTER );
     wHeader.setLayoutData( fdHeader );
 
     // NrHeader
@@ -1114,7 +1104,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wlNrHeader );
     fdlNrHeader = new FormData();
     fdlNrHeader.left = new FormAttachment( wHeader, margin );
-    fdlNrHeader.top = new FormAttachment( wEscape, margin );
+    fdlNrHeader.top = new FormAttachment( wlNrHeader, 0, SWT.CENTER);
     wlNrHeader.setLayoutData( fdlNrHeader );
     wNrHeader = new Text( wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wNrHeader.setTextLimit( 3 );
@@ -1122,7 +1112,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wNrHeader.addModifyListener( lsMod );
     fdNrHeader = new FormData();
     fdNrHeader.left = new FormAttachment( wlNrHeader, margin );
-    fdNrHeader.top = new FormAttachment( wEscape, margin );
+    fdNrHeader.top = new FormAttachment( wlNrHeader, 0, SWT.CENTER );
     fdNrHeader.right = new FormAttachment( 100, 0 );
     wNrHeader.setLayoutData( fdNrHeader );
 
@@ -1138,7 +1128,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wFooter );
     fdFooter = new FormData();
     fdFooter.left = new FormAttachment( middle, 0 );
-    fdFooter.top = new FormAttachment( wHeader, margin );
+    fdFooter.top = new FormAttachment( wlFooter, 0, SWT.CENTER );
     wFooter.setLayoutData( fdFooter );
 
     // NrFooter
@@ -1147,7 +1137,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wlNrFooter );
     fdlNrFooter = new FormData();
     fdlNrFooter.left = new FormAttachment( wFooter, margin );
-    fdlNrFooter.top = new FormAttachment( wHeader, margin );
+    fdlNrFooter.top = new FormAttachment( wlFooter, 0, SWT.CENTER );
     wlNrFooter.setLayoutData( fdlNrFooter );
     wNrFooter = new Text( wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wNrFooter.setTextLimit( 3 );
@@ -1155,7 +1145,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wNrFooter.addModifyListener( lsMod );
     fdNrFooter = new FormData();
     fdNrFooter.left = new FormAttachment( wlNrFooter, margin );
-    fdNrFooter.top = new FormAttachment( wHeader, margin );
+    fdNrFooter.top = new FormAttachment( wlFooter, 0, SWT.CENTER);
     fdNrFooter.right = new FormAttachment( 100, 0 );
     wNrFooter.setLayoutData( fdNrFooter );
 
@@ -1172,7 +1162,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wWraps );
     fdWraps = new FormData();
     fdWraps.left = new FormAttachment( middle, 0 );
-    fdWraps.top = new FormAttachment( wFooter, margin );
+    fdWraps.top = new FormAttachment( wlWraps, 0, SWT.CENTER );
     wWraps.setLayoutData( fdWraps );
 
     // NrWraps
@@ -1181,7 +1171,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wlNrWraps );
     fdlNrWraps = new FormData();
     fdlNrWraps.left = new FormAttachment( wWraps, margin );
-    fdlNrWraps.top = new FormAttachment( wFooter, margin );
+    fdlNrWraps.top = new FormAttachment( wlWraps, 0, SWT.CENTER);
     wlNrWraps.setLayoutData( fdlNrWraps );
     wNrWraps = new Text( wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wNrWraps.setTextLimit( 3 );
@@ -1189,7 +1179,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wNrWraps.addModifyListener( lsMod );
     fdNrWraps = new FormData();
     fdNrWraps.left = new FormAttachment( wlNrWraps, margin );
-    fdNrWraps.top = new FormAttachment( wFooter, margin );
+    fdNrWraps.top = new FormAttachment( wlWraps, 0, SWT.CENTER);
     fdNrWraps.right = new FormAttachment( 100, 0 );
     wNrWraps.setLayoutData( fdNrWraps );
 
@@ -1206,7 +1196,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wLayoutPaged );
     fdLayoutPaged = new FormData();
     fdLayoutPaged.left = new FormAttachment( middle, 0 );
-    fdLayoutPaged.top = new FormAttachment( wWraps, margin );
+    fdLayoutPaged.top = new FormAttachment( wlLayoutPaged, 0, SWT.CENTER );
     wLayoutPaged.setLayoutData( fdLayoutPaged );
 
     // Nr of lines per page
@@ -1215,7 +1205,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wlNrLinesPerPage );
     fdlNrLinesPerPage = new FormData();
     fdlNrLinesPerPage.left = new FormAttachment( wLayoutPaged, margin );
-    fdlNrLinesPerPage.top = new FormAttachment( wWraps, margin );
+    fdlNrLinesPerPage.top = new FormAttachment( wlLayoutPaged, 0, SWT.CENTER );
     wlNrLinesPerPage.setLayoutData( fdlNrLinesPerPage );
     wNrLinesPerPage = new Text( wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wNrLinesPerPage.setTextLimit( 3 );
@@ -1223,7 +1213,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wNrLinesPerPage.addModifyListener( lsMod );
     fdNrLinesPerPage = new FormData();
     fdNrLinesPerPage.left = new FormAttachment( wlNrLinesPerPage, margin );
-    fdNrLinesPerPage.top = new FormAttachment( wWraps, margin );
+    fdNrLinesPerPage.top = new FormAttachment( wlLayoutPaged, 0, SWT.CENTER );
     fdNrLinesPerPage.right = new FormAttachment( 100, 0 );
     wNrLinesPerPage.setLayoutData( fdNrLinesPerPage );
 
@@ -1281,7 +1271,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wNoempty.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.NoEmpty.Tooltip" ) );
     fdNoempty = new FormData();
     fdNoempty.left = new FormAttachment( middle, 0 );
-    fdNoempty.top = new FormAttachment( wCompression, margin );
+    fdNoempty.top = new FormAttachment( wlNoempty, 0, SWT.CENTER );
     fdNoempty.right = new FormAttachment( 100, 0 );
     wNoempty.setLayoutData( fdNoempty );
 
@@ -1298,7 +1288,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wInclFilename.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.InclFilename.Tooltip" ) );
     fdInclFilename = new FormData();
     fdInclFilename.left = new FormAttachment( middle, 0 );
-    fdInclFilename.top = new FormAttachment( wNoempty, margin );
+    fdInclFilename.top = new FormAttachment( wlInclFilename, 0, SWT.CENTER );
     wInclFilename.setLayoutData( fdInclFilename );
 
     wlInclFilenameField = new Label( wContentComp, SWT.LEFT );
@@ -1306,14 +1296,14 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wlInclFilenameField );
     fdlInclFilenameField = new FormData();
     fdlInclFilenameField.left = new FormAttachment( wInclFilename, margin );
-    fdlInclFilenameField.top = new FormAttachment( wNoempty, margin );
+    fdlInclFilenameField.top = new FormAttachment( wlInclFilename, 0, SWT.CENTER );
     wlInclFilenameField.setLayoutData( fdlInclFilenameField );
     wInclFilenameField = new Text( wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclFilenameField );
     wInclFilenameField.addModifyListener( lsMod );
     fdInclFilenameField = new FormData();
     fdInclFilenameField.left = new FormAttachment( wlInclFilenameField, margin );
-    fdInclFilenameField.top = new FormAttachment( wNoempty, margin );
+    fdInclFilenameField.top = new FormAttachment( wlInclFilename, 0, SWT.CENTER );
     fdInclFilenameField.right = new FormAttachment( 100, 0 );
     wInclFilenameField.setLayoutData( fdInclFilenameField );
 
@@ -1330,7 +1320,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wInclRownum.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.InclRownum.Tooltip" ) );
     fdRownum = new FormData();
     fdRownum.left = new FormAttachment( middle, 0 );
-    fdRownum.top = new FormAttachment( wInclFilenameField, margin );
+    fdRownum.top = new FormAttachment( wlInclRownum, 0, SWT.CENTER );
     wInclRownum.setLayoutData( fdRownum );
 
     wlInclRownumField = new Label( wContentComp, SWT.RIGHT );
@@ -1338,14 +1328,14 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wlInclRownumField );
     fdlInclRownumField = new FormData();
     fdlInclRownumField.left = new FormAttachment( wInclRownum, margin );
-    fdlInclRownumField.top = new FormAttachment( wInclFilenameField, margin );
+    fdlInclRownumField.top = new FormAttachment( wlInclRownum, 0, SWT.CENTER );
     wlInclRownumField.setLayoutData( fdlInclRownumField );
     wInclRownumField = new Text( wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclRownumField );
     wInclRownumField.addModifyListener( lsMod );
     fdInclRownumField = new FormData();
     fdInclRownumField.left = new FormAttachment( wlInclRownumField, margin );
-    fdInclRownumField.top = new FormAttachment( wInclFilenameField, margin );
+    fdInclRownumField.top = new FormAttachment( wlInclRownum, 0, SWT.CENTER );
     fdInclRownumField.right = new FormAttachment( 100, 0 );
     wInclRownumField.setLayoutData( fdInclRownumField );
 
@@ -1361,7 +1351,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wRownumByFile.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.RownumByFile.Tooltip" ) );
     fdRownumByFile = new FormData();
     fdRownumByFile.left = new FormAttachment( wlRownumByFileField, margin );
-    fdRownumByFile.top = new FormAttachment( wInclRownumField, margin );
+    fdRownumByFile.top = new FormAttachment( wlRownumByFileField, 0, SWT.CENTER );
     wRownumByFile.setLayoutData( fdRownumByFile );
 
     wlFormat = new Label( wContentComp, SWT.RIGHT );
@@ -1447,7 +1437,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wDateLenient );
     fdDateLenient = new FormData();
     fdDateLenient.left = new FormAttachment( middle, 0 );
-    fdDateLenient.top = new FormAttachment( wLimit, margin );
+    fdDateLenient.top = new FormAttachment( wlDateLenient, 0, SWT.CENTER );
     wDateLenient.setLayoutData( fdDateLenient );
 
     wlDateLocale = new Label( wContentComp, SWT.RIGHT );
@@ -1506,7 +1496,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.AddResult.Tooltip" ) );
     fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wDateLocale, margin );
+    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData( fdAddResult );
 
     fdAddFileResult = new FormData();
@@ -1588,7 +1578,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wErrorIgnored.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.ErrorIgnored.Tooltip" ) );
     fdErrorIgnored = new FormData();
     fdErrorIgnored.left = new FormAttachment( middle, 0 );
-    fdErrorIgnored.top = new FormAttachment( 0, margin );
+    fdErrorIgnored.top = new FormAttachment( wlErrorIgnored, 0, SWT.CENTER );
     wErrorIgnored.setLayoutData( fdErrorIgnored );
 
     // Skip bad files?
@@ -1605,7 +1595,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wSkipBadFiles.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.SkipBadFiles.Tooltip" ) );
     fdSkipBadFiles = new FormData();
     fdSkipBadFiles.left = new FormAttachment( middle, 0 );
-    fdSkipBadFiles.top = new FormAttachment( wErrorIgnored, margin );
+    fdSkipBadFiles.top = new FormAttachment( wlSkipBadFiles, 0, SWT.CENTER );
     wSkipBadFiles.setLayoutData( fdSkipBadFiles );
 
     // field for rejected file
@@ -1658,7 +1648,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wSkipErrorLines.setToolTipText( BaseMessages.getString( PKG, "TextFileInputDialog.SkipErrorLines.Tooltip" ) );
     fdSkipErrorLines = new FormData();
     fdSkipErrorLines.left = new FormAttachment( middle, 0 );
-    fdSkipErrorLines.top = new FormAttachment( wBadFileMessageField, margin );
+    fdSkipErrorLines.top = new FormAttachment( wlSkipErrorLines, 0, SWT.CENTER );
     wSkipErrorLines.setLayoutData( fdSkipErrorLines );
 
     wlErrorCount = new Label( wErrorComp, SWT.RIGHT );
