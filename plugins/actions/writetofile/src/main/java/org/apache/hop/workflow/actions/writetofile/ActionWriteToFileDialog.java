@@ -192,7 +192,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
       .setToolTipText( BaseMessages.getString( PKG, "JobWriteToFile.CreateParentFolder.Tooltip" ) );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
-    fdCreateParentFolder.top = new FormAttachment( wFilename, margin );
+    fdCreateParentFolder.top = new FormAttachment( wlCreateParentFolder, 0, SWT.CENTER );
     fdCreateParentFolder.right = new FormAttachment( 100, 0 );
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener( new SelectionAdapter() {

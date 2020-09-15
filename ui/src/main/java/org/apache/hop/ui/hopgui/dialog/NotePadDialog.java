@@ -51,9 +51,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
@@ -74,7 +72,6 @@ public class NotePadDialog extends Dialog {
   private FormData fdlDesc, fdDesc;
 
   private Button wOk, wCancel;
-  private Listener lsOk, lsCancel;
 
   private Shell shell;
   private String title;
@@ -179,6 +176,17 @@ public class NotePadDialog extends Dialog {
 
     int margin = props.getMargin();
     int middle = 30;
+
+    // Some buttons at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> cancel() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> ok() );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
+
 
     wNoteFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( wNoteFolder, PropsUi.WIDGET_STYLE_TAB );
@@ -305,7 +313,7 @@ public class NotePadDialog extends Dialog {
     props.setLook( wFontBold );
     fdFontBold = new FormData();
     fdFontBold.left = new FormAttachment( middle, 0 );
-    fdFontBold.top = new FormAttachment( wFontSize, margin );
+    fdFontBold.top = new FormAttachment( wlFontBold, 0, SWT.CENTER );
     fdFontBold.right = new FormAttachment( 100, -margin );
     wFontBold.setLayoutData( fdFontBold );
     wFontBold.addSelectionListener( new SelectionAdapter() {
@@ -319,14 +327,14 @@ public class NotePadDialog extends Dialog {
     props.setLook( wlFontItalic );
     fdlFontItalic = new FormData();
     fdlFontItalic.left = new FormAttachment( margin, margin );
-    fdlFontItalic.top = new FormAttachment( wFontBold, margin );
+    fdlFontItalic.top = new FormAttachment( wlFontBold, margin );
     fdlFontItalic.right = new FormAttachment( middle, -margin );
     wlFontItalic.setLayoutData( fdlFontItalic );
     wFontItalic = new Button( wNoteFontComp, SWT.CHECK );
     props.setLook( wFontItalic );
     fdFontItalic = new FormData();
     fdFontItalic.left = new FormAttachment( middle, 0 );
-    fdFontItalic.top = new FormAttachment( wFontBold, margin );
+    fdFontItalic.top = new FormAttachment( wlFontItalic, 0, SWT.CENTER );
     fdFontItalic.right = new FormAttachment( 100, -margin );
     wFontItalic.setLayoutData( fdFontItalic );
     wFontItalic.addSelectionListener( new SelectionAdapter() {
@@ -350,7 +358,7 @@ public class NotePadDialog extends Dialog {
     wbFontColorChange.setToolTipText( BaseMessages.getString( PKG, "NotePadDialog.Font.Color.Change.Tooltip" ) );
     props.setLook( wbFontColorChange );
     fdFontColorChange = new FormData();
-    fdFontColorChange.top = new FormAttachment( wFontItalic, 2 * margin );
+    fdFontColorChange.top = new FormAttachment( wlFontItalic, 2 * margin );
     fdFontColorChange.right = new FormAttachment( 100, -margin );
     wbFontColorChange.setLayoutData( fdFontColorChange );
     wbFontColorChange.addSelectionListener( new SelectionAdapter() {
@@ -491,24 +499,9 @@ public class NotePadDialog extends Dialog {
     fdNoteFolder.left = new FormAttachment( 0, 0 );
     fdNoteFolder.top = new FormAttachment( 0, margin );
     fdNoteFolder.right = new FormAttachment( 100, 0 );
-    fdNoteFolder.bottom = new FormAttachment( 100, -50 );
+    fdNoteFolder.bottom = new FormAttachment( wOk, -2*margin );
     wNoteFolder.setLayoutData( fdNoteFolder );
 
-    // Some buttons
-
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wNoteFolder );
-
-    // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     // Detect [X] or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {

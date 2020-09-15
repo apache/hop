@@ -196,6 +196,16 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
+    // Buttons at the bottom first
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
     wTabFolder.setSimple( false );
@@ -258,7 +268,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wServletOutput );
     FormData fdServletOutput = new FormData();
     fdServletOutput.left = new FormAttachment( middle, 0 );
-    fdServletOutput.top = new FormAttachment( topControl, margin );
+    fdServletOutput.top = new FormAttachment( wlServletOutput, 0, SWT.CENTER );
     fdServletOutput.right = new FormAttachment( 100, 0 );
     wServletOutput.setLayoutData(fdServletOutput);
     wServletOutput.addSelectionListener( new SelectionAdapter() {
@@ -283,7 +293,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wCreateParentFolder );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
-    fdCreateParentFolder.top = new FormAttachment( wServletOutput, margin );
+    fdCreateParentFolder.top = new FormAttachment( wlCreateParentFolder, 0, SWT.CENTER );
     fdCreateParentFolder.right = new FormAttachment( 100, 0 );
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener( new SelectionAdapter() {
@@ -308,7 +318,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wDoNotOpenNewFileInit );
     FormData fdDoNotOpenNewFileInit = new FormData();
     fdDoNotOpenNewFileInit.left = new FormAttachment( middle, 0 );
-    fdDoNotOpenNewFileInit.top = new FormAttachment( wCreateParentFolder, margin );
+    fdDoNotOpenNewFileInit.top = new FormAttachment( wlDoNotOpenNewFileInit, 0, SWT.CENTER );
     fdDoNotOpenNewFileInit.right = new FormAttachment( 100, 0 );
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener( new SelectionAdapter() {
@@ -332,7 +342,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wFileNameInField );
     FormData fdFileNameInField = new FormData();
     fdFileNameInField.left = new FormAttachment( middle, 0 );
-    fdFileNameInField.top = new FormAttachment( wDoNotOpenNewFileInit, margin );
+    fdFileNameInField.top = new FormAttachment( wlFileNameInField, 0, SWT.CENTER );
     fdFileNameInField.right = new FormAttachment( 100, 0 );
     wFileNameInField.setLayoutData(fdFileNameInField);
     wFileNameInField.addSelectionListener( new SelectionAdapter() {
@@ -407,7 +417,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wAddTransformNr );
     FormData fdAddTransformNr = new FormData();
     fdAddTransformNr.left = new FormAttachment( middle, 0 );
-    fdAddTransformNr.top = new FormAttachment( wExtension, margin );
+    fdAddTransformNr.top = new FormAttachment( wlAddTransformNr, 0, SWT.CENTER  );
     fdAddTransformNr.right = new FormAttachment( 100, 0 );
     wAddTransformNr.setLayoutData(fdAddTransformNr);
     wAddTransformNr.addSelectionListener( new SelectionAdapter() {
@@ -429,7 +439,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wAddPartnr );
     FormData fdAddPartnr = new FormData();
     fdAddPartnr.left = new FormAttachment( middle, 0 );
-    fdAddPartnr.top = new FormAttachment( wAddTransformNr, margin );
+    fdAddPartnr.top = new FormAttachment( wlAddPartnr, 0, SWT.CENTER );
     fdAddPartnr.right = new FormAttachment( 100, 0 );
     wAddPartnr.setLayoutData(fdAddPartnr);
     wAddPartnr.addSelectionListener( new SelectionAdapter() {
@@ -451,7 +461,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wAddDate );
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment( middle, 0 );
-    fdAddDate.top = new FormAttachment( wAddPartnr, margin );
+    fdAddDate.top = new FormAttachment( wlAddDate, 0, SWT.CENTER );
     fdAddDate.right = new FormAttachment( 100, 0 );
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener( new SelectionAdapter() {
@@ -472,7 +482,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wAddTime );
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment( middle, 0 );
-    fdAddTime.top = new FormAttachment( wAddDate, margin );
+    fdAddTime.top = new FormAttachment( wlAddTime, 0, SWT.CENTER );
     fdAddTime.right = new FormAttachment( 100, 0 );
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener( new SelectionAdapter() {
@@ -495,7 +505,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wSpecifyFormat.setToolTipText( BaseMessages.getString( PKG, "TextFileOutputDialog.SpecifyFormat.Tooltip" ) );
     FormData fdSpecifyFormat = new FormData();
     fdSpecifyFormat.left = new FormAttachment( middle, 0 );
-    fdSpecifyFormat.top = new FormAttachment( wAddTime, margin );
+    fdSpecifyFormat.top = new FormAttachment( wlSpecifyFormat, 0, SWT.CENTER );
     fdSpecifyFormat.right = new FormAttachment( 100, 0 );
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener( new SelectionAdapter() {
@@ -569,7 +579,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wAddToResult );
     FormData fdAddToResult = new FormData();
     fdAddToResult.left = new FormAttachment( middle, 0 );
-    fdAddToResult.top = new FormAttachment( wbShowFiles, 2 * margin );
+    fdAddToResult.top = new FormAttachment( wlAddToResult, 0, SWT.CENTER );
     fdAddToResult.right = new FormAttachment( 100, 0 );
     wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelR = new SelectionAdapter() {
@@ -620,7 +630,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wAppend );
     FormData fdAppend = new FormData();
     fdAppend.left = new FormAttachment( middle, 0 );
-    fdAppend.top = new FormAttachment( 0, 0 );
+    fdAppend.top = new FormAttachment( wlAppend, 0, SWT.CENTER );
     fdAppend.right = new FormAttachment( 100, 0 );
     wAppend.setLayoutData(fdAppend);
     wAppend.addSelectionListener( new SelectionAdapter() {
@@ -696,7 +706,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wEnclForced );
     FormData fdEnclForced = new FormData();
     fdEnclForced.left = new FormAttachment( middle, 0 );
-    fdEnclForced.top = new FormAttachment( wEnclosure, margin );
+    fdEnclForced.top = new FormAttachment( wlEnclForced, 0, SWT.CENTER);
     fdEnclForced.right = new FormAttachment( 100, 0 );
     wEnclForced.setLayoutData(fdEnclForced);
     wEnclForced.addSelectionListener( new SelectionAdapter() {
@@ -718,7 +728,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wDisableEnclosureFix );
     FormData fdDisableEnclosureFix = new FormData();
     fdDisableEnclosureFix.left = new FormAttachment( middle, 0 );
-    fdDisableEnclosureFix.top = new FormAttachment( wEnclForced, margin );
+    fdDisableEnclosureFix.top = new FormAttachment( wlDisableEnclosureFix, 0, SWT.CENTER);
     fdDisableEnclosureFix.right = new FormAttachment( 100, 0 );
     wDisableEnclosureFix.setLayoutData(fdDisableEnclosureFix);
     wDisableEnclosureFix.addSelectionListener( new SelectionAdapter() {
@@ -739,7 +749,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wHeader );
     FormData fdHeader = new FormData();
     fdHeader.left = new FormAttachment( middle, 0 );
-    fdHeader.top = new FormAttachment( wDisableEnclosureFix, margin );
+    fdHeader.top = new FormAttachment( wlHeader, 0, SWT.CENTER );
     fdHeader.right = new FormAttachment( 100, 0 );
     wHeader.setLayoutData(fdHeader);
     wHeader.addSelectionListener( new SelectionAdapter() {
@@ -759,7 +769,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wFooter );
     FormData fdFooter = new FormData();
     fdFooter.left = new FormAttachment( middle, 0 );
-    fdFooter.top = new FormAttachment( wHeader, margin );
+    fdFooter.top = new FormAttachment( wlFooter, 0, SWT.CENTER );
     fdFooter.right = new FormAttachment( 100, 0 );
     wFooter.setLayoutData(fdFooter);
     wFooter.addSelectionListener( new SelectionAdapter() {
@@ -855,7 +865,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wPad );
     FormData fdPad = new FormData();
     fdPad.left = new FormAttachment( middle, 0 );
-    fdPad.top = new FormAttachment( wEncoding, margin );
+    fdPad.top = new FormAttachment( wlPad, 0, SWT.CENTER );
     fdPad.right = new FormAttachment( 100, 0 );
     wPad.setLayoutData(fdPad);
     wPad.addSelectionListener( new SelectionAdapter() {
@@ -876,7 +886,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wFastDump );
     FormData fdFastDump = new FormData();
     fdFastDump.left = new FormAttachment( middle, 0 );
-    fdFastDump.top = new FormAttachment( wPad, margin );
+    fdFastDump.top = new FormAttachment( wlFastDump, 0, SWT.CENTER );
     fdFastDump.right = new FormAttachment( 100, 0 );
     wFastDump.setLayoutData(fdFastDump);
     wFastDump.addSelectionListener( new SelectionAdapter() {
@@ -1063,27 +1073,12 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
-
-    // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    Listener lsMinWidth = e -> setMinimalWidth();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wMinWidth.addListener( SWT.Selection, lsMinWidth);
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wMinWidth.addListener( SWT.Selection, e -> setMinimalWidth());
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

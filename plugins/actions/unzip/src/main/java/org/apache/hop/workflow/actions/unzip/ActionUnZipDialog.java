@@ -445,7 +445,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddDate.setToolTipText( BaseMessages.getString( PKG, "JobUnZip.AddDate.Tooltip" ) );
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment( middle, 0 );
-    fdAddDate.top = new FormAttachment( wWildcardExclude, margin );
+    fdAddDate.top = new FormAttachment( wlAddDate, 0, SWT.CENTER );
     fdAddDate.right = new FormAttachment( 100, 0 );
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener( new SelectionAdapter() {
@@ -468,7 +468,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wAddTime.setToolTipText( BaseMessages.getString( PKG, "JobUnZip.AddTime.Tooltip" ) );
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment( middle, 0 );
-    fdAddTime.top = new FormAttachment( wAddDate, margin );
+    fdAddTime.top = new FormAttachment( wlAddTime, 0, SWT.CENTER );
     fdAddTime.right = new FormAttachment( 100, 0 );
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener( new SelectionAdapter() {

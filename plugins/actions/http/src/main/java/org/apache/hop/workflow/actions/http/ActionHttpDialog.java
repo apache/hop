@@ -517,7 +517,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wAppend.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.TargetFileAppend.Tooltip" ) );
     FormData fdAppend = new FormData();
     fdAppend.left = new FormAttachment( middle, 0 );
-    fdAppend.top = new FormAttachment( wTargetFile, margin );
+    fdAppend.top = new FormAttachment( wlAppend, 0, SWT.CENTER );
     fdAppend.right = new FormAttachment( 100, 0 );
     wAppend.setLayoutData(fdAppend);
 

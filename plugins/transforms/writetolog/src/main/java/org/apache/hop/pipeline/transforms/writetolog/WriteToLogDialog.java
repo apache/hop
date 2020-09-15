@@ -166,7 +166,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wPrintHeader );
     FormData fdPrintHeader = new FormData();
     fdPrintHeader.left = new FormAttachment( middle, 0 );
-    fdPrintHeader.top = new FormAttachment( wLoglevel, margin );
+    fdPrintHeader.top = new FormAttachment( wlPrintHeader, 0, SWT.CENTER );
     fdPrintHeader.right = new FormAttachment( 100, 0 );
     wPrintHeader.setLayoutData( fdPrintHeader );
     wPrintHeader.addSelectionListener( lsSelMod );
@@ -185,7 +185,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wLimitRows );
     FormData fdLimitRows = new FormData();
     fdLimitRows.left = new FormAttachment( middle, 0 );
-    fdLimitRows.top = new FormAttachment( wPrintHeader, margin );
+    fdLimitRows.top = new FormAttachment( wlLimitRows, 0, SWT.CENTER );
     wLimitRows.setLayoutData( fdLimitRows );
     wLimitRows.addSelectionListener( lsLimitRows );
 
@@ -219,15 +219,14 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     fdlLogMessage.right = new FormAttachment( middle, -margin );
     wlLogMessage.setLayoutData( fdlLogMessage );
 
-    wLogMessage =
-      new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wLogMessage = new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wLogMessage, Props.WIDGET_STYLE_FIXED );
     wLogMessage.addModifyListener( lsMod );
     FormData fdLogMessage = new FormData();
     fdLogMessage.left = new FormAttachment( middle, 0 );
     fdLogMessage.top = new FormAttachment( wLimitRowsNumber, margin );
     fdLogMessage.right = new FormAttachment( 100, -2 * margin );
-    fdLogMessage.height = 125;
+    fdLogMessage.height = (int) (125*props.getZoomFactor());
     wLogMessage.setLayoutData( fdLogMessage );
 
     wOk = new Button( shell, SWT.PUSH );

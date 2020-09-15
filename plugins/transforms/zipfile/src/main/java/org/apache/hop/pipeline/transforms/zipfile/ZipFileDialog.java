@@ -147,7 +147,7 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wCreateParentFolder.setToolTipText( BaseMessages.getString( PKG, "ZipFileDialog.CreateParentFolder.Tooltip" ) );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
-    fdCreateParentFolder.top = new FormAttachment( wTransformName, margin );
+    fdCreateParentFolder.top = new FormAttachment( wlCreateParentFolder, 0, SWT.CENTER );
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener( lsSel );
 

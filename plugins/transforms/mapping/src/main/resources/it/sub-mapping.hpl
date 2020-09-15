@@ -24,8 +24,8 @@
       <note>This mapping pipeline accepts a first and last name field and 
 concatenates it with a space in between to output the full name.
 It can be re-used by other pipelines in a generic way.</note>
-      <xloc>96</xloc>
-      <yloc>144</yloc>
+      <xloc>128</xloc>
+      <yloc>160</yloc>
       <width>339</width>
       <heigth>58</heigth>
       <fontname>Noto Sans</fontname>
@@ -82,8 +82,8 @@ It can be re-used by other pipelines in a generic way.</note>
     </fields>
     <attributes/>
     <GUI>
-      <xloc>128</xloc>
-      <yloc>64</yloc>
+      <xloc>160</xloc>
+      <yloc>80</yloc>
     </GUI>
   </transform>
   <transform>
@@ -99,8 +99,8 @@ It can be re-used by other pipelines in a generic way.</note>
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>480</xloc>
-      <yloc>64</yloc>
+      <xloc>512</xloc>
+      <yloc>80</yloc>
     </GUI>
   </transform>
   <transform>
@@ -137,8 +137,8 @@ var name = firstName + " " + lastName;
     </fields>
     <attributes/>
     <GUI>
-      <xloc>304</xloc>
-      <yloc>64</yloc>
+      <xloc>336</xloc>
+      <yloc>80</yloc>
     </GUI>
   </transform>
   <transform_error_handling>
