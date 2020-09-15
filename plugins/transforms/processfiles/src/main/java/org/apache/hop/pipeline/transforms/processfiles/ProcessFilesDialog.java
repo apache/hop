@@ -172,7 +172,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wCreateParentFolder.addSelectionListener( lsButtonChanged );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
-    fdCreateParentFolder.top = new FormAttachment( wOperation, margin );
+    fdCreateParentFolder.top = new FormAttachment( wlCreateParentFolder, 0, SWT.CENTER );
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
 
     // Overwrite target file?

@@ -215,7 +215,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
       props.setLook( wIncludeFilename );
       wFilenameField.addModifyListener( lsMod );
       FormData fdIncludeFilename = new FormData();
-      fdIncludeFilename.top = new FormAttachment( lastControl, margin );
+      fdIncludeFilename.top = new FormAttachment( wlIncludeFilename, 0, SWT.CENTER );
       fdIncludeFilename.left = new FormAttachment( middle, 0 );
       fdIncludeFilename.right = new FormAttachment( 100, 0 );
       wIncludeFilename.setLayoutData( fdIncludeFilename );

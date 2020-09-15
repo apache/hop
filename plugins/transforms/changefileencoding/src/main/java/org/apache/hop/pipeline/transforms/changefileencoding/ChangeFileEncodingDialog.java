@@ -265,7 +265,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
       .setToolTipText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.CreateParentFolder.Tooltip" ) );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
-    fdCreateParentFolder.top = new FormAttachment( wTargetFileName, margin );
+    fdCreateParentFolder.top = new FormAttachment( wlCreateParentFolder, 0, SWT.CENTER );
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener( new ComponentSelectionListener( input ) );
 

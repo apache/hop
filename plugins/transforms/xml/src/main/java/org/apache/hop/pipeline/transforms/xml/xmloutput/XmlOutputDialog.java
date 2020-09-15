@@ -221,7 +221,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wDoNotOpenNewFileInit );
     FormData fdDoNotOpenNewFileInit = new FormData();
     fdDoNotOpenNewFileInit.left = new FormAttachment( middle, 0 );
-    fdDoNotOpenNewFileInit.top = new FormAttachment( wFilename, margin );
+    fdDoNotOpenNewFileInit.top = new FormAttachment( wlDoNotOpenNewFileInit, 0, SWT.CENTER );
     fdDoNotOpenNewFileInit.right = new FormAttachment( 100, 0 );
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener( new SelectionAdapter() {
@@ -244,7 +244,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wServletOutput );
     FormData fdServletOutput = new FormData();
     fdServletOutput.left = new FormAttachment( middle, 0 );
-    fdServletOutput.top = new FormAttachment( wDoNotOpenNewFileInit, margin );
+    fdServletOutput.top = new FormAttachment( wlServletOutput, 0, SWT.CENTER );
     fdServletOutput.right = new FormAttachment( 100, 0 );
     wServletOutput.setLayoutData(fdServletOutput);
     wServletOutput.addSelectionListener( new SelectionAdapter() {
@@ -308,7 +308,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wAddDate );
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment( middle, 0 );
-    fdAddDate.top = new FormAttachment( wAddStepnr, margin );
+    fdAddDate.top = new FormAttachment( wlAddDate, 0, SWT.CENTER );
     fdAddDate.right = new FormAttachment( 100, 0 );
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener( new SelectionAdapter() {
@@ -329,7 +329,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wAddTime );
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment( middle, 0 );
-    fdAddTime.top = new FormAttachment( wAddDate, margin );
+    fdAddTime.top = new FormAttachment( wlAddTime, 0, SWT.CENTER );
     fdAddTime.right = new FormAttachment( 100, 0 );
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener( new SelectionAdapter() {
@@ -429,7 +429,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wAddToResult );
     FormData fdAddToResult = new FormData();
     fdAddToResult.left = new FormAttachment( middle, 0 );
-    fdAddToResult.top = new FormAttachment( wbShowFiles, 2 * margin );
+    fdAddToResult.top = new FormAttachment( wlAddToResult, 0, SWT.CENTER );
     fdAddToResult.right = new FormAttachment( 100, 0 );
     wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelR = new SelectionAdapter() {

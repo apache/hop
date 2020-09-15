@@ -158,6 +158,16 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
+    // Buttons at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e->ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e->cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
 
@@ -284,7 +294,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wCompatibilityMode );
     FormData fdCompatibilityMode = new FormData();
     fdCompatibilityMode.left = new FormAttachment( middle, 0 );
-    fdCompatibilityMode.top = new FormAttachment( wOutputValue, margin );
+    fdCompatibilityMode.top = new FormAttachment( wlCompatibilityMode, 0, SWT.CENTER );
     fdCompatibilityMode.right = new FormAttachment( 100, 0 );
     wCompatibilityMode.setLayoutData(fdCompatibilityMode);
     wCompatibilityMode.addSelectionListener( new SelectionAdapter() {
@@ -381,7 +391,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wAppend );
     FormData fdAppend = new FormData();
     fdAppend.left = new FormAttachment( middle, 0 );
-    fdAppend.top = new FormAttachment( wFilename, margin );
+    fdAppend.top = new FormAttachment( wlAppend, 0, SWT.CENTER );
     fdAppend.right = new FormAttachment( 100, 0 );
     wAppend.setLayoutData(fdAppend);
     wAppend.addSelectionListener( new SelectionAdapter() {
@@ -404,7 +414,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wCreateParentFolder );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
-    fdCreateParentFolder.top = new FormAttachment( wAppend, margin );
+    fdCreateParentFolder.top = new FormAttachment( wlCreateParentFolder, 0, SWT.CENTER );
     fdCreateParentFolder.right = new FormAttachment( 100, 0 );
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener( new SelectionAdapter() {
@@ -428,7 +438,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wDoNotOpenNewFileInit );
     FormData fdDoNotOpenNewFileInit = new FormData();
     fdDoNotOpenNewFileInit.left = new FormAttachment( middle, 0 );
-    fdDoNotOpenNewFileInit.top = new FormAttachment( wCreateParentFolder, margin );
+    fdDoNotOpenNewFileInit.top = new FormAttachment( wlDoNotOpenNewFileInit, 0, SWT.CENTER );
     fdDoNotOpenNewFileInit.right = new FormAttachment( 100, 0 );
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener( new SelectionAdapter() {
@@ -501,7 +511,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wServletOutput );
     FormData fdServletOutput = new FormData();
     fdServletOutput.left = new FormAttachment( middle, 0 );
-    fdServletOutput.top = new FormAttachment( wEncoding, margin );
+    fdServletOutput.top = new FormAttachment( wlServletOutput, 0, SWT.CENTER );
     fdServletOutput.right = new FormAttachment( 100, 0 );
     wServletOutput.setLayoutData(fdServletOutput);
     wServletOutput.addSelectionListener( new SelectionAdapter() {
@@ -524,7 +534,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wAddDate );
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment( middle, 0 );
-    fdAddDate.top = new FormAttachment( wServletOutput, margin );
+    fdAddDate.top = new FormAttachment( wlAddDate, 0, SWT.CENTER );
     fdAddDate.right = new FormAttachment( 100, 0 );
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener( new SelectionAdapter() {
@@ -545,7 +555,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wAddTime );
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment( middle, 0 );
-    fdAddTime.top = new FormAttachment( wAddDate, margin );
+    fdAddTime.top = new FormAttachment( wlAddTime, 0, SWT.CENTER );
     fdAddTime.right = new FormAttachment( 100, 0 );
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener( new SelectionAdapter() {
@@ -596,7 +606,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wAddToResult );
     FormData fdAddToResult = new FormData();
     fdAddToResult.left = new FormAttachment( middle, 0 );
-    fdAddToResult.top = new FormAttachment( wbShowFiles, margin );
+    fdAddToResult.top = new FormAttachment( wlAddToResult, 0, SWT.CENTER );
     fdAddToResult.right = new FormAttachment( 100, 0 );
     wAddToResult.setLayoutData(fdAddToResult);
     SelectionAdapter lsSelR = new SelectionAdapter() {
@@ -704,18 +714,9 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e->ok() );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e->cancel() );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

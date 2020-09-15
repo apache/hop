@@ -407,7 +407,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     props.setLook( wCreateParentFolder );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
-    fdCreateParentFolder.top = new FormAttachment( wZipFilename, margin );
+    fdCreateParentFolder.top = new FormAttachment( wlCreateParentFolder, 0, SWT.CENTER );
     fdCreateParentFolder.right = new FormAttachment( 100, 0 );
     wCreateParentFolder.setLayoutData(fdCreateParentFolder);
     wCreateParentFolder.addSelectionListener( new SelectionAdapter() {
@@ -430,7 +430,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wAddDate.setToolTipText( BaseMessages.getString( PKG, "JobZipFiles.AddDate.Tooltip" ) );
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment( middle, 0 );
-    fdAddDate.top = new FormAttachment( wCreateParentFolder, margin );
+    fdAddDate.top = new FormAttachment( wlAddDate, 0, SWT.CENTER );
     fdAddDate.right = new FormAttachment( 100, 0 );
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener( new SelectionAdapter() {
@@ -452,7 +452,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wAddTime.setToolTipText( BaseMessages.getString( PKG, "JobZipFiles.AddTime.Tooltip" ) );
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment( middle, 0 );
-    fdAddTime.top = new FormAttachment( wAddDate, margin );
+    fdAddTime.top = new FormAttachment( wlAddTime, 0, SWT.CENTER );
     fdAddTime.right = new FormAttachment( 100, 0 );
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener( new SelectionAdapter() {

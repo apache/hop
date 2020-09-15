@@ -188,7 +188,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     FormData fdUnspecified = new FormData();
     fdUnspecified.left = new FormAttachment( middle, margin );
     fdUnspecified.right = new FormAttachment( 100, 0 );
-    fdUnspecified.bottom = new FormAttachment( 100, 0 );
+    fdUnspecified.bottom = new FormAttachment( wlUnspecified, 0, SWT.CENTER );
     wUnspecified.setLayoutData(fdUnspecified);
     wUnspecified.addSelectionListener( lsSel );
 
@@ -249,7 +249,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment(wGetSelect, -margin );
-    fdFields.bottom = new FormAttachment( wUnspecified, -margin );
+    fdFields.bottom = new FormAttachment( wlUnspecified, -2*margin );
     wFields.setLayoutData(fdFields);
 
     FormData fdSelectComp = new FormData();

@@ -359,7 +359,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     props.setLook( wAddDate );
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment( middle, 0 );
-    fdAddDate.top = new FormAttachment( wAddTransformNr, margin );
+    fdAddDate.top = new FormAttachment( wlAddDate, 0, SWT.CENTER );
     fdAddDate.right = new FormAttachment( 100, 0 );
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener( lsSel );
@@ -376,7 +376,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     props.setLook( wAddTime );
     FormData fdAddTime = new FormData();
     fdAddTime.left = new FormAttachment( middle, 0 );
-    fdAddTime.top = new FormAttachment( wAddDate, margin );
+    fdAddTime.top = new FormAttachment( wlAddTime, 0, SWT.CENTER );
     fdAddTime.right = new FormAttachment( 100, 0 );
     wAddTime.setLayoutData(fdAddTime);
     wAddTime.addSelectionListener( lsSel );
@@ -503,7 +503,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     props.setLook( wDoNotOpenNewFileInit );
     FormData fdDoNotOpenNewFileInit = new FormData();
     fdDoNotOpenNewFileInit.left = new FormAttachment( middle, 0 );
-    fdDoNotOpenNewFileInit.top = new FormAttachment( wIfFileExists, 2 * margin, margin );
+    fdDoNotOpenNewFileInit.top = new FormAttachment( wlDoNotOpenNewFileInit, 0, SWT.CENTER );
     fdDoNotOpenNewFileInit.right = new FormAttachment( 100, 0 );
     wDoNotOpenNewFileInit.setLayoutData(fdDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit.addSelectionListener( lsSel );
@@ -522,7 +522,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     props.setLook( wAddToResult );
     FormData fdAddToResult = new FormData();
     fdAddToResult.left = new FormAttachment( middle, 0 );
-    fdAddToResult.top = new FormAttachment( wDoNotOpenNewFileInit );
+    fdAddToResult.top = new FormAttachment( wlAddToResult, 0, SWT.CENTER );
     fdAddToResult.right = new FormAttachment( 100, 0 );
     wAddToResult.setLayoutData(fdAddToResult);
     wAddToResult.addSelectionListener( lsSel );

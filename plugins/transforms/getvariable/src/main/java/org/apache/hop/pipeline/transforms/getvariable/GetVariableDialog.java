@@ -106,6 +106,23 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData(fdTransformName);
 
+    // Some buttons at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wGet = new Button( this.shell, 8 );
+    wGet.setText( BaseMessages.getString( PKG, "System.Button.GetVariables" ) );
+    wGet.addListener( 13, e -> getVariables() );
+    wPreview = new Button( this.shell, 8 );
+    wPreview.setText( BaseMessages.getString( PKG, "System.Button.Preview" ) );
+    wPreview.setEnabled( !isReceivingInput);
+    wPreview.addListener( 13, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wGet, wCancel }, margin, null );
+
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "GetVariableDialog.Fields.Label" ) );
     props.setLook(wlFields);
@@ -154,31 +171,8 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment(wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( 100, -50 );
+    fdFields.bottom = new FormAttachment( wOk, -2*margin );
     wFields.setLayoutData(fdFields);
-
-    // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wGet = new Button( this.shell, 8 );
-    wGet.setText( BaseMessages.getString( PKG, "System.Button.GetVariables" ) );
-    wPreview = new Button( this.shell, 8 );
-    wPreview.setText( BaseMessages.getString( PKG, "System.Button.Preview" ) );
-    wPreview.setEnabled( !isReceivingInput);
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wPreview, wGet, wCancel }, margin, wFields );
-
-    // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-    lsGet = e -> getVariables();
-    lsPreview = e -> preview();
-    wGet.addListener( 13, this.lsGet );
-    wPreview.addListener( 13, this.lsPreview );
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

@@ -862,7 +862,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wAddDate );
     FormData fdAddDate = new FormData();
     fdAddDate.left = new FormAttachment( middle, -margin );
-    fdAddDate.top = new FormAttachment( 0, margin );
+    fdAddDate.top = new FormAttachment( wlAddDate, 0, SWT.CENTER );
     fdAddDate.right = new FormAttachment( 100, 0 );
     wAddDate.setLayoutData(fdAddDate);
     wAddDate.addSelectionListener( new SelectionAdapter() {

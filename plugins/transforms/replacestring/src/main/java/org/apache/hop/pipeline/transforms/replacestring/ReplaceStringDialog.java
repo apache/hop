@@ -110,6 +110,18 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
+    // THE BUTTONS
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    wGet = new Button( shell, SWT.PUSH );
+    wGet.setText( BaseMessages.getString( PKG, "ReplaceStringDialog.GetFields.Button" ) );
+    wGet.addListener( SWT.Selection, e -> get() );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
+
     Label wlKey = new Label(shell, SWT.NONE);
     wlKey.setText( BaseMessages.getString( PKG, "ReplaceStringDialog.Fields.Label" ) );
     props.setLook(wlKey);
@@ -180,7 +192,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     fdKey.left = new FormAttachment( 0, 0 );
     fdKey.top = new FormAttachment(wlKey, margin );
     fdKey.right = new FormAttachment( 100, -margin );
-    fdKey.bottom = new FormAttachment( 100, -30 );
+    fdKey.bottom = new FormAttachment( wOk, -2*margin );
     wFields.setLayoutData(fdKey);
 
     //
@@ -206,29 +218,9 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
     };
     new Thread( runnable ).start();
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    wGet = new Button( shell, SWT.PUSH );
-    wGet.setText( BaseMessages.getString( PKG, "ReplaceStringDialog.GetFields.Button" ) );
-    fdGet = new FormData();
-    fdGet.right = new FormAttachment( 100, 0 );
-    fdGet.top = new FormAttachment( wTransformName, 3 * middle );
-    wGet.setLayoutData( fdGet );
 
-    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
-    // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
