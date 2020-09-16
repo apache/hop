@@ -335,10 +335,6 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     this.outputFields = outputFields;
   }
 
-  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
-  }
-
   public void allocate( int nrfields ) {
     outputFields = new XmlField[ nrfields ];
   }
@@ -366,7 +362,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     return new XmlOutputData();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       setEncoding( XmlHandler.getTagValue( transformNode, "encoding" ) );
       setNameSpace( XmlHandler.getTagValue( transformNode, "name_space" ) );

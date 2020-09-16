@@ -4,8 +4,7 @@ MetadataInjection annotations, eliminating the need to write tedious metadata se
 The simplest way for a step to use this strategy is to extend 
 the BaseSerializingMeta class, which implements the 
   ````
-  .loadXML() / .getXML() 
-  .readRep() / .saveRep() 
+  .loadXml() / .getXml() 
 ````
 
 The MetaXmlSerializer implementation uses JAXB.  The output XML will have a form like:

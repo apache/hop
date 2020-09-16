@@ -197,10 +197,6 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     this.xmlStream = xmlStream;
   }
 
-  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
-  }
-
   public Object clone() {
     XsdValidatorMeta retval = (XsdValidatorMeta) super.clone();
 
@@ -217,7 +213,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     return new XsdValidatorData();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
 
       xsdFilename = XmlHandler.getTagValue( transformNode, "xdsfilename" );

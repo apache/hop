@@ -118,16 +118,12 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     super(); // allocate BaseStepMeta
   }
 
-  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
-  }
-
   public Object clone() {
     XmlJoinMeta retval = (XmlJoinMeta) super.clone();
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       valueXMLfield = XmlHandler.getTagValue( transformNode, "valueXMLfield" );
       targetXMLstep = XmlHandler.getTagValue( transformNode, "targetXMLstep" );

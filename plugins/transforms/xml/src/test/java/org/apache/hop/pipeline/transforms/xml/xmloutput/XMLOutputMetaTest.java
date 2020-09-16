@@ -71,7 +71,7 @@ public class XMLOutputMetaTest {
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-    xmlOutputMeta.loadXML( transformNode, metadataProvider );
+    xmlOutputMeta.loadXml( transformNode, metadataProvider );
     assertXmlOutputMeta( xmlOutputMeta );
   }
 
@@ -233,7 +233,7 @@ public class XMLOutputMetaTest {
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-    xmlOutputMeta.loadXML( transformNode, metadataProvider );
+    xmlOutputMeta.loadXml( transformNode, metadataProvider );
     XmlOutputMeta cloned = (XmlOutputMeta) xmlOutputMeta.clone();
     assertNotSame( cloned, xmlOutputMeta );
     assertXmlOutputMeta( cloned );
@@ -303,7 +303,7 @@ public class XMLOutputMetaTest {
     Node stepNode = mock( Node.class );
     when( stepNode.getChildNodes() ).thenThrow( new RuntimeException( "some words" ) );
     try {
-      xmlOutputMeta.loadXML( stepNode, metadataProvider );
+      xmlOutputMeta.loadXml( stepNode, metadataProvider );
     } catch ( HopXmlException e ) {
       assertEquals( "some words", e.getCause().getMessage() );
     }

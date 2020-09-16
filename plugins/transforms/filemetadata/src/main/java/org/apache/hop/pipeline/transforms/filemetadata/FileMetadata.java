@@ -23,7 +23,6 @@
 package org.apache.hop.pipeline.transforms.filemetadata;
 
 import au.com.bytecode.opencsv.CSVReader;
-
 import com.google.common.base.Charsets;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
@@ -41,9 +40,12 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetector;
 import org.apache.hop.pipeline.transforms.filemetadata.util.delimiters.DelimiterDetectorBuilder;
 import org.apache.hop.pipeline.transforms.filemetadata.util.encoding.EncodingDetector;
-import org.hibernate.engine.IdentifierValue;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 
@@ -99,7 +101,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
       }
 
       // use meta.getFields() to change it, so it reflects the output row structure
-      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this);
+      meta.getFields(data.outputRowMeta, getTransformName(), null, null, this, metadataProvider);
 
     }
 

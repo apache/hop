@@ -200,10 +200,6 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     this.fieldName = fieldnamein;
   }
 
-  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
-  }
-
   public void allocate( int nrParameters, int outputProps ) {
     parameterName = new String[nrParameters];
     parameterField = new String[nrParameters];
@@ -256,7 +252,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     return xslFieldIsAFile;
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       xslFilename = XmlHandler.getTagValue( transformNode, "xslfilename" );
       fieldName = XmlHandler.getTagValue( transformNode, "fieldname" );
