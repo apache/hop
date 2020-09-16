@@ -38,7 +38,7 @@ import static org.apache.hop.git.PdiDiff.CHANGED;
 import static org.apache.hop.git.PdiDiff.REMOVED;
 import static org.apache.hop.git.PdiDiff.UNCHANGED;
 import static org.apache.hop.git.PdiDiff.compareJobEntries;
-import static org.apache.hop.git.PdiDiff.compareSteps;
+import static org.apache.hop.git.PdiDiff.compareTransforms;
 import static org.junit.Assert.assertEquals;
 
 public class HopDiffTest {
@@ -64,8 +64,8 @@ public class HopDiffTest {
     PipelineMeta pipelineMeta2 = new PipelineMeta( xmlStream2, metadataProvider, true, Variables.getADefaultVariableSpace() );
     //pipelineMeta2.sortTransforms();
 
-    pipelineMeta = compareSteps( pipelineMeta, pipelineMeta2, true );
-    pipelineMeta2 = compareSteps( pipelineMeta2, pipelineMeta, false );
+    pipelineMeta = compareTransforms( pipelineMeta, pipelineMeta2, true );
+    pipelineMeta2 = compareTransforms( pipelineMeta2, pipelineMeta, false );
     assertEquals( UNCHANGED, pipelineMeta.getTransform( 0 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
     assertEquals( CHANGED, pipelineMeta.getTransform( 1 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );
     assertEquals( REMOVED, pipelineMeta.getTransform( 2 ).getAttribute( ATTR_GIT, ATTR_STATUS ) );

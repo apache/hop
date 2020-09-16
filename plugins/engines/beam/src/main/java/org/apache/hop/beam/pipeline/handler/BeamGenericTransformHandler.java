@@ -74,13 +74,13 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
     // If we have no previous transform, it's an input transform.  We need to start from pipeline
     //
-    boolean inputStep = input == null;
-    boolean reduceParallelism = checkStepCopiesForReducedParallelism( transformMeta );
+    boolean inputTransform = input == null;
+    boolean reduceParallelism = checkTransformCopiesForReducedParallelism( transformMeta );
     reduceParallelism=reduceParallelism || needsSingleThreading( transformMeta );
 
     String stepMetaInterfaceXml = XmlHandler.openTag( TransformMeta.XML_TAG ) + transformMeta.getTransform().getXml() + XmlHandler.closeTag( TransformMeta.XML_TAG );
@@ -88,17 +88,17 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
     // See if the transform has Info transforms
     //
-    List<TransformMeta> infoStepMetas = pipelineMeta.findPreviousTransforms( transformMeta, true );
-    List<String> infoSteps = new ArrayList<>();
+    List<TransformMeta> infoTransformMetas = pipelineMeta.findPreviousTransforms( transformMeta, true );
+    List<String> infoTransforms = new ArrayList<>();
     List<String> infoRowMetaJsons = new ArrayList<>();
     List<PCollectionView<List<HopRow>>> infoCollectionViews = new ArrayList<>();
-    for ( TransformMeta infoStepMeta : infoStepMetas ) {
-      if ( !previousSteps.contains( infoStepMeta ) ) {
-        infoSteps.add( infoStepMeta.getName() );
-        infoRowMetaJsons.add( JsonRowMeta.toJson( pipelineMeta.getTransformFields( infoStepMeta ) ) );
-        PCollection<HopRow> infoCollection = stepCollectionMap.get( infoStepMeta.getName() );
+    for ( TransformMeta infoTransformMeta : infoTransformMetas ) {
+      if ( !previousTransforms.contains( infoTransformMeta ) ) {
+        infoTransforms.add( infoTransformMeta.getName() );
+        infoRowMetaJsons.add( JsonRowMeta.toJson( pipelineMeta.getTransformFields( infoTransformMeta ) ) );
+        PCollection<HopRow> infoCollection = stepCollectionMap.get( infoTransformMeta.getName() );
         if ( infoCollection == null ) {
-          throw new HopException( "Unable to find collection for transform '" + infoStepMeta.getName() + " providing info for '" + transformMeta.getName() + "'" );
+          throw new HopException( "Unable to find collection for transform '" + infoTransformMeta.getName() + " providing info for '" + transformMeta.getName() + "'" );
         }
         infoCollectionViews.add( infoCollection.apply( View.asList() ) );
       }
@@ -111,15 +111,15 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     // Find out all the target transforms for this transform...
     //
     ITransformIOMeta ioMeta = transformMeta.getTransform().getTransformIOMeta();
-    List<String> targetSteps = new ArrayList<String>();
+    List<String> targetTransforms = new ArrayList<String>();
     for ( IStream targetStream : ioMeta.getTargetStreams() ) {
       if ( targetStream.getTransformMeta() != null ) {
-        targetSteps.add( targetStream.getTransformMeta().getName() );
+        targetTransforms.add( targetStream.getTransformMeta().getName() );
       }
     }
 
     // For streaming pipelines we need to flush the rows in the buffer of a generic transform (Table Output, Neo4j Output, ...)
-    // This is what the BeamJobConfig option "Streaming Hop Steps Flush Interval" is for...
+    // This is what the BeamJobConfig option "Streaming Hop Transforms Flush Interval" is for...
     // Without a valid value we default to -1 to disable flushing.
     //
     int flushIntervalMs = Const.toInt(runConfiguration.getStreamingHopTransformsFlushInterval(), -1);
@@ -134,12 +134,12 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     PTransform<PCollection<HopRow>, PCollectionTuple> transformTransform;
     if (needsBatching(transformMeta)) {
       transformTransform = new TransformBatchTransform( variableValues, metaStoreJson, transformPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
-        transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputStep,
-        targetSteps, infoSteps, infoRowMetaJsons, infoCollectionViews );
+        transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputTransform,
+        targetTransforms, infoTransforms, infoRowMetaJsons, infoCollectionViews );
     } else {
       transformTransform = new TransformTransform( variableValues, metaStoreJson, transformPluginClasses, xpPluginClasses, sizeRowSet, flushIntervalMs,
-        transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputStep,
-        targetSteps, infoSteps, infoRowMetaJsons, infoCollectionViews );
+        transformMeta.getName(), transformMeta.getTransformPluginId(), stepMetaInterfaceXml, JsonRowMeta.toJson( rowMeta ), inputTransform,
+        targetTransforms, infoTransforms, infoRowMetaJsons, infoCollectionViews );
     }
 
     if ( input == null ) {
@@ -197,8 +197,8 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
     // Were there any targeted transforms in this transform?
     //
-    for ( String targetStep : targetSteps ) {
-      String tupleId = HopBeamUtil.createTargetTupleId( transformMeta.getName(), targetStep );
+    for ( String targetTransform : targetTransforms ) {
+      String tupleId = HopBeamUtil.createTargetTupleId( transformMeta.getName(), targetTransform );
       PCollection<HopRow> targetPCollection = tuple.get( new TupleTag<HopRow>( tupleId ) );
 
       // Store this in the map as well
@@ -206,20 +206,20 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
       stepCollectionMap.put( tupleId, targetPCollection );
     }
 
-    log.logBasic( "Handled transform (STEP) : " + transformMeta.getName() + ", gets data from " + previousSteps.size() + " previous transform(s), targets=" + targetSteps.size() + ", infos=" + infoSteps.size() );
+    log.logBasic( "Handled transform (STEP) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s), targets=" + targetTransforms.size() + ", infos=" + infoTransforms.size() );
   }
 
   public static boolean needsBatching( TransformMeta transformMeta ) {
-    String value = transformMeta.getAttribute( BeamConst.STRING_HOP_BEAM, BeamConst.STRING_STEP_FLAG_BATCH );
+    String value = transformMeta.getAttribute( BeamConst.STRING_HOP_BEAM, BeamConst.STRING_TRANSFORM_FLAG_BATCH );
     return value!=null && "true".equalsIgnoreCase( value );
   }
 
   public static boolean needsSingleThreading( TransformMeta transformMeta ) {
-    String value = transformMeta.getAttribute( BeamConst.STRING_HOP_BEAM, BeamConst.STRING_STEP_FLAG_SINGLE_THREADED );
+    String value = transformMeta.getAttribute( BeamConst.STRING_HOP_BEAM, BeamConst.STRING_TRANSFORM_FLAG_SINGLE_THREADED );
     return value!=null && "true".equalsIgnoreCase( value );
   }
 
-  private boolean checkStepCopiesForReducedParallelism( TransformMeta transformMeta ) {
+  private boolean checkTransformCopiesForReducedParallelism( TransformMeta transformMeta ) {
     if ( transformMeta.getCopiesString() == null ) {
       return false;
     }

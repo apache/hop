@@ -64,7 +64,7 @@ public class JsonInputMetaTest {
   IRowMeta rowMetaInterfaceItem;
 
   @Mock
-  TransformMeta nextStep;
+  TransformMeta nextTransform;
 
   @Mock
   IVariables space;
@@ -96,7 +96,7 @@ public class JsonInputMetaTest {
 
     when( rowMeta.indexOfValue( DATA ) ).thenReturn( 0 );
 
-    jsonInputMeta.getFields( rowMeta, NAME, info, nextStep, space, metadataProvider );
+    jsonInputMeta.getFields( rowMeta, NAME, info, nextTransform, space, metadataProvider );
 
     verify( rowMeta ).removeValueMeta( 0 );
   }

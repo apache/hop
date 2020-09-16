@@ -507,7 +507,7 @@
     <proxyPort/>
     <httpLogin/>
     <httpPassword/>
-    <callStep>1</callStep>
+    <callTransform>1</callTransform>
     <passingInputData>Y</passingInputData>
     <compatible>Y</compatible>
     <repeating_element/>

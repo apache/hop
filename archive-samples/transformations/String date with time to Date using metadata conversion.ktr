@@ -453,27 +453,27 @@
   <order>
     <hop>
       <from>Generate an 8 character length date stored in a STRING</from>
-      <to>Select values Step - Convert strings to dates including their time portions.</to>
+      <to>Select values Transform - Convert strings to dates including their time portions.</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>Generate an 9 character length date stored in a STRING</from>
-      <to>Select values Step - Convert strings to dates including their time portions.</to>
+      <to>Select values Transform - Convert strings to dates including their time portions.</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>Generate a 10 character length date stored as a STRING</from>
-      <to>Select values Step - Convert strings to dates including their time portions.</to>
+      <to>Select values Transform - Convert strings to dates including their time portions.</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Select values Step - Convert strings to dates including their time portions.</from>
-      <to>Calculator Step - Demonstrate some useful manipulations of the date.</to>
+      <from>Select values Transform - Convert strings to dates including their time portions.</from>
+      <to>Calculator Transform - Demonstrate some useful manipulations of the date.</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>Calculator Step - Demonstrate some useful manipulations of the date.</name>
+    <name>Calculator Transform - Demonstrate some useful manipulations of the date.</name>
     <type>Calculator</type>
     <description/>
     <distribute>Y</distribute>
@@ -719,7 +719,7 @@
     </transform>
 
   <transform>
-    <name>Select values Step - Convert strings to dates including their time portions.</name>
+    <name>Select values Transform - Convert strings to dates including their time portions.</name>
     <type>SelectValues</type>
     <description/>
     <distribute>Y</distribute>

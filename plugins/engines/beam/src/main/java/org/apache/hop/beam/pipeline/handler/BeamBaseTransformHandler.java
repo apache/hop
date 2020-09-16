@@ -101,14 +101,14 @@ public class BeamBaseTransformHandler {
    *
    * @return value of transformPluginClasses
    */
-  public List<String> getStepPluginClasses() {
+  public List<String> getTransformPluginClasses() {
     return transformPluginClasses;
   }
 
   /**
    * @param transformPluginClasses The transformPluginClasses to set
    */
-  public void setStepPluginClasses( List<String> transformPluginClasses ) {
+  public void setTransformPluginClasses( List<String> transformPluginClasses ) {
     this.transformPluginClasses = transformPluginClasses;
   }
 

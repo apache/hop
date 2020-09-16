@@ -140,7 +140,7 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * @return the stepname, the name of the transform to "connect" to. If no transform name is given, detect the Mapping
+   * @return the TransformName, the name of the transform to "connect" to. If no transform name is given, detect the Mapping
    *         Input/Output transform automatically.
    */
   public String getInputTransformName() {
@@ -149,7 +149,7 @@ public class MappingIODefinition implements Cloneable {
 
   /**
    * @param inputTransformName
-   *          the stepname to set
+   *          the TransformName to set
    */
   public void setInputTransformName( String inputTransformName ) {
     this.inputTransformName = inputTransformName;
@@ -171,7 +171,7 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * @return the outputStepname
+   * @return the outputTransformName
    */
   public String getOutputTransformName() {
     return outputTransformName;
@@ -179,7 +179,7 @@ public class MappingIODefinition implements Cloneable {
 
   /**
    * @param outputTransformName
-   *          the outputStepname to set
+   *          the outputTransformName to set
    */
   public void setOutputTransformName( String outputTransformName ) {
     this.outputTransformName = outputTransformName;
@@ -231,16 +231,16 @@ public class MappingIODefinition implements Cloneable {
   }
 
   /**
-   * Gets inputStep
+   * Gets inputTransform
    *
-   * @return value of inputStep
+   * @return value of inputTransform
    */
   public TransformMeta getInputTransform() {
     return inputTransform;
   }
 
   /**
-   * @param inputTransform The inputStep to set
+   * @param inputTransform The inputTransform to set
    */
   public void setInputTransform( TransformMeta inputTransform ) {
     this.inputTransform = inputTransform;

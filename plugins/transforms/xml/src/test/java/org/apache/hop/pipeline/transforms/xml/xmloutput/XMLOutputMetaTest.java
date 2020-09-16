@@ -71,7 +71,7 @@ public class XMLOutputMetaTest {
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-    xmlOutputMeta.loadXML( transformNode, metadataProvider );
+    xmlOutputMeta.loadXml( transformNode, metadataProvider );
     assertXmlOutputMeta( xmlOutputMeta );
   }
 
@@ -80,7 +80,7 @@ public class XMLOutputMetaTest {
     assertFalse( xmlOutputMeta.isDoNotOpenNewFileInit() );
     assertFalse( xmlOutputMeta.isServletOutput() );
     assertEquals( "hop.xml", xmlOutputMeta.getExtension() );
-    assertTrue( xmlOutputMeta.isStepNrInFilename() );
+    assertTrue( xmlOutputMeta.isTransformNrInFilename() );
     assertTrue( xmlOutputMeta.isDateInFilename() );
     assertTrue( xmlOutputMeta.isTimeInFilename() );
     assertFalse( xmlOutputMeta.isSpecifyFormat() );
@@ -233,7 +233,7 @@ public class XMLOutputMetaTest {
     Node transformNode = getTestNode();
     DatabaseMeta dbMeta = mock( DatabaseMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-    xmlOutputMeta.loadXML( transformNode, metadataProvider );
+    xmlOutputMeta.loadXml( transformNode, metadataProvider );
     XmlOutputMeta cloned = (XmlOutputMeta) xmlOutputMeta.clone();
     assertNotSame( cloned, xmlOutputMeta );
     assertXmlOutputMeta( cloned );
@@ -245,7 +245,7 @@ public class XMLOutputMetaTest {
     xmlOutputMeta.setDefault();
     assertEquals( "file", xmlOutputMeta.getFileName() );
     assertEquals( "xml", xmlOutputMeta.getExtension() );
-    assertFalse( xmlOutputMeta.isStepNrInFilename() );
+    assertFalse( xmlOutputMeta.isTransformNrInFilename() );
     assertFalse( xmlOutputMeta.isDoNotOpenNewFileInit() );
     assertFalse( xmlOutputMeta.isDateInFilename() );
     assertFalse( xmlOutputMeta.isTimeInFilename() );
@@ -265,7 +265,7 @@ public class XMLOutputMetaTest {
   public void testGetFiles() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
-    xmlOutputMeta.setStepNrInFilename( true );
+    xmlOutputMeta.setTransformNrInFilename( true );
     xmlOutputMeta.setSplitEvery( 100 );
     xmlOutputMeta.setSpecifyFormat( true );
     xmlOutputMeta.setDateTimeFormat( "99" );
@@ -287,11 +287,11 @@ public class XMLOutputMetaTest {
     xmlOutputMeta.setOutputFields( new XmlField[] { xmlField } );
     IRowMeta row = mock( IRowMeta.class );
     IRowMeta rmi = mock( IRowMeta.class );
-    TransformMeta nextStep = mock( TransformMeta.class );
+    TransformMeta nextTransform = mock( TransformMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IValueMeta vmi = mock( IValueMeta.class );
     when( row.searchValueMeta( "aField" ) ).thenReturn( vmi );
-    xmlOutputMeta.getFields( row, "", new IRowMeta[] { rmi }, nextStep, new Variables(), metadataProvider );
+    xmlOutputMeta.getFields( row, "", new IRowMeta[] { rmi }, nextTransform, new Variables(), metadataProvider );
     verify( vmi ).setLength( 10, 3 );
   }
 
@@ -303,7 +303,7 @@ public class XMLOutputMetaTest {
     Node stepNode = mock( Node.class );
     when( stepNode.getChildNodes() ).thenThrow( new RuntimeException( "some words" ) );
     try {
-      xmlOutputMeta.loadXML( stepNode, metadataProvider );
+      xmlOutputMeta.loadXml( stepNode, metadataProvider );
     } catch ( HopXmlException e ) {
       assertEquals( "some words", e.getCause().getMessage() );
     }
@@ -364,7 +364,7 @@ public class XMLOutputMetaTest {
     xmlOutputMeta.check( remarks, transMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
         new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
-    assertEquals( "Step is receiving info from other steps.", remarks.get( 0 ).getText() );
+    assertEquals( "Transform is receiving info from other steps.", remarks.get( 0 ).getText() );
     assertEquals( "File specifications are not checked.", remarks.get( 1 ).getText() );
 
     XmlField xmlField = new XmlField();
@@ -378,9 +378,9 @@ public class XMLOutputMetaTest {
     xmlOutputMeta.check( remarks, transMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
         new Variables(), metadataProvider );
     assertEquals( 4, remarks.size() );
-    assertEquals( "Step is connected to previous one, receiving 1 fields", remarks.get( 0 ).getText() );
+    assertEquals( "Transform is connected to previous one, receiving 1 fields", remarks.get( 0 ).getText() );
     assertEquals( "All output fields are found in the input stream.", remarks.get( 1 ).getText() );
-    assertEquals( "Step is receiving info from other steps.", remarks.get( 2 ).getText() );
+    assertEquals( "Transform is receiving info from other steps.", remarks.get( 2 ).getText() );
     assertEquals( "File specifications are not checked.", remarks.get( 3 ).getText() );
 
   }

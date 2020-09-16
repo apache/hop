@@ -77,7 +77,7 @@ public class BeamInputMeta extends BaseTransformMeta implements ITransformMeta<B
     return BeamInputDialog.class.getName();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider )
+  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     if (metadataProvider!=null) {

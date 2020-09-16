@@ -163,7 +163,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
   }
 
   public XsdValidatorMeta() {
-    super(); // allocate BaseStepMeta
+    super(); // allocate BaseTransformMeta
     allowExternalEntities = Boolean.valueOf( System.getProperties().getProperty( ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION, ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT ) );
   }
 
@@ -197,10 +197,6 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     this.xmlStream = xmlStream;
   }
 
-  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
-  }
-
   public Object clone() {
     XsdValidatorMeta retval = (XsdValidatorMeta) super.clone();
 
@@ -217,7 +213,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     return new XsdValidatorData();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
 
       xsdFilename = XmlHandler.getTagValue( transformNode, "xdsfilename" );
@@ -237,7 +233,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
 
     } catch ( Exception e ) {
       throw new HopXmlException( BaseMessages.getString( PKG,
-        "XsdValidatorMeta.Exception.UnableToLoadStepInfoFromXML" ), e );
+        "XsdValidatorMeta.Exception.UnableToLoadTransformInfoFromXML" ), e );
     }
   }
 
@@ -256,7 +252,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     allowExternalEntities = Boolean.valueOf( System.getProperties().getProperty( ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION, ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT ) );
   }
 
-  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep,
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !Utils.isEmpty( resultFieldname ) ) {
       if ( outputStringField ) {
@@ -345,7 +341,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     if ( prev != null && prev.size() > 0 ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "XsdValidatorMeta.CheckResult.ConnectedStepOK", String.valueOf( prev.size() ) ), stepinfo );
+          "XsdValidatorMeta.CheckResult.ConnectedTransformOK", String.valueOf( prev.size() ) ), stepinfo );
       remarks.add( cr );
     } else {
       cr =

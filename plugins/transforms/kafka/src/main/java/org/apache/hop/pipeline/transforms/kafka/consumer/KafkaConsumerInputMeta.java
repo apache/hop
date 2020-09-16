@@ -152,7 +152,7 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
   MappingMetaRetriever mappingMetaRetriever = PipelineExecutorMeta::loadMappingMeta;
 
   public KafkaConsumerInputMeta() {
-    super(); // allocate BaseStepMeta
+    super(); // allocate BaseTransformMeta
 
     topics = new ArrayList<>();
 
@@ -202,9 +202,9 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     } );
 
     setConsumerGroup( XmlHandler.getTagValue( transformNode, CONSUMER_GROUP ) );
-    String subStepTag = XmlHandler.getTagValue( transformNode, SUB_TRANSFORM );
-    if ( !StringUtils.isEmpty( subStepTag ) ) {
-      setSubTransform( subStepTag );
+    String subTransformTag = XmlHandler.getTagValue( transformNode, SUB_TRANSFORM );
+    if ( !StringUtils.isEmpty( subTransformTag ) ) {
+      setSubTransform( subTransformTag );
     }
     setBatchSize( XmlHandler.getTagValue( transformNode, BATCH_SIZE ) );
     setBatchDuration( XmlHandler.getTagValue( transformNode, BATCH_DURATION ) );
@@ -276,16 +276,6 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
       }
     }
   }
-
-  public KafkaConsumerInput getStep( TransformMeta transformMeta, KafkaConsumerInputData data, int cnr, PipelineMeta pipelineMeta,
-                                     Pipeline pipeline ) {
-    return new KafkaConsumerInput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
-  }
-
-  public KafkaConsumerInputData getStepData() {
-    return new KafkaConsumerInputData();
-  }
-
 
 
   @Override public String getXml() {
@@ -381,9 +371,9 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     try {
       PipelineMeta pipelineMeta = mappingMetaRetriever.get( this, metadataProvider, space );
       if ( !StringUtils.isEmpty( getSubTransform() ) ) {
-        String realSubStepName = space.environmentSubstitute( getSubTransform() );
-        rowMeta.addRowMeta( pipelineMeta.getPrevTransformFields( realSubStepName ) );
-        pipelineMeta.getTransforms().stream().filter( transformMeta -> transformMeta.getName().equals( realSubStepName ) )
+        String realSubTransformName = space.environmentSubstitute( getSubTransform() );
+        rowMeta.addRowMeta( pipelineMeta.getPrevTransformFields( realSubTransformName ) );
+        pipelineMeta.getTransforms().stream().filter( transformMeta -> transformMeta.getName().equals( realSubTransformName ) )
           .findFirst()
           .ifPresent( stepMeta -> {
             try {

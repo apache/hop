@@ -27,22 +27,37 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -90,7 +105,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 //  private String[] getFieldListForCombo() {
 //    String[] items;
 //    try {
-//      RowMetaInterface r = transMeta.getPrevStepFields(stepname);
+//      RowMetaInterface r = transMeta.getPrevTransformFields(TransformName);
 //      items = r.getFieldNames();
 //    } catch (KettleException exception) {
 //      items = emptyFieldList;
@@ -135,7 +150,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     // Save the value of the changed flag on the meta object. If the user cancels
     // the dialog, it will be restored to this saved value.
-    // The "changed" variable is inherited from BaseStepDialog
+    // The "changed" variable is inherited from BaseTransformDialog
     changed = meta.hasChanged();
 
     // The ModifyListener used on all controls. It will update the meta object to
@@ -168,9 +183,9 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Stepname line
+    // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.StepName"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     props.setLook(wlTransformName);
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
@@ -362,7 +377,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     });
 
     // Set/Restore the dialog size based on last position on screen
-    // The setSize() method is inherited from BaseStepDialog
+    // The setSize() method is inherited from BaseTransformDialog
     setSize();
 
     // populate the dialog with the values from the meta object
@@ -403,7 +418,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     }
 
     // at this point the dialog has closed, so either ok() or cancel() have been executed
-    // The "stepname" variable is inherited from BaseStepDialog
+    // The "TransformName" variable is inherited from BaseTransformDialog
     return transformName;
   }
 
@@ -448,7 +463,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
    * Called when the user cancels the dialog.
    */
   private void cancel() {
-    // The "stepname" variable will be the return value for the open() method.
+    // The "TransformName" variable will be the return value for the open() method.
     // Setting to null to indicate that dialog was cancelled.
     transformName = null;
     // Restoring original "changed" flag on the meta object
@@ -461,7 +476,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
    * Called when the user confirms the dialog
    */
   private void ok() {
-    // The "stepname" variable will be the return value for the open() method.
+    // The "TransformName" variable will be the return value for the open() method.
     // Setting to step name from the dialog control
     transformName = wTransformName.getText();
 

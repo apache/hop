@@ -45,7 +45,7 @@ public class XMLOutputMetaInjectionTest extends BaseMetadataInjectionTest<XmlOut
     check( "EXTENSION", () -> meta.getExtension() );
     check( "PASS_TO_SERVLET", () -> meta.isServletOutput() );
     check( "SPLIT_EVERY", () -> meta.getSplitEvery() );
-    check( "INC_STEPNR_IN_FILENAME", () -> meta.isStepNrInFilename() );
+    check( "INC_TRANSFORMNR_IN_FILENAME", () -> meta.isTransformNrInFilename() );
     check( "INC_DATE_IN_FILENAME", () -> meta.isDateInFilename() );
     check( "INC_TIME_IN_FILENAME", () -> meta.isTimeInFilename() );
     check( "ZIPPED", () -> meta.isZipped() );

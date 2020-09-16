@@ -104,9 +104,9 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Stepname line
+    // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.StepName" ) );
+    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
@@ -122,6 +122,14 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     fdTransformName.top = new FormAttachment( 0, margin );
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
+
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
 
     CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
     props.setLook(wTabFolder, Props.WIDGET_STYLE_TAB );
@@ -218,7 +226,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     props.setLook( wOmitXMLHeader );
     FormData fdOmitXMLHeader = new FormData();
     fdOmitXMLHeader.left = new FormAttachment( middle, 0 );
-    fdOmitXMLHeader.top = new FormAttachment( wRepeatElement, margin );
+    fdOmitXMLHeader.top = new FormAttachment( wlOmitXMLHeader, 0, SWT.CENTER );
     fdOmitXMLHeader.right = new FormAttachment( 100, 0 );
     wOmitXMLHeader.setLayoutData(fdOmitXMLHeader);
     wOmitXMLHeader.addSelectionListener( new SelectionAdapter() {
@@ -239,7 +247,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     props.setLook( wOmitNullValues );
     FormData fdOmitNullValues = new FormData();
     fdOmitNullValues.left = new FormAttachment( middle, 0 );
-    fdOmitNullValues.top = new FormAttachment( wOmitXMLHeader, margin );
+    fdOmitNullValues.top = new FormAttachment( wlOmitNullValues, 0, SWT.CENTER );
     fdOmitNullValues.right = new FormAttachment( 100, 0 );
     wOmitNullValues.setLayoutData(fdOmitNullValues);
     wOmitNullValues.addSelectionListener( new SelectionAdapter() {
@@ -371,27 +379,12 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
-
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    Listener lsMinWidth = e -> setMinimalWidth();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wMinWidth.addListener( SWT.Selection, lsMinWidth);
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wMinWidth.addListener( SWT.Selection, e -> setMinimalWidth());
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

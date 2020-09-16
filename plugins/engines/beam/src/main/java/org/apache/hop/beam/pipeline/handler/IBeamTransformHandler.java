@@ -40,7 +40,7 @@ public interface IBeamTransformHandler {
                         Map<String, PCollection<HopRow>> stepCollectionMap,
                         Pipeline pipeline,
                         IRowMeta rowMeta,
-                        List<TransformMeta> previousSteps,
+                        List<TransformMeta> previousTransforms,
                         PCollection<HopRow> input
   ) throws HopException;
 

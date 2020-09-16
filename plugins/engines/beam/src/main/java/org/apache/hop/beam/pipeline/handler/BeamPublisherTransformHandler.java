@@ -47,7 +47,7 @@ public class BeamPublisherTransformHandler extends BeamBaseTransformHandler impl
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
     BeamPublishMeta publishMeta = (BeamPublishMeta) transformMeta.getTransform();
@@ -71,14 +71,14 @@ public class BeamPublisherTransformHandler extends BeamBaseTransformHandler impl
     // Which transform do we apply this transform to?
     // Ignore info hops until we figure that out.
     //
-    if ( previousSteps.size() > 1 ) {
+    if ( previousTransforms.size() > 1 ) {
       throw new HopException( "Combining data from multiple transforms is not supported yet!" );
     }
-    TransformMeta previousStep = previousSteps.get( 0 );
+    TransformMeta previousTransform = previousTransforms.get( 0 );
 
     // No need to store this, it's PDone.
     //
     input.apply( beamOutputTransform );
-    log.logBasic( "Handled transform (PUBLISH) : " + transformMeta.getName() + ", gets data from " + previousStep.getName() );
+    log.logBasic( "Handled transform (PUBLISH) : " + transformMeta.getName() + ", gets data from " + previousTransform.getName() );
   }
 }

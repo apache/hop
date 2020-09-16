@@ -750,7 +750,7 @@ private String xml_path;
 private final static String DEFAULT="default";
 private String set_value=DEFAULT;
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException 
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
 {
   Object[] r=getRow();
   if (r==null)
@@ -1096,7 +1096,7 @@ private String xml_data_name_2;
 private String last_value_1;
 private String last_value_2;
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException 
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
 {
   Object[] r=getRow();
   if (r==null)

@@ -122,12 +122,12 @@ public class KafkaDialogHelper {
     }
   }
 
-  public static void populateFieldsList( PipelineMeta pipelineMeta, ComboVar comboVar, String stepName ) {
+  public static void populateFieldsList( PipelineMeta pipelineMeta, ComboVar comboVar, String TransformName ) {
     String current = comboVar.getText();
     comboVar.getCComboWidget().removeAll();
     comboVar.setText( current );
     try {
-      IRowMeta rmi = pipelineMeta.getPrevTransformFields( stepName );
+      IRowMeta rmi = pipelineMeta.getPrevTransformFields( TransformName );
       for ( int i = 0; i < rmi.size(); i++ ) {
         IValueMeta vmb = rmi.getValueMeta( i );
         comboVar.add( vmb.getName() );

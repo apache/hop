@@ -22,14 +22,7 @@
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-
+import junit.framework.TestCase;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopValueException;
@@ -49,10 +42,14 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
-import org.apache.hop.pipeline.transforms.xml.RowStepCollector;
+import org.apache.hop.pipeline.transforms.xml.RowTransformCollector;
 
-
-import junit.framework.TestCase;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class XsltTest extends TestCase {
 
@@ -275,13 +272,13 @@ public class XsltTest extends TestCase {
     //
     // create an injector step...
     //
-    String injectorStepname = "injector step";
+    String injectorTransformName = "injector step";
     InjectorMeta im = new InjectorMeta();
 
     // Set the information of the injector.
     String injectorPid = registry.getPluginId( TransformPluginType.class, im );
-    TransformMeta injectorStep = new TransformMeta( injectorPid, injectorStepname, im );
-    transMeta.addTransform( injectorStep );
+    TransformMeta injectorTransform = new TransformMeta( injectorPid, injectorTransformName, im );
+    transMeta.addTransform( injectorTransform );
 
     //
     // Create a XSLT step
@@ -290,8 +287,8 @@ public class XsltTest extends TestCase {
     XsltMeta xm = new XsltMeta();
 
     String xsltPid = registry.getPluginId( TransformPluginType.class, xm );
-    TransformMeta xsltStep = new TransformMeta( xsltPid, xsltName, xm );
-    transMeta.addTransform( xsltStep );
+    TransformMeta xsltTransform = new TransformMeta( xsltPid, xsltName, xm );
+    transMeta.addTransform( xsltTransform );
 
     TextFileInputField[] fields = new TextFileInputField[3];
 
@@ -337,20 +334,20 @@ public class XsltTest extends TestCase {
     xm.setXslFilename( xslFilename );
     xm.setXSLFactory( xslFactory );
 
-    PipelineHopMeta hi = new PipelineHopMeta( injectorStep, xsltStep );
+    PipelineHopMeta hi = new PipelineHopMeta( injectorTransform, xsltTransform );
     transMeta.addPipelineHop( hi );
 
     //
     // Create a dummy step 1
     //
-    String dummyStepname1 = "dummy step 1";
+    String dummyTransformName1 = "dummy step 1";
     DummyMeta dm1 = new DummyMeta();
 
     String dummyPid1 = registry.getPluginId( TransformPluginType.class, dm1 );
-    TransformMeta dummyStep1 = new TransformMeta( dummyPid1, dummyStepname1, dm1 );
-    transMeta.addTransform( dummyStep1 );
+    TransformMeta dummyTransform1 = new TransformMeta( dummyPid1, dummyTransformName1, dm1 );
+    transMeta.addTransform( dummyTransform1 );
 
-    PipelineHopMeta hi1 = new PipelineHopMeta( xsltStep, dummyStep1 );
+    PipelineHopMeta hi1 = new PipelineHopMeta( xsltTransform, dummyTransform1 );
     transMeta.addPipelineHop( hi1 );
 
     // Now execute the transformation...
@@ -358,11 +355,11 @@ public class XsltTest extends TestCase {
 
     trans.prepareExecution(  );
 
-    ITransform si = trans.getTransformInterface( dummyStepname1, 0 );
-    RowStepCollector dummyRc1 = new RowStepCollector();
+    ITransform si = trans.getTransformInterface( dummyTransformName1, 0 );
+    RowTransformCollector dummyRc1 = new RowTransformCollector();
     si.addRowListener( dummyRc1 );
 
-    RowProducer rp = trans.addRowProducer( injectorStepname, 0 );
+    RowProducer rp = trans.addRowProducer( injectorTransformName, 0 );
     trans.startThreads();
 
     // add rows

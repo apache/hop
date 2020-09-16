@@ -45,14 +45,14 @@ public class BeamBigQueryOutputTransformHandler extends BeamBaseTransformHandler
     super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+  @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputTransformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input  ) throws HopException {
 
-    BeamBQOutputMeta beamOutputMeta = (BeamBQOutputMeta) beamOutputStepMeta.getTransform();
+    BeamBQOutputMeta beamOutputMeta = (BeamBQOutputMeta) beamOutputTransformMeta.getTransform();
 
     BeamBQOutputTransform beamOutputTransform = new BeamBQOutputTransform(
-      beamOutputStepMeta.getName(),
+      beamOutputTransformMeta.getName(),
       pipelineMeta.environmentSubstitute( beamOutputMeta.getProjectId() ),
       pipelineMeta.environmentSubstitute( beamOutputMeta.getDatasetId() ),
       pipelineMeta.environmentSubstitute( beamOutputMeta.getTableId() ),
@@ -67,14 +67,14 @@ public class BeamBigQueryOutputTransformHandler extends BeamBaseTransformHandler
     // Which transform do we apply this transform to?
     // Ignore info hops until we figure that out.
     //
-    if ( previousSteps.size() > 1 ) {
+    if ( previousTransforms.size() > 1 ) {
       throw new HopException( "Combining data from multiple transforms is not supported yet!" );
     }
-    TransformMeta previousStep = previousSteps.get( 0 );
+    TransformMeta previousTransform = previousTransforms.get( 0 );
 
     // No need to store this, it's PDone.
     //
     input.apply( beamOutputTransform );
-    log.logBasic( "Handled transform (BQ OUTPUT) : " + beamOutputStepMeta.getName() + ", gets data from " + previousStep.getName() );
+    log.logBasic( "Handled transform (BQ OUTPUT) : " + beamOutputTransformMeta.getName() + ", gets data from " + previousTransform.getName() );
   }
 }

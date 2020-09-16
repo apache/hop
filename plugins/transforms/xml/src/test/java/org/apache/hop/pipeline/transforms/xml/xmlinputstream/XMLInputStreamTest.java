@@ -278,7 +278,7 @@ public class XMLInputStreamTest {
 
   @Test
   @Ignore
-  public void testFromPreviousStep() throws Exception {
+  public void testFromPreviousTransform() throws Exception {
     xmlInputStreamMeta.sourceFromInput = true;
     xmlInputStreamMeta.sourceFieldName = "inf";
     xmlInputStreamData.outputRowMeta = new RowMeta();

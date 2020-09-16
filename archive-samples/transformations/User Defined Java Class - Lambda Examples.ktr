@@ -632,7 +632,7 @@ public class ReverseCase implements Comparator {
 }
 
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
 {
     int valueIndex = -1;
 	Object[] row = getRow();

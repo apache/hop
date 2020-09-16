@@ -45,75 +45,75 @@ public class XmlJoinMetaGetFieldsTest {
   }
 
   @Test
-  public void testGetFieldsReturnTargetStepFieldsPlusResultXmlField() throws Exception {
-    String sourceXmlStep = "source xml step name";
-    String sourceStepField = "source field test name";
-    String targetStepField = "target field test name";
+  public void testGetFieldsReturnTargetTransformFieldsPlusResultXmlField() throws Exception {
+    String sourceXmlTransform = "source xml transform name";
+    String sourceTransformField = "source field test name";
+    String targetTransformField = "target field test name";
     String resultXmlFieldName = "result xml field name";
-    RowMeta rowMetaPreviousSteps = new RowMeta();
-    rowMetaPreviousSteps.addValueMeta( new ValueMetaString( sourceStepField ) );
-    xmlJoinMeta.setSourceXmlStep( sourceXmlStep );
+    RowMeta rowMetaPreviousTransforms = new RowMeta();
+    rowMetaPreviousTransforms.addValueMeta( new ValueMetaString( sourceTransformField ) );
+    xmlJoinMeta.setSourceXmlTransform( sourceXmlTransform );
     xmlJoinMeta.setValueXmlField( "result xml field name" );
-    TransformMeta sourceStepMeta = new TransformMeta();
-    sourceStepMeta.setName( sourceXmlStep );
+    TransformMeta sourceTransformMeta = new TransformMeta();
+    sourceTransformMeta.setName( sourceXmlTransform );
 
-    doReturn( sourceStepMeta ).when( transMeta ).findTransform( sourceXmlStep );
-    doReturn( rowMetaPreviousSteps ).when( transMeta ).getTransformFields( sourceStepMeta, null, null );
+    doReturn( sourceTransformMeta ).when( transMeta ).findTransform( sourceXmlTransform );
+    doReturn( rowMetaPreviousTransforms ).when( transMeta ).getTransformFields( sourceTransformMeta, null, null );
 
 
     RowMeta rowMeta = new RowMeta();
-    ValueMetaString keepValueMeta = new ValueMetaString( targetStepField );
-    ValueMetaString removeValueMeta = new ValueMetaString( sourceStepField );
+    ValueMetaString keepValueMeta = new ValueMetaString( targetTransformField );
+    ValueMetaString removeValueMeta = new ValueMetaString( sourceTransformField );
     rowMeta.addValueMeta( keepValueMeta );
     rowMeta.addValueMeta( removeValueMeta );
 
-    xmlJoinMeta.getFields( rowMeta, "testStepName", null, null, transMeta, null );
+    xmlJoinMeta.getFields( rowMeta, "testTransformName", null, null, transMeta, null );
     assertEquals( 2, rowMeta.size() );
     String[] strings = rowMeta.getFieldNames();
-    assertEquals( targetStepField, strings[0] );
+    assertEquals( targetTransformField, strings[0] );
     assertEquals( resultXmlFieldName, strings[1] );
   }
 
   @Test
-  public void testGetFieldsReturnTargetStepFieldsWithDuplicates() throws Exception {
-    // Source Step
-    String sourceXmlStep = "source xml step name";
-    String sourceStepField1 = "a";
-    String sourceStepField2 = "b";
+  public void testGetFieldsReturnTargetTransformFieldsWithDuplicates() throws Exception {
+    // Source Transform
+    String sourceXmlTransform = "source xml transform name";
+    String sourceTransformField1 = "a";
+    String sourceTransformField2 = "b";
 
-    // Target Step
-    String targetXmlStep = "target xml step name";
-    String targetStepField1 = "b";
-    String targetStepField2 = "c";
+    // Target Transform
+    String targetXmlTransform = "target xml transform name";
+    String targetTransformField1 = "b";
+    String targetTransformField2 = "c";
 
     // XML Join Result
     String resultXmlFieldName = "result xml field name";
 
     // Source Row Meta
-    RowMeta rowMetaPreviousSourceStep = new RowMeta();
-    rowMetaPreviousSourceStep.addValueMeta( new ValueMetaString( sourceStepField1) );
-    rowMetaPreviousSourceStep.addValueMeta( new ValueMetaString( sourceStepField2) );
+    RowMeta rowMetaPreviousSourceTransform = new RowMeta();
+    rowMetaPreviousSourceTransform.addValueMeta( new ValueMetaString( sourceTransformField1) );
+    rowMetaPreviousSourceTransform.addValueMeta( new ValueMetaString( sourceTransformField2) );
 
-    // Set source step in XML Join step.
-    xmlJoinMeta.setSourceXmlStep( sourceXmlStep );
-    TransformMeta sourceStepMeta = new TransformMeta();
-    sourceStepMeta.setName( sourceXmlStep );
+    // Set source transform in XML Join transform.
+    xmlJoinMeta.setSourceXmlTransform( sourceXmlTransform );
+    TransformMeta sourceTransformMeta = new TransformMeta();
+    sourceTransformMeta.setName( sourceXmlTransform );
 
-    doReturn( sourceStepMeta ).when( transMeta ).findTransform( sourceXmlStep );
-    doReturn( rowMetaPreviousSourceStep ).when( transMeta ).getTransformFields( sourceStepMeta, null, null );
+    doReturn( sourceTransformMeta ).when( transMeta ).findTransform( sourceXmlTransform );
+    doReturn( rowMetaPreviousSourceTransform ).when( transMeta ).getTransformFields( sourceTransformMeta, null, null );
 
     // Target Row Meta
-    RowMeta rowMetaPreviousTargetStep = new RowMeta();
-    rowMetaPreviousTargetStep.addValueMeta( new ValueMetaString( targetStepField1) );
-    rowMetaPreviousTargetStep.addValueMeta( new ValueMetaString( targetStepField2) );
+    RowMeta rowMetaPreviousTargetTransform = new RowMeta();
+    rowMetaPreviousTargetTransform.addValueMeta( new ValueMetaString( targetTransformField1) );
+    rowMetaPreviousTargetTransform.addValueMeta( new ValueMetaString( targetTransformField2) );
 
-    // Set target step in XML Join step.
-    xmlJoinMeta.setTargetXmlStep( targetXmlStep );
-    TransformMeta targetStepMeta = new TransformMeta();
-    targetStepMeta.setName( targetXmlStep );
+    // Set target transform in XML Join transform.
+    xmlJoinMeta.setTargetXmlTransform( targetXmlTransform );
+    TransformMeta targetTransformMeta = new TransformMeta();
+    targetTransformMeta.setName( targetXmlTransform );
 
-    doReturn( targetStepMeta ).when( transMeta ).findTransform( targetXmlStep );
-    doReturn( rowMetaPreviousTargetStep ).when( transMeta ).getTransformFields( targetStepMeta, null, null );
+    doReturn( targetTransformMeta ).when( transMeta ).findTransform( targetXmlTransform );
+    doReturn( rowMetaPreviousTargetTransform ).when( transMeta ).getTransformFields( targetTransformMeta, null, null );
 
     // Set result field name
     xmlJoinMeta.setValueXmlField( resultXmlFieldName );
@@ -127,7 +127,7 @@ public class XmlJoinMetaGetFieldsTest {
     rowMeta.addValueMeta( keepValueMeta2 );
 
     // Get output fields
-    xmlJoinMeta.getFields( rowMeta, "testStepName", null, null, transMeta, null );
+    xmlJoinMeta.getFields( rowMeta, "testTransformName", null, null, transMeta, null );
     assertEquals( 3, rowMeta.size() );
     String[] strings = rowMeta.getFieldNames();
     assertEquals( "b", strings[0] );

@@ -690,7 +690,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
   private void ok() {
     if ( Utils.isEmpty( wName.getText() ) ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-      mb.setText( BaseMessages.getString( PKG, "System.StepJobEntryNameMissing.Title" ) );
+      mb.setText( BaseMessages.getString( PKG, "System.TransformJobEntryNameMissing.Title" ) );
       mb.setMessage( BaseMessages.getString( PKG, "System.JobEntryNameMissing.Msg" ) );
       mb.open();
       return;

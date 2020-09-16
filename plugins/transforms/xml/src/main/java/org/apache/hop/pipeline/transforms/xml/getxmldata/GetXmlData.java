@@ -245,7 +245,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
       }
     }
     // main loop through the data until limit is reached or transformation is stopped
-    // similar functionality like in BaseStep.runStepThread
+    // similar functionality like in BaseTransform.runTransformThread
     if ( log.isDebug() ) {
       logDebug( BaseMessages.getString( PKG, "GetXMLData.Log.StreamingMode.ProcessingRows" ) );
     }

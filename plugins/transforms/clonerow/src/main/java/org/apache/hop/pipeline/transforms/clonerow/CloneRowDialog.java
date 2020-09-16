@@ -60,7 +60,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
   private Label wlNrCloneField;
   private CCombo wNrCloneField;
 
-  private Button wisNrCloneInField;
+  private Button wIsNrCloneInField;
 
   private boolean gotPreviousFields = false;
 
@@ -90,6 +90,15 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // Some buttons
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -126,34 +135,34 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     wnrClone.addModifyListener( lsMod );
     FormData fdnrClone = new FormData();
     fdnrClone.left = new FormAttachment( middle, 0 );
-    fdnrClone.top = new FormAttachment( wTransformName, margin * 2 );
+    fdnrClone.top = new FormAttachment(wlnrClone, 0, SWT.CENTER );
     fdnrClone.right = new FormAttachment( 100, 0 );
     wnrClone.setLayoutData(fdnrClone);
 
     // Is Nr clones defined in a Field
-    Label wlisNrCloneInField = new Label(shell, SWT.RIGHT);
-    wlisNrCloneInField.setText( BaseMessages.getString( PKG, "CloneRowDialog.isNrCloneInField.Label" ) );
-    props.setLook(wlisNrCloneInField);
+    Label wlIsNrCloneInField = new Label(shell, SWT.RIGHT);
+    wlIsNrCloneInField.setText( BaseMessages.getString( PKG, "CloneRowDialog.isNrCloneInField.Label" ) );
+    props.setLook(wlIsNrCloneInField);
     FormData fdlisNrCloneInField = new FormData();
     fdlisNrCloneInField.left = new FormAttachment( 0, 0 );
     fdlisNrCloneInField.top = new FormAttachment( wnrClone, margin );
     fdlisNrCloneInField.right = new FormAttachment( middle, -margin );
-    wlisNrCloneInField.setLayoutData(fdlisNrCloneInField);
+    wlIsNrCloneInField.setLayoutData(fdlisNrCloneInField);
 
-    wisNrCloneInField = new Button( shell, SWT.CHECK );
-    props.setLook( wisNrCloneInField );
-    wisNrCloneInField.setToolTipText( BaseMessages.getString( PKG, "CloneRowDialog.isNrCloneInField.Tooltip" ) );
+    wIsNrCloneInField = new Button( shell, SWT.CHECK );
+    props.setLook( wIsNrCloneInField );
+    wIsNrCloneInField.setToolTipText( BaseMessages.getString( PKG, "CloneRowDialog.isNrCloneInField.Tooltip" ) );
     FormData fdisNrCloneInField = new FormData();
     fdisNrCloneInField.left = new FormAttachment( middle, 0 );
-    fdisNrCloneInField.top = new FormAttachment( wnrClone, margin );
-    wisNrCloneInField.setLayoutData(fdisNrCloneInField);
+    fdisNrCloneInField.top = new FormAttachment( wlIsNrCloneInField, 0, SWT.CENTER );
+    wIsNrCloneInField.setLayoutData(fdisNrCloneInField);
     SelectionAdapter lisNrCloneInField = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         ActiveisNrCloneInField();
         input.setChanged();
       }
     };
-    wisNrCloneInField.addSelectionListener( lisNrCloneInField );
+    wIsNrCloneInField.addSelectionListener( lisNrCloneInField );
 
     // Filename field
     wlNrCloneField = new Label( shell, SWT.RIGHT );
@@ -161,7 +170,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     props.setLook( wlNrCloneField );
     FormData fdlNrCloneField = new FormData();
     fdlNrCloneField.left = new FormAttachment( 0, 0 );
-    fdlNrCloneField.top = new FormAttachment( wisNrCloneInField, margin );
+    fdlNrCloneField.top = new FormAttachment( wIsNrCloneInField, margin );
     fdlNrCloneField.right = new FormAttachment( middle, -margin );
     wlNrCloneField.setLayoutData(fdlNrCloneField);
 
@@ -171,7 +180,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     wNrCloneField.addModifyListener( lsMod );
     FormData fdNrCloneField = new FormData();
     fdNrCloneField.left = new FormAttachment( middle, 0 );
-    fdNrCloneField.top = new FormAttachment( wisNrCloneInField, margin );
+    fdNrCloneField.top = new FormAttachment( wlNrCloneField, 0, SWT.CENTER );
     fdNrCloneField.right = new FormAttachment( 100, 0 );
     wNrCloneField.setLayoutData(fdNrCloneField);
     wNrCloneField.addFocusListener( new FocusListener() {
@@ -214,7 +223,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     props.setLook( waddCloneFlag );
     FormData fdaddCloneFlag = new FormData();
     fdaddCloneFlag.left = new FormAttachment( middle, 0 );
-    fdaddCloneFlag.top = new FormAttachment( wNrCloneField, 2 * margin );
+    fdaddCloneFlag.top = new FormAttachment( wladdCloneFlag, 0, SWT.CENTER );
     fdaddCloneFlag.right = new FormAttachment( 100, 0 );
     waddCloneFlag.setLayoutData(fdaddCloneFlag);
     SelectionAdapter lsSelR = new SelectionAdapter() {
@@ -259,7 +268,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     props.setLook( waddCloneNum );
     FormData fdaddCloneNum = new FormData();
     fdaddCloneNum.left = new FormAttachment( middle, 0 );
-    fdaddCloneNum.top = new FormAttachment( wcloneFlagField, margin );
+    fdaddCloneNum.top = new FormAttachment( wladdCloneNum, 0, SWT.CENTER );
     fdaddCloneNum.right = new FormAttachment( 100, 0 );
     waddCloneNum.setLayoutData(fdaddCloneNum);
     waddCloneNum.addSelectionListener( new SelectionAdapter() {
@@ -293,26 +302,15 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     fdOutpuFields.left = new FormAttachment( 0, margin );
     fdOutpuFields.top = new FormAttachment( wNrCloneField, 2 * margin );
     fdOutpuFields.right = new FormAttachment( 100, -margin );
+    fdOutpuFields.bottom = new FormAttachment(wOk, -2*margin);
     wOutpuFields.setLayoutData(fdOutpuFields);
 
     // ///////////////////////////////////////////////////////////
     // / END OF Origin files GROUP
     // ///////////////////////////////////////////////////////////
 
-    // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wOutpuFields);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -369,10 +367,10 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
   }
 
   private void ActiveisNrCloneInField() {
-    wlNrCloneField.setEnabled( wisNrCloneInField.getSelection() );
-    wNrCloneField.setEnabled( wisNrCloneInField.getSelection() );
-    wlnrClone.setEnabled( !wisNrCloneInField.getSelection() );
-    wnrClone.setEnabled( !wisNrCloneInField.getSelection() );
+    wlNrCloneField.setEnabled( wIsNrCloneInField.getSelection() );
+    wNrCloneField.setEnabled( wIsNrCloneInField.getSelection() );
+    wlnrClone.setEnabled( !wIsNrCloneInField.getSelection() );
+    wnrClone.setEnabled( !wIsNrCloneInField.getSelection() );
   }
 
   private void activeaddCloneFlag() {
@@ -396,7 +394,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     if ( input.getCloneFlagField() != null ) {
       wcloneFlagField.setText( input.getCloneFlagField() );
     }
-    wisNrCloneInField.setSelection( input.isNrCloneInField() );
+    wIsNrCloneInField.setSelection( input.isNrCloneInField() );
     if ( input.getNrCloneField() != null ) {
       wNrCloneField.setText( input.getNrCloneField() );
     }
@@ -424,7 +422,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     input.setNrClones( wnrClone.getText() );
     input.setAddCloneFlag( waddCloneFlag.getSelection() );
     input.setCloneFlagField( wcloneFlagField.getText() );
-    input.setNrCloneInField( wisNrCloneInField.getSelection() );
+    input.setNrCloneInField( wIsNrCloneInField.getSelection() );
     input.setNrCloneField( wNrCloneField.getText() );
     input.setAddCloneNum( waddCloneNum.getSelection() );
     input.setCloneNumField( wCloneNumField.getText() );

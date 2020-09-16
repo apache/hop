@@ -68,7 +68,7 @@ public class BeamBQOutputMeta extends BaseTransformMeta implements ITransformMet
     creatingIfNeeded = true;
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider )
+  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     // This is an endpoint in Beam, produces no further output

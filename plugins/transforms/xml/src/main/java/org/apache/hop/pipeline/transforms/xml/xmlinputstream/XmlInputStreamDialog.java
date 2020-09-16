@@ -156,10 +156,10 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Step name line
+    // Transform name line
     //
     wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "XMLInputStreamDialog.Stepname.Label" ) );
+    wlTransformName.setText( BaseMessages.getString( PKG, "XMLInputStreamDialog.TransformName.Label" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );

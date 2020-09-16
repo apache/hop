@@ -98,7 +98,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   /**
    * Flag: add the stepnr in the filename
    */
-  @Injection( name = "INC_STEPNR_IN_FILENAME" )
+  @Injection( name = "INC_TRANSFORMNR_IN_FILENAME" )
   private boolean stepNrInFilename;
 
   /**
@@ -176,7 +176,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   private String date_time_format;
 
   public XmlOutputMeta() {
-    super(); // allocate BaseStepMeta
+    super(); // allocate BaseTransformMeta
   }
 
   /**
@@ -252,14 +252,14 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   /**
    * @return Returns the stepNrInFilename.
    */
-  public boolean isStepNrInFilename() {
+  public boolean isTransformNrInFilename() {
     return stepNrInFilename;
   }
 
   /**
    * @param stepNrInFilename The stepNrInFilename to set.
    */
-  public void setStepNrInFilename( boolean stepNrInFilename ) {
+  public void setTransformNrInFilename( boolean stepNrInFilename ) {
     this.stepNrInFilename = stepNrInFilename;
   }
 
@@ -335,10 +335,6 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     this.outputFields = outputFields;
   }
 
-  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
-  }
-
   public void allocate( int nrfields ) {
     outputFields = new XmlField[ nrfields ];
   }
@@ -366,7 +362,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     return new XmlOutputData();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       setEncoding( XmlHandler.getTagValue( transformNode, "encoding" ) );
       setNameSpace( XmlHandler.getTagValue( transformNode, "name_space" ) );
@@ -379,7 +375,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
 
       setDoNotOpenNewFileInit( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file",
         "do_not_open_newfile_init" ) ) );
-      setStepNrInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) ) );
+      setTransformNrInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) ) );
       setDateInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_date" ) ) );
       setTimeInFilename( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_time" ) ) );
       setSpecifyFormat( "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) ) );
@@ -541,7 +537,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     return retval;
   }
 
-  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextStep,
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables space, IHopMetadataProvider metadataProvider ) {
 
     // No values are added to the row in this type of step

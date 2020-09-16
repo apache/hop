@@ -162,7 +162,7 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "FileLockedDialog.AddResult.Tooltip" ) );
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wResult, 2 * margin );
+    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData(fdAddResult);
 
     // THE BUTTONS
@@ -170,16 +170,11 @@ public class FileLockedDialog extends BaseTransformDialog implements ITransformD
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // Add listeners
-    lsOk = e -> ok();
-
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

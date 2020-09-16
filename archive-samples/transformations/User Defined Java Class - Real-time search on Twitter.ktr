@@ -482,7 +482,7 @@ import java.math.BigInteger;
 private Twitter twitter;
 private BigInteger lastId;
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException 
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
 {
   // java.util.List timeLine = twitter.getUserTimeline();
 
@@ -547,7 +547,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
   return true;
 }
 
-public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface transformDataInterface) {
+public boolean init(TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface) {
    if (super.init(transformMetaInterface, transformDataInterface)) {
      twitter = new Twitter(getParameter("USER"), getParameter("PASSWD"));
      lastId=BigInteger.valueOf(-1L);

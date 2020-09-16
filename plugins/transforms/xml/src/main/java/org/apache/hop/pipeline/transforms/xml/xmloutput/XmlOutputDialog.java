@@ -68,8 +68,8 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
   private Button wServletOutput;
 
-  private Label wlAddStepnr;
-  private Button wAddStepnr;
+  private Label wlAddTransformnr;
+  private Button wAddTransformnr;
 
   private Label wlAddDate;
   private Button wAddDate;
@@ -143,9 +143,9 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Stepname line
+    // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.StepName" ) );
+    wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
@@ -274,22 +274,22 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wExtension.setLayoutData(fdExtension);
 
     // Create multi-part file?
-    wlAddStepnr = new Label( wFileComp, SWT.RIGHT );
-    wlAddStepnr.setText( BaseMessages.getString( PKG, "XMLOutputDialog.AddStepNr.Label" ) );
-    props.setLook( wlAddStepnr );
-    FormData fdlAddStepnr = new FormData();
-    fdlAddStepnr.left = new FormAttachment( 0, 0 );
-    fdlAddStepnr.top = new FormAttachment( wExtension, margin );
-    fdlAddStepnr.right = new FormAttachment( middle, -margin );
-    wlAddStepnr.setLayoutData(fdlAddStepnr);
-    wAddStepnr = new Button( wFileComp, SWT.CHECK );
-    props.setLook( wAddStepnr );
-    FormData fdAddStepnr = new FormData();
-    fdAddStepnr.left = new FormAttachment( middle, 0 );
-    fdAddStepnr.top = new FormAttachment( wExtension, margin );
-    fdAddStepnr.right = new FormAttachment( 100, 0 );
-    wAddStepnr.setLayoutData(fdAddStepnr);
-    wAddStepnr.addSelectionListener( new SelectionAdapter() {
+    wlAddTransformnr = new Label( wFileComp, SWT.RIGHT );
+    wlAddTransformnr.setText( BaseMessages.getString( PKG, "XMLOutputDialog.AddTransformNr.Label" ) );
+    props.setLook( wlAddTransformnr );
+    FormData fdlAddTransformnr = new FormData();
+    fdlAddTransformnr.left = new FormAttachment( 0, 0 );
+    fdlAddTransformnr.top = new FormAttachment( wExtension, margin );
+    fdlAddTransformnr.right = new FormAttachment( middle, -margin );
+    wlAddTransformnr.setLayoutData(fdlAddTransformnr);
+    wAddTransformnr = new Button( wFileComp, SWT.CHECK );
+    props.setLook( wAddTransformnr );
+    FormData fdAddTransformnr = new FormData();
+    fdAddTransformnr.left = new FormAttachment( middle, 0 );
+    fdAddTransformnr.top = new FormAttachment( wExtension, margin );
+    fdAddTransformnr.right = new FormAttachment( 100, 0 );
+    wAddTransformnr.setLayoutData(fdAddTransformnr);
+    wAddTransformnr.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
@@ -301,7 +301,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wlAddDate );
     FormData fdlAddDate = new FormData();
     fdlAddDate.left = new FormAttachment( 0, 0 );
-    fdlAddDate.top = new FormAttachment( wAddStepnr, margin );
+    fdlAddDate.top = new FormAttachment( wAddTransformnr, margin );
     fdlAddDate.right = new FormAttachment( middle, -margin );
     wlAddDate.setLayoutData(fdlAddDate);
     wAddDate = new Button( wFileComp, SWT.CHECK );
@@ -833,8 +833,8 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wDateTimeFormat.setEnabled( enableFilename );
     wlSpecifyFormat.setEnabled( enableFilename );
     wSpecifyFormat.setEnabled( enableFilename );
-    wlAddStepnr.setEnabled( enableFilename );
-    wAddStepnr.setEnabled( enableFilename );
+    wlAddTransformnr.setEnabled( enableFilename );
+    wAddTransformnr.setEnabled( enableFilename );
     wbShowFiles.setEnabled( enableFilename );
     wlAddToResult.setEnabled( enableFilename );
     wAddToResult.setEnabled( enableFilename );
@@ -908,7 +908,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wOmitNullValues.setSelection( input.isOmitNullValues() );
     wAddDate.setSelection( input.isDateInFilename() );
     wAddTime.setSelection( input.isTimeInFilename() );
-    wAddStepnr.setSelection( input.isStepNrInFilename() );
+    wAddTransformnr.setSelection( input.isTransformNrInFilename() );
 
     wAddToResult.setSelection( input.isAddToResultFiles() );
 
@@ -1008,7 +1008,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     xmlOutputMeta.setDateTimeFormat( wDateTimeFormat.getText() );
     xmlOutputMeta.setSpecifyFormat( wSpecifyFormat.getSelection() );
 
-    xmlOutputMeta.setStepNrInFilename( wAddStepnr.getSelection() );
+    xmlOutputMeta.setTransformNrInFilename( wAddTransformnr.getSelection() );
     xmlOutputMeta.setDateInFilename( wAddDate.getSelection() );
     xmlOutputMeta.setTimeInFilename( wAddTime.getSelection() );
     xmlOutputMeta.setAddToResultFiles( wAddToResult.getSelection() );

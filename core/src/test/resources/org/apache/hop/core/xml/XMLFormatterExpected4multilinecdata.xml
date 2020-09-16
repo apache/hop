@@ -3,7 +3,7 @@
 private int yearIndex;
 private Calendar calendar;
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws HopException 
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws HopException
 {
   Object[] r=getRow();
   if (r==null)

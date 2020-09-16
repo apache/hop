@@ -22,19 +22,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
-import java.io.StringReader;
-import java.io.StringWriter;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -50,6 +37,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.StringReader;
+import java.io.StringWriter;
 
 /**
  * Converts input rows to one or more XML files.
@@ -71,14 +70,14 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
 
     XPath xpath = XPathFactory.newInstance().newXPath();
 
-    // if first row we do some initializing and process the first row of the target XML Step
+    // if first row we do some initializing and process the first row of the target XML Transform
     if ( first ) {
       first = false;
       int target_field_id = -1;
 
       // Get the two input row sets
-      data.TargetRowSet = findInputRowSet( meta.getTargetXmlStep() );
-      data.SourceRowSet = findInputRowSet( meta.getSourceXmlStep() );
+      data.TargetRowSet = findInputRowSet( meta.getTargetXmlTransform() );
+      data.SourceRowSet = findInputRowSet( meta.getSourceXmlTransform() );
 
       // get the first line from the target row set
       Object[] rTarget = getRowFrom( data.TargetRowSet );
@@ -236,7 +235,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
 
       // See if a main step is supplied: in that case move the corresponding rowset to position 0
       //
-      swapFirstInputRowSetIfExists( meta.getTargetXmlStep() );
+      swapFirstInputRowSetIfExists( meta.getTargetXmlTransform() );
     } catch ( Exception e ) {
       log.logError( BaseMessages.getString( PKG, "XMLJoin.Error.Init" ), e );
       return false;

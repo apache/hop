@@ -65,7 +65,7 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler impl
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
     // Don't simply case but serialize/de-serialize the metadata to prevent classloader exceptions
@@ -77,25 +77,25 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler impl
     String[] leftKeys = meta.getKeyFields1();
     String[] rightKeys = meta.getKeyFields2();
 
-    TransformMeta leftInfoStep = meta.getTransformIOMeta().getInfoStreams().get( 0 ).getTransformMeta();
-    if ( leftInfoStep == null ) {
+    TransformMeta leftInfoTransform = meta.getTransformIOMeta().getInfoStreams().get( 0 ).getTransformMeta();
+    if ( leftInfoTransform == null ) {
       throw new HopException( "The left source transform isn't defined in the Merge Join transform called '" + transformMeta.getName() + "'" );
     }
-    PCollection<HopRow> leftPCollection = stepCollectionMap.get( leftInfoStep.getName() );
+    PCollection<HopRow> leftPCollection = stepCollectionMap.get( leftInfoTransform.getName() );
     if ( leftPCollection == null ) {
       throw new HopException( "The left source collection in the pipeline couldn't be found (probably a programming error)" );
     }
-    IRowMeta leftRowMeta = pipelineMeta.getTransformFields( leftInfoStep );
+    IRowMeta leftRowMeta = pipelineMeta.getTransformFields( leftInfoTransform );
 
-    TransformMeta rightInfoStep = meta.getTransformIOMeta().getInfoStreams().get( 1 ).getTransformMeta();
-    if ( rightInfoStep == null ) {
+    TransformMeta rightInfoTransform = meta.getTransformIOMeta().getInfoStreams().get( 1 ).getTransformMeta();
+    if ( rightInfoTransform == null ) {
       throw new HopException( "The right source transform isn't defined in the Merge Join transform called '" + transformMeta.getName() + "'" );
     }
-    PCollection<HopRow> rightPCollection = stepCollectionMap.get( rightInfoStep.getName() );
+    PCollection<HopRow> rightPCollection = stepCollectionMap.get( rightInfoTransform.getName() );
     if ( rightPCollection == null ) {
       throw new HopException( "The right source collection in the pipeline couldn't be found (probably a programming error)" );
     }
-    IRowMeta rightRowMeta = pipelineMeta.getTransformFields( rightInfoStep );
+    IRowMeta rightRowMeta = pipelineMeta.getTransformFields( rightInfoTransform );
 
     // Create key-value pairs (KV) for the left collections
     //

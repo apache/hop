@@ -23,9 +23,7 @@
 package org.apache.hop.pipeline.transforms.filemetadata;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.Counter;
 import org.apache.hop.core.annotations.Transform;
-import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -34,6 +32,7 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -43,8 +42,6 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 @Transform(
         id="FileMetadataPlugin",
@@ -52,7 +49,7 @@ import java.util.Map;
         image="icon.svg",
         description="FileMetadata.Name.Desc",
         i18nPackageName = "org.apache.hop.pipeline.transforms.filemetadata",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transforms:BaseStep.Category.Transform")
+        categoryDescription = "i18n:org.apache.hop.pipeline.transforms:BaseTransform.Category.Transform")
 public class FileMetadataMeta extends BaseTransformMeta implements ITransformMeta<FileMetadata, FileMetadataData> {
 
 //  public enum DetectionMethod {
@@ -113,12 +110,9 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
 
 
   /**
-   * This method is used when a step is duplicated in Spoon. It needs to return a deep copy of this
-   * step meta object. Be sure to create proper deep copies if the step configuration is stored in
+   * This method is used when a transform is duplicated. It needs to return a deep copy of this
+   * object. Be sure to create proper deep copies if the step configuration is stored in
    * modifiable objects.
-   * <p/>
-   * See org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta.clone() for an example on creating
-   * a deep copy.
    *
    * @return a deep copy of this
    */
@@ -139,7 +133,7 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
     return new FileMetadataData();
   }
 
-  public String getXML() throws HopValueException {
+  public String getXml() throws HopValueException {
 
     StringBuilder buffer = new StringBuilder(800);
 
@@ -162,75 +156,62 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
     return buffer.toString();
   }
 
+
   /**
-   * This method is called by PDI when a step needs to load its configuration from XML.
+   * This method is called by Hop when a transform needs to load its configuration from XML.
    * <p/>
-   * Please use org.pentaho.di.core.xml.XmlHandler to conveniently read from the
-   * XML node passed in.
    *
-   * @param stepnode  the XML node containing the configuration
-   * @param databases the databases available in the transformation
-   * @param counters  the counters available in the transformation
+   * @param transformNode  the XML node containing the configuration
+   * @param metadataProvider the metadata provider
    */
-  public void loadXML(Node stepnode, List<DatabaseMeta> databases, Map<String, Counter> counters) throws HopXmlException {
+  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
 
     try {
-      setFileName(XmlHandler.getNodeValue(XmlHandler.getSubNode(stepnode, "fileName")));
-      setLimitRows(XmlHandler.getNodeValue(XmlHandler.getSubNode(stepnode, "limitRows")));
-      setDefaultCharset(XmlHandler.getNodeValue(XmlHandler.getSubNode(stepnode, "defaultCharset")));
+      setFileName(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "fileName")));
+      setLimitRows(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "limitRows")));
+      setDefaultCharset(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "defaultCharset")));
 
-      int nrDelimiters = XmlHandler.countNodes(stepnode, "delimiterCandidate");
+      int nrDelimiters = XmlHandler.countNodes(transformNode, "delimiterCandidate");
       delimiterCandidates.clear();
       for (int i = 0; i < nrDelimiters; i++) {
-        Node node = XmlHandler.getSubNodeByNr(stepnode, "delimiterCandidate", i);
+        Node node = XmlHandler.getSubNodeByNr(transformNode, "delimiterCandidate", i);
         String candidate = XmlHandler.getTagValue(node, "candidate");
         delimiterCandidates.add(candidate);
       }
 
-      int nrEnclosures = XmlHandler.countNodes(stepnode, "enclosureCandidate");
+      int nrEnclosures = XmlHandler.countNodes(transformNode, "enclosureCandidate");
       enclosureCandidates.clear();
       for (int i = 0; i < nrEnclosures; i++) {
-        Node node = XmlHandler.getSubNodeByNr(stepnode, "enclosureCandidate", i);
+        Node node = XmlHandler.getSubNodeByNr(transformNode, "enclosureCandidate", i);
         String candidate = XmlHandler.getTagValue(node, "candidate");
         enclosureCandidates.add(candidate);
       }
 
 
     } catch (Exception e) {
-      throw new HopXmlException("File metadata plugin unable to read step info from XML node", e);
+      throw new HopXmlException("File metadata plugin unable to read transform info from XML node", e);
     }
 
   }
 
 
-  /**
-   * This method is called to determine the changes the step is making to the row-stream.
-   * To that end a RowMetaInterface object is passed in, containing the row-stream structure as it is when entering
-   * the step. This method must apply any changes the step makes to the row stream. Usually a step adds fields to the
-   * row-stream.
-   *
-   * @param r        the row structure coming in to the step
-   * @param origin   the name of the step making the changes
-   * @param info     row structures of any info steps coming in
-   * @param nextStep the description of a step this step is passing rows to
-   * @param space    the variable space for resolving variables
-   */
-  public void getFields(IRowMeta r, String origin, IRowMeta[] info, TransformMeta nextStep, IVariables space) {
 
-    r.addValueMeta(new ValueMetaString("charset"));
-    r.addValueMeta(new ValueMetaString("delimiter"));
-    r.addValueMeta(new ValueMetaString("enclosure"));
-    r.addValueMeta(new ValueMetaInteger("field_count"));
-    r.addValueMeta(new ValueMetaInteger("skip_header_lines"));
-    r.addValueMeta(new ValueMetaInteger("skip_footer_lines"));
-    r.addValueMeta(new ValueMetaBoolean("header_line_present"));
-    r.addValueMeta(new ValueMetaString("name"));
-    r.addValueMeta(new ValueMetaString("type"));
-    r.addValueMeta(new ValueMetaInteger("length"));
-    r.addValueMeta(new ValueMetaInteger("precision"));
-    r.addValueMeta(new ValueMetaString("mask"));
-    r.addValueMeta(new ValueMetaString("decimal_symbol"));
-    r.addValueMeta(new ValueMetaString("grouping_symbol"));
+  @Override public void getFields( IRowMeta rowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider ) {
+
+    rowMeta.addValueMeta(new ValueMetaString("charset"));
+    rowMeta.addValueMeta(new ValueMetaString("delimiter"));
+    rowMeta.addValueMeta(new ValueMetaString("enclosure"));
+    rowMeta.addValueMeta(new ValueMetaInteger("field_count"));
+    rowMeta.addValueMeta(new ValueMetaInteger("skip_header_lines"));
+    rowMeta.addValueMeta(new ValueMetaInteger("skip_footer_lines"));
+    rowMeta.addValueMeta(new ValueMetaBoolean("header_line_present"));
+    rowMeta.addValueMeta(new ValueMetaString("name"));
+    rowMeta.addValueMeta(new ValueMetaString("type"));
+    rowMeta.addValueMeta(new ValueMetaInteger("length"));
+    rowMeta.addValueMeta(new ValueMetaInteger("precision"));
+    rowMeta.addValueMeta(new ValueMetaString("mask"));
+    rowMeta.addValueMeta(new ValueMetaString("decimal_symbol"));
+    rowMeta.addValueMeta(new ValueMetaString("grouping_symbol"));
 
   }
 

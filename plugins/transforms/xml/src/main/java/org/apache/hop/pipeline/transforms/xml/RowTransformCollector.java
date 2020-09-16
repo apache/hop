@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2013 by Pentaho : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.pipeline.transforms.streamschemamerge;
+package org.apache.hop.pipeline.transforms.xml;
 
 import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.row.IRowMeta;
@@ -29,18 +29,19 @@ import org.apache.hop.pipeline.transform.IRowListener;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * Helper class for testcases. You can add an instance of this class to a step to read all of the Rows the step read or
  * wrote.
- *
+ * 
  * @author Sven Boden
  */
-public class RowStepCollector implements IRowListener {
+public class RowTransformCollector implements IRowListener {
   private List<RowMetaAndData> rowsRead;
   private List<RowMetaAndData> rowsWritten;
   private List<RowMetaAndData> rowsError;
 
-  public RowStepCollector() {
+  public RowTransformCollector() {
     rowsRead = new ArrayList<RowMetaAndData>();
     rowsWritten = new ArrayList<RowMetaAndData>();
     rowsError = new ArrayList<RowMetaAndData>();

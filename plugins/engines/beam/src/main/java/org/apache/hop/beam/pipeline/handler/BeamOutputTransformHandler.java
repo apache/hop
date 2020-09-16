@@ -50,16 +50,16 @@ public class BeamOutputTransformHandler extends BeamBaseTransformHandler impleme
     super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+  @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputTransformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
-    BeamOutputMeta beamOutputMeta = (BeamOutputMeta) beamOutputStepMeta.getTransform();
+    BeamOutputMeta beamOutputMeta = (BeamOutputMeta) beamOutputTransformMeta.getTransform();
     FileDefinition outputFileDefinition;
     if ( StringUtils.isEmpty( beamOutputMeta.getFileDefinitionName() ) ) {
       // Create a default file definition using standard output and sane defaults...
       //
-      outputFileDefinition = getDefaultFileDefition( beamOutputStepMeta );
+      outputFileDefinition = getDefaultFileDefition( beamOutputTransformMeta );
     } else {
       outputFileDefinition = beamOutputMeta.loadFileDefinition( metadataProvider );
     }
@@ -78,7 +78,7 @@ public class BeamOutputTransformHandler extends BeamBaseTransformHandler impleme
     }
 
     BeamOutputTransform beamOutputTransform = new BeamOutputTransform(
-      beamOutputStepMeta.getName(),
+      beamOutputTransformMeta.getName(),
       pipelineMeta.environmentSubstitute( beamOutputMeta.getOutputLocation() ),
       pipelineMeta.environmentSubstitute( beamOutputMeta.getFilePrefix() ),
       pipelineMeta.environmentSubstitute( beamOutputMeta.getFileSuffix() ),
@@ -93,18 +93,18 @@ public class BeamOutputTransformHandler extends BeamBaseTransformHandler impleme
     // Which transform do we apply this transform to?
     // Ignore info hops until we figure that out.
     //
-    if ( previousSteps.size() > 1 ) {
+    if ( previousTransforms.size() > 1 ) {
       throw new HopException( "Combining data from multiple transforms is not supported yet!" );
     }
-    TransformMeta previousStep = previousSteps.get( 0 );
+    TransformMeta previousTransform = previousTransforms.get( 0 );
 
     // No need to store this, it's PDone.
     //
     input.apply( beamOutputTransform );
-    log.logBasic( "Handled transform (OUTPUT) : " + beamOutputStepMeta.getName() + ", gets data from " + previousStep.getName() );
+    log.logBasic( "Handled transform (OUTPUT) : " + beamOutputTransformMeta.getName() + ", gets data from " + previousTransform.getName() );
   }
 
-  private FileDefinition getDefaultFileDefition( TransformMeta beamOutputStepMeta ) throws HopTransformException {
+  private FileDefinition getDefaultFileDefition( TransformMeta beamOutputTransformMeta ) throws HopTransformException {
     FileDefinition fileDefinition = new FileDefinition();
 
     fileDefinition.setName( "Default" );

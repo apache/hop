@@ -139,14 +139,14 @@ public static final class FieldsUpdater {
     this.m = m;
   }
   public Object manipulate(Object in) { return m.manipulate(in); }
-  public static FieldsUpdater valueOf(String name) throws HopStepException {
+  public static FieldsUpdater valueOf(String name) throws HopTransformException {
     if ("Number".equals(name)) return NUMBER;
     else if ("String".equals(name)) return STRING;
     else if ("Date".equals(name)) return DATE;
     else if ("Boolean".equals(name)) return BOOLEAN;
     else if ("Integer".equals(name)) return INTEGER;
     else if ("BigNumber".equals(name)) return BIGNUMBER;
-    else throw new HopStepException("Unknown field data type "+name);
+    else throw new HopTransformException("Unknown field data type "+name);
   }
 }
 private final HashMap fieldsToUpdate = new HashMap();
@@ -230,11 +230,11 @@ public boolean processRow() throws HopException {
   <codeSnippit>
     <name>Implement init</name>
     <category>COMMON</category>
-    <code><![CDATA[public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface transformDataInterface) {
+    <code><![CDATA[public boolean init(TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface) {
   return parent.initImpl(transformMetaInterface, transformDataInterface);
 }
 ]]></code>
-    <sample><![CDATA[public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface transformDataInterface) {
+    <sample><![CDATA[public boolean init(TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface) {
   return parent.initImpl(transformMetaInterface, transformDataInterface);
 }
 ]]></sample>
@@ -242,11 +242,11 @@ public boolean processRow() throws HopException {
   <codeSnippit>
     <name>Implement dispose</name>
     <category>COMMON</category>
-    <code><![CDATA[public void dispose(StepMetaInterface smi, StepDataInterface sdi) {
+    <code><![CDATA[public void dispose(TransformMetaInterface smi, TransformDataInterface sdi) {
   parent.disposeImpl(smi, sdi);
 }
 ]]></code>
-    <sample><![CDATA[public void dispose(StepMetaInterface smi, StepDataInterface sdi) {
+    <sample><![CDATA[public void dispose(TransformMetaInterface smi, TransformDataInterface sdi) {
   parent.disposeImpl(smi, sdi);
 }
 ]]></sample>
@@ -535,9 +535,9 @@ public boolean processRow() throws HopException {
   <codeSnippit>
     <name>getStatus</name>
     <category>STATUS</category>
-    <code><![CDATA[StepExecutionStatus getStatus = getStatus();
+    <code><![CDATA[TransformExecutionStatus getStatus = getStatus();
 ]]></code>
-    <sample><![CDATA[StepExecutionStatus getStatus = getStatus();
+    <sample><![CDATA[TransformExecutionStatus getStatus = getStatus();
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
@@ -654,11 +654,11 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>findInputRowSet(sourceStep)</name>
+    <name>findInputRowSet(sourceTransform)</name>
     <category>ROW</category>
-    <code><![CDATA[RowSet findInputRowSet = findInputRowSet(sourceStep);
+    <code><![CDATA[RowSet findInputRowSet = findInputRowSet(sourceTransform);
 ]]></code>
-    <sample><![CDATA[RowSet findInputRowSet = findInputRowSet(sourceStep);
+    <sample><![CDATA[RowSet findInputRowSet = findInputRowSet(sourceTransform);
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
@@ -670,11 +670,11 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>findOutputRowSet(targetStep)</name>
+    <name>findOutputRowSet(targetTransform)</name>
     <category>ROW</category>
-    <code><![CDATA[RowSet findOutputRowSet = findOutputRowSet(targetStep);
+    <code><![CDATA[RowSet findOutputRowSet = findOutputRowSet(targetTransform);
 ]]></code>
-    <sample><![CDATA[RowSet findOutputRowSet = findOutputRowSet(targetStep);
+    <sample><![CDATA[RowSet findOutputRowSet = findOutputRowSet(targetTransform);
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
@@ -694,11 +694,11 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>addStepListener</name>
+    <name>addTransformListener</name>
     <category>LISTENERS</category>
-    <code><![CDATA[addStepListener(transformListener);
+    <code><![CDATA[addTransformListener(transformListener);
 ]]></code>
-    <sample><![CDATA[addStepListener(transformListener);
+    <sample><![CDATA[addTransformListener(transformListener);
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
@@ -710,11 +710,11 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>getStepListeners</name>
+    <name>getTransformListeners</name>
     <category>LISTENERS</category>
-    <code><![CDATA[List getStepListeners = getStepListeners();
+    <code><![CDATA[List getTransformListeners = getTransformListeners();
 ]]></code>
-    <sample><![CDATA[List getStepListeners = getStepListeners();
+    <sample><![CDATA[List getTransformListeners = getTransformListeners();
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
@@ -727,11 +727,11 @@ public boolean processRow() throws HopException {
   </codeSnippit>
 
   <codeSnippit>
-    <name>getStepMeta</name>
+    <name>getTransformMeta</name>
     <category>OTHER</category>
-    <code><![CDATA[StepMeta getStepMeta = getStepMeta();
+    <code><![CDATA[TransformMeta getTransformMeta = getTransformMeta();
 ]]></code>
-    <sample><![CDATA[StepMeta getStepMeta = getStepMeta();
+    <sample><![CDATA[TransformMeta getTransformMeta = getTransformMeta();
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
@@ -751,11 +751,11 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>getStepDataInterface</name>
+    <name>getTransformDataInterface</name>
     <category>OTHER</category>
-    <code><![CDATA[StepDataInterface getStepDataInterface = getStepDataInterface();
+    <code><![CDATA[TransformDataInterface getTransformDataInterface = getTransformDataInterface();
 ]]></code>
-    <sample><![CDATA[StepDataInterface getStepDataInterface = getStepDataInterface();
+    <sample><![CDATA[TransformDataInterface getTransformDataInterface = getTransformDataInterface();
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
@@ -839,11 +839,11 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>getStepname</name>
+    <name>getTransformName</name>
     <category>OTHER</category>
-    <code><![CDATA[String getStepname = getStepname();
+    <code><![CDATA[String getTransformName = getTransformName();
 ]]></code>
-    <sample><![CDATA[String getStepname = getStepname();
+    <sample><![CDATA[String getTransformName = getTransformName();
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
@@ -855,19 +855,19 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>getUniqueStepCountAcrossSlaves</name>
+    <name>getUniqueTransformCountAcrossSlaves</name>
     <category>OTHER</category>
-    <code><![CDATA[int getUniqueStepCountAcrossSlaves = getUniqueStepCountAcrossSlaves();
+    <code><![CDATA[int getUniqueTransformCountAcrossSlaves = getUniqueTransformCountAcrossSlaves();
 ]]></code>
-    <sample><![CDATA[int getUniqueStepCountAcrossSlaves = getUniqueStepCountAcrossSlaves();
+    <sample><![CDATA[int getUniqueTransformCountAcrossSlaves = getUniqueTransformCountAcrossSlaves();
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>getUniqueStepNrAcrossSlaves</name>
+    <name>getUniqueTransformNrAcrossSlaves</name>
     <category>OTHER</category>
-    <code><![CDATA[int getUniqueStepNrAcrossSlaves = getUniqueStepNrAcrossSlaves();
+    <code><![CDATA[int getUniqueTransformNrAcrossSlaves = getUniqueTransformNrAcrossSlaves();
 ]]></code>
-    <sample><![CDATA[int getUniqueStepNrAcrossSlaves = getUniqueStepNrAcrossSlaves();
+    <sample><![CDATA[int getUniqueTransformNrAcrossSlaves = getUniqueTransformNrAcrossSlaves();
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
@@ -911,14 +911,14 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override addStepListener</name>
+    <name>Override addTransformListener</name>
     <category>OTHER</category>
-    <code><![CDATA[public void addStepListener(StepListener transformListener) {
-  parent.addStepListenerImpl(transformListener);
+    <code><![CDATA[public void addTransformListener(TransformListener transformListener) {
+  parent.addTransformListenerImpl(transformListener);
 }
 ]]></code>
-    <sample><![CDATA[public void addStepListener(StepListener transformListener) {
-  parent.addStepListenerImpl(transformListener);
+    <sample><![CDATA[public void addTransformListener(TransformListener transformListener) {
+  parent.addTransformListenerImpl(transformListener);
 }
 ]]></sample>
   </codeSnippit>
@@ -971,14 +971,14 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override findInputRowSet(sourceStep)</name>
+    <name>Override findInputRowSet(sourceTransform)</name>
     <category>OTHER</category>
-    <code><![CDATA[public RowSet findInputRowSet(String sourceStep) throws HopStepException {
-  return parent.findInputRowSetImpl(sourceStep);
+    <code><![CDATA[public RowSet findInputRowSet(String sourceTransform) throws HopTransformException {
+  return parent.findInputRowSetImpl(sourceTransform);
 }
 ]]></code>
-    <sample><![CDATA[public RowSet findInputRowSet(String sourceStep) throws HopStepException {
-  return parent.findInputRowSetImpl(sourceStep);
+    <sample><![CDATA[public RowSet findInputRowSet(String sourceTransform) throws HopTransformException {
+  return parent.findInputRowSetImpl(sourceTransform);
 }
 ]]></sample>
   </codeSnippit>
@@ -995,14 +995,14 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override findOutputRowSet(targetStep)</name>
+    <name>Override findOutputRowSet(targetTransform)</name>
     <category>OTHER</category>
-    <code><![CDATA[public RowSet findOutputRowSet(String targetStep) throws HopStepException {
-  return parent.findOutputRowSetImpl(targetStep);
+    <code><![CDATA[public RowSet findOutputRowSet(String targetTransform) throws HopTransformException {
+  return parent.findOutputRowSetImpl(targetTransform);
 }
 ]]></code>
-    <sample><![CDATA[public RowSet findOutputRowSet(String targetStep) throws HopStepException {
-  return parent.findOutputRowSetImpl(targetStep);
+    <sample><![CDATA[public RowSet findOutputRowSet(String targetTransform) throws HopTransformException {
+  return parent.findOutputRowSetImpl(targetTransform);
 }
 ]]></sample>
   </codeSnippit>
@@ -1241,11 +1241,11 @@ public boolean processRow() throws HopException {
   <codeSnippit>
     <name>Override getRowFrom</name>
     <category>OTHER</category>
-    <code><![CDATA[public Object[] getRowFrom(RowSet rowSet) throws HopStepException {
+    <code><![CDATA[public Object[] getRowFrom(RowSet rowSet) throws HopTransformException {
   return parent.getRowFromImpl(rowSet);
 }
 ]]></code>
-    <sample><![CDATA[public Object[] getRowFrom(RowSet rowSet) throws HopStepException {
+    <sample><![CDATA[public Object[] getRowFrom(RowSet rowSet) throws HopTransformException {
   return parent.getRowFromImpl(rowSet);
 }
 ]]></sample>
@@ -1301,11 +1301,11 @@ public boolean processRow() throws HopException {
   <codeSnippit>
     <name>Override getStatus</name>
     <category>OTHER</category>
-    <code><![CDATA[public StepExecutionStatus getStatus() {
+    <code><![CDATA[public TransformExecutionStatus getStatus() {
   return parent.getStatusImpl();
 }
 ]]></code>
-    <sample><![CDATA[public StepExecutionStatus getStatus() {
+    <sample><![CDATA[public TransformExecutionStatus getStatus() {
   return parent.getStatusImpl();
 }
 ]]></sample>
@@ -1323,74 +1323,74 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override getStepDataInterface</name>
+    <name>Override getTransformDataInterface</name>
     <category>OTHER</category>
-    <code><![CDATA[public StepDataInterface getStepDataInterface() {
-  return parent.getStepDataInterfaceImpl();
+    <code><![CDATA[public TransformDataInterface getTransformDataInterface() {
+  return parent.getTransformDataInterfaceImpl();
 }
 ]]></code>
-    <sample><![CDATA[public StepDataInterface getStepDataInterface() {
-  return parent.getStepDataInterfaceImpl();
+    <sample><![CDATA[public TransformDataInterface getTransformDataInterface() {
+  return parent.getTransformDataInterfaceImpl();
 }
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override getStepID</name>
+    <name>Override getTransformID</name>
     <category>OTHER</category>
-    <code><![CDATA[public String getStepID() {
-  return parent.getStepIDImpl();
+    <code><![CDATA[public String getTransformID() {
+  return parent.getTransformIDImpl();
 }
 ]]></code>
-    <sample><![CDATA[public String getStepID() {
-  return parent.getStepIDImpl();
+    <sample><![CDATA[public String getTransformID() {
+  return parent.getTransformIDImpl();
 }
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override getStepListeners</name>
+    <name>Override getTransformListeners</name>
     <category>OTHER</category>
-    <code><![CDATA[public List getStepListeners() {
-  return parent.getStepListenersImpl();
+    <code><![CDATA[public List getTransformListeners() {
+  return parent.getTransformListenersImpl();
 }
 ]]></code>
-    <sample><![CDATA[public List getStepListeners() {
-  return parent.getStepListenersImpl();
+    <sample><![CDATA[public List getTransformListeners() {
+  return parent.getTransformListenersImpl();
 }
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override getStepMeta</name>
+    <name>Override getTransformMeta</name>
     <category>OTHER</category>
-    <code><![CDATA[public StepMeta getStepMeta() {
-  return parent.getStepMetaImpl();
+    <code><![CDATA[public TransformMeta getTransformMeta() {
+  return parent.getTransformMetaImpl();
 }
 ]]></code>
-    <sample><![CDATA[public StepMeta getStepMeta() {
-  return parent.getStepMetaImpl();
+    <sample><![CDATA[public TransformMeta getTransformMeta() {
+  return parent.getTransformMetaImpl();
 }
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override getStepMetaInterface</name>
+    <name>Override getTransformMetaInterface</name>
     <category>OTHER</category>
-    <code><![CDATA[public StepMetaInterface getStepMetaInterface() {
-  return parent.getStepMetaInterfaceImpl();
+    <code><![CDATA[public TransformMetaInterface getTransformMetaInterface() {
+  return parent.getTransformMetaInterfaceImpl();
 }
 ]]></code>
-    <sample><![CDATA[public StepMetaInterface getStepMetaInterface() {
-  return parent.getStepMetaInterfaceImpl();
+    <sample><![CDATA[public TransformMetaInterface getTransformMetaInterface() {
+  return parent.getTransformMetaInterfaceImpl();
 }
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override getStepname</name>
+    <name>Override getTransformName</name>
     <category>OTHER</category>
-    <code><![CDATA[public String getStepname() {
-  return parent.getStepnameImpl();
+    <code><![CDATA[public String getTransformName() {
+  return parent.getTransformNameImpl();
 }
 ]]></code>
-    <sample><![CDATA[public String getStepname() {
-  return parent.getStepnameImpl();
+    <sample><![CDATA[public String getTransformName() {
+  return parent.getTransformNameImpl();
 }
 ]]></sample>
   </codeSnippit>
@@ -1431,26 +1431,26 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override getUniqueStepCountAcrossSlaves</name>
+    <name>Override getUniqueTransformCountAcrossSlaves</name>
     <category>OTHER</category>
-    <code><![CDATA[public int getUniqueStepCountAcrossSlaves() {
-  return parent.getUniqueStepCountAcrossSlavesImpl();
+    <code><![CDATA[public int getUniqueTransformCountAcrossSlaves() {
+  return parent.getUniqueTransformCountAcrossSlavesImpl();
 }
 ]]></code>
-    <sample><![CDATA[public int getUniqueStepCountAcrossSlaves() {
-  return parent.getUniqueStepCountAcrossSlavesImpl();
+    <sample><![CDATA[public int getUniqueTransformCountAcrossSlaves() {
+  return parent.getUniqueTransformCountAcrossSlavesImpl();
 }
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override getUniqueStepNrAcrossSlaves</name>
+    <name>Override getUniqueTransformNrAcrossSlaves</name>
     <category>OTHER</category>
-    <code><![CDATA[public int getUniqueStepNrAcrossSlaves() {
-  return parent.getUniqueStepNrAcrossSlavesImpl();
+    <code><![CDATA[public int getUniqueTransformNrAcrossSlaves() {
+  return parent.getUniqueTransformNrAcrossSlavesImpl();
 }
 ]]></code>
-    <sample><![CDATA[public int getUniqueStepNrAcrossSlaves() {
-  return parent.getUniqueStepNrAcrossSlavesImpl();
+    <sample><![CDATA[public int getUniqueTransformNrAcrossSlaves() {
+  return parent.getUniqueTransformNrAcrossSlavesImpl();
 }
 ]]></sample>
   </codeSnippit>
@@ -1565,11 +1565,11 @@ public boolean processRow() throws HopException {
   <codeSnippit>
     <name>Override initBeforeStart</name>
     <category>OTHER</category>
-    <code><![CDATA[public void initBeforeStart() throws HopStepException {
+    <code><![CDATA[public void initBeforeStart() throws HopTransformException {
   parent.initBeforeStartImpl();
 }
 ]]></code>
-    <sample><![CDATA[public void initBeforeStart() throws HopStepException {
+    <sample><![CDATA[public void initBeforeStart() throws HopTransformException {
   parent.initBeforeStartImpl();
 }
 ]]></sample>
@@ -1767,26 +1767,26 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override openRemoteInputStepSocketsOnce</name>
+    <name>Override openRemoteInputTransformSocketsOnce</name>
     <category>OTHER</category>
-    <code><![CDATA[public void openRemoteInputStepSocketsOnce() throws HopStepException {
-  parent.openRemoteInputStepSocketsOnceImpl();
+    <code><![CDATA[public void openRemoteInputTransformSocketsOnce() throws HopTransformException {
+  parent.openRemoteInputTransformSocketsOnceImpl();
 }
 ]]></code>
-    <sample><![CDATA[public void openRemoteInputStepSocketsOnce() throws HopStepException {
-  parent.openRemoteInputStepSocketsOnceImpl();
+    <sample><![CDATA[public void openRemoteInputTransformSocketsOnce() throws HopTransformException {
+  parent.openRemoteInputTransformSocketsOnceImpl();
 }
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override openRemoteOutputStepSocketsOnce</name>
+    <name>Override openRemoteOutputTransformSocketsOnce</name>
     <category>OTHER</category>
-    <code><![CDATA[public void openRemoteOutputStepSocketsOnce() throws HopStepException {
-  parent.openRemoteOutputStepSocketsOnceImpl();
+    <code><![CDATA[public void openRemoteOutputTransformSocketsOnce() throws HopTransformException {
+  parent.openRemoteOutputTransformSocketsOnceImpl();
 }
 ]]></code>
-    <sample><![CDATA[public void openRemoteOutputStepSocketsOnce() throws HopStepException {
-  parent.openRemoteOutputStepSocketsOnceImpl();
+    <sample><![CDATA[public void openRemoteOutputTransformSocketsOnce() throws HopTransformException {
+  parent.openRemoteOutputTransformSocketsOnceImpl();
 }
 ]]></sample>
   </codeSnippit>
@@ -1806,10 +1806,10 @@ public boolean processRow() throws HopException {
     <name>Override putError</name>
     <category>OTHER</category>
     <code><![CDATA[public void putError(RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions, String fieldNames, String errorCodes)
-        throws HopStepException
+        throws HopTransformException
 ]]></code>
     <sample><![CDATA[public void putError(RowMetaInterface rowMeta, Object[] row, long nrErrors, String errorDescriptions, String fieldNames, String errorCodes)
-        throws HopStepException
+        throws HopTransformException
 ]]></sample>
   </codeSnippit>
   {
@@ -1819,11 +1819,11 @@ public boolean processRow() throws HopException {
   <codeSnippit>
     <name>Override putRow</name>
     <category>OTHER</category>
-    <code><![CDATA[public void putRow(RowMetaInterface row, Object[] data) throws HopStepException {
+    <code><![CDATA[public void putRow(RowMetaInterface row, Object[] data) throws HopTransformException {
   parent.putRowImpl(row, data);
 }
 ]]></code>
-    <sample><![CDATA[public void putRow(RowMetaInterface row, Object[] data) throws HopStepException {
+    <sample><![CDATA[public void putRow(RowMetaInterface row, Object[] data) throws HopTransformException {
   parent.putRowImpl(row, data);
 }
 ]]></sample>
@@ -1831,11 +1831,11 @@ public boolean processRow() throws HopException {
   <codeSnippit>
     <name>Override putRowTo</name>
     <category>OTHER</category>
-    <code><![CDATA[public void putRowTo(RowMetaInterface rowMeta, Object[] row, RowSet rowSet) throws HopStepException {
+    <code><![CDATA[public void putRowTo(RowMetaInterface rowMeta, Object[] row, RowSet rowSet) throws HopTransformException {
   parent.putRowToImpl(rowMeta, row, rowSet);
 }
 ]]></code>
-    <sample><![CDATA[public void putRowTo(RowMetaInterface rowMeta, Object[] row, RowSet rowSet) throws HopStepException {
+    <sample><![CDATA[public void putRowTo(RowMetaInterface rowMeta, Object[] row, RowSet rowSet) throws HopTransformException {
   parent.putRowToImpl(rowMeta, row, rowSet);
 }
 ]]></sample>
@@ -2034,14 +2034,14 @@ public boolean processRow() throws HopException {
 ]]></sample>
   </codeSnippit>
   <codeSnippit>
-    <name>Override setStepListeners</name>
+    <name>Override setTransformListeners</name>
     <category>OTHER</category>
-    <code><![CDATA[public void setStepListeners(List transformListeners) {
-  parent.setStepListenersImpl(transformListeners);
+    <code><![CDATA[public void setTransformListeners(List transformListeners) {
+  parent.setTransformListenersImpl(transformListeners);
 }
 ]]></code>
-    <sample><![CDATA[public void setStepListeners(List transformListeners) {
-  parent.setStepListenersImpl(transformListeners);
+    <sample><![CDATA[public void setTransformListeners(List transformListeners) {
+  parent.setTransformListenersImpl(transformListeners);
 }
 ]]></sample>
   </codeSnippit>
@@ -2072,11 +2072,11 @@ public boolean processRow() throws HopException {
   <codeSnippit>
     <name>Override stopRunning</name>
     <category>OTHER</category>
-    <code><![CDATA[public void stopRunning(StepMetaInterface transformMetaInterface, StepDataInterface transformDataInterface) throws HopException {
+    <code><![CDATA[public void stopRunning(TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface) throws HopException {
   parent.stopRunningImpl(transformMetaInterface, transformDataInterface);
 }
 ]]></code>
-    <sample><![CDATA[public void stopRunning(StepMetaInterface transformMetaInterface, StepDataInterface transformDataInterface) throws HopException {
+    <sample><![CDATA[public void stopRunning(TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface) throws HopException {
   parent.stopRunningImpl(transformMetaInterface, transformDataInterface);
 }
 ]]></sample>

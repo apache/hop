@@ -540,7 +540,7 @@
 private int yearIndex;
 private Calendar calendar;
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException 
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
 {
   Object[] r=getRow();
   if (r==null)

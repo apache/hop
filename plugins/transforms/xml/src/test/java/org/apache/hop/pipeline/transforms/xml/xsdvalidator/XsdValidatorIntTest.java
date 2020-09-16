@@ -22,17 +22,6 @@
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.RowMetaAndData;
@@ -48,6 +37,17 @@ import org.apache.poi.util.IOUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 public class XsdValidatorIntTest {
@@ -145,7 +145,7 @@ public class XsdValidatorIntTest {
     List<RowMetaAndData> inputData = new ArrayList<RowMetaAndData>();
     inputData.add( new RowMetaAndData( inputRowMeta, new Object[] { dataFilename, schemaFilename } ) );
 
-    String stepName = "XSD Validator";
+    String TransformName = "XSD Validator";
     XsdValidatorMeta meta = new XsdValidatorMeta();
     meta.setDefault();
     meta.setXMLSourceFile( true );
@@ -153,12 +153,12 @@ public class XsdValidatorIntTest {
     meta.setXSDSource( meta.SPECIFY_FIELDNAME );
     meta.setXSDDefinedField( "SchemaFile" );
     meta.setAddValidationMessage( true );
-    PipelineMeta transMeta = PipelineTestFactory.generateTestTransformation( null, meta, stepName );
+    PipelineMeta transMeta = PipelineTestFactory.generateTestTransformation( null, meta, TransformName );
 
     List<RowMetaAndData> result = null;
     result =
-        PipelineTestFactory.executeTestTransformation( transMeta, PipelineTestFactory.INJECTOR_STEPNAME, stepName,
-            PipelineTestFactory.DUMMY_STEPNAME, inputData );
+        PipelineTestFactory.executeTestTransformation( transMeta, PipelineTestFactory.INJECTOR_TRANSFORMNAME, TransformName,
+            PipelineTestFactory.DUMMY_TRANSFORMNAME, inputData );
 
     assertNotNull( result );
     assertEquals( 1, result.size() );

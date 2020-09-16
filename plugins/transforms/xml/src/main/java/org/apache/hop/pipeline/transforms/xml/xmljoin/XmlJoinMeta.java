@@ -50,19 +50,18 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * This class knows how to handle the MetaData for the XML join step
- * 
+ * This class knows how to handle the MetaData for the XML join transform
+ *
  * @since 30-04-2008
- * 
  */
 @Transform(
-        id = "XMLJoin",
-        image = "XJN.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmljoin",
-        name = "XMLJoin.name",
-        description = "XMLJoin.description",
-        categoryDescription = "XMLJoin.category",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmljoin.html"
+  id = "XMLJoin",
+  image = "XJN.svg",
+  i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmljoin",
+  name = "XMLJoin.name",
+  description = "XMLJoin.description",
+  categoryDescription = "XMLJoin.category",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmljoin.html"
 )
 @InjectionSupported( localizationPrefix = "XMLJoin.Injection." )
 public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {
@@ -70,56 +69,74 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
 
   /** The base name of the output file */
 
-  /** Flag: execute complex join */
+  /**
+   * Flag: execute complex join
+   */
   @Injection( name = "COMPLEX_JOIN" )
   private boolean complexJoin;
 
-  /** What step holds the xml string to join into */
-  @Injection( name = "TARGET_XML_STEP" )
-  private String targetXMLstep;
+  /**
+   * What transform holds the xml string to join into
+   */
+  @Injection( name = "TARGET_XML_TRANSFORM" )
+  private String targetXmlTransform;
 
-  /** What field holds the xml string to join into */
+  /**
+   * What field holds the xml string to join into
+   */
   @Injection( name = "TARGET_XML_FIELD" )
-  private String targetXMLfield;
+  private String targetXmlField;
 
-  /** What field holds the XML tags to join */
+  /**
+   * What field holds the XML tags to join
+   */
   @Injection( name = "SOURCE_XML_FIELD" )
-  private String sourceXMLfield;
+  private String sourceXmlField;
 
-  /** The name value containing the resulting XML fragment */
+  /**
+   * The name value containing the resulting XML fragment
+   */
   @Injection( name = "VALUE_XML_FIELD" )
-  private String valueXMLfield;
+  private String valueXmlField;
 
-  /** The name of the repeating row XML element */
+  /**
+   * The name of the repeating row XML element
+   */
   @Injection( name = "TARGET_XPATH" )
   private String targetXPath;
 
-  /** What step holds the xml strings to join */
-  @Injection( name = "SOURCE_XML_STEP" )
-  private String sourceXMLstep;
+  /**
+   * What transform holds the xml strings to join
+   */
+  @Injection( name = "SOURCE_XML_TRANSFORM" )
+  private String sourceXmlTransform;
 
-  /** What field holds the join compare value */
+  /**
+   * What field holds the join compare value
+   */
   @Injection( name = "JOIN_COMPARE_FIELD" )
   private String joinCompareField;
 
-  /** The encoding to use for reading: null or empty string means system default encoding */
+  /**
+   * The encoding to use for reading: null or empty string means system default encoding
+   */
   @Injection( name = "ENCODING" )
   private String encoding;
 
-  /** Flag: execute complex join */
+  /**
+   * Flag: execute complex join
+   */
   @Injection( name = "OMIT_XML_HEADER" )
-  private boolean omitXMLHeader;
+  private boolean omitXmlHeader;
 
-  /** Flag: omit null values from result xml */
+  /**
+   * Flag: omit null values from result xml
+   */
   @Injection( name = "OMIT_NULL_VALUES" )
   private boolean omitNullValues;
 
   public XmlJoinMeta() {
-    super(); // allocate BaseStepMeta
-  }
-
-  public void loadXML( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+    super(); // allocate BaseTransformMeta
   }
 
   public Object clone() {
@@ -127,22 +144,22 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     return retval;
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  @Override public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
-      valueXMLfield = XmlHandler.getTagValue( transformNode, "valueXMLfield" );
-      targetXMLstep = XmlHandler.getTagValue( transformNode, "targetXMLstep" );
-      targetXMLfield = XmlHandler.getTagValue( transformNode, "targetXMLfield" );
-      sourceXMLstep = XmlHandler.getTagValue( transformNode, "sourceXMLstep" );
-      sourceXMLfield = XmlHandler.getTagValue( transformNode, "sourceXMLfield" );
+      valueXmlField = XmlHandler.getTagValue( transformNode, "valueXmlField" );
+      targetXmlTransform = XmlHandler.getTagValue( transformNode, "targetXmlTransform" );
+      targetXmlField = XmlHandler.getTagValue( transformNode, "targetXmlField" );
+      sourceXmlTransform = XmlHandler.getTagValue( transformNode, "sourceXmlTransform" );
+      sourceXmlField = XmlHandler.getTagValue( transformNode, "sourceXmlField" );
       targetXPath = XmlHandler.getTagValue( transformNode, "targetXPath" );
       joinCompareField = XmlHandler.getTagValue( transformNode, "joinCompareField" );
       encoding = XmlHandler.getTagValue( transformNode, "encoding" );
       complexJoin = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "complexJoin" ) );
-      omitXMLHeader = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "omitXMLHeader" ) );
+      omitXmlHeader = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "omitXMLHeader" ) );
       omitNullValues = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "omitNullValues" ) );
 
     } catch ( Exception e ) {
-      throw new HopXmlException( "Unable to load step info from XML", e );
+      throw new HopXmlException( "Unable to load transform info from XML", e );
     }
   }
 
@@ -151,27 +168,27 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     encoding = Const.XML_ENCODING;
   }
 
-  public void getFields(IRowMeta row, String name, IRowMeta[] info, TransformMeta nextStep,
-                        IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+  public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
-    IValueMeta v = new ValueMetaString( this.getValueXmlField());
+    IValueMeta v = new ValueMetaString( this.getValueXmlField() );
     v.setOrigin( name );
 
     PipelineMeta transMeta = (PipelineMeta) space;
     try {
       // Row should only include fields from the target and not the source. During the preview table generation
-      // the fields from all previous steps (source and target) are included in the row so lets remove the
+      // the fields from all previous transforms (source and target) are included in the row so lets remove the
       // source fields.
       List<String> targetFieldNames = null;
-      IRowMeta targetRowMeta = transMeta.getTransformFields( transMeta.findTransform( getTargetXmlStep() ),
+      IRowMeta targetRowMeta = transMeta.getTransformFields( transMeta.findTransform( getTargetXmlTransform() ),
         null,
         null );
       if ( targetRowMeta != null ) {
         targetFieldNames = Arrays.asList( targetRowMeta.getFieldNames() );
       }
-      for ( String fieldName : transMeta.getTransformFields( transMeta.findTransform( getSourceXmlStep() ),
-                                                                            null,
-                                                                            null ).getFieldNames() ) {
+      for ( String fieldName : transMeta.getTransformFields( transMeta.findTransform( getSourceXmlTransform() ),
+        null,
+        null ).getFieldNames() ) {
         if ( targetFieldNames == null || !targetFieldNames.contains( fieldName ) ) {
           row.removeValueMeta( fieldName );
         }
@@ -186,131 +203,131 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
   public String getXml() {
     StringBuffer retval = new StringBuffer( 500 );
 
-    retval.append( "    " ).append( XmlHandler.addTagValue( "valueXMLField", valueXMLfield ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "targetXMLstep", targetXMLstep ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "targetXMLfield", targetXMLfield ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "sourceXMLstep", sourceXMLstep ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "sourceXMLfield", sourceXMLfield ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "valueXmlField", valueXmlField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "targetXmlTransform", targetXmlTransform ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "targetXmlField", targetXmlField ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sourceXmlTransform", sourceXmlTransform ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "sourceXmlField", sourceXmlField ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "complexJoin", complexJoin ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "joinCompareField", joinCompareField ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "targetXPath", targetXPath ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "omitXMLHeader", omitXMLHeader ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "omitXMLHeader", omitXmlHeader ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "omitNullValues", omitNullValues ) );
 
     return retval.toString();
   }
 
 
-  public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     // checks for empty field which are required
-    if ( this.targetXMLstep == null || this.targetXMLstep.length() == 0 ) {
+    if ( this.targetXmlTransform == null || this.targetXmlTransform.length() == 0 ) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.TargetXMLStepNotSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.TargetXMLTransformNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.TargetXMLStepSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.TargetXMLTransformSpecified" ), transformMeta );
       remarks.add( cr );
     }
-    if ( this.targetXMLfield == null || this.targetXMLfield.length() == 0 ) {
+    if ( this.targetXmlField == null || this.targetXmlField.length() == 0 ) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.TargetXMLFieldNotSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.TargetXMLFieldNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.TargetXMLFieldSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.TargetXMLFieldSpecified" ), transformMeta );
       remarks.add( cr );
     }
-    if ( this.sourceXMLstep == null || this.sourceXMLstep.length() == 0 ) {
+    if ( this.sourceXmlTransform == null || this.sourceXmlTransform.length() == 0 ) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.SourceXMLStepNotSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.SourceXMLTransformNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.SourceXMLStepSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.SourceXMLTransformSpecified" ), transformMeta );
       remarks.add( cr );
     }
-    if ( this.sourceXMLfield == null || this.sourceXMLfield.length() == 0 ) {
+    if ( this.sourceXmlField == null || this.sourceXmlField.length() == 0 ) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.SourceXMLFieldNotSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.SourceXMLFieldNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.SourceXMLFieldSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.SourceXMLFieldSpecified" ), transformMeta );
       remarks.add( cr );
     }
-    if ( this.valueXMLfield == null || this.valueXMLfield.length() == 0 ) {
+    if ( this.valueXmlField == null || this.valueXmlField.length() == 0 ) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.ResultFieldNotSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.ResultFieldNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.ResultFieldSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.ResultFieldSpecified" ), transformMeta );
       remarks.add( cr );
     }
     if ( this.targetXPath == null || this.targetXPath.length() == 0 ) {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.TargetXPathNotSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.TargetXPathNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.TargetXPathSpecified" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.TargetXPathSpecified" ), transformMeta );
       remarks.add( cr );
     }
 
-    // See if we have the right input streams leading to this step!
+    // See if we have the right input streams leading to this transform!
     if ( input.length > 0 ) {
-      boolean targetStepFound = false;
-      boolean sourceStepFound = false;
+      boolean targetTransformFound = false;
+      boolean sourceTransformFound = false;
       for ( int i = 0; i < input.length; i++ ) {
-        if ( this.targetXMLstep != null && this.targetXMLstep.equals( input[i] ) ) {
-          targetStepFound = true;
+        if ( this.targetXmlTransform != null && this.targetXmlTransform.equals( input[ i ] ) ) {
+          targetTransformFound = true;
           cr =
-              new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                  "XMLJoin.CheckResult.TargetXMLStepFound", this.targetXMLstep ), stepMeta );
+            new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+              "XMLJoin.CheckResult.TargetXMLTransformFound", this.targetXmlTransform ), transformMeta );
           remarks.add( cr );
         }
-        if ( this.sourceXMLstep != null && this.sourceXMLstep.equals( input[i] ) ) {
-          sourceStepFound = true;
+        if ( this.sourceXmlTransform != null && this.sourceXmlTransform.equals( input[ i ] ) ) {
+          sourceTransformFound = true;
           cr =
-              new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                  "XMLJoin.CheckResult.SourceXMLStepFound", this.sourceXMLstep ), stepMeta );
+            new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
+              "XMLJoin.CheckResult.SourceXMLTransformFound", this.sourceXmlTransform ), transformMeta );
           remarks.add( cr );
         }
       }
 
-      if ( !targetStepFound ) {
+      if ( !targetTransformFound ) {
         cr =
-            new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "XMLJoin.CheckResult.TargetXMLStepNotFound", this.targetXMLstep ), stepMeta );
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+            "XMLJoin.CheckResult.TargetXMLTransformNotFound", this.targetXmlTransform ), transformMeta );
         remarks.add( cr );
       }
-      if ( !sourceStepFound ) {
+      if ( !sourceTransformFound ) {
         cr =
-            new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "XMLJoin.CheckResult.SourceXMLStepNotFound", this.sourceXMLstep ), stepMeta );
+          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+            "XMLJoin.CheckResult.SourceXMLTransformNotFound", this.sourceXmlTransform ), transformMeta );
         remarks.add( cr );
       }
     } else {
       cr =
-          new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.ExpectedInputError" ), stepMeta );
+        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
+          "XMLJoin.CheckResult.ExpectedInputError" ), transformMeta );
       remarks.add( cr );
     }
   }
@@ -323,44 +340,60 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     this.complexJoin = complexJoin;
   }
 
-  public String getTargetXmlStep() {
-    return targetXMLstep;
+  /**
+   * Gets targetXmlTransform
+   *
+   * @return value of targetXmlTransform
+   */
+  public String getTargetXmlTransform() {
+    return targetXmlTransform;
   }
 
-  public void setTargetXmlStep(String targetXMLstep ) {
-    this.targetXMLstep = targetXMLstep;
+  /**
+   * @param targetXmlTransform The targetXmlTransform to set
+   */
+  public void setTargetXmlTransform( String targetXmlTransform ) {
+    this.targetXmlTransform = targetXmlTransform;
   }
 
   public String getTargetXmlField() {
-    return targetXMLfield;
+    return targetXmlField;
   }
 
-  public void setTargetXmlField(String targetXMLfield ) {
-    this.targetXMLfield = targetXMLfield;
+  public void setTargetXmlField( String targetXMLfield ) {
+    this.targetXmlField = targetXMLfield;
   }
 
-  public String getSourceXmlStep() {
-    return sourceXMLstep;
+  /**
+   * Gets sourceXmlTransform
+   *
+   * @return value of sourceXmlTransform
+   */
+  public String getSourceXmlTransform() {
+    return sourceXmlTransform;
   }
 
-  public void setSourceXmlStep(String targetXMLstep ) {
-    this.sourceXMLstep = targetXMLstep;
+  /**
+   * @param sourceXmlTransform The sourceXmlTransform to set
+   */
+  public void setSourceXmlTransform( String sourceXmlTransform ) {
+    this.sourceXmlTransform = sourceXmlTransform;
   }
 
   public String getSourceXmlField() {
-    return sourceXMLfield;
+    return sourceXmlField;
   }
 
-  public void setSourceXmlField(String sourceXMLfield ) {
-    this.sourceXMLfield = sourceXMLfield;
+  public void setSourceXmlField( String sourceXMLfield ) {
+    this.sourceXmlField = sourceXMLfield;
   }
 
   public String getValueXmlField() {
-    return valueXMLfield;
+    return valueXmlField;
   }
 
-  public void setValueXmlField(String valueXMLfield ) {
-    this.valueXMLfield = valueXMLfield;
+  public void setValueXmlField( String valueXMLfield ) {
+    this.valueXmlField = valueXMLfield;
   }
 
   public String getTargetXPath() {
@@ -384,8 +417,8 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, XmlJoinData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new XmlJoin(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
+  public ITransform createTransform( TransformMeta transformMeta, XmlJoinData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new XmlJoin( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -393,12 +426,20 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     return new XmlJoinData();
   }
 
+  /**
+   * Gets omitXmlHeader
+   *
+   * @return value of omitXmlHeader
+   */
   public boolean isOmitXmlHeader() {
-    return omitXMLHeader;
+    return omitXmlHeader;
   }
 
-  public void setOmitXmlHeader(boolean omitXMLHeader ) {
-    this.omitXMLHeader = omitXMLHeader;
+  /**
+   * @param omitXmlHeader The omitXmlHeader to set
+   */
+  public void setOmitXmlHeader( boolean omitXmlHeader ) {
+    this.omitXmlHeader = omitXmlHeader;
   }
 
   public void setOmitNullValues( boolean omitNullValues ) {
@@ -408,7 +449,6 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
   }
 
   public boolean isOmitNullValues() {
-
     return omitNullValues;
 
   }

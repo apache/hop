@@ -1,11 +1,10 @@
-Classes in this package support serializing/deserializing StepMetaInterface objects by leveraging 
+Classes in this package support serializing/deserializing TransformMetaInterface objects by leveraging 
 MetadataInjection annotations, eliminating the need to write tedious metadata serialization code.
 
 The simplest way for a step to use this strategy is to extend 
 the BaseSerializingMeta class, which implements the 
   ````
-  .loadXML() / .getXML() 
-  .readRep() / .saveRep() 
+  .loadXml() / .getXml() 
 ````
 
 The MetaXmlSerializer implementation uses JAXB.  The output XML will have a form like:
@@ -22,9 +21,9 @@ The MetaXmlSerializer implementation uses JAXB.  The output XML will have a form
     </step-props>
 ```
 
-To serialize XML within a StepMetaInterface implementation, the call
+To serialize XML within a TransformMetaInterface implementation, the call
 is:
-  ` MetaXmlSerializer.serialize( StepMetaProps.from( myMeta ) )`
+  ` MetaXmlSerializer.serialize( TransformMetaProps.from( myMeta ) )`
 
 For deserialization:
   ` MetaXmlSerializer.deserialize( xml ).to( myMeta )`

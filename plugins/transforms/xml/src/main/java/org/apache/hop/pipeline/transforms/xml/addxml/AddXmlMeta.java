@@ -97,7 +97,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
   private XmlField[] outputFields;
 
   public AddXmlMeta() {
-    super(); // allocate BaseStepMeta
+    super(); // allocate BaseTransformMeta
   }
 
   /**
@@ -240,7 +240,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     }
   }
 
-  public void getFields(IRowMeta row, String name, IRowMeta[] info, TransformMeta nextStep,
+  public void getFields(IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
                         IVariables space,  IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     IValueMeta v = new ValueMetaString( this.getValueName());

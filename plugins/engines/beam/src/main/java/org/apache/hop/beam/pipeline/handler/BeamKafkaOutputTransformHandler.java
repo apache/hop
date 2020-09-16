@@ -45,14 +45,14 @@ public class BeamKafkaOutputTransformHandler extends BeamBaseTransformHandler im
     super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputStepMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+  @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputTransformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
-    BeamProduceMeta beamProduceMeta = (BeamProduceMeta) beamOutputStepMeta.getTransform();
+    BeamProduceMeta beamProduceMeta = (BeamProduceMeta) beamOutputTransformMeta.getTransform();
 
     BeamKafkaOutputTransform beamOutputTransform = new BeamKafkaOutputTransform(
-      beamOutputStepMeta.getName(),
+      beamOutputTransformMeta.getName(),
       pipelineMeta.environmentSubstitute( beamProduceMeta.getBootstrapServers() ),
       pipelineMeta.environmentSubstitute( beamProduceMeta.getTopic() ),
       pipelineMeta.environmentSubstitute( beamProduceMeta.getKeyField() ),
@@ -65,14 +65,14 @@ public class BeamKafkaOutputTransformHandler extends BeamBaseTransformHandler im
     // Which transform do we apply this transform to?
     // Ignore info hops until we figure that out.
     //
-    if ( previousSteps.size() > 1 ) {
+    if ( previousTransforms.size() > 1 ) {
       throw new HopException( "Combining data from multiple transforms is not supported yet!" );
     }
-    TransformMeta previousStep = previousSteps.get( 0 );
+    TransformMeta previousTransform = previousTransforms.get( 0 );
 
     // No need to store this, it's PDone.
     //
     input.apply( beamOutputTransform );
-    log.logBasic( "Handled transform (KAFKA OUTPUT) : " + beamOutputStepMeta.getName() + ", gets data from " + previousStep.getName() );
+    log.logBasic( "Handled transform (KAFKA OUTPUT) : " + beamOutputTransformMeta.getName() + ", gets data from " + previousTransform.getName() );
   }
 }

@@ -34,7 +34,7 @@ public class PdiDiff {
   public static String REMOVED = "REMOVED";
   public static String ADDED = "ADDED";
 
-  public static PipelineMeta compareSteps( PipelineMeta transMeta1, PipelineMeta transMeta2, boolean isForward ) {
+  public static PipelineMeta compareTransforms( PipelineMeta transMeta1, PipelineMeta transMeta2, boolean isForward ) {
     transMeta1.getTransforms().forEach( step -> {
       Optional<TransformMeta> step2 = transMeta2.getTransforms().stream()
           .filter( obj -> step.getName().equals( obj.getName() ) ).findFirst();
