@@ -45,15 +45,28 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class DBProcDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator!!
@@ -72,7 +85,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
 
   private final DBProcMeta input;
 
-  private ColumnInfo[] colinf;
+  private ColumnInfo[] fieldColumns;
 
   private final Map<String, Integer> inputFields;
 
@@ -110,6 +123,20 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+
+    // The buttons go at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    Button wGet = new Button( shell, SWT.PUSH );
+    wGet.setText( BaseMessages.getString( PKG, "DBProcDialog.GetFields.Button" ) );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel, }, margin, null );
+
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "DBProcDialog.TransformName.Label" ) );
@@ -129,18 +156,19 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
+
     // Connection line
     wConnection = addConnectionLine( shell, wTransformName, input.getDatabase(), lsMod );
 
     // ProcName line...
     // add button to get list of procedures on selected connection...
-    Button wbProcName = new Button(shell, SWT.PUSH);
+    Button wbProcName = new Button( shell, SWT.PUSH );
     wbProcName.setText( BaseMessages.getString( PKG, "DBProcDialog.Finding.Button" ) );
     FormData fdbProcName = new FormData();
     fdbProcName.right = new FormAttachment( 100, 0 );
     fdbProcName.top = new FormAttachment( wConnection, margin * 2 );
-    wbProcName.setLayoutData(fdbProcName);
-    wbProcName.addSelectionListener(new SelectionAdapter() {
+    wbProcName.setLayoutData( fdbProcName );
+    wbProcName.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         DatabaseMeta dbInfo = pipelineMeta.findDatabase( wConnection.getText() );
         if ( dbInfo != null ) {
@@ -174,14 +202,14 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
       }
     } );
 
-    Label wlProcName = new Label(shell, SWT.RIGHT);
+    Label wlProcName = new Label( shell, SWT.RIGHT );
     wlProcName.setText( BaseMessages.getString( PKG, "DBProcDialog.ProcedureName.Label" ) );
-    props.setLook(wlProcName);
+    props.setLook( wlProcName );
     FormData fdlProcName = new FormData();
     fdlProcName.left = new FormAttachment( 0, 0 );
     fdlProcName.right = new FormAttachment( middle, -margin );
     fdlProcName.top = new FormAttachment( wConnection, margin * 2 );
-    wlProcName.setLayoutData(fdlProcName);
+    wlProcName.setLayoutData( fdlProcName );
 
     wProcName = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wProcName );
@@ -189,38 +217,38 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     FormData fdProcName = new FormData();
     fdProcName.left = new FormAttachment( middle, 0 );
     fdProcName.top = new FormAttachment( wConnection, margin * 2 );
-    fdProcName.right = new FormAttachment(wbProcName, -margin );
-    wProcName.setLayoutData(fdProcName);
+    fdProcName.right = new FormAttachment( wbProcName, -margin );
+    wProcName.setLayoutData( fdProcName );
 
     // AutoCommit line
-    Label wlAutoCommit = new Label(shell, SWT.RIGHT);
+    Label wlAutoCommit = new Label( shell, SWT.RIGHT );
     wlAutoCommit.setText( BaseMessages.getString( PKG, "DBProcDialog.AutoCommit.Label" ) );
     wlAutoCommit.setToolTipText( BaseMessages.getString( PKG, "DBProcDialog.AutoCommit.Tooltip" ) );
-    props.setLook(wlAutoCommit);
+    props.setLook( wlAutoCommit );
     FormData fdlAutoCommit = new FormData();
     fdlAutoCommit.left = new FormAttachment( 0, 0 );
     fdlAutoCommit.top = new FormAttachment( wProcName, margin );
     fdlAutoCommit.right = new FormAttachment( middle, -margin );
-    wlAutoCommit.setLayoutData(fdlAutoCommit);
+    wlAutoCommit.setLayoutData( fdlAutoCommit );
     wAutoCommit = new Button( shell, SWT.CHECK );
     wAutoCommit.setToolTipText( BaseMessages.getString( PKG, "DBProcDialog.AutoCommit.Tooltip" ) );
     props.setLook( wAutoCommit );
     FormData fdAutoCommit = new FormData();
     fdAutoCommit.left = new FormAttachment( middle, 0 );
-    fdAutoCommit.top = new FormAttachment( wProcName, margin );
+    fdAutoCommit.top = new FormAttachment( wlAutoCommit, 0, SWT.CENTER );
     fdAutoCommit.right = new FormAttachment( 100, 0 );
-    wAutoCommit.setLayoutData(fdAutoCommit);
+    wAutoCommit.setLayoutData( fdAutoCommit );
     wAutoCommit.addSelectionListener( lsSelMod );
 
     // Result line...
-    Label wlResult = new Label(shell, SWT.RIGHT);
+    Label wlResult = new Label( shell, SWT.RIGHT );
     wlResult.setText( BaseMessages.getString( PKG, "DBProcDialog.Result.Label" ) );
-    props.setLook(wlResult);
+    props.setLook( wlResult );
     FormData fdlResult = new FormData();
     fdlResult.left = new FormAttachment( 0, 0 );
     fdlResult.right = new FormAttachment( middle, -margin );
     fdlResult.top = new FormAttachment( wAutoCommit, margin * 2 );
-    wlResult.setLayoutData(fdlResult);
+    wlResult.setLayoutData( fdlResult );
     wResult = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
@@ -228,22 +256,22 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     fdResult.left = new FormAttachment( middle, 0 );
     fdResult.top = new FormAttachment( wAutoCommit, margin * 2 );
     fdResult.right = new FormAttachment( 100, 0 );
-    wResult.setLayoutData(fdResult);
+    wResult.setLayoutData( fdResult );
 
     // ResultType line
-    Label wlResultType = new Label(shell, SWT.RIGHT);
+    Label wlResultType = new Label( shell, SWT.RIGHT );
     wlResultType.setText( BaseMessages.getString( PKG, "DBProcDialog.ResultType.Label" ) );
-    props.setLook(wlResultType);
+    props.setLook( wlResultType );
     FormData fdlResultType = new FormData();
     fdlResultType.left = new FormAttachment( 0, 0 );
     fdlResultType.right = new FormAttachment( middle, -margin );
     fdlResultType.top = new FormAttachment( wResult, margin );
-    wlResultType.setLayoutData(fdlResultType);
+    wlResultType.setLayoutData( fdlResultType );
     wResultType = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wResultType );
     String[] types = ValueMetaFactory.getValueMetaNames();
-    for (String type : types) {
-      wResultType.add(type);
+    for ( String type : types ) {
+      wResultType.add( type );
     }
     wResultType.select( 0 );
     wResultType.addModifyListener( lsMod );
@@ -251,43 +279,37 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     fdResultType.left = new FormAttachment( middle, 0 );
     fdResultType.top = new FormAttachment( wResult, margin );
     fdResultType.right = new FormAttachment( 100, 0 );
-    wResultType.setLayoutData(fdResultType);
+    wResultType.setLayoutData( fdResultType );
 
-    Label wlFields = new Label(shell, SWT.NONE);
+    Label wlFields = new Label( shell, SWT.NONE );
     wlFields.setText( BaseMessages.getString( PKG, "DBProcDialog.Parameters.Label" ) );
-    props.setLook(wlFields);
+    props.setLook( wlFields );
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wResultType, margin );
-    wlFields.setLayoutData(fdlFields);
+    wlFields.setLayoutData( fdlFields );
 
-    final int FieldsCols = 3;
-    final int FieldsRows = input.getArgument().length;
+    final int nrRows = input.getArgument().length;
 
-    colinf = new ColumnInfo[ FieldsCols ];
-    colinf[ 0 ] =
+    fieldColumns = new ColumnInfo[] {
       new ColumnInfo(
         BaseMessages.getString( PKG, "DBProcDialog.ColumnInfo.Name" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-        new String[] { "" }, false );
-    colinf[ 1 ] =
+        new String[] { "" }, false ),
       new ColumnInfo(
         BaseMessages.getString( PKG, "DBProcDialog.ColumnInfo.Direction" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-        new String[] { "IN", "OUT", "INOUT" } );
-    colinf[ 2 ] =
+        new String[] { "IN", "OUT", "INOUT" } ),
       new ColumnInfo(
         BaseMessages.getString( PKG, "DBProcDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-        ValueMetaFactory.getValueMetaNames() );
-
-    wFields =
-      new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        ValueMetaFactory.getValueMetaNames() ),
+    };
+    wFields = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, fieldColumns, nrRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
-    fdFields.top = new FormAttachment(wlFields, margin );
+    fdFields.top = new FormAttachment( wlFields, margin );
     fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( 100, -50 );
-    wFields.setLayoutData(fdFields);
+    fdFields.bottom = new FormAttachment( wOk, -2 * margin );
+    wFields.setLayoutData( fdFields );
 
     //
     // Search the fields in the background
@@ -300,7 +322,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
-            inputFields.put( row.getValueMeta( i ).getName(), i);
+            inputFields.put( row.getValueMeta( i ).getName(), i );
           }
           setComboBoxes();
         } catch ( HopException e ) {
@@ -310,25 +332,8 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     };
     new Thread( runnable ).start();
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    Button wGet = new Button(shell, SWT.PUSH);
-    wGet.setText( BaseMessages.getString( PKG, "DBProcDialog.GetFields.Button" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel, wGet}, margin, wFields );
 
     // Add listeners
-    lsOk = e -> ok();
-    Listener lsGet = e -> get();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet);
-    wCancel.addListener( SWT.Selection, lsCancel );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
@@ -381,7 +386,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
 
     Const.sortStrings( fieldNames );
-    colinf[ 0 ].setComboValues( fieldNames );
+    fieldColumns[ 0 ].setComboValues( fieldNames );
   }
 
   /**

@@ -118,7 +118,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     props.setLook( wPassAllRows );
     FormData fdUpdate = new FormData();
     fdUpdate.left = new FormAttachment( middle, 0 );
-    fdUpdate.top = new FormAttachment( wTransformName, margin );
+    fdUpdate.top = new FormAttachment( wlPassAllRows, 0, SWT.CENTER );
     fdUpdate.right = new FormAttachment( 100, 0 );
     wPassAllRows.setLayoutData( fdUpdate );
 
@@ -211,7 +211,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     props.setLook( wCompress );
     FormData fdCompress = new FormData();
     fdCompress.left = new FormAttachment( middle, 0 );
-    fdCompress.top = new FormAttachment( wCacheSize, margin * 2 );
+    fdCompress.top = new FormAttachment( wlCompress, 0, SWT.CENTER );
     fdCompress.right = new FormAttachment( 100, 0 );
     wCompress.setLayoutData(fdCompress);
     wCompress.addSelectionListener( new SelectionAdapter() {

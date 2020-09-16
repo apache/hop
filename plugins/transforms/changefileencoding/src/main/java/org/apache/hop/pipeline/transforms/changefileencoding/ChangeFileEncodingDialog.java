@@ -94,6 +94,16 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // Buttons at the very bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.TransformName.Label" ) );
@@ -145,14 +155,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     fdfileName.top = new FormAttachment( wTransformName, margin );
     fdfileName.right = new FormAttachment( 100, -margin );
     wFileName.setLayoutData(fdfileName);
-    wFileName.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
-      }
-
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
-        get();
-      }
-    } );
+    wFileName.addListener( SWT.FocusIn, e->get() );
 
     Label wlSourceEncoding = new Label(wSourceFileGroup, SWT.RIGHT);
     wlSourceEncoding.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.SourceEncoding.Label" ) );
@@ -171,14 +174,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     fdSourceEncoding.top = new FormAttachment( wFileName, margin );
     fdSourceEncoding.right = new FormAttachment( 100, 0 );
     wSourceEncoding.setLayoutData(fdSourceEncoding);
-    wSourceEncoding.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
-      }
-
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
-        setEncodings( wSourceEncoding );
-      }
-    } );
+    wSourceEncoding.addListener( SWT.FocusIn, e-> setEncodings( wSourceEncoding ));
 
     // Add filename to result filenames?
     Label wlSourceAddResult = new Label(wSourceFileGroup, SWT.RIGHT);
@@ -191,11 +187,10 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     wlSourceAddResult.setLayoutData(fdlSourceAddResult);
     wSourceAddResult = new Button(wSourceFileGroup, SWT.CHECK );
     props.setLook( wSourceAddResult );
-    wSourceAddResult
-      .setToolTipText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.AddSourceResult.Tooltip" ) );
+    wSourceAddResult.setToolTipText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.AddSourceResult.Tooltip" ) );
     FormData fdSourceAddResult = new FormData();
     fdSourceAddResult.left = new FormAttachment( middle, 0 );
-    fdSourceAddResult.top = new FormAttachment( wSourceEncoding, margin );
+    fdSourceAddResult.top = new FormAttachment( wlSourceAddResult, 0, SWT.CENTER );
     wSourceAddResult.setLayoutData(fdSourceAddResult);
     wSourceAddResult.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -261,8 +256,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
     wCreateParentFolder = new Button(wTargetFileGroup, SWT.CHECK );
     props.setLook( wCreateParentFolder );
-    wCreateParentFolder
-      .setToolTipText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.CreateParentFolder.Tooltip" ) );
+    wCreateParentFolder.setToolTipText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.CreateParentFolder.Tooltip" ) );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
     fdCreateParentFolder.top = new FormAttachment( wlCreateParentFolder, 0, SWT.CENTER );
@@ -286,14 +280,8 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     fdTargetEncoding.top = new FormAttachment( wCreateParentFolder, margin );
     fdTargetEncoding.right = new FormAttachment( 100, 0 );
     wTargetEncoding.setLayoutData(fdTargetEncoding);
-    wTargetEncoding.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
-      }
+    wTargetEncoding.addListener( SWT.FocusIn, e-> setEncodings( wTargetEncoding ));
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
-        setEncodings( wTargetEncoding );
-      }
-    } );
     // Add filename to result filenames?
     Label wlTargetAddResult = new Label(wTargetFileGroup, SWT.RIGHT);
     wlTargetAddResult.setText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.AddTargetResult.Label" ) );
@@ -309,7 +297,7 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
       .setToolTipText( BaseMessages.getString( PKG, "ChangeFileEncodingDialog.AddTargetResult.Tooltip" ) );
     FormData fdTargetAddResult = new FormData();
     fdTargetAddResult.left = new FormAttachment( middle, 0 );
-    fdTargetAddResult.top = new FormAttachment( wTargetEncoding, margin );
+    fdTargetAddResult.top = new FormAttachment( wlTargetAddResult, 0, SWT.CENTER );
     wTargetAddResult.setLayoutData(fdTargetAddResult);
     wTargetAddResult.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -317,28 +305,15 @@ public class ChangeFileEncodingDialog extends BaseTransformDialog implements ITr
     fdTargetFileGroup.left = new FormAttachment( 0, margin );
     fdTargetFileGroup.top = new FormAttachment(wSourceFileGroup, margin );
     fdTargetFileGroup.right = new FormAttachment( 100, -margin );
+    fdTargetFileGroup.bottom = new FormAttachment(wOk, -2*margin);
     wTargetFileGroup.setLayoutData(fdTargetFileGroup);
 
     // ///////////////////////////////////////////////////////////
     // / END OF TargetFile GROUP
     // ///////////////////////////////////////////////////////////
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] {
-      wOk, wCancel }, margin, wTargetFileGroup);
 
     // Add listeners
-    lsOk = e -> ok();
-
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
