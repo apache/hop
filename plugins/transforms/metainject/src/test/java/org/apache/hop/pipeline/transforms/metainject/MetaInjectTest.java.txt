@@ -127,8 +127,8 @@ public class MetaInjectTest {
     doReturn( Collections.singletonList( stepMeta ) ).when( internalPipelineMeta ).getUsedTransforms();
     ITransformMeta iTransformMeta = mock( ITransformMeta.class );
     doReturn( iTransformMeta ).when( stepMeta ).getTransform();
-//    metaInjectionInterface = mock( StepMetaInjectionInterface.class );
-//    doReturn( metaInjectionInterface ).when( iTransformMeta ).getStepMetaInjectionInterface();
+//    metaInjectionInterface = mock( TransformMetaInjectionInterface.class );
+//    doReturn( metaInjectionInterface ).when( iTransformMeta ).getTransformMetaInjectionInterface();
 
     doReturn( internalPipelineMeta ).when( metaInject ).loadPipelineMeta();
   }

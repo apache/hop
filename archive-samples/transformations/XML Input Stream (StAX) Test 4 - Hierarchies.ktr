@@ -671,7 +671,7 @@ private final static Long ATTRIBUTE=new Long(10);
 private final static String ELEMENT_PRODUCT="Product";
 private final static String ATTR_ID="id";
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException 
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
 {
   Object[] r=getRow();
 

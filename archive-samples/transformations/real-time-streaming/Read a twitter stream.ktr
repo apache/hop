@@ -118,7 +118,7 @@ import org.apache.commons.httpclient.methods.RequestEntity;
 import org.pentaho.di.cluster.HopServerConnectionManager;
 
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
 {
   HttpClient client = SlaveConnectionManager.getInstance().createHttpClient();
   client.setTimeout(10000);

@@ -49,7 +49,7 @@ import java.util.ArrayList;
         image="icon.svg",
         description="FileMetadata.Name.Desc",
         i18nPackageName = "org.apache.hop.pipeline.transforms.filemetadata",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transforms:BaseStep.Category.Transform")
+        categoryDescription = "i18n:org.apache.hop.pipeline.transforms:BaseTransform.Category.Transform")
 public class FileMetadataMeta extends BaseTransformMeta implements ITransformMeta<FileMetadata, FileMetadataData> {
 
 //  public enum DetectionMethod {

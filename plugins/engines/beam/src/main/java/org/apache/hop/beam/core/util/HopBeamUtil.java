@@ -44,8 +44,8 @@ public class HopBeamUtil {
     return transformName+" - OUTPUT";
   }
 
-  public static final String createInfoTupleId(String transformName, String infoStepname){
-    return infoStepname+" - INFO - "+transformName;
+  public static final String createInfoTupleId(String transformName, String infoTransformName){
+    return infoTransformName+" - INFO - "+transformName;
   }
 
   public static final String createMainInputTupleId(String transformName){

@@ -78,8 +78,8 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
   private TextVar wBootstrapServers;
 
   public KafkaProducerOutputDialog( Shell parent, Object in,
-                                    PipelineMeta pipelineMeta, String stepName ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, stepName );
+                                    PipelineMeta pipelineMeta, String TransformName ) {
+    super( parent, (BaseTransformMeta) in, pipelineMeta, TransformName );
     meta = (KafkaProducerOutputMeta) in;
   }
 

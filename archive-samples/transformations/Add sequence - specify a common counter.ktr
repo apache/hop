@@ -429,7 +429,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>If you do a preview on the Result transform you will note that the generated ID is unique.&#xa;If you specify another counter name in either of the sequence generator transforms, you will get duplicates.&#xa;&#xa;Step &#x22;Generate Rows&#x22; does not actually produce output. It creates 1000 empty lines and splits them evenly&#xa;before they reach the two &#x22;Generate ID&#x22; transforms &#x28;transform type &#x22;sequence generator&#x22;&#x29;. Both sequence generators&#xa;do have the same &#x22;Counter name&#x22; &#x28;double click to edit and see the &#x22;Counter name&#x22; value&#x29;. That makes the&#xa;generated ids unique, even though they are produced by two different sequence generators.</note>
+      <note>If you do a preview on the Result transform you will note that the generated ID is unique.&#xa;If you specify another counter name in either of the sequence generator transforms, you will get duplicates.&#xa;&#xa;Transform &#x22;Generate Rows&#x22; does not actually produce output. It creates 1000 empty lines and splits them evenly&#xa;before they reach the two &#x22;Generate ID&#x22; transforms &#x28;transform type &#x22;sequence generator&#x22;&#x29;. Both sequence generators&#xa;do have the same &#x22;Counter name&#x22; &#x28;double click to edit and see the &#x22;Counter name&#x22; value&#x29;. That makes the&#xa;generated ids unique, even though they are produced by two different sequence generators.</note>
       <xloc>32</xloc>
       <yloc>28</yloc>
       <width>663</width>

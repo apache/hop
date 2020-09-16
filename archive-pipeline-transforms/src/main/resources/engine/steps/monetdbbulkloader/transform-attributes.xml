@@ -3,7 +3,7 @@
     <attribute id="CONNECTION">
         <xmlcode>connection</xmlcode>
         <repcode>id_connection</repcode>
-        <description>BaseStepDialog.Connection.Label</description>
+        <description>BaseTransformDialog.Connection.Label</description>
         <tooltip/>
         <valuetype>None</valuetype>
         <parentid/>

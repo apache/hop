@@ -78,10 +78,10 @@ public class TransformBatchTransform extends TransformTransform {
   }
 
   public TransformBatchTransform( List<VariableValue> variableValues, String metastoreJson, List<String> transformPluginClasses, List<String> xpPluginClasses,
-                                  int batchSize, int flushIntervalMs, String transformName, String stepPluginId, String stepMetaInterfaceXml, String inputRowMetaJson, boolean inputStep,
-                                  List<String> targetSteps, List<String> infoSteps, List<String> infoRowMetaJsons, List<PCollectionView<List<HopRow>>> infoCollectionViews ) {
+                                  int batchSize, int flushIntervalMs, String transformName, String stepPluginId, String stepMetaInterfaceXml, String inputRowMetaJson, boolean inputTransform,
+                                  List<String> targetTransforms, List<String> infoTransforms, List<String> infoRowMetaJsons, List<PCollectionView<List<HopRow>>> infoCollectionViews ) {
     super(variableValues, metastoreJson, transformPluginClasses, xpPluginClasses, batchSize, flushIntervalMs, transformName, stepPluginId,
-      stepMetaInterfaceXml, inputRowMetaJson, inputStep, targetSteps, infoSteps, infoRowMetaJsons, infoCollectionViews);
+      stepMetaInterfaceXml, inputRowMetaJson, inputTransform, targetTransforms, infoTransforms, infoRowMetaJsons, infoCollectionViews);
   }
 
   @Override public PCollectionTuple expand( PCollection<HopRow> input ) {
@@ -96,8 +96,8 @@ public class TransformBatchTransform extends TransformTransform {
       };
       List<TupleTag<HopRow>> targetTupleTags = new ArrayList<>();
       TupleTagList targetTupleTagList = null;
-      for ( String targetStep : targetSteps ) {
-        String tupleId = HopBeamUtil.createTargetTupleId( transformName, targetStep );
+      for ( String targetTransform : targetTransforms ) {
+        String tupleId = HopBeamUtil.createTargetTupleId( transformName, targetTransform );
         TupleTag<HopRow> tupleTag = new TupleTag<HopRow>( tupleId ) {
         };
         targetTupleTags.add( tupleTag );
@@ -113,23 +113,23 @@ public class TransformBatchTransform extends TransformTransform {
 
       // Create a new transform function, initializes the transform
       //
-      StepBatchFn stepBatchFn = new StepBatchFn( variableValues, metastoreJson, transformPluginClasses, xpPluginClasses,
-        transformName, stepPluginId, stepMetaInterfaceXml, inputRowMetaJson, inputStep,
-        targetSteps, infoSteps, infoRowMetaJsons );
+      TransformBatchFn stepBatchFn = new TransformBatchFn( variableValues, metastoreJson, transformPluginClasses, xpPluginClasses,
+        transformName, stepPluginId, stepMetaInterfaceXml, inputRowMetaJson, inputTransform,
+        targetTransforms, infoTransforms, infoRowMetaJsons );
 
       // The actual transform functionality
       //
-      ParDo.SingleOutput<HopRow, HopRow> parDoStepFn = ParDo.of( stepBatchFn );
+      ParDo.SingleOutput<HopRow, HopRow> parDoTransformFn = ParDo.of( stepBatchFn );
 
       // Add optional side inputs...
       //
       if ( infoCollectionViews.size() > 0 ) {
-        parDoStepFn = parDoStepFn.withSideInputs( infoCollectionViews );
+        parDoTransformFn = parDoTransformFn.withSideInputs( infoCollectionViews );
       }
 
       // Specify the main output and targeted outputs
       //
-      ParDo.MultiOutput<HopRow, HopRow> multiOutput = parDoStepFn.withOutputTags( mainOutputTupleTag, targetTupleTagList );
+      ParDo.MultiOutput<HopRow, HopRow> multiOutput = parDoTransformFn.withOutputTags( mainOutputTupleTag, targetTupleTagList );
 
       // Apply the multi output parallel do transform function to the main input stream
       //
@@ -148,11 +148,11 @@ public class TransformBatchTransform extends TransformTransform {
 
   }
 
-  private class StepBatchFn extends DoFn<HopRow, HopRow> {
+  private class TransformBatchFn extends DoFn<HopRow, HopRow> {
 
     private static final long serialVersionUID = 95700000000000002L;
 
-    public static final String INJECTOR_STEP_NAME = "_INJECTOR_";
+    public static final String INJECTOR_TRANSFORM_NAME = "_INJECTOR_";
 
     protected List<VariableValue> variableValues;
     protected String metastoreJson;
@@ -162,10 +162,10 @@ public class TransformBatchTransform extends TransformTransform {
     protected String stepPluginId;
     protected String stepMetaInterfaceXml;
     protected String inputRowMetaJson;
-    protected List<String> targetSteps;
-    protected List<String> infoSteps;
+    protected List<String> targetTransforms;
+    protected List<String> infoTransforms;
     protected List<String> infoRowMetaJsons;
-    protected boolean inputStep;
+    protected boolean inputTransform;
     protected boolean initialize;
 
     protected List<PCollection<HopRow>> infoCollections;
@@ -203,16 +203,16 @@ public class TransformBatchTransform extends TransformTransform {
     private transient AtomicLong lastTimerCheck;
     private transient Timer timer;
 
-    public StepBatchFn() {
+    public TransformBatchFn() {
     }
 
 
     // I created a private class because instances of this one need access to infoCollectionViews
     //
 
-    public StepBatchFn( List<VariableValue> variableValues, String metastoreJson, List<String> transformPluginClasses, List<String> xpPluginClasses, String transformName, String stepPluginId,
-                        String stepMetaInterfaceXml, String inputRowMetaJson, boolean inputStep,
-                        List<String> targetSteps, List<String> infoSteps, List<String> infoRowMetaJsons ) {
+    public TransformBatchFn( List<VariableValue> variableValues, String metastoreJson, List<String> transformPluginClasses, List<String> xpPluginClasses, String transformName, String stepPluginId,
+                        String stepMetaInterfaceXml, String inputRowMetaJson, boolean inputTransform,
+                        List<String> targetTransforms, List<String> infoTransforms, List<String> infoRowMetaJsons ) {
       this();
       this.variableValues = variableValues;
       this.metastoreJson = metastoreJson;
@@ -222,9 +222,9 @@ public class TransformBatchTransform extends TransformTransform {
       this.stepPluginId = stepPluginId;
       this.stepMetaInterfaceXml = stepMetaInterfaceXml;
       this.inputRowMetaJson = inputRowMetaJson;
-      this.inputStep = inputStep;
-      this.targetSteps = targetSteps;
-      this.infoSteps = infoSteps;
+      this.inputTransform = inputTransform;
+      this.targetTransforms = targetTransforms;
+      this.infoTransforms = infoTransforms;
       this.infoRowMetaJsons = infoRowMetaJsons;
       this.initialize = true;
     }
@@ -308,34 +308,34 @@ public class TransformBatchTransform extends TransformTransform {
           // Create an Injector transform with the right row layout...
           // This will help all transforms see the row layout statically...
           //
-          TransformMeta mainInjectorStepMeta = null;
-          if ( !inputStep ) {
-            mainInjectorStepMeta = createInjectorStep( pipelineMeta, INJECTOR_STEP_NAME, inputRowMeta, 200, 200 );
+          TransformMeta mainInjectorTransformMeta = null;
+          if ( !inputTransform ) {
+            mainInjectorTransformMeta = createInjectorTransform( pipelineMeta, INJECTOR_TRANSFORM_NAME, inputRowMeta, 200, 200 );
           }
 
           // Our main transform writes to a bunch of targets
           // Add a dummy transform for each one so the transform can target them
           //
           int targetLocationY = 200;
-          List<TransformMeta> targetStepMetas = new ArrayList<>();
-          for ( String targetStep : targetSteps ) {
+          List<TransformMeta> targetTransformMetas = new ArrayList<>();
+          for ( String targetTransform : targetTransforms ) {
             DummyMeta dummyMeta = new DummyMeta();
-            TransformMeta targetStepMeta = new TransformMeta( targetStep, dummyMeta );
-            targetStepMeta.setLocation( 600, targetLocationY );
+            TransformMeta targetTransformMeta = new TransformMeta( targetTransform, dummyMeta );
+            targetTransformMeta.setLocation( 600, targetLocationY );
             targetLocationY += 150;
 
-            targetStepMetas.add( targetStepMeta );
-            pipelineMeta.addTransform( targetStepMeta );
+            targetTransformMetas.add( targetTransformMeta );
+            pipelineMeta.addTransform( targetTransformMeta );
           }
 
           // The transform might read information from info transforms
-          // Steps like "Stream Lookup" or "Validator"
+          // Transforms like "Stream Lookup" or "Validator"
           // They read all the data on input from a side input
           //
           List<List<HopRow>> infoDataSets = new ArrayList<>();
-          List<TransformMeta> infoStepMetas = new ArrayList<>();
-          for ( int i = 0; i < infoSteps.size(); i++ ) {
-            String infoStep = infoSteps.get( i );
+          List<TransformMeta> infoTransformMetas = new ArrayList<>();
+          for ( int i = 0; i < infoTransforms.size(); i++ ) {
+            String infoTransform = infoTransforms.get( i );
             PCollectionView<List<HopRow>> cv = infoCollectionViews.get( i );
 
             // Get the data from the side input, from the info transform(s)
@@ -347,8 +347,8 @@ public class TransformBatchTransform extends TransformTransform {
 
             // Add an Injector transform for every info transform so the transform can read from it
             //
-            TransformMeta infoStepMeta = createInjectorStep( pipelineMeta, infoStep, infoRowMeta, 200, 350 + 150 * i );
-            infoStepMetas.add( infoStepMeta );
+            TransformMeta infoTransformMeta = createInjectorTransform( pipelineMeta, infoTransform, infoRowMeta, 200, 350 + 150 * i );
+            infoTransformMetas.add( infoTransformMeta );
           }
 
           stepCombis = new ArrayList<>();
@@ -367,19 +367,19 @@ public class TransformBatchTransform extends TransformTransform {
           transformMeta.setTransformPluginId( stepPluginId );
           transformMeta.setLocation( 400, 200 );
           pipelineMeta.addTransform( transformMeta );
-          if ( !inputStep ) {
-            pipelineMeta.addPipelineHop( new PipelineHopMeta( mainInjectorStepMeta, transformMeta ) );
+          if ( !inputTransform ) {
+            pipelineMeta.addPipelineHop( new PipelineHopMeta( mainInjectorTransformMeta, transformMeta ) );
           }
           // The target hops as well
           //
-          for ( TransformMeta targetStepMeta : targetStepMetas ) {
-            pipelineMeta.addPipelineHop( new PipelineHopMeta( transformMeta, targetStepMeta ) );
+          for ( TransformMeta targetTransformMeta : targetTransformMetas ) {
+            pipelineMeta.addPipelineHop( new PipelineHopMeta( transformMeta, targetTransformMeta ) );
           }
 
           // And the info hops...
           //
-          for ( TransformMeta infoStepMeta : infoStepMetas ) {
-            pipelineMeta.addPipelineHop( new PipelineHopMeta( infoStepMeta, transformMeta ) );
+          for ( TransformMeta infoTransformMeta : infoTransformMetas ) {
+            pipelineMeta.addPipelineHop( new PipelineHopMeta( infoTransformMeta, transformMeta ) );
           }
 
           iTransformMeta.searchInfoAndTargetTransforms( pipelineMeta.getTransforms() );
@@ -394,19 +394,19 @@ public class TransformBatchTransform extends TransformTransform {
           // Create producers so we can efficiently pass data
           //
           rowProducer = null;
-          if ( !inputStep ) {
-            rowProducer = pipeline.addRowProducer( INJECTOR_STEP_NAME, 0 );
+          if ( !inputTransform ) {
+            rowProducer = pipeline.addRowProducer( INJECTOR_TRANSFORM_NAME, 0 );
           }
           infoRowProducers = new ArrayList<>();
-          for ( String infoStep : infoSteps ) {
-            RowProducer infoRowProducer = pipeline.addRowProducer( infoStep, 0 );
+          for ( String infoTransform : infoTransforms ) {
+            RowProducer infoRowProducer = pipeline.addRowProducer( infoTransform, 0 );
             infoRowProducers.add( infoRowProducer );
           }
 
           // Find the right interfaces for execution later...
           //
-          if ( !inputStep ) {
-            TransformMetaDataCombi injectorCombi = findCombi( pipeline, INJECTOR_STEP_NAME );
+          if ( !inputTransform ) {
+            TransformMetaDataCombi injectorCombi = findCombi( pipeline, INJECTOR_TRANSFORM_NAME );
             stepCombis.add( injectorCombi );
           }
 
@@ -414,7 +414,7 @@ public class TransformBatchTransform extends TransformTransform {
           stepCombis.add( stepCombi );
           outputRowMeta = pipelineMeta.getTransformFields( transformName );
 
-          if ( targetSteps.isEmpty() ) {
+          if ( targetTransforms.isEmpty() ) {
             rowListener = new RowAdapter() {
               @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
                 resultRows.add( row );
@@ -434,12 +434,12 @@ public class TransformBatchTransform extends TransformTransform {
           targetRowMetas = new ArrayList<>();
           targetResultRowsList = new ArrayList<>();
 
-          for ( String targetStep : targetSteps ) {
-            TransformMetaDataCombi targetCombi = findCombi( pipeline, targetStep );
+          for ( String targetTransform : targetTransforms ) {
+            TransformMetaDataCombi targetCombi = findCombi( pipeline, targetTransform );
             stepCombis.add( targetCombi );
             targetRowMetas.add( pipelineMeta.getTransformFields( stepCombi.transformName ) );
 
-            String tupleId = HopBeamUtil.createTargetTupleId( transformName, targetStep );
+            String tupleId = HopBeamUtil.createTargetTupleId( transformName, targetTransform );
             TupleTag<HopRow> tupleTag = new TupleTag<HopRow>( tupleId ) {
             };
             tupleTagList.add( tupleTag );
@@ -478,10 +478,10 @@ public class TransformBatchTransform extends TransformTransform {
           // Copy the info data sets to the info transforms...
           // We do this only once so all subsequent rows can use this.
           //
-          for ( int i = 0; i < infoSteps.size(); i++ ) {
+          for ( int i = 0; i < infoTransforms.size(); i++ ) {
             RowProducer infoRowProducer = infoRowProducers.get( i );
             List<HopRow> infoDataSet = infoDataSets.get( i );
-            TransformMetaDataCombi combi = findCombi( pipeline, infoSteps.get( i ) );
+            TransformMetaDataCombi combi = findCombi( pipeline, infoTransforms.get( i ) );
             IRowMeta infoRowMeta = infoRowMetas.get( i );
 
             // Pass and process the rows in the info transforms
@@ -512,7 +512,7 @@ public class TransformBatchTransform extends TransformTransform {
                   long difference = System.currentTimeMillis() - lastTimerCheck.get();
                   if ( lastTimerCheck.get()<=0 || difference > flushIntervalMs ) {
                     try {
-                      emptyRowBuffer( new StepProcessContext( context ) );
+                      emptyRowBuffer( new TransformProcessContext( context ) );
                     } catch ( Exception e ) {
                       throw new RuntimeException( "Unable to flush row buffer when it got stale after " + difference + " ms", e );
                     }
@@ -546,7 +546,7 @@ public class TransformBatchTransform extends TransformTransform {
 
           synchronized ( rowBuffer ) {
             if ( rowBuffer.size() >= batchSize ) {
-              emptyRowBuffer( new StepProcessContext( context ) );
+              emptyRowBuffer( new TransformProcessContext( context ) );
             }
           }
         }
@@ -563,7 +563,7 @@ public class TransformBatchTransform extends TransformTransform {
         synchronized ( rowBuffer ) {
           if ( !rowBuffer.isEmpty() ) {
             // System.out.println( "Finishing bundle with " + rowBuffer.size() + " rows in the buffer" );
-            emptyRowBuffer( new StepFinishBundleContext( context, batchWindow ) );
+            emptyRowBuffer( new TransformFinishBundleContext( context, batchWindow ) );
           }
         }
       } catch ( Exception e ) {
@@ -608,13 +608,13 @@ public class TransformBatchTransform extends TransformTransform {
         // Empty all the row buffers for another iteration
         //
         resultRows.clear();
-        for ( int t = 0; t < targetSteps.size(); t++ ) {
+        for ( int t = 0; t < targetTransforms.size(); t++ ) {
           targetResultRowsList.get( t ).clear();
         }
 
         // Pass the rows in the rowBuffer to the input RowSet
         //
-        if ( !inputStep ) {
+        if ( !inputTransform ) {
           int bufferSize = buffer.size();
           if ( maxInputBufferSize < bufferSize ) {
             Metrics.counter( "maxInputSize", transformName ).inc( bufferSize - maxInputBufferSize );
@@ -668,7 +668,7 @@ public class TransformBatchTransform extends TransformTransform {
       }
     }
 
-    private TransformMeta createInjectorStep( PipelineMeta pipelineMeta, String injectorStepName, IRowMeta injectorRowMeta, int x, int y ) {
+    private TransformMeta createInjectorTransform( PipelineMeta pipelineMeta, String injectorTransformName, IRowMeta injectorRowMeta, int x, int y ) {
       InjectorMeta injectorMeta = new InjectorMeta();
       injectorMeta.allocate( injectorRowMeta.size() );
       for ( int i = 0; i < injectorRowMeta.size(); i++ ) {
@@ -678,11 +678,11 @@ public class TransformBatchTransform extends TransformTransform {
         injectorMeta.getLength()[ i ] = valueMeta.getLength();
         injectorMeta.getPrecision()[ i ] = valueMeta.getPrecision();
       }
-      TransformMeta injectorStepMeta = new TransformMeta( injectorStepName, injectorMeta );
-      injectorStepMeta.setLocation( x, y );
-      pipelineMeta.addTransform( injectorStepMeta );
+      TransformMeta injectorTransformMeta = new TransformMeta( injectorTransformName, injectorMeta );
+      injectorTransformMeta.setLocation( x, y );
+      pipelineMeta.addTransform( injectorTransformMeta );
 
-      return injectorStepMeta;
+      return injectorTransformMeta;
     }
 
     private TransformMetaDataCombi findCombi( Pipeline pipeline, String transformName ) {
@@ -699,11 +699,11 @@ public class TransformBatchTransform extends TransformTransform {
     void output( TupleTag<T> tupleTag, T output );
   }
 
-  private class StepProcessContext implements TupleOutputContext<HopRow> {
+  private class TransformProcessContext implements TupleOutputContext<HopRow> {
 
     private DoFn.ProcessContext context;
 
-    public StepProcessContext( DoFn.ProcessContext processContext ) {
+    public TransformProcessContext( DoFn.ProcessContext processContext ) {
       this.context = processContext;
     }
 
@@ -712,12 +712,12 @@ public class TransformBatchTransform extends TransformTransform {
     }
   }
 
-  private class StepFinishBundleContext implements TupleOutputContext<HopRow> {
+  private class TransformFinishBundleContext implements TupleOutputContext<HopRow> {
 
     private DoFn.FinishBundleContext context;
     private BoundedWindow batchWindow;
 
-    public StepFinishBundleContext( DoFn.FinishBundleContext context, BoundedWindow batchWindow ) {
+    public TransformFinishBundleContext( DoFn.FinishBundleContext context, BoundedWindow batchWindow ) {
       this.context = context;
       this.batchWindow = batchWindow;
     }

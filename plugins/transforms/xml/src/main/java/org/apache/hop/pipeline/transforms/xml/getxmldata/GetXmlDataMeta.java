@@ -167,7 +167,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
   private String sizeFieldName;
 
   public GetXmlDataMeta() {
-    super(); // allocate BaseStepMeta
+    super(); // allocate BaseTransformMeta
   }
 
   /**
@@ -889,7 +889,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     prunePath = "";
   }
 
-  public void getFields(IRowMeta r, String name, IRowMeta[] info, TransformMeta nextStep,
+  public void getFields(IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {

@@ -53,8 +53,8 @@ public class BeamConst {
 
   public static final String STRING_HOP_BEAM = "Hop Beam";
 
-  public static final String STRING_STEP_FLAG_BATCH = "Batch";
-  public static final String STRING_STEP_FLAG_SINGLE_THREADED = "SingleThreaded";
+  public static final String STRING_TRANSFORM_FLAG_BATCH = "Batch";
+  public static final String STRING_TRANSFORM_FLAG_SINGLE_THREADED = "SingleThreaded";
 
   private static List<String[]> gcpWorkerCodeDescriptions = Arrays.asList(
     new String[] { "n1-standard-1", "Standard machine type with 1 vCPU and 3.75 GB of memory." },

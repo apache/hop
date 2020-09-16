@@ -87,7 +87,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
   private String[] parameterField;
 
   public XsltMeta() {
-    super(); // allocate BaseStepMeta
+    super(); // allocate BaseTransformMeta
   }
 
   /**
@@ -287,7 +287,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
       }
 
     } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "XsltMeta.Exception.UnableToLoadStepInfoFromXML" ), e );
+      throw new HopXmlException( BaseMessages.getString( PKG, "XsltMeta.Exception.UnableToLoadTransformInfoFromXML" ), e );
     }
   }
 
@@ -314,7 +314,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     }
   }
 
-  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep,
+  public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
       IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Output field (String)
     IValueMeta v = new ValueMetaString( space.environmentSubstitute( getResultfieldname() ));
@@ -364,7 +364,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
     if ( prev != null && prev.size() > 0 ) {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XsltMeta.CheckResult.ConnectedStepOK", String.valueOf( prev.size() ) ), stepMeta );
+              "XsltMeta.CheckResult.ConnectedTransformOK", String.valueOf( prev.size() ) ), stepMeta );
       remarks.add( cr );
     } else {
       cr =

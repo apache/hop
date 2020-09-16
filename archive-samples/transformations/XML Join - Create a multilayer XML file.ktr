@@ -430,7 +430,7 @@
   </info>
   <notepads>
     <notepad>
-      <note>This example produces a multi level XML document from one Excel source.&#xa;&#xa;&#xa;The sample  is a redesign of the old sample in Kettle&#x27;s sample folder and makes use &#xa;of the new XML Join Step which allows to add XML structures into an existing XML structure.&#xa;&#xa;The redesign uses 21 transforms instead of the 35 of the orirginal sample.&#xa;</note>
+      <note>This example produces a multi level XML document from one Excel source.&#xa;&#xa;&#xa;The sample  is a redesign of the old sample in Kettle&#x27;s sample folder and makes use &#xa;of the new XML Join Transform which allows to add XML structures into an existing XML structure.&#xa;&#xa;The redesign uses 21 transforms instead of the 35 of the orirginal sample.&#xa;</note>
       <xloc>7</xloc>
       <yloc>2</yloc>
       <width>573</width>
@@ -479,12 +479,12 @@
     </hop>
     <hop>
       <from>xmlOrderList</from>
-      <to>XML Join Step</to>
+      <to>XML Join Transform</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>xmlOrderHeaders</from>
-      <to>XML Join Step</to>
+      <to>XML Join Transform</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -498,33 +498,33 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>XML Join Step</from>
-      <to>XML Join Step 2</to>
+      <from>XML Join Transform</from>
+      <to>XML Join Transform 2</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>xmlOrderHeaderComments</from>
-      <to>XML Join Step 2</to>
+      <to>XML Join Transform 2</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>XML Join Step 2</from>
-      <to>XML Join Step 3</to>
+      <from>XML Join Transform 2</from>
+      <to>XML Join Transform 3</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>xmlOrderLines</from>
-      <to>XML Join Step 3</to>
+      <to>XML Join Transform 3</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>XML Join Step 3</from>
-      <to>XML Join Step 4</to>
+      <from>XML Join Transform 3</from>
+      <to>XML Join Transform 4</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>xmlOrderLineComments</from>
-      <to>XML Join Step 4</to>
+      <to>XML Join Transform 4</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
@@ -548,18 +548,18 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>XML Join Step 4</from>
-      <to>XML Join Step 5</to>
+      <from>XML Join Transform 4</from>
+      <to>XML Join Transform 5</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>XML Join Step 5</from>
+      <from>XML Join Transform 5</from>
       <to>XML File output</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>xmlOrderSubLines</from>
-      <to>XML Join Step 5</to>
+      <to>XML Join Transform 5</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -1615,7 +1615,7 @@
     </transform>
 
   <transform>
-    <name>XML Join Step</name>
+    <name>XML Join Transform</name>
     <type>XMLJoin</type>
     <description/>
     <distribute>Y</distribute>
@@ -1649,7 +1649,7 @@
     </transform>
 
   <transform>
-    <name>XML Join Step 2</name>
+    <name>XML Join Transform 2</name>
     <type>XMLJoin</type>
     <description/>
     <distribute>Y</distribute>
@@ -1660,7 +1660,7 @@
       <schema_name/>
     </partitioning>
     <valueXMLField>xmloutput2</valueXMLField>
-    <targetXMLtransform>XML Join Step</targetXMLtransform>
+    <targetXMLtransform>XML Join Transform</targetXMLtransform>
     <targetXMLfield>xmloutput1</targetXMLfield>
     <sourceXMLtransform>xmlOrderHeaderComments</sourceXMLtransform>
     <sourceXMLfield>xmlOrderHeaderComments</sourceXMLfield>
@@ -1683,7 +1683,7 @@
     </transform>
 
   <transform>
-    <name>XML Join Step 3</name>
+    <name>XML Join Transform 3</name>
     <type>XMLJoin</type>
     <description/>
     <distribute>Y</distribute>
@@ -1694,7 +1694,7 @@
       <schema_name/>
     </partitioning>
     <valueXMLField>xmloutput3</valueXMLField>
-    <targetXMLtransform>XML Join Step 2</targetXMLtransform>
+    <targetXMLtransform>XML Join Transform 2</targetXMLtransform>
     <targetXMLfield>xmloutput2</targetXMLfield>
     <sourceXMLtransform>xmlOrderLines</sourceXMLtransform>
     <sourceXMLfield>xmlOrderLines</sourceXMLfield>
@@ -1717,7 +1717,7 @@
     </transform>
 
   <transform>
-    <name>XML Join Step 4</name>
+    <name>XML Join Transform 4</name>
     <type>XMLJoin</type>
     <description/>
     <distribute>Y</distribute>
@@ -1728,7 +1728,7 @@
       <schema_name/>
     </partitioning>
     <valueXMLField>xmloutput4</valueXMLField>
-    <targetXMLtransform>XML Join Step 3</targetXMLtransform>
+    <targetXMLtransform>XML Join Transform 3</targetXMLtransform>
     <targetXMLfield>xmloutput3</targetXMLfield>
     <sourceXMLtransform>xmlOrderLineComments</sourceXMLtransform>
     <sourceXMLfield>xmlOrderLineComments</sourceXMLfield>
@@ -1751,7 +1751,7 @@
     </transform>
 
   <transform>
-    <name>XML Join Step 5</name>
+    <name>XML Join Transform 5</name>
     <type>XMLJoin</type>
     <description/>
     <distribute>Y</distribute>
@@ -1762,7 +1762,7 @@
       <schema_name/>
     </partitioning>
     <valueXMLField>xmlOutput</valueXMLField>
-    <targetXMLtransform>XML Join Step 4</targetXMLtransform>
+    <targetXMLtransform>XML Join Transform 4</targetXMLtransform>
     <targetXMLfield>xmloutput4</targetXMLfield>
     <sourceXMLtransform>xmlOrderSubLines</sourceXMLtransform>
     <sourceXMLfield>xmlOrderSubLines</sourceXMLfield>

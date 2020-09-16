@@ -524,7 +524,7 @@ import org.apache.hop.core.database.*;
 private DatabaseMeta databaseMeta;
 private Database database;
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
 {
 	Object[] r = getRow();
 	if (r == null) {
@@ -586,7 +586,7 @@ public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws K
 	return true;
 }
 
-public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface transformDataInterface)
+public boolean init(TransformMetaInterface transformMetaInterface, TransformDataInterface transformDataInterface)
 {
     if (!parent.initImpl(transformMetaInterface, transformDataInterface)) {
       return false;
@@ -612,7 +612,7 @@ public boolean init(StepMetaInterface transformMetaInterface, StepDataInterface 
     return true;
 }
 
-public void dispose(StepMetaInterface smi, StepDataInterface sdi)
+public void dispose(TransformMetaInterface smi, TransformDataInterface sdi)
 {
     if (database!=null) {
       database.disconnect();

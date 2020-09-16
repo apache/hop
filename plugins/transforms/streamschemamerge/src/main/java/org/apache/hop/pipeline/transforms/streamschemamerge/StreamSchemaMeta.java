@@ -123,11 +123,11 @@ public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMet
 
     /**
      * Set steps to merge
-     * @param arrayOfSteps Names of steps to merge
+     * @param arrayOfTransforms Names of steps to merge
      */
-    public void setTransformsToMerge(String[] arrayOfSteps) {
+    public void setTransformsToMerge(String[] arrayOfTransforms) {
         transformsToMerge = new ArrayList<String>();
-        Collections.addAll(transformsToMerge, arrayOfSteps);
+        Collections.addAll(transformsToMerge, arrayOfTransforms);
     }
 
     /**
@@ -220,12 +220,12 @@ public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMet
 	 * @param inputRowMeta		the row structure coming in to the transform
 	 * @param name 				the name of the transform making the changes
 	 * @param info				row structures of any info transforms coming in
-	 * @param nextStep			the description of a transform this transform is passing rows to
+	 * @param nextTransform			the description of a transform this transform is passing rows to
 	 * @param space				the variable space for resolving variables
 	 * @param metadataProvider			the metadata provider to optionally read from
 	 */
 	@Override
-	public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep,
+	public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
 						  IVariables space, IHopMetadataProvider metadataProvider) throws HopTransformException {
 
 		/*
@@ -284,15 +284,15 @@ public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMet
 		}
 	}
 
-    public void resetStepIoMeta() {
+    public void resetTransformIoMeta() {
         // Do nothing, don't reset as there is no need to do this.
     }
 
     /**
-     * Has original function of resetStepIoMeta, but we only want to call it when appropriate
+     * Has original function of resetTransformIoMeta, but we only want to call it when appropriate
      */
 /*
-	public void wipeStepIoMeta() {
+	public void wipeTransformIoMeta() {
 		ioMeta = null;
 	}
 */

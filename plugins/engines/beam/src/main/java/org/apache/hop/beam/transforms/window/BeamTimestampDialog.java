@@ -81,7 +81,7 @@ public class BeamTimestampDialog extends BaseTransformDialog implements ITransfo
       fieldNames = new String[] {};
     }
 
-    // Stepname line
+    // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
     props.setLook( wlTransformName );

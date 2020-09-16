@@ -104,7 +104,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Stepname line
+    // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
     props.setLook( wlTransformName );

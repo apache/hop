@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.pipeline.transforms.injector.InjectorMeta;
-import org.apache.hop.pipeline.transforms.xml.RowStepCollector;
+import org.apache.hop.pipeline.transforms.xml.RowTransformCollector;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -203,13 +203,13 @@ public class GetXMLDataTest extends TestCase {
     //
     // create an injector step...
     //
-    String injectorStepname = "injector step";
+    String injectorTransformName = "injector step";
     InjectorMeta im = new InjectorMeta();
 
     // Set the information of the injector.
     String injectorPid = registry.getPluginId( TransformPluginType.class, im );
-    TransformMeta injectorStep = new TransformMeta( injectorPid, injectorStepname, im );
-    transMeta.addTransform( injectorStep );
+    TransformMeta injectorTransform = new TransformMeta( injectorPid, injectorTransformName, im );
+    transMeta.addTransform( injectorTransform );
 
     //
     // Create a Get XML Data step
@@ -218,8 +218,8 @@ public class GetXMLDataTest extends TestCase {
     GetXmlDataMeta gxdm = new GetXmlDataMeta();
 
     String getXMLDataPid = registry.getPluginId( TransformPluginType.class, gxdm );
-    TransformMeta getXMLDataStep = new TransformMeta( getXMLDataPid, getXMLDataName, gxdm );
-    transMeta.addTransform( getXMLDataStep );
+    TransformMeta getXMLDataTransform = new TransformMeta( getXMLDataPid, getXMLDataName, gxdm );
+    transMeta.addTransform( getXMLDataTransform );
 
     GetXmlDataField[] fields = new GetXmlDataField[5];
 
@@ -294,20 +294,20 @@ public class GetXMLDataTest extends TestCase {
     gxdm.setXMLField( "field1" );
     gxdm.setInputFields( fields );
 
-    PipelineHopMeta hi = new PipelineHopMeta( injectorStep, getXMLDataStep );
+    PipelineHopMeta hi = new PipelineHopMeta( injectorTransform, getXMLDataTransform );
     transMeta.addPipelineHop( hi );
 
     //
     // Create a dummy step 1
     //
-    String dummyStepname1 = "dummy step 1";
+    String dummyTransformName1 = "dummy step 1";
     DummyMeta dm1 = new DummyMeta();
 
     String dummyPid1 = registry.getPluginId( TransformPluginType.class, dm1 );
-    TransformMeta dummyStep1 = new TransformMeta( dummyPid1, dummyStepname1, dm1 );
-    transMeta.addTransform( dummyStep1 );
+    TransformMeta dummyTransform1 = new TransformMeta( dummyPid1, dummyTransformName1, dm1 );
+    transMeta.addTransform( dummyTransform1 );
 
-    PipelineHopMeta hi1 = new PipelineHopMeta( getXMLDataStep, dummyStep1 );
+    PipelineHopMeta hi1 = new PipelineHopMeta( getXMLDataTransform, dummyTransform1 );
     transMeta.addPipelineHop( hi1 );
 
     // Now execute the transformation...
@@ -315,11 +315,11 @@ public class GetXMLDataTest extends TestCase {
 
     trans.prepareExecution();
 
-    ITransform si = trans.getTransformInterface( dummyStepname1, 0 );
-    RowStepCollector dummyRc1 = new RowStepCollector();
+    ITransform si = trans.getTransformInterface( dummyTransformName1, 0 );
+    RowTransformCollector dummyRc1 = new RowTransformCollector();
     si.addRowListener( dummyRc1 );
 
-    RowProducer rp = trans.addRowProducer( injectorStepname, 0 );
+    RowProducer rp = trans.addRowProducer( injectorTransformName, 0 );
     trans.startThreads();
 
     // add rows
@@ -355,13 +355,13 @@ public class GetXMLDataTest extends TestCase {
     //
     // create an injector step...
     //
-    String injectorStepname = "injector step";
+    String injectorTransformName = "injector step";
     InjectorMeta im = new InjectorMeta();
 
     // Set the information of the injector.
     String injectorPid = registry.getPluginId( TransformPluginType.class, im );
-    TransformMeta injectorStep = new TransformMeta( injectorPid, injectorStepname, im );
-    transMeta.addTransform( injectorStep );
+    TransformMeta injectorTransform = new TransformMeta( injectorPid, injectorTransformName, im );
+    transMeta.addTransform( injectorTransform );
 
     //
     // Create a Get XML Data step
@@ -370,8 +370,8 @@ public class GetXMLDataTest extends TestCase {
     GetXmlDataMeta gxdm = new GetXmlDataMeta();
 
     String getXMLDataPid = registry.getPluginId( TransformPluginType.class, gxdm );
-    TransformMeta getXMLDataStep = new TransformMeta( getXMLDataPid, getXMLDataName, gxdm );
-    transMeta.addTransform( getXMLDataStep );
+    TransformMeta getXMLDataTransform = new TransformMeta( getXMLDataPid, getXMLDataName, gxdm );
+    transMeta.addTransform( getXMLDataTransform );
 
     GetXmlDataField[] fields = new GetXmlDataField[5];
 
@@ -398,20 +398,20 @@ public class GetXMLDataTest extends TestCase {
     gxdm.setXMLField( "field1" );
     gxdm.setInputFields( fields );
 
-    PipelineHopMeta hi = new PipelineHopMeta( injectorStep, getXMLDataStep );
+    PipelineHopMeta hi = new PipelineHopMeta( injectorTransform, getXMLDataTransform );
     transMeta.addPipelineHop( hi );
 
     //
     // Create a dummy step 1
     //
-    String dummyStepname1 = "dummy step 1";
+    String dummyTransformName1 = "dummy step 1";
     DummyMeta dm1 = new DummyMeta();
 
     String dummyPid1 = registry.getPluginId( TransformPluginType.class, dm1 );
-    TransformMeta dummyStep1 = new TransformMeta( dummyPid1, dummyStepname1, dm1 );
-    transMeta.addTransform( dummyStep1 );
+    TransformMeta dummyTransform1 = new TransformMeta( dummyPid1, dummyTransformName1, dm1 );
+    transMeta.addTransform( dummyTransform1 );
 
-    PipelineHopMeta hi1 = new PipelineHopMeta( getXMLDataStep, dummyStep1 );
+    PipelineHopMeta hi1 = new PipelineHopMeta( getXMLDataTransform, dummyTransform1 );
     transMeta.addPipelineHop( hi1 );
 
     // Now execute the transformation...
@@ -419,11 +419,11 @@ public class GetXMLDataTest extends TestCase {
 
     trans.prepareExecution(  );
 
-    ITransform si = trans.getTransformInterface( dummyStepname1, 0 );
-    RowStepCollector dummyRc1 = new RowStepCollector();
+    ITransform si = trans.getTransformInterface( dummyTransformName1, 0 );
+    RowTransformCollector dummyRc1 = new RowTransformCollector();
     si.addRowListener( dummyRc1 );
 
-    RowProducer rp = trans.addRowProducer( injectorStepname, 0 );
+    RowProducer rp = trans.addRowProducer( injectorTransformName, 0 );
     trans.startThreads();
 
     // add rows
@@ -442,7 +442,7 @@ public class GetXMLDataTest extends TestCase {
     List<RowMetaAndData> goldenImageRows = createResultData1();
 
     GetXmlDataData getXMLDataData = new GetXmlDataData();
-    GetXmlData getXmlData = new GetXmlData( dummyStep1, gxdm, getXMLDataData, 0, transMeta, trans );
+    GetXmlData getXmlData = new GetXmlData( dummyTransform1, gxdm, getXMLDataData, 0, transMeta, trans );
     getXmlData.setVariable( "xml_path", "data/owner" );
     getXmlData.init();
     assertEquals( "${xml_path}", gxdm.getInputFields()[0].getXPath() );

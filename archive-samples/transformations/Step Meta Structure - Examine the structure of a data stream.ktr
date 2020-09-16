@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <pipeline>
   <info>
-    <name>Step Meta Structure - Examine the structure of a data stream</name>
+    <name>Transform Meta Structure - Examine the structure of a data stream</name>
     <description/>
     <extended_description/>
     <trans_version/>
@@ -529,7 +529,7 @@
 
   <transform>
     <name>Metadata structure of incomming stream</name>
-    <type>StepMetastructure</type>
+    <type>TransformMetastructure</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>

@@ -448,7 +448,7 @@
   </order>
   <transform>
     <name>Edi to XML</name>
-    <type>TypeExitEdi2XmlStep</type>
+    <type>TypeExitEdi2XmlTransform</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>

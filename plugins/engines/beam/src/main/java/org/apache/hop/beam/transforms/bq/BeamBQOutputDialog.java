@@ -79,7 +79,7 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
     middle = props.getMiddlePct();
     margin = Const.MARGIN;
 
-    // Stepname line
+    // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
     props.setLook( wlTransformName );

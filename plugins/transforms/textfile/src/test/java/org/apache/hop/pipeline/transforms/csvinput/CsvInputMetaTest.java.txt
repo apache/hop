@@ -44,7 +44,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CsvInputMetaTest implements InitializerInterface<StepMetaInterface> {
+public class CsvInputMetaTest implements InitializerInterface<TransformMetaInterface> {
   LoadSaveTester loadSaveTester;
   Class<CsvInputMeta> testMetaClass = CsvInputMeta.class;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -87,7 +87,7 @@ public class CsvInputMetaTest implements InitializerInterface<StepMetaInterface>
 
   // Call the allocate method on the LoadSaveTester meta class
   @Override
-  public void modify( StepMetaInterface someMeta ) {
+  public void modify( TransformMetaInterface someMeta ) {
     if ( someMeta instanceof CsvInputMeta ) {
       ( (CsvInputMeta) someMeta ).allocate( 5 );
     }

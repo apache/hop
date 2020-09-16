@@ -758,7 +758,7 @@
     </dependency>
 
 
-    <!-- Step plugins -->
+    <!-- Transform plugins -->
 
     <dependency>
       <groupId>org.hop</groupId>

@@ -63,17 +63,17 @@ public class BeamPipelineMetaUtil {
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
-    TransformMeta beamInputStepMeta = new TransformMeta(inputTransformName, beamInputMeta);
-    beamInputStepMeta.setTransformPluginId( "BeamInput" );
-    pipelineMeta.addTransform( beamInputStepMeta );
+    TransformMeta beamInputTransformMeta = new TransformMeta(inputTransformName, beamInputMeta);
+    beamInputTransformMeta.setTransformPluginId( "BeamInput" );
+    pipelineMeta.addTransform( beamInputTransformMeta );
 
 
     // Add a dummy in between to get started...
     //
     DummyMeta dummyPipelineMeta = new DummyMeta();
-    TransformMeta dummyStepMeta = new TransformMeta("Dummy", dummyPipelineMeta);
-    pipelineMeta.addTransform( dummyStepMeta );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( beamInputStepMeta, dummyStepMeta ) );
+    TransformMeta dummyTransformMeta = new TransformMeta("Dummy", dummyPipelineMeta);
+    pipelineMeta.addTransform( dummyTransformMeta );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( beamInputTransformMeta, dummyTransformMeta ) );
 
 
     // Add the output transform
@@ -84,15 +84,15 @@ public class BeamPipelineMetaUtil {
     beamOutputMeta.setFilePrefix( "customers" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
-    TransformMeta beamOutputStepMeta = new TransformMeta(outputTransformName, beamOutputMeta);
-    beamOutputStepMeta.setTransformPluginId( "BeamOutput" );
-    pipelineMeta.addTransform( beamOutputStepMeta );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( dummyStepMeta, beamOutputStepMeta ) );
+    TransformMeta beamOutputTransformMeta = new TransformMeta(outputTransformName, beamOutputMeta);
+    beamOutputTransformMeta.setTransformPluginId( "BeamOutput" );
+    pipelineMeta.addTransform( beamOutputTransformMeta );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( dummyTransformMeta, beamOutputTransformMeta ) );
 
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateBeamGroupByPipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
+  public static final PipelineMeta generateBeamGroupByPipelineMeta( String transname, String inputTransformName, String outputTransformName, IHopMetadataProvider metadataProvider ) throws Exception {
 
     IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
@@ -107,9 +107,9 @@ public class BeamPipelineMetaUtil {
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
-    TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
-    beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
-    pipelineMeta.addTransform( beamInputStepMeta );
+    TransformMeta beamInputTransformMeta = new TransformMeta(inputTransformName, beamInputMeta);
+    beamInputTransformMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
+    pipelineMeta.addTransform( beamInputTransformMeta );
 
 
     // Add a dummy in between to get started...
@@ -126,9 +126,9 @@ public class BeamPipelineMetaUtil {
     memoryGroupByMeta.getSubjectField()[1] = "id";
     memoryGroupByMeta.getAggregateType()[1] = MemoryGroupByMeta.TYPE_GROUP_SUM;
 
-    TransformMeta memoryGroupByStepMeta = new TransformMeta("Group By", memoryGroupByMeta);
-    pipelineMeta.addTransform( memoryGroupByStepMeta );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( beamInputStepMeta, memoryGroupByStepMeta ) );
+    TransformMeta memoryGroupByTransformMeta = new TransformMeta("Group By", memoryGroupByMeta);
+    pipelineMeta.addTransform( memoryGroupByTransformMeta );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( beamInputTransformMeta, memoryGroupByTransformMeta ) );
 
     // Add the output transform
     //
@@ -138,16 +138,16 @@ public class BeamPipelineMetaUtil {
     beamOutputMeta.setFilePrefix( "grouped" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
-    TransformMeta beamOutputStepMeta = new TransformMeta(outputStepname, beamOutputMeta);
-    beamOutputStepMeta.setTransformPluginId( "BeamOutput" );
-    pipelineMeta.addTransform( beamOutputStepMeta );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( memoryGroupByStepMeta, beamOutputStepMeta ) );
+    TransformMeta beamOutputTransformMeta = new TransformMeta(outputTransformName, beamOutputMeta);
+    beamOutputTransformMeta.setTransformPluginId( "BeamOutput" );
+    pipelineMeta.addTransform( beamOutputTransformMeta );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( memoryGroupByTransformMeta, beamOutputTransformMeta ) );
 
     return pipelineMeta;
   }
 
 
-  public static final PipelineMeta generateFilterRowsPipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
+  public static final PipelineMeta generateFilterRowsPipelineMeta( String transname, String inputTransformName, String outputTransformName, IHopMetadataProvider metadataProvider ) throws Exception {
 
     IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
@@ -162,9 +162,9 @@ public class BeamPipelineMetaUtil {
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
-    TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
-    beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
-    pipelineMeta.addTransform( beamInputStepMeta );
+    TransformMeta beamInputTransformMeta = new TransformMeta(inputTransformName, beamInputMeta);
+    beamInputTransformMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
+    pipelineMeta.addTransform( beamInputTransformMeta );
 
 
     // Add 2 add constants transforms A and B
@@ -197,17 +197,17 @@ public class BeamPipelineMetaUtil {
     filter.setFalseTransformName( "B" );
     TransformMeta filterMeta = new TransformMeta("Filter", filter);
     pipelineMeta.addTransform( filterMeta );
-    pipelineMeta.addPipelineHop( new PipelineHopMeta( beamInputStepMeta, filterMeta ) );
+    pipelineMeta.addPipelineHop( new PipelineHopMeta( beamInputTransformMeta, filterMeta ) );
     pipelineMeta.addPipelineHop( new PipelineHopMeta( filterMeta, constantAMeta ) );
     pipelineMeta.addPipelineHop( new PipelineHopMeta( filterMeta, constantBMeta ) );
 
     // Add a dummy behind it all to flatten/merge the data again...
     //
     DummyMeta dummyPipelineMeta = new DummyMeta();
-    TransformMeta dummyStepMeta = new TransformMeta("Flatten", dummyPipelineMeta);
-    pipelineMeta.addTransform( dummyStepMeta );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( constantAMeta, dummyStepMeta ) );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( constantBMeta, dummyStepMeta ) );
+    TransformMeta dummyTransformMeta = new TransformMeta("Flatten", dummyPipelineMeta);
+    pipelineMeta.addTransform( dummyTransformMeta );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( constantAMeta, dummyTransformMeta ) );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( constantBMeta, dummyTransformMeta ) );
 
     // Add the output transform
     //
@@ -217,15 +217,15 @@ public class BeamPipelineMetaUtil {
     beamOutputMeta.setFilePrefix( "filter-test" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
-    TransformMeta beamOutputStepMeta = new TransformMeta(outputStepname, beamOutputMeta);
-    beamOutputStepMeta.setTransformPluginId( "BeamOutput" );
-    pipelineMeta.addTransform( beamOutputStepMeta );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( dummyStepMeta, beamOutputStepMeta ) );
+    TransformMeta beamOutputTransformMeta = new TransformMeta(outputTransformName, beamOutputMeta);
+    beamOutputTransformMeta.setTransformPluginId( "BeamOutput" );
+    pipelineMeta.addTransform( beamOutputTransformMeta );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( dummyTransformMeta, beamOutputTransformMeta ) );
 
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateSwitchCasePipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
+  public static final PipelineMeta generateSwitchCasePipelineMeta( String transname, String inputTransformName, String outputTransformName, IHopMetadataProvider metadataProvider ) throws Exception {
 
     IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
@@ -240,9 +240,9 @@ public class BeamPipelineMetaUtil {
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
-    TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
-    beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
-    pipelineMeta.addTransform( beamInputStepMeta );
+    TransformMeta beamInputTransformMeta = new TransformMeta(inputTransformName, beamInputMeta);
+    beamInputTransformMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
+    pipelineMeta.addTransform( beamInputTransformMeta );
 
 
 
@@ -278,22 +278,22 @@ public class BeamPipelineMetaUtil {
     }
     switchCaseMeta.setDefaultTargetTransformName( stateCodes[stateCodes.length-1]  );
     switchCaseMeta.searchInfoAndTargetTransforms( pipelineMeta.getTransforms() );
-    TransformMeta switchCaseStepMeta = new TransformMeta("Switch/Case", switchCaseMeta);
-    pipelineMeta.addTransform( switchCaseStepMeta );
-    pipelineMeta.addPipelineHop( new PipelineHopMeta( beamInputStepMeta, switchCaseStepMeta ) );
+    TransformMeta switchCaseTransformMeta = new TransformMeta("Switch/Case", switchCaseMeta);
+    pipelineMeta.addTransform( switchCaseTransformMeta );
+    pipelineMeta.addPipelineHop( new PipelineHopMeta( beamInputTransformMeta, switchCaseTransformMeta ) );
 
     for (String stateCode : stateCodes) {
-      pipelineMeta.addPipelineHop( new PipelineHopMeta( switchCaseStepMeta, pipelineMeta.findTransform( stateCode ) ) );
+      pipelineMeta.addPipelineHop( new PipelineHopMeta( switchCaseTransformMeta, pipelineMeta.findTransform( stateCode ) ) );
     }
 
     // Add a dummy behind it all to flatten/merge the data again...
     //
     DummyMeta dummyPipelineMeta = new DummyMeta();
-    TransformMeta dummyStepMeta = new TransformMeta("Flatten", dummyPipelineMeta);
-    pipelineMeta.addTransform( dummyStepMeta );
+    TransformMeta dummyTransformMeta = new TransformMeta("Flatten", dummyPipelineMeta);
+    pipelineMeta.addTransform( dummyTransformMeta );
 
     for (String stateCode : stateCodes) {
-      pipelineMeta.addPipelineHop( new PipelineHopMeta( pipelineMeta.findTransform( stateCode ), dummyStepMeta ) );
+      pipelineMeta.addPipelineHop( new PipelineHopMeta( pipelineMeta.findTransform( stateCode ), dummyTransformMeta ) );
     }
 
     // Add the output transform
@@ -304,16 +304,16 @@ public class BeamPipelineMetaUtil {
     beamOutputMeta.setFilePrefix( "switch-case-test" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
-    TransformMeta beamOutputStepMeta = new TransformMeta(outputStepname, beamOutputMeta);
-    beamOutputStepMeta.setTransformPluginId( "BeamOutput" );
-    pipelineMeta.addTransform( beamOutputStepMeta );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( dummyStepMeta, beamOutputStepMeta ) );
+    TransformMeta beamOutputTransformMeta = new TransformMeta(outputTransformName, beamOutputMeta);
+    beamOutputTransformMeta.setTransformPluginId( "BeamOutput" );
+    pipelineMeta.addTransform( beamOutputTransformMeta );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( dummyTransformMeta, beamOutputTransformMeta ) );
 
     return pipelineMeta;
   }
 
 
-  public static final PipelineMeta generateStreamLookupPipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
+  public static final PipelineMeta generateStreamLookupPipelineMeta( String transname, String inputTransformName, String outputTransformName, IHopMetadataProvider metadataProvider ) throws Exception {
 
     IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
@@ -328,11 +328,11 @@ public class BeamPipelineMetaUtil {
     BeamInputMeta beamInputMeta = new BeamInputMeta();
     beamInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     beamInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
-    TransformMeta beamInputStepMeta = new TransformMeta(inputStepname, beamInputMeta);
-    beamInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
-    pipelineMeta.addTransform( beamInputStepMeta );
+    TransformMeta beamInputTransformMeta = new TransformMeta(inputTransformName, beamInputMeta);
+    beamInputTransformMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
+    pipelineMeta.addTransform( beamInputTransformMeta );
 
-    TransformMeta lookupBeamInputStepMeta = beamInputStepMeta;
+    TransformMeta lookupBeamInputTransformMeta = beamInputTransformMeta;
 
     // Add a Memory Group By transform which will
     MemoryGroupByMeta memoryGroupByMeta = new MemoryGroupByMeta();
@@ -341,9 +341,9 @@ public class BeamPipelineMetaUtil {
     memoryGroupByMeta.getAggregateType()[0] = MemoryGroupByMeta.TYPE_GROUP_COUNT_ALL;
     memoryGroupByMeta.getAggregateField()[0] = "rowsPerState";
     memoryGroupByMeta.getSubjectField()[0] = "id";
-    TransformMeta memoryGroupByStepMeta = new TransformMeta("rowsPerState", memoryGroupByMeta);
-    pipelineMeta.addTransform( memoryGroupByStepMeta );
-    pipelineMeta.addPipelineHop( new PipelineHopMeta( lookupBeamInputStepMeta, memoryGroupByStepMeta ) );
+    TransformMeta memoryGroupByTransformMeta = new TransformMeta("rowsPerState", memoryGroupByMeta);
+    pipelineMeta.addTransform( memoryGroupByTransformMeta );
+    pipelineMeta.addPipelineHop( new PipelineHopMeta( lookupBeamInputTransformMeta, memoryGroupByTransformMeta ) );
 
     // Add a Stream Lookup transform ...
     //
@@ -356,11 +356,11 @@ public class BeamPipelineMetaUtil {
     streamLookupMeta.getValueDefault()[0] = null;
     streamLookupMeta.getValueDefaultType()[0] = IValueMeta.TYPE_INTEGER;
     streamLookupMeta.setMemoryPreservationActive( false );
-    streamLookupMeta.getTransformIOMeta().getInfoStreams().get(0).setTransformMeta( memoryGroupByStepMeta ); // Read from Mem.GroupBy
-    TransformMeta streamLookupStepMeta = new TransformMeta("Stream Lookup", streamLookupMeta);
-    pipelineMeta.addTransform(streamLookupStepMeta);
-    pipelineMeta.addPipelineHop( new PipelineHopMeta( beamInputStepMeta, streamLookupStepMeta ) ); // Main io
-    pipelineMeta.addPipelineHop( new PipelineHopMeta( memoryGroupByStepMeta, streamLookupStepMeta ) ); // info stream
+    streamLookupMeta.getTransformIOMeta().getInfoStreams().get(0).setTransformMeta( memoryGroupByTransformMeta ); // Read from Mem.GroupBy
+    TransformMeta streamLookupTransformMeta = new TransformMeta("Stream Lookup", streamLookupMeta);
+    pipelineMeta.addTransform(streamLookupTransformMeta);
+    pipelineMeta.addPipelineHop( new PipelineHopMeta( beamInputTransformMeta, streamLookupTransformMeta ) ); // Main io
+    pipelineMeta.addPipelineHop( new PipelineHopMeta( memoryGroupByTransformMeta, streamLookupTransformMeta ) ); // info stream
 
     // Add the output transform to write results
     //
@@ -370,15 +370,15 @@ public class BeamPipelineMetaUtil {
     beamOutputMeta.setFilePrefix( "stream-lookup" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
-    TransformMeta beamOutputStepMeta = new TransformMeta(outputStepname, beamOutputMeta);
-    beamOutputStepMeta.setTransformPluginId( "BeamOutput" );
-    pipelineMeta.addTransform( beamOutputStepMeta );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( streamLookupStepMeta, beamOutputStepMeta ) );
+    TransformMeta beamOutputTransformMeta = new TransformMeta(outputTransformName, beamOutputMeta);
+    beamOutputTransformMeta.setTransformPluginId( "BeamOutput" );
+    pipelineMeta.addTransform( beamOutputTransformMeta );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( streamLookupTransformMeta, beamOutputTransformMeta ) );
 
     return pipelineMeta;
   }
 
-  public static final PipelineMeta generateMergeJoinPipelineMeta( String transname, String inputStepname, String outputStepname, IHopMetadataProvider metadataProvider ) throws Exception {
+  public static final PipelineMeta generateMergeJoinPipelineMeta( String transname, String inputTransformName, String outputTransformName, IHopMetadataProvider metadataProvider ) throws Exception {
 
     IHopMetadataSerializer<FileDefinition> serializer = metadataProvider.getSerializer( FileDefinition.class );
     FileDefinition customerFileDefinition = createCustomersInputFileDefinition();
@@ -395,16 +395,16 @@ public class BeamPipelineMetaUtil {
     BeamInputMeta leftInputMeta = new BeamInputMeta();
     leftInputMeta.setInputLocation( PipelineTestBase.INPUT_CUSTOMERS_FILE );
     leftInputMeta.setFileDefinitionName( customerFileDefinition.getName() );
-    TransformMeta leftInputStepMeta = new TransformMeta(inputStepname+" Left", leftInputMeta);
-    leftInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
-    pipelineMeta.addTransform( leftInputStepMeta );
+    TransformMeta leftInputTransformMeta = new TransformMeta(inputTransformName+" Left", leftInputMeta);
+    leftInputTransformMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
+    pipelineMeta.addTransform( leftInputTransformMeta );
 
     BeamInputMeta rightInputMeta = new BeamInputMeta();
     rightInputMeta.setInputLocation( PipelineTestBase.INPUT_STATES_FILE );
     rightInputMeta.setFileDefinitionName( statePopulationFileDefinition.getName() );
-    TransformMeta rightInputStepMeta = new TransformMeta(inputStepname+" Right", rightInputMeta);
-    rightInputStepMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
-    pipelineMeta.addTransform( rightInputStepMeta );
+    TransformMeta rightInputTransformMeta = new TransformMeta(inputTransformName+" Right", rightInputMeta);
+    rightInputTransformMeta.setTransformPluginId( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID );
+    pipelineMeta.addTransform( rightInputTransformMeta );
 
 
     // Add a Merge Join transform
@@ -414,12 +414,12 @@ public class BeamPipelineMetaUtil {
     mergeJoin.getKeyFields1()[0] = "state";
     mergeJoin.getKeyFields2()[0] = "state";
     mergeJoin.setJoinType(MergeJoinMeta.join_types[3] ); // FULL OUTER
-    mergeJoin.getTransformIOMeta().getInfoStreams().get(0).setTransformMeta( leftInputStepMeta );
-    mergeJoin.getTransformIOMeta().getInfoStreams().get(1).setTransformMeta( rightInputStepMeta );
-    TransformMeta mergeJoinStepMeta = new TransformMeta("Merge Join", mergeJoin);
-    pipelineMeta.addTransform( mergeJoinStepMeta );
-    pipelineMeta.addPipelineHop( new PipelineHopMeta( leftInputStepMeta, mergeJoinStepMeta ) );
-    pipelineMeta.addPipelineHop( new PipelineHopMeta( rightInputStepMeta, mergeJoinStepMeta ) );
+    mergeJoin.getTransformIOMeta().getInfoStreams().get(0).setTransformMeta( leftInputTransformMeta );
+    mergeJoin.getTransformIOMeta().getInfoStreams().get(1).setTransformMeta( rightInputTransformMeta );
+    TransformMeta mergeJoinTransformMeta = new TransformMeta("Merge Join", mergeJoin);
+    pipelineMeta.addTransform( mergeJoinTransformMeta );
+    pipelineMeta.addPipelineHop( new PipelineHopMeta( leftInputTransformMeta, mergeJoinTransformMeta ) );
+    pipelineMeta.addPipelineHop( new PipelineHopMeta( rightInputTransformMeta, mergeJoinTransformMeta ) );
 
     // Add the output transform to write results
     //
@@ -429,10 +429,10 @@ public class BeamPipelineMetaUtil {
     beamOutputMeta.setFilePrefix( "merge-join" );
     beamOutputMeta.setFileSuffix( ".csv" );
     beamOutputMeta.setWindowed( false ); // Not yet supported
-    TransformMeta beamOutputStepMeta = new TransformMeta(outputStepname, beamOutputMeta);
-    beamOutputStepMeta.setTransformPluginId( "BeamOutput" );
-    pipelineMeta.addTransform( beamOutputStepMeta );
-    pipelineMeta.addPipelineHop(new PipelineHopMeta( mergeJoinStepMeta, beamOutputStepMeta ) );
+    TransformMeta beamOutputTransformMeta = new TransformMeta(outputTransformName, beamOutputMeta);
+    beamOutputTransformMeta.setTransformPluginId( "BeamOutput" );
+    pipelineMeta.addTransform( beamOutputTransformMeta );
+    pipelineMeta.addPipelineHop(new PipelineHopMeta( mergeJoinTransformMeta, beamOutputTransformMeta ) );
 
     return pipelineMeta;
   }

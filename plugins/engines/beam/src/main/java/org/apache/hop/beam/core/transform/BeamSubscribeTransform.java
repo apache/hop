@@ -149,14 +149,14 @@ public class BeamSubscribeTransform extends PTransform<PBegin, PCollection<HopRo
    *
    * @return value of transformName
    */
-  public String getStepname() {
+  public String getTransformName() {
     return transformName;
   }
 
   /**
    * @param transformName The transformName to set
    */
-  public void setStepname( String transformName ) {
+  public void setTransformName( String transformName ) {
     this.transformName = transformName;
   }
 

@@ -112,7 +112,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
     // Filename line
     wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "XsltDialog.Stepname.Label" ) );
+    wlTransformName.setText( BaseMessages.getString( PKG, "XsltDialog.TransformName.Label" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
@@ -178,7 +178,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
       }
     } );
 
-    // Step Ouput field grouping?
+    // Transform Ouput field grouping?
     // ////////////////////////
     // START OF Output Field GROUP
     //

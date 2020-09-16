@@ -129,11 +129,11 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
   public String sourceFieldName;
 
   public XmlInputStreamMeta() {
-    super(); // allocate BaseStepMeta
+    super(); // allocate BaseTransformMeta
   }
 
   @Override
-  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextStep,
+  public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
       IVariables space, IHopMetadataProvider metadataProvider ) {
     int defaultStringLenNameValueElements =
         Const.toInt( space.environmentSubstitute( defaultStringLen ), new Integer( DEFAULT_STRING_LEN ) );

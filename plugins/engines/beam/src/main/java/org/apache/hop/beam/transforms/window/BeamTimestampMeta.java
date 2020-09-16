@@ -78,7 +78,7 @@ public class BeamTimestampMeta extends BaseTransformMeta implements ITransformMe
     return BeamTimestampDialog.class.getName();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider )
+  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     if ( readingTimestamp ) {

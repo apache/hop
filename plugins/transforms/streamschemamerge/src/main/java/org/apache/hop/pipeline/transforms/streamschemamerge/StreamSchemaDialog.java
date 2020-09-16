@@ -69,7 +69,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 	// the dialog writes the settings to it when confirmed 
 	private StreamSchemaMeta meta;
 
-	private String[] previousSteps;  // steps sending data in to this transform
+	private String[] previousTransforms;  // steps sending data in to this transform
 
 	// text field holding the name of the field to add to the row stream
 	private Label wlTransforms;
@@ -101,7 +101,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 		
 		// Save the value of the changed flag on the meta object. If the user cancels
 		// the dialog, it will be restored to this saved value.
-		// The "changed" variable is inherited from BaseStepDialog
+		// The "changed" variable is inherited from BaseTransformDialog
 		changed = meta.hasChanged();
 
 		// The ModifyListener used on all controls. It will update the meta object to 
@@ -125,7 +125,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 		int middle = props.getMiddlePct();
 		int margin = Const.MARGIN;
 
-		// Stepname line
+		// TransformName line
 		wlTransformName = new Label(shell, SWT.RIGHT);
 		wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
 		props.setLook(wlTransformName);
@@ -167,13 +167,13 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 		final int FieldsCols = 1;
         final int FieldsRows = meta.getNumberOfTransforms();
 
-        previousSteps = pipelineMeta.getPrevTransformNames(transformName);
+        previousTransforms = pipelineMeta.getPrevTransformNames(transformName);
 
 		ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
 		colinf[0] =
 				new ColumnInfo(
-						BaseMessages.getString( PKG, "StreamSchemaStepDialog.TransformName.Column"),
-						ColumnInfo.COLUMN_TYPE_CCOMBO, previousSteps, false );
+						BaseMessages.getString( PKG, "StreamSchemaTransformDialog.TransformName.Column"),
+						ColumnInfo.COLUMN_TYPE_CCOMBO, previousTransforms, false );
 
 		wTransforms =
 				new TableView(
@@ -215,7 +215,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 		});
 		
 		// Set/Restore the dialog size based on last position on screen
-		// The setSize() method is inherited from BaseStepDialog
+		// The setSize() method is inherited from BaseTransformDialog
 		setSize();
 
 		// populate the dialog with the values from the meta object
@@ -232,7 +232,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 		}
 
 		// at this point the dialog has closed, so either ok() or cancel() have been executed
-		// The "stepname" variable is inherited from BaseStepDialog
+		// The "TransformName" variable is inherited from BaseTransformDialog
 		return transformName;
 	}
 	
@@ -245,12 +245,12 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
         if ( meta.getNumberOfTransforms() > 0 ) {
             table.removeAll();
         }
-        String[] stepNames = meta.getTransformsToMerge();
-        for ( int i = 0; i < stepNames.length; i++ ) {
+        String[] TransformNames = meta.getTransformsToMerge();
+        for ( int i = 0; i < TransformNames.length; i++ ) {
             TableItem ti = new TableItem( table, SWT.NONE );
             ti.setText( 0, "" + ( i + 1 ) );
-            if ( stepNames[i] != null ) {
-                ti.setText( 1, stepNames[i] );
+            if ( TransformNames[i] != null ) {
+                ti.setText( 1, TransformNames[i] );
             }
         }
 
@@ -269,10 +269,10 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
         wTransforms.removeAll();
         Table table = wTransforms.table;
 
-        for ( int i = 0; i < previousSteps.length; i++ ) {
+        for ( int i = 0; i < previousTransforms.length; i++ ) {
             TableItem ti = new TableItem( table, SWT.NONE );
             ti.setText( 0, "" + ( i + 1 ) );
-            ti.setText( 1, previousSteps[i] );
+            ti.setText( 1, previousTransforms[i] );
         }
         wTransforms.removeEmptyRows();
         wTransforms.setRowNums();
@@ -284,7 +284,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 	 * Called when the user cancels the dialog.  
 	 */
 	private void cancel() {
-		// The "stepname" variable will be the return value for the open() method. 
+		// The "TransformName" variable will be the return value for the open() method.
 		// Setting to null to indicate that dialog was cancelled.
 		transformName = null;
 		// Restoring original "changed" flag on the met aobject
@@ -295,22 +295,22 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 
     /**
      * Helping method to update meta information when ok is selected
-     * @param inputSteps Names of the steps that are being merged together
+     * @param inputTransforms Names of the steps that are being merged together
      */
-    private void getMeta(String[] inputSteps) {
+    private void getMeta(String[] inputTransforms) {
         List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
 
-        if ( infoStreams.size() == 0 || inputSteps.length < infoStreams.size()) {
-            if ( inputSteps.length != 0 ) {
-//                meta.wipeStepIoMeta();
-                for (String inputStep : inputSteps) {
+        if ( infoStreams.size() == 0 || inputTransforms.length < infoStreams.size()) {
+            if ( inputTransforms.length != 0 ) {
+//                meta.wipeTransformIoMeta();
+                for (String inputTransform : inputTransforms) {
                     meta.getTransformIOMeta().addStream(
                             new Stream(IStream.StreamType.INFO, null, "", StreamIcon.INFO, null));
                 }
                 infoStreams = meta.getTransformIOMeta().getInfoStreams();
             }
-        } else if ( infoStreams.size() < inputSteps.length ) {
-            int requiredStreams = inputSteps.length - infoStreams.size();
+        } else if ( infoStreams.size() < inputTransforms.length ) {
+            int requiredStreams = inputTransforms.length - infoStreams.size();
 
             for ( int i = 0; i < requiredStreams; i++ ) {
                 meta.getTransformIOMeta().addStream(
@@ -339,23 +339,23 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 	 * Called when the user confirms the dialog
 	 */
 	private void ok() {
-		// The "stepname" variable will be the return value for the open() method. 
+		// The "TransformName" variable will be the return value for the open() method.
 		// Setting to step name from the dialog control
 		transformName = wTransformName.getText();
 		// set output field name
 
         // TODO eliminate copying here and copying when placed in meta
         int nrsteps = wTransforms.nrNonEmpty();
-        String[] stepNames = new String[nrsteps];
+        String[] TransformNames = new String[nrsteps];
         for ( int i = 0; i < nrsteps; i++ ) {
             TableItem ti = wTransforms.getNonEmpty(i);
             TransformMeta tm = pipelineMeta.findTransform(ti.getText(1));
             if (tm != null) {
-                stepNames[i] = tm.getName();
+                TransformNames[i] = tm.getName();
             }
         }
-        meta.setTransformsToMerge(stepNames);
-		getMeta(stepNames);
+        meta.setTransformsToMerge(TransformNames);
+		getMeta(TransformNames);
 
 		// close the SWT dialog window
 		dispose();

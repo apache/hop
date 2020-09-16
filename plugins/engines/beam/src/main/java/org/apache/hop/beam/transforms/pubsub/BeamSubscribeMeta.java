@@ -85,7 +85,7 @@ public class BeamSubscribeMeta extends BaseTransformMeta implements ITransformMe
     return BeamSubscribeDialog.class.getName();
   }
 
-  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextStep, IVariables variables, IHopMetadataProvider metadataProvider )
+  @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     if ( StringUtils.isEmpty( messageType ) ) {

@@ -25,7 +25,7 @@
 
   <files-to-avoid>
     <filename>MessagesSourceCrawler.java</filename>
-    <filename>BaseStepMeta.java</filename>
+    <filename>BaseTransformMeta.java</filename>
     <filename>BasePluginType.java</filename>
     <filename>ConfigurationDialog.java</filename>
     <filename>Const.java</filename>

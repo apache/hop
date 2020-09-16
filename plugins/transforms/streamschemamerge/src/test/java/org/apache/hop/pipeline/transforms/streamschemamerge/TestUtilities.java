@@ -143,14 +143,14 @@ public class TestUtilities {
    *
    * @param name
    * @param pluginRegistry
-   * @return StepMata
+   * @return TransformMata
    */
   public static synchronized TransformMeta createDummyTransform(String name, PluginRegistry pluginRegistry ) {
     DummyMeta dummyTransMeta = new DummyMeta();
     String dummyPid = pluginRegistry.getPluginId( TransformPluginType.class, dummyTransMeta );
-    TransformMeta dummyStep = new TransformMeta( dummyPid, name, dummyTransMeta );
+    TransformMeta dummyTransform = new TransformMeta( dummyPid, name, dummyTransMeta );
 
-    return dummyStep;
+    return dummyTransform;
   }
 
   /**
@@ -158,17 +158,17 @@ public class TestUtilities {
    *
    * @param name
    * @param pluginRegistry
-   * @return StepMeta
+   * @return TransformMeta
    */
-  public static synchronized TransformMeta createInjectorStep( String name, PluginRegistry pluginRegistry ) {
+  public static synchronized TransformMeta createInjectorTransform( String name, PluginRegistry pluginRegistry ) {
     // create an injector step...
     InjectorMeta injectorMeta = new InjectorMeta();
 
     // Set the information of the injector
     String injectorPid = pluginRegistry.getPluginId( TransformPluginType.class, injectorMeta );
-    TransformMeta injectorStep = new TransformMeta( injectorPid, name, injectorMeta );
+    TransformMeta injectorTransform = new TransformMeta( injectorPid, name, injectorMeta );
 
-    return injectorStep;
+    return injectorTransform;
   }
 
   /**
@@ -267,7 +267,7 @@ public class TestUtilities {
    * @param pluginRegistry The environment's Kettle plugin registry.
    * @return
    */
-  public static synchronized TransformMeta createSortRowsStep( String name, String[] sortFields, boolean[] ascending,
+  public static synchronized TransformMeta createSortRowsTransform( String name, String[] sortFields, boolean[] ascending,
                                                           boolean[] caseSensitive, String directory, int sortSize,
                                                           PluginRegistry pluginRegistry ) {
 
@@ -278,10 +278,10 @@ public class TestUtilities {
     sortRowsMeta.setCaseSensitive( caseSensitive );
     sortRowsMeta.setDirectory( directory );
 
-    String sortRowsStepPid = pluginRegistry.getPluginId( TransformPluginType.class, sortRowsMeta );
-    TransformMeta sortRowsStep = new TransformMeta( sortRowsStepPid, name, sortRowsMeta );
+    String sortRowsTransformPid = pluginRegistry.getPluginId( TransformPluginType.class, sortRowsMeta );
+    TransformMeta sortRowsTransform = new TransformMeta( sortRowsTransformPid, name, sortRowsMeta );
 
-    return sortRowsStep;
+    return sortRowsTransform;
   }
 
   /**

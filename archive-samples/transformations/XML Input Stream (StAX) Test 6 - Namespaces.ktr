@@ -661,7 +661,7 @@ private int group=1;
 
 private static final int LEVEL_CHECK=2;
 
-public boolean processRow(StepMetaInterface smi, StepDataInterface sdi) throws KettleException 
+public boolean processRow(TransformMetaInterface smi, TransformDataInterface sdi) throws KettleException
 {
   Object[] r=getRow();
 

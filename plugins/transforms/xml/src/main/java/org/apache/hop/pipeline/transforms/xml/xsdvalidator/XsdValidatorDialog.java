@@ -97,7 +97,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
 
     // Filename line
     wlTransformName = new Label( shell, SWT.RIGHT );
-    wlTransformName.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.Stepname.Label" ) );
+    wlTransformName.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.TransformName.Label" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );

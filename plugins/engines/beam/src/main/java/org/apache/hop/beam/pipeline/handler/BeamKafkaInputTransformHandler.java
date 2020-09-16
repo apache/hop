@@ -48,7 +48,7 @@ public class BeamKafkaInputTransformHandler extends BeamBaseTransformHandler imp
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousSteps,
+                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
     // Input handling

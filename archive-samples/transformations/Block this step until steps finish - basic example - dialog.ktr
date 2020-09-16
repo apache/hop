@@ -590,7 +590,7 @@
 
   <transform>
     <name>wait for &#x27;marker&#x27; to finish</name>
-    <type>BlockUntilStepsFinish</type>
+    <type>BlockUntilTransformsFinish</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>

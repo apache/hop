@@ -74,10 +74,10 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 		// Casting to step-specific implementation classes is safe
 
 		data.infoStreams = meta.getTransformIOMeta().getInfoStreams();
-		data.numSteps = data.infoStreams.size();
-		data.rowMetas = new IRowMeta[data.numSteps];
+		data.numTransforms = data.infoStreams.size();
+		data.rowMetas = new IRowMeta[data.numTransforms];
 		data.rowSets = new ArrayList<IRowSet>();
-        data.stepNames = new String[data.numSteps];
+        data.TransformNames = new String[data.numTransforms];
 
 		return super.init();
 	}
@@ -99,7 +99,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
             for (int i = 0; i < data.infoStreams.size(); i++) {
                 data.r = findInputRowSet(data.infoStreams.get(i).getTransformName());
                 data.rowSets.add(data.r);
-                data.stepNames[i] = data.r.getName();
+                data.TransformNames[i] = data.r.getName();
                 // Avoids race condition. Row metas are not available until the previous steps have called
                 // putRowWait at least once
                 while (data.rowMetas[i] == null && !isStopped()) {
@@ -129,8 +129,8 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
 		data.currentName = getInputRowSets().get(getCurrentInputRowSetNr()).getName();
         // because rowsets are removed from the list of rowsets once they're exhausted (in the getRow() method) we
         // need to use the name to find the proper index for our lookups later
-		for (int i = 0; i < data.stepNames.length; i++) {
-			if (data.stepNames[i].equals(data.currentName)) {
+		for (int i = 0; i < data.TransformNames.length; i++) {
+			if (data.TransformNames[i].equals(data.currentName)) {
 				data.streamNum = i;
 				break;
 			}
@@ -176,7 +176,7 @@ public class StreamSchema extends BaseTransform<StreamSchemaMeta, StreamSchemaDa
         data.mapping = null;
         data.currentName = null;
         data.rowMapping = null;
-        data.stepNames = null;
+        data.TransformNames = null;
         data.r = null;
 
         super.dispose();

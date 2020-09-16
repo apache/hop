@@ -56,7 +56,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta inputRowMeta, List<TransformMeta> previousSteps,
+                                         Pipeline pipeline, IRowMeta inputRowMeta, List<TransformMeta> previousTransforms,
                                          PCollection<HopRow> input ) throws HopException {
 
     BeamWindowMeta beamWindowMeta = (BeamWindowMeta) transformMeta.getTransform();
@@ -135,6 +135,6 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
     // Save this in the map
     //
     stepCollectionMap.put( transformMeta.getName(), stepPCollection );
-    log.logBasic( "Handled transform (WINDOW) : " + transformMeta.getName() + ", gets data from " + previousSteps.size() + " previous transform(s)" );
+    log.logBasic( "Handled transform (WINDOW) : " + transformMeta.getName() + ", gets data from " + previousTransforms.size() + " previous transform(s)" );
   }
 }

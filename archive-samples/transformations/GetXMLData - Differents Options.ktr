@@ -1101,7 +1101,7 @@
       </field>
       <field>
         <name>Status</name>
-        <xpath>OutputData&#x2f;Step&#x2f;Status</xpath>
+        <xpath>OutputData&#x2f;Transform&#x2f;Status</xpath>
         <element_type>node</element_type>
         <result_type>valueof</result_type>
         <type>String</type>
@@ -1116,7 +1116,7 @@
       </field>
       <field>
         <name>Error_Message</name>
-        <xpath>OutputData&#x2f;Step&#x2f;Error_Message</xpath>
+        <xpath>OutputData&#x2f;Transform&#x2f;Error_Message</xpath>
         <element_type>node</element_type>
         <result_type>valueof</result_type>
         <type>String</type>
