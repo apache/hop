@@ -118,7 +118,14 @@ public class HopGuiFileDelegate {
         return null;
       }
 
-      typeHandler.saveAs( hopGui.getVariables().environmentSubstitute( filename ) );
+      filename = hopGui.getVariables().environmentSubstitute( filename ); 
+      
+      // Enforce file extension
+      if (!filename.toLowerCase().endsWith(fileType.getDefaultFileExtension())) {
+          filename = filename + fileType.getDefaultFileExtension();
+      }    
+      
+      typeHandler.saveAs( filename );
 
       AuditManager.registerEvent( HopNamespace.getNamespace(), "file", filename, "save" );
 
