@@ -38,6 +38,10 @@ public class EmptyFileType implements IHopFileType {
   @Override public String getName() {
     return null;
   }
+  
+  @Override public String getDefaultFileExtension() {
+	return null;
+  }
 
   @Override public String[] getFilterExtensions() {
     return new String[ 0 ];

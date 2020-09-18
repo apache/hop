@@ -61,6 +61,10 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
   @Override public String getName() {
     return WORKFLOW_FILE_TYPE_DESCRIPTION;
   }
+  
+  @Override public String getDefaultFileExtension() {
+	  	return ".hwf";
+  }
 
   @Override public String[] getFilterExtensions() {
     return new String[] { "*.hwf" };
