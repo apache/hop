@@ -238,7 +238,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     props.setLook( wUpdateBypassed );
     FormData fdUpdateBypassed = new FormData();
     fdUpdateBypassed.left = new FormAttachment( middle, 0 );
-    fdUpdateBypassed.top = new FormAttachment( wCommit, margin );
+    fdUpdateBypassed.top = new FormAttachment( wlUpdateBypassed, 0, SWT.CENTER );
     fdUpdateBypassed.right = new FormAttachment( 100, 0 );
     wUpdateBypassed.setLayoutData(fdUpdateBypassed);
     wUpdateBypassed.addSelectionListener( new ComponentSelectionListener( input ) );
@@ -295,12 +295,14 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     // THE BUTTONS
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
     wSql = new Button( shell, SWT.PUSH );
     wSql.setText( BaseMessages.getString( PKG, "InsertUpdateDialog.SQL.Button" ) );
+    wSql.addListener( SWT.Selection, e -> create() );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel, wSql }, margin, null );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wSql, wCancel }, margin, null );
 
     // THE UPDATE/INSERT TABLE
     Label wlReturn = new Label(shell, SWT.NONE);
@@ -380,17 +382,8 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     new Thread( runnable ).start();
 
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    Listener lsGetLU = e -> getUpdate();
-    lsSql = e -> create();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wGetLU.addListener( SWT.Selection, lsGetLU);
-    wSql.addListener( SWT.Selection, lsSql );
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wGetLU.addListener( SWT.Selection, e -> getUpdate());
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

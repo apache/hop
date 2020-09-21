@@ -426,7 +426,7 @@ public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<Gro
 
   @Override
   public void setDefault() {
-    directory = "%%java.io.tmpdir%%";
+    directory = "${java.io.tmpdir}";
     prefix = "grp";
 
     passAllRows = false;

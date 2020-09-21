@@ -147,15 +147,13 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wTabFolder.setSimple( false );
     wTabFolder.setUnselectedCloseVisible( true );
 
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, lsCancel );
-
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wOk.addListener( SWT.Selection, lsOk );
-
-    positionBottomButtons( shell, new Button[] { wCancel, wOk }, props.getMargin(), null );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, lsCancel );
+    positionBottomButtons( shell, new Button[] { wOk, wCancel }, props.getMargin(), null );
 
     Label bottomSeparator = new Label( shell, SWT.HORIZONTAL | SWT.SEPARATOR );
     props.setLook( bottomSeparator );

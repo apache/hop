@@ -137,6 +137,16 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     shell.setLayout( formLayout );
     shell.setText( getDialogTitle() );
 
+    // Some buttons at the bottom...
+    //
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
+
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "KafkaConsumerInputDialog.TransformName.Label" ) );
     props.setLook( wlTransformName );
@@ -203,16 +213,6 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     fdFilename.top = new FormAttachment( wlFilename, 0, SWT.CENTER );
     wFilename.setLayoutData( fdFilename );
 
-    // Some buttons at the bottom...
-    //
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e -> cancel() );
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e -> ok() );
-
-    positionBottomButtons( shell, new Button[] { wCancel, wOk }, margin, null );
 
     // Start of tabbed display
     //

@@ -126,6 +126,15 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // THE BUTTONS
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
     // TransformName line
     //
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -210,7 +219,7 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wUrlInField );
     FormData fdUrlInField = new FormData();
     fdUrlInField.left = new FormAttachment( middle, 0 );
-    fdUrlInField.top = new FormAttachment( lastControl, margin );
+    fdUrlInField.top = new FormAttachment( wlUrlInField, 0, SWT.CENTER );
     fdUrlInField.right = new FormAttachment( 100, 0 );
     wUrlInField.setLayoutData(fdUrlInField);
     wUrlInField.addSelectionListener( new SelectionAdapter() {
@@ -704,27 +713,12 @@ public class HttpDialog extends BaseTransformDialog implements ITransformDialog 
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
-
     // Add listeners
-    lsOk = e -> ok();
-    Listener lsGet = e -> get();
-    lsCancel = e -> cancel();
-    Listener lsGetHeaders = e -> getHeadersFields();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet);
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wGetHeaders.addListener( SWT.Selection, lsGetHeaders);
+    wGet.addListener( SWT.Selection, e -> get());
+    wGetHeaders.addListener( SWT.Selection, e -> getHeadersFields());
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

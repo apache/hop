@@ -85,11 +85,11 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
   private Label wlInclFilename;
   private Button wInclFilename, wAddResult;
 
-  private Label wlreadUrl;
-  private Button wreadUrl;
+  private Label wlReadUrl;
+  private Button wReadUrl;
 
-  private Label wlremoveSourceField;
-  private Button wremoveSourceField;
+  private Label wlRemoveSourceField;
+  private Button wRemoveSourceField;
   private Label wlInclFilenameField;
   private TextVar wInclFilenameField;
 
@@ -157,6 +157,19 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     middle = props.getMiddlePct();
     margin = Const.MARGIN;
 
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "JsonInputDialog.Button.PreviewRows" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
+
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
@@ -191,22 +204,8 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData( fdTabFolder );
-
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e -> ok() );
-
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "JsonInputDialog.Button.PreviewRows" ) );
-    wPreview.addListener( SWT.Selection, e -> preview() );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e -> cancel() );
-
-    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -501,29 +500,29 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wIgnoreEmptyFile.setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.IgnoreEmptyFile.Tooltip" ) );
     FormData fdIgnoreEmptyFile = new FormData();
     fdIgnoreEmptyFile.left = new FormAttachment( middle, 0 );
-    fdIgnoreEmptyFile.top = new FormAttachment( 0, margin );
+    fdIgnoreEmptyFile.top = new FormAttachment( wlIgnoreEmptyFile, 0, SWT.CENTER );
     wIgnoreEmptyFile.setLayoutData( fdIgnoreEmptyFile );
 
     // do not fail if no files?
-    // do not fail if no files?
-    Label wldoNotFailIfNoFile = new Label( wConf, SWT.RIGHT );
-    wldoNotFailIfNoFile.setText( BaseMessages.getString( PKG, "JsonInputDialog.doNotFailIfNoFile.Label" ) );
-    props.setLook( wldoNotFailIfNoFile );
+    //
+    Label wlDoNotFailIfNoFile = new Label( wConf, SWT.RIGHT );
+    wlDoNotFailIfNoFile.setText( BaseMessages.getString( PKG, "JsonInputDialog.doNotFailIfNoFile.Label" ) );
+    props.setLook( wlDoNotFailIfNoFile );
     FormData fdldoNotFailIfNoFile = new FormData();
     fdldoNotFailIfNoFile.left = new FormAttachment( 0, 0 );
     fdldoNotFailIfNoFile.top = new FormAttachment( wIgnoreEmptyFile, margin );
     fdldoNotFailIfNoFile.right = new FormAttachment( middle, -margin );
-    wldoNotFailIfNoFile.setLayoutData( fdldoNotFailIfNoFile );
+    wlDoNotFailIfNoFile.setLayoutData( fdldoNotFailIfNoFile );
     wdoNotFailIfNoFile = new Button( wConf, SWT.CHECK );
     props.setLook( wdoNotFailIfNoFile );
     wdoNotFailIfNoFile.setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.doNotFailIfNoFile.Tooltip" ) );
     FormData fddoNotFailIfNoFile = new FormData();
     fddoNotFailIfNoFile.left = new FormAttachment( middle, 0 );
-    fddoNotFailIfNoFile.top = new FormAttachment( wIgnoreEmptyFile, margin );
+    fddoNotFailIfNoFile.top = new FormAttachment( wlDoNotFailIfNoFile, 0, SWT.CENTER );
     wdoNotFailIfNoFile.setLayoutData( fddoNotFailIfNoFile );
 
     // Ignore missing path
-    // ignore missing path
+    //
     Label wlIgnoreMissingPath = new Label( wConf, SWT.RIGHT );
     wlIgnoreMissingPath.setText( BaseMessages.getString( PKG, "JsonInputDialog.IgnoreMissingPath.Label" ) );
     props.setLook( wlIgnoreMissingPath );
@@ -542,11 +541,11 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wIgnoreMissingPath.setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.IgnoreMissingPath.Tooltip" ) );
     FormData fdIgnoreMissingPath = new FormData();
     fdIgnoreMissingPath.left = new FormAttachment( middle, 0 );
-    fdIgnoreMissingPath.top = new FormAttachment( wdoNotFailIfNoFile, margin );
+    fdIgnoreMissingPath.top = new FormAttachment( wlIgnoreMissingPath, 0, SWT.CENTER );
     wIgnoreMissingPath.setLayoutData( fdIgnoreMissingPath );
 
     // default path leaf to null
-    // default path leaf to null
+    //
     Label wlDefaultPathLeafToNull = new Label( wConf, SWT.RIGHT );
     wlDefaultPathLeafToNull.setText( BaseMessages.getString( PKG, "JsonInputDialog.DefaultPathLeafToNull.Label" ) );
     props.setLook( wlDefaultPathLeafToNull );
@@ -565,7 +564,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wDefaultPathLeafToNull.setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.DefaultPathLeafToNull.Tooltip" ) );
     FormData fdDefaultPathLeafToNull = new FormData();
     fdDefaultPathLeafToNull.left = new FormAttachment( middle, 0 );
-    fdDefaultPathLeafToNull.top = new FormAttachment( wIgnoreMissingPath, margin );
+    fdDefaultPathLeafToNull.top = new FormAttachment( wlDefaultPathLeafToNull, 0, SWT.CENTER );
     wDefaultPathLeafToNull.setLayoutData( fdDefaultPathLeafToNull );
     // default path leaf to null - end
 
@@ -622,7 +621,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wInclFilename.setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.InclFilename.Tooltip" ) );
     FormData fdInclFilename = new FormData();
     fdInclFilename.left = new FormAttachment( middle, 0 );
-    fdInclFilename.top = new FormAttachment( wConf, 4 * margin );
+    fdInclFilename.top = new FormAttachment( wlInclFilename, 0, SWT.CENTER );
     wInclFilename.setLayoutData( fdInclFilename );
 
     wlInclFilenameField = new Label( wAdditionalFields, SWT.LEFT );
@@ -654,7 +653,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wInclRownum.setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.InclRownum.Tooltip" ) );
     FormData fdRownum = new FormData();
     fdRownum.left = new FormAttachment( middle, 0 );
-    fdRownum.top = new FormAttachment( wInclFilenameField, margin );
+    fdRownum.top = new FormAttachment( wlInclRownum, 0, SWT.CENTER );
     wInclRownum.setLayoutData( fdRownum );
 
     wlInclRownumField = new Label( wAdditionalFields, SWT.RIGHT );
@@ -774,14 +773,13 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlSourceStreamField.top = new FormAttachment( 0, margin );
     fdlSourceStreamField.right = new FormAttachment( middle, -2 * margin );
     wlSourceStreamField.setLayoutData( fdlSourceStreamField );
-
     wSourceStreamField = new Button( wOutputField, SWT.CHECK );
     props.setLook( wSourceStreamField );
     wSourceStreamField
       .setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.wSourceStreamField.Tooltip" ) );
     FormData fdSourceStreamField = new FormData();
     fdSourceStreamField.left = new FormAttachment( middle, -margin );
-    fdSourceStreamField.top = new FormAttachment( 0, margin );
+    fdSourceStreamField.top = new FormAttachment( wlSourceStreamField, 0, SWT.CENTER );
     wSourceStreamField.setLayoutData( fdSourceStreamField );
     SelectionAdapter lsstream = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -827,18 +825,17 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlSourceIsAFile.top = new FormAttachment( wFieldValue, margin );
     fdlSourceIsAFile.right = new FormAttachment( middle, -2 * margin );
     wlSourceIsAFile.setLayoutData( fdlSourceIsAFile );
-
     wSourceIsAFile = new Button( wOutputField, SWT.CHECK );
     props.setLook( wSourceIsAFile );
     wSourceIsAFile.setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.SourceIsAFile.Tooltip" ) );
     FormData fdSourceIsAFile = new FormData();
     fdSourceIsAFile.left = new FormAttachment( middle, -margin );
-    fdSourceIsAFile.top = new FormAttachment( wFieldValue, margin );
+    fdSourceIsAFile.top = new FormAttachment( wlSourceIsAFile, 0, SWT.CENTER );
     wSourceIsAFile.setLayoutData( fdSourceIsAFile );
     SelectionAdapter lssourceisafile = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         if ( wSourceIsAFile.getSelection() ) {
-          wreadUrl.setSelection( false );
+          wReadUrl.setSelection( false );
         }
         input.setChanged();
       }
@@ -846,52 +843,52 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wSourceIsAFile.addSelectionListener( lssourceisafile );
 
     // read url as source ?
-    wlreadUrl = new Label( wOutputField, SWT.RIGHT );
-    wlreadUrl.setText( BaseMessages.getString( PKG, "JsonInputDialog.readUrl.Label" ) );
-    props.setLook( wlreadUrl );
+    wlReadUrl = new Label( wOutputField, SWT.RIGHT );
+    wlReadUrl.setText( BaseMessages.getString( PKG, "JsonInputDialog.readUrl.Label" ) );
+    props.setLook( wlReadUrl );
     FormData fdlreadUrl = new FormData();
     fdlreadUrl.left = new FormAttachment( 0, -margin );
     fdlreadUrl.top = new FormAttachment( wlSourceIsAFile, margin );
     fdlreadUrl.right = new FormAttachment( middle, -2 * margin );
-    wlreadUrl.setLayoutData( fdlreadUrl );
-    wreadUrl = new Button( wOutputField, SWT.CHECK );
-    props.setLook( wreadUrl );
-    wreadUrl.setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.readUrl.Tooltip" ) );
+    wlReadUrl.setLayoutData( fdlreadUrl );
+    wReadUrl = new Button( wOutputField, SWT.CHECK );
+    props.setLook( wReadUrl );
+    wReadUrl.setToolTipText( BaseMessages.getString( PKG, "JsonInputDialog.readUrl.Tooltip" ) );
     FormData fdreadUrl = new FormData();
     fdreadUrl.left = new FormAttachment( middle, -margin );
-    fdreadUrl.top = new FormAttachment( wlSourceIsAFile, margin );
-    wreadUrl.setLayoutData( fdreadUrl );
+    fdreadUrl.top = new FormAttachment( wlReadUrl, 0, SWT.CENTER );
+    wReadUrl.setLayoutData( fdreadUrl );
     SelectionAdapter lsreadurl = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
-        if ( wreadUrl.getSelection() ) {
+        if ( wReadUrl.getSelection() ) {
           wSourceIsAFile.setSelection( false );
         }
         input.setChanged();
       }
     };
-    wreadUrl.addSelectionListener( lsreadurl );
+    wReadUrl.addSelectionListener( lsreadurl );
 
     // Remove source field from output stream?
-    wlremoveSourceField = new Label( wOutputField, SWT.RIGHT );
-    wlremoveSourceField.setText( BaseMessages.getString( PKG, "JsonInputDialog.removeSourceField.Label" ) );
-    props.setLook( wlremoveSourceField );
+    wlRemoveSourceField = new Label( wOutputField, SWT.RIGHT );
+    wlRemoveSourceField.setText( BaseMessages.getString( PKG, "JsonInputDialog.removeSourceField.Label" ) );
+    props.setLook( wlRemoveSourceField );
     FormData fdlremoveSourceField = new FormData();
     fdlremoveSourceField.left = new FormAttachment( 0, -margin );
-    fdlremoveSourceField.top = new FormAttachment( wlreadUrl, margin );
+    fdlremoveSourceField.top = new FormAttachment( wlReadUrl, margin );
     fdlremoveSourceField.right = new FormAttachment( middle, -2 * margin );
-    wlremoveSourceField.setLayoutData( fdlremoveSourceField );
-    wremoveSourceField = new Button( wOutputField, SWT.CHECK );
-    props.setLook( wremoveSourceField );
+    wlRemoveSourceField.setLayoutData( fdlremoveSourceField );
+    wRemoveSourceField = new Button( wOutputField, SWT.CHECK );
+    props.setLook( wRemoveSourceField );
     FormData fdremoveSourceField = new FormData();
     fdremoveSourceField.left = new FormAttachment( middle, -margin );
-    fdremoveSourceField.top = new FormAttachment( wlreadUrl, margin );
-    wremoveSourceField.setLayoutData( fdremoveSourceField );
+    fdremoveSourceField.top = new FormAttachment( wlRemoveSourceField, 0, SWT.CENTER );
+    wRemoveSourceField.setLayoutData( fdremoveSourceField );
     SelectionAdapter removeSourceFieldAdapter = new SelectionAdapter() {
       @Override public void widgetSelected( SelectionEvent selectionEvent ) {
         input.setChanged();
       }
     };
-    wremoveSourceField.addSelectionListener( removeSourceFieldAdapter );
+    wRemoveSourceField.addSelectionListener( removeSourceFieldAdapter );
 
     // ///////////////////////////////////////////////////////////
     // / END OF Output Field GROUP
@@ -1085,10 +1082,10 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wFieldValue.setEnabled( wSourceStreamField.getSelection() );
     wlSourceIsAFile.setEnabled( wSourceStreamField.getSelection() );
     wSourceIsAFile.setEnabled( wSourceStreamField.getSelection() );
-    wlreadUrl.setEnabled( wSourceStreamField.getSelection() );
-    wreadUrl.setEnabled( wSourceStreamField.getSelection() );
-    wlremoveSourceField.setEnabled( wSourceStreamField.getSelection() );
-    wremoveSourceField.setEnabled( wSourceStreamField.getSelection() );
+    wlReadUrl.setEnabled( wSourceStreamField.getSelection() );
+    wReadUrl.setEnabled( wSourceStreamField.getSelection() );
+    wlRemoveSourceField.setEnabled( wSourceStreamField.getSelection() );
+    wRemoveSourceField.setEnabled( wSourceStreamField.getSelection() );
 
     wlFilename.setEnabled( !wSourceStreamField.getSelection() );
     wbbFilename.setEnabled( !wSourceStreamField.getSelection() );
@@ -1167,12 +1164,12 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     wInclFilename.setSelection( in.includeFilename() );
     wInclRownum.setSelection( in.includeRowNumber() );
     wAddResult.setSelection( in.addResultFile() );
-    wreadUrl.setSelection( in.isReadUrl() );
+    wReadUrl.setSelection( in.isReadUrl() );
     wIgnoreEmptyFile.setSelection( in.isIgnoreEmptyFile() );
     wdoNotFailIfNoFile.setSelection( in.isDoNotFailIfNoFile() );
     wIgnoreMissingPath.setSelection( in.isIgnoreMissingPath() );
     wDefaultPathLeafToNull.setSelection( in.isDefaultPathLeafToNull() );
-    wremoveSourceField.setSelection( in.isRemoveSourceField() );
+    wRemoveSourceField.setSelection( in.isRemoveSourceField() );
     wSourceStreamField.setSelection( in.isInFields() );
     wSourceIsAFile.setSelection( in.getIsAFile() );
 
@@ -1309,12 +1306,12 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     in.setAddResultFile( wAddResult.getSelection() );
     in.setIncludeFilename( wInclFilename.getSelection() );
     in.setIncludeRowNumber( wInclRownum.getSelection() );
-    in.setReadUrl( wreadUrl.getSelection() );
+    in.setReadUrl( wReadUrl.getSelection() );
     in.setIgnoreEmptyFile( wIgnoreEmptyFile.getSelection() );
     in.setDoNotFailIfNoFile( wdoNotFailIfNoFile.getSelection() );
     in.setIgnoreMissingPath( wIgnoreMissingPath.getSelection() );
     in.setDefaultPathLeafToNull( wDefaultPathLeafToNull.getSelection() );
-    in.setRemoveSourceField( wremoveSourceField.getSelection() );
+    in.setRemoveSourceField( wRemoveSourceField.getSelection() );
     in.setInFields( wSourceStreamField.getSelection() );
     in.setIsAFile( wSourceIsAFile.getSelection() );
     in.setFieldValue( wFieldValue.getText() );
