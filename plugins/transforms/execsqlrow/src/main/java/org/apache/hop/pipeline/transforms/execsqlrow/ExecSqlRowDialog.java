@@ -150,7 +150,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wSendOneStatement );
     FormData fdSendOneStatement = new FormData();
     fdSendOneStatement.left = new FormAttachment( middle, 0 );
-    fdSendOneStatement.top = new FormAttachment( wCommit, margin );
+    fdSendOneStatement.top = new FormAttachment( wlSendOneStatement, 0, SWT.CENTER );
     fdSendOneStatement.right = new FormAttachment( 100, 0 );
     wSendOneStatement.setLayoutData(fdSendOneStatement);
     wSendOneStatement.addSelectionListener( new SelectionAdapter() {
@@ -203,7 +203,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wSqlFromFile );
     FormData fdSqlFromFile = new FormData();
     fdSqlFromFile.left = new FormAttachment( middle, 0 );
-    fdSqlFromFile.top = new FormAttachment( wSqlFieldName, margin );
+    fdSqlFromFile.top = new FormAttachment( wlSqlFromFile, 0, SWT.CENTER );
     fdSqlFromFile.right = new FormAttachment( 100, 0 );
     wSqlFromFile.setLayoutData(fdSqlFromFile);
     wSqlFromFile.addSelectionListener( new SelectionAdapter() {

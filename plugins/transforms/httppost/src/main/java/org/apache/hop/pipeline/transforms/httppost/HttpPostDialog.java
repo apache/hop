@@ -79,7 +79,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
   private Label wlUrlField;
   private ComboVar wUrlField;
 
-  private ComboVar wrequestEntity;
+  private ComboVar wRequestEntity;
 
   private TextVar wHttpLogin;
 
@@ -139,6 +139,15 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // THE BUTTONS
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -218,7 +227,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     props.setLook( wUrlInField );
     FormData fdUrlInField = new FormData();
     fdUrlInField.left = new FormAttachment( middle, 0 );
-    fdUrlInField.top = new FormAttachment( wUrl, margin );
+    fdUrlInField.top = new FormAttachment( wlUrlInField, 0, SWT.CENTER );
     fdUrlInField.right = new FormAttachment( 100, 0 );
     wUrlInField.setLayoutData(fdUrlInField);
     wUrlInField.addSelectionListener( new SelectionAdapter() {
@@ -291,25 +300,25 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     } );
 
     // requestEntity Line
-    Label wlrequestEntity = new Label(gSettings, SWT.RIGHT);
-    wlrequestEntity.setText( BaseMessages.getString( PKG, "HTTPPOSTDialog.requestEntity.Label" ) );
-    props.setLook(wlrequestEntity);
-    FormData fdlrequestEntity = new FormData();
-    fdlrequestEntity.left = new FormAttachment( 0, 0 );
-    fdlrequestEntity.right = new FormAttachment( middle, -margin );
-    fdlrequestEntity.top = new FormAttachment( wEncoding, margin );
-    wlrequestEntity.setLayoutData(fdlrequestEntity);
+    Label wlRequestEntity = new Label(gSettings, SWT.RIGHT);
+    wlRequestEntity.setText( BaseMessages.getString( PKG, "HTTPPOSTDialog.requestEntity.Label" ) );
+    props.setLook(wlRequestEntity);
+    FormData fdlRequestEntity = new FormData();
+    fdlRequestEntity.left = new FormAttachment( 0, 0 );
+    fdlRequestEntity.right = new FormAttachment( middle, -margin );
+    fdlRequestEntity.top = new FormAttachment( wEncoding, margin );
+    wlRequestEntity.setLayoutData(fdlRequestEntity);
 
-    wrequestEntity = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
-    wrequestEntity.setEditable( true );
-    props.setLook( wrequestEntity );
-    wrequestEntity.addModifyListener( lsMod );
-    FormData fdrequestEntity = new FormData();
-    fdrequestEntity.left = new FormAttachment( middle, 0 );
-    fdrequestEntity.top = new FormAttachment( wEncoding, margin );
-    fdrequestEntity.right = new FormAttachment( 100, -margin );
-    wrequestEntity.setLayoutData(fdrequestEntity);
-    wrequestEntity.addFocusListener( new FocusListener() {
+    wRequestEntity = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
+    wRequestEntity.setEditable( true );
+    props.setLook( wRequestEntity );
+    wRequestEntity.addModifyListener( lsMod );
+    FormData fdRequestEntity = new FormData();
+    fdRequestEntity.left = new FormAttachment( middle, 0 );
+    fdRequestEntity.top = new FormAttachment( wEncoding, margin );
+    fdRequestEntity.right = new FormAttachment( 100, -margin );
+    wRequestEntity.setLayoutData(fdRequestEntity);
+    wRequestEntity.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
 
@@ -329,14 +338,14 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     FormData fdlPostAFile = new FormData();
     fdlPostAFile.left = new FormAttachment( 0, 0 );
     fdlPostAFile.right = new FormAttachment( middle, -margin );
-    fdlPostAFile.top = new FormAttachment( wrequestEntity, margin );
+    fdlPostAFile.top = new FormAttachment( wRequestEntity, margin );
     wlPostAFile.setLayoutData( fdlPostAFile );
     wPostAFile = new Button( gSettings, SWT.CHECK );
     wPostAFile.setToolTipText( BaseMessages.getString( PKG, "HTTPPOSTDialog.postAFile.Tooltip" ) );
     props.setLook( wPostAFile );
     FormData fdPostAFile = new FormData();
     fdPostAFile.left = new FormAttachment( middle, 0 );
-    fdPostAFile.top = new FormAttachment( wrequestEntity, margin );
+    fdPostAFile.top = new FormAttachment( wlPostAFile, 0, SWT.CENTER );
     fdPostAFile.right = new FormAttachment( 100, 0 );
     wPostAFile.setLayoutData( fdPostAFile );
     wPostAFile.addSelectionListener( new ComponentSelectionListener( input ) );
@@ -756,27 +765,13 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> getQueryFields();
-    lsCancel = e -> cancel();
-    Listener lsGetBodyParam = e -> get();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wGetBodyParam.addListener( SWT.Selection, lsGetBodyParam);
+    wGet.addListener( SWT.Selection, e -> getQueryFields() );
+    wGetBodyParam.addListener( SWT.Selection, e -> get());
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -848,11 +843,11 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
         wUrlField.setText( urlfield );
       }
 
-      String request = wrequestEntity.getText();
-      wrequestEntity.removeAll();
-      wrequestEntity.setItems( fieldNames );
+      String request = wRequestEntity.getText();
+      wRequestEntity.removeAll();
+      wRequestEntity.setItems( fieldNames );
       if ( request != null ) {
-        wrequestEntity.setText( request );
+        wRequestEntity.setText( request );
       }
 
       gotPreviousFields = true;
@@ -925,7 +920,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
       wUrlField.setText( input.getUrlField() );
     }
     if ( input.getRequestEntity() != null ) {
-      wrequestEntity.setText( input.getRequestEntity() );
+      wRequestEntity.setText( input.getRequestEntity() );
     }
     if ( input.getFieldName() != null ) {
       wResult.setText( input.getFieldName() );
@@ -1009,7 +1004,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
     input.setUrl( wUrl.getText() );
     input.setUrlField( wUrlField.getText() );
-    input.setRequestEntity( wrequestEntity.getText() );
+    input.setRequestEntity( wRequestEntity.getText() );
     input.setUrlInField( wUrlInField.getSelection() );
     input.setFieldName( wResult.getText() );
     input.setResultCodeFieldName( wResultCode.getText() );

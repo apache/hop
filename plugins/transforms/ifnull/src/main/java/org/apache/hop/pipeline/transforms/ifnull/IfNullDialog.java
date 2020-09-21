@@ -39,11 +39,20 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ITableItemInsertListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -112,21 +121,33 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "IfNullDialog.Shell.Title" ) );
 
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wGet = new Button( shell, SWT.PUSH );
+    wGet.setText( BaseMessages.getString( PKG, "System.Button.GetFields" ) );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "IfNullDialog.TransformName.Label" ) );
     props.setLook( wlTransformName );
     fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment( 0, 0 );
-    fdlTransformName.right = new FormAttachment(middle, -margin );
+    fdlTransformName.right = new FormAttachment( middle, -margin );
     fdlTransformName.top = new FormAttachment( 0, margin );
     wlTransformName.setLayoutData( fdlTransformName );
     wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTransformName.setText( transformName );
     props.setLook( wTransformName );
-    wTransformName.addModifyListener(lsMod);
+    wTransformName.addModifyListener( lsMod );
     fdTransformName = new FormData();
-    fdTransformName.left = new FormAttachment(middle, 0 );
+    fdTransformName.left = new FormAttachment( middle, 0 );
     fdTransformName.top = new FormAttachment( 0, margin );
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
@@ -135,8 +156,8 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     // START OF All Fields GROUP //
     // ///////////////////////////////
 
-    Group wAllFields = new Group(shell, SWT.SHADOW_NONE);
-    props.setLook(wAllFields);
+    Group wAllFields = new Group( shell, SWT.SHADOW_NONE );
+    props.setLook( wAllFields );
     wAllFields.setText( BaseMessages.getString( PKG, "IfNullDialog.AllFields.Label" ) );
 
     FormLayout AllFieldsgroupLayout = new FormLayout();
@@ -145,41 +166,41 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     wAllFields.setLayout( AllFieldsgroupLayout );
 
     // Replace by Value
-    wlReplaceByValue = new Label(wAllFields, SWT.RIGHT );
+    wlReplaceByValue = new Label( wAllFields, SWT.RIGHT );
     wlReplaceByValue.setText( BaseMessages.getString( PKG, "IfNullDialog.ReplaceByValue.Label" ) );
     props.setLook( wlReplaceByValue );
     FormData fdlReplaceByValue = new FormData();
     fdlReplaceByValue.left = new FormAttachment( 0, 0 );
-    fdlReplaceByValue.right = new FormAttachment(middle, -margin );
+    fdlReplaceByValue.right = new FormAttachment( middle, -margin );
     fdlReplaceByValue.top = new FormAttachment( wTransformName, margin * 2 );
-    wlReplaceByValue.setLayoutData(fdlReplaceByValue);
+    wlReplaceByValue.setLayoutData( fdlReplaceByValue );
 
     wReplaceByValue = new TextVar( pipelineMeta, wAllFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReplaceByValue.setToolTipText( BaseMessages.getString( PKG, "IfNullDialog.ReplaceByValue.Tooltip" ) );
     props.setLook( wReplaceByValue );
     FormData fdReplaceByValue = new FormData();
-    fdReplaceByValue.left = new FormAttachment(middle, 0 );
+    fdReplaceByValue.left = new FormAttachment( middle, 0 );
     fdReplaceByValue.top = new FormAttachment( wTransformName, 2 * margin );
     fdReplaceByValue.right = new FormAttachment( 100, 0 );
-    wReplaceByValue.setLayoutData(fdReplaceByValue);
+    wReplaceByValue.setLayoutData( fdReplaceByValue );
 
     // SetEmptyStringAll line
-    wlSetEmptyStringAll = new Label(wAllFields, SWT.RIGHT );
+    wlSetEmptyStringAll = new Label( wAllFields, SWT.RIGHT );
     wlSetEmptyStringAll.setText( BaseMessages.getString( PKG, "IfNullDialog.SetEmptyStringAll.Label" ) );
     props.setLook( wlSetEmptyStringAll );
     FormData fdlSetEmptyStringAll = new FormData();
     fdlSetEmptyStringAll.left = new FormAttachment( 0, 0 );
     fdlSetEmptyStringAll.top = new FormAttachment( wReplaceByValue, margin );
-    fdlSetEmptyStringAll.right = new FormAttachment(middle, -margin );
-    wlSetEmptyStringAll.setLayoutData(fdlSetEmptyStringAll);
-    wSetEmptyStringAll = new Button(wAllFields, SWT.CHECK );
+    fdlSetEmptyStringAll.right = new FormAttachment( middle, -margin );
+    wlSetEmptyStringAll.setLayoutData( fdlSetEmptyStringAll );
+    wSetEmptyStringAll = new Button( wAllFields, SWT.CHECK );
     wSetEmptyStringAll.setToolTipText( BaseMessages.getString( PKG, "IfNullDialog.SetEmptyStringAll.Tooltip" ) );
     props.setLook( wSetEmptyStringAll );
     FormData fdSetEmptyStringAll = new FormData();
-    fdSetEmptyStringAll.left = new FormAttachment(middle, 0 );
-    fdSetEmptyStringAll.top = new FormAttachment( wReplaceByValue, margin );
+    fdSetEmptyStringAll.left = new FormAttachment( middle, 0 );
+    fdSetEmptyStringAll.top = new FormAttachment( wlSetEmptyStringAll, 0, SWT.CENTER );
     fdSetEmptyStringAll.right = new FormAttachment( 100, 0 );
-    wSetEmptyStringAll.setLayoutData(fdSetEmptyStringAll);
+    wSetEmptyStringAll.setLayoutData( fdSetEmptyStringAll );
     wSetEmptyStringAll.addSelectionListener( new SelectionAdapter() {
 
       public void widgetSelected( SelectionEvent e ) {
@@ -188,70 +209,70 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
       }
     } );
 
-    wlMask = new Label(wAllFields, SWT.RIGHT );
+    wlMask = new Label( wAllFields, SWT.RIGHT );
     wlMask.setText( BaseMessages.getString( PKG, "IfNullDialog.Mask.Label" ) );
     props.setLook( wlMask );
     FormData fdlMask = new FormData();
     fdlMask.left = new FormAttachment( 0, 0 );
     fdlMask.top = new FormAttachment( wSetEmptyStringAll, margin );
-    fdlMask.right = new FormAttachment(middle, -margin );
-    wlMask.setLayoutData(fdlMask);
-    wMask = new CCombo(wAllFields, SWT.BORDER | SWT.READ_ONLY );
+    fdlMask.right = new FormAttachment( middle, -margin );
+    wlMask.setLayoutData( fdlMask );
+    wMask = new CCombo( wAllFields, SWT.BORDER | SWT.READ_ONLY );
     wMask.setEditable( true );
     wMask.setItems( Const.getDateFormats() );
     props.setLook( wMask );
-    wMask.addModifyListener(lsMod);
+    wMask.addModifyListener( lsMod );
     FormData fdMask = new FormData();
-    fdMask.left = new FormAttachment(middle, 0 );
+    fdMask.left = new FormAttachment( middle, 0 );
     fdMask.top = new FormAttachment( wSetEmptyStringAll, margin );
     fdMask.right = new FormAttachment( 100, 0 );
-    wMask.setLayoutData(fdMask);
+    wMask.setLayoutData( fdMask );
 
     FormData fdAllFields = new FormData();
     fdAllFields.left = new FormAttachment( 0, margin );
     fdAllFields.top = new FormAttachment( wTransformName, margin );
     fdAllFields.right = new FormAttachment( 100, -margin );
-    wAllFields.setLayoutData(fdAllFields);
+    wAllFields.setLayoutData( fdAllFields );
 
     // ///////////////////////////////////////////////////////////
     // / END OF All Fields GROUP
     // ///////////////////////////////////////////////////////////
 
     // Select fields?
-    Label wlSelectFields = new Label(shell, SWT.RIGHT);
+    Label wlSelectFields = new Label( shell, SWT.RIGHT );
     wlSelectFields.setText( BaseMessages.getString( PKG, "IfNullDialog.SelectFields.Label" ) );
-    props.setLook(wlSelectFields);
+    props.setLook( wlSelectFields );
     FormData fdlSelectFields = new FormData();
     fdlSelectFields.left = new FormAttachment( 0, 0 );
-    fdlSelectFields.top = new FormAttachment(wAllFields, margin );
-    fdlSelectFields.right = new FormAttachment(middle, -margin );
-    wlSelectFields.setLayoutData(fdlSelectFields);
+    fdlSelectFields.top = new FormAttachment( wAllFields, margin );
+    fdlSelectFields.right = new FormAttachment( middle, -margin );
+    wlSelectFields.setLayoutData( fdlSelectFields );
     wSelectFields = new Button( shell, SWT.CHECK );
     wSelectFields.setToolTipText( BaseMessages.getString( PKG, "IfNullDialog.SelectFields.Tooltip" ) );
     props.setLook( wSelectFields );
     FormData fdSelectFields = new FormData();
-    fdSelectFields.left = new FormAttachment(middle, 0 );
-    fdSelectFields.top = new FormAttachment(wAllFields, margin );
+    fdSelectFields.left = new FormAttachment( middle, 0 );
+    fdSelectFields.top = new FormAttachment( wlSelectFields, 0, SWT.CENTER );
     fdSelectFields.right = new FormAttachment( 100, 0 );
-    wSelectFields.setLayoutData(fdSelectFields);
+    wSelectFields.setLayoutData( fdSelectFields );
 
     // Select type?
-    Label wlSelectValuesType = new Label(shell, SWT.RIGHT);
+    Label wlSelectValuesType = new Label( shell, SWT.RIGHT );
     wlSelectValuesType.setText( BaseMessages.getString( PKG, "IfNullDialog.SelectValuesType.Label" ) );
-    props.setLook(wlSelectValuesType);
+    props.setLook( wlSelectValuesType );
     FormData fdlSelectValuesType = new FormData();
     fdlSelectValuesType.left = new FormAttachment( 0, 0 );
     fdlSelectValuesType.top = new FormAttachment( wSelectFields, margin );
-    fdlSelectValuesType.right = new FormAttachment(middle, -margin );
-    wlSelectValuesType.setLayoutData(fdlSelectValuesType);
+    fdlSelectValuesType.right = new FormAttachment( middle, -margin );
+    wlSelectValuesType.setLayoutData( fdlSelectValuesType );
     wSelectValuesType = new Button( shell, SWT.CHECK );
     wSelectValuesType.setToolTipText( BaseMessages.getString( PKG, "IfNullDialog.SelectValuesType.Tooltip" ) );
     props.setLook( wSelectValuesType );
     FormData fdSelectValuesType = new FormData();
-    fdSelectValuesType.left = new FormAttachment(middle, 0 );
-    fdSelectValuesType.top = new FormAttachment( wSelectFields, margin );
+    fdSelectValuesType.left = new FormAttachment( middle, 0 );
+    fdSelectValuesType.top = new FormAttachment( wlSelectValuesType, 0, SWT.CENTER );
     fdSelectValuesType.right = new FormAttachment( 100, 0 );
-    wSelectValuesType.setLayoutData(fdSelectValuesType);
+    wSelectValuesType.setLayoutData( fdSelectValuesType );
 
     wlValueTypes = new Label( shell, SWT.NONE );
     wlValueTypes.setText( BaseMessages.getString( PKG, "IfNullDialog.ValueTypes.Label" ) );
@@ -259,101 +280,68 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     FormData fdlValueTypes = new FormData();
     fdlValueTypes.left = new FormAttachment( 0, 0 );
     fdlValueTypes.top = new FormAttachment( wSelectValuesType, margin );
-    wlValueTypes.setLayoutData(fdlValueTypes);
+    wlValueTypes.setLayoutData( fdlValueTypes );
 
     int valueTypesRows = input.getValueTypes().length;
-    int FieldsCols = 4;
 
-    ColumnInfo[] colval = new ColumnInfo[ FieldsCols ];
-    colval[ 0 ] =
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "IfNullDialog.ValueType.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-        IValueMeta.typeCodes );
-    colval[ 1 ] =
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "IfNullDialog.Value.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
-    colval[ 2 ] =
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "IfNullDialog.Value.ConversionMask" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
-        Const.getDateFormats() );
-    colval[ 3 ] =
-      new ColumnInfo(
-        BaseMessages.getString( PKG, "IfNullDialog.Value.SetEmptyString" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO,
-        new String[] {
-          BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } );
-
+    ColumnInfo[] colval = new ColumnInfo[] {
+      new ColumnInfo( BaseMessages.getString( PKG, "IfNullDialog.ValueType.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, IValueMeta.typeCodes ),
+      new ColumnInfo( BaseMessages.getString( PKG, "IfNullDialog.Value.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+      new ColumnInfo( BaseMessages.getString( PKG, "IfNullDialog.Value.ConversionMask" ), ColumnInfo.COLUMN_TYPE_CCOMBO, Const.getDateFormats() ),
+      new ColumnInfo( BaseMessages.getString( PKG, "IfNullDialog.Value.SetEmptyString" ), ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
+        BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } )
+    };
     colval[ 1 ].setUsingVariables( true );
-    wValueTypes =
-      new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colval, valueTypesRows, oldlsMod, props );
 
+    wValueTypes = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colval, valueTypesRows, oldlsMod, props );
     FormData fdValueTypes = new FormData();
     fdValueTypes.left = new FormAttachment( 0, 0 );
     fdValueTypes.top = new FormAttachment( wlValueTypes, margin );
     fdValueTypes.right = new FormAttachment( 100, 0 );
-    fdValueTypes.bottom = new FormAttachment( wlValueTypes, 190 );
-
-    wValueTypes.setLayoutData(fdValueTypes);
+    fdValueTypes.bottom = new FormAttachment( wlValueTypes, (int) ( 190 * props.getZoomFactor() ) );
+    wValueTypes.setLayoutData( fdValueTypes );
 
     getFirstData();
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wGet = new Button( shell, SWT.PUSH );
-    wGet.setText( BaseMessages.getString( PKG, "System.Button.GetFields" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     addFields();
 
-    wSelectValuesType.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
+    wSelectValuesType.addListener( SWT.Selection, e -> {
         activeSelectValuesType();
         input.setChanged();
       }
-    } );
+    );
 
-    wSelectFields.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        activeSelectFields();
-        input.setChanged();
-      }
+    wSelectFields.addListener( SWT.Selection, e -> {
+      activeSelectFields();
+      input.setChanged();
     } );
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsGet = e -> get();
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
 
     lsDef = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
-        ok();
+        public void widgetDefaultSelected( SelectionEvent e ) {
+          ok();
+        }
       }
-    };
+
+    ;
 
     wTransformName.addSelectionListener( lsDef );
 
     // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
+    shell.addListener( SWT.Close, e -> cancel() );
 
     // Set the shell size, based upon previous time...
     setSize();
 
     getData();
+
     enableSetEmptyStringAll();
+
     // setComboValues();
     activeSelectFields();
+
     activeSelectValuesType();
     input.setChanged( changed );
 
@@ -377,7 +365,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wValueTypes, margin );
-    wlFields.setLayoutData(fdlFields);
+    wlFields.setLayoutData( fdlFields );
 
     colinf[ 0 ] =
       new ColumnInfo(
@@ -408,7 +396,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     fdFields.right = new FormAttachment( 100, 0 );
     fdFields.bottom = new FormAttachment( wOk, -2 * margin );
 
-    wFields.setLayoutData(fdFields);
+    wFields.setLayoutData( fdFields );
 
     setComboValues();
     fieldColumns.add( colinf[ 0 ] );
@@ -476,9 +464,9 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
       if ( prevTransformFieldNames != null ) {
         Arrays.sort( prevTransformFieldNames );
 
-        for (ColumnInfo colInfo : fieldColumns) {
-          if (colInfo != null) {
-            colInfo.setComboValues(prevTransformFieldNames);
+        for ( ColumnInfo colInfo : fieldColumns ) {
+          if ( colInfo != null ) {
+            colInfo.setComboValues( prevTransformFieldNames );
           }
         }
       }

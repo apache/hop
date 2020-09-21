@@ -41,14 +41,28 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.IntStream;
 
 public class GroupByDialog extends BaseTransformDialog implements ITransformDialog {
@@ -183,7 +197,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wAllRows );
     fdAllRows = new FormData();
     fdAllRows.left = new FormAttachment( middle, 0 );
-    fdAllRows.top = new FormAttachment( wTransformName, margin );
+    fdAllRows.top = new FormAttachment( wlAllRows, 0, SWT.CENTER );
     fdAllRows.right = new FormAttachment( 100, 0 );
     wAllRows.setLayoutData( fdAllRows );
     wAllRows.addSelectionListener( new SelectionAdapter() {
@@ -265,7 +279,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wAddLineNr );
     fdAddLineNr = new FormData();
     fdAddLineNr.left = new FormAttachment( middle, 0 );
-    fdAddLineNr.top = new FormAttachment( wPrefix, margin );
+    fdAddLineNr.top = new FormAttachment( wlAddLineNr, 0, SWT.CENTER );
     fdAddLineNr.right = new FormAttachment( 100, 0 );
     wAddLineNr.setLayoutData( fdAddLineNr );
     wAddLineNr.addSelectionListener( new SelectionAdapter() {
@@ -310,7 +324,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wAlwaysAddResult );
     fdAlwaysAddResult = new FormData();
     fdAlwaysAddResult.left = new FormAttachment( middle, 0 );
-    fdAlwaysAddResult.top = new FormAttachment( wLineNrField, margin );
+    fdAlwaysAddResult.top = new FormAttachment( wlAlwaysAddResult, 0, SWT.CENTER );
     fdAlwaysAddResult.right = new FormAttachment( 100, 0 );
     wAlwaysAddResult.setLayoutData( fdAlwaysAddResult );
 
@@ -331,11 +345,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
         BaseMessages.getString( PKG, "GroupByDialog.ColumnInfo.GroupField" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
 
-    wGroup =
-      new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
-        nrKeyRows, lsMod, props );
-
+    wGroup = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey, nrKeyRows, lsMod, props );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "GroupByDialog.GetFields.Button" ) );
     fdGet = new FormData();
@@ -347,7 +357,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     fdGroup.left = new FormAttachment( 0, 0 );
     fdGroup.top = new FormAttachment( wlGroup, margin );
     fdGroup.right = new FormAttachment( wGet, -margin );
-    fdGroup.bottom = new FormAttachment( 45, 0 );
+    fdGroup.bottom = new FormAttachment( 55, 0 );
     wGroup.setLayoutData( fdGroup );
 
     // THE Aggregate fields
