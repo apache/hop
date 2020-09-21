@@ -85,6 +85,15 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // THE BUTTONS
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "FileExistsDialog.TransformName.Label" ) );
@@ -169,7 +178,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "FileExistsDialog.AddResult.Tooltip" ) );
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wResult, margin );
+    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData(fdAddResult);
     wAddResult.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -200,7 +209,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     wInclFileType.setToolTipText( BaseMessages.getString( PKG, "FileExistsDialog.InclFileType.Tooltip" ) );
     FormData fdInclFileType = new FormData();
     fdInclFileType.left = new FormAttachment( middle, 0 );
-    fdInclFileType.top = new FormAttachment( wResult, margin );
+    fdInclFileType.top = new FormAttachment( wlInclFileType, 0, SWT.CENTER );
     wInclFileType.setLayoutData(fdInclFileType);
     wInclFileType.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -234,27 +243,16 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     fdAdditionalFields.left = new FormAttachment( 0, margin );
     fdAdditionalFields.top = new FormAttachment( wAddResult, margin );
     fdAdditionalFields.right = new FormAttachment( 100, -margin );
+    fdAdditionalFields.bottom = new FormAttachment(wOk, -2*margin);
     wAdditionalFields.setLayoutData(fdAdditionalFields);
 
     // ///////////////////////////////
     // END OF Additional Fields GROUP //
     // ///////////////////////////////
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wAdditionalFields);
 
     // Add listeners
-    lsOk = e -> ok();
-
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

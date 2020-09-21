@@ -111,6 +111,18 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "GetSubFoldersDialog.Preview.Button" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null);
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
@@ -155,10 +167,10 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     props.setLook(wOriginFolders);
     wOriginFolders.setText( BaseMessages.getString( PKG, "GetSubFoldersDialog.wOriginFiles.Label" ) );
 
-    FormLayout OriginFilesgroupLayout = new FormLayout();
-    OriginFilesgroupLayout.marginWidth = 10;
-    OriginFilesgroupLayout.marginHeight = 10;
-    wOriginFolders.setLayout( OriginFilesgroupLayout );
+    FormLayout originFilesgroupLayout = new FormLayout();
+    originFilesgroupLayout.marginWidth = 10;
+    originFilesgroupLayout.marginHeight = 10;
+    wOriginFolders.setLayout( originFilesgroupLayout );
 
     // Is Filename defined in a Field
     Label wlFileField = new Label(wOriginFolders, SWT.RIGHT);
@@ -175,15 +187,15 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     wFolderField.setToolTipText( BaseMessages.getString( PKG, "GetSubFoldersDialog.FileField.Tooltip" ) );
     FormData fdFileField = new FormData();
     fdFileField.left = new FormAttachment(middle, -margin);
-    fdFileField.top = new FormAttachment( 0, margin);
+    fdFileField.top = new FormAttachment( wlFileField, 0, SWT.CENTER);
     wFolderField.setLayoutData(fdFileField);
-    SelectionAdapter lfilefield = new SelectionAdapter() {
+    SelectionAdapter lsFileField = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
-        ActiveFileField();
+        activateFileField();
         input.setChanged();
       }
     };
-    wFolderField.addSelectionListener( lfilefield );
+    wFolderField.addSelectionListener( lsFileField );
 
     // Filename field
     wlFilenameField = new Label(wOriginFolders, SWT.RIGHT );
@@ -337,7 +349,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin);
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
     // ////////////////////////
@@ -380,7 +392,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     wInclRownum.setToolTipText( BaseMessages.getString( PKG, "GetSubFoldersDialog.InclRownum.Tooltip" ) );
     FormData fdRownum = new FormData();
     fdRownum.left = new FormAttachment(middle, 0 );
-    fdRownum.top = new FormAttachment( 0, 2 * margin);
+    fdRownum.top = new FormAttachment( wlInclRownum, 0, SWT.CENTER);
     wInclRownum.setLayoutData(fdRownum);
     SelectionAdapter linclRownum = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -447,25 +459,9 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     // / END OF FILE Filter TAB
     // ///////////////////////////////////////////////////////////
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "GetSubFoldersDialog.Preview.Button" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder);
 
     // Add listeners
-    lsOk = e -> ok();
-    lsPreview = e -> preview();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wPreview.addListener( SWT.Selection, lsPreview );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -521,7 +517,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
 
     // Set the shell size, based upon previous time...
     getData( input );
-    ActiveFileField();
+    activateFileField();
     ActiveIncludeRowNum();
     setSize();
 
@@ -539,7 +535,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     wInclRownumField.setEnabled( wInclRownum.getSelection() );
   }
 
-  private void ActiveFileField() {
+  private void activateFileField() {
     if ( wFolderField.getSelection() ) {
       wLimit.setText( "0" );
     }

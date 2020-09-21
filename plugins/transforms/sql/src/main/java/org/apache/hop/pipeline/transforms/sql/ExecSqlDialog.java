@@ -205,11 +205,14 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     //
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "ExecSqlDialog.GetFields.Button" ) );
+    wGet.addListener( SWT.Selection, e -> get() );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     // Build it up from the bottom up...
     // Read field
@@ -303,14 +306,11 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     //
     final int FieldsRows = input.getArguments().length;
 
-    colinf =
-      new ColumnInfo[] { new ColumnInfo(
+    colinf = new ColumnInfo[] { new ColumnInfo(
         BaseMessages.getString( PKG, "ExecSqlDialog.ColumnInfo.ArgumentFieldname" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false ), };
 
-    wFields =
-      new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    wFields = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
@@ -355,7 +355,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     wQuoteString.setToolTipText( BaseMessages.getString( PKG, "ExecSqlDialog.QuoteString.Tooltip" ) );
     FormData fdQuoteString = new FormData();
     fdQuoteString.left = new FormAttachment( wlQuoteString, margin );
-    fdQuoteString.bottom = new FormAttachment( wlFields, -2 * margin );
+    fdQuoteString.top = new FormAttachment( wlQuoteString, 0, SWT.CENTER );
     fdQuoteString.right = new FormAttachment( middle, 0 );
     wQuoteString.setLayoutData(fdQuoteString);
     wQuoteString.addSelectionListener( lsSel );
@@ -375,7 +375,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     wSetParams.setToolTipText( BaseMessages.getString( PKG, "ExecSqlDialog.SetParams.Tooltip" ) );
     FormData fdSetParams = new FormData();
     fdSetParams.left = new FormAttachment( wlSetParams, margin );
-    fdSetParams.bottom = new FormAttachment( wQuoteString, -margin );
+    fdSetParams.top = new FormAttachment( wlSetParams, 0, SWT.CENTER );
     fdSetParams.right = new FormAttachment( middle, 0 );
     wSetParams.setLayoutData(fdSetParams);
     wSetParams.addSelectionListener( new SelectionAdapter() {
@@ -397,7 +397,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wVariables );
     FormData fdVariables = new FormData();
     fdVariables.left = new FormAttachment(wlVariables, margin );
-    fdVariables.bottom = new FormAttachment( wSetParams, -margin );
+    fdVariables.top = new FormAttachment( wlVariables, 0, SWT.CENTER );
     fdVariables.right = new FormAttachment( middle, 0 );
     wVariables.setLayoutData(fdVariables);
     wVariables.addSelectionListener( lsSel );
@@ -414,7 +414,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wSingleStatement );
     FormData fdSingleStatement = new FormData();
     fdSingleStatement.left = new FormAttachment(wlEachRow, margin );
-    fdSingleStatement.bottom = new FormAttachment( wVariables, -margin );
+    fdSingleStatement.top = new FormAttachment( wlSingleStatement, 0, SWT.CENTER );
     fdSingleStatement.right = new FormAttachment( middle, 0 );
     wSingleStatement.setLayoutData( fdSingleStatement );
     wSingleStatement.addSelectionListener( lsSel );
@@ -431,7 +431,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wEachRow );
     FormData fdEachRow = new FormData();
     fdEachRow.left = new FormAttachment(wlEachRow, margin );
-    fdEachRow.bottom = new FormAttachment( wSingleStatement, -margin );
+    fdEachRow.top = new FormAttachment( wlEachRow, 0, SWT.CENTER );
     fdEachRow.right = new FormAttachment( middle, 0 );
     wEachRow.setLayoutData( fdEachRow );
     wEachRow.addSelectionListener( lsSel );
@@ -478,14 +478,6 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
     // Add listeners
     //
-    lsCancel = e -> cancel();
-    lsGet = e -> get();
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wGet.addListener( SWT.Selection, lsGet );
-    wOk.addListener( SWT.Selection, lsOk );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();

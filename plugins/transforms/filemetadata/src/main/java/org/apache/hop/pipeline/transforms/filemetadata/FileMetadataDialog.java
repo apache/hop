@@ -47,11 +47,9 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -182,6 +180,16 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    // OK and cancel buttons
+    wOk = new Button(shell, SWT.PUSH);
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOk.addListener(SWT.Selection, e -> ok());
+    wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, e -> cancel());
+    BaseTransformDialog.positionBottomButtons(shell, new Button[]{wOk, wCancel}, margin, null);
+
 
     // TransformName line
     wlTransformName = new Label(shell, SWT.RIGHT);
@@ -340,33 +348,13 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     fdQueryGroup.left = new FormAttachment(0, 0);
     fdQueryGroup.right = new FormAttachment(100, 0);
     fdQueryGroup.top = new FormAttachment(wFilename, margin);
-    fdQueryGroup.bottom = new FormAttachment(100, -50);
+    fdQueryGroup.bottom = new FormAttachment(wOk, -2*margin);
     gDelimitedLayout.setLayoutData(fdQueryGroup);
 
     lastControl = gDelimitedLayout;
 
-    // OK and cancel buttons
-    wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
-    wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
-
-    BaseTransformDialog.positionBottomButtons(shell, new Button[]{wOk, wCancel}, margin, lastControl);
 
     // Add listeners for cancel and OK
-    lsCancel = new Listener() {
-      public void handleEvent(Event e) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent(Event e) {
-        ok();
-      }
-    };
-
-    wCancel.addListener(SWT.Selection, lsCancel);
-    wOk.addListener(SWT.Selection, lsOk);
 
 
     // Detect X or ALT-F4 or something that kills this window and cancel the dialog properly

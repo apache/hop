@@ -67,25 +67,25 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
   private Label wlReturn;
   private TableView wReturn;
 
-  private TextVar wmatchField;
+  private TextVar wMatchField;
 
-  private Label wlvalueField;
-  private TextVar wvalueField;
+  private Label wlValueField;
+  private TextVar wValueField;
 
-  private Label wlcaseSensitive;
-  private Button wcaseSensitive;
+  private Label wlCaseSensitive;
+  private Button wCaseSensitive;
 
-  private Label wlgetCloserValue;
-  private Button wgetCloserValue;
+  private Label wlGetCloserValue;
+  private Button wGetCloserValue;
 
-  private Label wlminValue;
-  private TextVar wminValue;
+  private Label wlMinValue;
+  private TextVar wMinValue;
 
-  private Label wlmaxValue;
-  private TextVar wmaxValue;
+  private Label wlMaxValue;
+  private TextVar wMaxValue;
 
-  private Label wlseparator;
-  private TextVar wseparator;
+  private Label wlSeparator;
+  private TextVar wSeparator;
 
   private Button wGetLU;
 
@@ -329,107 +329,107 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Is case sensitive
-    wlcaseSensitive = new Label(wSettingsGroup, SWT.RIGHT );
-    wlcaseSensitive.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.caseSensitive.Label" ) );
-    props.setLook( wlcaseSensitive );
+    wlCaseSensitive = new Label(wSettingsGroup, SWT.RIGHT );
+    wlCaseSensitive.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.caseSensitive.Label" ) );
+    props.setLook( wlCaseSensitive );
     FormData fdlcaseSensitive = new FormData();
     fdlcaseSensitive.left = new FormAttachment( 0, 0 );
     fdlcaseSensitive.top = new FormAttachment( wAlgorithm, margin );
     fdlcaseSensitive.right = new FormAttachment( middle, -2 * margin );
-    wlcaseSensitive.setLayoutData(fdlcaseSensitive);
+    wlCaseSensitive.setLayoutData(fdlcaseSensitive);
 
-    wcaseSensitive = new Button(wSettingsGroup, SWT.CHECK );
-    props.setLook( wcaseSensitive );
-    wcaseSensitive.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.caseSensitive.Tooltip" ) );
+    wCaseSensitive = new Button(wSettingsGroup, SWT.CHECK );
+    props.setLook( wCaseSensitive );
+    wCaseSensitive.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.caseSensitive.Tooltip" ) );
     FormData fdcaseSensitive = new FormData();
     fdcaseSensitive.left = new FormAttachment( middle, 0 );
-    fdcaseSensitive.top = new FormAttachment( wAlgorithm, margin );
-    wcaseSensitive.setLayoutData(fdcaseSensitive);
+    fdcaseSensitive.top = new FormAttachment( wlCaseSensitive, 0, SWT.CENTER );
+    wCaseSensitive.setLayoutData(fdcaseSensitive);
     SelectionAdapter lcaseSensitive = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         input.setChanged();
       }
     };
 
-    wcaseSensitive.addSelectionListener( lcaseSensitive );
+    wCaseSensitive.addSelectionListener( lcaseSensitive );
 
     // Is get closer value
-    wlgetCloserValue = new Label(wSettingsGroup, SWT.RIGHT );
-    wlgetCloserValue.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.getCloserValue.Label" ) );
-    props.setLook( wlgetCloserValue );
+    wlGetCloserValue = new Label(wSettingsGroup, SWT.RIGHT );
+    wlGetCloserValue.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.getCloserValue.Label" ) );
+    props.setLook( wlGetCloserValue );
     FormData fdlgetCloserValue = new FormData();
     fdlgetCloserValue.left = new FormAttachment( 0, 0 );
-    fdlgetCloserValue.top = new FormAttachment( wcaseSensitive, margin );
+    fdlgetCloserValue.top = new FormAttachment( wCaseSensitive, margin );
     fdlgetCloserValue.right = new FormAttachment( middle, -2 * margin );
-    wlgetCloserValue.setLayoutData(fdlgetCloserValue);
+    wlGetCloserValue.setLayoutData(fdlgetCloserValue);
 
-    wgetCloserValue = new Button(wSettingsGroup, SWT.CHECK );
-    props.setLook( wgetCloserValue );
-    wgetCloserValue.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.getCloserValue.Tooltip" ) );
+    wGetCloserValue = new Button(wSettingsGroup, SWT.CHECK );
+    props.setLook( wGetCloserValue );
+    wGetCloserValue.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.getCloserValue.Tooltip" ) );
     FormData fdgetCloserValue = new FormData();
     fdgetCloserValue.left = new FormAttachment( middle, 0 );
-    fdgetCloserValue.top = new FormAttachment( wcaseSensitive, margin );
-    wgetCloserValue.setLayoutData(fdgetCloserValue);
+    fdgetCloserValue.top = new FormAttachment( wlGetCloserValue, 0, SWT.CENTER );
+    wGetCloserValue.setLayoutData(fdgetCloserValue);
     SelectionAdapter lgetCloserValue = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         activegetCloserValue();
         input.setChanged();
       }
     };
-    wgetCloserValue.addSelectionListener( lgetCloserValue );
+    wGetCloserValue.addSelectionListener( lgetCloserValue );
 
-    wlminValue = new Label(wSettingsGroup, SWT.RIGHT );
-    wlminValue.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.minValue.Label" ) );
-    props.setLook( wlminValue );
+    wlMinValue = new Label(wSettingsGroup, SWT.RIGHT );
+    wlMinValue.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.minValue.Label" ) );
+    props.setLook( wlMinValue );
     FormData fdlminValue = new FormData();
     fdlminValue.left = new FormAttachment( 0, 0 );
-    fdlminValue.top = new FormAttachment( wgetCloserValue, margin );
+    fdlminValue.top = new FormAttachment( wGetCloserValue, margin );
     fdlminValue.right = new FormAttachment( middle, -margin );
-    wlminValue.setLayoutData(fdlminValue);
-    wminValue = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wminValue );
-    wminValue.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.minValue.Tooltip" ) );
-    wminValue.addModifyListener( lsMod );
+    wlMinValue.setLayoutData(fdlminValue);
+    wMinValue = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wMinValue );
+    wMinValue.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.minValue.Tooltip" ) );
+    wMinValue.addModifyListener( lsMod );
     FormData fdminValue = new FormData();
     fdminValue.left = new FormAttachment( middle, 0 );
-    fdminValue.top = new FormAttachment( wgetCloserValue, margin );
+    fdminValue.top = new FormAttachment( wGetCloserValue, margin );
     fdminValue.right = new FormAttachment( 100, 0 );
-    wminValue.setLayoutData(fdminValue);
+    wMinValue.setLayoutData(fdminValue);
 
-    wlmaxValue = new Label(wSettingsGroup, SWT.RIGHT );
-    wlmaxValue.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.maxValue.Label" ) );
-    props.setLook( wlmaxValue );
+    wlMaxValue = new Label(wSettingsGroup, SWT.RIGHT );
+    wlMaxValue.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.maxValue.Label" ) );
+    props.setLook( wlMaxValue );
     FormData fdlmaxValue = new FormData();
     fdlmaxValue.left = new FormAttachment( 0, 0 );
-    fdlmaxValue.top = new FormAttachment( wminValue, margin );
+    fdlmaxValue.top = new FormAttachment( wMinValue, margin );
     fdlmaxValue.right = new FormAttachment( middle, -margin );
-    wlmaxValue.setLayoutData(fdlmaxValue);
-    wmaxValue = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wmaxValue );
-    wmaxValue.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.maxValue.Tooltip" ) );
-    wmaxValue.addModifyListener( lsMod );
+    wlMaxValue.setLayoutData(fdlmaxValue);
+    wMaxValue = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wMaxValue );
+    wMaxValue.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.maxValue.Tooltip" ) );
+    wMaxValue.addModifyListener( lsMod );
     FormData fdmaxValue = new FormData();
     fdmaxValue.left = new FormAttachment( middle, 0 );
-    fdmaxValue.top = new FormAttachment( wminValue, margin );
+    fdmaxValue.top = new FormAttachment( wMinValue, margin );
     fdmaxValue.right = new FormAttachment( 100, 0 );
-    wmaxValue.setLayoutData(fdmaxValue);
+    wMaxValue.setLayoutData(fdmaxValue);
 
-    wlseparator = new Label(wSettingsGroup, SWT.RIGHT );
-    wlseparator.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.separator.Label" ) );
-    props.setLook( wlseparator );
+    wlSeparator = new Label(wSettingsGroup, SWT.RIGHT );
+    wlSeparator.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.separator.Label" ) );
+    props.setLook( wlSeparator );
     FormData fdlseparator = new FormData();
     fdlseparator.left = new FormAttachment( 0, 0 );
-    fdlseparator.top = new FormAttachment( wmaxValue, margin );
+    fdlseparator.top = new FormAttachment( wMaxValue, margin );
     fdlseparator.right = new FormAttachment( middle, -margin );
-    wlseparator.setLayoutData(fdlseparator);
-    wseparator = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wseparator );
-    wseparator.addModifyListener( lsMod );
+    wlSeparator.setLayoutData(fdlseparator);
+    wSeparator = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wSeparator );
+    wSeparator.addModifyListener( lsMod );
     FormData fdseparator = new FormData();
     fdseparator.left = new FormAttachment( middle, 0 );
-    fdseparator.top = new FormAttachment( wmaxValue, margin );
+    fdseparator.top = new FormAttachment( wMaxValue, margin );
     fdseparator.right = new FormAttachment( 100, 0 );
-    wseparator.setLayoutData(fdseparator);
+    wSeparator.setLayoutData(fdseparator);
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment( 0, margin );
@@ -497,32 +497,32 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     fdlmatchField.top = new FormAttachment(wSettingsGroup, margin );
     fdlmatchField.right = new FormAttachment( middle, -margin );
     wlmatchField.setLayoutData(fdlmatchField);
-    wmatchField = new TextVar( pipelineMeta, wOutputFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wmatchField );
-    wmatchField.addModifyListener( lsMod );
+    wMatchField = new TextVar( pipelineMeta, wOutputFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wMatchField );
+    wMatchField.addModifyListener( lsMod );
     FormData fdmatchField = new FormData();
     fdmatchField.left = new FormAttachment( middle, 0 );
     fdmatchField.top = new FormAttachment(wSettingsGroup, margin );
     fdmatchField.right = new FormAttachment( 100, 0 );
-    wmatchField.setLayoutData(fdmatchField);
+    wMatchField.setLayoutData(fdmatchField);
 
-    wlvalueField = new Label(wOutputFieldsGroup, SWT.RIGHT );
-    wlvalueField.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.valueField.Label" ) );
-    props.setLook( wlvalueField );
+    wlValueField = new Label(wOutputFieldsGroup, SWT.RIGHT );
+    wlValueField.setText( BaseMessages.getString( PKG, "FuzzyMatchDialog.valueField.Label" ) );
+    props.setLook( wlValueField );
     FormData fdlvalueField = new FormData();
     fdlvalueField.left = new FormAttachment( 0, 0 );
-    fdlvalueField.top = new FormAttachment( wmatchField, margin );
+    fdlvalueField.top = new FormAttachment( wMatchField, margin );
     fdlvalueField.right = new FormAttachment( middle, -margin );
-    wlvalueField.setLayoutData(fdlvalueField);
-    wvalueField = new TextVar( pipelineMeta, wOutputFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wvalueField );
-    wvalueField.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.valueField.Tooltip" ) );
-    wvalueField.addModifyListener( lsMod );
+    wlValueField.setLayoutData(fdlvalueField);
+    wValueField = new TextVar( pipelineMeta, wOutputFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wValueField );
+    wValueField.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.valueField.Tooltip" ) );
+    wValueField.addModifyListener( lsMod );
     FormData fdvalueField = new FormData();
     fdvalueField.left = new FormAttachment( middle, 0 );
-    fdvalueField.top = new FormAttachment( wmatchField, margin );
+    fdvalueField.top = new FormAttachment( wMatchField, margin );
     fdvalueField.right = new FormAttachment( 100, 0 );
-    wvalueField.setLayoutData(fdvalueField);
+    wValueField.setLayoutData(fdvalueField);
 
     FormData fdOutputFieldsGroup = new FormData();
     fdOutputFieldsGroup.left = new FormAttachment( 0, margin );
@@ -653,22 +653,22 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     if ( input.getLookupField() != null ) {
       wLookupField.setText( input.getLookupField() );
     }
-    wcaseSensitive.setSelection( input.isCaseSensitive() );
-    wgetCloserValue.setSelection( input.isGetCloserValue() );
+    wCaseSensitive.setSelection( input.isCaseSensitive() );
+    wGetCloserValue.setSelection( input.isGetCloserValue() );
     if ( input.getMinimalValue() != null ) {
-      wminValue.setText( input.getMinimalValue() );
+      wMinValue.setText( input.getMinimalValue() );
     }
     if ( input.getMaximalValue() != null ) {
-      wmaxValue.setText( input.getMaximalValue() );
+      wMaxValue.setText( input.getMaximalValue() );
     }
     if ( input.getOutputMatchField() != null ) {
-      wmatchField.setText( input.getOutputMatchField() );
+      wMatchField.setText( input.getOutputMatchField() );
     }
     if ( input.getOutputValueField() != null ) {
-      wvalueField.setText( input.getOutputValueField() );
+      wValueField.setText( input.getOutputValueField() );
     }
     if ( input.getSeparator() != null ) {
-      wseparator.setText( input.getSeparator() );
+      wSeparator.setText( input.getSeparator() );
     }
 
     if ( input.getValue() != null ) {
@@ -708,14 +708,14 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     input.setLookupField( wLookupField.getText() );
 
     input.setAlgorithmType( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() ) );
-    input.setCaseSensitive( wcaseSensitive.getSelection() );
-    input.setGetCloserValue( wgetCloserValue.getSelection() );
-    input.setMaximalValue( wmaxValue.getText() );
-    input.setMinimalValue( wminValue.getText() );
+    input.setCaseSensitive( wCaseSensitive.getSelection() );
+    input.setGetCloserValue( wGetCloserValue.getSelection() );
+    input.setMaximalValue( wMaxValue.getText() );
+    input.setMinimalValue( wMinValue.getText() );
 
-    input.setOutputMatchField( wmatchField.getText() );
-    input.setOutputValueField( wvalueField.getText() );
-    input.setSeparator( wseparator.getText() );
+    input.setOutputMatchField( wMatchField.getText() );
+    input.setOutputValueField( wValueField.getText() );
+    input.setSeparator( wSeparator.getText() );
 
     int nrvalues = wReturn.nrNonEmpty();
     input.allocate( nrvalues );
@@ -810,19 +810,19 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
         || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
         == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER || FuzzyMatchMeta
         .getAlgorithmTypeByDesc( wAlgorithm.getText() ) == FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY )
-        && !wgetCloserValue.getSelection();
+        && !wGetCloserValue.getSelection();
 
-    wlseparator.setEnabled( enableRange );
-    wseparator.setEnabled( enableRange );
-    wlvalueField.setEnabled( wgetCloserValue.getSelection() );
-    wvalueField.setEnabled( wgetCloserValue.getSelection() );
+    wlSeparator.setEnabled( enableRange );
+    wSeparator.setEnabled( enableRange );
+    wlValueField.setEnabled( wGetCloserValue.getSelection() );
+    wValueField.setEnabled( wGetCloserValue.getSelection() );
 
     activeAddFields();
   }
 
   private void activeAddFields() {
     boolean activate =
-      wgetCloserValue.getSelection()
+      wGetCloserValue.getSelection()
         || ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
         == FuzzyMatchMeta.OPERATION_TYPE_DOUBLE_METAPHONE )
         || ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
@@ -851,12 +851,12 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
         == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER || FuzzyMatchMeta
         .getAlgorithmTypeByDesc( wAlgorithm.getText() ) == FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY );
 
-    wlgetCloserValue.setEnabled( enable );
-    wgetCloserValue.setEnabled( enable );
-    wlminValue.setEnabled( enable );
-    wminValue.setEnabled( enable );
-    wlmaxValue.setEnabled( enable );
-    wmaxValue.setEnabled( enable );
+    wlGetCloserValue.setEnabled( enable );
+    wGetCloserValue.setEnabled( enable );
+    wlMinValue.setEnabled( enable );
+    wMinValue.setEnabled( enable );
+    wlMaxValue.setEnabled( enable );
+    wMaxValue.setEnabled( enable );
 
     if ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
       == FuzzyMatchMeta.OPERATION_TYPE_JARO
@@ -864,11 +864,11 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
       == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER
       || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
       == FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY ) {
-      if ( Const.toDouble( pipelineMeta.environmentSubstitute( wminValue.getText() ), 0 ) > 1 ) {
-        wminValue.setText( String.valueOf( 1 ) );
+      if ( Const.toDouble( pipelineMeta.environmentSubstitute( wMinValue.getText() ), 0 ) > 1 ) {
+        wMinValue.setText( String.valueOf( 1 ) );
       }
-      if ( Const.toDouble( pipelineMeta.environmentSubstitute( wmaxValue.getText() ), 0 ) > 1 ) {
-        wmaxValue.setText( String.valueOf( 1 ) );
+      if ( Const.toDouble( pipelineMeta.environmentSubstitute( wMaxValue.getText() ), 0 ) > 1 ) {
+        wMaxValue.setText( String.valueOf( 1 ) );
       }
     }
 
@@ -876,8 +876,8 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
       ( FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
         == FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN || FuzzyMatchMeta
         .getAlgorithmTypeByDesc( wAlgorithm.getText() ) == FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN );
-    wlcaseSensitive.setEnabled( enableCaseSensitive );
-    wcaseSensitive.setEnabled( enableCaseSensitive );
+    wlCaseSensitive.setEnabled( enableCaseSensitive );
+    wCaseSensitive.setEnabled( enableCaseSensitive );
     activegetCloserValue();
   }
 

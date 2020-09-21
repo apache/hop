@@ -144,6 +144,19 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // Buttons go at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.Button.PreviewRows" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
@@ -208,15 +221,15 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wFileField.setToolTipText( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.FileField.Tooltip" ) );
     fdFileField = new FormData();
     fdFileField.left = new FormAttachment( middle, -margin );
-    fdFileField.top = new FormAttachment( 0, margin );
+    fdFileField.top = new FormAttachment( wlFileField, 0, SWT.CENTER );
     wFileField.setLayoutData( fdFileField );
-    SelectionAdapter lfilefield = new SelectionAdapter() {
+    SelectionAdapter lsFileField = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
-        ActiveFileField();
+        activateFileField();
         input.setChanged();
       }
     };
-    wFileField.addSelectionListener( lfilefield );
+    wFileField.addSelectionListener( lsFileField );
 
     // Filename field
     wlFilenameField = new Label( wOriginFiles, SWT.RIGHT );
@@ -556,7 +569,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wSmartCount.setToolTipText( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.SmartCount.Tooltip" ) );
     fdSmartCount = new FormData();
     fdSmartCount.left = new FormAttachment( middle, 0 );
-    fdSmartCount.top = new FormAttachment( wRowSeparator, margin );
+    fdSmartCount.top = new FormAttachment( wlSmartCount, 0, SWT.CENTER );
     wSmartCount.setLayoutData( fdSmartCount );
     wSmartCount.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -599,8 +612,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wlInclFilesCount.setLayoutData( fdlInclFilesCount );
     wInclFilesCount = new Button( wAdditionalGroup, SWT.CHECK );
     props.setLook( wInclFilesCount );
-    wInclFilesCount
-      .setToolTipText( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.InclCountFiles.Tooltip" ) );
+    wInclFilesCount.setToolTipText( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.InclCountFiles.Tooltip" ) );
     fdFilesCount = new FormData();
     fdFilesCount.left = new FormAttachment( middle, 0 );
     fdFilesCount.top = new FormAttachment( wRowSeparatorGroup, margin );
@@ -619,7 +631,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wInclFilesCountField.addModifyListener( lsMod );
     fdInclFilesCountField = new FormData();
     fdInclFilesCountField.left = new FormAttachment( wlInclFilesCountField, margin );
-    fdInclFilesCountField.top = new FormAttachment( wRowSeparatorGroup, margin );
+    fdInclFilesCountField.top = new FormAttachment( wlInclFilesCountField, 0, SWT.CENTER );
     fdInclFilesCountField.right = new FormAttachment( 100, 0 );
     wInclFilesCountField.setLayoutData( fdInclFilesCountField );
 
@@ -659,7 +671,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.AddResult.Tooltip" ) );
     fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wAdditionalGroup, margin );
+    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData( fdAddResult );
     wAddResult.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -696,35 +708,16 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "GetFilesRowsCountDialog.Button.PreviewRows" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = e -> ok();
-    lsPreview = e -> preview();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wPreview.addListener( SWT.Selection, lsPreview );
-    wCancel.addListener( SWT.Selection, lsCancel );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
       }
     };
-
     wTransformName.addSelectionListener( lsDef );
     wInclFilesCountField.addSelectionListener( lsDef );
 
@@ -839,7 +832,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     // Set the shell size, based upon previous time...
     setSize();
     getData( input );
-    ActiveFileField();
+    activateFileField();
     ActiveRowSeparator();
     input.setChanged( changed );
 
@@ -862,7 +855,7 @@ public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITra
     wInclFilesCountField.setEnabled( wInclFilesCount.getSelection() );
   }
 
-  private void ActiveFileField() {
+  private void activateFileField() {
     wlFilenameField.setEnabled( wFileField.getSelection() );
     wFilenameField.setEnabled( wFileField.getSelection() );
 

@@ -282,12 +282,11 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
 
     // Some buttons
     wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.Ok" ) );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wOk.addListener( SWT.Selection, e -> ok() );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     wCancel.addListener( SWT.Selection, e -> cancel() );
-
     setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
 
