@@ -57,6 +57,13 @@ public interface IHopFileType<T extends IXml> {
   String getName();
 
   /**
+   * Returns the default file extension in lowercase prefixed with dot (.xxx) for this file type.
+   * 
+   * @return The default file extension
+   */
+  String getDefaultFileExtension();
+  
+  /**
    * @return The file type extensions.
    */
   String[] getFilterExtensions();

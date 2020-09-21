@@ -62,6 +62,10 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     return PIPELINE_FILE_TYPE_DESCRIPTION;
   }
 
+  @Override public String getDefaultFileExtension() {
+  	return ".hpl";
+  }
+  
   @Override public String[] getFilterExtensions() {
     return new String[] { "*.hpl" };
   }
