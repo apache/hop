@@ -200,7 +200,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     props.setLook( wTablenameInField );
     FormData fdTablenameInField = new FormData();
     fdTablenameInField.left = new FormAttachment( middle, 0 );
-    fdTablenameInField.top = new FormAttachment( wTablenameText, margin );
+    fdTablenameInField.top = new FormAttachment( wlTablenameInField, 0, SWT.CENTER );
     fdTablenameInField.right = new FormAttachment( 100, 0 );
     wTablenameInField.setLayoutData(fdTablenameInField);
     SelectionAdapter lsSelR = new SelectionAdapter() {

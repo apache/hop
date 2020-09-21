@@ -100,6 +100,8 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;
     formLayout.marginHeight = 0;
+    formLayout.marginLeft = 0;
+    formLayout.marginRight = 0;
     formLayout.marginTop = 0;
     formLayout.marginBottom = 0;
 
@@ -116,7 +118,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     FormData fdLabel = new FormData();
     fdLabel.left = new FormAttachment( 0, 0 );
     if (!leftAlignedLabel) {
-      fdLabel.right = new FormAttachment( middle, 0 );
+      fdLabel.right = new FormAttachment( middle, -margin );
     }
     fdLabel.top = new FormAttachment( 0, margin );
     wLabel.setLayoutData( fdLabel );
@@ -157,7 +159,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     if (leftAlignedLabel) {
       fdCombo.left = new FormAttachment( wLabel, margin, SWT.RIGHT );
     } else {
-      fdCombo.left = new FormAttachment( middle, margin );
+      fdCombo.left = new FormAttachment( middle, 0 );
     }
     fdCombo.right = new FormAttachment( wEdit, -margin );
     fdCombo.top = new FormAttachment( wLabel, 0, SWT.CENTER );
