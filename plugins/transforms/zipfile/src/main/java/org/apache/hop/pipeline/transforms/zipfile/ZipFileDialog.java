@@ -165,7 +165,7 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wOverwriteZipEntry.setToolTipText( BaseMessages.getString( PKG, "ZipFileDialog.OverwriteTarget.Tooltip" ) );
     FormData fdOverwriteTarget = new FormData();
     fdOverwriteTarget.left = new FormAttachment( middle, 0 );
-    fdOverwriteTarget.top = new FormAttachment( wCreateParentFolder, margin );
+    fdOverwriteTarget.top = new FormAttachment( wlOverwriteTarget, 0, SWT.CENTER );
     wOverwriteZipEntry.setLayoutData(fdOverwriteTarget);
     wOverwriteZipEntry.addSelectionListener( lsSel );
 
@@ -183,7 +183,7 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "ZipFileDialog.AddResult.Tooltip" ) );
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wOverwriteZipEntry, margin );
+    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData(fdAddResult);
     wAddResult.addSelectionListener( lsSel );
 

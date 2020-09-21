@@ -252,7 +252,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     props.setLook( wUpdate );
     FormData fdUpdate = new FormData();
     fdUpdate.left = new FormAttachment( middle, 0 );
-    fdUpdate.top = new FormAttachment( wTransformName, margin );
+    fdUpdate.top = new FormAttachment( wlUpdate, 0, SWT.CENTER );
     fdUpdate.right = new FormAttachment( 100, 0 );
     wUpdate.setLayoutData( fdUpdate );
 
@@ -366,7 +366,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     } );
     FormData fdUseCache = new FormData();
     fdUseCache.left = new FormAttachment( middle, 0 );
-    fdUseCache.top = new FormAttachment( wCommit, margin );
+    fdUseCache.top = new FormAttachment( wlUseCache, 0, SWT.CENTER );
     fdUseCache.right = new FormAttachment( 100, 0 );
     wUseCache.setLayoutData( fdUseCache );
 
@@ -389,7 +389,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     } );
     FormData fdPreloadCache = new FormData();
     fdPreloadCache.left = new FormAttachment( middle, 0 );
-    fdPreloadCache.top = new FormAttachment( wUseCache, margin );
+    fdPreloadCache.top = new FormAttachment( wlPreloadCache, 0, SWT.CENTER );
     fdPreloadCache.right = new FormAttachment( 100, 0 );
     wPreloadCache.setLayoutData( fdPreloadCache );
 
@@ -568,7 +568,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wCacheSize, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.height = 200;
+    fdTabFolder.bottom = new FormAttachment( 60, 0);
     wTabFolder.setLayoutData(fdTabFolder);
 
     // Technical key field:
@@ -812,8 +812,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     // Add a line with an option to specify an alternative start date...
     //
     Label wlUseAltStartDate = new Label(comp, SWT.RIGHT);
-    wlUseAltStartDate
-      .setText( BaseMessages.getString( PKG, "DimensionLookupDialog.UseAlternativeStartDate.Label" ) );
+    wlUseAltStartDate.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.UseAlternativeStartDate.Label" ) );
     props.setLook(wlUseAltStartDate);
     FormData fdlUseAltStartDate = new FormData();
     fdlUseAltStartDate.left = new FormAttachment( 0, 0 );
@@ -822,11 +821,10 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wlUseAltStartDate.setLayoutData( fdlUseAltStartDate );
     wUseAltStartDate = new Button(comp, SWT.CHECK );
     props.setLook( wUseAltStartDate );
-    wUseAltStartDate.setToolTipText( BaseMessages.getString(
-      PKG, "DimensionLookupDialog.UseAlternativeStartDate.Tooltip", Const.CR ) );
+    wUseAltStartDate.setToolTipText( BaseMessages.getString( PKG, "DimensionLookupDialog.UseAlternativeStartDate.Tooltip", Const.CR ) );
     FormData fdUseAltStartDate = new FormData();
     fdUseAltStartDate.left = new FormAttachment( middle, 0 );
-    fdUseAltStartDate.top = new FormAttachment( wFromdate, margin );
+    fdUseAltStartDate.top = new FormAttachment( wlUseAltStartDate, 0, SWT.CENTER );
     wUseAltStartDate.setLayoutData( fdUseAltStartDate );
     wUseAltStartDate.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -937,8 +935,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     wCreate.setText( BaseMessages.getString( PKG, "DimensionLookupDialog.SQL.Button" ) );
     wCancel = new Button(comp, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel, wGet, wCreate }, margin, wMaxyear );
+    positionBottomButtons( shell, new Button[] { wOk, wGet, wCreate, wCancel }, margin, null );
 
     FormData fdComp = new FormData();
     fdComp.left = new FormAttachment( 0, 0 );

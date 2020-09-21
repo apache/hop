@@ -179,7 +179,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     FormData fdRootZero = new FormData();
     fdRootZero.left = new FormAttachment( middle, 0 );
     fdRootZero.right = new FormAttachment( 100, 0 );
-    fdRootZero.top = new FormAttachment( wDistance, margin );
+    fdRootZero.top = new FormAttachment( wlRootZero, 0, SWT.CENTER );
     wRootZero.setLayoutData(fdRootZero);
     wRootZero.addSelectionListener( new ComponentSelectionListener( input ) );
 

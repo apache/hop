@@ -114,6 +114,15 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // THE BUTTONS
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "DeleteDialog.TransformName.Label" ) );
@@ -249,6 +258,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
 
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "DeleteDialog.GetFields.Button" ) );
+    wGet.addListener( SWT.Selection, e -> get() );
     fdGet = new FormData();
     fdGet.right = new FormAttachment( 100, 0 );
     fdGet.top = new FormAttachment(wlKey, margin );
@@ -258,7 +268,7 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     fdKey.left = new FormAttachment( 0, 0 );
     fdKey.top = new FormAttachment(wlKey, margin );
     fdKey.right = new FormAttachment( wGet, -margin );
-    fdKey.bottom = new FormAttachment( 100, -30 );
+    fdKey.bottom = new FormAttachment( wOk, -2*margin );
     wKey.setLayoutData(fdKey);
 
     //
@@ -284,22 +294,9 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
     };
     new Thread( runnable ).start();
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

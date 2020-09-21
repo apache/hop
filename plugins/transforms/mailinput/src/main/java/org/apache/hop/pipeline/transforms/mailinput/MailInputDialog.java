@@ -140,9 +140,9 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
   private Button wSelectFolder;
 
-  private Label wlFolderField, wldynamicFolder;
+  private Label wlFolderField, wlDynamicFolder;
   private CCombo wFolderField;
-  private Button wdynamicFolder;
+  private Button wDynamicFolder;
 
   private TableView wFields;
 
@@ -191,6 +191,19 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // Buttons go at the buttom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "MailInputDialog.Preview" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wPreview, wCancel }, margin, null);
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -271,7 +284,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     FormData fdUseSSL = new FormData();
     wUseSSL.setToolTipText( BaseMessages.getString( PKG, "MailInput.UseSSLMails.Tooltip" ) );
     fdUseSSL.left = new FormAttachment( middle, 0 );
-    fdUseSSL.top = new FormAttachment( wServerName, margin );
+    fdUseSSL.top = new FormAttachment( wlUseSSL, 0, SWT.CENTER );
     fdUseSSL.right = new FormAttachment( 100, 0 );
     wUseSSL.setLayoutData(fdUseSSL);
 
@@ -352,7 +365,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     FormData fdUseProxy = new FormData();
     wUseProxy.setToolTipText( BaseMessages.getString( PKG, "MailInput.UseProxyMails.Tooltip" ) );
     fdUseProxy.left = new FormAttachment( middle, 0 );
-    fdUseProxy.top = new FormAttachment( wPassword, 2 * margin );
+    fdUseProxy.top = new FormAttachment( wlUseProxy, 0, SWT.CENTER );
     fdUseProxy.right = new FormAttachment( 100, 0 );
     wUseProxy.setLayoutData(fdUseProxy);
 
@@ -544,29 +557,29 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wIMAPSettings.setLayout( IMAPSettingsgroupLayout );
 
     // Is folder name defined in a Field
-    wldynamicFolder = new Label(wIMAPSettings, SWT.RIGHT );
-    wldynamicFolder.setText( BaseMessages.getString( PKG, "MailInput.dynamicFolder.Label" ) );
-    props.setLook( wldynamicFolder );
+    wlDynamicFolder = new Label(wIMAPSettings, SWT.RIGHT );
+    wlDynamicFolder.setText( BaseMessages.getString( PKG, "MailInput.dynamicFolder.Label" ) );
+    props.setLook( wlDynamicFolder );
     FormData fdldynamicFolder = new FormData();
     fdldynamicFolder.left = new FormAttachment( 0, 0 );
     fdldynamicFolder.top = new FormAttachment( 0, margin );
     fdldynamicFolder.right = new FormAttachment( middle, -margin );
-    wldynamicFolder.setLayoutData(fdldynamicFolder);
+    wlDynamicFolder.setLayoutData(fdldynamicFolder);
 
-    wdynamicFolder = new Button(wIMAPSettings, SWT.CHECK );
-    props.setLook( wdynamicFolder );
-    wdynamicFolder.setToolTipText( BaseMessages.getString( PKG, "MailInput.dynamicFolder.Tooltip" ) );
+    wDynamicFolder = new Button(wIMAPSettings, SWT.CHECK );
+    props.setLook( wDynamicFolder );
+    wDynamicFolder.setToolTipText( BaseMessages.getString( PKG, "MailInput.dynamicFolder.Tooltip" ) );
     FormData fddynamicFolder = new FormData();
     fddynamicFolder.left = new FormAttachment( middle, 0 );
-    fddynamicFolder.top = new FormAttachment( 0, margin );
-    wdynamicFolder.setLayoutData(fddynamicFolder);
+    fddynamicFolder.top = new FormAttachment( wlDynamicFolder, 0, SWT.CENTER );
+    wDynamicFolder.setLayoutData(fddynamicFolder);
     SelectionAdapter lsxmlstream = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         activedynamicFolder();
         input.setChanged();
       }
     };
-    wdynamicFolder.addSelectionListener( lsxmlstream );
+    wDynamicFolder.addSelectionListener( lsxmlstream );
 
     // Folder field
     wlFolderField = new Label(wIMAPSettings, SWT.RIGHT );
@@ -574,7 +587,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wlFolderField );
     FormData fdlFolderField = new FormData();
     fdlFolderField.left = new FormAttachment( 0, 0 );
-    fdlFolderField.top = new FormAttachment( wdynamicFolder, margin );
+    fdlFolderField.top = new FormAttachment( wDynamicFolder, margin );
     fdlFolderField.right = new FormAttachment( middle, -margin );
     wlFolderField.setLayoutData(fdlFolderField);
 
@@ -584,7 +597,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wFolderField.addModifyListener( lsMod );
     FormData fdFolderField = new FormData();
     fdFolderField.left = new FormAttachment( middle, 0 );
-    fdFolderField.top = new FormAttachment( wdynamicFolder, margin );
+    fdFolderField.top = new FormAttachment( wDynamicFolder, margin );
     fdFolderField.right = new FormAttachment( 100, -margin );
     wFolderField.setLayoutData(fdFolderField);
     wFolderField.addFocusListener( new FocusListener() {
@@ -650,7 +663,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     FormData fdIncludeSubFolders = new FormData();
     wIncludeSubFolders.setToolTipText( BaseMessages.getString( PKG, "MailInput.IncludeSubFoldersMails.Tooltip" ) );
     fdIncludeSubFolders.left = new FormAttachment( middle, 0 );
-    fdIncludeSubFolders.top = new FormAttachment( wIMAPFolder, margin );
+    fdIncludeSubFolders.top = new FormAttachment( wlIncludeSubFolders, 0, SWT.CENTER );
     fdIncludeSubFolders.right = new FormAttachment( 100, 0 );
     wIncludeSubFolders.setLayoutData(fdIncludeSubFolders);
     wIncludeSubFolders.addSelectionListener( lsSelection );
@@ -778,13 +791,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     HeadergroupLayout.marginHeight = 10;
     wHeader.setLayout( HeadergroupLayout );
 
-    wNegateSender = new Button(wHeader, SWT.CHECK );
-    props.setLook( wNegateSender );
-    FormData fdNegateSender = new FormData();
-    wNegateSender.setToolTipText( BaseMessages.getString( PKG, "MailInput.NegateSender.Tooltip" ) );
-    fdNegateSender.top = new FormAttachment( 0, margin );
-    fdNegateSender.right = new FormAttachment( 100, -margin );
-    wNegateSender.setLayoutData(fdNegateSender);
+
 
     // From line
     Label wlSender = new Label(wHeader, SWT.RIGHT);
@@ -795,22 +802,22 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlSender.top = new FormAttachment( 0, margin );
     fdlSender.right = new FormAttachment( middle, -margin );
     wlSender.setLayoutData(fdlSender);
+    wNegateSender = new Button(wHeader, SWT.CHECK );
+    props.setLook( wNegateSender );
+    FormData fdNegateSender = new FormData();
+    wNegateSender.setToolTipText( BaseMessages.getString( PKG, "MailInput.NegateSender.Tooltip" ) );
+    fdNegateSender.top = new FormAttachment( wlSender, 0, SWT.CENTER );
+    fdNegateSender.right = new FormAttachment( 100, -margin );
+    wNegateSender.setLayoutData(fdNegateSender);
     wSender = new TextVar( pipelineMeta, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSender );
     wSender.addModifyListener( lsMod );
     FormData fdSender = new FormData();
     fdSender.left = new FormAttachment( middle, 0 );
-    fdSender.top = new FormAttachment( 0, margin );
+    fdSender.top = new FormAttachment( wlSender, 0, SWT.CENTER );
     fdSender.right = new FormAttachment( wNegateSender, -margin );
     wSender.setLayoutData(fdSender);
 
-    wNegateReceipient = new Button(wHeader, SWT.CHECK );
-    props.setLook( wNegateReceipient );
-    FormData fdNegateReceipient = new FormData();
-    wNegateReceipient.setToolTipText( BaseMessages.getString( PKG, "MailInput.NegateReceipient.Tooltip" ) );
-    fdNegateReceipient.top = new FormAttachment( wSender, margin );
-    fdNegateReceipient.right = new FormAttachment( 100, -margin );
-    wNegateReceipient.setLayoutData(fdNegateReceipient);
 
     // Receipient line
     Label wlReceipient = new Label(wHeader, SWT.RIGHT);
@@ -821,22 +828,22 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlReceipient.top = new FormAttachment( wSender, margin );
     fdlReceipient.right = new FormAttachment( middle, -margin );
     wlReceipient.setLayoutData(fdlReceipient);
+    wNegateReceipient = new Button(wHeader, SWT.CHECK );
+    props.setLook( wNegateReceipient );
+    FormData fdNegateReceipient = new FormData();
+    wNegateReceipient.setToolTipText( BaseMessages.getString( PKG, "MailInput.NegateReceipient.Tooltip" ) );
+    fdNegateReceipient.top = new FormAttachment( wlReceipient, 0, SWT.CENTER );
+    fdNegateReceipient.right = new FormAttachment( 100, -margin );
+    wNegateReceipient.setLayoutData(fdNegateReceipient);
     wReceipient = new TextVar( pipelineMeta, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wReceipient );
     wReceipient.addModifyListener( lsMod );
     FormData fdReceipient = new FormData();
     fdReceipient.left = new FormAttachment( middle, 0 );
-    fdReceipient.top = new FormAttachment( wSender, margin );
+    fdReceipient.top = new FormAttachment( wlReceipient, 0, SWT.CENTER );
     fdReceipient.right = new FormAttachment( wNegateReceipient, -margin );
     wReceipient.setLayoutData(fdReceipient);
 
-    wNegateSubject = new Button(wHeader, SWT.CHECK );
-    props.setLook( wNegateSubject );
-    FormData fdNegateSubject = new FormData();
-    wNegateSubject.setToolTipText( BaseMessages.getString( PKG, "MailInput.NegateSubject.Tooltip" ) );
-    fdNegateSubject.top = new FormAttachment( wReceipient, margin );
-    fdNegateSubject.right = new FormAttachment( 100, -margin );
-    wNegateSubject.setLayoutData(fdNegateSubject);
 
     // Subject line
     Label wlSubject = new Label(wHeader, SWT.RIGHT);
@@ -847,14 +854,22 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlSubject.top = new FormAttachment( wReceipient, margin );
     fdlSubject.right = new FormAttachment( middle, -margin );
     wlSubject.setLayoutData(fdlSubject);
+    wNegateSubject = new Button(wHeader, SWT.CHECK );
+    props.setLook( wNegateSubject );
+    FormData fdNegateSubject = new FormData();
+    wNegateSubject.setToolTipText( BaseMessages.getString( PKG, "MailInput.NegateSubject.Tooltip" ) );
+    fdNegateSubject.top = new FormAttachment( wlSubject, 0, SWT.CENTER );
+    fdNegateSubject.right = new FormAttachment( 100, -margin );
+    wNegateSubject.setLayoutData(fdNegateSubject);
     wSubject = new TextVar( pipelineMeta, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSubject );
     wSubject.addModifyListener( lsMod );
     FormData fdSubject = new FormData();
     fdSubject.left = new FormAttachment( middle, 0 );
-    fdSubject.top = new FormAttachment( wReceipient, margin );
+    fdSubject.top = new FormAttachment( wlSubject, 0, SWT.CENTER );
     fdSubject.right = new FormAttachment( wNegateSubject, -margin );
     wSubject.setLayoutData(fdSubject);
+
 
     FormData fdHeader = new FormData();
     fdHeader.left = new FormAttachment( 0, margin );
@@ -1135,26 +1150,12 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "MailInputDialog.Preview" ) );
 
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder);
-    lsGet = e -> getFields();
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-    lsPreview = e -> preview();
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
@@ -1162,8 +1163,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     };
     Listener lsTest = e -> test();
     wTest.addListener( SWT.Selection, lsTest);
-    wPreview.addListener( SWT.Selection, lsPreview );
-    wGet.addListener( SWT.Selection, lsGet );
+    wGet.addListener( SWT.Selection, e -> getFields() );
     Listener lsTestIMAPFolder = e -> checkFolder(pipelineMeta.environmentSubstitute(wIMAPFolder.getText()));
     wTestIMAPFolder.addListener( SWT.Selection, lsTestIMAPFolder);
 
@@ -1200,21 +1200,21 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
   }
 
   private void activedynamicFolder() {
-    wlFolderField.setEnabled( wdynamicFolder.getSelection() );
-    wFolderField.setEnabled( wdynamicFolder.getSelection() );
-    wlIMAPFolder.setEnabled( !wdynamicFolder.getSelection() );
-    wIMAPFolder.setEnabled( !wdynamicFolder.getSelection() );
-    wPreview.setEnabled( !wdynamicFolder.getSelection() );
-    if ( wdynamicFolder.getSelection() ) {
+    wlFolderField.setEnabled( wDynamicFolder.getSelection() );
+    wFolderField.setEnabled( wDynamicFolder.getSelection() );
+    wlIMAPFolder.setEnabled( !wDynamicFolder.getSelection() );
+    wIMAPFolder.setEnabled( !wDynamicFolder.getSelection() );
+    wPreview.setEnabled( !wDynamicFolder.getSelection() );
+    if ( wDynamicFolder.getSelection() ) {
       wLimit.setText( "0" );
     }
-    wlLimit.setEnabled( !wdynamicFolder.getSelection() );
-    wLimit.setEnabled( !wdynamicFolder.getSelection() );
+    wlLimit.setEnabled( !wDynamicFolder.getSelection() );
+    wLimit.setEnabled( !wDynamicFolder.getSelection() );
     boolean activePOP3 = wProtocol.getText().equals( MailConnectionMeta.PROTOCOL_STRING_POP3 );
-    wlIMAPFolder.setEnabled( !wdynamicFolder.getSelection() && !activePOP3 );
-    wIMAPFolder.setEnabled( !wdynamicFolder.getSelection() && !activePOP3 );
-    wTestIMAPFolder.setEnabled( !wdynamicFolder.getSelection() && !activePOP3 );
-    wSelectFolder.setEnabled( !wdynamicFolder.getSelection() && !activePOP3 );
+    wlIMAPFolder.setEnabled( !wDynamicFolder.getSelection() && !activePOP3 );
+    wIMAPFolder.setEnabled( !wDynamicFolder.getSelection() && !activePOP3 );
+    wTestIMAPFolder.setEnabled( !wDynamicFolder.getSelection() && !activePOP3 );
+    wSelectFolder.setEnabled( !wDynamicFolder.getSelection() && !activePOP3 );
   }
 
   /**
@@ -1294,7 +1294,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     if ( input.getProxyUsername() != null ) {
       wProxyUsername.setText( input.getProxyUsername() );
     }
-    wdynamicFolder.setSelection( input.isDynamicFolder() );
+    wDynamicFolder.setSelection( input.isDynamicFolder() );
     if ( input.getFolderField() != null ) {
       wFolderField.setText( input.getFolderField() );
     }
@@ -1390,7 +1390,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     in.setIncludeSubFolders( wIncludeSubFolders.getSelection() );
     in.setUseProxy( wUseProxy.getSelection() );
     in.setProxyUsername( wProxyUsername.getText() );
-    in.setDynamicFolder( wdynamicFolder.getSelection() );
+    in.setDynamicFolder( wDynamicFolder.getSelection() );
     in.setFolderField( wFolderField.getText() );
     in.setRowLimit( wLimit.getText() );
     int nrFields = wFields.nrNonEmpty();
@@ -1512,11 +1512,11 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     wIncludeSubFolders.setEnabled( !activePOP3 );
     wlIMAPListmails.setEnabled( activeIMAP );
     wIMAPListmails.setEnabled( activeIMAP );
-    if ( activePOP3 && wdynamicFolder.getSelection() ) {
-      wdynamicFolder.setSelection( false );
+    if ( activePOP3 && wDynamicFolder.getSelection() ) {
+      wDynamicFolder.setSelection( false );
     }
-    wldynamicFolder.setEnabled( !activePOP3 );
-    wdynamicFolder.setEnabled( !activePOP3 );
+    wlDynamicFolder.setEnabled( !activePOP3 );
+    wDynamicFolder.setEnabled( !activePOP3 );
 
     if ( activePOP3 ) {
       // clear out selections
@@ -1742,7 +1742,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
 
   private void addLabelInputPairBelow( Control label, Control input, Control widgetAbove ) {
     addLabelBelow( label, widgetAbove );
-    addControlBelow( input, widgetAbove );
+    addControlBelow( label, input );
   }
 
   private void addLabelBelow( Control label, Control widgetAbove ) {
@@ -1753,10 +1753,10 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     label.setLayoutData( fData );
   }
 
-  private void addControlBelow( Control control, Control widgetAbove ) {
+  private void addControlBelow( Control label, Control control ) {
     props.setLook( control );
     FormData fData = new FormData();
-    fData.top = new FormAttachment( widgetAbove, props.getMargin() );
+    fData.top = new FormAttachment( label, 0, SWT.CENTER );
     fData.left = new FormAttachment( Const.MIDDLE_PCT, props.getMargin() );
     fData.right = new FormAttachment( 100, -props.getMargin() );
     control.setLayoutData( fData );

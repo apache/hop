@@ -221,7 +221,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     wOuter.setToolTipText( wlOuter.getToolTipText() );
     FormData fdOuter = new FormData();
     fdOuter.left = new FormAttachment( middle, 0 );
-    fdOuter.top = new FormAttachment( wLimit, margin );
+    fdOuter.top = new FormAttachment( wlOuter, 0, SWT.CENTER );
     wOuter.setLayoutData(fdOuter);
     wOuter.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -244,7 +244,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     wuseVars.setToolTipText( wluseVars.getToolTipText() );
     FormData fduseVars = new FormData();
     fduseVars.left = new FormAttachment( middle, 0 );
-    fduseVars.top = new FormAttachment( wOuter, margin );
+    fduseVars.top = new FormAttachment( wluseVars, 0, SWT.CENTER );
     wuseVars.setLayoutData(fduseVars);
     wuseVars.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -260,7 +260,7 @@ public class DatabaseJoinDialog extends BaseTransformDialog implements ITransfor
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel, wGet}, margin, null );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel}, margin, null );
 
     // The parameters
     Label wlParam = new Label(shell, SWT.NONE);

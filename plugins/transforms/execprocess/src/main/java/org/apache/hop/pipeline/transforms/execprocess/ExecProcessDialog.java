@@ -92,6 +92,15 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // THE BUTTONS
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "ExecProcessDialog.TransformName.Label" ) );
@@ -178,7 +187,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     props.setLook( wArgumentsInFields );
     FormData fdArgumentsInFields = new FormData();
     fdArgumentsInFields.left = new FormAttachment( middle, 0 );
-    fdArgumentsInFields.top = new FormAttachment( wProcess, margin );
+    fdArgumentsInFields.top = new FormAttachment( wlArgumentsInFields, 0, SWT.CENTER );
     fdArgumentsInFields.right = new FormAttachment( 100, 0 );
     wArgumentsInFields.setLayoutData(fdArgumentsInFields);
     wArgumentsInFields.addSelectionListener( new SelectionAdapter() {
@@ -204,7 +213,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     props.setLook( wFailWhenNotSuccess );
     FormData fdFailWhenNotSuccess = new FormData();
     fdFailWhenNotSuccess.left = new FormAttachment( middle, 0 );
-    fdFailWhenNotSuccess.top = new FormAttachment( wArgumentsInFields, margin );
+    fdFailWhenNotSuccess.top = new FormAttachment( wlFailWhenNotSuccess, 0, SWT.CENTER );
     fdFailWhenNotSuccess.right = new FormAttachment( 100, 0 );
     wFailWhenNotSuccess.setLayoutData(fdFailWhenNotSuccess);
     wFailWhenNotSuccess.addSelectionListener( new SelectionAdapter() {
@@ -329,7 +338,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
     wTabFolder.setSelection( 0 );
@@ -338,22 +347,9 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     // END OF TAB FOLDER //
     // ////////////////////
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     // Add listeners
-    lsOk = e -> ok();
-
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
-
     lsDef = new SelectionAdapter() {
       @Override
       public void widgetDefaultSelected( SelectionEvent e ) {
