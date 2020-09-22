@@ -63,7 +63,7 @@ import java.util.*;
 public class LdapOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = LdapOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Button wusingAuthentication;
+  private Button wUsingAuthentication;
 
   private final LdapOutputMeta input;
 
@@ -122,8 +122,8 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
   private Label wlTrustStorePassword;
   private TextVar wTrustStorePassword;
 
-  private Label wlsetTrustStore;
-  private Button wsetTrustStore;
+  private Label wlSetTrustStore;
+  private Button wSetTrustStore;
 
   private Label wlTrustAll;
   private Button wTrustAll;
@@ -165,6 +165,17 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // Buttons go at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -355,24 +366,23 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wAuthenticationGroup.setLayout( AuthenticationGroupLayout );
 
     // using authentication ?
-    Label wlusingAuthentication = new Label(wAuthenticationGroup, SWT.RIGHT);
-    wlusingAuthentication.setText( BaseMessages.getString( PKG, "LdapOutputDialog.usingAuthentication.Label" ) );
-    props.setLook(wlusingAuthentication);
-    FormData fdlusingAuthentication = new FormData();
-    fdlusingAuthentication.left = new FormAttachment( 0, 0 );
-    fdlusingAuthentication.top = new FormAttachment(wConnectionGroup, margin );
-    fdlusingAuthentication.right = new FormAttachment( middle, -margin );
-    wlusingAuthentication.setLayoutData(fdlusingAuthentication);
-    wusingAuthentication = new Button(wAuthenticationGroup, SWT.CHECK );
-    props.setLook( wusingAuthentication );
-    wusingAuthentication.setToolTipText( BaseMessages.getString(
-      PKG, "LdapOutputDialog.usingAuthentication.Tooltip" ) );
-    FormData fdusingAuthentication = new FormData();
-    fdusingAuthentication.left = new FormAttachment( middle, 0 );
-    fdusingAuthentication.top = new FormAttachment(wConnectionGroup, margin );
-    wusingAuthentication.setLayoutData( fdusingAuthentication );
+    Label wlUsingAuthentication = new Label(wAuthenticationGroup, SWT.RIGHT);
+    wlUsingAuthentication.setText( BaseMessages.getString( PKG, "LdapOutputDialog.usingAuthentication.Label" ) );
+    props.setLook(wlUsingAuthentication);
+    FormData fdlUsingAuthentication = new FormData();
+    fdlUsingAuthentication.left = new FormAttachment( 0, 0 );
+    fdlUsingAuthentication.top = new FormAttachment(wConnectionGroup, margin );
+    fdlUsingAuthentication.right = new FormAttachment( middle, -margin );
+    wlUsingAuthentication.setLayoutData(fdlUsingAuthentication);
+    wUsingAuthentication = new Button(wAuthenticationGroup, SWT.CHECK );
+    props.setLook( wUsingAuthentication );
+    wUsingAuthentication.setToolTipText( BaseMessages.getString( PKG, "LdapOutputDialog.usingAuthentication.Tooltip" ) );
+    FormData fdUsingAuthentication = new FormData();
+    fdUsingAuthentication.left = new FormAttachment( middle, 0 );
+    fdUsingAuthentication.top = new FormAttachment(wlUsingAuthentication, 0, SWT.CENTER );
+    wUsingAuthentication.setLayoutData( fdUsingAuthentication );
 
-    wusingAuthentication.addSelectionListener( new SelectionAdapter() {
+    wUsingAuthentication.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         useAuthentication();
         input.setChanged();
@@ -385,7 +395,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wlUserName );
     FormData fdlUserName = new FormData();
     fdlUserName.left = new FormAttachment( 0, 0 );
-    fdlUserName.top = new FormAttachment( wusingAuthentication, margin );
+    fdlUserName.top = new FormAttachment( wUsingAuthentication, margin );
     fdlUserName.right = new FormAttachment( middle, -margin );
     wlUserName.setLayoutData(fdlUserName);
     wUserName = new TextVar( pipelineMeta, wAuthenticationGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -394,7 +404,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wUserName.addModifyListener( lsMod );
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment( middle, 0 );
-    fdUserName.top = new FormAttachment( wusingAuthentication, margin );
+    fdUserName.top = new FormAttachment( wUsingAuthentication, margin );
     fdUserName.right = new FormAttachment( 100, 0 );
     wUserName.setLayoutData(fdUserName);
 
@@ -435,29 +445,29 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wCertificateGroup);
     wCertificateGroup.setText( BaseMessages.getString( PKG, "LdapOutputDialog.Group.CertificateGroup.Label" ) );
 
-    FormLayout CertificateGroupLayout = new FormLayout();
-    CertificateGroupLayout.marginWidth = 10;
-    CertificateGroupLayout.marginHeight = 10;
-    wCertificateGroup.setLayout( CertificateGroupLayout );
+    FormLayout certificateGroupLayout = new FormLayout();
+    certificateGroupLayout.marginWidth = 10;
+    certificateGroupLayout.marginHeight = 10;
+    wCertificateGroup.setLayout( certificateGroupLayout );
 
     // set TrustStore?
-    wlsetTrustStore = new Label(wCertificateGroup, SWT.RIGHT );
-    wlsetTrustStore.setText( BaseMessages.getString( PKG, "LdapOutputDialog.setTrustStore.Label" ) );
-    props.setLook( wlsetTrustStore );
+    wlSetTrustStore = new Label(wCertificateGroup, SWT.RIGHT );
+    wlSetTrustStore.setText( BaseMessages.getString( PKG, "LdapOutputDialog.setTrustStore.Label" ) );
+    props.setLook( wlSetTrustStore );
     FormData fdlsetTrustStore = new FormData();
     fdlsetTrustStore.left = new FormAttachment( 0, 0 );
     fdlsetTrustStore.top = new FormAttachment(wAuthenticationGroup, margin );
     fdlsetTrustStore.right = new FormAttachment( middle, -margin );
-    wlsetTrustStore.setLayoutData(fdlsetTrustStore);
-    wsetTrustStore = new Button(wCertificateGroup, SWT.CHECK );
-    props.setLook( wsetTrustStore );
-    wsetTrustStore.setToolTipText( BaseMessages.getString( PKG, "LdapOutputDialog.setTrustStore.Tooltip" ) );
+    wlSetTrustStore.setLayoutData(fdlsetTrustStore);
+    wSetTrustStore = new Button(wCertificateGroup, SWT.CHECK );
+    props.setLook( wSetTrustStore );
+    wSetTrustStore.setToolTipText( BaseMessages.getString( PKG, "LdapOutputDialog.setTrustStore.Tooltip" ) );
     FormData fdsetTrustStore = new FormData();
     fdsetTrustStore.left = new FormAttachment( middle, 0 );
-    fdsetTrustStore.top = new FormAttachment(wAuthenticationGroup, margin );
-    wsetTrustStore.setLayoutData(fdsetTrustStore);
+    fdsetTrustStore.top = new FormAttachment(wlSetTrustStore, 0, SWT.CENTER );
+    wSetTrustStore.setLayoutData(fdsetTrustStore);
 
-    wsetTrustStore.addSelectionListener( new SelectionAdapter() {
+    wSetTrustStore.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
         setTrustStore();
@@ -470,7 +480,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wlTrustStorePath );
     FormData fdlTrustStorePath = new FormData();
     fdlTrustStorePath.left = new FormAttachment( 0, -margin );
-    fdlTrustStorePath.top = new FormAttachment( wsetTrustStore, margin );
+    fdlTrustStorePath.top = new FormAttachment( wSetTrustStore, margin );
     fdlTrustStorePath.right = new FormAttachment( middle, -margin );
     wlTrustStorePath.setLayoutData(fdlTrustStorePath);
 
@@ -480,7 +490,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wbbFilename.setToolTipText( BaseMessages.getString( PKG, "System.Tooltip.BrowseForFileOrDirAndAdd" ) );
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment( 100, 0 );
-    fdbFilename.top = new FormAttachment( wsetTrustStore, margin );
+    fdbFilename.top = new FormAttachment( wSetTrustStore, margin );
     wbbFilename.setLayoutData(fdbFilename);
     // Listen to the Browse... button
 
@@ -492,7 +502,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wTrustStorePath.addModifyListener( lsMod );
     FormData fdTrustStorePath = new FormData();
     fdTrustStorePath.left = new FormAttachment( middle, 0 );
-    fdTrustStorePath.top = new FormAttachment( wsetTrustStore, margin );
+    fdTrustStorePath.top = new FormAttachment( wSetTrustStore, margin );
     fdTrustStorePath.right = new FormAttachment( wbbFilename, -margin );
     wTrustStorePath.setLayoutData(fdTrustStorePath);
 
@@ -530,7 +540,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     wTrustAll.setToolTipText( BaseMessages.getString( PKG, "LdapOutputDialog.TrustAll.Tooltip" ) );
     FormData fdTrustAll = new FormData();
     fdTrustAll.left = new FormAttachment( middle, 0 );
-    fdTrustAll.top = new FormAttachment( wTrustStorePassword, margin );
+    fdTrustAll.top = new FormAttachment( wlTrustAll, 0, SWT.CENTER );
     wTrustAll.setLayoutData(fdTrustAll);
     wTrustAll.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -660,7 +670,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wFailIfNotExist );
     FormData fdFailIfNotExist = new FormData();
     fdFailIfNotExist.left = new FormAttachment( middle, 0 );
-    fdFailIfNotExist.top = new FormAttachment( wMultiValuedSeparator, margin );
+    fdFailIfNotExist.top = new FormAttachment( wlFailIfNotExist, 0, SWT.CENTER );
     fdFailIfNotExist.right = new FormAttachment( 100, 0 );
     wFailIfNotExist.setLayoutData(fdFailIfNotExist);
     SelectionAdapter lsSelR = new SelectionAdapter() {
@@ -787,7 +797,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wDeleteRDN );
     FormData fdDeleteRDN = new FormData();
     fdDeleteRDN.left = new FormAttachment( middle, 0 );
-    fdDeleteRDN.top = new FormAttachment( wNewDnField, margin );
+    fdDeleteRDN.top = new FormAttachment( wlDeleteRDN, 0, SWT.CENTER );
     fdDeleteRDN.right = new FormAttachment( 100, 0 );
     wDeleteRDN.setLayoutData(fdDeleteRDN);
     SelectionAdapter lsSeld = new SelectionAdapter() {
@@ -981,27 +991,12 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
-
     // Add listeners
-    lsOk = e -> ok();
-    Listener lsTest = e -> test();
-    lsCancel = e -> cancel();
-
-    Listener lsGetLU = e -> getUpdate();
-    wOk.addListener( SWT.Selection, lsOk );
-    wTest.addListener( SWT.Selection, lsTest);
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wGetLU.addListener( SWT.Selection, lsGetLU);
+    wTest.addListener( SWT.Selection, e -> test());
+    wGetLU.addListener( SWT.Selection, e -> getUpdate());
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -1048,7 +1043,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       // Defined a LDAP connection
       connection = new LdapConnection( log, pipelineMeta, meta, null );
       // connect...
-      if ( wusingAuthentication.getSelection() ) {
+      if ( wUsingAuthentication.getSelection() ) {
         connection.connect( pipelineMeta.environmentSubstitute( meta.getUserName() ), Encr
           .decryptPasswordOptionallyEncrypted( pipelineMeta.environmentSubstitute( meta.getPassword() ) ) );
       } else {
@@ -1084,7 +1079,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
    */
   public void getData( LdapOutputMeta in ) {
     wProtocol.setText( Const.NVL( in.getProtocol(), LdapProtocolFactory.getConnectionTypes( log ).get( 0 ) ) );
-    wsetTrustStore.setSelection( in.isUseCertificate() );
+    wSetTrustStore.setSelection( in.isUseCertificate() );
     if ( in.getTrustStorePath() != null ) {
       wTrustStorePath.setText( in.getTrustStorePath() );
     }
@@ -1093,7 +1088,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     }
     wTrustAll.setSelection( in.isTrustAllCertificates() );
 
-    wusingAuthentication.setSelection( in.isUseAuthentication() );
+    wUsingAuthentication.setSelection( in.isUseAuthentication() );
 
     if ( in.getHost() != null ) {
       wHost.setText( in.getHost() );
@@ -1180,12 +1175,12 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
   private void getInfo( LdapOutputMeta in ) throws HopException {
     transformName = wTransformName.getText(); // return value
     in.setProtocol( wProtocol.getText() );
-    in.setUseCertificate( wsetTrustStore.getSelection() );
+    in.setUseCertificate( wSetTrustStore.getSelection() );
     in.setTrustStorePath( wTrustStorePath.getText() );
     in.setTrustStorePassword( wTrustStorePassword.getText() );
     in.setTrustAllCertificates( wTrustAll.getSelection() );
 
-    in.setUseAuthentication( wusingAuthentication.getSelection() );
+    in.setUseAuthentication( wUsingAuthentication.getSelection() );
     in.setHost( wHost.getText() );
     in.setUserName( wUserName.getText() );
     in.setPassword( wPassword.getText() );
@@ -1216,10 +1211,10 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void useAuthentication() {
-    wUserName.setEnabled( wusingAuthentication.getSelection() );
-    wlUserName.setEnabled( wusingAuthentication.getSelection() );
-    wPassword.setEnabled( wusingAuthentication.getSelection() );
-    wlPassword.setEnabled( wusingAuthentication.getSelection() );
+    wUserName.setEnabled( wUsingAuthentication.getSelection() );
+    wlUserName.setEnabled( wUsingAuthentication.getSelection() );
+    wPassword.setEnabled( wUsingAuthentication.getSelection() );
+    wlPassword.setEnabled( wUsingAuthentication.getSelection() );
   }
 
   private void getPreviousFields() {
@@ -1335,7 +1330,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       // Defined a LDAP connection
       connection = new LdapConnection( log, pipelineMeta, meta, null );
       // connect ...
-      if ( wusingAuthentication.getSelection() ) {
+      if ( wUsingAuthentication.getSelection() ) {
         String username = pipelineMeta.environmentSubstitute( wUserName.getText() );
         String password =
           Encr.decryptPasswordOptionallyEncrypted( pipelineMeta.environmentSubstitute( wPassword.getText() ) );
@@ -1518,13 +1513,13 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
   private void setProtocol() {
     boolean enable = !LdapProtocol.getName().equals( wProtocol.getText() );
-    wlsetTrustStore.setEnabled( enable );
-    wsetTrustStore.setEnabled( enable );
+    wlSetTrustStore.setEnabled( enable );
+    wSetTrustStore.setEnabled( enable );
     setTrustStore();
   }
 
   private void setTrustStore() {
-    boolean enable = wsetTrustStore.getSelection() && !LdapProtocol.getName().equals( wProtocol.getText() );
+    boolean enable = wSetTrustStore.getSelection() && !LdapProtocol.getName().equals( wProtocol.getText() );
     wlTrustAll.setEnabled( enable );
     wTrustAll.setEnabled( enable );
     trustAll();
@@ -1532,7 +1527,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
 
   private void trustAll() {
     boolean enable =
-      wsetTrustStore.getSelection()
+      wSetTrustStore.getSelection()
         && !LdapProtocol.getName().equals( wProtocol.getText() ) && !wTrustAll.getSelection();
     wlTrustStorePath.setEnabled( enable );
     wTrustStorePath.setEnabled( enable );
