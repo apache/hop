@@ -47,10 +47,10 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
 
   private boolean gotPreviousFields = false;
 
-  private CCombo wemailFieldName;
+  private CCombo wEmailFieldName;
 
-  private Label wldefaultSMTPField;
-  private CCombo wdefaultSMTPField;
+  private Label wlDefaultSMTPField;
+  private CCombo wDefaultSMTPField;
 
   private TextVar wResult;
 
@@ -63,8 +63,8 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
   private Label wlDefaultSMTP;
   private TextVar wDefaultSMTP;
 
-  private Label wldynamicDefaultSMTP;
-  private Button wdynamicDefaultSMTP;
+  private Label wlDynamicDefaultSMTP;
+  private Button wDynamicDefaultSMTP;
 
   private Button wResultAsString;
 
@@ -135,15 +135,15 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     fdlemailFieldName.top = new FormAttachment( wTransformName, margin );
     wlemailFieldName.setLayoutData(fdlemailFieldName);
 
-    wemailFieldName = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
-    props.setLook( wemailFieldName );
-    wemailFieldName.addModifyListener( lsMod );
+    wEmailFieldName = new CCombo( shell, SWT.BORDER | SWT.READ_ONLY );
+    props.setLook( wEmailFieldName );
+    wEmailFieldName.addModifyListener( lsMod );
     FormData fdemailFieldName = new FormData();
     fdemailFieldName.left = new FormAttachment( middle, 0 );
     fdemailFieldName.top = new FormAttachment( wTransformName, margin );
     fdemailFieldName.right = new FormAttachment( 100, -margin );
-    wemailFieldName.setLayoutData(fdemailFieldName);
-    wemailFieldName.addFocusListener( new FocusListener() {
+    wEmailFieldName.setLayoutData(fdemailFieldName);
+    wEmailFieldName.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
 
@@ -183,7 +183,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wSMTPCheck.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.SMTPCheck.Tooltip" ) );
     FormData fdSMTPCheck = new FormData();
     fdSMTPCheck.left = new FormAttachment( middle, -margin );
-    fdSMTPCheck.top = new FormAttachment( wemailFieldName, margin );
+    fdSMTPCheck.top = new FormAttachment( wlSMTPCheck, 0, SWT.CENTER );
     wSMTPCheck.setLayoutData(fdSMTPCheck);
     wSMTPCheck.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -253,23 +253,23 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wDefaultSMTP.setLayoutData(fdDefaultSMTP);
 
     // dynamic SMTP server?
-    wldynamicDefaultSMTP = new Label(wSettingsGroup, SWT.RIGHT );
-    wldynamicDefaultSMTP.setText( BaseMessages.getString( PKG, "MailValidatorDialog.dynamicDefaultSMTP.Label" ) );
-    props.setLook( wldynamicDefaultSMTP );
-    FormData fdldynamicDefaultSMTP = new FormData();
-    fdldynamicDefaultSMTP.left = new FormAttachment( 0, 0 );
-    fdldynamicDefaultSMTP.top = new FormAttachment( wDefaultSMTP, margin );
-    fdldynamicDefaultSMTP.right = new FormAttachment( middle, -2 * margin );
-    wldynamicDefaultSMTP.setLayoutData(fdldynamicDefaultSMTP);
-    wdynamicDefaultSMTP = new Button(wSettingsGroup, SWT.CHECK );
-    props.setLook( wdynamicDefaultSMTP );
-    wdynamicDefaultSMTP.setToolTipText( BaseMessages.getString(
+    wlDynamicDefaultSMTP = new Label(wSettingsGroup, SWT.RIGHT );
+    wlDynamicDefaultSMTP.setText( BaseMessages.getString( PKG, "MailValidatorDialog.dynamicDefaultSMTP.Label" ) );
+    props.setLook( wlDynamicDefaultSMTP );
+    FormData fdlDynamicDefaultSMTP = new FormData();
+    fdlDynamicDefaultSMTP.left = new FormAttachment( 0, 0 );
+    fdlDynamicDefaultSMTP.top = new FormAttachment( wDefaultSMTP, margin );
+    fdlDynamicDefaultSMTP.right = new FormAttachment( middle, -2 * margin );
+    wlDynamicDefaultSMTP.setLayoutData(fdlDynamicDefaultSMTP);
+    wDynamicDefaultSMTP = new Button(wSettingsGroup, SWT.CHECK );
+    props.setLook( wDynamicDefaultSMTP );
+    wDynamicDefaultSMTP.setToolTipText( BaseMessages.getString(
       PKG, "MailValidatorDialog.dynamicDefaultSMTP.Tooltip" ) );
-    FormData fddynamicDefaultSMTP = new FormData();
-    fddynamicDefaultSMTP.left = new FormAttachment( middle, -margin );
-    fddynamicDefaultSMTP.top = new FormAttachment( wDefaultSMTP, margin );
-    wdynamicDefaultSMTP.setLayoutData(fddynamicDefaultSMTP);
-    wdynamicDefaultSMTP.addSelectionListener( new SelectionAdapter() {
+    FormData fdDynamicDefaultSMTP = new FormData();
+    fdDynamicDefaultSMTP.left = new FormAttachment( middle, -margin );
+    fdDynamicDefaultSMTP.top = new FormAttachment( wlDynamicDefaultSMTP, 0, SWT.CENTER );
+    wDynamicDefaultSMTP.setLayoutData(fdDynamicDefaultSMTP);
+    wDynamicDefaultSMTP.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         activedynamicDefaultSMTP();
         input.setChanged();
@@ -277,24 +277,24 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     } );
 
     // defaultSMTPField field
-    wldefaultSMTPField = new Label(wSettingsGroup, SWT.RIGHT );
-    wldefaultSMTPField.setText( BaseMessages.getString( PKG, "MailValidatorDialog.defaultSMTPField.Label" ) );
-    props.setLook( wldefaultSMTPField );
+    wlDefaultSMTPField = new Label(wSettingsGroup, SWT.RIGHT );
+    wlDefaultSMTPField.setText( BaseMessages.getString( PKG, "MailValidatorDialog.defaultSMTPField.Label" ) );
+    props.setLook( wlDefaultSMTPField );
     FormData fdldefaultSMTPField = new FormData();
     fdldefaultSMTPField.left = new FormAttachment( 0, 0 );
     fdldefaultSMTPField.right = new FormAttachment( middle, -2 * margin );
-    fdldefaultSMTPField.top = new FormAttachment( wdynamicDefaultSMTP, margin );
-    wldefaultSMTPField.setLayoutData(fdldefaultSMTPField);
+    fdldefaultSMTPField.top = new FormAttachment( wDynamicDefaultSMTP, margin );
+    wlDefaultSMTPField.setLayoutData(fdldefaultSMTPField);
 
-    wdefaultSMTPField = new CCombo(wSettingsGroup, SWT.BORDER | SWT.READ_ONLY );
-    props.setLook( wdefaultSMTPField );
-    wdefaultSMTPField.addModifyListener( lsMod );
+    wDefaultSMTPField = new CCombo(wSettingsGroup, SWT.BORDER | SWT.READ_ONLY );
+    props.setLook( wDefaultSMTPField );
+    wDefaultSMTPField.addModifyListener( lsMod );
     FormData fddefaultSMTPField = new FormData();
     fddefaultSMTPField.left = new FormAttachment( middle, -margin );
-    fddefaultSMTPField.top = new FormAttachment( wdynamicDefaultSMTP, margin );
+    fddefaultSMTPField.top = new FormAttachment( wDynamicDefaultSMTP, margin );
     fddefaultSMTPField.right = new FormAttachment( 100, -margin );
-    wdefaultSMTPField.setLayoutData(fddefaultSMTPField);
-    wdefaultSMTPField.addFocusListener( new FocusListener() {
+    wDefaultSMTPField.setLayoutData(fddefaultSMTPField);
+    wDefaultSMTPField.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
 
@@ -309,7 +309,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment( 0, margin );
-    fdSettingsGroup.top = new FormAttachment( wemailFieldName, margin );
+    fdSettingsGroup.top = new FormAttachment( wEmailFieldName, margin );
     fdSettingsGroup.right = new FormAttachment( 100, -margin );
     wSettingsGroup.setLayoutData(fdSettingsGroup);
 
@@ -364,7 +364,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wResultAsString.setToolTipText( BaseMessages.getString( PKG, "MailValidatorDialog.ResultAsString.Tooltip" ) );
     FormData fdResultAsString = new FormData();
     fdResultAsString.left = new FormAttachment( middle, -margin );
-    fdResultAsString.top = new FormAttachment( wResult, margin );
+    fdResultAsString.top = new FormAttachment( wlResultAsString, 0, SWT.CENTER );
     wResultAsString.setLayoutData(fdResultAsString);
     wResultAsString.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -495,8 +495,8 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void activedynamicDefaultSMTP() {
-    wldefaultSMTPField.setEnabled( wSMTPCheck.getSelection() && wdynamicDefaultSMTP.getSelection() );
-    wdefaultSMTPField.setEnabled( wSMTPCheck.getSelection() && wdynamicDefaultSMTP.getSelection() );
+    wlDefaultSMTPField.setEnabled( wSMTPCheck.getSelection() && wDynamicDefaultSMTP.getSelection() );
+    wDefaultSMTPField.setEnabled( wSMTPCheck.getSelection() && wDynamicDefaultSMTP.getSelection() );
   }
 
   private void activeSMTPCheck() {
@@ -506,8 +506,8 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     wDefaultSMTP.setEnabled( wSMTPCheck.getSelection() );
     wleMailSender.setEnabled( wSMTPCheck.getSelection() );
     weMailSender.setEnabled( wSMTPCheck.getSelection() );
-    wdynamicDefaultSMTP.setEnabled( wSMTPCheck.getSelection() );
-    wldynamicDefaultSMTP.setEnabled( wSMTPCheck.getSelection() );
+    wDynamicDefaultSMTP.setEnabled( wSMTPCheck.getSelection() );
+    wlDynamicDefaultSMTP.setEnabled( wSMTPCheck.getSelection() );
     activedynamicDefaultSMTP();
   }
 
@@ -516,7 +516,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
    */
   public void getData() {
     if ( input.getEmailField() != null ) {
-      wemailFieldName.setText( input.getEmailField() );
+      wEmailFieldName.setText( input.getEmailField() );
     }
     if ( input.getResultFieldName() != null ) {
       wResult.setText( input.getResultFieldName() );
@@ -541,9 +541,9 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     if ( input.geteMailSender() != null ) {
       weMailSender.setText( input.geteMailSender() );
     }
-    wdynamicDefaultSMTP.setSelection( input.isdynamicDefaultSMTP() );
+    wDynamicDefaultSMTP.setSelection( input.isdynamicDefaultSMTP() );
     if ( input.getDefaultSMTPField() != null ) {
-      wdefaultSMTPField.setText( input.getDefaultSMTPField() );
+      wDefaultSMTPField.setText( input.getDefaultSMTPField() );
     }
 
     wTransformName.selectAll();
@@ -567,7 +567,7 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     if ( Utils.isEmpty( wTransformName.getText() ) ) {
       return;
     }
-    input.setEmailfield( wemailFieldName.getText() );
+    input.setEmailfield( wEmailFieldName.getText() );
     input.setResultFieldName( wResult.getText() );
     transformName = wTransformName.getText(); // return value
 
@@ -579,8 +579,8 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
     input.setDefaultSMTP( wDefaultSMTP.getText() );
     input.seteMailSender( weMailSender.getText() );
     input.setSMTPCheck( wSMTPCheck.getSelection() );
-    input.setdynamicDefaultSMTP( wdynamicDefaultSMTP.getSelection() );
-    input.setDefaultSMTPField( wdefaultSMTPField.getText() );
+    input.setdynamicDefaultSMTP( wDynamicDefaultSMTP.getSelection() );
+    input.setDefaultSMTPField( wDefaultSMTPField.getText() );
 
     dispose();
   }
@@ -590,26 +590,26 @@ public class MailValidatorDialog extends BaseTransformDialog implements ITransfo
       try {
         String emailField = null;
         String smtpdefaultField = null;
-        if ( wemailFieldName.getText() != null ) {
-          emailField = wemailFieldName.getText();
+        if ( wEmailFieldName.getText() != null ) {
+          emailField = wEmailFieldName.getText();
         }
-        if ( wdefaultSMTPField.getText() != null ) {
-          smtpdefaultField = wdefaultSMTPField.getText();
+        if ( wDefaultSMTPField.getText() != null ) {
+          smtpdefaultField = wDefaultSMTPField.getText();
         }
 
-        wemailFieldName.removeAll();
-        wdefaultSMTPField.removeAll();
+        wEmailFieldName.removeAll();
+        wDefaultSMTPField.removeAll();
 
         IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
-          wemailFieldName.setItems( r.getFieldNames() );
-          wdefaultSMTPField.setItems( r.getFieldNames() );
+          wEmailFieldName.setItems( r.getFieldNames() );
+          wDefaultSMTPField.setItems( r.getFieldNames() );
         }
         if ( emailField != null ) {
-          wemailFieldName.setText( emailField );
+          wEmailFieldName.setText( emailField );
         }
         if ( smtpdefaultField != null ) {
-          wdefaultSMTPField.setText( smtpdefaultField );
+          wDefaultSMTPField.setText( smtpdefaultField );
         }
         gotPreviousFields = true;
       } catch ( HopException ke ) {

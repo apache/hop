@@ -67,16 +67,16 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
   private Group wOriginFiles;
   private Group wZipGroup;
 
-  private Button wisFileDynamic, wisattachContentField;
+  private Button wIsFileDynamic, wIsAttachContentField;
 
   private Label wlDynamicFilenameField;
-  private Label wlattachContentField, wlattachContentFileNameField;
-  private CCombo wDynamicFilenameField, wattachContentField, wattachContentFileNameField;
+  private Label wlAttachContentField, wlAttachContentFileNameField;
+  private CCombo wDynamicFilenameField, wAttachContentField, wAttachContentFileNameField;
 
   private Label wlDynamicWildcardField;
   private CCombo wDynamicWildcardField;
 
-  private Label wlisZipFileDynamic;
+  private Label wlIsZipFileDynamic;
 
   private CCombo wReplyToAddresses;
 
@@ -124,7 +124,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
   private Button wbFileFoldername, wbSourceFolder;
   private TextVar wSourceFileFoldername;
 
-  private Button wincludeSubFolders;
+  private Button wIncludeSubFolders;
 
   private Button wOnlyComment, wUseHTML, wUsePriority;
 
@@ -189,6 +189,16 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // Some buttons
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e->ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -670,7 +680,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wUseAuth );
     FormData fdUseAuth = new FormData();
     fdUseAuth.left = new FormAttachment( middle, -margin );
-    fdUseAuth.top = new FormAttachment(wServerGroup, margin );
+    fdUseAuth.top = new FormAttachment(wlUseAuth, 0, SWT.CENTER );
     fdUseAuth.right = new FormAttachment( 100, 0 );
     wUseAuth.setLayoutData(fdUseAuth);
     wUseAuth.addSelectionListener( new SelectionAdapter() {
@@ -884,7 +894,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wOnlyComment );
     FormData fdOnlyComment = new FormData();
     fdOnlyComment.left = new FormAttachment( middle, -margin );
-    fdOnlyComment.top = new FormAttachment( wAddDate, margin );
+    fdOnlyComment.top = new FormAttachment( wlOnlyComment, 0, SWT.CENTER );
     fdOnlyComment.right = new FormAttachment( 100, 0 );
     wOnlyComment.setLayoutData(fdOnlyComment);
     wOnlyComment.addSelectionListener( new SelectionAdapter() {
@@ -906,7 +916,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wUseHTML );
     FormData fdUseHTML = new FormData();
     fdUseHTML.left = new FormAttachment( middle, -margin );
-    fdUseHTML.top = new FormAttachment( wOnlyComment, margin );
+    fdUseHTML.top = new FormAttachment( wlUseHTML, 0, SWT.CENTER );
     fdUseHTML.right = new FormAttachment( 100, 0 );
     wUseHTML.setLayoutData(fdUseHTML);
     wUseHTML.addSelectionListener( new SelectionAdapter() {
@@ -961,7 +971,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wUsePriority );
     FormData fdUsePriority = new FormData();
     fdUsePriority.left = new FormAttachment( middle, -margin );
-    fdUsePriority.top = new FormAttachment( wEncoding, margin );
+    fdUsePriority.top = new FormAttachment( wlUsePriority, 0, SWT.CENTER );
     fdUsePriority.right = new FormAttachment( 100, 0 );
     wUsePriority.setLayoutData(fdUsePriority);
     wUsePriority.addSelectionListener( new SelectionAdapter() {
@@ -1185,50 +1195,48 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wAttachedContent.setLayout( AttachedContentgroupLayout );
 
     // Is Filename defined in a Field
-    Label wlisattachContentField = new Label(wAttachedContent, SWT.RIGHT);
-    wlisattachContentField.setText( BaseMessages.getString( PKG, "MailDialog.isattachContentField.Label" ) );
-    props.setLook(wlisattachContentField);
-    FormData fdlisattachContentField = new FormData();
-    fdlisattachContentField.left = new FormAttachment( 0, -margin );
-    fdlisattachContentField.top = new FormAttachment( 0, margin );
-    fdlisattachContentField.right = new FormAttachment( middle, -2 * margin );
-    wlisattachContentField.setLayoutData( fdlisattachContentField );
-
-    wisattachContentField = new Button(wAttachedContent, SWT.CHECK );
-    props.setLook( wisattachContentField );
-    wisattachContentField.setToolTipText( BaseMessages.getString( PKG, "MailDialog.isattachContentField.Tooltip" ) );
-    FormData fdisattachContentField = new FormData();
-    fdisattachContentField.left = new FormAttachment( middle, -margin );
-    fdisattachContentField.top = new FormAttachment( 0, margin );
-    wisattachContentField.setLayoutData( fdisattachContentField );
+    Label wlIsAttachContentField = new Label(wAttachedContent, SWT.RIGHT);
+    wlIsAttachContentField.setText( BaseMessages.getString( PKG, "MailDialog.isattachContentField.Label" ) );
+    props.setLook(wlIsAttachContentField);
+    FormData fdlIsAttachContentField = new FormData();
+    fdlIsAttachContentField.left = new FormAttachment( 0, -margin );
+    fdlIsAttachContentField.top = new FormAttachment( 0, margin );
+    fdlIsAttachContentField.right = new FormAttachment( middle, -2 * margin );
+    wlIsAttachContentField.setLayoutData( fdlIsAttachContentField );
+    wIsAttachContentField = new Button(wAttachedContent, SWT.CHECK );
+    props.setLook( wIsAttachContentField );
+    wIsAttachContentField.setToolTipText( BaseMessages.getString( PKG, "MailDialog.isattachContentField.Tooltip" ) );
+    FormData fdIsAttachContentField = new FormData();
+    fdIsAttachContentField.left = new FormAttachment( middle, -margin );
+    fdIsAttachContentField.top = new FormAttachment( wlIsAttachContentField, 0, SWT.CENTER );
+    wIsAttachContentField.setLayoutData( fdIsAttachContentField );
     SelectionAdapter lisattachContentField = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         activeISAttachContentField();
         input.setChanged();
       }
     };
-    wisattachContentField.addSelectionListener( lisattachContentField );
+    wIsAttachContentField.addSelectionListener( lisattachContentField );
 
     // attache file content field
-    wlattachContentField = new Label(wAttachedContent, SWT.RIGHT );
-    wlattachContentField.setText( BaseMessages.getString( PKG, "MailDialog.attachContentField.Label" ) );
-    props.setLook( wlattachContentField );
-    FormData fdlattachContentField = new FormData();
-    fdlattachContentField.left = new FormAttachment( 0, -margin );
-    fdlattachContentField.top = new FormAttachment( wisattachContentField, margin );
-    fdlattachContentField.right = new FormAttachment( middle, -2 * margin );
-    wlattachContentField.setLayoutData( fdlattachContentField );
-
-    wattachContentField = new CCombo(wAttachedContent, SWT.BORDER | SWT.READ_ONLY );
-    wattachContentField.setEditable( true );
-    props.setLook( wattachContentField );
-    wattachContentField.addModifyListener( lsMod );
-    FormData fdattachContentField = new FormData();
-    fdattachContentField.left = new FormAttachment( middle, -margin );
-    fdattachContentField.top = new FormAttachment( wisattachContentField, margin );
-    fdattachContentField.right = new FormAttachment( 100, -margin );
-    wattachContentField.setLayoutData( fdattachContentField );
-    wattachContentField.addFocusListener( new FocusListener() {
+    wlAttachContentField = new Label(wAttachedContent, SWT.RIGHT );
+    wlAttachContentField.setText( BaseMessages.getString( PKG, "MailDialog.attachContentField.Label" ) );
+    props.setLook( wlAttachContentField );
+    FormData fdlAttachContentField = new FormData();
+    fdlAttachContentField.left = new FormAttachment( 0, -margin );
+    fdlAttachContentField.top = new FormAttachment( wIsAttachContentField, margin );
+    fdlAttachContentField.right = new FormAttachment( middle, -2 * margin );
+    wlAttachContentField.setLayoutData( fdlAttachContentField );
+    wAttachContentField = new CCombo(wAttachedContent, SWT.BORDER | SWT.READ_ONLY );
+    wAttachContentField.setEditable( true );
+    props.setLook( wAttachContentField );
+    wAttachContentField.addModifyListener( lsMod );
+    FormData fdAttachContentField = new FormData();
+    fdAttachContentField.left = new FormAttachment( middle, -margin );
+    fdAttachContentField.top = new FormAttachment( wIsAttachContentField, margin );
+    fdAttachContentField.right = new FormAttachment( 100, -margin );
+    wAttachContentField.setLayoutData( fdAttachContentField );
+    wAttachContentField.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
 
@@ -1242,26 +1250,24 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     } );
 
     // attached content filename field
-    wlattachContentFileNameField = new Label(wAttachedContent, SWT.RIGHT );
-    wlattachContentFileNameField.setText( BaseMessages.getString(
-      PKG, "MailDialog.attachContentFileNameField.Label" ) );
-    props.setLook( wlattachContentFileNameField );
-    FormData fdlattachContentFileNameField = new FormData();
-    fdlattachContentFileNameField.left = new FormAttachment( 0, -margin );
-    fdlattachContentFileNameField.top = new FormAttachment( wattachContentField, margin );
-    fdlattachContentFileNameField.right = new FormAttachment( middle, -2 * margin );
-    wlattachContentFileNameField.setLayoutData( fdlattachContentFileNameField );
-
-    wattachContentFileNameField = new CCombo(wAttachedContent, SWT.BORDER | SWT.READ_ONLY );
-    wattachContentFileNameField.setEditable( true );
-    props.setLook( wattachContentFileNameField );
-    wattachContentFileNameField.addModifyListener( lsMod );
-    FormData fdattachContentFileNameField = new FormData();
-    fdattachContentFileNameField.left = new FormAttachment( middle, -margin );
-    fdattachContentFileNameField.top = new FormAttachment( wattachContentField, margin );
-    fdattachContentFileNameField.right = new FormAttachment( 100, -margin );
-    wattachContentFileNameField.setLayoutData( fdattachContentFileNameField );
-    wattachContentFileNameField.addFocusListener( new FocusListener() {
+    wlAttachContentFileNameField = new Label(wAttachedContent, SWT.RIGHT );
+    wlAttachContentFileNameField.setText( BaseMessages.getString( PKG, "MailDialog.attachContentFileNameField.Label" ) );
+    props.setLook( wlAttachContentFileNameField );
+    FormData fdlAttachContentFileNameField = new FormData();
+    fdlAttachContentFileNameField.left = new FormAttachment( 0, -margin );
+    fdlAttachContentFileNameField.top = new FormAttachment( wAttachContentField, margin );
+    fdlAttachContentFileNameField.right = new FormAttachment( middle, -2 * margin );
+    wlAttachContentFileNameField.setLayoutData( fdlAttachContentFileNameField );
+    wAttachContentFileNameField = new CCombo(wAttachedContent, SWT.BORDER | SWT.READ_ONLY );
+    wAttachContentFileNameField.setEditable( true );
+    props.setLook( wAttachContentFileNameField );
+    wAttachContentFileNameField.addModifyListener( lsMod );
+    FormData fdAttachContentFileNameField = new FormData();
+    fdAttachContentFileNameField.left = new FormAttachment( middle, -margin );
+    fdAttachContentFileNameField.top = new FormAttachment( wAttachContentField, margin );
+    fdAttachContentFileNameField.right = new FormAttachment( 100, -margin );
+    wAttachContentFileNameField.setLayoutData( fdAttachContentFileNameField );
+    wAttachContentFileNameField.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
 
@@ -1298,29 +1304,28 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wOriginFiles.setLayout( OriginFilesgroupLayout );
 
     // Is Filename defined in a Field
-    Label wlisFileDynamic = new Label(wOriginFiles, SWT.RIGHT);
-    wlisFileDynamic.setText( BaseMessages.getString( PKG, "MailDialog.isFileDynamic.Label" ) );
-    props.setLook(wlisFileDynamic);
-    FormData fdlisFileDynamic = new FormData();
-    fdlisFileDynamic.left = new FormAttachment( 0, -margin );
-    fdlisFileDynamic.top = new FormAttachment(wAttachedContent, margin );
-    fdlisFileDynamic.right = new FormAttachment( middle, -2 * margin );
-    wlisFileDynamic.setLayoutData( fdlisFileDynamic );
-
-    wisFileDynamic = new Button( wOriginFiles, SWT.CHECK );
-    props.setLook( wisFileDynamic );
-    wisFileDynamic.setToolTipText( BaseMessages.getString( PKG, "MailDialog.isFileDynamic.Tooltip" ) );
-    FormData fdisFileDynamic = new FormData();
-    fdisFileDynamic.left = new FormAttachment( middle, -margin );
-    fdisFileDynamic.top = new FormAttachment(wAttachedContent, margin );
-    wisFileDynamic.setLayoutData( fdisFileDynamic );
+    Label wlAsFileDynamic = new Label(wOriginFiles, SWT.RIGHT);
+    wlAsFileDynamic.setText( BaseMessages.getString( PKG, "MailDialog.isFileDynamic.Label" ) );
+    props.setLook(wlAsFileDynamic);
+    FormData fdlIsFileDynamic = new FormData();
+    fdlIsFileDynamic.left = new FormAttachment( 0, -margin );
+    fdlIsFileDynamic.top = new FormAttachment(wAttachedContent, margin );
+    fdlIsFileDynamic.right = new FormAttachment( middle, -2 * margin );
+    wlAsFileDynamic.setLayoutData( fdlIsFileDynamic );
+    wIsFileDynamic = new Button( wOriginFiles, SWT.CHECK );
+    props.setLook( wIsFileDynamic );
+    wIsFileDynamic.setToolTipText( BaseMessages.getString( PKG, "MailDialog.isFileDynamic.Tooltip" ) );
+    FormData fdIsFileDynamic = new FormData();
+    fdIsFileDynamic.left = new FormAttachment( middle, -margin );
+    fdIsFileDynamic.top = new FormAttachment(wlAsFileDynamic, 0, SWT.CENTER );
+    wIsFileDynamic.setLayoutData( fdIsFileDynamic );
     SelectionAdapter lisFileDynamic = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
         ActiveisFileDynamic();
         input.setChanged();
       }
     };
-    wisFileDynamic.addSelectionListener( lisFileDynamic );
+    wIsFileDynamic.addSelectionListener( lisFileDynamic );
 
     // Filename field
     wlDynamicFilenameField = new Label( wOriginFiles, SWT.RIGHT );
@@ -1328,7 +1333,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wlDynamicFilenameField );
     FormData fdlFilenameField = new FormData();
     fdlFilenameField.left = new FormAttachment( 0, -margin );
-    fdlFilenameField.top = new FormAttachment( wisFileDynamic, margin );
+    fdlFilenameField.top = new FormAttachment( wIsFileDynamic, margin );
     fdlFilenameField.right = new FormAttachment( middle, -2 * margin );
     wlDynamicFilenameField.setLayoutData( fdlFilenameField );
 
@@ -1338,7 +1343,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wDynamicFilenameField.addModifyListener( lsMod );
     FormData fdFilenameField = new FormData();
     fdFilenameField.left = new FormAttachment( middle, -margin );
-    fdFilenameField.top = new FormAttachment( wisFileDynamic, margin );
+    fdFilenameField.top = new FormAttachment( wIsFileDynamic, margin );
     fdFilenameField.right = new FormAttachment( 100, -margin );
     wDynamicFilenameField.setLayoutData( fdFilenameField );
     wDynamicFilenameField.addFocusListener( new FocusListener() {
@@ -1459,23 +1464,23 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     } );
 
     // Include sub folders
-    Label wlincludeSubFolders = new Label(wOriginFiles, SWT.RIGHT);
-    wlincludeSubFolders.setText( BaseMessages.getString( PKG, "MailDialog.includeSubFolders.Label" ) );
-    props.setLook(wlincludeSubFolders);
-    FormData fdlincludeSubFolders = new FormData();
-    fdlincludeSubFolders.left = new FormAttachment( 0, 0 );
-    fdlincludeSubFolders.top = new FormAttachment( wSourceFileFoldername, margin );
-    fdlincludeSubFolders.right = new FormAttachment( middle, -margin );
-    wlincludeSubFolders.setLayoutData(fdlincludeSubFolders);
-    wincludeSubFolders = new Button( wOriginFiles, SWT.CHECK );
-    props.setLook( wincludeSubFolders );
-    wincludeSubFolders.setToolTipText( BaseMessages.getString( PKG, "MailDialog.includeSubFolders.Tooltip" ) );
-    FormData fdincludeSubFolders = new FormData();
-    fdincludeSubFolders.left = new FormAttachment( middle, 0 );
-    fdincludeSubFolders.top = new FormAttachment( wSourceFileFoldername, margin );
-    fdincludeSubFolders.right = new FormAttachment( 100, 0 );
-    wincludeSubFolders.setLayoutData(fdincludeSubFolders);
-    wincludeSubFolders.addSelectionListener( new SelectionAdapter() {
+    Label wlIncludeSubFolders = new Label(wOriginFiles, SWT.RIGHT);
+    wlIncludeSubFolders.setText( BaseMessages.getString( PKG, "MailDialog.includeSubFolders.Label" ) );
+    props.setLook(wlIncludeSubFolders);
+    FormData fdlIncludeSubFolders = new FormData();
+    fdlIncludeSubFolders.left = new FormAttachment( 0, 0 );
+    fdlIncludeSubFolders.top = new FormAttachment( wSourceFileFoldername, margin );
+    fdlIncludeSubFolders.right = new FormAttachment( middle, -margin );
+    wlIncludeSubFolders.setLayoutData(fdlIncludeSubFolders);
+    wIncludeSubFolders = new Button( wOriginFiles, SWT.CHECK );
+    props.setLook( wIncludeSubFolders );
+    wIncludeSubFolders.setToolTipText( BaseMessages.getString( PKG, "MailDialog.includeSubFolders.Tooltip" ) );
+    FormData fdIncludeSubFolders = new FormData();
+    fdIncludeSubFolders.left = new FormAttachment( middle, 0 );
+    fdIncludeSubFolders.top = new FormAttachment( wlIncludeSubFolders, 0, SWT.CENTER );
+    fdIncludeSubFolders.right = new FormAttachment( 100, 0 );
+    wIncludeSubFolders.setLayoutData(fdIncludeSubFolders);
+    wIncludeSubFolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
       }
@@ -1487,7 +1492,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wlWildcard );
     FormData fdlWildcard = new FormData();
     fdlWildcard.left = new FormAttachment( 0, 0 );
-    fdlWildcard.top = new FormAttachment( wincludeSubFolders, margin );
+    fdlWildcard.top = new FormAttachment( wIncludeSubFolders, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard = new TextVar( pipelineMeta, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -1496,7 +1501,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wWildcard.addModifyListener( lsMod );
     FormData fdWildcard = new FormData();
     fdWildcard.left = new FormAttachment( middle, 0 );
-    fdWildcard.top = new FormAttachment( wincludeSubFolders, margin );
+    fdWildcard.top = new FormAttachment( wIncludeSubFolders, margin );
     fdWildcard.right = new FormAttachment( wbFileFoldername, -margin );
     wWildcard.setLayoutData(fdWildcard);
 
@@ -1538,7 +1543,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wZipFiles );
     FormData fdZipFiles = new FormData();
     fdZipFiles.left = new FormAttachment( middle, -margin );
-    fdZipFiles.top = new FormAttachment( wOriginFiles, margin );
+    fdZipFiles.top = new FormAttachment( wlZipFiles, 0, SWT.CENTER );
     fdZipFiles.right = new FormAttachment( 100, -margin );
     wZipFiles.setLayoutData(fdZipFiles);
     wZipFiles.addSelectionListener( new SelectionAdapter() {
@@ -1549,21 +1554,21 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     } );
 
     // is zipfilename is dynamic?
-    wlisZipFileDynamic = new Label( wZipGroup, SWT.RIGHT );
-    wlisZipFileDynamic.setText( BaseMessages.getString( PKG, "MailDialog.isZipFileDynamic.Label" ) );
-    props.setLook( wlisZipFileDynamic );
-    FormData fdlisZipFileDynamic = new FormData();
-    fdlisZipFileDynamic.left = new FormAttachment( 0, -margin );
-    fdlisZipFileDynamic.top = new FormAttachment( wZipFiles, margin );
-    fdlisZipFileDynamic.right = new FormAttachment( middle, -2 * margin );
-    wlisZipFileDynamic.setLayoutData(fdlisZipFileDynamic);
+    wlIsZipFileDynamic = new Label( wZipGroup, SWT.RIGHT );
+    wlIsZipFileDynamic.setText( BaseMessages.getString( PKG, "MailDialog.isZipFileDynamic.Label" ) );
+    props.setLook( wlIsZipFileDynamic );
+    FormData fdlIsZipFileDynamic = new FormData();
+    fdlIsZipFileDynamic.left = new FormAttachment( 0, -margin );
+    fdlIsZipFileDynamic.top = new FormAttachment( wZipFiles, margin );
+    fdlIsZipFileDynamic.right = new FormAttachment( middle, -2 * margin );
+    wlIsZipFileDynamic.setLayoutData(fdlIsZipFileDynamic);
     wisZipFileDynamic = new Button( wZipGroup, SWT.CHECK );
     props.setLook( wisZipFileDynamic );
-    FormData fdisZipFileDynamic = new FormData();
-    fdisZipFileDynamic.left = new FormAttachment( middle, -margin );
-    fdisZipFileDynamic.top = new FormAttachment( wZipFiles, margin );
-    fdisZipFileDynamic.right = new FormAttachment( 100, -margin );
-    wisZipFileDynamic.setLayoutData(fdisZipFileDynamic);
+    FormData fdIsZipFileDynamic = new FormData();
+    fdIsZipFileDynamic.left = new FormAttachment( middle, -margin );
+    fdIsZipFileDynamic.top = new FormAttachment( wlIsZipFileDynamic, 0, SWT.CENTER );
+    fdIsZipFileDynamic.right = new FormAttachment( 100, -margin );
+    wisZipFileDynamic.setLayoutData(fdIsZipFileDynamic);
     wisZipFileDynamic.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -1859,23 +1864,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
-
-    // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -1922,22 +1913,22 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
   private void setZip() {
     wZipFilename.setEnabled( wZipFiles.getSelection() );
     wZipSizeCondition.setEnabled( wZipFiles.getSelection() );
-    wlisZipFileDynamic.setEnabled( wZipFiles.getSelection() );
+    wlIsZipFileDynamic.setEnabled( wZipFiles.getSelection() );
     wisZipFileDynamic.setEnabled( wZipFiles.getSelection() );
     setDynamicZip();
   }
 
   private void ActiveisFileDynamic() {
-    wlDynamicFilenameField.setEnabled( wisFileDynamic.getSelection() );
-    wDynamicFilenameField.setEnabled( wisFileDynamic.getSelection() );
-    wlDynamicWildcardField.setEnabled( wisFileDynamic.getSelection() );
-    wDynamicWildcardField.setEnabled( wisFileDynamic.getSelection() );
-    wWildcard.setEnabled( !wisFileDynamic.getSelection() );
-    wlWildcard.setEnabled( !wisFileDynamic.getSelection() );
-    wSourceFileFoldername.setEnabled( !wisFileDynamic.getSelection() );
-    wlSourceFileFoldername.setEnabled( !wisFileDynamic.getSelection() );
-    wbFileFoldername.setEnabled( !wisFileDynamic.getSelection() );
-    wbSourceFolder.setEnabled( !wisFileDynamic.getSelection() );
+    wlDynamicFilenameField.setEnabled( wIsFileDynamic.getSelection() );
+    wDynamicFilenameField.setEnabled( wIsFileDynamic.getSelection() );
+    wlDynamicWildcardField.setEnabled( wIsFileDynamic.getSelection() );
+    wDynamicWildcardField.setEnabled( wIsFileDynamic.getSelection() );
+    wWildcard.setEnabled( !wIsFileDynamic.getSelection() );
+    wlWildcard.setEnabled( !wIsFileDynamic.getSelection() );
+    wSourceFileFoldername.setEnabled( !wIsFileDynamic.getSelection() );
+    wlSourceFileFoldername.setEnabled( !wIsFileDynamic.getSelection() );
+    wbFileFoldername.setEnabled( !wIsFileDynamic.getSelection() );
+    wbSourceFolder.setEnabled( !wIsFileDynamic.getSelection() );
   }
 
   private void getPreviousFields() {
@@ -2048,16 +2039,16 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
         wDynamicZipFileField.removeAll();
 
         String attachcontent = null;
-        if ( wattachContentField != null ) {
-          attachcontent = wattachContentField.getText();
+        if ( wAttachContentField != null ) {
+          attachcontent = wAttachContentField.getText();
         }
-        wattachContentField.removeAll();
+        wAttachContentField.removeAll();
 
         String attachcontentfilename = null;
-        if ( wattachContentFileNameField != null ) {
-          attachcontentfilename = wattachContentFileNameField.getText();
+        if ( wAttachContentFileNameField != null ) {
+          attachcontentfilename = wAttachContentFileNameField.getText();
         }
-        wattachContentFileNameField.removeAll();
+        wAttachContentFileNameField.removeAll();
 
         IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
         if ( r != null ) {
@@ -2079,8 +2070,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
           wDynamicWildcardField.setItems( fieldnames );
           wDynamicZipFileField.setItems( fieldnames );
           wReplyToAddresses.setItems( fieldnames );
-          wattachContentField.setItems( fieldnames );
-          wattachContentFileNameField.setItems( fieldnames );
+          wAttachContentField.setItems( fieldnames );
+          wAttachContentFileNameField.setItems( fieldnames );
 
         }
         if ( destination != null ) {
@@ -2135,10 +2126,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
           wReplyToAddresses.setText( replyToaddress );
         }
         if ( attachcontent != null ) {
-          wattachContentField.setText( attachcontent );
+          wAttachContentField.setText( attachcontent );
         }
         if ( attachcontentfilename != null ) {
-          wattachContentFileNameField.setText( attachcontentfilename );
+          wAttachContentFileNameField.setText( attachcontentfilename );
         }
       }
 
@@ -2220,12 +2211,12 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wisattachContentField.setSelection( input.isAttachContentFromField() );
+    wIsAttachContentField.setSelection( input.isAttachContentFromField() );
     if ( input.getAttachContentField() != null ) {
-      wattachContentField.setText( input.getAttachContentField() );
+      wAttachContentField.setText( input.getAttachContentField() );
     }
     if ( input.getAttachContentFileNameField() != null ) {
-      wattachContentFileNameField.setText( input.getAttachContentFileNameField() );
+      wAttachContentFileNameField.setText( input.getAttachContentFileNameField() );
     }
     if ( input.getDestination() != null ) {
       wDestination.setText( input.getDestination() );
@@ -2262,7 +2253,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     }
 
     wAddDate.setSelection( input.getIncludeDate() );
-    wisFileDynamic.setSelection( input.isDynamicFilename() );
+    wIsFileDynamic.setSelection( input.isDynamicFilename() );
     if ( input.getDynamicFieldname() != null ) {
       wDynamicFilenameField.setText( input.getDynamicFieldname() );
     }
@@ -2278,7 +2269,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
       wWildcard.setText( input.getSourceWildcard() );
     }
 
-    wincludeSubFolders.setSelection( input.isIncludeSubFolders() );
+    wIncludeSubFolders.setSelection( input.isIncludeSubFolders() );
 
     wZipFiles.setSelection( input.isZipFiles() );
     if ( input.getZipFilename() != null ) {
@@ -2400,9 +2391,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     }
 
     transformName = wTransformName.getText(); // return value
-    input.setAttachContentFromField( wisattachContentField.getSelection() );
-    input.setAttachContentField( wattachContentField.getText() );
-    input.setAttachContentFileNameField( wattachContentFileNameField.getText() );
+    input.setAttachContentFromField( wIsAttachContentField.getSelection() );
+    input.setAttachContentField( wAttachContentField.getText() );
+    input.setAttachContentFileNameField( wAttachContentFileNameField.getText() );
     input.setDestination( wDestination.getText() );
     input.setDestinationCc( wDestinationCc.getText() );
     input.setDestinationBCc( wDestinationBCc.getText() );
@@ -2415,9 +2406,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     input.setContactPhone( wPhone.getText() );
     input.setComment( wComment.getText() );
 
-    input.setIncludeSubFolders( wincludeSubFolders.getSelection() );
+    input.setIncludeSubFolders( wIncludeSubFolders.getSelection() );
     input.setIncludeDate( wAddDate.getSelection() );
-    input.setisDynamicFilename( wisFileDynamic.getSelection() );
+    input.setisDynamicFilename( wIsFileDynamic.getSelection() );
     input.setDynamicFieldname( wDynamicFilenameField.getText() );
     input.setDynamicWildcard( wDynamicWildcardField.getText() );
 
@@ -2499,11 +2490,11 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
   }
 
   private void activeISAttachContentField() {
-    wOriginFiles.setEnabled( !wisattachContentField.getSelection() );
-    wZipGroup.setEnabled( !wisattachContentField.getSelection() );
-    wlattachContentField.setEnabled( wisattachContentField.getSelection() );
-    wattachContentField.setEnabled( wisattachContentField.getSelection() );
-    wlattachContentFileNameField.setEnabled( wisattachContentField.getSelection() );
-    wattachContentFileNameField.setEnabled( wisattachContentField.getSelection() );
+    wOriginFiles.setEnabled( !wIsAttachContentField.getSelection() );
+    wZipGroup.setEnabled( !wIsAttachContentField.getSelection() );
+    wlAttachContentField.setEnabled( wIsAttachContentField.getSelection() );
+    wAttachContentField.setEnabled( wIsAttachContentField.getSelection() );
+    wlAttachContentFileNameField.setEnabled( wIsAttachContentField.getSelection() );
+    wAttachContentFileNameField.setEnabled( wIsAttachContentField.getSelection() );
   }
 }

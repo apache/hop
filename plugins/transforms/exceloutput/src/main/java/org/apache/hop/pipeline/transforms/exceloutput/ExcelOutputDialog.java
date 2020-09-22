@@ -155,7 +155,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
 
   private Button wNullIsBlank;
 
-  private Button wuseTempFiles;
+  private Button wUseTempFiles;
 
   private Button wCreateParentFolder;
 
@@ -190,6 +190,16 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -336,7 +346,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wAddTransformNr );
     FormData fdAddTransformNr = new FormData();
     fdAddTransformNr.left = new FormAttachment( middle, 0 );
-    fdAddTransformNr.top = new FormAttachment( wExtension, margin );
+    fdAddTransformNr.top = new FormAttachment( wlAddTransformNr, 0, SWT.CENTER );
     fdAddTransformNr.right = new FormAttachment( 100, 0 );
     wAddTransformNr.setLayoutData(fdAddTransformNr);
     wAddTransformNr.addSelectionListener( new SelectionAdapter() {
@@ -390,6 +400,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
         input.setChanged();
       }
     } );
+
     // Specify date time format?
     Label wlSpecifyFormat = new Label(wFileComp, SWT.RIGHT);
     wlSpecifyFormat.setText( BaseMessages.getString( PKG, "ExcelOutputDialog.SpecifyFormat.Label" ) );
@@ -404,7 +415,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wSpecifyFormat.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.SpecifyFormat.Tooltip" ) );
     FormData fdSpecifyFormat = new FormData();
     fdSpecifyFormat.left = new FormAttachment( middle, 0 );
-    fdSpecifyFormat.top = new FormAttachment( wAddTime, margin );
+    fdSpecifyFormat.top = new FormAttachment( wlSpecifyFormat, 0, SWT.CENTER );
     fdSpecifyFormat.right = new FormAttachment( 100, 0 );
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener( new SelectionAdapter() {
@@ -424,7 +435,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wlDateTimeFormat );
     FormData fdlDateTimeFormat = new FormData();
     fdlDateTimeFormat.left = new FormAttachment( 0, 0 );
-    fdlDateTimeFormat.top = new FormAttachment( wSpecifyFormat, margin );
+    fdlDateTimeFormat.top = new FormAttachment( wSpecifyFormat, 2*margin );
     fdlDateTimeFormat.right = new FormAttachment( middle, -margin );
     wlDateTimeFormat.setLayoutData(fdlDateTimeFormat);
     wDateTimeFormat = new CCombo( wFileComp, SWT.BORDER | SWT.READ_ONLY );
@@ -433,7 +444,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wDateTimeFormat.addModifyListener( lsMod );
     FormData fdDateTimeFormat = new FormData();
     fdDateTimeFormat.left = new FormAttachment( middle, 0 );
-    fdDateTimeFormat.top = new FormAttachment( wSpecifyFormat, margin );
+    fdDateTimeFormat.top = new FormAttachment( wSpecifyFormat, 2*margin );
     fdDateTimeFormat.right = new FormAttachment( 100, 0 );
     wDateTimeFormat.setLayoutData(fdDateTimeFormat);
     for (String dat : dats) {
@@ -536,7 +547,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wAppend.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.Append.Tooltip" ) );
     FormData fdAppend = new FormData();
     fdAppend.left = new FormAttachment( middle, 0 );
-    fdAppend.top = new FormAttachment( 0, 0 );
+    fdAppend.top = new FormAttachment( wlAppend, 0, SWT.CENTER );
     fdAppend.right = new FormAttachment( 100, 0 );
     wAppend.setLayoutData(fdAppend);
     wAppend.addSelectionListener( new SelectionAdapter() {
@@ -558,7 +569,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wHeader );
     FormData fdHeader = new FormData();
     fdHeader.left = new FormAttachment( middle, 0 );
-    fdHeader.top = new FormAttachment( wAppend, margin );
+    fdHeader.top = new FormAttachment( wlHeader, 0, SWT.CENTER );
     fdHeader.right = new FormAttachment( 100, 0 );
     wHeader.setLayoutData(fdHeader);
     wHeader.addSelectionListener( new SelectionAdapter() {
@@ -580,7 +591,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wFooter );
     FormData fdFooter = new FormData();
     fdFooter.left = new FormAttachment( middle, 0 );
-    fdFooter.top = new FormAttachment( wHeader, margin );
+    fdFooter.top = new FormAttachment( wlFooter, 0, SWT.CENTER );
     fdFooter.right = new FormAttachment( 100, 0 );
     wFooter.setLayoutData(fdFooter);
     wFooter.addSelectionListener( new SelectionAdapter() {
@@ -595,7 +606,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment( 0, 0 );
-    fdlEncoding.top = new FormAttachment( wFooter, margin );
+    fdlEncoding.top = new FormAttachment( wFooter, 2*margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
     wlEncoding.setLayoutData(fdlEncoding);
     wEncoding = new CCombo( wContentComp, SWT.BORDER | SWT.READ_ONLY );
@@ -604,7 +615,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wEncoding.addModifyListener( lsMod );
     FormData fdEncoding = new FormData();
     fdEncoding.left = new FormAttachment( middle, 0 );
-    fdEncoding.top = new FormAttachment( wFooter, margin );
+    fdEncoding.top = new FormAttachment( wFooter, 2*margin );
     fdEncoding.right = new FormAttachment( 100, 0 );
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
@@ -671,7 +682,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wProtectSheet );
     FormData fdProtectSheet = new FormData();
     fdProtectSheet.left = new FormAttachment( middle, 0 );
-    fdProtectSheet.top = new FormAttachment( wSheetname, margin );
+    fdProtectSheet.top = new FormAttachment( wlProtectSheet, 0, SWT.CENTER );
     fdProtectSheet.right = new FormAttachment( 100, 0 );
     wProtectSheet.setLayoutData(fdProtectSheet);
     wProtectSheet.addSelectionListener( new SelectionAdapter() {
@@ -715,7 +726,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wAutoSize.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.AutoSize.Tooltip" ) );
     FormData fdAutoSize = new FormData();
     fdAutoSize.left = new FormAttachment( middle, 0 );
-    fdAutoSize.top = new FormAttachment( wPassword, margin );
+    fdAutoSize.top = new FormAttachment( wlAutoSize, 0, SWT.CENTER );
     fdAutoSize.right = new FormAttachment( 100, 0 );
     wAutoSize.setLayoutData(fdAutoSize);
     wAutoSize.addSelectionListener( new SelectionAdapter() {
@@ -739,28 +750,28 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wNullIsBlank.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.NullIsBlank.Tooltip" ) );
     FormData fdNullIsBlank = new FormData();
     fdNullIsBlank.left = new FormAttachment( middle, 0 );
-    fdNullIsBlank.top = new FormAttachment( wAutoSize, margin );
+    fdNullIsBlank.top = new FormAttachment( wlNullIsBlank, 0, SWT.CENTER );
     fdNullIsBlank.right = new FormAttachment( 100, 0 );
     wNullIsBlank.setLayoutData(fdNullIsBlank);
 
     // use temporary files?
-    Label wluseTempFiles = new Label(wContentComp, SWT.RIGHT);
-    wluseTempFiles.setText( BaseMessages.getString( PKG, "ExcelOutputDialog.useTempFile.Label" ) );
-    props.setLook(wluseTempFiles);
-    FormData fdluseTempFiles = new FormData();
-    fdluseTempFiles.left = new FormAttachment( 0, 0 );
-    fdluseTempFiles.top = new FormAttachment( wNullIsBlank, margin );
-    fdluseTempFiles.right = new FormAttachment( middle, -margin );
-    wluseTempFiles.setLayoutData(fdluseTempFiles);
-    wuseTempFiles = new Button( wContentComp, SWT.CHECK );
-    props.setLook( wuseTempFiles );
-    wuseTempFiles.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.useTempFile.Tooltip" ) );
-    FormData fduseTempFiles = new FormData();
-    fduseTempFiles.left = new FormAttachment( middle, 0 );
-    fduseTempFiles.top = new FormAttachment( wNullIsBlank, margin );
-    fduseTempFiles.right = new FormAttachment( 100, 0 );
-    wuseTempFiles.setLayoutData(fduseTempFiles);
-    wuseTempFiles.addSelectionListener( new SelectionAdapter() {
+    Label wlUseTempFiles = new Label(wContentComp, SWT.RIGHT);
+    wlUseTempFiles.setText( BaseMessages.getString( PKG, "ExcelOutputDialog.useTempFile.Label" ) );
+    props.setLook(wlUseTempFiles);
+    FormData fdlUseTempFiles = new FormData();
+    fdlUseTempFiles.left = new FormAttachment( 0, 0 );
+    fdlUseTempFiles.top = new FormAttachment( wNullIsBlank, margin );
+    fdlUseTempFiles.right = new FormAttachment( middle, -margin );
+    wlUseTempFiles.setLayoutData(fdlUseTempFiles);
+    wUseTempFiles = new Button( wContentComp, SWT.CHECK );
+    props.setLook( wUseTempFiles );
+    wUseTempFiles.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.useTempFile.Tooltip" ) );
+    FormData fdUseTempFiles = new FormData();
+    fdUseTempFiles.left = new FormAttachment( middle, 0 );
+    fdUseTempFiles.top = new FormAttachment( wlUseTempFiles, 0, SWT.CENTER );
+    fdUseTempFiles.right = new FormAttachment( 100, 0 );
+    wUseTempFiles.setLayoutData(fdUseTempFiles);
+    wUseTempFiles.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
         input.setChanged();
@@ -774,7 +785,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wlTempDirectory );
     FormData fdlTempDirectory = new FormData();
     fdlTempDirectory.left = new FormAttachment( 0, 0 );
-    fdlTempDirectory.top = new FormAttachment( wuseTempFiles, margin );
+    fdlTempDirectory.top = new FormAttachment( wUseTempFiles, margin );
     fdlTempDirectory.right = new FormAttachment( middle, -margin );
     wlTempDirectory.setLayoutData(fdlTempDirectory);
 
@@ -784,7 +795,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wbTempDir.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
     FormData fdbTempDir = new FormData();
     fdbTempDir.right = new FormAttachment( 100, -margin );
-    fdbTempDir.top = new FormAttachment( wuseTempFiles, margin );
+    fdbTempDir.top = new FormAttachment( wUseTempFiles, margin );
     wbTempDir.setLayoutData(fdbTempDir);
 
     wTempDirectory = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -793,7 +804,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wTempDirectory.addModifyListener( lsMod );
     FormData fdTempDirectory = new FormData();
     fdTempDirectory.left = new FormAttachment( middle, 0 );
-    fdTempDirectory.top = new FormAttachment( wuseTempFiles, margin );
+    fdTempDirectory.top = new FormAttachment( wUseTempFiles, margin );
     fdTempDirectory.right = new FormAttachment( wbTempDir, -margin );
     wTempDirectory.setLayoutData(fdTempDirectory);
     wTempDirectory.addModifyListener( e -> input.setChanged() );
@@ -824,7 +835,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wTemplate );
     FormData fdTemplate = new FormData();
     fdTemplate.left = new FormAttachment( middle, 0 );
-    fdTemplate.top = new FormAttachment( wTempDirectory, margin );
+    fdTemplate.top = new FormAttachment( wlTemplate, 0, SWT.CENTER );
     fdTemplate.right = new FormAttachment( 100, 0 );
     wTemplate.setLayoutData(fdTemplate);
     wTemplate.addSelectionListener( new SelectionAdapter() {
@@ -874,7 +885,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wTemplateAppend );
     FormData fdTemplateAppend = new FormData();
     fdTemplateAppend.left = new FormAttachment( middle, 0 );
-    fdTemplateAppend.top = new FormAttachment( wTemplateFilename, margin );
+    fdTemplateAppend.top = new FormAttachment( wlTemplateAppend, 0, SWT.CENTER );
     fdTemplateAppend.right = new FormAttachment( 100, 0 );
     wTemplateAppend.setLayoutData(fdTemplateAppend);
     wTemplateAppend.addSelectionListener( new SelectionAdapter() {
@@ -985,7 +996,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wHeaderFontBold );
     FormData fdHeaderFontBold = new FormData();
     fdHeaderFontBold.left = new FormAttachment( middle, 0 );
-    fdHeaderFontBold.top = new FormAttachment( wHeaderFontSize, margin );
+    fdHeaderFontBold.top = new FormAttachment( wlHeaderFontBold, 0, SWT.CENTER );
     fdHeaderFontBold.right = new FormAttachment( 100, 0 );
     wHeaderFontBold.setLayoutData(fdHeaderFontBold);
     wHeaderFontBold.addSelectionListener( new SelectionAdapter() {
@@ -1008,7 +1019,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     props.setLook( wHeaderFontItalic );
     FormData fdHeaderFontItalic = new FormData();
     fdHeaderFontItalic.left = new FormAttachment( middle, 0 );
-    fdHeaderFontItalic.top = new FormAttachment( wHeaderFontBold, margin );
+    fdHeaderFontItalic.top = new FormAttachment( wlHeaderFontItalic, 0, SWT.CENTER );
     fdHeaderFontItalic.right = new FormAttachment( 100, 0 );
     wHeaderFontItalic.setLayoutData(fdHeaderFontItalic);
     wHeaderFontItalic.addSelectionListener( new SelectionAdapter() {
@@ -1389,27 +1400,12 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
-
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    Listener lsMinWidth = e -> setMinimalWidth();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wMinWidth.addListener( SWT.Selection, lsMinWidth);
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wMinWidth.addListener( SWT.Selection, e -> setMinimalWidth());
 
     lsDef = new SelectionAdapter() {
       @Override
@@ -1550,7 +1546,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     if ( input.getTemplateFileName() != null ) {
       wTemplateFilename.setText( input.getTemplateFileName() );
     }
-    wuseTempFiles.setSelection( input.isUseTempFiles() );
+    wUseTempFiles.setSelection( input.isUseTempFiles() );
     if ( input.getTempDirectory() != null ) {
       wTempDirectory.setText( input.getTempDirectory() );
     }
@@ -1652,7 +1648,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     tfoi.setTransformNrInFilename( wAddTransformNr.getSelection() );
     tfoi.setDateInFilename( wAddDate.getSelection() );
     tfoi.setTimeInFilename( wAddTime.getSelection() );
-    tfoi.setUseTempFiles( wuseTempFiles.getSelection() );
+    tfoi.setUseTempFiles( wUseTempFiles.getSelection() );
     tfoi.setTempDirectory( wTempDirectory.getText() );
     tfoi.setDateTimeFormat( wDateTimeFormat.getText() );
     tfoi.setSpecifyFormat( wSpecifyFormat.getSelection() );
@@ -1810,8 +1806,8 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
   }
 
   private void useTempFile() {
-    wTempDirectory.setEnabled( wuseTempFiles.getSelection() );
-    wlTempDirectory.setEnabled( wuseTempFiles.getSelection() );
-    wbTempDir.setEnabled( wuseTempFiles.getSelection() );
+    wTempDirectory.setEnabled( wUseTempFiles.getSelection() );
+    wlTempDirectory.setEnabled( wUseTempFiles.getSelection() );
+    wbTempDir.setEnabled( wUseTempFiles.getSelection() );
   }
 }

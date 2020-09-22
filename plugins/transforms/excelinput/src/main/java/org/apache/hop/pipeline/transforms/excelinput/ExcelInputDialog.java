@@ -120,9 +120,9 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
   private Button wHeader;
 
-  private Button wNoempty;
+  private Button wNoEmpty;
 
-  private Button wStoponempty;
+  private Button wStopOnEmpty;
 
   private Text wInclFilenameField;
 
@@ -222,6 +222,18 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     middle = props.getMiddlePct();
     margin = props.getMargin();
+
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "ExcelInputDialog.PreviewRows.Button" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -427,7 +439,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wAccFilenames.setToolTipText( BaseMessages.getString( PKG, "ExcelInputDialog.AcceptFilenames.Tooltip" ) );
     props.setLook( wAccFilenames );
     FormData fdAccFilenames = new FormData();
-    fdAccFilenames.top = new FormAttachment( 0, margin );
+    fdAccFilenames.top = new FormAttachment( wlAccFilenames, 0, SWT.CENTER );
     fdAccFilenames.left = new FormAttachment( middle, 0 );
     fdAccFilenames.right = new FormAttachment( 100, 0 );
     wAccFilenames.setLayoutData(fdAccFilenames);
@@ -646,7 +658,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( wHeader );
     FormData fdHeader = new FormData();
     fdHeader.left = new FormAttachment( middle, 0 );
-    fdHeader.top = new FormAttachment( 0, 0 );
+    fdHeader.top = new FormAttachment( wlHeader, 0, SWT.CENTER );
     fdHeader.right = new FormAttachment( 100, 0 );
     wHeader.setLayoutData(fdHeader);
     wHeader.addSelectionListener( new SelectionAdapter() {
@@ -657,48 +669,48 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    Label wlNoempty = new Label(wContentComp, SWT.RIGHT);
-    wlNoempty.setText( BaseMessages.getString( PKG, "ExcelInputDialog.NoEmpty.Label" ) );
-    props.setLook(wlNoempty);
-    FormData fdlNoempty = new FormData();
-    fdlNoempty.left = new FormAttachment( 0, 0 );
-    fdlNoempty.top = new FormAttachment( wHeader, margin );
-    fdlNoempty.right = new FormAttachment( middle, -margin );
-    wlNoempty.setLayoutData(fdlNoempty);
-    wNoempty = new Button(wContentComp, SWT.CHECK );
-    props.setLook( wNoempty );
-    wNoempty.setToolTipText( BaseMessages.getString( PKG, "ExcelInputDialog.NoEmpty.Tooltip" ) );
-    FormData fdNoempty = new FormData();
-    fdNoempty.left = new FormAttachment( middle, 0 );
-    fdNoempty.top = new FormAttachment( wHeader, margin );
-    fdNoempty.right = new FormAttachment( 100, 0 );
-    wNoempty.setLayoutData(fdNoempty);
-    wNoempty.addSelectionListener( new ComponentSelectionListener( input ) );
+    Label wlNoEmpty = new Label(wContentComp, SWT.RIGHT);
+    wlNoEmpty.setText( BaseMessages.getString( PKG, "ExcelInputDialog.NoEmpty.Label" ) );
+    props.setLook(wlNoEmpty);
+    FormData fdlNoEmpty = new FormData();
+    fdlNoEmpty.left = new FormAttachment( 0, 0 );
+    fdlNoEmpty.top = new FormAttachment( wHeader, margin );
+    fdlNoEmpty.right = new FormAttachment( middle, -margin );
+    wlNoEmpty.setLayoutData(fdlNoEmpty);
+    wNoEmpty = new Button(wContentComp, SWT.CHECK );
+    props.setLook( wNoEmpty );
+    wNoEmpty.setToolTipText( BaseMessages.getString( PKG, "ExcelInputDialog.NoEmpty.Tooltip" ) );
+    FormData fdNoEmpty = new FormData();
+    fdNoEmpty.left = new FormAttachment( middle, 0 );
+    fdNoEmpty.top = new FormAttachment( wlNoEmpty, 0, SWT.CENTER );
+    fdNoEmpty.right = new FormAttachment( 100, 0 );
+    wNoEmpty.setLayoutData(fdNoEmpty);
+    wNoEmpty.addSelectionListener( new ComponentSelectionListener( input ) );
 
-    Label wlStoponempty = new Label(wContentComp, SWT.RIGHT);
-    wlStoponempty.setText( BaseMessages.getString( PKG, "ExcelInputDialog.StopOnEmpty.Label" ) );
-    props.setLook(wlStoponempty);
-    FormData fdlStoponempty = new FormData();
-    fdlStoponempty.left = new FormAttachment( 0, 0 );
-    fdlStoponempty.top = new FormAttachment( wNoempty, margin );
-    fdlStoponempty.right = new FormAttachment( middle, -margin );
-    wlStoponempty.setLayoutData(fdlStoponempty);
-    wStoponempty = new Button(wContentComp, SWT.CHECK );
-    props.setLook( wStoponempty );
-    wStoponempty.setToolTipText( BaseMessages.getString( PKG, "ExcelInputDialog.StopOnEmpty.Tooltip" ) );
-    FormData fdStoponempty = new FormData();
-    fdStoponempty.left = new FormAttachment( middle, 0 );
-    fdStoponempty.top = new FormAttachment( wNoempty, margin );
-    fdStoponempty.right = new FormAttachment( 100, 0 );
-    wStoponempty.setLayoutData(fdStoponempty);
-    wStoponempty.addSelectionListener( new ComponentSelectionListener( input ) );
+    Label wlStopOnEmpty = new Label(wContentComp, SWT.RIGHT);
+    wlStopOnEmpty.setText( BaseMessages.getString( PKG, "ExcelInputDialog.StopOnEmpty.Label" ) );
+    props.setLook(wlStopOnEmpty);
+    FormData fdlStopOnEmpty = new FormData();
+    fdlStopOnEmpty.left = new FormAttachment( 0, 0 );
+    fdlStopOnEmpty.top = new FormAttachment( wNoEmpty, margin );
+    fdlStopOnEmpty.right = new FormAttachment( middle, -margin );
+    wlStopOnEmpty.setLayoutData(fdlStopOnEmpty);
+    wStopOnEmpty = new Button(wContentComp, SWT.CHECK );
+    props.setLook( wStopOnEmpty );
+    wStopOnEmpty.setToolTipText( BaseMessages.getString( PKG, "ExcelInputDialog.StopOnEmpty.Tooltip" ) );
+    FormData fdStopOnEmpty = new FormData();
+    fdStopOnEmpty.left = new FormAttachment( middle, 0 );
+    fdStopOnEmpty.top = new FormAttachment( wlStopOnEmpty, 0, SWT.CENTER );
+    fdStopOnEmpty.right = new FormAttachment( 100, 0 );
+    wStopOnEmpty.setLayoutData(fdStopOnEmpty);
+    wStopOnEmpty.addSelectionListener( new ComponentSelectionListener( input ) );
 
     Label wlLimit = new Label(wContentComp, SWT.RIGHT);
     wlLimit.setText( BaseMessages.getString( PKG, "ExcelInputDialog.Limit.Label" ) );
     props.setLook(wlLimit);
     FormData fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment( 0, 0 );
-    fdlLimit.top = new FormAttachment( wStoponempty, margin );
+    fdlLimit.top = new FormAttachment( wStopOnEmpty, margin );
     fdlLimit.right = new FormAttachment( middle, -margin );
     wlLimit.setLayoutData(fdlLimit);
     wLimit = new Text(wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -706,7 +718,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wLimit.addModifyListener( lsMod );
     FormData fdLimit = new FormData();
     fdLimit.left = new FormAttachment( middle, 0 );
-    fdLimit.top = new FormAttachment( wStoponempty, margin );
+    fdLimit.top = new FormAttachment( wStopOnEmpty, margin );
     fdLimit.right = new FormAttachment( 100, 0 );
     wLimit.setLayoutData(fdLimit);
 
@@ -767,7 +779,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "ExcelInputDialog.AddResult.Tooltip" ) );
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wEncoding, margin );
+    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData(fdAddResult);
     wAddResult.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -881,26 +893,12 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wlStatusMessage, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "ExcelInputDialog.PreviewRows.Button" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = e -> ok();
-    lsPreview = e -> preview();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wPreview.addListener( SWT.Selection, lsPreview );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       @Override
@@ -1131,8 +1129,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     }
 
     wHeader.setSelection( meta.startsWithHeader() );
-    wNoempty.setSelection( meta.ignoreEmptyRows() );
-    wStoponempty.setSelection( meta.stopOnEmpty() );
+    wNoEmpty.setSelection( meta.ignoreEmptyRows() );
+    wStopOnEmpty.setSelection( meta.stopOnEmpty() );
     if ( meta.getFileField() != null ) {
       wInclFilenameField.setText( meta.getFileField() );
     }
@@ -1316,8 +1314,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     meta.setAddResultFile( wAddResult.getSelection() );
 
     meta.setStartsWithHeader( wHeader.getSelection() );
-    meta.setIgnoreEmptyRows( wNoempty.getSelection() );
-    meta.setStopOnEmpty( wStoponempty.getSelection() );
+    meta.setIgnoreEmptyRows( wNoEmpty.getSelection() );
+    meta.setStopOnEmpty( wStopOnEmpty.getSelection() );
 
     meta.setAcceptingFilenames( wAccFilenames.getSelection() );
     meta.setAcceptingField( wAccField.getText() );
@@ -1418,7 +1416,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wStrictTypes.setToolTipText( BaseMessages.getString( PKG, "ExcelInputDialog.StrictTypes.Tooltip" ) );
     FormData fdStrictTypes = new FormData();
     fdStrictTypes.left = new FormAttachment( middle, 0 );
-    fdStrictTypes.top = new FormAttachment( 0, margin );
+    fdStrictTypes.top = new FormAttachment( wlStrictTypes, 0, SWT.CENTER );
     wStrictTypes.setLayoutData(fdStrictTypes);
     Control previous = wStrictTypes;
     wStrictTypes.addSelectionListener( new ComponentSelectionListener( input ) );
@@ -1437,7 +1435,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wErrorIgnored.setToolTipText( BaseMessages.getString( PKG, "ExcelInputDialog.ErrorIgnored.Tooltip" ) );
     FormData fdErrorIgnored = new FormData();
     fdErrorIgnored.left = new FormAttachment( middle, 0 );
-    fdErrorIgnored.top = new FormAttachment( previous, margin );
+    fdErrorIgnored.top = new FormAttachment( wlErrorIgnored, 0, SWT.CENTER );
     wErrorIgnored.setLayoutData(fdErrorIgnored);
     previous = wErrorIgnored;
     wErrorIgnored.addSelectionListener( new SelectionAdapter() {
@@ -1462,7 +1460,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wSkipErrorLines.setToolTipText( BaseMessages.getString( PKG, "ExcelInputDialog.SkipErrorLines.Tooltip" ) );
     FormData fdSkipErrorLines = new FormData();
     fdSkipErrorLines.left = new FormAttachment( middle, 0 );
-    fdSkipErrorLines.top = new FormAttachment( previous, margin );
+    fdSkipErrorLines.top = new FormAttachment( wlSkipErrorLines, 0, SWT.CENTER );
     wSkipErrorLines.setLayoutData(fdSkipErrorLines);
     wSkipErrorLines.addSelectionListener( new ComponentSelectionListener( input ) );
 

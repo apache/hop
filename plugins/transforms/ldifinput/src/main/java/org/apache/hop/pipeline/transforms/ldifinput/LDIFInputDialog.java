@@ -41,7 +41,11 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePreviewFactory;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.dialog.*;
+import org.apache.hop.ui.core.dialog.EnterNumberDialog;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.EnterTextDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
@@ -51,12 +55,27 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.Enumeration;
@@ -169,6 +188,18 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
     middle = props.getMiddlePct();
     margin = props.getMargin();
 
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "LDIFInputDialog.Button.PreviewRows" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
@@ -233,11 +264,11 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
     wFileField.setToolTipText( BaseMessages.getString( PKG, "LDIFInputDialog.FileField.Tooltip" ) );
     FormData fdFileField = new FormData();
     fdFileField.left = new FormAttachment( middle, -margin );
-    fdFileField.top = new FormAttachment( 0, margin );
+    fdFileField.top = new FormAttachment( wlFileField, 0, SWT.CENTER );
     wFileField.setLayoutData(fdFileField);
     SelectionAdapter lfilefield = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
-        ActiveFileField();
+        activateFileField();
         input.setChanged();
       }
     };
@@ -476,7 +507,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
     wInclFilename.setToolTipText( BaseMessages.getString( PKG, "LDIFInputDialog.InclFilename.Tooltip" ) );
     FormData fdInclFilename = new FormData();
     fdInclFilename.left = new FormAttachment( middle, 0 );
-    fdInclFilename.top = new FormAttachment( 0, 2 * margin );
+    fdInclFilename.top = new FormAttachment(wlInclFilename, 0, SWT.CENTER );
     wInclFilename.setLayoutData(fdInclFilename);
 
     wlInclFilenameField = new Label(wContentComp, SWT.LEFT );
@@ -541,7 +572,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
     wInclContentType.setToolTipText( BaseMessages.getString( PKG, "LDIFInputDialog.InclContentType.Tooltip" ) );
     FormData fdInclContentType = new FormData();
     fdInclContentType.left = new FormAttachment( middle, 0 );
-    fdInclContentType.top = new FormAttachment( wInclRownumField, margin );
+    fdInclContentType.top = new FormAttachment( wlInclContentType, 0, SWT.CENTER );
     wInclContentType.setLayoutData(fdInclContentType);
 
     // Content type field name
@@ -575,7 +606,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
     wInclDN.setToolTipText( BaseMessages.getString( PKG, "LDIFInputDialog.InclDN.Tooltip" ) );
     FormData fdInclDN = new FormData();
     fdInclDN.left = new FormAttachment( middle, 0 );
-    fdInclDN.top = new FormAttachment( wInclContentTypeField, margin );
+    fdInclDN.top = new FormAttachment( wlInclDN, 0, SWT.CENTER );
     wInclDN.setLayoutData(fdInclDN);
 
     // Content type field name
@@ -659,7 +690,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "LDIFInputDialog.AddResult.Tooltip" ) );
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wMultiValuedSeparator, margin );
+    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData(fdAddResult);
 
     FormData fdAddFileResult = new FormData();
@@ -779,30 +810,12 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "LDIFInputDialog.Button.PreviewRows" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
-
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    lsPreview = e -> preview();
-    lsCancel = e -> cancel();
 
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wPreview.addListener( SWT.Selection, lsPreview );
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wGet.addListener( SWT.Selection, e -> get() );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -967,7 +980,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
     // Set the shell size, based upon previous time...
     setSize();
     getData( input );
-    ActiveFileField();
+    activateFileField();
     setContenType();
     setDN();
     input.setChanged( changed );
@@ -982,7 +995,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
     return transformName;
   }
 
-  private void ActiveFileField() {
+  private void activateFileField() {
     wlFilenameField.setEnabled( wFileField.getSelection() );
     wFilenameField.setEnabled( wFileField.getSelection() );
 

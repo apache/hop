@@ -57,7 +57,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
 
   private CCombo wCompare;
 
-  private Text wFlagfield;
+  private Text wFlagField;
 
   private TableView wKeys;
 
@@ -90,6 +90,44 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // Some buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
+    Button wbKeys = new Button(shell, SWT.PUSH);
+    wbKeys.setText( BaseMessages.getString( PKG, "MergeRowsDialog.KeyFields.Button" ) );
+    FormData fdbKeys = new FormData();
+    fdbKeys.bottom = new FormAttachment( wOk, -2*margin );
+    fdbKeys.left = new FormAttachment( 0, 0 );
+    fdbKeys.right = new FormAttachment( 50, -margin );
+    wbKeys.setLayoutData(fdbKeys);
+    wbKeys.addSelectionListener(new SelectionAdapter() {
+
+      public void widgetSelected( SelectionEvent e ) {
+        getKeys();
+      }
+    } );
+
+    Button wbValues = new Button(shell, SWT.PUSH);
+    wbValues.setText( BaseMessages.getString( PKG, "MergeRowsDialog.ValueFields.Button" ) );
+    FormData fdbValues = new FormData();
+    fdbValues.bottom = new FormAttachment( wOk, -2*margin );
+    fdbValues.left = new FormAttachment( 50, 0 );
+    fdbValues.right = new FormAttachment( 100, 0 );
+    wbValues.setLayoutData(fdbValues);
+    wbValues.addSelectionListener(new SelectionAdapter() {
+
+      public void widgetSelected( SelectionEvent e ) {
+        getValues();
+      }
+    } );
+
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -168,14 +206,14 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     fdlFlagfield.right = new FormAttachment( middle, -margin );
     fdlFlagfield.top = new FormAttachment( wCompare, margin );
     wlFlagfield.setLayoutData(fdlFlagfield);
-    wFlagfield = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wFlagfield );
-    wFlagfield.addModifyListener( lsMod );
+    wFlagField = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wFlagField );
+    wFlagField.addModifyListener( lsMod );
     FormData fdFlagfield = new FormData();
     fdFlagfield.top = new FormAttachment( wCompare, margin );
     fdFlagfield.left = new FormAttachment( middle, 0 );
     fdFlagfield.right = new FormAttachment( 100, 0 );
-    wFlagfield.setLayoutData(fdFlagfield);
+    wFlagField.setLayoutData(fdFlagfield);
 
     // THE KEYS TO MATCH...
     Label wlKeys = new Label(shell, SWT.NONE);
@@ -183,7 +221,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wlKeys);
     FormData fdlKeys = new FormData();
     fdlKeys.left = new FormAttachment( 0, 0 );
-    fdlKeys.top = new FormAttachment( wFlagfield, margin );
+    fdlKeys.top = new FormAttachment( wFlagField, margin );
     wlKeys.setLayoutData(fdlKeys);
 
     int nrKeyRows = ( input.getKeyFields() != null ? input.getKeyFields().length : 1 );
@@ -201,23 +239,10 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     FormData fdKeys = new FormData();
     fdKeys.top = new FormAttachment(wlKeys, margin );
     fdKeys.left = new FormAttachment( 0, 0 );
-    fdKeys.bottom = new FormAttachment( 100, -70 );
+    fdKeys.bottom = new FormAttachment( wbKeys, -margin );
     fdKeys.right = new FormAttachment( 50, -margin );
     wKeys.setLayoutData(fdKeys);
 
-    Button wbKeys = new Button(shell, SWT.PUSH);
-    wbKeys.setText( BaseMessages.getString( PKG, "MergeRowsDialog.KeyFields.Button" ) );
-    FormData fdbKeys = new FormData();
-    fdbKeys.top = new FormAttachment( wKeys, margin );
-    fdbKeys.left = new FormAttachment( 0, 0 );
-    fdbKeys.right = new FormAttachment( 50, -margin );
-    wbKeys.setLayoutData(fdbKeys);
-    wbKeys.addSelectionListener(new SelectionAdapter() {
-
-      public void widgetSelected( SelectionEvent e ) {
-        getKeys();
-      }
-    } );
 
     // VALUES TO COMPARE
     Label wlValues = new Label(shell, SWT.NONE);
@@ -225,7 +250,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     props.setLook(wlValues);
     FormData fdlValues = new FormData();
     fdlValues.left = new FormAttachment( 50, 0 );
-    fdlValues.top = new FormAttachment( wFlagfield, margin );
+    fdlValues.top = new FormAttachment( wFlagField, margin );
     wlValues.setLayoutData(fdlValues);
 
     int nrValueRows = ( input.getValueFields() != null ? input.getValueFields().length : 1 );
@@ -243,38 +268,14 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     FormData fdValues = new FormData();
     fdValues.top = new FormAttachment(wlValues, margin );
     fdValues.left = new FormAttachment( 50, 0 );
-    fdValues.bottom = new FormAttachment( 100, -70 );
+    fdValues.bottom = new FormAttachment( wbValues, -margin );
     fdValues.right = new FormAttachment( 100, 0 );
     wValues.setLayoutData(fdValues);
 
-    Button wbValues = new Button(shell, SWT.PUSH);
-    wbValues.setText( BaseMessages.getString( PKG, "MergeRowsDialog.ValueFields.Button" ) );
-    FormData fdbValues = new FormData();
-    fdbValues.top = new FormAttachment( wValues, margin );
-    fdbValues.left = new FormAttachment( 50, 0 );
-    fdbValues.right = new FormAttachment( 100, 0 );
-    wbValues.setLayoutData(fdbValues);
-    wbValues.addSelectionListener(new SelectionAdapter() {
 
-      public void widgetSelected( SelectionEvent e ) {
-        getValues();
-      }
-    } );
 
-    // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wbKeys);
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -315,7 +316,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     wReference.setText( Const.NVL( infoStreams.get( 0 ).getTransformName(), "" ) );
     wCompare.setText( Const.NVL( infoStreams.get( 1 ).getTransformName(), "" ) );
     if ( input.getFlagField() != null ) {
-      wFlagfield.setText( input.getFlagField() );
+      wFlagField.setText( input.getFlagField() );
     }
 
     for ( int i = 0; i < input.getKeyFields().length; i++ ) {
@@ -349,7 +350,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     List<IStream> infoStreams = input.getTransformIOMeta().getInfoStreams();
     infoStreams.get( 0 ).setTransformMeta( pipelineMeta.findTransform( wReference.getText() ) );
     infoStreams.get( 1 ).setTransformMeta( pipelineMeta.findTransform( wCompare.getText() ) );
-    input.setFlagField( wFlagfield.getText() );
+    input.setFlagField( wFlagField.getText() );
 
     int nrKeys = wKeys.nrNonEmpty();
     int nrValues = wValues.nrNonEmpty();
