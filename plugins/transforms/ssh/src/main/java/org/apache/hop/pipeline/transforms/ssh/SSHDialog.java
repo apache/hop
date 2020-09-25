@@ -40,17 +40,30 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.widget.LabelTextVar;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SSHMeta.class; // for i18n purposes, needed by Translator!!
@@ -61,7 +74,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
   private LabelTextVar wTimeOut;
   private final SSHMeta input;
 
-  private Button wdynamicCommand;
+  private Button wDynamicCommand;
 
   private LabelTextVar wPort;
 
@@ -71,7 +84,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
 
   private Button wUseKey;
 
-  private LabelTextVar wPrivateKey;
+  private TextVar wPrivateKey;
 
   private LabelTextVar wPassphrase;
 
@@ -120,6 +133,19 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // THE BUTTONS at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "SSHDialog.Button.PreviewRows" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "SSHDialog.TransformName.Label" ) );
@@ -139,17 +165,17 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdTransformName.right = new FormAttachment( 100, 0 );
     wTransformName.setLayoutData( fdTransformName );
 
-    CTabFolder wTabFolder = new CTabFolder(shell, SWT.BORDER);
-    props.setLook(wTabFolder, PropsUi.WIDGET_STYLE_TAB );
+    CTabFolder wTabFolder = new CTabFolder( shell, SWT.BORDER );
+    props.setLook( wTabFolder, PropsUi.WIDGET_STYLE_TAB );
 
     // ////////////////////////
     // START OF GENERAL TAB ///
     // ////////////////////////
-    CTabItem wGeneralTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
     wGeneralTab.setText( BaseMessages.getString( PKG, "SSHDialog.General.Tab" ) );
 
-    Composite wGeneralComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wGeneralComp);
+    Composite wGeneralComp = new Composite( wTabFolder, SWT.NONE );
+    props.setLook( wGeneralComp );
 
     FormLayout fileLayout = new FormLayout();
     fileLayout.marginWidth = 3;
@@ -160,8 +186,8 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // START OF Settings GROUP //
     // ///////////////////////////////
 
-    Group wSettingsGroup = new Group(wGeneralComp, SWT.SHADOW_NONE);
-    props.setLook(wSettingsGroup);
+    Group wSettingsGroup = new Group( wGeneralComp, SWT.SHADOW_NONE );
+    props.setLook( wSettingsGroup );
     wSettingsGroup.setText( BaseMessages.getString( PKG, "SSHDialog.wSettingsGroup.Label" ) );
 
     FormLayout settingGroupLayout = new FormLayout();
@@ -180,77 +206,69 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdServerName.left = new FormAttachment( 0, 0 );
     fdServerName.top = new FormAttachment( wTransformName, margin );
     fdServerName.right = new FormAttachment( 100, 0 );
-    wServerName.setLayoutData(fdServerName);
+    wServerName.setLayoutData( fdServerName );
 
     // Server port line
-    wPort =
-      new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Port.Label" ), BaseMessages
-        .getString( PKG, "SSHDialog.Port.Tooltip" ) );
+    wPort = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Port.Label" ),
+      BaseMessages.getString( PKG, "SSHDialog.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
     FormData fdPort = new FormData();
     fdPort.left = new FormAttachment( 0, 0 );
     fdPort.top = new FormAttachment( wServerName, margin );
     fdPort.right = new FormAttachment( 100, 0 );
-    wPort.setLayoutData(fdPort);
+    wPort.setLayoutData( fdPort );
 
     // Server TimeOut line
-    wTimeOut =
-      new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.TimeOut.Label" ), BaseMessages
-        .getString( PKG, "SSHDialog.TimeOut.Tooltip" ) );
+    wTimeOut = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.TimeOut.Label" ),
+      BaseMessages.getString( PKG, "SSHDialog.TimeOut.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
     FormData fdTimeOut = new FormData();
     fdTimeOut.left = new FormAttachment( 0, 0 );
     fdTimeOut.top = new FormAttachment( wPort, margin );
     fdTimeOut.right = new FormAttachment( 100, 0 );
-    wTimeOut.setLayoutData(fdTimeOut);
+    wTimeOut.setLayoutData( fdTimeOut );
 
     // Usernameline
-    wUserName =
-      new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.UserName.Label" ), BaseMessages
-        .getString( PKG, "SSHDialog.UserName.Tooltip" ) );
+    wUserName = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.UserName.Label" ),
+      BaseMessages.getString( PKG, "SSHDialog.UserName.Tooltip" ) );
     props.setLook( wUserName );
     wUserName.addModifyListener( lsMod );
     FormData fdUserName = new FormData();
     fdUserName.left = new FormAttachment( 0, 0 );
     fdUserName.top = new FormAttachment( wTimeOut, margin );
     fdUserName.right = new FormAttachment( 100, 0 );
-    wUserName.setLayoutData(fdUserName);
+    wUserName.setLayoutData( fdUserName );
 
     // Passwordline
-    wPassword =
-      new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Password.Label" ), BaseMessages
-        .getString( PKG, "SSHDialog.Password.Tooltip" ), true );
+    wPassword = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Password.Label" ),
+      BaseMessages.getString( PKG, "SSHDialog.Password.Tooltip" ), true );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
     FormData fdPassword = new FormData();
     fdPassword.left = new FormAttachment( 0, 0 );
     fdPassword.top = new FormAttachment( wUserName, margin );
     fdPassword.right = new FormAttachment( 100, 0 );
-    wPassword.setLayoutData(fdPassword);
+    wPassword.setLayoutData( fdPassword );
 
     // Use key?
-    Label wlUseKey = new Label(wSettingsGroup, SWT.RIGHT);
+    Label wlUseKey = new Label( wSettingsGroup, SWT.RIGHT );
     wlUseKey.setText( BaseMessages.getString( PKG, "SSHDialog.UseKey.Label" ) );
-    props.setLook(wlUseKey);
+    props.setLook( wlUseKey );
     FormData fdlUseKey = new FormData();
     fdlUseKey.left = new FormAttachment( 0, 0 );
     fdlUseKey.top = new FormAttachment( wPassword, margin );
     fdlUseKey.right = new FormAttachment( middle, -margin );
-    wlUseKey.setLayoutData(fdlUseKey);
-    wUseKey = new Button(wSettingsGroup, SWT.CHECK );
+    wlUseKey.setLayoutData( fdlUseKey );
+    wUseKey = new Button( wSettingsGroup, SWT.CHECK );
     props.setLook( wUseKey );
     wUseKey.setToolTipText( BaseMessages.getString( PKG, "SSHDialog.UseKey.Tooltip" ) );
     FormData fdUseKey = new FormData();
     fdUseKey.left = new FormAttachment( middle, margin );
-    fdUseKey.top = new FormAttachment( wPassword, margin );
+    fdUseKey.top = new FormAttachment( wlUseKey, 0, SWT.CENTER );
     fdUseKey.right = new FormAttachment( 100, 0 );
-    wUseKey.setLayoutData(fdUseKey);
+    wUseKey.setLayoutData( fdUseKey );
     wUseKey.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
@@ -259,16 +277,16 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
       }
     } );
 
-    Button wbFilename = new Button(wSettingsGroup, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFilename);
+    Button wbFilename = new Button( wSettingsGroup, SWT.PUSH | SWT.CENTER );
+    props.setLook( wbFilename );
     wbFilename.setText( BaseMessages.getString( PKG, "System.Button.Browse" ) );
     FormData fdbFilename = new FormData();
     fdbFilename.right = new FormAttachment( 100, -margin );
-    fdbFilename.top = new FormAttachment( wUseKey, margin );
-    wbFilename.setLayoutData(fdbFilename);
+    fdbFilename.top = new FormAttachment( wUseKey, 2*margin );
+    wbFilename.setLayoutData( fdbFilename );
 
 
-    wbFilename.addSelectionListener(new SelectionAdapter() {
+    wbFilename.addSelectionListener( new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
@@ -287,30 +305,35 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     } );
 
     // Private key
-    wPrivateKey =
-      new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.PrivateKey.Label" ), BaseMessages
-        .getString( PKG, "SSHDialog.PrivateKey.Tooltip" ) );
+    Label wlPrivateKey = new Label( wSettingsGroup, SWT.RIGHT | SWT.SINGLE );
+    props.setLook( wlPrivateKey );
+    wlPrivateKey.setText( BaseMessages.getString( PKG, "SSHDialog.PrivateKey.Label" ) );
+    FormData fdlPrivateKey = new FormData();
+    fdlPrivateKey.left = new FormAttachment( 0, 0 );
+    fdlPrivateKey.right = new FormAttachment( middle, 0 );
+    fdlPrivateKey.top = new FormAttachment( wUseKey, 2*margin);
+    wlPrivateKey.setLayoutData( fdlPrivateKey );
+    wPrivateKey = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPrivateKey.setToolTipText( BaseMessages.getString( PKG, "SSHDialog.PrivateKey.Tooltip" )  );
     props.setLook( wPassword );
     wPrivateKey.addModifyListener( lsMod );
     FormData fdPrivateKey = new FormData();
-    fdPrivateKey.left = new FormAttachment( 0, 5 * margin );
-    fdPrivateKey.top = new FormAttachment( wUseKey, margin );
-    fdPrivateKey.right = new FormAttachment(wbFilename, -margin );
-    wPrivateKey.setLayoutData(fdPrivateKey);
+    fdPrivateKey.left = new FormAttachment( middle, margin );
+    fdPrivateKey.top = new FormAttachment( wUseKey, 2*margin );
+    fdPrivateKey.right = new FormAttachment( wbFilename, -margin );
+    wPrivateKey.setLayoutData( fdPrivateKey );
+
 
     // Passphraseline
-    wPassphrase =
-      new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Passphrase.Label" ), BaseMessages
-        .getString( PKG, "SSHDialog.Passphrase.Tooltip" ), true );
+    wPassphrase = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Passphrase.Label" ),
+      BaseMessages.getString( PKG, "SSHDialog.Passphrase.Tooltip" ), true );
     props.setLook( wPassphrase );
     wPassphrase.addModifyListener( lsMod );
     FormData fdPassphrase = new FormData();
     fdPassphrase.left = new FormAttachment( 0, 0 );
-    fdPassphrase.top = new FormAttachment(wbFilename, margin );
+    fdPassphrase.top = new FormAttachment( wbFilename, margin );
     fdPassphrase.right = new FormAttachment( 100, 0 );
-    wPassphrase.setLayoutData(fdPassphrase);
+    wPassphrase.setLayoutData( fdPassphrase );
 
     // ProxyHostline
     wProxyHost =
@@ -323,7 +346,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdProxyHost.left = new FormAttachment( 0, 0 );
     fdProxyHost.top = new FormAttachment( wPassphrase, 2 * margin );
     fdProxyHost.right = new FormAttachment( 100, 0 );
-    wProxyHost.setLayoutData(fdProxyHost);
+    wProxyHost.setLayoutData( fdProxyHost );
 
     // ProxyPortline
     wProxyPort =
@@ -336,7 +359,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdProxyPort.left = new FormAttachment( 0, 0 );
     fdProxyPort.top = new FormAttachment( wProxyHost, margin );
     fdProxyPort.right = new FormAttachment( 100, 0 );
-    wProxyPort.setLayoutData(fdProxyPort);
+    wProxyPort.setLayoutData( fdProxyPort );
 
     // ProxyUsernameline
     wProxyUsername =
@@ -349,7 +372,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdProxyUsername.left = new FormAttachment( 0, 0 );
     fdProxyUsername.top = new FormAttachment( wProxyPort, margin );
     fdProxyUsername.right = new FormAttachment( 100, 0 );
-    wProxyUsername.setLayoutData(fdProxyUsername);
+    wProxyUsername.setLayoutData( fdProxyUsername );
 
     // ProxyUsernameline
     wProxyPassword =
@@ -362,23 +385,23 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdProxyPassword.left = new FormAttachment( 0, 0 );
     fdProxyPassword.top = new FormAttachment( wProxyUsername, margin );
     fdProxyPassword.right = new FormAttachment( 100, 0 );
-    wProxyPassword.setLayoutData(fdProxyPassword);
+    wProxyPassword.setLayoutData( fdProxyPassword );
 
     // Test connection button
-    Button wTest = new Button(wSettingsGroup, SWT.PUSH);
+    Button wTest = new Button( wSettingsGroup, SWT.PUSH );
     wTest.setText( BaseMessages.getString( PKG, "SSHDialog.TestConnection.Label" ) );
-    props.setLook(wTest);
+    props.setLook( wTest );
     FormData fdTest = new FormData();
     wTest.setToolTipText( BaseMessages.getString( PKG, "SSHDialog.TestConnection.Tooltip" ) );
     fdTest.top = new FormAttachment( wProxyPassword, 2 * margin );
     fdTest.right = new FormAttachment( 100, 0 );
-    wTest.setLayoutData(fdTest);
+    wTest.setLayoutData( fdTest );
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment( 0, margin );
     fdSettingsGroup.top = new FormAttachment( wTransformName, margin );
     fdSettingsGroup.right = new FormAttachment( 100, -margin );
-    wSettingsGroup.setLayoutData(fdSettingsGroup);
+    wSettingsGroup.setLayoutData( fdSettingsGroup );
 
     // ///////////////////////////////
     // END OF Settings Fields GROUP //
@@ -388,10 +411,10 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdGeneralComp.top = new FormAttachment( 0, 0 );
     fdGeneralComp.right = new FormAttachment( 100, 0 );
     fdGeneralComp.bottom = new FormAttachment( 100, 0 );
-    wGeneralComp.setLayoutData(fdGeneralComp);
+    wGeneralComp.setLayoutData( fdGeneralComp );
 
     wGeneralComp.layout();
-    wGeneralTab.setControl(wGeneralComp);
+    wGeneralTab.setControl( wGeneralComp );
 
     // ///////////////////////////////////////////////////////////
     // / END OF GENERAL TAB
@@ -400,23 +423,23 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // ////////////////////////
     // START OF Settings TAB///
     // /
-    CTabItem wSettingsTab = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem wSettingsTab = new CTabItem( wTabFolder, SWT.NONE );
     wSettingsTab.setText( BaseMessages.getString( PKG, "SSHDialog.Settings.Tab" ) );
 
     FormLayout SettingsLayout = new FormLayout();
     SettingsLayout.marginWidth = 3;
     SettingsLayout.marginHeight = 3;
 
-    Composite wSettingsComp = new Composite(wTabFolder, SWT.NONE);
-    props.setLook(wSettingsComp);
+    Composite wSettingsComp = new Composite( wTabFolder, SWT.NONE );
+    props.setLook( wSettingsComp );
     wSettingsComp.setLayout( SettingsLayout );
 
     // ///////////////////////////////
     // START OF Output GROUP //
     // ///////////////////////////////
 
-    Group wOutput = new Group(wSettingsComp, SWT.SHADOW_NONE);
-    props.setLook(wOutput);
+    Group wOutput = new Group( wSettingsComp, SWT.SHADOW_NONE );
+    props.setLook( wOutput );
     wOutput.setText( BaseMessages.getString( PKG, "SSHDialog.wOutput.Label" ) );
 
     FormLayout outputGroupLayout = new FormLayout();
@@ -435,7 +458,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdResultOutFieldName.left = new FormAttachment( 0, 0 );
     fdResultOutFieldName.top = new FormAttachment( wTransformName, margin );
     fdResultOutFieldName.right = new FormAttachment( 100, 0 );
-    wResultOutFieldName.setLayoutData(fdResultOutFieldName);
+    wResultOutFieldName.setLayoutData( fdResultOutFieldName );
 
     // ResultErrFieldNameline
     wResultErrFieldName =
@@ -448,13 +471,13 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdResultErrFieldName.left = new FormAttachment( 0, 0 );
     fdResultErrFieldName.top = new FormAttachment( wResultOutFieldName, margin );
     fdResultErrFieldName.right = new FormAttachment( 100, 0 );
-    wResultErrFieldName.setLayoutData(fdResultErrFieldName);
+    wResultErrFieldName.setLayoutData( fdResultErrFieldName );
 
     FormData fdOutput = new FormData();
     fdOutput.left = new FormAttachment( 0, margin );
     fdOutput.top = new FormAttachment( wTransformName, margin );
     fdOutput.right = new FormAttachment( 100, -margin );
-    wOutput.setLayoutData(fdOutput);
+    wOutput.setLayoutData( fdOutput );
 
     // ///////////////////////////////
     // END OF Output Fields GROUP //
@@ -462,8 +485,8 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // ////////////////////////
     // START OF Commands SETTINGS GROUP///
     // /
-    Group wCommands = new Group(wSettingsComp, SWT.SHADOW_NONE);
-    props.setLook(wCommands);
+    Group wCommands = new Group( wSettingsComp, SWT.SHADOW_NONE );
+    props.setLook( wCommands );
     wCommands.setText( BaseMessages.getString( PKG, "SSHDialog.LogSettings.Group.Label" ) );
 
     FormLayout LogSettingsgroupLayout = new FormLayout();
@@ -473,74 +496,57 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     wCommands.setLayout( LogSettingsgroupLayout );
 
     // Is command defined in a Field
-    Label wldynamicCommand = new Label(wCommands, SWT.RIGHT);
-    wldynamicCommand.setText( BaseMessages.getString( PKG, "SSHDialog.dynamicCommand.Label" ) );
-    props.setLook(wldynamicCommand);
-    FormData fdlynamicBase = new FormData();
-    fdlynamicBase.left = new FormAttachment( 0, margin );
-    fdlynamicBase.top = new FormAttachment(wOutput, margin );
-    fdlynamicBase.right = new FormAttachment( middle, -margin );
-    wldynamicCommand.setLayoutData(fdlynamicBase);
-
-    wdynamicCommand = new Button(wCommands, SWT.CHECK );
-    props.setLook( wdynamicCommand );
-    wdynamicCommand.setToolTipText( BaseMessages.getString( PKG, "SSHDialog.dynamicCommand.Tooltip" ) );
-    FormData fdynamicCommand = new FormData();
-    fdynamicCommand.left = new FormAttachment( middle, margin );
-    fdynamicCommand.top = new FormAttachment(wOutput, margin );
-    wdynamicCommand.setLayoutData(fdynamicCommand);
-    SelectionAdapter ldynamicCommand = new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent arg0 ) {
-        activateDynamicCommand();
-        input.setChanged();
-      }
-    };
-    wdynamicCommand.addSelectionListener( ldynamicCommand );
+    Label wlDynamicCommand = new Label( wCommands, SWT.RIGHT );
+    wlDynamicCommand.setText( BaseMessages.getString( PKG, "SSHDialog.dynamicCommand.Label" ) );
+    props.setLook( wlDynamicCommand );
+    FormData fdlDynamicBase = new FormData();
+    fdlDynamicBase.left = new FormAttachment( 0, margin );
+    fdlDynamicBase.top = new FormAttachment( wOutput, margin );
+    fdlDynamicBase.right = new FormAttachment( middle, -margin );
+    wlDynamicCommand.setLayoutData( fdlDynamicBase );
+    wDynamicCommand = new Button( wCommands, SWT.CHECK );
+    props.setLook( wDynamicCommand );
+    wDynamicCommand.setToolTipText( BaseMessages.getString( PKG, "SSHDialog.dynamicCommand.Tooltip" ) );
+    FormData fdDynamicCommand = new FormData();
+    fdDynamicCommand.left = new FormAttachment( middle, margin );
+    fdDynamicCommand.top = new FormAttachment( wlDynamicCommand, 0, SWT.CENTER );
+    wDynamicCommand.setLayoutData( fdDynamicCommand );
+    wDynamicCommand.addListener( SWT.Selection, e -> {
+      activateDynamicCommand();
+      input.setChanged();
+    } );
 
     // CommandField field
-    wlCommandField = new Label(wCommands, SWT.RIGHT );
+    wlCommandField = new Label( wCommands, SWT.RIGHT );
     wlCommandField.setText( BaseMessages.getString( PKG, "SSHDialog.MessageNameField.Label" ) );
     props.setLook( wlCommandField );
     FormData fdlCommandField = new FormData();
     fdlCommandField.left = new FormAttachment( 0, margin );
     fdlCommandField.right = new FormAttachment( middle, -margin );
-    fdlCommandField.top = new FormAttachment( wdynamicCommand, margin );
-    wlCommandField.setLayoutData(fdlCommandField);
-
-    wCommandField = new CCombo(wCommands, SWT.BORDER | SWT.READ_ONLY );
+    fdlCommandField.top = new FormAttachment( wDynamicCommand, margin );
+    wlCommandField.setLayoutData( fdlCommandField );
+    wCommandField = new CCombo( wCommands, SWT.BORDER | SWT.READ_ONLY );
     props.setLook( wCommandField );
     wCommandField.setEditable( true );
     wCommandField.addModifyListener( lsMod );
     FormData fdCommandField = new FormData();
     fdCommandField.left = new FormAttachment( middle, margin );
-    fdCommandField.top = new FormAttachment( wdynamicCommand, margin );
+    fdCommandField.top = new FormAttachment( wDynamicCommand, margin );
     fdCommandField.right = new FormAttachment( 100, 0 );
-    wCommandField.setLayoutData(fdCommandField);
-    wCommandField.addFocusListener( new FocusListener() {
-      @Override
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
-      }
-
-      @Override
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
-        get();
-      }
-    } );
+    wCommandField.setLayoutData( fdCommandField );
+    wCommandField.addListener( SWT.FocusIn, e -> get() );
 
     // Command String
-    wlCommand = new Label(wCommands, SWT.RIGHT );
+    wlCommand = new Label( wCommands, SWT.RIGHT );
     wlCommand.setText( BaseMessages.getString( PKG, "SSHDialog.Command.Label" ) );
     props.setLook( wlCommand );
     FormData fdlCommand = new FormData();
     fdlCommand.left = new FormAttachment( 0, margin );
     fdlCommand.top = new FormAttachment( wCommandField, margin );
     fdlCommand.right = new FormAttachment( middle, -2 * margin );
-    wlCommand.setLayoutData(fdlCommand);
+    wlCommand.setLayoutData( fdlCommand );
 
-    wCommand =
-      new StyledTextComp(
-        pipelineMeta, wCommands, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wCommand = new StyledTextComp( pipelineMeta, wCommands, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     wCommand.setToolTipText( BaseMessages.getString( PKG, "SSHDialog.Command.Tooltip" ) );
     props.setLook( wCommand );
     wCommand.addModifyListener( lsMod );
@@ -549,14 +555,15 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdCommand.top = new FormAttachment( wCommandField, margin );
     fdCommand.right = new FormAttachment( 100, -2 * margin );
     fdCommand.bottom = new FormAttachment( 100, -margin );
-    wCommand.setLayoutData(fdCommand);
+    wCommand.setLayoutData( fdCommand );
 
     FormData fdLogSettings = new FormData();
     fdLogSettings.left = new FormAttachment( 0, margin );
-    fdLogSettings.top = new FormAttachment(wOutput, margin );
+    fdLogSettings.top = new FormAttachment( wOutput, margin );
     fdLogSettings.right = new FormAttachment( 100, -margin );
     fdLogSettings.bottom = new FormAttachment( 100, -margin );
-    wCommands.setLayoutData(fdLogSettings);
+    wCommands.setLayoutData( fdLogSettings );
+
     // ///////////////////////////////////////////////////////////
     // / END OF Log SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
@@ -566,10 +573,10 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdSettingsComp.top = new FormAttachment( 0, 0 );
     fdSettingsComp.right = new FormAttachment( 100, 0 );
     fdSettingsComp.bottom = new FormAttachment( 100, 0 );
-    wSettingsComp.setLayoutData(fdSettingsComp);
+    wSettingsComp.setLayoutData( fdSettingsComp );
 
     wSettingsComp.layout();
-    wSettingsTab.setControl(wSettingsComp);
+    wSettingsTab.setControl( wSettingsComp );
 
     // ///////////////////////////////////////////////////////////
     // / END OF Settings TAB
@@ -579,29 +586,12 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
-    wTabFolder.setLayoutData(fdTabFolder);
-
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "SSHDialog.Button.PreviewRows" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder);
+    fdTabFolder.bottom = new FormAttachment( wOk, -2 * margin );
+    wTabFolder.setLayoutData( fdTabFolder );
 
     // Add listeners
-    lsOk = e -> ok();
-    lsPreview = e -> preview();
-    lsCancel = e -> cancel();
-    Listener lsTest = e -> test();
 
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wPreview.addListener( SWT.Selection, lsPreview );
-    wTest.addListener( SWT.Selection, lsTest);
+    wTest.addListener( SWT.Selection, e -> test() );
 
     lsDef = new SelectionAdapter() {
       @Override
@@ -620,6 +610,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
       }
     } );
     wTabFolder.setSelection( 0 );
+
     // Set the shell size, based upon previous time...
     setSize();
     getData();
@@ -640,7 +631,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wdynamicCommand.setSelection( input.isDynamicCommand() );
+    wDynamicCommand.setSelection( input.isDynamicCommand() );
     if ( input.getCommand() != null ) {
       wCommand.setText( input.getCommand() );
     }
@@ -699,7 +690,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
   private void getInfo( SSHMeta in ) throws HopException {
     transformName = wTransformName.getText(); // return value
 
-    in.setDynamicCommand( wdynamicCommand.getSelection() );
+    in.setDynamicCommand( wDynamicCommand.getSelection() );
     in.setCommand( wCommand.getText() );
     in.setcommandfieldname( wCommandField.getText() );
     in.setServerName( wServerName.getText() );
@@ -738,11 +729,11 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
   }
 
   private void activateDynamicCommand() {
-    wlCommand.setEnabled( !wdynamicCommand.getSelection() );
-    wCommand.setEnabled( !wdynamicCommand.getSelection() );
-    wlCommandField.setEnabled( wdynamicCommand.getSelection() );
-    wCommandField.setEnabled( wdynamicCommand.getSelection() );
-    wPreview.setEnabled( !wdynamicCommand.getSelection() );
+    wlCommand.setEnabled( !wDynamicCommand.getSelection() );
+    wCommand.setEnabled( !wDynamicCommand.getSelection() );
+    wlCommandField.setEnabled( wDynamicCommand.getSelection() );
+    wCommandField.setEnabled( wDynamicCommand.getSelection() );
+    wPreview.setEnabled( !wDynamicCommand.getSelection() );
   }
 
   private void get() {
