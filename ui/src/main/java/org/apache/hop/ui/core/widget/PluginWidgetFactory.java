@@ -164,6 +164,23 @@ public class PluginWidgetFactory {
   }
 
   /**
+   * Convenience method to create FormData for Buttons beside a label.
+   *
+   * @param labelControl the label which is to the left.
+   * @return layoutData.
+   */
+  public FormData createButtonLayoutData( final Control labelControl ) {
+    FormData formData = new FormData();
+
+    formData.left = new FormAttachment( this.middle, 0 );
+    formData.top = new FormAttachment( labelControl, 0, SWT.CENTER );
+    formData.right = new FormAttachment( this.rightOffset, 0 );
+
+    return formData;
+  }
+
+
+  /**
    * @param text text to set.
    * @return text widget.
    */

@@ -138,7 +138,6 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     wbSortDir.setLayoutData(fdbSortDir);
 
     wSortDir = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wSortDir.setText( "temp" );
     props.setLook( wSortDir );
     wSortDir.addModifyListener( lsMod );
     FormData fdSortDir = new FormData();
@@ -222,7 +221,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     props.setLook( wCompress );
     FormData fdCompress = new FormData();
     fdCompress.left = new FormAttachment( middle, 0 );
-    fdCompress.top = new FormAttachment( wFreeMemory, margin * 2 );
+    fdCompress.top = new FormAttachment( wlCompress, 0, SWT.CENTER );
     fdCompress.right = new FormAttachment( 100, 0 );
     wCompress.setLayoutData(fdCompress);
     wCompress.addSelectionListener( new SelectionAdapter() {
@@ -247,19 +246,21 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     props.setLook( wUniqueRows );
     FormData fdUniqueRows = new FormData();
     fdUniqueRows.left = new FormAttachment( middle, 0 );
-    fdUniqueRows.top = new FormAttachment( wCompress, margin );
+    fdUniqueRows.top = new FormAttachment( wlUniqueRows, 0, SWT.CENTER );
     fdUniqueRows.right = new FormAttachment( 100, 0 );
     wUniqueRows.setLayoutData(fdUniqueRows);
     wUniqueRows.addSelectionListener( new ComponentSelectionListener( input ) );
 
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "System.Button.GetFields" ) );
+    wGet.addListener( SWT.Selection, e -> get() );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     // Table with fields to sort and sort direction
     Label wlFields = new Label(shell, SWT.NONE);
@@ -338,14 +339,6 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     new Thread( runnable ).start();
 
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wCancel.addListener( SWT.Selection, lsCancel );
-
     lsDef = new SelectionAdapter() {
       @Override
       public void widgetDefaultSelected( SelectionEvent e ) {

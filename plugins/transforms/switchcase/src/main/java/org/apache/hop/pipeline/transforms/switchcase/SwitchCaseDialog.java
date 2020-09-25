@@ -149,15 +149,15 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
     props.setLook(wlContains);
     FormData fdlContains = new FormData();
     fdlContains.left = new FormAttachment( 0, 0 );
-    fdlContains.right = new FormAttachment( middle, -margin );
+    fdlContains.right = new FormAttachment( middle, 0 );
     fdlContains.top = new FormAttachment( wFieldName, margin * 2 );
     wlContains.setLayoutData(fdlContains);
     wContains = new Button( shell, SWT.CHECK );
     wContains.setToolTipText( BaseMessages.getString( PKG, "SwitchCaseDialog.Contains.Tooltip" ) );
     props.setLook( wContains );
     FormData fdContains = new FormData();
-    fdContains.left = new FormAttachment( middle, 0 );
-    fdContains.top = new FormAttachment( wFieldName, margin * 2 );
+    fdContains.left = new FormAttachment( middle, margin );
+    fdContains.top = new FormAttachment( wlContains, 0, SWT.CENTER );
     fdContains.right = new FormAttachment( 100, 0 );
     wContains.setLayoutData(fdContains);
     wContains.addSelectionListener( lsSel );
