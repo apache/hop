@@ -140,6 +140,15 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // THE BUTTONS: at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "RestDialog.TransformName.Label" ) );
@@ -218,7 +227,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wUrlInField );
     FormData fdUrlInField = new FormData();
     fdUrlInField.left = new FormAttachment( middle, 0 );
-    fdUrlInField.top = new FormAttachment( wUrl, margin );
+    fdUrlInField.top = new FormAttachment( wlUrlInField, 0, SWT.CENTER );
     fdUrlInField.right = new FormAttachment( 100, 0 );
     wUrlInField.setLayoutData(fdUrlInField);
     wUrlInField.addSelectionListener( new SelectionAdapter() {
@@ -300,7 +309,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wMethodInField );
     FormData fdMethodInField = new FormData();
     fdMethodInField.left = new FormAttachment( middle, 0 );
-    fdMethodInField.top = new FormAttachment( wMethod, margin );
+    fdMethodInField.top = new FormAttachment( wlMethodInField, 0, SWT.CENTER );
     fdMethodInField.right = new FormAttachment( 100, 0 );
     wMethodInField.setLayoutData(fdMethodInField);
     wMethodInField.addSelectionListener( new SelectionAdapter() {
@@ -590,7 +599,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( wPreemptive );
     FormData fdPreemptive = new FormData();
     fdPreemptive.left = new FormAttachment( middle, 0 );
-    fdPreemptive.top = new FormAttachment( wHttpPassword, margin );
+    fdPreemptive.top = new FormAttachment( wlPreemptive, 0, SWT.CENTER );
     fdPreemptive.right = new FormAttachment( 100, 0 );
     wPreemptive.setLayoutData(fdPreemptive);
     wPreemptive.addSelectionListener( new SelectionAdapter() {
@@ -962,7 +971,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
     //
@@ -990,26 +999,11 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     };
     new Thread( runnable ).start();
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     // Add listeners
-    lsOk = e -> ok();
-    lsCancel = e -> cancel();
-    lsGet = e -> getParametersFields( wParameters );
-    Listener lsMatrixGet = e -> getParametersFields(wMatrixParameters);
-    Listener lsGetHeaders = e -> getHeaders();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wMatrixGet.addListener( SWT.Selection, lsMatrixGet);
-    wGetHeaders.addListener( SWT.Selection, lsGetHeaders );
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wGet.addListener( SWT.Selection, e -> getParametersFields( wParameters ) );
+    wMatrixGet.addListener( SWT.Selection, e -> getParametersFields(wMatrixParameters));
+    wGetHeaders.addListener( SWT.Selection, e -> getHeaders() );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

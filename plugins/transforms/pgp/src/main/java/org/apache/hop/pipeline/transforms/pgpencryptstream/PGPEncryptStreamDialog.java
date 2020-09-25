@@ -62,9 +62,6 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
   private Label wlKeyNameFieldName;
   private CCombo wKeyNameFieldName;
 
-  private static final String[] FILETYPES = new String[] { BaseMessages.getString(
-    PKG, "PGPEncryptStreamDialog.Filetype.All" ) };
-
   public PGPEncryptStreamDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (PGPEncryptStreamMeta) in;
@@ -91,6 +88,15 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // THE BUTTONS at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -195,11 +201,10 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
     wlKeyNameFromField.setLayoutData(fdlKeyNameFromField);
     wKeyNameFromField = new Button(wGPGGroup, SWT.CHECK );
     props.setLook( wKeyNameFromField );
-    wKeyNameFromField.setToolTipText( BaseMessages.getString(
-      PKG, "PGPEncryptStreamDialog.KeyNameFromField.Tooltip" ) );
+    wKeyNameFromField.setToolTipText( BaseMessages.getString( PKG, "PGPEncryptStreamDialog.KeyNameFromField.Tooltip" ) );
     FormData fdKeyNameFromField = new FormData();
     fdKeyNameFromField.left = new FormAttachment( middle, 0 );
-    fdKeyNameFromField.top = new FormAttachment( wKeyName, margin );
+    fdKeyNameFromField.top = new FormAttachment( wlKeyNameFromField, 0, SWT.CENTER );
     wKeyNameFromField.setLayoutData(fdKeyNameFromField);
 
     wKeyNameFromField.addSelectionListener( new SelectionAdapter() {
@@ -301,22 +306,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
     fdResult.right = new FormAttachment( 100, 0 );
     wResult.setLayoutData(fdResult);
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wResult );
-
     // Add listeners
-    lsOk = e -> ok();
-
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();

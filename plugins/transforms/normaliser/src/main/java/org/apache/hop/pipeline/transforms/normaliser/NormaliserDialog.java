@@ -91,6 +91,18 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wGet = new Button( shell, SWT.PUSH );
+    wGet.setText( BaseMessages.getString( PKG, "NormaliserDialog.GetFields.Button" ) );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "NormaliserDialog.TransformName.Label" ) );
@@ -136,15 +148,6 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     fdlFields.left = new FormAttachment( 0, 0 );
     fdlFields.top = new FormAttachment( wTypefield, margin );
     wlFields.setLayoutData(fdlFields);
-
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wGet = new Button( shell, SWT.PUSH );
-    wGet.setText( BaseMessages.getString( PKG, "NormaliserDialog.GetFields.Button" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
 
     final int fieldsCols = 3;
     final int fieldsRows = input.getNormaliserFields().length;
@@ -195,14 +198,6 @@ public class NormaliserDialog extends BaseTransformDialog implements ITransformD
     new Thread( runnable ).start();
 
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wCancel.addListener( SWT.Selection, lsCancel );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();

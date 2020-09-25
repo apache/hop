@@ -127,9 +127,9 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
   private FormData fdlIgnoreEmptyFile, fdIgnoreEmptyFile;
 
   // do not fail if no files?
-  private Label wldoNotFailIfNoFile;
-  private Button wdoNotFailIfNoFile;
-  private FormData fdldoNotFailIfNoFile, fddoNotFailIfNoFile;
+  private Label wlDoNotFailIfNoFile;
+  private Button wDoNotFailIfNoFile;
+  private FormData fdlDoNotFailIfNoFile, fdDoNotFailIfNoFile;
 
   private YamlInputMeta input;
 
@@ -163,6 +163,19 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
+
+    // Buttons at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "YamlInputDialog.Button.PreviewRows" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
 
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -222,13 +235,12 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     fdlXMLStreamField.top = new FormAttachment( 0, margin );
     fdlXMLStreamField.right = new FormAttachment( middle, -2 * margin );
     wlXmlStreamField.setLayoutData( fdlXMLStreamField );
-
     wYAMLStreamField = new Button( wOutputField, SWT.CHECK );
     props.setLook( wYAMLStreamField );
     wYAMLStreamField.setToolTipText( BaseMessages.getString( PKG, "YamlInputDialog.wYAMLStreamField.Tooltip" ) );
     fdYAMLStreamField = new FormData();
     fdYAMLStreamField.left = new FormAttachment( middle, -margin );
-    fdYAMLStreamField.top = new FormAttachment( 0, margin );
+    fdYAMLStreamField.top = new FormAttachment( wlXmlStreamField, 0, SWT.CENTER );
     wYAMLStreamField.setLayoutData( fdYAMLStreamField );
     SelectionAdapter lsyamlstream = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -247,13 +259,12 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     fdlXMLIsAFile.top = new FormAttachment( wYAMLStreamField, margin );
     fdlXMLIsAFile.right = new FormAttachment( middle, -2 * margin );
     wlYamlIsAFile.setLayoutData( fdlXMLIsAFile );
-
     wYAMLIsAFile = new Button( wOutputField, SWT.CHECK );
     props.setLook( wYAMLIsAFile );
     wYAMLIsAFile.setToolTipText( BaseMessages.getString( PKG, "YamlInputDialog.XMLIsAFile.Tooltip" ) );
     fdYAMLIsAFile = new FormData();
     fdYAMLIsAFile.left = new FormAttachment( middle, -margin );
-    fdYAMLIsAFile.top = new FormAttachment( wYAMLStreamField, margin );
+    fdYAMLIsAFile.top = new FormAttachment( wlYamlIsAFile, 0, SWT.CENTER );
     wYAMLIsAFile.setLayoutData( fdYAMLIsAFile );
     SelectionAdapter lsyamlisafile = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -487,34 +498,34 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wIgnoreEmptyFile.setToolTipText( BaseMessages.getString( PKG, "YamlInputDialog.IgnoreEmptyFile.Tooltip" ) );
     fdIgnoreEmptyFile = new FormData();
     fdIgnoreEmptyFile.left = new FormAttachment( middle, 0 );
-    fdIgnoreEmptyFile.top = new FormAttachment( 0, margin );
+    fdIgnoreEmptyFile.top = new FormAttachment( wlIgnoreEmptyFile, 0, SWT.CENTER );
     wIgnoreEmptyFile.setLayoutData( fdIgnoreEmptyFile );
     wIgnoreEmptyFile.addSelectionListener( new ComponentSelectionListener( input ) );
 
     // do not fail if no files?
-    wldoNotFailIfNoFile = new Label( wXmlConf, SWT.RIGHT );
-    wldoNotFailIfNoFile.setText( BaseMessages.getString( PKG, "YamlInputDialog.doNotFailIfNoFile.Label" ) );
-    props.setLook( wldoNotFailIfNoFile );
-    fdldoNotFailIfNoFile = new FormData();
-    fdldoNotFailIfNoFile.left = new FormAttachment( 0, 0 );
-    fdldoNotFailIfNoFile.top = new FormAttachment( wIgnoreEmptyFile, margin );
-    fdldoNotFailIfNoFile.right = new FormAttachment( middle, -margin );
-    wldoNotFailIfNoFile.setLayoutData( fdldoNotFailIfNoFile );
-    wdoNotFailIfNoFile = new Button( wXmlConf, SWT.CHECK );
-    props.setLook( wdoNotFailIfNoFile );
-    wdoNotFailIfNoFile.setToolTipText( BaseMessages.getString( PKG, "YamlInputDialog.doNotFailIfNoFile.Tooltip" ) );
-    fddoNotFailIfNoFile = new FormData();
-    fddoNotFailIfNoFile.left = new FormAttachment( middle, 0 );
-    fddoNotFailIfNoFile.top = new FormAttachment( wIgnoreEmptyFile, margin );
-    wdoNotFailIfNoFile.setLayoutData( fddoNotFailIfNoFile );
-    wdoNotFailIfNoFile.addSelectionListener( new ComponentSelectionListener( input ) );
+    wlDoNotFailIfNoFile = new Label( wXmlConf, SWT.RIGHT );
+    wlDoNotFailIfNoFile.setText( BaseMessages.getString( PKG, "YamlInputDialog.doNotFailIfNoFile.Label" ) );
+    props.setLook( wlDoNotFailIfNoFile );
+    fdlDoNotFailIfNoFile = new FormData();
+    fdlDoNotFailIfNoFile.left = new FormAttachment( 0, 0 );
+    fdlDoNotFailIfNoFile.top = new FormAttachment( wIgnoreEmptyFile, margin );
+    fdlDoNotFailIfNoFile.right = new FormAttachment( middle, -margin );
+    wlDoNotFailIfNoFile.setLayoutData( fdlDoNotFailIfNoFile );
+    wDoNotFailIfNoFile = new Button( wXmlConf, SWT.CHECK );
+    props.setLook( wDoNotFailIfNoFile );
+    wDoNotFailIfNoFile.setToolTipText( BaseMessages.getString( PKG, "YamlInputDialog.doNotFailIfNoFile.Tooltip" ) );
+    fdDoNotFailIfNoFile = new FormData();
+    fdDoNotFailIfNoFile.left = new FormAttachment( middle, 0 );
+    fdDoNotFailIfNoFile.top = new FormAttachment( wlDoNotFailIfNoFile, 0, SWT.CENTER );
+    wDoNotFailIfNoFile.setLayoutData( fdDoNotFailIfNoFile );
+    wDoNotFailIfNoFile.addSelectionListener( new ComponentSelectionListener( input ) );
 
     wlLimit = new Label( wXmlConf, SWT.RIGHT );
     wlLimit.setText( BaseMessages.getString( PKG, "YamlInputDialog.Limit.Label" ) );
     props.setLook( wlLimit );
     fdlLimit = new FormData();
     fdlLimit.left = new FormAttachment( 0, 0 );
-    fdlLimit.top = new FormAttachment( wdoNotFailIfNoFile, margin );
+    fdlLimit.top = new FormAttachment( wDoNotFailIfNoFile, margin );
     fdlLimit.right = new FormAttachment( middle, -margin );
     wlLimit.setLayoutData( fdlLimit );
     wLimit = new Text( wXmlConf, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
@@ -522,7 +533,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wLimit.addModifyListener( lsMod );
     fdLimit = new FormData();
     fdLimit.left = new FormAttachment( middle, 0 );
-    fdLimit.top = new FormAttachment( wdoNotFailIfNoFile, margin );
+    fdLimit.top = new FormAttachment( wDoNotFailIfNoFile, margin );
     fdLimit.right = new FormAttachment( 100, 0 );
     wLimit.setLayoutData( fdLimit );
 
@@ -562,7 +573,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wInclFilename.setToolTipText( BaseMessages.getString( PKG, "YamlInputDialog.InclFilename.Tooltip" ) );
     fdInclFilename = new FormData();
     fdInclFilename.left = new FormAttachment( middle, 0 );
-    fdInclFilename.top = new FormAttachment( wXmlConf, 4 * margin );
+    fdInclFilename.top = new FormAttachment( wlInclFilename, 0, SWT.CENTER );
     wInclFilename.setLayoutData( fdInclFilename );
     wInclFilename.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -595,7 +606,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wInclRownum.setToolTipText( BaseMessages.getString( PKG, "YamlInputDialog.InclRownum.Tooltip" ) );
     fdRownum = new FormData();
     fdRownum.left = new FormAttachment( middle, 0 );
-    fdRownum.top = new FormAttachment( wInclFilenameField, margin );
+    fdRownum.top = new FormAttachment( wlInclRownum, 0, SWT.CENTER );
     wInclRownum.setLayoutData( fdRownum );
     wInclRownum.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -651,7 +662,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "YamlInputDialog.AddResult.Tooltip" ) );
     fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wAdditionalFields, margin );
+    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData( fdAddResult );
     wAddResult.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -763,30 +774,11 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "YamlInputDialog.Button.PreviewRows" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
-
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    lsPreview = e -> preview();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wPreview.addListener( SWT.Selection, lsPreview );
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wGet.addListener( SWT.Selection, e -> get() );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -988,8 +980,8 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
       !wYAMLStreamField.getSelection() || ( wYAMLStreamField.getSelection() && wYAMLIsAFile.getSelection() );
     wlIgnoreEmptyFile.setEnabled( active );
     wIgnoreEmptyFile.setEnabled( active );
-    wldoNotFailIfNoFile.setEnabled( active );
-    wdoNotFailIfNoFile.setEnabled( active );
+    wlDoNotFailIfNoFile.setEnabled( active );
+    wDoNotFailIfNoFile.setEnabled( active );
   }
 
   private void get() {
@@ -1065,7 +1057,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     wInclRownum.setSelection( in.includeRowNumber() );
     wAddResult.setSelection( in.addResultFile() );
     wIgnoreEmptyFile.setSelection( in.isIgnoreEmptyFile() );
-    wdoNotFailIfNoFile.setSelection( in.isdoNotFailIfNoFile() );
+    wDoNotFailIfNoFile.setSelection( in.isdoNotFailIfNoFile() );
     wYAMLStreamField.setSelection( in.isInFields() );
     wYAMLIsAFile.setSelection( in.getIsAFile() );
 
@@ -1170,7 +1162,7 @@ public class YamlInputDialog extends BaseTransformDialog implements ITransformDi
     in.setIncludeFilename( wInclFilename.getSelection() );
     in.setIncludeRowNumber( wInclRownum.getSelection() );
     in.setIgnoreEmptyFile( wIgnoreEmptyFile.getSelection() );
-    in.setdoNotFailIfNoFile( wdoNotFailIfNoFile.getSelection() );
+    in.setdoNotFailIfNoFile( wDoNotFailIfNoFile.getSelection() );
 
     in.setInFields( wYAMLStreamField.getSelection() );
     in.setIsAFile( wYAMLIsAFile.getSelection() );

@@ -294,7 +294,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     props.setLook( wStopOnError );
     FormData fdStopOnError = new FormData();
     fdStopOnError.left = new FormAttachment( middle, 0 );
-    fdStopOnError.top = new FormAttachment( wDelimiter, margin );
+    fdStopOnError.top = new FormAttachment( wlStopOnError, 0, SWT.CENTER );
     fdStopOnError.right = new FormAttachment( 100, 0 );
     wStopOnError.setLayoutData(fdStopOnError);
 
@@ -311,8 +311,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     wSql.setText( BaseMessages.getString( PKG, "PGBulkLoaderDialog.SQL.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel, wSql }, margin, null );
+    setButtonPositions( new Button[] { wOk, wSql, wCancel }, margin, null );
 
     // The field Table
     Label wlReturn = new Label(shell, SWT.NONE);

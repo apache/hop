@@ -239,7 +239,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     props.setLook( wBatch );
     FormData fdBatch = new FormData();
     fdBatch.left = new FormAttachment( middle, 0 );
-    fdBatch.top = new FormAttachment( wCommit, margin );
+    fdBatch.top = new FormAttachment( wlBatch, 0, SWT.CENTER );
     fdBatch.right = new FormAttachment( 100, 0 );
     wBatch.setLayoutData(fdBatch);
     wBatch.addSelectionListener( new SelectionAdapter() {
@@ -263,7 +263,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     props.setLook( wSkipLookup );
     FormData fdSkipLookup = new FormData();
     fdSkipLookup.left = new FormAttachment( middle, 0 );
-    fdSkipLookup.top = new FormAttachment( wBatch, margin );
+    fdSkipLookup.top = new FormAttachment( wlSkipLookup, 0, SWT.CENTER );
     fdSkipLookup.right = new FormAttachment( 100, 0 );
     wSkipLookup.setLayoutData(fdSkipLookup);
     wSkipLookup.addSelectionListener( new SelectionAdapter() {
@@ -281,13 +281,12 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     fdlErrorIgnored.top = new FormAttachment( wSkipLookup, margin );
     fdlErrorIgnored.right = new FormAttachment( middle, -margin );
     wlErrorIgnored.setLayoutData(fdlErrorIgnored);
-
     wErrorIgnored = new Button( shell, SWT.CHECK );
     props.setLook( wErrorIgnored );
     wErrorIgnored.setToolTipText( BaseMessages.getString( PKG, "UpdateDialog.ErrorIgnored.ToolTip" ) );
     FormData fdErrorIgnored = new FormData();
     fdErrorIgnored.left = new FormAttachment( middle, 0 );
-    fdErrorIgnored.top = new FormAttachment( wSkipLookup, margin );
+    fdErrorIgnored.top = new FormAttachment( wlErrorIgnored, 0, SWT.CENTER );
     wErrorIgnored.setLayoutData(fdErrorIgnored);
     wErrorIgnored.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -369,7 +368,7 @@ public class UpdateDialog extends BaseTransformDialog implements ITransformDialo
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
-    setButtonPositions( new Button[] { wOk, wCancel, wSql }, margin, null );
+    setButtonPositions( new Button[] { wOk, wSql, wCancel }, margin, null );
 
     // THE UPDATE/INSERT TABLE
     Label wlReturn = new Label(shell, SWT.NONE);

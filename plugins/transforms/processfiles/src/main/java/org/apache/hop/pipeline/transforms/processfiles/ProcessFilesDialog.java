@@ -156,6 +156,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
 
       }
     } );
+
     // Create target parent folder?
     wlCreateParentFolder = new Label(wSettingsGroup, SWT.RIGHT );
     wlCreateParentFolder.setText( BaseMessages.getString( PKG, "ProcessFilesDialog.CreateParentFolder.Label" ) );
@@ -167,8 +168,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
     wCreateParentFolder = new Button(wSettingsGroup, SWT.CHECK );
     props.setLook( wCreateParentFolder );
-    wCreateParentFolder.setToolTipText( BaseMessages.getString(
-      PKG, "ProcessFilesDialog.CreateParentFolder.Tooltip" ) );
+    wCreateParentFolder.setToolTipText( BaseMessages.getString( PKG, "ProcessFilesDialog.CreateParentFolder.Tooltip" ) );
     wCreateParentFolder.addSelectionListener( lsButtonChanged );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
@@ -190,7 +190,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wOverwriteTarget.addSelectionListener( lsButtonChanged );
     FormData fdOverwriteTarget = new FormData();
     fdOverwriteTarget.left = new FormAttachment( middle, 0 );
-    fdOverwriteTarget.top = new FormAttachment( wCreateParentFolder, margin );
+    fdOverwriteTarget.top = new FormAttachment( wlOverwriteTarget, 0, SWT.CENTER );
     wOverwriteTarget.setLayoutData(fdOverwriteTarget);
 
     // Add Target filename to result filenames?
@@ -208,7 +208,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wAddResult.addSelectionListener( lsButtonChanged );
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment( wOverwriteTarget, margin );
+    fdAddResult.top = new FormAttachment( wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData(fdAddResult);
 
     // Simulation mode ON?
@@ -226,7 +226,7 @@ public class ProcessFilesDialog extends BaseTransformDialog implements ITransfor
     wSimulate.addSelectionListener( lsButtonChanged );
     FormData fdSimulate = new FormData();
     fdSimulate.left = new FormAttachment( middle, 0 );
-    fdSimulate.top = new FormAttachment( wAddResult, margin );
+    fdSimulate.top = new FormAttachment( wlSimulate, 0, SWT.CENTER );
     wSimulate.setLayoutData(fdSimulate);
 
     FormData fdSettingsGroup = new FormData();

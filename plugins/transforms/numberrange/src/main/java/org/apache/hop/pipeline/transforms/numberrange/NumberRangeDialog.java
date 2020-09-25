@@ -36,12 +36,24 @@ import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 public class NumberRangeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = NumberRangeMeta.class; // for i18n purposes, needed by Translator!!
@@ -76,18 +88,25 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "NumberRange.TypeLongDesc" ) );
 
+    // Some buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( "OK" );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( "Cancel" );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, props.getMargin(), null );
+
     // Create controls
     wTransformName = createLine( lsMod, BaseMessages.getString( PKG, "NumberRange.TransformName" ), null );
-    inputFieldControl =
-      createLineCombo( lsMod, BaseMessages.getString( PKG, "NumberRange.InputField" ), wTransformName );
-    outputFieldControl =
-      createLine( lsMod, BaseMessages.getString( PKG, "NumberRange.OutputField" ), inputFieldControl );
+    inputFieldControl = createLineCombo( lsMod, BaseMessages.getString( PKG, "NumberRange.InputField" ), wTransformName );
+    outputFieldControl = createLine( lsMod, BaseMessages.getString( PKG, "NumberRange.OutputField" ), inputFieldControl );
 
     inputFieldControl.addFocusListener( new FocusListener() {
       public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         loadComboOptions();
@@ -95,25 +114,11 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
         busy.dispose();
       }
     } );
-    fallBackValueControl =
-      createLine( lsMod, BaseMessages.getString( PKG, "NumberRange.DefaultValue" ), outputFieldControl );
+    fallBackValueControl = createLine( lsMod, BaseMessages.getString( PKG, "NumberRange.DefaultValue" ), outputFieldControl );
 
     createRulesTable( lsMod );
 
-    // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( "OK" );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( "Cancel" );
-
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, props.getMargin(), rulesControl );
-
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -171,16 +176,14 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     colinf[ 2 ] =
       new ColumnInfo( BaseMessages.getString( PKG, "NumberRange.Value" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
 
-    rulesControl =
-      new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    rulesControl = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( rulesLable, props.getMargin() );
     fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( 100, -50 );
-    rulesControl.setLayoutData(fdFields);
+    fdFields.bottom = new FormAttachment( wOk, -2 * props.getMargin() );
+    rulesControl.setLayoutData( fdFields );
   }
 
   private Text createLine( ModifyListener lsMod, String lableText, Control prevControl ) {

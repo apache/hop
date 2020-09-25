@@ -58,12 +58,12 @@ import java.util.List;
   id = "XMLJoin",
   image = "XJN.svg",
   i18nPackageName = "org.apache.hop.pipeline.transforms.xml.xmljoin",
-  name = "XMLJoin.name",
-  description = "XMLJoin.description",
-  categoryDescription = "XMLJoin.category",
+  name = "XmlJoin.name",
+  description = "XmlJoin.description",
+  categoryDescription = "XmlJoin.category",
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmljoin.html"
 )
-@InjectionSupported( localizationPrefix = "XMLJoin.Injection." )
+@InjectionSupported( localizationPrefix = "XmlJoin.Injection." )
 public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {
   private static Class<?> PKG = XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!
 
@@ -227,67 +227,67 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
     if ( this.targetXmlTransform == null || this.targetXmlTransform.length() == 0 ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.TargetXMLTransformNotSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.TargetXMLTransformNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.TargetXMLTransformSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.TargetXMLTransformSpecified" ), transformMeta );
       remarks.add( cr );
     }
     if ( this.targetXmlField == null || this.targetXmlField.length() == 0 ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.TargetXMLFieldNotSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.TargetXMLFieldNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.TargetXMLFieldSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.TargetXMLFieldSpecified" ), transformMeta );
       remarks.add( cr );
     }
     if ( this.sourceXmlTransform == null || this.sourceXmlTransform.length() == 0 ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.SourceXMLTransformNotSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.SourceXMLTransformNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.SourceXMLTransformSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.SourceXMLTransformSpecified" ), transformMeta );
       remarks.add( cr );
     }
     if ( this.sourceXmlField == null || this.sourceXmlField.length() == 0 ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.SourceXMLFieldNotSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.SourceXMLFieldNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.SourceXMLFieldSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.SourceXMLFieldSpecified" ), transformMeta );
       remarks.add( cr );
     }
     if ( this.valueXmlField == null || this.valueXmlField.length() == 0 ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.ResultFieldNotSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.ResultFieldNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.ResultFieldSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.ResultFieldSpecified" ), transformMeta );
       remarks.add( cr );
     }
     if ( this.targetXPath == null || this.targetXPath.length() == 0 ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.TargetXPathNotSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.TargetXPathNotSpecified" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.TargetXPathSpecified" ), transformMeta );
+          "XmlJoin.CheckResult.TargetXPathSpecified" ), transformMeta );
       remarks.add( cr );
     }
 
@@ -300,14 +300,14 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
           targetTransformFound = true;
           cr =
             new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.TargetXMLTransformFound", this.targetXmlTransform ), transformMeta );
+              "XmlJoin.CheckResult.TargetXMLTransformFound", this.targetXmlTransform ), transformMeta );
           remarks.add( cr );
         }
         if ( this.sourceXmlTransform != null && this.sourceXmlTransform.equals( input[ i ] ) ) {
           sourceTransformFound = true;
           cr =
             new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "XMLJoin.CheckResult.SourceXMLTransformFound", this.sourceXmlTransform ), transformMeta );
+              "XmlJoin.CheckResult.SourceXMLTransformFound", this.sourceXmlTransform ), transformMeta );
           remarks.add( cr );
         }
       }
@@ -315,19 +315,19 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
       if ( !targetTransformFound ) {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-            "XMLJoin.CheckResult.TargetXMLTransformNotFound", this.targetXmlTransform ), transformMeta );
+            "XmlJoin.CheckResult.TargetXMLTransformNotFound", this.targetXmlTransform ), transformMeta );
         remarks.add( cr );
       }
       if ( !sourceTransformFound ) {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-            "XMLJoin.CheckResult.SourceXMLTransformNotFound", this.sourceXmlTransform ), transformMeta );
+            "XmlJoin.CheckResult.SourceXMLTransformNotFound", this.sourceXmlTransform ), transformMeta );
         remarks.add( cr );
       }
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-          "XMLJoin.CheckResult.ExpectedInputError" ), transformMeta );
+          "XmlJoin.CheckResult.ExpectedInputError" ), transformMeta );
       remarks.add( cr );
     }
   }

@@ -60,7 +60,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
 
   private ColumnInfo[] colinf;
 
-  private Button wuseVars;
+  private Button wUseVars;
 
   public SetValueConstantDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -89,6 +89,18 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "SetValueConstantDialog.Shell.Title" ) );
 
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wGet = new Button( shell, SWT.PUSH );
+    wGet.setText( BaseMessages.getString( PKG, "System.Button.GetFields" ) );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "SetValueConstantDialog.TransformName.Label" ) );
@@ -109,22 +121,22 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     wTransformName.setLayoutData( fdTransformName );
 
     // Use variable?
-    Label wluseVars = new Label(shell, SWT.RIGHT);
-    wluseVars.setText( BaseMessages.getString( PKG, "SetValueConstantDialog.useVars.Label" ) );
-    props.setLook(wluseVars);
-    FormData fdlUpdate = new FormData();
-    fdlUpdate.left = new FormAttachment( 0, 0 );
-    fdlUpdate.right = new FormAttachment(middle, -margin);
-    fdlUpdate.top = new FormAttachment( wTransformName, 2 * margin);
-    wluseVars.setLayoutData( fdlUpdate );
-    wuseVars = new Button( shell, SWT.CHECK );
-    wuseVars.setToolTipText( BaseMessages.getString( PKG, "SetValueConstantDialog.useVars.Tooltip" ) );
-    props.setLook( wuseVars );
-    FormData fdUpdate = new FormData();
-    fdUpdate.left = new FormAttachment(middle, 0 );
-    fdUpdate.top = new FormAttachment( wTransformName, 2 * margin);
-    fdUpdate.right = new FormAttachment( 100, 0 );
-    wuseVars.setLayoutData( fdUpdate );
+    Label wlUseVars = new Label(shell, SWT.RIGHT);
+    wlUseVars.setText( BaseMessages.getString( PKG, "SetValueConstantDialog.useVars.Label" ) );
+    props.setLook(wlUseVars);
+    FormData fdlUseVars = new FormData();
+    fdlUseVars.left = new FormAttachment( 0, 0 );
+    fdlUseVars.right = new FormAttachment(middle, -margin);
+    fdlUseVars.top = new FormAttachment( wTransformName, 2 * margin);
+    wlUseVars.setLayoutData( fdlUseVars );
+    wUseVars = new Button( shell, SWT.CHECK );
+    wUseVars.setToolTipText( BaseMessages.getString( PKG, "SetValueConstantDialog.useVars.Tooltip" ) );
+    props.setLook( wUseVars );
+    FormData fdUseVars = new FormData();
+    fdUseVars.left = new FormAttachment(middle, 0 );
+    fdUseVars.top = new FormAttachment( wlUseVars, 0, SWT.CENTER);
+    fdUseVars.right = new FormAttachment( 100, 0 );
+    wUseVars.setLayoutData( fdUseVars );
 
     // Table with fields
     Label wlFields = new Label(shell, SWT.NONE);
@@ -132,7 +144,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
-    fdlFields.top = new FormAttachment( wuseVars, margin);
+    fdlFields.top = new FormAttachment( wUseVars, margin);
     wlFields.setLayoutData(fdlFields);
 
     int FieldsCols = 4;
@@ -165,8 +177,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment(wlFields, margin);
     fdFields.right = new FormAttachment( 100, 0 );
-    fdFields.bottom = new FormAttachment( 100, -50 );
-
+    fdFields.bottom = new FormAttachment( wOk, -2*margin );
     wFields.setLayoutData(fdFields);
 
     //
@@ -191,24 +202,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     };
     new Thread( runnable ).start();
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wGet = new Button( shell, SWT.PUSH );
-    wGet.setText( BaseMessages.getString( PKG, "System.Button.GetFields" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, wFields );
-
     // Add listeners
-    lsCancel = e -> cancel();
-    lsGet = e -> get();
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
@@ -275,7 +269,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wuseVars.setSelection( input.isUseVars() );
+    wUseVars.setSelection( input.isUseVars() );
     Table table = wFields.table;
     if ( input.getFields().size() > 0 ) {
       table.removeAll();
@@ -318,7 +312,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
     }
     transformName = wTransformName.getText(); // return value
 
-    input.setUseVars( wuseVars.getSelection() );
+    input.setUseVars( wUseVars.getSelection() );
     int count = wFields.nrNonEmpty();
     List<SetValueConstantMeta.Field> fields = new ArrayList<>();
 

@@ -117,6 +117,16 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     // get previous fields name
     getFields();
 
+    // Some buttons
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
@@ -342,8 +352,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     fdlCreateParentFolder.right = new FormAttachment( middle, -margin );
     wlCreateParentFolder.setLayoutData(fdlCreateParentFolder);
     wCreateParentFolder = new Button(wFileName, SWT.CHECK );
-    wCreateParentFolder.setToolTipText( BaseMessages.getString(
-      PKG, "PropertyOutputDialog.CreateParentFolder.Tooltip" ) );
+    wCreateParentFolder.setToolTipText( BaseMessages.getString( PKG, "PropertyOutputDialog.CreateParentFolder.Tooltip" ) );
     props.setLook( wCreateParentFolder );
     FormData fdCreateParentFolder = new FormData();
     fdCreateParentFolder.left = new FormAttachment( middle, 0 );
@@ -370,7 +379,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wFileNameInField );
     FormData fdFileNameInField = new FormData();
     fdFileNameInField.left = new FormAttachment( middle, 0 );
-    fdFileNameInField.top = new FormAttachment( wCreateParentFolder, margin );
+    fdFileNameInField.top = new FormAttachment( wlFileNameInField, 0, SWT.CENTER );
     fdFileNameInField.right = new FormAttachment( 100, 0 );
     wFileNameInField.setLayoutData(fdFileNameInField);
     wFileNameInField.addSelectionListener( new SelectionAdapter() {
@@ -433,7 +442,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     props.setLook( wAddTransformNr );
     FormData fdAddTransformNr = new FormData();
     fdAddTransformNr.left = new FormAttachment( middle, 0 );
-    fdAddTransformNr.top = new FormAttachment( wExtension, 2 * margin );
+    fdAddTransformNr.top = new FormAttachment( wlAddTransformNr, 0, SWT.CENTER );
     fdAddTransformNr.right = new FormAttachment( 100, 0 );
     wAddTransformNr.setLayoutData(fdAddTransformNr);
     wAddTransformNr.addSelectionListener( new SelectionAdapter() {
@@ -588,24 +597,10 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
-
     // Add listeners
-    lsOk = e -> ok();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

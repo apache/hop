@@ -110,7 +110,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
   private Label wlResetRownum;
   private Button wResetRownum;
 
-  private Button wresolveValueVariable;
+  private Button wResolveValueVariable;
 
   private Label wlLimit;
   private Text wLimit;
@@ -179,6 +179,18 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     middle = props.getMiddlePct();
     margin = props.getMargin();
 
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wPreview = new Button( shell, SWT.PUSH );
+    wPreview.setText( BaseMessages.getString( PKG, "PropertyInputDialog.Button.PreviewRows" ) );
+    wPreview.addListener( SWT.Selection, e -> preview() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
@@ -237,13 +249,12 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlFileField.top = new FormAttachment( 0, margin );
     fdlFileField.right = new FormAttachment( middle, -margin );
     wlFileField.setLayoutData(fdlFileField);
-
     wFileField = new Button(wOriginFiles, SWT.CHECK );
     props.setLook( wFileField );
     wFileField.setToolTipText( BaseMessages.getString( PKG, "PropertyInputDialog.FileField.Tooltip" ) );
     FormData fdFileField = new FormData();
     fdFileField.left = new FormAttachment( middle, margin );
-    fdFileField.top = new FormAttachment( 0, margin );
+    fdFileField.top = new FormAttachment( wlFileField, 0, SWT.CENTER );
     wFileField.setLayoutData(fdFileField);
     SelectionAdapter lfilefield = new SelectionAdapter() {
       @Override
@@ -590,28 +601,26 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdLimit.right = new FormAttachment( 100, 0 );
     wLimit.setLayoutData(fdLimit);
 
-    Label wlresolveValueVariable = new Label(wSettingsGroup, SWT.RIGHT);
-    wlresolveValueVariable
-      .setText( BaseMessages.getString( PKG, "PropertyInputDialog.resolveValueVariable.Label" ) );
-    props.setLook(wlresolveValueVariable);
-    FormData fdlresolveValueVariable = new FormData();
-    fdlresolveValueVariable.left = new FormAttachment( 0, 0 );
-    fdlresolveValueVariable.top = new FormAttachment( wLimit, margin );
-    fdlresolveValueVariable.right = new FormAttachment( middle, -margin );
-    wlresolveValueVariable.setLayoutData(fdlresolveValueVariable);
-    wresolveValueVariable = new Button(wSettingsGroup, SWT.CHECK );
-    props.setLook( wresolveValueVariable );
-    wresolveValueVariable.setToolTipText( BaseMessages.getString(
-      PKG, "PropertyInputDialog.resolveValueVariable.Tooltip" ) );
-    FormData fdresolveValueVariable = new FormData();
-    fdresolveValueVariable.left = new FormAttachment( middle, 0 );
-    fdresolveValueVariable.top = new FormAttachment( wLimit, margin );
-    wresolveValueVariable.setLayoutData(fdresolveValueVariable);
-    wresolveValueVariable.addSelectionListener( new ComponentSelectionListener( input ) );
+    Label wlResolveValueVariable = new Label(wSettingsGroup, SWT.RIGHT);
+    wlResolveValueVariable.setText( BaseMessages.getString( PKG, "PropertyInputDialog.resolveValueVariable.Label" ) );
+    props.setLook(wlResolveValueVariable);
+    FormData fdlResolveValueVariable = new FormData();
+    fdlResolveValueVariable.left = new FormAttachment( 0, 0 );
+    fdlResolveValueVariable.top = new FormAttachment( wLimit, margin );
+    fdlResolveValueVariable.right = new FormAttachment( middle, -margin );
+    wlResolveValueVariable.setLayoutData(fdlResolveValueVariable);
+    wResolveValueVariable = new Button(wSettingsGroup, SWT.CHECK );
+    props.setLook( wResolveValueVariable );
+    wResolveValueVariable.setToolTipText( BaseMessages.getString( PKG, "PropertyInputDialog.resolveValueVariable.Tooltip" ) );
+    FormData fdResolveValueVariable = new FormData();
+    fdResolveValueVariable.left = new FormAttachment( middle, 0 );
+    fdResolveValueVariable.top = new FormAttachment( wlResolveValueVariable, 0, SWT.CENTER );
+    wResolveValueVariable.setLayoutData(fdResolveValueVariable);
+    wResolveValueVariable.addSelectionListener( new ComponentSelectionListener( input ) );
 
     FormData fdSettingsGroup = new FormData();
     fdSettingsGroup.left = new FormAttachment( 0, margin );
-    fdSettingsGroup.top = new FormAttachment( wresolveValueVariable, margin );
+    fdSettingsGroup.top = new FormAttachment( wResolveValueVariable, margin );
     fdSettingsGroup.right = new FormAttachment( 100, -margin );
     wSettingsGroup.setLayoutData(fdSettingsGroup);
 
@@ -645,7 +654,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wInclFilename.setToolTipText( BaseMessages.getString( PKG, "PropertyInputDialog.InclFilename.Tooltip" ) );
     FormData fdInclFilename = new FormData();
     fdInclFilename.left = new FormAttachment( middle, 0 );
-    fdInclFilename.top = new FormAttachment(wSettingsGroup, margin );
+    fdInclFilename.top = new FormAttachment( wlInclFilename, 0, SWT.CENTER );
     wInclFilename.setLayoutData(fdInclFilename);
     wInclFilename.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -678,7 +687,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wInclRownum.setToolTipText( BaseMessages.getString( PKG, "PropertyInputDialog.InclRownum.Tooltip" ) );
     FormData fdRownum = new FormData();
     fdRownum.left = new FormAttachment( middle, 0 );
-    fdRownum.top = new FormAttachment( wInclFilenameField, margin );
+    fdRownum.top = new FormAttachment( wlInclRownum, 0, SWT.CENTER );
     wInclRownum.setLayoutData(fdRownum);
     wInclRownum.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -710,7 +719,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wResetRownum.setToolTipText( BaseMessages.getString( PKG, "PropertyInputDialog.ResetRownum.Tooltip" ) );
     fdRownum = new FormData();
     fdRownum.left = new FormAttachment( wlResetRownum, margin );
-    fdRownum.top = new FormAttachment( wInclRownumField, margin );
+    fdRownum.top = new FormAttachment( wlResetRownum, 0, SWT.CENTER );
     wResetRownum.setLayoutData(fdRownum);
     wResetRownum.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -727,7 +736,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wInclINIsection.setToolTipText( BaseMessages.getString( PKG, "PropertyInputDialog.InclINIsection.Tooltip" ) );
     fdRownum = new FormData();
     fdRownum.left = new FormAttachment( middle, 0 );
-    fdRownum.top = new FormAttachment( wResetRownum, margin );
+    fdRownum.top = new FormAttachment( wlInclINIsection, 0, SWT.CENTER );
     wInclINIsection.setLayoutData(fdRownum);
     wInclINIsection.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -783,7 +792,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wAddResult.setToolTipText( BaseMessages.getString( PKG, "PropertyInputDialog.AddResult.Tooltip" ) );
     FormData fdAddResult = new FormData();
     fdAddResult.left = new FormAttachment( middle, 0 );
-    fdAddResult.top = new FormAttachment(wAdditionalGroup, margin );
+    fdAddResult.top = new FormAttachment(wlAddResult, 0, SWT.CENTER );
     wAddResult.setLayoutData(fdAddResult);
     wAddResult.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -906,30 +915,11 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wPreview = new Button( shell, SWT.PUSH );
-    wPreview.setText( BaseMessages.getString( PKG, "PropertyInputDialog.Button.PreviewRows" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
-
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    lsPreview = e -> preview();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wPreview.addListener( SWT.Selection, lsPreview );
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wGet.addListener( SWT.Selection, e -> get() );
 
     lsDef = new SelectionAdapter() {
       @Override
@@ -1296,7 +1286,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wInclRownum.setSelection( in.includeRowNumber() );
     wInclINIsection.setSelection( in.includeIniSection() );
     wAddResult.setSelection( in.isAddResultFile() );
-    wresolveValueVariable.setSelection( in.isResolveValueVariable() );
+    wResolveValueVariable.setSelection( in.isResolveValueVariable() );
     wFileField.setSelection( in.isFileField() );
     if ( in.getEncoding() != null ) {
       wEncoding.setText( in.getEncoding() );
@@ -1450,7 +1440,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     in.setRowNumberField( wInclRownumField.getText() );
     in.setINISectionField( wInclINIsectionField.getText() );
     in.setResetRowNumber( wResetRownum.getSelection() );
-    in.setResolveValueVariable( wresolveValueVariable.getSelection() );
+    in.setResolveValueVariable( wResolveValueVariable.getSelection() );
     int nrFiles = wFilenameList.getItemCount();
     int nrFields = wFields.nrNonEmpty();
     in.allocate( nrFiles, nrFields );

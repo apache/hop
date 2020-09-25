@@ -59,9 +59,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -188,8 +186,21 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     formLayout.marginWidth = 15;
     formLayout.marginHeight = 15;
 
+    margin = props.getMargin();
+    middle = props.getMiddlePct();
+
     shell.setLayout( formLayout );
     shell.setText( BaseMessages.getString( PKG, "SimpleMappingDialog.Shell.Title" ) );
+
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    positionBottomButtons( shell, new Button[] { wOk, wCancel}, margin, null );
+
 
     Label wicon = new Label( shell, SWT.RIGHT );
     wicon.setImage( getImage() );
@@ -260,20 +271,6 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     wTabFolder.setSimple( false );
     wTabFolder.setUnselectedCloseVisible( true );
 
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    FormData fdCancel = new FormData();
-    fdCancel.right = new FormAttachment( 100, 0 );
-    fdCancel.bottom = new FormAttachment( 100, 0 );
-    wCancel.setLayoutData( fdCancel );
-
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    FormData fdOk = new FormData();
-    fdOk.right = new FormAttachment( wCancel, -5 );
-    fdOk.bottom = new FormAttachment( 100, 0 );
-    wOk.setLayoutData( fdOk );
-
     Label hSpacer = new Label( shell, SWT.HORIZONTAL | SWT.SEPARATOR );
     FormData fdhSpacer = new FormData();
     fdhSpacer.left = new FormAttachment( 0, 0 );
@@ -289,20 +286,6 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     wTabFolder.setLayoutData( fdTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();

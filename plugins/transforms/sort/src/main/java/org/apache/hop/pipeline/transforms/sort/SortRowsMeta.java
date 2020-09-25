@@ -279,7 +279,7 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<So
 
   @Override
   public void setDefault() {
-    directory = "%%java.io.tmpdir%%";
+    directory = "${java.io.tmpdir}";
     prefix = "out";
     sortSize = "1000000";
     freeMemoryLimit = null;

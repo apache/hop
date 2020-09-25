@@ -57,7 +57,6 @@ import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -72,9 +71,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
@@ -191,6 +188,15 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wicon.setLayoutData( fdlicon );
     props.setLook( wicon );
 
+    // Some buttons
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    positionBottomButtons( shell, new Button[] { wOk, wCancel}, props.getMargin(), null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "JobExecutorDialog.TransformName.Label" ) );
@@ -199,13 +205,12 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlTransformName.left = new FormAttachment( 0, 0 );
     fdlTransformName.top = new FormAttachment( 0, 0 );
     wlTransformName.setLayoutData( fdlTransformName );
-
     wTransformName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTransformName.setText( transformName );
     props.setLook( wTransformName );
     wTransformName.addModifyListener( lsMod );
     fdTransformName = new FormData();
-    fdTransformName.width = 250;
+    fdTransformName.right = new FormAttachment( 90, 0 );
     fdTransformName.left = new FormAttachment( 0, 0 );
     fdTransformName.top = new FormAttachment( wlTransformName, 5 );
     wTransformName.setLayoutData( fdTransformName );
@@ -226,27 +231,26 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlJobformation.right = new FormAttachment( 50, 0 );
     wlPath.setLayoutData( fdlJobformation );
 
-    wPath = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wPath );
-    FormData fdJobformation = new FormData();
-    fdJobformation.left = new FormAttachment( 0, 0 );
-    fdJobformation.top = new FormAttachment( wlPath, 5 );
-    fdJobformation.width = 350;
-    wPath.setLayoutData( fdJobformation );
-
     wbBrowse = new Button( shell, SWT.PUSH );
     props.setLook( wbBrowse );
     wbBrowse.setText( BaseMessages.getString( PKG, "JobExecutorDialog.Browse.Label" ) );
     FormData fdBrowse = new FormData();
-    fdBrowse.left = new FormAttachment( wPath, 5 );
+    fdBrowse.right = new FormAttachment( 100, 0 );
     fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
     wbBrowse.setLayoutData( fdBrowse );
-
     wbBrowse.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         selectWorkflowFile();
       }
     } );
+
+    wPath = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wPath );
+    FormData fdJobformation = new FormData();
+    fdJobformation.left = new FormAttachment( 0, 0 );
+    fdJobformation.top = new FormAttachment( wlPath, 5 );
+    fdJobformation.right = new FormAttachment( wbBrowse, -props.getMargin() );
+    wPath.setLayoutData( fdJobformation );
 
     wlRunConfiguration = new Label( shell, SWT.LEFT );
     wlRunConfiguration.setText( "Run configuration" ); // TODO i18n
@@ -256,12 +260,11 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlRunConfiguration.top = new FormAttachment( wPath, PropsUi.getInstance().getMargin() );
     fdlRunConfiguration.right = new FormAttachment( 50, 0 );
     wlRunConfiguration.setLayoutData( fdlRunConfiguration );
-
     wRunConfiguration = new ComboVar( pipelineMeta, shell, SWT.LEFT | SWT.BORDER );
     props.setLook( wlRunConfiguration );
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment( 0, 0 );
-    fdRunConfiguration.top = new FormAttachment( wlRunConfiguration, 0, SWT.CENTER );
+    fdRunConfiguration.top = new FormAttachment( wPath, PropsUi.getInstance().getMargin() );
     fdRunConfiguration.right = new FormAttachment( 100, 0 );
     wRunConfiguration.setLayoutData( fdRunConfiguration );
 
@@ -274,20 +277,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wTabFolder.setSimple( false );
     wTabFolder.setUnselectedCloseVisible( true );
 
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    FormData fdCancel = new FormData();
-    fdCancel.right = new FormAttachment( 100, 0 );
-    fdCancel.bottom = new FormAttachment( 100, 0 );
-    wCancel.setLayoutData( fdCancel );
-
-    // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    FormData fdOk = new FormData();
-    fdOk.right = new FormAttachment( wCancel, -5 );
-    fdOk.bottom = new FormAttachment( 100, 0 );
-    wOk.setLayoutData( fdOk );
 
     Label hSpacer = new Label( shell, SWT.HORIZONTAL | SWT.SEPARATOR );
     FormData fdhSpacer = new FormData();
@@ -298,7 +287,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
-    fdTabFolder.top = new FormAttachment( wPath, 20 );
+    fdTabFolder.top = new FormAttachment( wRunConfiguration, 20 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
     fdTabFolder.bottom = new FormAttachment( hSpacer, -15 );
     wTabFolder.setLayoutData( fdTabFolder );
@@ -312,12 +301,6 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     addResultFilesTab();
 
     // Add listeners
-    lsCancel = e -> cancel();
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
@@ -417,15 +400,15 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
         // Ignore errors
       }
 
-      wRunConfiguration.setItems(runConfigurations.toArray( new String[0] ));
-      wRunConfiguration.setText( Const.NVL(workflowExecutorMeta.getRunConfigurationName(), "") );
+      wRunConfiguration.setItems( runConfigurations.toArray( new String[ 0 ] ) );
+      wRunConfiguration.setText( Const.NVL( workflowExecutorMeta.getRunConfigurationName(), "" ) );
 
       if ( Utils.isEmpty( workflowExecutorMeta.getRunConfigurationName() ) ) {
         wRunConfiguration.select( 0 );
       } else {
         wRunConfiguration.setText( workflowExecutorMeta.getRunConfigurationName() );
       }
-    } catch(Exception e) {
+    } catch ( Exception e ) {
       LogChannel.UI.logError( "Error getting workflow run configurations", e );
     }
 

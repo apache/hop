@@ -154,6 +154,18 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // THE BUTTONS go at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wSql = new Button( shell, SWT.PUSH );
+    wSql.setText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.SQL.Button" ) );
+    wSql.addListener( SWT.Selection, e -> create() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wSql, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.TransformName.Label" ) );
@@ -283,14 +295,13 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     props.setLook( wBatch );
     FormData fdBatch = new FormData();
     fdBatch.left = new FormAttachment( middle, 0 );
-    fdBatch.top = new FormAttachment( wCommit, margin );
+    fdBatch.top = new FormAttachment( wlBatch, 0, SWT.CENTER );
     fdBatch.right = new FormAttachment( 100, 0 );
     wBatch.setLayoutData(fdBatch);
 
     // TablenameInField line
     Label wlTablenameInField = new Label(wGeneralComp, SWT.RIGHT);
-    wlTablenameInField
-      .setText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.TablenameInField.Label" ) );
+    wlTablenameInField.setText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.TablenameInField.Label" ) );
     props.setLook(wlTablenameInField);
     FormData fdlTablenameInField = new FormData();
     fdlTablenameInField.left = new FormAttachment( 0, 0 );
@@ -298,12 +309,11 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdlTablenameInField.right = new FormAttachment( middle, -margin );
     wlTablenameInField.setLayoutData(fdlTablenameInField);
     wTablenameInField = new Button(wGeneralComp, SWT.CHECK );
-    wTablenameInField.setToolTipText( BaseMessages.getString(
-      PKG, "SynchronizeAfterMergeDialog.TablenameInField.Tooltip" ) );
+    wTablenameInField.setToolTipText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.TablenameInField.Tooltip" ) );
     props.setLook( wTablenameInField );
     FormData fdTablenameInField = new FormData();
     fdTablenameInField.left = new FormAttachment( middle, 0 );
-    fdTablenameInField.top = new FormAttachment( wBatch, margin );
+    fdTablenameInField.top = new FormAttachment( wlTablenameInField, 0, SWT.CENTER );
     fdTablenameInField.right = new FormAttachment( 100, 0 );
     wTablenameInField.setLayoutData(fdTablenameInField);
     wTablenameInField.addSelectionListener( new SelectionAdapter() {
@@ -391,15 +401,6 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdKey.bottom = new FormAttachment(wlKey, 160 );
     wKey.setLayoutData(fdKey);
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wSql = new Button( shell, SWT.PUSH );
-    wSql.setText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.SQL.Button" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wSql, wCancel }, margin, null );
 
     // THE UPDATE/INSERT TABLE
     Label wlReturn = new Label(wGeneralComp, SWT.NONE);
@@ -479,12 +480,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     };
     new Thread( runnable ).start();
 
+
     // Add listeners
-    lsOk = e -> ok();
     lsGet = e -> get();
     Listener lsGetLU = e -> getUpdate();
-    lsSql = e -> create();
-    lsCancel = e -> cancel();
 
     FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
@@ -629,13 +628,12 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdlPerformLookup.right = new FormAttachment( middle, -margin );
     wlPerformLookup.setLayoutData(fdlPerformLookup);
     wPerformLookup = new Button(wOperationOrder, SWT.CHECK );
-    wPerformLookup.setToolTipText( BaseMessages.getString(
-      PKG, "SynchronizeAfterMergeDialog.PerformLookup.Tooltip" ) );
+    wPerformLookup.setToolTipText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.PerformLookup.Tooltip" ) );
     wPerformLookup.addSelectionListener( lsSimpleSelection );
     props.setLook( wPerformLookup );
     FormData fdPerformLookup = new FormData();
     fdPerformLookup.left = new FormAttachment( middle, 0 );
-    fdPerformLookup.top = new FormAttachment( wOrderDelete, margin );
+    fdPerformLookup.top = new FormAttachment( wlPerformLookup, 0, SWT.CENTER );
     fdPerformLookup.right = new FormAttachment( 100, 0 );
     wPerformLookup.setLayoutData(fdPerformLookup);
 
@@ -668,14 +666,11 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
     wGetLU.addListener( SWT.Selection, lsGetLU);
-    wSql.addListener( SWT.Selection, lsSql );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
