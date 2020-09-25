@@ -95,6 +95,16 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
     // Filename line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "XsdValidatorDialog.TransformName.Label" ) );
@@ -159,7 +169,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wXMLSourceFile.setToolTipText( BaseMessages.getString( PKG, "XsdValidatorDialog.XMLSourceFile.Tooltip" ) );
     FormData fdXMLSourceFile = new FormData();
     fdXMLSourceFile.left = new FormAttachment( middle, margin );
-    fdXMLSourceFile.top = new FormAttachment( wTransformName, 2 * margin );
+    fdXMLSourceFile.top = new FormAttachment( wlXMLSourceFile, 0, SWT.CENTER );
     wXMLSourceFile.setLayoutData(fdXMLSourceFile);
     wXMLSourceFile.addSelectionListener( new ComponentSelectionListener( input ) );
 
@@ -244,7 +254,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wOutputStringField.setToolTipText( BaseMessages.getString( PKG, "XsdValidatorDialog.OutputStringField.Tooltip" ) );
     FormData fdOutputStringField = new FormData();
     fdOutputStringField.left = new FormAttachment( middle, margin );
-    fdOutputStringField.top = new FormAttachment( wResultField, 2 * margin );
+    fdOutputStringField.top = new FormAttachment( wlOutputStringField, 0, SWT.CENTER );
     wOutputStringField.setLayoutData(fdOutputStringField);
     wOutputStringField.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -293,7 +303,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     wAddValidationMsg.setToolTipText( BaseMessages.getString( PKG, "XsdValidatorDialog.AddValidationMsg.Tooltip" ) );
     FormData fdAddValidationMsg = new FormData();
     fdAddValidationMsg.left = new FormAttachment( middle, margin );
-    fdAddValidationMsg.top = new FormAttachment( wIfXMLUnValid, 2 * margin );
+    fdAddValidationMsg.top = new FormAttachment( wlAddValidationMsg, 0, SWT.CENTER );
     wAddValidationMsg.setLayoutData(fdAddValidationMsg);
     wAddValidationMsg.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -351,7 +361,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     props.setLook( wAllowExternalEntities );
     FormData fdAllowExternalEntities = new FormData();
     fdAllowExternalEntities.left = new FormAttachment( middle, margin );
-    fdAllowExternalEntities.top = new FormAttachment( wTransformName, margin );
+    fdAllowExternalEntities.top = new FormAttachment( wlAllowExternalEntities, 0, SWT.CENTER );
     fdAllowExternalEntities.right = new FormAttachment( 100, -margin );
     wAllowExternalEntities.setLayoutData(fdAllowExternalEntities);
     wAllowExternalEntities.addSelectionListener( new SelectionAdapter() {
@@ -479,26 +489,10 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
-
     // Add listeners
-    lsCancel = e -> cancel();
-
-    lsOk = e -> ok();
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-
-    wOk.addListener( SWT.Selection, lsOk );
-
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();

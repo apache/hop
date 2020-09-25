@@ -141,13 +141,12 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     fdlCount.top = new FormAttachment( wTransformName, margin );
     fdlCount.right = new FormAttachment( middle, -margin );
     wlCount.setLayoutData(fdlCount);
-
     wCount = new Button(wSettings, SWT.CHECK );
     props.setLook( wCount );
     wCount.setToolTipText( BaseMessages.getString( PKG, "UniqueRowsDialog.Count.ToolTip", Const.CR ) );
     FormData fdCount = new FormData();
     fdCount.left = new FormAttachment( middle, 0 );
-    fdCount.top = new FormAttachment( wTransformName, margin );
+    fdCount.top = new FormAttachment( wlCount, 0, SWT.CENTER );
     wCount.setLayoutData(fdCount);
     wCount.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -180,14 +179,13 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     fdlRejectDuplicateRow.top = new FormAttachment( wCountField, margin );
     fdlRejectDuplicateRow.right = new FormAttachment( middle, -margin );
     wlRejectDuplicateRow.setLayoutData(fdlRejectDuplicateRow);
-
     wRejectDuplicateRow = new Button(wSettings, SWT.CHECK );
     props.setLook( wRejectDuplicateRow );
     wRejectDuplicateRow.setToolTipText( BaseMessages.getString(
       PKG, "UniqueRowsDialog.RejectDuplicateRow.ToolTip", Const.CR ) );
     FormData fdRejectDuplicateRow = new FormData();
     fdRejectDuplicateRow.left = new FormAttachment( middle, margin );
-    fdRejectDuplicateRow.top = new FormAttachment( wCountField, margin );
+    fdRejectDuplicateRow.top = new FormAttachment( wlRejectDuplicateRow, 0, SWT.CENTER );
     wRejectDuplicateRow.setLayoutData(fdRejectDuplicateRow);
     wRejectDuplicateRow.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -229,9 +227,7 @@ public class UniqueRowsDialog extends BaseTransformDialog implements ITransformD
     wGet.setText( BaseMessages.getString( PKG, "UniqueRowsDialog.Get.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    fdOk = new FormData();
-
-    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "UniqueRowsDialog.Fields.Label" ) );

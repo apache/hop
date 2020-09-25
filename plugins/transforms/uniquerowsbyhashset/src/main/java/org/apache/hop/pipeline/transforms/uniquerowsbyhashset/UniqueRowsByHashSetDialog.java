@@ -131,14 +131,13 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
     fdlStoreValues.top = new FormAttachment( wTransformName, margin );
     fdlStoreValues.right = new FormAttachment( middle, -margin );
     wlStoreValues.setLayoutData(fdlStoreValues);
-
     wStoreValues = new Button(wSettings, SWT.CHECK );
     props.setLook( wStoreValues );
     wStoreValues.setToolTipText( BaseMessages.getString(
       PKG, "UniqueRowsByHashSetDialog.StoreValues.ToolTip", Const.CR ) );
     FormData fdStoreValues = new FormData();
     fdStoreValues.left = new FormAttachment( middle, 0 );
-    fdStoreValues.top = new FormAttachment( wTransformName, margin );
+    fdStoreValues.top = new FormAttachment( wlStoreValues, 0, SWT.CENTER );
     wStoreValues.setLayoutData(fdStoreValues);
     wStoreValues.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -147,22 +146,19 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
     } );
 
     Label wlRejectDuplicateRow = new Label(wSettings, SWT.RIGHT);
-    wlRejectDuplicateRow.setText( BaseMessages.getString(
-      PKG, "UniqueRowsByHashSetDialog.RejectDuplicateRow.Label" ) );
+    wlRejectDuplicateRow.setText( BaseMessages.getString( PKG, "UniqueRowsByHashSetDialog.RejectDuplicateRow.Label" ) );
     props.setLook(wlRejectDuplicateRow);
     FormData fdlRejectDuplicateRow = new FormData();
     fdlRejectDuplicateRow.left = new FormAttachment( 0, 0 );
     fdlRejectDuplicateRow.top = new FormAttachment( wStoreValues, margin );
     fdlRejectDuplicateRow.right = new FormAttachment( middle, -margin );
     wlRejectDuplicateRow.setLayoutData(fdlRejectDuplicateRow);
-
     wRejectDuplicateRow = new Button(wSettings, SWT.CHECK );
     props.setLook( wRejectDuplicateRow );
-    wRejectDuplicateRow.setToolTipText( BaseMessages.getString(
-      PKG, "UniqueRowsByHashSetDialog.RejectDuplicateRow.ToolTip", Const.CR ) );
+    wRejectDuplicateRow.setToolTipText( BaseMessages.getString( PKG, "UniqueRowsByHashSetDialog.RejectDuplicateRow.ToolTip", Const.CR ) );
     FormData fdRejectDuplicateRow = new FormData();
     fdRejectDuplicateRow.left = new FormAttachment( middle, 0 );
-    fdRejectDuplicateRow.top = new FormAttachment( wStoreValues, margin );
+    fdRejectDuplicateRow.top = new FormAttachment( wlRejectDuplicateRow, 0, SWT.CENTER );
     wRejectDuplicateRow.setLayoutData(fdRejectDuplicateRow);
     wRejectDuplicateRow.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -204,9 +200,7 @@ public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements IT
     wGet.setText( BaseMessages.getString( PKG, "UniqueRowsByHashSetDialog.Get.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    fdOk = new FormData();
-
-    setButtonPositions( new Button[] { wOk, wCancel, wGet }, margin, null );
+    setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     Label wlFields = new Label(shell, SWT.NONE);
     wlFields.setText( BaseMessages.getString( PKG, "UniqueRowsByHashSetDialog.Fields.Label" ) );

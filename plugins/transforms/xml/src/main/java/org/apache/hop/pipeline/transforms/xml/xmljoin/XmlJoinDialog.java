@@ -97,10 +97,20 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "XMLJoin.DialogTitle" ) );
+    shell.setText( BaseMessages.getString( PKG, "XmlJoin.DialogTitle" ) );
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
+
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection,  e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
 
     // Transform name line
     wlTransformName = new Label( shell, SWT.RIGHT );
@@ -123,7 +133,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Target Group
     Group gTarget = new Group(shell, SWT.NONE);
-    gTarget.setText( BaseMessages.getString( PKG, "XMLJoin.TargetGroup.Label" ) );
+    gTarget.setText( BaseMessages.getString( PKG, "XmlJoin.TargetGroup.Label" ) );
     FormLayout targetLayout = new FormLayout();
     targetLayout.marginHeight = margin;
     targetLayout.marginWidth = margin;
@@ -136,7 +146,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     gTarget.setLayoutData(fdTarget);
     // Target XML step line
     Label wlTargetXMLstep = new Label(gTarget, SWT.RIGHT);
-    wlTargetXMLstep.setText( BaseMessages.getString( PKG, "XMLJoin.TargetXMLTransform.Label" ) );
+    wlTargetXMLstep.setText( BaseMessages.getString( PKG, "XmlJoin.TargetXMLTransform.Label" ) );
     props.setLook(wlTargetXMLstep);
     FormData fdlTargetXMLstep = new FormData();
     fdlTargetXMLstep.left = new FormAttachment( 0, 0 );
@@ -155,7 +165,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Target XML Field line
     Label wlTargetXMLfield = new Label(gTarget, SWT.RIGHT);
-    wlTargetXMLfield.setText( BaseMessages.getString( PKG, "XMLJoin.TargetXMLField.Label" ) );
+    wlTargetXMLfield.setText( BaseMessages.getString( PKG, "XmlJoin.TargetXMLField.Label" ) );
     props.setLook(wlTargetXMLfield);
     FormData fdlTargetXMLfield = new FormData();
     fdlTargetXMLfield.left = new FormAttachment( 0, 0 );
@@ -174,7 +184,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Source Group
     Group gSource = new Group(shell, SWT.NONE);
-    gSource.setText( BaseMessages.getString( PKG, "XMLJoin.SourceGroup.Label" ) );
+    gSource.setText( BaseMessages.getString( PKG, "XmlJoin.SourceGroup.Label" ) );
     FormLayout SourceLayout = new FormLayout();
     SourceLayout.marginHeight = margin;
     SourceLayout.marginWidth = margin;
@@ -187,7 +197,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     gSource.setLayoutData(fdSource);
     // Source XML step line
     Label wlSourceXMLstep = new Label(gSource, SWT.RIGHT);
-    wlSourceXMLstep.setText( BaseMessages.getString( PKG, "XMLJoin.SourceXMLTransform.Label" ) );
+    wlSourceXMLstep.setText( BaseMessages.getString( PKG, "XmlJoin.SourceXMLTransform.Label" ) );
     props.setLook(wlSourceXMLstep);
     FormData fdlSourceXMLstep = new FormData();
     fdlSourceXMLstep.left = new FormAttachment( 0, 0 );
@@ -206,7 +216,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Source XML Field line
     Label wlSourceXMLfield = new Label(gSource, SWT.RIGHT);
-    wlSourceXMLfield.setText( BaseMessages.getString( PKG, "XMLJoin.SourceXMLField.Label" ) );
+    wlSourceXMLfield.setText( BaseMessages.getString( PKG, "XmlJoin.SourceXMLField.Label" ) );
     props.setLook(wlSourceXMLfield);
     FormData fdlSourceXMLfield = new FormData();
     fdlSourceXMLfield.left = new FormAttachment( 0, 0 );
@@ -225,7 +235,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Join Group
     Group gJoin = new Group(shell, SWT.NONE);
-    gJoin.setText( BaseMessages.getString( PKG, "XMLJoin.JoinGroup.Label" ) );
+    gJoin.setText( BaseMessages.getString( PKG, "XmlJoin.JoinGroup.Label" ) );
     FormLayout JoinLayout = new FormLayout();
     JoinLayout.marginHeight = margin;
     JoinLayout.marginWidth = margin;
@@ -239,7 +249,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Target XPath line
     Label wlTargetXPath = new Label(gJoin, SWT.RIGHT);
-    wlTargetXPath.setText( BaseMessages.getString( PKG, "XMLJoin.TargetXPath.Label" ) );
+    wlTargetXPath.setText( BaseMessages.getString( PKG, "XmlJoin.TargetXPath.Label" ) );
     props.setLook(wlTargetXPath);
     FormData fdlTargetXPath = new FormData();
     fdlTargetXPath.left = new FormAttachment( 0, 0 );
@@ -258,7 +268,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Complex Join Line
     Label wlComplexJoin = new Label(gJoin, SWT.RIGHT);
-    wlComplexJoin.setText( BaseMessages.getString( PKG, "XMLJoin.ComplexJoin.Label" ) );
+    wlComplexJoin.setText( BaseMessages.getString( PKG, "XmlJoin.ComplexJoin.Label" ) );
     props.setLook(wlComplexJoin);
     FormData fdlComplexJoin = new FormData();
     fdlComplexJoin.left = new FormAttachment( 0, 0 );
@@ -269,7 +279,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wComplexJoin );
     FormData fdComplexJoin = new FormData();
     fdComplexJoin.left = new FormAttachment( middle, 0 );
-    fdComplexJoin.top = new FormAttachment( wTargetXPath, margin );
+    fdComplexJoin.top = new FormAttachment( wlComplexJoin, 0, SWT.CENTER );
     fdComplexJoin.right = new FormAttachment( 100, 0 );
     wComplexJoin.setLayoutData(fdComplexJoin);
     wComplexJoin.addSelectionListener( new SelectionAdapter() {
@@ -286,7 +296,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Join Compare field line
     Label wlJoinCompareField = new Label(gJoin, SWT.RIGHT);
-    wlJoinCompareField.setText( BaseMessages.getString( PKG, "XMLJoin.JoinCompareFiled.Label" ) );
+    wlJoinCompareField.setText( BaseMessages.getString( PKG, "XmlJoin.JoinCompareFiled.Label" ) );
     props.setLook(wlJoinCompareField);
     FormData fdlJoinCompareField = new FormData();
     fdlJoinCompareField.left = new FormAttachment( 0, 0 );
@@ -306,7 +316,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Result Group
     Group gResult = new Group(shell, SWT.NONE);
-    gResult.setText( BaseMessages.getString( PKG, "XMLJoin.ResultGroup.Label" ) );
+    gResult.setText( BaseMessages.getString( PKG, "XmlJoin.ResultGroup.Label" ) );
     FormLayout ResultLayout = new FormLayout();
     ResultLayout.marginHeight = margin;
     ResultLayout.marginWidth = margin;
@@ -316,17 +326,18 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     fdResult.left = new FormAttachment( 0, 0 );
     fdResult.right = new FormAttachment( 100, 0 );
     fdResult.top = new FormAttachment(gJoin, 2 * margin );
+    fdResult.bottom = new FormAttachment( wOk, -2*margin);
     gResult.setLayoutData(fdResult);
-    // Value XML Field line
-    Label wlValueXMLfield = new Label(gResult, SWT.RIGHT);
-    wlValueXMLfield.setText( BaseMessages.getString( PKG, "XMLJoin.ValueXMLField.Label" ) );
-    props.setLook(wlValueXMLfield);
-    FormData fdlValueXMLfield = new FormData();
-    fdlValueXMLfield.left = new FormAttachment( 0, 0 );
-    fdlValueXMLfield.right = new FormAttachment( middle, -margin );
-    fdlValueXMLfield.top = new FormAttachment( wJoinCompareField, margin );
-    wlValueXMLfield.setLayoutData(fdlValueXMLfield);
 
+    // Value XML Field line
+    Label wlValueXmlField = new Label(gResult, SWT.RIGHT);
+    wlValueXmlField.setText( BaseMessages.getString( PKG, "XmlJoin.ValueXMLField.Label" ) );
+    props.setLook(wlValueXmlField);
+    FormData fdlValueXmlField = new FormData();
+    fdlValueXmlField.left = new FormAttachment( 0, 0 );
+    fdlValueXmlField.right = new FormAttachment( middle, -margin );
+    fdlValueXmlField.top = new FormAttachment( wJoinCompareField, margin );
+    wlValueXmlField.setLayoutData(fdlValueXmlField);
     wValueXmlField = new TextVar( pipelineMeta, gResult, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wValueXmlField );
     wValueXmlField.addModifyListener( lsMod );
@@ -338,7 +349,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Encoding Line
     Label wlEncoding = new Label(gResult, SWT.RIGHT);
-    wlEncoding.setText( BaseMessages.getString( PKG, "XMLJoin.Encoding.Label" ) );
+    wlEncoding.setText( BaseMessages.getString( PKG, "XmlJoin.Encoding.Label" ) );
     props.setLook(wlEncoding);
     FormData fdlEncoding = new FormData();
     fdlEncoding.left = new FormAttachment( 0, 0 );
@@ -369,7 +380,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
     // Complex Join Line
     Label wlOmitXMLHeader = new Label(gResult, SWT.RIGHT);
-    wlOmitXMLHeader.setText( BaseMessages.getString( PKG, "XMLJoin.OmitXMLHeader.Label" ) );
+    wlOmitXMLHeader.setText( BaseMessages.getString( PKG, "XmlJoin.OmitXMLHeader.Label" ) );
     props.setLook(wlOmitXMLHeader);
     FormData fdlOmitXMLHeader = new FormData();
     fdlOmitXMLHeader.left = new FormAttachment( 0, 0 );
@@ -380,7 +391,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wOmitXmlHeader );
     FormData fdOmitXMLHeader = new FormData();
     fdOmitXMLHeader.left = new FormAttachment( middle, 0 );
-    fdOmitXMLHeader.top = new FormAttachment( wEncoding, margin );
+    fdOmitXMLHeader.top = new FormAttachment( wlOmitXMLHeader, 0, SWT.CENTER );
     fdOmitXMLHeader.right = new FormAttachment( 100, 0 );
     wOmitXmlHeader.setLayoutData(fdOmitXMLHeader);
     wOmitXmlHeader.addSelectionListener( new SelectionAdapter() {
@@ -390,7 +401,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     } );
 
     Label wlOmitNullValues = new Label(gResult, SWT.RIGHT);
-    wlOmitNullValues.setText( BaseMessages.getString( PKG, "XMLJoin.OmitNullValues.Label" ) );
+    wlOmitNullValues.setText( BaseMessages.getString( PKG, "XmlJoin.OmitNullValues.Label" ) );
     props.setLook(wlOmitNullValues);
     FormData fdlOmitNullValues = new FormData();
     fdlOmitNullValues.left = new FormAttachment( 0, 0 );
@@ -401,7 +412,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( wOmitNullValues );
     FormData fdOmitNullValues = new FormData();
     fdOmitNullValues.left = new FormAttachment( middle, 0 );
-    fdOmitNullValues.top = new FormAttachment( wOmitXmlHeader, margin );
+    fdOmitNullValues.top = new FormAttachment( wlOmitNullValues, 0, SWT.CENTER );
     fdOmitNullValues.right = new FormAttachment( 100, 0 );
     wOmitNullValues.setLayoutData(fdOmitNullValues);
     wOmitNullValues.addSelectionListener( new SelectionAdapter() {
@@ -411,24 +422,6 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     } );
 
     shell.layout();
-
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, gResult);
-
-    // Add listeners
-    lsOk = e -> ok();
-    // lsMinWidth = new Listener() { public void handleEvent(Event e) { setMinimalWidth(); } };
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    // wGet.addListener (SWT.Selection, lsGet );
-    // wMinWidth.addListener (SWT.Selection, lsMinWidth );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

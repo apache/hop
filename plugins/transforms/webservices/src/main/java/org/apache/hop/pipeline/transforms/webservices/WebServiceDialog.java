@@ -35,8 +35,16 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transforms.webservices.wsdl.*;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.ComplexType;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.Wsdl;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter.ParameterMode;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameterContainer;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameterList;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOperation;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOperationContainer;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlParamContainer;
+import org.apache.hop.pipeline.transforms.webservices.wsdl.XsdType;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.PasswordTextVar;
@@ -47,17 +55,34 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.FileDialog;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import javax.xml.namespace.QName;
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
+import java.util.Properties;
 
 public class WebServiceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = WebServiceMeta.class; // for i18n purposes, needed by Translator!!
@@ -120,7 +145,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
   private WsdlParamContainer inWsdlParamContainer;
   private WsdlParamContainer outWsdlParamContainer;
 
-  private final ModifyListener lsMod = e->meta.setChanged();
+  private final ModifyListener lsMod = e -> meta.setChanged();
 
   private void selectWSDLOperation( String anOperationName ) throws HopException {
     // Tab management
@@ -176,10 +201,10 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     if ( wsdl != null ) {
       List<WsdlOperation> listeOperations = wsdl.getOperations();
       Collections.sort( listeOperations, ( op1, op2 ) -> op1.getOperationQName().getLocalPart().compareTo( op2.getOperationQName().getLocalPart() ) );
-      for (WsdlOperation op : listeOperations) {
-        wOperation.add(op.getOperationQName().getLocalPart());
-        if (op.getOperationQName().getLocalPart().equals(text)) {
-          wOperation.setText(text);
+      for ( WsdlOperation op : listeOperations ) {
+        wOperation.add( op.getOperationQName().getLocalPart() );
+        if ( op.getOperationQName().getLocalPart().equals( text ) ) {
+          wOperation.setText( text );
         }
       }
     }
@@ -219,11 +244,11 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
           if ( param.getItemXmlType() != null ) {
             ComplexType type = param.getItemComplexType();
             if ( type != null ) {
-              for (String attributeName : type.listObjectNames()) {
-                QName attributeType = type.getElementType(attributeName);
-                if (!WebServiceMeta.XSD_NS_URI.equals(attributeType.getNamespaceURI())) {
-                  throw new HopTransformException(BaseMessages.getString(
-                          PKG, "WebServiceDialog.ERROR0007.UnsupporteOperation.ComplexType"));
+              for ( String attributeName : type.listObjectNames() ) {
+                QName attributeType = type.getElementType( attributeName );
+                if ( !WebServiceMeta.XSD_NS_URI.equals( attributeType.getNamespaceURI() ) ) {
+                  throw new HopTransformException( BaseMessages.getString(
+                    PKG, "WebServiceDialog.ERROR0007.UnsupporteOperation.ComplexType" ) );
                 }
               }
             }
@@ -276,11 +301,11 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
           if ( wsdlOperation.getReturnType().getItemXmlType() != null ) {
             ComplexType type = wsdlOperation.getReturnType().getItemComplexType();
             if ( type != null ) {
-              for (String attributeName : type.listObjectNames()) {
-                QName attributeType = type.getElementType(attributeName);
-                if (!WebServiceMeta.XSD_NS_URI.equals(attributeType.getNamespaceURI())) {
-                  throw new HopTransformException(BaseMessages.getString(
-                          PKG, "WebServiceDialog.ERROR0007.UnsupportedOperation.ComplexType"));
+              for ( String attributeName : type.listObjectNames() ) {
+                QName attributeType = type.getElementType( attributeName );
+                if ( !WebServiceMeta.XSD_NS_URI.equals( attributeType.getNamespaceURI() ) ) {
+                  throw new HopTransformException( BaseMessages.getString(
+                    PKG, "WebServiceDialog.ERROR0007.UnsupportedOperation.ComplexType" ) );
                 }
               }
             }
@@ -366,10 +391,10 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
         // Define type for new entries
         if ( inWsdlParamContainer != null ) {
           TableItem[] items = fieldInTableView.table.getItems();
-          for (TableItem item : items) {
-            String type = inWsdlParamContainer.getParamType(item.getText(2));
-            if (type != null) {
-              item.setText(3, type);
+          for ( TableItem item : items ) {
+            String type = inWsdlParamContainer.getParamType( item.getText( 2 ) );
+            if ( type != null ) {
+              item.setText( 3, type );
             } else {
               item.dispose();
             }
@@ -494,8 +519,8 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
         // Define type for new entries
         if ( outWsdlParamContainer != null ) {
           TableItem[] items = fieldOutTableView.table.getItems();
-          for (TableItem item : items) {
-            item.setText(3, outWsdlParamContainer.getParamType(item.getText(2)));
+          for ( TableItem item : items ) {
+            item.setText( 3, outWsdlParamContainer.getParamType( item.getText( 2 ) ) );
           }
         }
       }
@@ -553,11 +578,11 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
       r = new RowMeta();
       String[] params = inWsdlParamContainer.getParamNames();
       // If we have already saved fields mapping, we only show these mappings
-      for (String param : params) {
+      for ( String param : params ) {
         IValueMeta value =
-                new ValueMetaBase(param, XsdType.xsdTypeToHopType(inWsdlParamContainer
-                        .getParamType(param)));
-        r.addValueMeta(value);
+          new ValueMetaBase( param, XsdType.xsdTypeToHopType( inWsdlParamContainer
+            .getParamType( param ) ) );
+        r.addValueMeta( value );
       }
     }
     return r;
@@ -569,11 +594,11 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
       r = new RowMeta();
       String[] outParams = outWsdlParamContainer.getParamNames();
       // If we have already saved fields mapping, we only show these mappings
-      for (String outParam : outParams) {
+      for ( String outParam : outParams ) {
         IValueMeta value =
-                new ValueMetaBase(outParam, XsdType.xsdTypeToHopType(outWsdlParamContainer
-                        .getParamType(outParam)));
-        r.addValueMeta(value);
+          new ValueMetaBase( outParam, XsdType.xsdTypeToHopType( outWsdlParamContainer
+            .getParamType( outParam ) ) );
+        r.addValueMeta( value );
       }
     }
     return r;
@@ -611,13 +636,13 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
       || meta.getInFieldArgumentName() != null || !meta.getFieldsIn().isEmpty() ) {
       addTabFieldIn();
 
-      for (WebServiceField field : meta.getFieldsIn()) {
-        TableItem vTableItem = new TableItem(fieldInTableView.table, SWT.NONE);
-        if (field.getName() != null) {
-          vTableItem.setText(1, field.getName());
+      for ( WebServiceField field : meta.getFieldsIn() ) {
+        TableItem vTableItem = new TableItem( fieldInTableView.table, SWT.NONE );
+        if ( field.getName() != null ) {
+          vTableItem.setText( 1, field.getName() );
         }
-        vTableItem.setText(2, field.getWsName());
-        vTableItem.setText(3, field.getXsdType());
+        vTableItem.setText( 2, field.getWsName() );
+        vTableItem.setText( 3, field.getXsdType() );
       }
 
       fieldInTableView.removeEmptyRows();
@@ -627,13 +652,13 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     if ( !meta.getFieldsOut().isEmpty() ) {
       addTabFieldOut();
 
-      for (WebServiceField field : meta.getFieldsOut()) {
-        TableItem vTableItem = new TableItem(fieldOutTableView.table, SWT.NONE);
-        if (field.getName() != null) {
-          vTableItem.setText(1, field.getName());
+      for ( WebServiceField field : meta.getFieldsOut() ) {
+        TableItem vTableItem = new TableItem( fieldOutTableView.table, SWT.NONE );
+        if ( field.getName() != null ) {
+          vTableItem.setText( 1, field.getName() );
         }
-        vTableItem.setText(2, field.getWsName());
-        vTableItem.setText(3, field.getXsdType());
+        vTableItem.setText( 2, field.getWsName() );
+        vTableItem.setText( 3, field.getXsdType() );
       }
       fieldOutTableView.removeEmptyRows();
       fieldOutTableView.setRowNums();
@@ -741,6 +766,27 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // Buttons OK / Cancel / ... at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    Button wAddInput = new Button( shell, SWT.PUSH );
+    wAddInput.setText( BaseMessages.getString( PKG, "WebServiceDialog.Label.AddInputButton" ) );
+    wAddInput.addListener( SWT.Selection, e -> {
+      addTabFieldIn();
+      wTabFolder.setSelection( tabItemFieldIn );
+    } );Button wAddOutput = new Button( shell, SWT.PUSH );
+    wAddOutput.setText( BaseMessages.getString( PKG, "WebServiceDialog.Label.AddOutputButton" ) );
+    wAddOutput.addListener( SWT.Selection, e-> {
+        addTabFieldOut();
+        wTabFolder.setSelection( tabItemFieldOut );
+      }
+    );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e->cancel());
+    setButtonPositions( new Button[] { wOk, wAddInput, wAddOutput, wCancel }, margin, null );
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
@@ -768,7 +814,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     /**
      * Web service tab item
      */
-    CTabItem tabItemWebService = new CTabItem(wTabFolder, SWT.NONE);
+    CTabItem tabItemWebService = new CTabItem( wTabFolder, SWT.NONE );
     tabItemWebService.setText( BaseMessages.getString( PKG, "WebServiceDialog.MainTab.TabTitle" ) );
     Composite compositeTabWebService = new Composite( wTabFolder, SWT.NONE );
     props.setLook( compositeTabWebService );
@@ -779,24 +825,24 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     compositeTabWebService.setLayout( fileLayout );
 
     // URL
-    Label wlURL = new Label(compositeTabWebService, SWT.RIGHT);
+    Label wlURL = new Label( compositeTabWebService, SWT.RIGHT );
     wlURL.setText( BaseMessages.getString( PKG, "WebServiceDialog.URL.Label" ) );
-    props.setLook(wlURL);
+    props.setLook( wlURL );
     FormData fdlURL = new FormData();
     fdlURL.left = new FormAttachment( 0, 0 );
     fdlURL.top = new FormAttachment( 0, margin );
     fdlURL.right = new FormAttachment( middle, -margin );
     wlURL.setLayoutData( fdlURL );
 
-    Button wbURL = new Button(compositeTabWebService, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbURL);
+    Button wbURL = new Button( compositeTabWebService, SWT.PUSH | SWT.CENTER );
+    props.setLook( wbURL );
     wbURL.setText( BaseMessages.getString( PKG, "WebServiceDialog.URL.Load" ) );
     FormData fdbURL = new FormData();
     fdbURL.right = new FormAttachment( 100, 0 );
     fdbURL.top = new FormAttachment( 0, 0 );
     wbURL.setLayoutData( fdbURL );
 
-    wbURL.addSelectionListener(new SelectionAdapter() {
+    wbURL.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         // If the URL is specified, we always try to load
         //
@@ -813,15 +859,15 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    Button wbFile = new Button(compositeTabWebService, SWT.PUSH | SWT.CENTER);
-    props.setLook(wbFile);
+    Button wbFile = new Button( compositeTabWebService, SWT.PUSH | SWT.CENTER );
+    props.setLook( wbFile );
     wbFile.setText( BaseMessages.getString( PKG, "WebServiceDialog.File.Load" ) );
     FormData fdbFile = new FormData();
-    fdbFile.right = new FormAttachment(wbURL, 0 );
+    fdbFile.right = new FormAttachment( wbURL, 0 );
     fdbFile.top = new FormAttachment( 0, 0 );
     wbFile.setLayoutData( fdbFile );
 
-    wbFile.addSelectionListener(new SelectionAdapter() {
+    wbFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         // We will load the WSDL from a file so we can at least try to debug the metadata extraction phase from the
         // support side.
@@ -854,13 +900,13 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     FormData fdURL = new FormData();
     fdURL.left = new FormAttachment( middle, 0 );
     fdURL.top = new FormAttachment( 0, margin );
-    fdURL.right = new FormAttachment(wbFile, -margin );
+    fdURL.right = new FormAttachment( wbFile, -margin );
     wURL.setLayoutData( fdURL );
 
     // Operation
-    Label wlOperation = new Label(compositeTabWebService, SWT.RIGHT);
+    Label wlOperation = new Label( compositeTabWebService, SWT.RIGHT );
     wlOperation.setText( BaseMessages.getString( PKG, "WebServiceDialog.Operation.Label" ) );
-    props.setLook(wlOperation);
+    props.setLook( wlOperation );
     FormData fdlOperation = new FormData();
     fdlOperation.left = new FormAttachment( 0, 0 );
     fdlOperation.top = new FormAttachment( wURL, margin );
@@ -894,9 +940,9 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Operation request name (optional)
-    Label wlOperationRequest = new Label(compositeTabWebService, SWT.RIGHT);
+    Label wlOperationRequest = new Label( compositeTabWebService, SWT.RIGHT );
     wlOperationRequest.setText( BaseMessages.getString( PKG, "WebServiceDialog.OperationRequest.Label" ) );
-    props.setLook(wlOperationRequest);
+    props.setLook( wlOperationRequest );
     FormData fdlOperationRequest = new FormData();
     fdlOperationRequest.left = new FormAttachment( 0, 0 );
     fdlOperationRequest.top = new FormAttachment( wOperation, margin );
@@ -933,9 +979,9 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
 
     // Option to pass all input data to output
     //
-    Label wlPassInputData = new Label(compositeTabWebService, SWT.RIGHT);
+    Label wlPassInputData = new Label( compositeTabWebService, SWT.RIGHT );
     wlPassInputData.setText( BaseMessages.getString( PKG, "WebServiceDialog.PassInputData.Label" ) );
-    props.setLook(wlPassInputData);
+    props.setLook( wlPassInputData );
     FormData fdlPassInputData = new FormData();
     fdlPassInputData.left = new FormAttachment( 0, 0 );
     fdlPassInputData.top = new FormAttachment( wTransform, margin );
@@ -945,34 +991,34 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     wPassInputData.setToolTipText( BaseMessages.getString( PKG, "WebServiceDialog.PassInputData.Tooltip" ) );
     props.setLook( wPassInputData );
     FormData fdPassInputData = new FormData();
-    fdPassInputData.top = new FormAttachment( wTransform, margin );
+    fdPassInputData.top = new FormAttachment( wlPassInputData, 0, SWT.CENTER );
     fdPassInputData.left = new FormAttachment( middle, 0 );
     fdPassInputData.right = new FormAttachment( 100, 0 );
     wPassInputData.setLayoutData( fdPassInputData );
 
     // Option to use 2.5/3.0 compatible parsing logic
     //
-    Label wlCompatible = new Label(compositeTabWebService, SWT.RIGHT);
+    Label wlCompatible = new Label( compositeTabWebService, SWT.RIGHT );
     wlCompatible.setText( BaseMessages.getString( PKG, "WebServiceDialog.Compatible.Label" ) );
-    props.setLook(wlCompatible);
+    props.setLook( wlCompatible );
     FormData fdlCompatible = new FormData();
     fdlCompatible.left = new FormAttachment( 0, 0 );
-    fdlCompatible.top = new FormAttachment( wPassInputData, margin );
+    fdlCompatible.top = new FormAttachment( wlPassInputData, 0, SWT.CENTER );
     fdlCompatible.right = new FormAttachment( middle, -margin );
     wlCompatible.setLayoutData( fdlCompatible );
     wCompatible = new Button( compositeTabWebService, SWT.CHECK );
     wCompatible.setToolTipText( BaseMessages.getString( PKG, "WebServiceDialog.Compatible.Tooltip" ) );
     props.setLook( wCompatible );
     FormData fdCompatible = new FormData();
-    fdCompatible.top = new FormAttachment( wPassInputData, margin );
+    fdCompatible.top = new FormAttachment( wlCompatible, 0, SWT.CENTER );
     fdCompatible.left = new FormAttachment( middle, 0 );
     fdCompatible.right = new FormAttachment( 100, 0 );
     wCompatible.setLayoutData( fdCompatible );
 
     // HTTP Login
-    Label wlRepeatingElement = new Label(compositeTabWebService, SWT.RIGHT);
+    Label wlRepeatingElement = new Label( compositeTabWebService, SWT.RIGHT );
     wlRepeatingElement.setText( BaseMessages.getString( PKG, "WebServiceDialog.RepeatingElement.Label" ) );
-    props.setLook(wlRepeatingElement);
+    props.setLook( wlRepeatingElement );
     FormData fdlRepeatingElement = new FormData();
     fdlRepeatingElement.top = new FormAttachment( wCompatible, margin );
     fdlRepeatingElement.left = new FormAttachment( 0, 0 );
@@ -990,9 +1036,9 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
 
     // Return the SOAP body as a String or not?
     //
-    Label wlReplyAsString = new Label(compositeTabWebService, SWT.RIGHT);
+    Label wlReplyAsString = new Label( compositeTabWebService, SWT.RIGHT );
     wlReplyAsString.setText( BaseMessages.getString( PKG, "WebServiceDialog.ReplyAsString.Label" ) );
-    props.setLook(wlReplyAsString);
+    props.setLook( wlReplyAsString );
     FormData fdlBodyAsString = new FormData();
     fdlBodyAsString.left = new FormAttachment( 0, 0 );
     fdlBodyAsString.top = new FormAttachment( wRepeatingElement, margin );
@@ -1002,7 +1048,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     wReplyAsString.setToolTipText( BaseMessages.getString( PKG, "WebServiceDialog.ReplyAsString.Tooltip" ) );
     props.setLook( wReplyAsString );
     FormData fdBodyAsString = new FormData();
-    fdBodyAsString.top = new FormAttachment( wRepeatingElement, margin );
+    fdBodyAsString.top = new FormAttachment( wlReplyAsString, 0, SWT.CENTER );
     fdBodyAsString.left = new FormAttachment( middle, 0 );
     fdBodyAsString.right = new FormAttachment( 100, 0 );
     wReplyAsString.setLayoutData( fdBodyAsString );
@@ -1019,9 +1065,9 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     props.setLook( gHttpAuth );
 
     // HTTP Login
-    Label wlHttpLogin = new Label(gHttpAuth, SWT.RIGHT);
+    Label wlHttpLogin = new Label( gHttpAuth, SWT.RIGHT );
     wlHttpLogin.setText( BaseMessages.getString( PKG, "WebServiceDialog.HttpLogin.Label" ) );
-    props.setLook(wlHttpLogin);
+    props.setLook( wlHttpLogin );
     FormData fdlHttpLogin = new FormData();
     fdlHttpLogin.top = new FormAttachment( 0, margin );
     fdlHttpLogin.left = new FormAttachment( 0, 0 );
@@ -1038,9 +1084,9 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     wHttpLogin.setLayoutData( fdHttpLogin );
 
     // HTTP Password
-    Label wlHttpPassword = new Label(gHttpAuth, SWT.RIGHT);
+    Label wlHttpPassword = new Label( gHttpAuth, SWT.RIGHT );
     wlHttpPassword.setText( BaseMessages.getString( PKG, "WebServiceDialog.HttpPassword.Label" ) );
-    props.setLook(wlHttpPassword);
+    props.setLook( wlHttpPassword );
     FormData fdlHttpPassword = new FormData();
     fdlHttpPassword.top = new FormAttachment( wHttpLogin, margin );
     fdlHttpPassword.left = new FormAttachment( 0, 0 );
@@ -1077,9 +1123,9 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     props.setLook( gProxy );
 
     // HTTP Login
-    Label wlProxyHost = new Label(gProxy, SWT.RIGHT);
+    Label wlProxyHost = new Label( gProxy, SWT.RIGHT );
     wlProxyHost.setText( BaseMessages.getString( PKG, "WebServiceDialog.ProxyHost.Label" ) );
-    props.setLook(wlProxyHost);
+    props.setLook( wlProxyHost );
     FormData fdlProxyHost = new FormData();
     fdlProxyHost.top = new FormAttachment( 0, margin );
     fdlProxyHost.left = new FormAttachment( 0, 0 );
@@ -1096,9 +1142,9 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     wProxyHost.setLayoutData( fdProxyHost );
 
     // HTTP Password
-    Label wlProxyPort = new Label(gProxy, SWT.RIGHT);
+    Label wlProxyPort = new Label( gProxy, SWT.RIGHT );
     wlProxyPort.setText( BaseMessages.getString( PKG, "WebServiceDialog.ProxyPort.Label" ) );
-    props.setLook(wlProxyPort);
+    props.setLook( wlProxyPort );
     FormData fdlProxyPort = new FormData();
     fdlProxyPort.top = new FormAttachment( wProxyHost, margin );
     fdlProxyPort.left = new FormAttachment( 0, 0 );
@@ -1148,56 +1194,17 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     wProxyPort.addSelectionListener( selAdapter );
     wTransformName.addSelectionListener( selAdapter );
 
-    wTabFolder.setSelection(tabItemWebService);
+    wTabFolder.setSelection( tabItemWebService );
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2 * margin );
     wTabFolder.setLayoutData( fdTabFolder );
-
-    // Boutons OK / Cancel
-
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    Button wAddInput = new Button(shell, SWT.PUSH);
-    wAddInput.setText( BaseMessages.getString( PKG, "WebServiceDialog.Label.AddInputButton" ) );
-
-    Button wAddOutput = new Button(shell, SWT.PUSH);
-    wAddOutput.setText( BaseMessages.getString( PKG, "WebServiceDialog.Label.AddOutputButton" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wAddInput, wAddOutput, wCancel }, margin, wTabFolder );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
       public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
-
-    wOk.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        ok();
-      }
-    } );
-    wAddInput.addSelectionListener(new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        addTabFieldIn();
-        wTabFolder.setSelection( tabItemFieldIn );
-      }
-    } );
-    wAddOutput.addSelectionListener(new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        addTabFieldOut();
-        wTabFolder.setSelection( tabItemFieldOut );
-      }
-    } );
-    wCancel.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
         cancel();
       }
     } );
@@ -1271,8 +1278,8 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
       String[] prevTransformFieldNames = prevFields.getFieldNames();
       Arrays.sort( prevTransformFieldNames );
       // bPreviousFieldsLoaded = true;
-      for (ColumnInfo colInfo : fieldColumns) {
-        colInfo.setComboValues(prevTransformFieldNames);
+      for ( ColumnInfo colInfo : fieldColumns ) {
+        colInfo.setComboValues( prevTransformFieldNames );
       }
     };
     shell.getDisplay().asyncExec( fieldLoader );

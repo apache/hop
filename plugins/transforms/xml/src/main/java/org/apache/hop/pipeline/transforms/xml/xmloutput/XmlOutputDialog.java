@@ -143,6 +143,15 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons at the bottom
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "System.Label.TransformName" ) );
@@ -216,8 +225,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     fdlDoNotOpenNewFileInit.right = new FormAttachment( middle, -margin );
     wlDoNotOpenNewFileInit.setLayoutData(fdlDoNotOpenNewFileInit);
     wDoNotOpenNewFileInit = new Button( wFileComp, SWT.CHECK );
-    wDoNotOpenNewFileInit
-        .setToolTipText( BaseMessages.getString( PKG, "XMLOutputDialog.DoNotOpenNewFileInit.Tooltip" ) );
+    wDoNotOpenNewFileInit.setToolTipText( BaseMessages.getString( PKG, "XMLOutputDialog.DoNotOpenNewFileInit.Tooltip" ) );
     props.setLook( wDoNotOpenNewFileInit );
     FormData fdDoNotOpenNewFileInit = new FormData();
     fdDoNotOpenNewFileInit.left = new FormAttachment( middle, 0 );
@@ -286,7 +294,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wAddTransformnr );
     FormData fdAddTransformnr = new FormData();
     fdAddTransformnr.left = new FormAttachment( middle, 0 );
-    fdAddTransformnr.top = new FormAttachment( wExtension, margin );
+    fdAddTransformnr.top = new FormAttachment( wlAddTransformnr, 0, SWT.CENTER);
     fdAddTransformnr.right = new FormAttachment( 100, 0 );
     wAddTransformnr.setLayoutData(fdAddTransformnr);
     wAddTransformnr.addSelectionListener( new SelectionAdapter() {
@@ -352,7 +360,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wSpecifyFormat.setToolTipText( BaseMessages.getString( PKG, "XMLOutputDialog.SpecifyFormat.Tooltip" ) );
     FormData fdSpecifyFormat = new FormData();
     fdSpecifyFormat.left = new FormAttachment( middle, 0 );
-    fdSpecifyFormat.top = new FormAttachment( wAddTime, margin );
+    fdSpecifyFormat.top = new FormAttachment( wlSpecifyFormat, 0, SWT.CENTER );
     fdSpecifyFormat.right = new FormAttachment( 100, 0 );
     wSpecifyFormat.setLayoutData(fdSpecifyFormat);
     wSpecifyFormat.addSelectionListener( new SelectionAdapter() {
@@ -479,7 +487,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wZipped );
     FormData fdZipped = new FormData();
     fdZipped.left = new FormAttachment( middle, 0 );
-    fdZipped.top = new FormAttachment( 0, 0 );
+    fdZipped.top = new FormAttachment( wlZipped, 0, SWT.CENTER );
     fdZipped.right = new FormAttachment( 100, 0 );
     wZipped.setLayoutData(fdZipped);
     wZipped.addSelectionListener( new SelectionAdapter() {
@@ -600,7 +608,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( wOmitNullValues );
     FormData fdOmitNullValues = new FormData();
     fdOmitNullValues.left = new FormAttachment( middle, 0 );
-    fdOmitNullValues.top = new FormAttachment( wSplitEvery, margin );
+    fdOmitNullValues.top = new FormAttachment( wlOmitNullValues, 0, SWT.CENTER );
     fdOmitNullValues.right = new FormAttachment( 100, 0 );
     wOmitNullValues.setLayoutData(fdOmitNullValues);
     wOmitNullValues.addSelectionListener( new SelectionAdapter() {
@@ -730,27 +738,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData(fdTabFolder);
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
 
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
 
     // Add listeners
-    lsOk = e -> ok();
-    lsGet = e -> get();
-    Listener lsMinWidth = e -> setMinimalWidth();
-    lsCancel = e -> cancel();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wMinWidth.addListener( SWT.Selection, lsMinWidth);
-    wCancel.addListener( SWT.Selection, lsCancel );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wMinWidth.addListener( SWT.Selection, e -> setMinimalWidth());
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

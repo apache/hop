@@ -110,6 +110,16 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
+    // Buttons at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
     // Filename line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "XsltDialog.TransformName.Label" ) );
@@ -234,7 +244,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook(wlXSLFileField);
     FormData fdlXSLFileField = new FormData();
     fdlXSLFileField.left = new FormAttachment( 0, 0 );
-    fdlXSLFileField.top = new FormAttachment( wResultField, margin );
+    fdlXSLFileField.top = new FormAttachment( 0, 0 );
     fdlXSLFileField.right = new FormAttachment( middle, -margin );
     wlXSLFileField.setLayoutData(fdlXSLFileField);
     wXSLFileField = new Button(wXSLFileGroup, SWT.CHECK );
@@ -242,7 +252,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wXSLFileField.setToolTipText( BaseMessages.getString( PKG, "XsltDialog.XSLFilenameFileField.Tooltip" ) );
     FormData fdXSLFileField = new FormData();
     fdXSLFileField.left = new FormAttachment( middle, margin );
-    fdXSLFileField.top = new FormAttachment( wResultField, margin );
+    fdXSLFileField.top = new FormAttachment( wlXSLFileField, 0, SWT.CENTER );
     wXSLFileField.setLayoutData(fdXSLFileField);
 
     SelectionAdapter lsXslFile = new SelectionAdapter() {
@@ -298,7 +308,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     wXSLFieldIsAFile.setToolTipText( BaseMessages.getString( PKG, "XsltDialog.XSLFieldIsAFile.Tooltip" ) );
     FormData fdXSLFieldIsAFile = new FormData();
     fdXSLFieldIsAFile.left = new FormAttachment( middle, margin );
-    fdXSLFieldIsAFile.top = new FormAttachment( wXSLField, margin );
+    fdXSLFieldIsAFile.top = new FormAttachment( wlXSLFieldIsAFile, 0, SWT.CENTER );
     wXSLFieldIsAFile.setLayoutData(fdXSLFieldIsAFile);
     wXSLFieldIsAFile.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -495,26 +505,12 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( wTransformName, margin );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( 100, -50 );
+    fdTabFolder.bottom = new FormAttachment( wOk, -2*margin );
     wTabFolder.setLayoutData( fdTabFolder );
 
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder);
-
     // Add listeners
-    lsCancel = e -> cancel();
-    lsGet = e -> get();
-    lsOk = e -> ok();
+    wGet.addListener( SWT.Selection, e -> get() );
 
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wGet.addListener( SWT.Selection, lsGet );
-
-    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
