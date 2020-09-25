@@ -98,6 +98,16 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // THE BUTTONS at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null);
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "SyslogMessageDialog.TransformName.Label" ) );
@@ -248,7 +258,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     wAddHostName.setToolTipText( BaseMessages.getString( PKG, "SyslogMessageDialog.AddHostName.Tooltip" ) );
     FormData fdAddHostName = new FormData();
     fdAddHostName.left = new FormAttachment( middle, margin );
-    fdAddHostName.top = new FormAttachment( wPriority, margin );
+    fdAddHostName.top = new FormAttachment( wlAddHostName, 0, SWT.CENTER );
     fdAddHostName.right = new FormAttachment( 100, 0 );
     wAddHostName.setLayoutData(fdAddHostName);
     wAddHostName.addSelectionListener( new SelectionAdapter() {
@@ -271,7 +281,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     wAddTimestamp.setToolTipText( BaseMessages.getString( PKG, "SyslogMessageDialog.AddTimestamp.Tooltip" ) );
     FormData fdAddTimestamp = new FormData();
     fdAddTimestamp.left = new FormAttachment( middle, margin );
-    fdAddTimestamp.top = new FormAttachment( wAddHostName, margin );
+    fdAddTimestamp.top = new FormAttachment( wlAddTimestamp, 0, SWT.CENTER );
     fdAddTimestamp.right = new FormAttachment( 100, 0 );
     wAddTimestamp.setLayoutData(fdAddTimestamp);
     wAddTimestamp.addSelectionListener( new SelectionAdapter() {
@@ -336,29 +346,15 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     fdLogSettings.left = new FormAttachment( 0, margin );
     fdLogSettings.top = new FormAttachment(wSettingsGroup, margin );
     fdLogSettings.right = new FormAttachment( 100, -margin );
+    fdLogSettings.bottom = new FormAttachment(wOk, -2*margin);
     wLogSettings.setLayoutData(fdLogSettings);
+
     // ///////////////////////////////////////////////////////////
     // / END OF Log SETTINGS GROUP
     // ///////////////////////////////////////////////////////////
 
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wLogSettings);
-
     // Add listeners
-    lsOk = e -> ok();
-
-    lsCancel = e -> cancel();
-
-    Listener lsTest = e -> test();
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wTest.addListener( SWT.Selection, lsTest);
+    wTest.addListener( SWT.Selection, e -> test());
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
