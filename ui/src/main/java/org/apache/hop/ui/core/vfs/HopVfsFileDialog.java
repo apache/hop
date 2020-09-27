@@ -31,7 +31,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
@@ -51,8 +50,19 @@ import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.events.MenuAdapter;
+import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Image;
@@ -60,13 +70,15 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
@@ -86,24 +98,27 @@ import java.util.Map;
 @GuiPlugin
 public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
-  private static Class<?> PKG = HopVfsFileDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopVfsFileDialog.class; // for i18n purposes, needed by Translator!!
 
   public static final String BOOKMARKS_AUDIT_TYPE = "vfs-bookmarks";
 
   public static final String BOOKMARKS_TOOLBAR_PARENT_ID = "HopVfsFileDialog-BookmarksToolbar";
   private static final String BOOKMARKS_ITEM_ID_BOOKMARKS = "0000-bookmarks";
-  private static final String BOOKMARKS_ITEM_ID_BOOKMARK_GOTO = "0010-bookmark-goto";
+  private static final String BOOKMARKS_ITEM_ID_BOOKMARK_ADD = "0010-bookmark-add";
+  private static final String BOOKMARKS_ITEM_ID_BOOKMARK_GOTO = "0020-bookmark-goto";
   private static final String BOOKMARKS_ITEM_ID_BOOKMARK_REMOVE = "0030-bookmark-remove";
 
+  public static final String NAVIGATE_TOOLBAR_PARENT_ID = "HopVfsFileDialog-NavigateToolbar";
+  private static final String NAVIGATE_ITEM_ID_NAVIGATE_HOME = "0000-navigate-home";
+  private static final String NAVIGATE_ITEM_ID_NAVIGATE_UP = "0010-navigate-up";
+  private static final String NAVIGATE_ITEM_ID_NAVIGATE_PREVIOUS = "0100-navigate-previous";
+  private static final String NAVIGATE_ITEM_ID_NAVIGATE_NEXT = "0110-navigate-next";
+  private static final String NAVIGATE_ITEM_ID_REFRESH_ALL = "9999-refresh-all";
+  
   public static final String BROWSER_TOOLBAR_PARENT_ID = "HopVfsFileDialog-BrowserToolbar";
-  private static final String BROWSER_ITEM_ID_NAVIGATE_HOME = "0000-navigate-home";
-  private static final String BROWSER_ITEM_ID_NAVIGATE_UP = "0010-navigate-up";
   private static final String BROWSER_ITEM_ID_CREATE_FOLDER = "0020-create-folder";
-  private static final String BROWSER_ITEM_ID_BOOKMARK_ADD = "0030-bookmark-add";
-  private static final String BROWSER_ITEM_ID_NAVIGATE_PREVIOUS = "0100-navigation-previous";
-  private static final String BROWSER_ITEM_ID_NAVIGATE_NEXT = "0110-navigation-next";
   private static final String BROWSER_ITEM_ID_SHOW_HIDDEN = "0200-show-hidden";
-  private static final String BROWSER_ITEM_ID_REFRESH_ALL = "9999-refresh-all";
+
 
   private Shell parent;
   private IVariables variables;
@@ -120,7 +135,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   private Text wDetails;
   private Tree wBrowser;
-
+  
   private boolean showingHiddenFiles;
 
   private Shell shell;
@@ -132,8 +147,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private FileObject activeFolder;
 
   private Image fileImage;
-  private Image upImage;
-  private Image downImage;
 
   private static HopVfsFileDialog instance;
   private FileObject selectedFile;
@@ -141,13 +154,14 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private java.util.List<String> navigationHistory;
   private int navigationIndex;
 
+  private GuiToolbarWidgets navigateToolbarWidgets;
   private GuiToolbarWidgets browserToolbarWidgets;
   private GuiToolbarWidgets bookmarksToolbarWidgets;
   private Button wOk;
   private SashForm sashForm;
   private Combo wFilters;
   private String message;
-
+  
   private boolean browsingDirectories;
   private boolean savingFile;
   private String saveFilename;
@@ -185,8 +199,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     navigationIndex = navigationHistory.size() - 1;
 
     fileImage = SwtSvgImageUtil.getImage( parent.getDisplay(), getClass().getClassLoader(), "ui/images/file.svg", ConstUi.ICON_SIZE, ConstUi.ICON_SIZE );
-    upImage = SwtSvgImageUtil.getImage( parent.getDisplay(), getClass().getClassLoader(), "ui/images/toolbar/arrow-up.svg", ConstUi.ICON_SIZE, ConstUi.ICON_SIZE );
-    downImage = SwtSvgImageUtil.getImage( parent.getDisplay(), getClass().getClassLoader(), "ui/images/toolbar/arrow-down.svg", ConstUi.ICON_SIZE, ConstUi.ICON_SIZE );
   }
 
   /**
@@ -220,7 +232,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     //  At the bottom we have an OK and a Cancel button
     wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.setText( BaseMessages.getString( PKG, (savingFile) ?  "System.Button.Save" : "System.Button.Open" ) );
     wOk.addListener( SWT.Selection, e -> okButton() );
 
     Button wCancel = new Button( shell, SWT.PUSH );
@@ -228,27 +240,71 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     wCancel.addListener( SWT.Selection, e -> cancel() );
 
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, props.getMargin(), null );
+            
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////
+    // On top there are the navigation 
+    //        
+    Composite navigateComposite = new Composite( shell, SWT.NONE );
+    props.setLook( navigateComposite );
+    GridLayout gridLayout = new GridLayout( ( browsingDirectories ) ? 2:3, false);
+    gridLayout.marginWidth=0;
+    navigateComposite.setLayout( gridLayout );
 
+    FormData fdNavigationForm = new FormData();
+    fdNavigationForm.left = new FormAttachment( 0, 0 );
+    fdNavigationForm.top = new FormAttachment( 0, 0 );
+    fdNavigationForm.right = new FormAttachment( 100, 0 );    
+    navigateComposite.setLayoutData( fdNavigationForm );
+        
+    // A toolbar above the browser, below the filename
+    //
+    ToolBar navigateToolBar = new ToolBar( navigateComposite, SWT.LEFT | SWT.HORIZONTAL );
+    navigateToolBar.setLayoutData(new GridData(SWT.LEFT , SWT.FILL, false, true));
+    // Force white color
+    navigateToolBar.setBackground(GuiResource.getInstance().getColorWhite());
+  
+    navigateToolbarWidgets = new GuiToolbarWidgets();
+    navigateToolbarWidgets.registerGuiPluginObject(this);
+    navigateToolbarWidgets.createToolbarWidgets( navigateToolBar, NAVIGATE_TOOLBAR_PARENT_ID );
+    navigateToolBar.pack();
+
+    wFilename = new TextVar( variables, navigateComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename.addListener( SWT.DefaultSelection, e -> enteredFilenameOrFolder() );
+    wFilename.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+    props.setLook( wFilename );
+        
+    if ( !browsingDirectories ) {
+        wFilters = new Combo( navigateComposite, SWT.SINGLE | SWT.BORDER );
+        wFilters.setItems( filterNames );
+        wFilters.select( 0 );
+        wFilters.addListener( SWT.Selection, this::fileFilterSelected );
+        wFilters.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, false, false));
+        props.setLook( wFilters );
+      }
+    
     // Above this we have a sash form
     //
     sashForm = new SashForm( shell, SWT.HORIZONTAL );
     FormData fdSashForm = new FormData();
     fdSashForm.left = new FormAttachment( 0, 0 );
-    fdSashForm.top = new FormAttachment( 0, 0 );
+    fdSashForm.top = new FormAttachment( navigateComposite, props.getMargin() );
     fdSashForm.right = new FormAttachment( 100, 0 );
     fdSashForm.bottom = new FormAttachment( wOk, (int) ( -props.getMargin() * props.getZoomFactor() ) );
     sashForm.setLayoutData( fdSashForm );
 
+    props.setLook( sashForm );
+    
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // On the left there are the bookmarks
     //
-    Composite bookmarksComposite = new Composite( sashForm, SWT.NONE );
+    Composite bookmarksComposite = new Composite( sashForm,  SWT.BORDER  );
     props.setLook( bookmarksComposite );
     bookmarksComposite.setLayout( new FormLayout() );
 
-    // Above the bookmarks a toolbar with edit, add, delete
+    // Above the bookmarks a toolbar with add, delete
     //
-    ToolBar bookmarksToolBar = new ToolBar( bookmarksComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
+    ToolBar bookmarksToolBar = new ToolBar( bookmarksComposite, SWT.WRAP | SWT.SHADOW_IN | SWT.LEFT | SWT.HORIZONTAL );
     FormData fdBookmarksToolBar = new FormData();
     fdBookmarksToolBar.left = new FormAttachment( 0, 0 );
     fdBookmarksToolBar.top = new FormAttachment( 0, 0 );
@@ -263,7 +319,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     // Below that we have a list with all the bookmarks in them
     //
-    wBookmarks = new List( bookmarksComposite, SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL );
+    wBookmarks = new List( bookmarksComposite,  SWT.SINGLE | SWT.LEFT | SWT.V_SCROLL | SWT.H_SCROLL );
     props.setLook( wBookmarks );
     FormData fdBookmarks = new FormData();
     fdBookmarks.left = new FormAttachment( 0, 0 );
@@ -273,61 +329,104 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     wBookmarks.setLayoutData( fdBookmarks );
     wBookmarks.addListener( SWT.Selection, e -> refreshStates() );
     wBookmarks.addListener( SWT.DefaultSelection, this::bookmarkDefaultSelection );
+    
+    // Context menu for bookmarks
+    //
+    final Menu menu = new Menu(wBookmarks);
+    menu.addMenuListener(new MenuAdapter()
+    {
+        public void menuShown(MenuEvent event)
+        {
+            MenuItem[] items = menu.getItems();
+            for (int i = 0; i < items.length; i++)
+            {
+                items[i].dispose();
+            }
+            
+            int selected = wBookmarks.getSelectionIndex();
 
+            if(selected < 0 || selected >= wBookmarks.getItemCount())
+                return;
+            MenuItem removeBookmarkMenuItem = new MenuItem(menu, SWT.NONE);
+            removeBookmarkMenuItem.setText("Delete");
+            removeBookmarkMenuItem.addListener(SWT.Selection, e -> removeBookmark());            
+        }
+    });      
+    wBookmarks.setMenu(menu);    
+   
+    // Drag and drop to bookmarks
+    //
+    DropTarget target = new DropTarget(wBookmarks, DND.DROP_MOVE );
+    target.setTransfer(TextTransfer.getInstance());
+    target.addDropListener(new DropTargetAdapter()
+    {
+        @Override
+        public void dragEnter(DropTargetEvent event)
+        {
+            if (event.detail == DND.DROP_DEFAULT)
+            {
+                event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_NONE;
+            }
 
+            // Allow dropping text only
+            for (int i = 0, n = event.dataTypes.length; i < n; i++)
+            {
+                if (TextTransfer.getInstance().isSupportedType(event.dataTypes[i]))
+                {
+                    event.currentDataType = event.dataTypes[i];                    
+                }
+            }
+        }
+
+        @Override
+        public void dragOver(DropTargetEvent event)
+        {
+            event.feedback = DND.FEEDBACK_SELECT | DND.FEEDBACK_SCROLL;
+        }
+
+        @Override
+        public void drop(DropTargetEvent event)
+        {
+            if (TextTransfer.getInstance().isSupportedType(event.currentDataType))
+            {
+            	FileObject file = fileObjectsMap.get( (String) event.data );            	           
+            	if ( file != null ) {
+            	     String name = file.getName().getBaseName();
+            	     EnterStringDialog dialog = new EnterStringDialog( shell, name, "Enter bookmark", "Please enter the name for this bookmark" );
+            	     name = dialog.open();
+            	     if ( name != null ) {
+            	        String path = HopVfs.getFilename( file );
+            	        bookmarks.put( name, path );
+            	        saveBookmarks();
+            	        refreshBookmarks();
+            	     }
+            	}
+            	refreshStates();
+            }
+        }
+    });
+    
+    
     ///////////////////////////////////////////////////////////////////////////////////////////////////////
     // On the right there is a folder and files browser
     //
-    Composite browserComposite = new Composite( sashForm, SWT.NONE );
+    Composite browserComposite = new Composite( sashForm, SWT.BORDER );
     props.setLook( browserComposite );
     browserComposite.setLayout( new FormLayout() );
 
-    Label wlFilename = new Label( browserComposite, SWT.SINGLE | SWT.LEFT );
-    props.setLook( wlFilename );
-    wlFilename.setText( "Filename: " );
-    FormData fdlFilename = new FormData();
-    fdlFilename.left = new FormAttachment( 0, 0 );
-    fdlFilename.top = new FormAttachment( 0, 0 );
-    wlFilename.setLayoutData( fdlFilename );
-
-    Button wbFilename = new Button( browserComposite, SWT.PUSH );
-    props.setLook( wbFilename );
-    wbFilename.setText( "Show" );
-    wbFilename.addListener( SWT.Selection, e -> refreshBrowser() );
-    FormData fdbFilename = new FormData();
-    fdbFilename.right = new FormAttachment( 100, 0 );
-    fdbFilename.top = new FormAttachment( 0, 0 );
-    wbFilename.setLayoutData( fdbFilename );
-    Control rightControl = wbFilename;
-
-    if ( !browsingDirectories ) {
-      wFilters = new Combo( browserComposite, SWT.SINGLE | SWT.BORDER );
-      props.setLook( wFilters );
-      FormData fdFilters = new FormData();
-      fdFilters.right = new FormAttachment( wbFilename, -props.getMargin() );
-      fdFilters.top = new FormAttachment( 0, 0 );
-      wFilters.setLayoutData( fdFilters );
-      wFilters.setItems( filterNames );
-      wFilters.select( 0 );
-      wFilters.addListener( SWT.Selection, this::fileFilterSelected );
-      rightControl = wFilters;
-    }
-
-    wFilename = new TextVar( variables, browserComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wFilename );
-    FormData fdFilename = new FormData();
-    fdFilename.left = new FormAttachment( wlFilename, props.getMargin() );
-    fdFilename.right = new FormAttachment( rightControl, -props.getMargin() );
-    fdFilename.top = new FormAttachment( 0, 0 );
-    wFilename.setLayoutData( fdFilename );
-    wFilename.addListener( SWT.DefaultSelection, e -> enteredFilenameOrFolder() );
-
+    FormData fdTreeComposite = new FormData();
+    fdTreeComposite.left = new FormAttachment( 0, 0 );
+    fdTreeComposite.right = new FormAttachment( 100, 0 );
+    fdTreeComposite.top = new FormAttachment( 0, 0 );
+    fdTreeComposite.bottom = new FormAttachment( 100, 0 );
+    browserComposite.setLayoutData( fdTreeComposite );
+    
     // A toolbar above the browser, below the filename
     //
-    ToolBar browserToolBar = new ToolBar( browserComposite, SWT.BORDER | SWT.WRAP | SWT.SHADOW_OUT | SWT.LEFT | SWT.HORIZONTAL );
+    ToolBar browserToolBar = new ToolBar( browserComposite, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
     FormData fdBrowserToolBar = new FormData();
     fdBrowserToolBar.left = new FormAttachment( 0, 0 );
-    fdBrowserToolBar.top = new FormAttachment( wFilename, props.getMargin() );
+    fdBrowserToolBar.top = new FormAttachment( 0, 0 );
     fdBrowserToolBar.right = new FormAttachment( 100, 0 );
     browserToolBar.setLayoutData( fdBrowserToolBar );
     props.setLook( browserToolBar, Props.WIDGET_STYLE_TOOLBAR );
@@ -339,32 +438,59 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     SashForm browseSash = new SashForm( browserComposite, SWT.VERTICAL );
 
-    wBrowser = new Tree( browseSash, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
+    wBrowser = new Tree( browseSash, SWT.SINGLE | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( wBrowser );
     wBrowser.setHeaderVisible( true );
     wBrowser.setLinesVisible( true ); // TODO needed?
 
     TreeColumn folderColumn = new TreeColumn( wBrowser, SWT.LEFT );
     folderColumn.setText( "Name" );
-    folderColumn.setWidth( (int) ( 200 * props.getZoomFactor() ) );
+    //folderColumn.setWidth( (int) ( 200 * props.getZoomFactor() ) );
     folderColumn.addListener( SWT.Selection, e->browserColumnSelected(0) );
-
-    TreeColumn sizeColumn = new TreeColumn( wBrowser, SWT.LEFT );
-    sizeColumn.setText( "Size" );
-    sizeColumn.setWidth( (int) ( 150 * props.getZoomFactor() ) );
-    sizeColumn.addListener( SWT.Selection, e->browserColumnSelected(1) );
-
+      
     TreeColumn modifiedColumn = new TreeColumn( wBrowser, SWT.LEFT );
     modifiedColumn.setText( "Modified" );
     modifiedColumn.setWidth( (int) ( 150 * props.getZoomFactor() ) );
-    modifiedColumn.addListener( SWT.Selection, e->browserColumnSelected(2) );
+    modifiedColumn.addListener( SWT.Selection, e->browserColumnSelected(1) );
+    
+    TreeColumn sizeColumn = new TreeColumn( wBrowser, SWT.RIGHT );
+    sizeColumn.setText( "Size" );
+    sizeColumn.setWidth( (int) ( 100 * props.getZoomFactor() ) );
+    sizeColumn.addListener( SWT.Selection, e->browserColumnSelected(2) );
+
 
     wBrowser.addListener( SWT.Selection, this::fileSelected );
-    wBrowser.addListener( SWT.DefaultSelection, this::fileDefaultSelected );
+    wBrowser.addListener( SWT.DefaultSelection, this::fileDefaultSelected );    
+    wBrowser.addListener( SWT.Resize, e -> resizeTableColumn());
+          
+    
+	// Create the drag source on the tree
+	DragSource dragSource = new DragSource(wBrowser, DND.DROP_COPY| DND.DROP_MOVE);
+	dragSource.setTransfer(TextTransfer.getInstance());
+	dragSource.addDragListener(new DragSourceAdapter() {
 
+		public void dragStart(DragSourceEvent event) {
+
+		    TreeItem[] selection = wBrowser.getSelection();	
+			if (selection != null &&  selection.length==1) {
+				event.doit = true;				
+			}
+			else event.doit = false;
+		}
+
+		public void dragSetData(DragSourceEvent event) {
+			// Set the data to be the first selected item's text
+			TreeItem[] selection = wBrowser.getSelection();
+			System.out.println("drag: "+getTreeItemPath( selection[ 0 ] ));
+			
+			event.data = getTreeItemPath( selection[ 0 ] );
+		}
+	});
+        
+    
     // Put file details or message/logging label at the bottom...
     //
-    wDetails = new Text( browseSash, SWT.MULTI | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY );
+    wDetails = new Text( browseSash, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.READ_ONLY );
     props.setLook( wDetails );
 
     FormData fdBrowseSash = new FormData();
@@ -372,12 +498,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     fdBrowseSash.right = new FormAttachment( 100, 0 );
     fdBrowseSash.top = new FormAttachment( browserToolBar, 0 );
     fdBrowseSash.bottom = new FormAttachment( 100, 0 );
+    
     browseSash.setLayoutData( fdBrowseSash );
-
     browseSash.setWeights( new int[] { 90, 10 } );
 
     sashForm.setWeights( new int[] { 15, 85 } );
-
+    
     getData();
 
     BaseTransformDialog.setSize( shell );
@@ -410,16 +536,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       sortIndex = index;
       ascending = true;
     }
-    setBrowserSortImage();
+    wBrowser.setSortColumn(wBrowser.getColumn( index ));
+    wBrowser.setSortDirection( ascending ? SWT.DOWN : SWT.UP );
+    
     refreshBrowser();
-  }
-
-  private void setBrowserSortImage() {
-    // Clear images
-    for (int i=0;i<3;i++) {
-      Image image = i==sortIndex ? ( ascending ? downImage : upImage ) : null;
-      wBrowser.getColumn( i ).setImage( image );
-    }
   }
 
   private void fileFilterSelected( Event event ) {
@@ -430,12 +550,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     this.message = message;
   }
 
-  @GuiToolbarElement(
-    root = BOOKMARKS_TOOLBAR_PARENT_ID,
-    id = BOOKMARKS_ITEM_ID_BOOKMARK_GOTO,
-    toolTip = "Browse to the selected bookmark",
-    image = "ui/images/toolbar/arrow-right.svg"
-  )
+//  @GuiToolbarElement(
+//    root = BOOKMARKS_TOOLBAR_PARENT_ID,
+//    id = BOOKMARKS_ITEM_ID_BOOKMARK_GOTO,
+//    toolTip = "Browse to the selected bookmark",
+//    image = "ui/images/toolbar/arrow-right.svg"
+//  )
   public void browseToSelectedBookmark() {
     String name = getSelectedBookmark();
     if ( name == null ) {
@@ -555,7 +675,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
       showError( "Error getting information on file " + fileObject.toString(), e );
     }
   }
-
+  
   /**
    * Double clicked on a file or folder
    *
@@ -608,12 +728,13 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     showDetails( message );
 
     navigateTo( fileName, true );
-    setBrowserSortImage();
+    browserColumnSelected(0);
   }
 
   private void showDetails( String details ) {
     wDetails.setText( Const.NVL( details, Const.NVL( message, "" ) ) );
   }
+
 
   private void refreshBookmarks() {
     // Add the bookmarks
@@ -694,22 +815,23 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
             cmp= name1.compareTo( name2 );
             break;
           case 1:
+              long time1 = child1.getContent().getLastModifiedTime();
+              long time2 = child2.getContent().getLastModifiedTime();
+              cmp= Long.valueOf( time1 ).compareTo( Long.valueOf(time2) );
+              break;            
+          case 2:
             long size1 = child1.getContent().getSize();
             long size2 = child2.getContent().getSize();
             cmp= Long.valueOf( size1 ).compareTo( Long.valueOf(size2) );
             break;
-          case 2:
-            long time1 = child1.getContent().getLastModifiedTime();
-            long time2 = child2.getContent().getLastModifiedTime();
-            cmp= Long.valueOf( time1 ).compareTo( Long.valueOf(time2) );
-            break;
+
           default:
             cmp=0;
         }
         if (ascending) {
-          return cmp;
-        } else {
           return -cmp;
+        } else {
+          return cmp;
         }
       } catch(Exception e) {
         return 0;
@@ -757,8 +879,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
             childFileItem.setImage( fileImage );
             childFileItem.setFont( GuiResource.getInstance().getFontBold() );
             childFileItem.setText( 0, child.getName().getBaseName() );
-            childFileItem.setText( 1, getFileSize( child ) );
-            childFileItem.setText( 2, getFileDate( child ) );
+            childFileItem.setText( 1, getFileDate( child ) );
+            childFileItem.setText( 2, getFileSize( child ) );
             fileObjectsMap.put( getTreeItemPath( childFileItem ), child );
 
             // Gray out if the file is not readable
@@ -780,7 +902,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private String getFileSize( FileObject child ) {
     try {
       long size = child.getContent().getSize();
-      String[] units = { "", "kB", "MB", "GB", "TB", "PB", "XB", "YB", "ZB" };
+      String[] units = { "", " kB", " MB", " GB", " TB", " PB", " XB", " YB", " ZB" };
       for ( int i = 0; i < units.length; i++ ) {
         double unitSize = Math.pow( 1024, i );
         double maxSize = Math.pow( 1024, i + 1 );
@@ -844,18 +966,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
   @GuiToolbarElement(
     root = BOOKMARKS_TOOLBAR_PARENT_ID,
-    id = BOOKMARKS_ITEM_ID_BOOKMARKS,
-    label = "Bookmarks:",
-    type = GuiToolbarElementType.LABEL
-  )
-  public void labelBookmark() {
-    // nothing specific to do here, just a label
-  }
-
-
-  @GuiToolbarElement(
-    root = BROWSER_TOOLBAR_PARENT_ID,
-    id = BROWSER_ITEM_ID_BOOKMARK_ADD,
+    id = BOOKMARKS_ITEM_ID_BOOKMARK_ADD,
     toolTip = "Add the selected file or folder as a new bookmark",
     image = "ui/images/bookmark-add.svg"
   )
@@ -873,8 +984,6 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     }
     refreshStates();
   }
-
-  private boolean bookmarksShown = true;
 
   @GuiToolbarElement(
     root = BOOKMARKS_TOOLBAR_PARENT_ID,
@@ -948,11 +1057,12 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     }
     refreshBrowser();
     refreshStates();
+    resizeTableColumn();
   }
 
   @GuiToolbarElement(
-    root = BROWSER_TOOLBAR_PARENT_ID,
-    id = BROWSER_ITEM_ID_NAVIGATE_HOME,
+    root = NAVIGATE_TOOLBAR_PARENT_ID,
+    id = NAVIGATE_ITEM_ID_NAVIGATE_HOME,
     toolTip = "Navigate to the user home directory",
     image = "ui/images/home-enabled.svg"
   )
@@ -961,8 +1071,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   @GuiToolbarElement(
-    root = BROWSER_TOOLBAR_PARENT_ID,
-    id = BROWSER_ITEM_ID_REFRESH_ALL,
+    root = NAVIGATE_TOOLBAR_PARENT_ID,
+    id = NAVIGATE_ITEM_ID_REFRESH_ALL,
     toolTip = "Refresh",
     image = "ui/images/refresh-enabled.svg"
   )
@@ -972,10 +1082,10 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   @GuiToolbarElement(
-    root = BROWSER_TOOLBAR_PARENT_ID,
-    id = BROWSER_ITEM_ID_NAVIGATE_UP,
+    root = NAVIGATE_TOOLBAR_PARENT_ID,
+    id = NAVIGATE_ITEM_ID_NAVIGATE_UP,
     toolTip = "Navigate to the parent folder",
-    image = "ui/images/9x9_arrow_up.svg"
+    image = "ui/images/toolbar/arrow-up.svg"
   )
   public void navigateUp() {
     try {
@@ -996,7 +1106,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     root = BROWSER_TOOLBAR_PARENT_ID,
     id = BROWSER_ITEM_ID_CREATE_FOLDER,
     toolTip = "Create folder",
-    image = "ui/images/Add.svg"
+    image = "ui/images/folder-add.svg"
   )
   public void createFolder() {
     String folder = "";
@@ -1019,8 +1129,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   @GuiToolbarElement(
-    root = BROWSER_TOOLBAR_PARENT_ID,
-    id = BROWSER_ITEM_ID_NAVIGATE_PREVIOUS,
+    root = NAVIGATE_TOOLBAR_PARENT_ID,
+    id = NAVIGATE_ITEM_ID_NAVIGATE_PREVIOUS,
     toolTip = "Navigate to previous path from your history",
     image = "ui/images/toolbar/arrow-left.svg",
     separator = true
@@ -1033,8 +1143,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   }
 
   @GuiToolbarElement(
-    root = BROWSER_TOOLBAR_PARENT_ID,
-    id = BROWSER_ITEM_ID_NAVIGATE_NEXT,
+    root = NAVIGATE_TOOLBAR_PARENT_ID,
+    id = NAVIGATE_ITEM_ID_NAVIGATE_NEXT,
     toolTip = "Navigate to next path from your history",
     image = "ui/images/toolbar/arrow-right.svg"
   )
@@ -1060,8 +1170,8 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
   private void refreshStates() {
     // Navigation icons...
     //
-    browserToolbarWidgets.enableToolbarItem( BROWSER_ITEM_ID_NAVIGATE_PREVIOUS, navigationIndex > 0 );
-    browserToolbarWidgets.enableToolbarItem( BROWSER_ITEM_ID_NAVIGATE_NEXT, navigationIndex + 1 < navigationHistory.size() );
+    navigateToolbarWidgets.enableToolbarItem( NAVIGATE_ITEM_ID_NAVIGATE_PREVIOUS, navigationIndex > 0 );
+    navigateToolbarWidgets.enableToolbarItem( NAVIGATE_ITEM_ID_NAVIGATE_NEXT, navigationIndex + 1 < navigationHistory.size() );
 
     // Up...
     //
@@ -1076,17 +1186,29 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
     } catch ( Exception e ) {
       canGoUp = false;
     }
-    browserToolbarWidgets.enableToolbarItem( BROWSER_ITEM_ID_NAVIGATE_UP, canGoUp );
+    browserToolbarWidgets.enableToolbarItem( NAVIGATE_ITEM_ID_NAVIGATE_UP, canGoUp );
 
     // Bookmarks...
     //
     boolean bookmarkSelected = getSelectedBookmark() != null;
     bookmarksToolbarWidgets.enableToolbarItem( BOOKMARKS_ITEM_ID_BOOKMARK_GOTO, bookmarkSelected );
     bookmarksToolbarWidgets.enableToolbarItem( BOOKMARKS_ITEM_ID_BOOKMARK_REMOVE, bookmarkSelected );
-
+    
     wOk.setEnabled( StringUtils.isNotEmpty( wFilename.getText() ) );
   }
 
+  
+  private void resizeTableColumn() {
+	  
+	    int width = wBrowser.getSize().x;
+	    if ( wBrowser.getVerticalBar() != null && wBrowser.getVerticalBar().isVisible() ) {
+	      width -= wBrowser.getVerticalBar().getSize().x;
+	    }
+	    
+	    width-=wBrowser.getColumn(1).getWidth();
+	    width-=wBrowser.getColumn(2).getWidth();
+	    wBrowser.getColumn(0).setWidth(width);
+   }
 
   /**
    * Gets text
