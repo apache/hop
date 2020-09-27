@@ -29,10 +29,12 @@ import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
@@ -122,6 +124,10 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       //
       workflowMeta.setMetadataProvider( hopGui.getMetadataProvider() );
 
+      // Keep track of open...
+      //
+      AuditManager.registerEvent( HopNamespace.getNamespace(), "file", filename, "open" );
+      
       // Inform those that want to know about it that we loaded a pipeline
       //
       ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), "WorkflowAfterOpen", workflowMeta );
