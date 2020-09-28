@@ -69,6 +69,7 @@ import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.lineage.PipelineDataLineage;
@@ -98,6 +99,7 @@ import org.apache.hop.pipeline.transform.errorhandling.Stream;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.EnterStringDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
@@ -106,6 +108,7 @@ import org.apache.hop.ui.core.dialog.PreviewRowsDialog;
 import org.apache.hop.ui.core.dialog.TransformFieldsDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
@@ -207,7 +210,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   IHopFileTypeHandler,
   IGuiRefresher {
 
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiPipelineGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiPipelineGraph-ToolBar-10010-Run";
@@ -360,7 +363,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   Timer redrawTimer;
 
-  private HopPipelineFileType fileType;
+  private HopPipelineFileType<PipelineMeta> fileType;
   private boolean doubleClick;
   private PipelineHopMeta clickedPipelineHop;
 
@@ -392,7 +395,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   public HopGuiPipelineGraph( Composite parent, final HopGui hopGui, final CTabItem parentTabItem,
-                              final HopDataOrchestrationPerspective perspective, final PipelineMeta pipelineMeta, final HopPipelineFileType fileType ) {
+                              final HopDataOrchestrationPerspective perspective, final PipelineMeta pipelineMeta, final HopPipelineFileType<PipelineMeta> fileType ) {
     super( hopGui, parent, SWT.NONE, parentTabItem );
     this.hopGui = hopGui;
     this.parentTabItem = parentTabItem;
@@ -3213,6 +3216,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         throw new HopException( "No filename: please specify a filename for this pipeline" );
       }
 
+      // Keep track of save
+      //
+      AuditManager.registerEvent( HopNamespace.getNamespace(), "file", pipelineMeta.getFilename(), "save" );
+      
       String xml = pipelineMeta.getXml();
       OutputStream out = HopVfs.getOutputStream( pipelineMeta.getFilename(), false );
       try {
@@ -3236,6 +3243,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void saveAs( String filename ) throws HopException {
 
     try {
+    	
+      // Enforce file extension
+      if (!filename.toLowerCase().endsWith(this.getFileType().getDefaultFileExtension())) {
+         filename = filename + this.getFileType().getDefaultFileExtension();
+      }    
+    	
       FileObject fileObject = HopVfs.getFileObject( filename );
       if ( fileObject.exists() ) {
         MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
@@ -3516,12 +3529,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   public synchronized void start( PipelineExecutionConfiguration executionConfiguration ) throws HopException {
-    // Auto save feature...
-    handlePipelineMetaChanges( pipelineMeta );
 
-    // filename set & not changed?
+    // If filename set & not changed ?
     //
-    if ( StringUtils.isNotEmpty( pipelineMeta.getFilename() ) && !pipelineMeta.hasChanged() ) {
+    if ( handlePipelineMetaChanges( pipelineMeta ) ) {
+    	
+  	  // If the pipeline is not running, start the pipeline...
+  	  //
       if ( !isRunning() ) {
         try {
           // Set the requested logging level..
@@ -3598,9 +3612,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           BaseMessages.getString( PKG, "PipelineLog.Dialog.DoNoStartPipelineTwice.Message" ), SWT.OK | SWT.ICON_WARNING );
       }
     } else {
-      if ( pipelineMeta.hasChanged() ) {
         showSaveFileMessage();
-      }
     }
   }
 
@@ -4177,10 +4189,20 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
     return tabName;
   }
+  
+  /**
+   * Handle if pipeline filename is set and changed saved
+   * 
+   * Prompt auto save feature...
+   * 
+   * @param workflowMeta
+   * @return true if pipeline meta has name and if changed is saved
+   * @throws HopException 
+   */
 
-  public void handlePipelineMetaChanges( PipelineMeta pipelineMeta ) throws HopException {
+  public boolean handlePipelineMetaChanges( PipelineMeta pipelineMeta ) throws HopException {
     if ( pipelineMeta.hasChanged() ) {
-      if ( hopGui.getProps().getAutoSave() ) {
+      if ( StringUtils.isNotEmpty(pipelineMeta.getFilename()) && hopGui.getProps().getAutoSave() ) {        
         save();
       } else {
         MessageDialogWithToggle md =
@@ -4193,11 +4215,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         MessageDialogWithToggle.setDefaultImage( GuiResource.getInstance().getImageHopUi() );
         int answer = md.open();
         if ( ( answer & 0xFF ) == 0 ) {
-          save();
+        	if ( StringUtils.isEmpty( pipelineMeta.getFilename() ) ) {
+                // Ask for the filename: saveAs
+                //
+        	    String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+        	    if ( filename != null ) {
+        	    	filename = hopGui.getVariables().environmentSubstitute( filename );         	    	
+        	    	saveAs(filename);
+        	    }
+        	}
         }
         hopGui.getProps().setAutoSave( md.getToggleState() );
       }
     }
+    
+    return  StringUtils.isNotEmpty(pipelineMeta.getFilename()) && !pipelineMeta.hasChanged();
   }
 
   private TransformMeta lastChained = null;
@@ -4290,14 +4322,14 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    *
    * @return value of fileType
    */
-  public HopPipelineFileType getFileType() {
+  public HopPipelineFileType<PipelineMeta> getFileType() {
     return fileType;
   }
 
   /**
    * @param fileType The fileType to set
    */
-  public void setFileType( HopPipelineFileType fileType ) {
+  public void setFileType( HopPipelineFileType<PipelineMeta> fileType ) {
     this.fileType = fileType;
   }
 

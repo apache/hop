@@ -60,18 +60,20 @@ import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.widget.CheckBoxToolTip;
-import org.apache.hop.ui.core.widget.ICheckBoxToolTipListener;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
@@ -79,7 +81,6 @@ import org.apache.hop.ui.hopgui.dialog.NotePadDialog;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.delegates.HopGuiNotePadDelegate;
-import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
 import org.apache.hop.ui.hopgui.file.shared.DelayTimer;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
@@ -158,7 +159,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   IHopFileTypeHandler,
   IGuiRefresher {
 
-  private static Class<?> PKG = HopGuiWorkflowGraph.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // for i18n purposes, needed by Translator!!
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiWorkflowGraph-ToolBar-10010-Run";
@@ -267,7 +268,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   private Map<ActionCopy, DelayTimer> delayTimers;
 
-  private HopWorkflowFileType fileType;
+  private HopWorkflowFileType<WorkflowMeta> fileType;
 
   private ActionCopy startHopEntry;
   private Point endHopLocation;
@@ -283,7 +284,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private WorkflowHopMeta clickedWorkflowHop;
 
   public HopGuiWorkflowGraph( Composite parent, final HopGui hopGui, final CTabItem parentTabItem,
-                              final HopDataOrchestrationPerspective perspective, final WorkflowMeta workflowMeta, final HopWorkflowFileType fileType ) {
+                              final HopDataOrchestrationPerspective perspective, final WorkflowMeta workflowMeta, final HopWorkflowFileType<WorkflowMeta> fileType ) {
     super( hopGui, parent, SWT.NONE, parentTabItem );
     this.perspective = perspective;
     this.workflowMeta = workflowMeta;
@@ -2824,6 +2825,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if ( StringUtils.isEmpty( workflowMeta.getFilename() ) ) {
         throw new HopException( "No filename: please specify a filename for this workflow" );
       }
+      
+      // Keep track of save
+      //
+      AuditManager.registerEvent( HopNamespace.getNamespace(), "file", workflowMeta.getFilename(), "save" );
+      
       String xml = workflowMeta.getXml();
       OutputStream out = HopVfs.getOutputStream( workflowMeta.getFilename(), false );
       try {
@@ -2846,6 +2852,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void saveAs( String filename ) throws HopException {
     try {
+    	
+      // Enforce file extension
+      if (!filename.toLowerCase().endsWith(this.getFileType().getDefaultFileExtension())) {
+         filename = filename + this.getFileType().getDefaultFileExtension();
+      } 
+        
       FileObject fileObject = HopVfs.getFileObject( filename );
       if ( fileObject.exists() ) {
         MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
@@ -2856,6 +2868,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           return;
         }
       }
+      
       workflowMeta.setFilename( filename );
       save();
     } catch ( Exception e ) {
@@ -3101,19 +3114,15 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return tabName;
   }
 
-  public synchronized void startJob( WorkflowExecutionConfiguration executionConfiguration ) throws HopException {
+  public synchronized void start( WorkflowExecutionConfiguration executionConfiguration ) throws HopException {
 
-    // If the workflow is not running, start the pipeline...
-    //
-    if ( workflow == null || ( workflow.isFinished() || workflow.isStopped() ) && !workflow.isActive() ) {
-      // Auto save feature...
+	  // If filename set & not changed ?
       //
-      handleWorkflowMetaChanges( workflowMeta );
-
-      // Is there a filename set?
-      //
-      if ( workflowMeta.getFilename() != null && !workflowMeta.hasChanged() ) { // Didn't change
-        if ( workflow == null || ( workflow != null && !workflow.isActive() ) ) {
+      if (  handleWorkflowMetaChanges( workflowMeta ) ) { 
+    	  
+    	  // If the workflow is not running, start the workflow...
+    	  //
+    	  if ( !isRunning() ) {
           try {
 
             // Make sure we clear the log before executing again...
@@ -3130,7 +3139,6 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             }
 
             WorkflowMeta runWorkflowMeta;
-
 
             runWorkflowMeta = new WorkflowMeta( hopGui.getVariables(), workflowMeta.getFilename(), workflowMeta.getMetadataProvider() );
 
@@ -3177,6 +3185,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             // Link to the new workflowTracker!
             workflowGridDelegate.workflowTracker = workflow.getWorkflowTracker();
 
+            updateGui();
+            
             // Attach a listener to notify us that the pipeline has finished.
             //
             workflow.addWorkflowFinishedListener( workflow -> HopGuiWorkflowGraph.this.jobFinished() );
@@ -3196,13 +3206,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           m.setMessage( BaseMessages.getString( PKG, "WorkflowLog.Dialog.WorkflowIsAlreadyRunning.Message" ) );
           m.open();
         }
-      } else {
-        if ( workflowMeta.hasChanged() ) {
-          showSaveFileMessage();
-        }
-      }
-      updateGui();
-    }
+      } else {       
+          showSaveFileMessage();        
+      }    
   }
 
   public void showSaveFileMessage() {
@@ -3253,12 +3259,21 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     hopGui.setUndoMenu( workflowMeta );
   }
 
-  public void handleWorkflowMetaChanges( WorkflowMeta workflowMeta ) throws HopException {
+  /**
+   * Handle if workflow filename is set and changed saved
+   * 
+   * Prompt auto save feature...
+   * 
+   * @param workflowMeta
+   * @return true if workflow meta has name and if changed is saved
+   * @throws HopException 
+   */
+  public boolean handleWorkflowMetaChanges( WorkflowMeta workflowMeta ) throws HopException {
     if ( workflowMeta.hasChanged() ) {
-      if ( hopGui.getProps().getAutoSave() ) {
+      if ( StringUtils.isNotEmpty(workflowMeta.getFilename()) && hopGui.getProps().getAutoSave() ) {
         if ( log.isDetailed() ) {
           log.logDetailed( BaseMessages.getString( PKG, "WorkflowLog.Log.AutoSaveFileBeforeRunning" ) );
-        }
+        }        
         save();
       } else {
         MessageDialogWithToggle md =
@@ -3274,12 +3289,23 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               BaseMessages.getString( PKG, "System.Button.No" ) },
             0, BaseMessages.getString( PKG, "WorkflowLog.Dialog.SaveChangedFile.Toggle" ), hopGui.getProps().getAutoSave() );
         int answer = md.open();
+        
         if ( ( answer & 0xFF ) == 0 ) {
-          save();
+        	if ( StringUtils.isEmpty( workflowMeta.getFilename() ) ) {
+                // Ask for the filename: saveAs
+                //
+        	    String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+        	    if ( filename != null ) {
+        	    	filename = hopGui.getVariables().environmentSubstitute( filename );         	    	
+        	    	saveAs(filename);
+        	    }
+        	}
         }
         hopGui.getProps().setAutoSave( md.getToggleState() );
       }
     }
+    
+    return  StringUtils.isNotEmpty(workflowMeta.getFilename()) && !workflowMeta.hasChanged();
   }
 
   private ActionCopy lastChained = null;
@@ -3443,14 +3469,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
    *
    * @return value of fileType
    */
-  @Override public HopWorkflowFileType getFileType() {
+  @Override public HopWorkflowFileType<WorkflowMeta> getFileType() {
     return fileType;
   }
 
   /**
    * @param fileType The fileType to set
    */
-  public void setFileType( HopWorkflowFileType fileType ) {
+  public void setFileType( HopWorkflowFileType<WorkflowMeta> fileType ) {
     this.fileType = fileType;
   }
 

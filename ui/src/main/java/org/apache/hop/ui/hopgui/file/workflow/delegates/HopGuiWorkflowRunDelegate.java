@@ -137,11 +137,7 @@ public class HopGuiWorkflowRunDelegate {
         return;
       }
 
-      if ( workflowMeta.hasChanged() ) {
-        workflowGraph.showSaveFileMessage();
-      }
-
-      workflowGraph.startJob( executionConfiguration );
+      workflowGraph.start( executionConfiguration );
     }
   }
 
