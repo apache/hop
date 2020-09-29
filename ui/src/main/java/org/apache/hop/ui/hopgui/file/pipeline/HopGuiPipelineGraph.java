@@ -3283,8 +3283,21 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         messageDialog.setMessage( "Do you want to save file '" + buildTabName() + "' before closing?" );
         int answer = messageDialog.open();
         if ( ( answer & SWT.YES ) != 0 ) {
-          save();
-          return true;
+        	if ( StringUtils.isEmpty( this.getFilename() ) ) {
+        		// Ask for the filename
+        		//
+        		String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+        		if ( filename == null ) {
+        			return false;         		
+        		}
+        		
+        		filename = hopGui.getVariables().environmentSubstitute( filename );         	    	
+        		saveAs(filename);
+        	}
+        	else {
+        		save();       
+        	}
+            return true;   
         }
         if ( ( answer & SWT.NO ) != 0 ) {
           // User doesn't want to save but close
