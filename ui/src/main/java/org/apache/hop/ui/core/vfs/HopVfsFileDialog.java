@@ -810,23 +810,23 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
         int cmp;
         switch ( sortIndex ) {
           case 0:
-            String name1=child1.getName().getBaseName().toLowerCase();
-            String name2=child2.getName().getBaseName().toLowerCase();
-            cmp= name1.compareTo( name2 );
+            String name1=child1.getName().getBaseName();
+            String name2=child2.getName().getBaseName();
+            cmp = name1.compareToIgnoreCase( name2 );
             break;
           case 1:
-              long time1 = child1.getContent().getLastModifiedTime();
-              long time2 = child2.getContent().getLastModifiedTime();
-              cmp= Long.valueOf( time1 ).compareTo( Long.valueOf(time2) );
-              break;            
+            long time1 = child1.getContent().getLastModifiedTime();
+            long time2 = child2.getContent().getLastModifiedTime();
+            cmp = Long.compare( time1, time2);
+            break;            
           case 2:
             long size1 = child1.getContent().getSize();
             long size2 = child2.getContent().getSize();
-            cmp= Long.valueOf( size1 ).compareTo( Long.valueOf(size2) );
+            cmp = Long.compare( size1, size2 );
             break;
 
           default:
-            cmp=0;
+            cmp = 0;
         }
         if (ascending) {
           return -cmp;
