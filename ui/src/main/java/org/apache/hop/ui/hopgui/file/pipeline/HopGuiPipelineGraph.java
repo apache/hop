@@ -1614,7 +1614,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void setZoomLabel() {
     Combo combo = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
-    if ( combo == null ) {
+    if ( combo == null || combo.isDisposed() ) {
       return;
     }
     String newString = Math.round( magnification * 100 ) + "%";
