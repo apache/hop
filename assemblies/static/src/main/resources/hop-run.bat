@@ -1,4 +1,4 @@
-
+setlocal
 set LIBSPATH=lib
 set SWTJAR=libswt\win64
 
