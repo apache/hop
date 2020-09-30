@@ -10,25 +10,6 @@ if %_temphelp%==1 (GOTO Help) ELSE (GOTO NormalStart)
 
 :Help
 echo ===[HopRun - hop-run.bat]=================================================
-echo Usage: ^<main class^> [-ho] [-e=^<environment^>] [-f=^<filename^>] [-j=^<project^>]
-echo                     [-l=^<level^>] [-r=^<runConfigurationName^>] [-p=^<parameters^>[,
-echo                     ^<parameters^>...]]... [-s=^<systemProperties^>[,
-echo                     ^<systemProperties^>...]]...
-echo   -e, --environment=^<environment^>
-echo                             The name of the lifecycle environment to use
-echo   -f, --file=^<filename^>     The filename of the workflow or pipeline to run
-echo   -h, --help                Displays this help message and quits.
-echo   -j, --project=^<project^>   The name of the project to use
-echo   -l, --level=^<level^>       The debug level, one of NONE, MINIMAL, BASIC, DETAILED,
-echo                               DEBUG, ROWLEVEL
-echo   -o, --printoptions        Print the used options
-echo   -p, --parameters=^<parameters^>[,^<parameters^>...]
-echo                             A comma separated list of PARAMETER=VALUE pairs
-echo   -r, --runconfig=^<runConfigurationName^>
-echo                             The name of the Run Configuration to use
-echo   -s, --system-properties=^<systemProperties^>[,^<systemProperties^>...]
-echo                             A comma separated list of KEY=VALUE pairs
-echo.
 echo.
 echo Example:
 echo   hop-run.bat --file=C:\Users\usbra\Desktop\converted_financial_metrics\update_dashboard_financials.hwf --environment=converted_financial_metrics --project=converted_financial_metrics --runconfig=local

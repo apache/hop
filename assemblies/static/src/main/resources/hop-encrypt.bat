@@ -15,7 +15,7 @@ if not "%HOP_JAVA_HOME%"=="" (
 
 REM # Settings for all OSses
 
-if "%HOP_OPTIONS%"=="" set HOP_OPTIONS=-Xmx2048m
+if "%HOP_OPTIONS%"=="" set HOP_OPTIONS=-Xmx64m
 
 REM
 REM If the user passes in DEBUG as the first parameter, it starts Hop in debugger mode and opens port 5009
@@ -37,11 +37,12 @@ if not "%HOP_SHARED_JDBC_FOLDER%"=="" (
 
 set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLATFORM_OS=Windows
 set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLATFORM_RUNTIME=GUI
-echo ===[Environment Settings - hop-gui.bat]===================================
+echo ===[Environment Settings - hop-encrypt.bat]====================================
 echo.
 echo Java identified as %_HOP_JAVA%
 echo.
 echo HOP_OPTIONS=%HOP_OPTIONS%
+echo.
 echo.
 rem ===[Collect command line arguments...]======================================
 set _cmdline=
@@ -53,10 +54,10 @@ goto TopArg
 :EndArg
 
 echo Command to start Hop will be:
-echo %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.config.HopConfig %_cmdline%
+echo %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.core.encryption.Encr %_cmdline%
 echo.
-echo ===[Starting HopConfig]=========================================================
+echo ===[Starting HopEncrypt]=========================================================
 
-%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.config.HopConfig %_cmdline%
+%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.core.encryption.Encr %_cmdline%
 @echo off
 :End
