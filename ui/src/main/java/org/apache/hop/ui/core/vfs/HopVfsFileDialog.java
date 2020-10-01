@@ -445,7 +445,7 @@ public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
     TreeColumn folderColumn = new TreeColumn( wBrowser, SWT.LEFT );
     folderColumn.setText( "Name" );
-    //folderColumn.setWidth( (int) ( 200 * props.getZoomFactor() ) );
+    folderColumn.setWidth( (int) ( 200 * props.getZoomFactor() ) );
     folderColumn.addListener( SWT.Selection, e->browserColumnSelected(0) );
       
     TreeColumn modifiedColumn = new TreeColumn( wBrowser, SWT.LEFT );
