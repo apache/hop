@@ -77,8 +77,8 @@ public class ProjectsGuiPlugin {
   public static final String ID_TOOLBAR_ENVIRONMENT_ADD = "toolbar-50030-environment-add";
   public static final String ID_TOOLBAR_ENVIRONMENT_DELETE = "toolbar-50040-environment-delete";
 
-  public static final String BROWSER_TOOLBAR_PARENT_ID = "HopVfsFileDialog-BrowserToolbar";
-  private static final String BROWSER_ITEM_ID_NAVIGATE_PROJECT_HOME = "0005-navigate-project-home"; // right next to Home button
+  public static final String NAVIGATE_TOOLBAR_PARENT_ID = "HopVfsFileDialog-NavigateToolbar";
+  private static final String NAVIGATE_ITEM_ID_NAVIGATE_PROJECT_HOME = "0005-navigate-project-home"; // right next to Home button
 
   /**
    * Automatically instantiated when the toolbar widgets etc need it
@@ -678,8 +678,8 @@ public class ProjectsGuiPlugin {
   // Add an e button to the file dialog browser toolbar
   //
   @GuiToolbarElement(
-    root = BROWSER_TOOLBAR_PARENT_ID,
-    id = BROWSER_ITEM_ID_NAVIGATE_PROJECT_HOME,
+    root = NAVIGATE_TOOLBAR_PARENT_ID,
+    id = NAVIGATE_ITEM_ID_NAVIGATE_PROJECT_HOME,
     toolTip = "Navigate to the project home directory",
     image = "project.svg"
   )
