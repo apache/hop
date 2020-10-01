@@ -1270,7 +1270,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public void setZoomLabel() {
     Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
-    if ( zoomLabel == null ) {
+    if ( zoomLabel == null || zoomLabel.isDisposed() ) {
       return;
     }
     String newString = Math.round( magnification * 100 ) + "%";
@@ -1350,7 +1350,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private void readMagnification() {
     float oldMagnification = magnification;
     Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
-    if ( zoomLabel == null ) {
+    if ( zoomLabel == null || zoomLabel.isDisposed()) {
       return;
     }
     String possibleText = zoomLabel.getText();

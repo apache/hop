@@ -764,7 +764,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     //
     MenuItem undoItem = mainMenuWidgets.findMenuItem( ID_MAIN_MENU_EDIT_UNDO );
     MenuItem redoItem = mainMenuWidgets.findMenuItem( ID_MAIN_MENU_EDIT_REDO );
-    if ( undoItem == null || redoItem == null ) {
+    if ( undoItem == null || redoItem == null  || undoItem.isDisposed() || redoItem.isDisposed() ) {
       return;
     }
 
