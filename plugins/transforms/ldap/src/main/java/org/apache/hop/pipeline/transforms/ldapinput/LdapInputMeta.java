@@ -22,6 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import static org.apache.hop.core.ICheckResult.*;
+
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -31,9 +34,9 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaInteger;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -45,8 +48,6 @@ import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
-
-import java.util.List;
 
 @Transform(
 		id = "LDAPInput",
@@ -659,7 +660,7 @@ public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITran
         } else {
           inputFields[ i ].setRepeated( false );
         }
-        inputFields[ i ].setTrimType( ValueMetaString.getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
+        inputFields[ i ].setTrimType( ValueMetaBase.getTrimTypeByCode( XmlHandler.getTagValue( fnode, "trim_type" ) ) );
 
         inputFields[ i ].setFormat( XmlHandler.getTagValue( fnode, "format" ) );
         inputFields[ i ].setCurrencySymbol( XmlHandler.getTagValue( fnode, "currency" ) );
@@ -817,11 +818,11 @@ public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITran
     // Check output fields
     if ( inputFields.length == 0 ) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "LdapInputMeta.CheckResult.NoOutputFields" ), transformMeta );
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "LdapInputMeta.CheckResult.OutputFieldsOk" ), transformMeta );
     }
     remarks.add( cr );
@@ -829,11 +830,11 @@ public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITran
     // See if we get input...
     if ( input.length > 0 ) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "LdapInputMeta.CheckResult.NoInputExpected" ), transformMeta );
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "LdapInputMeta.CheckResult.NoInput" ), transformMeta );
     }
     remarks.add( cr );
@@ -841,11 +842,11 @@ public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITran
     // Check hostname
     if ( Utils.isEmpty( Host ) ) {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
+        new CheckResult( TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "LdapInputMeta.CheckResult.HostnameMissing" ), transformMeta );
     } else {
       cr =
-        new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+        new CheckResult( TYPE_RESULT_OK, BaseMessages.getString(
           PKG, "LdapInputMeta.CheckResult.HostnameOk" ), transformMeta );
     }
     remarks.add( cr );
@@ -853,11 +854,11 @@ public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITran
     if ( isDynamicSearch() ) {
       if ( Utils.isEmpty( dynamicSeachFieldName ) ) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "LdapInputMeta.CheckResult.DynamicSearchBaseFieldNameMissing" ), transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "LdapInputMeta.CheckResult.DynamicSearchBaseFieldNameOk" ), transformMeta );
       }
       remarks.add( cr );
@@ -865,11 +866,11 @@ public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITran
       // Check search base
       if ( Utils.isEmpty( searchBase ) ) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_WARNING, BaseMessages.getString(
             PKG, "LdapInputMeta.CheckResult.SearchBaseMissing" ), transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "LdapInputMeta.CheckResult.SearchBaseOk" ), transformMeta );
       }
       remarks.add( cr );
@@ -877,11 +878,11 @@ public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITran
     if ( isDynamicFilter() ) {
       if ( Utils.isEmpty( dynamicFilterFieldName ) ) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "LdapInputMeta.CheckResult.DynamicFilterFieldNameMissing" ), transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "LdapInputMeta.CheckResult.DynamicFilterFieldNameOk" ), transformMeta );
       }
       remarks.add( cr );
@@ -889,11 +890,11 @@ public class LdapInputMeta extends BaseTransformMeta implements ILdapMeta, ITran
       // Check filter String
       if ( Utils.isEmpty( filterString ) ) {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_WARNING, BaseMessages.getString(
             PKG, "LdapInputMeta.CheckResult.FilterStringMissing" ), transformMeta );
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "LdapInputMeta.CheckResult.FilterStringOk" ), transformMeta );
       }
       remarks.add( cr );
