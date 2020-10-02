@@ -31,21 +31,21 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
  * @since 21-09-2007
  */
 public class LdapOutputData extends BaseTransformData implements ITransformData {
-  public LdapConnection connection;
-  public int indexOfDNField;
-  public int[] fieldStream;
-  public String[] fieldsAttribute;
-  public int nrFields;
-  public int nrFieldsToUpdate;
-  public String separator;
-  public String[] attributes;
-  public String[] attributesToUpdate;
+  LdapConnection connection;
+  int indexOfDNField;
+  int[] fieldStream;
+  String[] fieldsAttribute;
+  int nrFields;
+  int nrFieldsToUpdate;
+  String separator;
+  String[] attributes;
+  String[] attributesToUpdate;
 
-  public int[] fieldStreamToUpdate;
-  public String[] fieldsAttributeToUpdate;
+  int[] fieldStreamToUpdate;
+  String[] fieldsAttributeToUpdate;
 
-  public int indexOfOldDNField;
-  public int indexOfNewDNField;
+  int indexOfOldDNField;
+  int indexOfNewDNField;
 
   public LdapOutputData() {
     super();

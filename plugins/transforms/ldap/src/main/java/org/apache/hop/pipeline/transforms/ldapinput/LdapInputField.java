@@ -337,10 +337,8 @@ public class LdapInputField implements Cloneable {
 
   public void setRealAttribute( String realfieldattribute ) {
     this.realAttribute = realfieldattribute;
-    if ( !Utils.isEmpty( realfieldattribute ) ) {
-      if ( realfieldattribute.equals( ATTRIBUTE_OBJECT_SID ) ) {
+    if ( !Utils.isEmpty( realfieldattribute ) &&  realfieldattribute.equals( ATTRIBUTE_OBJECT_SID ) ) {
         this.objectSid = true;
-      }
     }
   }
 
