@@ -56,7 +56,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ldapoutput.html"
 )
 public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
-  private static Class<?> PKG = LdapOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> classFromResourcesPackage = LdapOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Flag indicating that we use authentication for connection
@@ -66,7 +66,7 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
   /**
    * The Host name
    */
-  private String Host;
+  private String host;
 
   /**
    * The User name
@@ -124,18 +124,18 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
   /**
    * The operations description
    */
-  public static final String[] operationTypeDesc = {
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Insert" ),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Upsert" ),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Update" ),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Add" ),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Delete" ),
-    BaseMessages.getString( PKG, "LdapOutputMeta.operationType.Rename" ) };
+  static final String[] operationTypeDesc = {
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Insert" ),
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Upsert" ),
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Update" ),
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Add" ),
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Delete" ),
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Rename" ) };
 
   /**
    * The operations type codes
    */
-  public static final String[] operationTypeCode = { "insert", "upsert", "update", "add", "delete", "rename" };
+  static final String[] operationTypeCode = { "insert", "upsert", "update", "add", "delete", "rename" };
 
   public static final int OPERATION_TYPE_INSERT = 0;
 
@@ -155,13 +155,13 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
    * The referrals description
    */
   public static final String[] referralTypeDesc = {
-    BaseMessages.getString( PKG, "LdapOutputMeta.referralType.Follow" ),
-    BaseMessages.getString( PKG, "LdapOutputMeta.referralType.Ignore" ) };
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.referralType.Follow" ),
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.referralType.Ignore" ) };
 
   /**
    * The referrals type codes
    */
-  public static final String[] referralTypeCode = { "follow", "ignore" };
+  static final String[] referralTypeCode = { "follow", "ignore" };
 
   public static final int REFERRAL_TYPE_FOLLOW = 0;
 
@@ -172,16 +172,16 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
   /**
    * The derefAliasess description
    */
-  public static final String[] derefAliasesTypeDesc = {
-    BaseMessages.getString( PKG, "LdapOutputMeta.derefAliasesType.Always" ),
-    BaseMessages.getString( PKG, "LdapOutputMeta.derefAliasesType.Never" ),
-    BaseMessages.getString( PKG, "LdapOutputMeta.derefAliasesType.Searching" ),
-    BaseMessages.getString( PKG, "LdapOutputMeta.derefAliasesType.Finding" ) };
+  static final String[] derefAliasesTypeDesc = {
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Always" ),
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Never" ),
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Searching" ),
+    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Finding" ) };
 
   /**
    * The derefAliasess type codes
    */
-  public static final String[] derefAliasesTypeCode = { "always", "never", "searching", "finding" };
+  static final String[] derefAliasesTypeCode = { "always", "never", "searching", "finding" };
 
   public static final int DEREFALIASES_TYPE_ALWAYS = 0;
 
@@ -458,14 +458,14 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
    * @return Returns the host name.
    */
   public String getHost() {
-    return Host;
+    return host;
   }
 
   /**
    * @param host The host to set.
    */
   public void setHost( String host ) {
-    this.Host = host;
+    this.host = host;
   }
 
   /**
@@ -649,7 +649,7 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     StringBuilder retval = new StringBuilder( 500 );
 
     retval.append( "    " ).append( XmlHandler.addTagValue( "useauthentication", useAuthentication ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "host", Host ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "host", host ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "username", userName ) );
     retval.append( "    " ).append(
       XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
@@ -694,7 +694,7 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     try {
 
       useAuthentication = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useauthentication" ) );
-      Host = XmlHandler.getTagValue( transformNode, "host" );
+      host = XmlHandler.getTagValue( transformNode, "host" );
       userName = XmlHandler.getTagValue( transformNode, "username" );
       setPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "password" ) ) );
 
@@ -747,13 +747,13 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
       useCertificate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useCertificate" ) );
 
     } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( PKG, "LdapOutputMeta.UnableToLoadFromXML" ), e );
+      throw new HopXmlException( BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.UnableToLoadFromXML" ), e );
     }
   }
 
   public void setDefault() {
     useAuthentication = false;
-    Host = "";
+    host = "";
     userName = "";
     password = "";
     port = "389";
@@ -793,23 +793,23 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     if ( input.length > 0 ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "LdapOutputMeta.CheckResult.NoInputExpected" ), transformMeta );
+          classFromResourcesPackage, "LdapOutputMeta.CheckResult.NoInputExpected" ), transformMeta );
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "LdapOutputMeta.CheckResult.NoInput" ), transformMeta );
+          classFromResourcesPackage, "LdapOutputMeta.CheckResult.NoInput" ), transformMeta );
     }
     remarks.add( cr );
 
     // Check hostname
-    if ( Utils.isEmpty( Host ) ) {
+    if ( Utils.isEmpty( host ) ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "LdapOutputMeta.CheckResult.HostnameMissing" ), transformMeta );
+          classFromResourcesPackage, "LdapOutputMeta.CheckResult.HostnameMissing" ), transformMeta );
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "LdapOutputMeta.CheckResult.HostnameOk" ), transformMeta );
+          classFromResourcesPackage, "LdapOutputMeta.CheckResult.HostnameOk" ), transformMeta );
     }
     remarks.add( cr );
 
@@ -817,11 +817,11 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     if ( updateLookup.length == 0 ) {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          PKG, "LdapOutputUpdateMeta.CheckResult.NoFields" ), transformMeta );
+          classFromResourcesPackage, "LdapOutputUpdateMeta.CheckResult.NoFields" ), transformMeta );
     } else {
       cr =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          PKG, "LdapOutputUpdateMeta.CheckResult.FieldsOk" ), transformMeta );
+          classFromResourcesPackage, "LdapOutputUpdateMeta.CheckResult.FieldsOk" ), transformMeta );
     }
 
   }
