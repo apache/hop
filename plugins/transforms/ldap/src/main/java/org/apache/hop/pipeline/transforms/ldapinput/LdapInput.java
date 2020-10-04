@@ -367,7 +367,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> imple
     }
     // Set the page size?
     if ( meta.isPaging() ) {
-      data.connection.SetPagingSize( Const.toInt( environmentSubstitute( meta.getPageSize() ), -1 ) );
+      data.connection.setPagingSize( Const.toInt( environmentSubstitute( meta.getPageSize() ), -1 ) );
     }
   }
 

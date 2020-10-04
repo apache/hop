@@ -74,7 +74,7 @@ public class LdapMockProtocol extends LdapProtocol {
   }
 
   @Override
-  public void close() throws HopException {
+  public void close() {
     mockContext = null;
   }
 }
