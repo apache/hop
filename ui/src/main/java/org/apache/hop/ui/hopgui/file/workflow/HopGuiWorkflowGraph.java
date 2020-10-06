@@ -602,10 +602,16 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       } else {
         WorkflowHopMeta hop = findWorkflowHop( real.x, real.y );
         if ( hop != null ) {
-          // A hop: show the hop context menu in the mouseUp() listener
+          // User held control and clicked a hop between steps - We want to flip the active state of the hop.
           //
-          clickedWorkflowHop = hop;
-
+          if ( e.button == 2 || ( e.button == 1 && control ) ) {
+            hop.setEnabled(!hop.isEnabled());
+            updateGui();
+          } else {
+            // A hop: show the hop context menu in the mouseUp() listener
+            //
+            clickedWorkflowHop = hop;
+          }
         } else {
           // No area-owner means: background:
           //
