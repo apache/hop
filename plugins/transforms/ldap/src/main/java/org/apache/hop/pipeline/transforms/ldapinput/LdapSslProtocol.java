@@ -42,20 +42,19 @@ public class LdapSslProtocol extends LdapProtocol {
   public LdapSslProtocol( ILogChannel log, IVariables variables, ILdapMeta meta,
                           Collection<String> binaryAttributes ) {
     super( log, variables, meta, binaryAttributes );
-    String trustStorePath = null;
-    String trustStorePassword = null;
-    boolean trustAllCertificates = false;
 
     if ( meta.isUseCertificate() ) {
       trustStorePath = variables.environmentSubstitute( meta.getTrustStorePath() );
       trustStorePassword = Utils.resolvePassword( variables,
         meta.getTrustStorePassword() );
       trustAllCertificates = meta.isTrustAllCertificates();
+    }else {
+      trustAllCertificates = false;
+      trustStorePath = null;
+      trustStorePassword = null;
     }
 
-    this.trustAllCertificates = trustAllCertificates;
-    this.trustStorePath = trustStorePath;
-    this.trustStorePassword = trustStorePassword;
+    
   }
 
   @Override

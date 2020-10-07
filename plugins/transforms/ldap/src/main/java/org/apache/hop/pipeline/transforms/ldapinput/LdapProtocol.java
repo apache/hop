@@ -1,4 +1,5 @@
-/*! ******************************************************************************
+/*
+ * ! ******************************************************************************
  *
  * Hop : The Hop Orchestration Platform
  *
@@ -6,23 +7,20 @@
  *
  *******************************************************************************
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
  *
  ******************************************************************************/
 
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import com.google.common.base.Joiner;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
@@ -43,7 +41,13 @@ import java.util.Set;
  * Class encapsulating Ldap protocol configuration
  */
 public class LdapProtocol {
-  private static Class<?> PKG = LdapProtocol.class; // for i18n purposes, needed by Translator!!
+
+  private static Class<?> classFromResourcesPackage = LdapProtocol.class; // for i18n purposes,
+                                                                          // needed by Translator!!
+
+  private static final String CONNECTION_PREFIX = "ldap://";
+  
+  public static final String NAME = "";
 
   private final String hostname;
 
@@ -63,38 +67,40 @@ public class LdapProtocol {
     return ctx;
   }
 
-  public LdapProtocol( ILogChannel log, IVariables variables, ILdapMeta meta,
-                       Collection<String> binaryAttributes ) {
+  public LdapProtocol(ILogChannel log, IVariables variables, ILdapMeta meta,
+      Collection<String> binaryAttributes) {
     this.log = log;
-    hostname = variables.environmentSubstitute( meta.getHost() );
-    port = Const.toInt( variables.environmentSubstitute( meta.getPort() ), LdapConnection.DEFAULT_PORT );
+    hostname = variables.environmentSubstitute(meta.getHost());
+    port =
+        Const.toInt(variables.environmentSubstitute(meta.getPort()), LdapConnection.DEFAULT_PORT);
     derefAliases = meta.getDerefAliases();
     referral = meta.getReferrals();
 
-    if ( binaryAttributes == null ) {
-      this.binaryAttributes = new HashSet<String>();
+    if (binaryAttributes == null) {
+      this.binaryAttributes = new HashSet<>();
     } else {
-      this.binaryAttributes = new HashSet<String>( binaryAttributes );
+      this.binaryAttributes = new HashSet<>(binaryAttributes);
     }
   }
 
   protected String getConnectionPrefix() {
-    return "ldap://";
+    return CONNECTION_PREFIX;
   }
 
   /**
-   * Method signature used by factory to get display name, method should exist in every ldap protocol
+   * Method signature used by factory to get display name, method should exist in every ldap
+   * protocol
    *
    * @return the display name
    */
   public static String getName() {
-    return "LDAP";
+    return NAME;
   }
 
-  protected void setupEnvironment( Map<String, String> env, String username, String password ) throws HopException {
-    env.put( Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory" );
-    env.put( "java.naming.ldap.derefAliases", derefAliases );
-    env.put( Context.REFERRAL, referral );
+  protected void setupEnvironment(Map<String, String> env, String username, String password) throws HopException {
+    env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+    env.put("java.naming.ldap.derefAliases", derefAliases);
+    env.put(Context.REFERRAL, referral);
 
     if ( hostname.startsWith( getConnectionPrefix() ) ) {
       env.put( Context.PROVIDER_URL, hostname + ":" + port );
@@ -102,64 +108,68 @@ public class LdapProtocol {
       env.put( Context.PROVIDER_URL, getConnectionPrefix() + hostname + ":" + port );
     }
 
-    if ( !Utils.isEmpty( username ) ) {
-      env.put( Context.SECURITY_PRINCIPAL, username );
-      env.put( Context.SECURITY_CREDENTIALS, password );
-      env.put( Context.SECURITY_AUTHENTICATION, "simple" );
+    if (!Utils.isEmpty(username)) {
+      env.put(Context.SECURITY_PRINCIPAL, username);
+      env.put(Context.SECURITY_CREDENTIALS, password);
+      env.put(Context.SECURITY_AUTHENTICATION, "simple");
     } else {
-      env.put( Context.SECURITY_AUTHENTICATION, "none" );
+      env.put(Context.SECURITY_AUTHENTICATION, "none");
     }
 
-    if ( binaryAttributes.size() > 0 ) {
-      env.put( "java.naming.ldap.attributes.binary", Joiner.on( " " ).join( binaryAttributes ) );
+    if (!binaryAttributes.isEmpty()) {
+      env.put("java.naming.ldap.attributes.binary", String.join(" ", binaryAttributes));
     }
   }
 
-  protected InitialLdapContext createLdapContext( Hashtable<String, String> env ) throws NamingException {
-    return new InitialLdapContext( env, null );
+  protected InitialLdapContext createLdapContext(Hashtable<String, String> env)
+      throws NamingException {
+    return new InitialLdapContext(env, null);
   }
 
-  protected void doConnect( String username, String password ) throws HopException {
-    Hashtable<String, String> env = new Hashtable<String, String>();
-    setupEnvironment( env, username, password );
+  protected void doConnect(String username, String password) throws HopException {
+    Hashtable<String, String> env = new Hashtable<>();
+    setupEnvironment(env, username, password);
     try {
-      ctx = createLdapContext( env );
-    } catch ( NamingException e ) {
-      throw new HopException( e );
+      ctx = createLdapContext(env);
+    } catch (NamingException e) {
+      throw new HopException(e);
     }
   }
 
-  public final void connect( String username, String password ) throws HopException {
-    Hashtable<String, String> env = new Hashtable<String, String>();
-    setupEnvironment( env, username, password );
+  public final void connect(String username, String password) throws HopException {
+    Hashtable<String, String> env = new Hashtable<>();
+    setupEnvironment(env, username, password);
     try {
       /* Establish LDAP association */
-      doConnect( username, password );
+      doConnect(username, password);
 
-      if ( log.isBasic() ) {
-        log.logBasic( BaseMessages.getString( PKG, "LdapInput.Log.ConnectedToServer", hostname, Const.NVL(
-          username, "" ) ) );
+      if (log.isBasic()) {
+        log.logBasic(BaseMessages.getString(classFromResourcesPackage,
+            "LdapInput.Log.ConnectedToServer", hostname, Const.NVL(username, "")));
       }
-      if ( log.isDetailed() ) {
-        log.logDetailed( BaseMessages.getString( PKG, "LdapInput.ClassUsed.Message", ctx.getClass().getName() ) );
+      if (log.isDetailed()) {
+        log.logDetailed(BaseMessages.getString(classFromResourcesPackage,
+            "LdapInput.ClassUsed.Message", ctx.getClass().getName()));
       }
 
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "LDAPinput.Exception.ErrorConnecting", e
-        .getMessage() ), e );
+    } catch (Exception e) {
+      throw new HopException(BaseMessages.getString(classFromResourcesPackage,
+          "LDAPinput.Exception.ErrorConnecting", e.getMessage()), e);
     }
   }
 
   public void close() throws HopException {
-    if ( ctx != null ) {
+    if (ctx != null) {
       try {
         ctx.close();
-        if ( log.isBasic() ) {
-          log.logBasic( BaseMessages.getString( PKG, "LdapInput.log.Disconnection.Done" ) );
+        if (log.isBasic()) {
+          log.logBasic(BaseMessages.getString(classFromResourcesPackage,
+              "LdapInput.log.Disconnection.Done"));
         }
-      } catch ( Exception e ) {
-        log.logError( BaseMessages.getString( PKG, "LdapInput.Exception.ErrorDisconecting", e.toString() ) );
-        log.logError( Const.getStackTracker( e ) );
+      } catch (Exception e) {
+        log.logError(BaseMessages.getString(classFromResourcesPackage,
+            "LdapInput.Exception.ErrorDisconecting", e.toString()));
+        log.logError(Const.getStackTracker(e));
       } finally {
         ctx = null;
       }

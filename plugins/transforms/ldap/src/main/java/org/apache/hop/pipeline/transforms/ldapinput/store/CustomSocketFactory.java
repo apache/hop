@@ -114,28 +114,27 @@ public class CustomSocketFactory extends SSLSocketFactory {
   }
 
   @Override
-  public Socket createSocket( String host, int port ) throws IOException, UnknownHostException {
+  public Socket createSocket( String host, int port ) throws IOException {
     return factory.createSocket( host, port );
   }
 
   @Override
-  public Socket createSocket( String host, int port, InetAddress client_host, int client_port ) throws IOException, UnknownHostException {
-    return factory.createSocket( host, port, client_host, client_port );
+  public Socket createSocket( String host, int port, InetAddress clientHost, int clientPort ) throws IOException {
+    return factory.createSocket( host, port, clientHost, clientPort );
   }
 
   @Override
-  public Socket createSocket( InetAddress host, int port ) throws IOException, UnknownHostException {
+  public Socket createSocket( InetAddress host, int port ) throws IOException {
     return factory.createSocket( host, port );
   }
 
   @Override
-  public Socket createSocket( InetAddress host, int port, InetAddress client_host, int client_port ) throws IOException, UnknownHostException {
-    return factory.createSocket( host, port, client_host, client_port );
+  public Socket createSocket( InetAddress host, int port, InetAddress clientHost, int clientPort ) throws IOException {
+    return factory.createSocket( host, port, clientHost, clientPort );
   }
 
   @Override
-  public Socket createSocket( Socket socket, String host, int port, boolean autoclose ) throws IOException,
-    UnknownHostException {
+  public Socket createSocket( Socket socket, String host, int port, boolean autoclose ) throws IOException {
     return factory.createSocket( socket, host, port, autoclose );
   }
 
