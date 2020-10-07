@@ -23,7 +23,7 @@ $ docker run -h localhost -p 1389:1389 -p 1636:1636 -p 4444:4444 --name ldap-01 
 ### Preparing for LDAPS test
 
 ```
-openssl s_client -showcerts -connect localhost:1636 </dev/null 2>&1 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > opendj.crt
+$ openssl s_client -showcerts -connect localhost:1636 </dev/null 2>&1 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > opendj.crt
 $ keytool -importcert -file opendj.crt -alias opendj -keystore self-signed.truststore
 Enter keystore password:  changeit
 Re-enter new password: changeit
