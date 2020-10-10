@@ -19,42 +19,38 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.history;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This is simply a list of things you want to store using the audit manager.
- * You can store a list of filenames for example.
- * You can store the list per group and you can specify the type of list.
+ * This is simply a list of things you want to store using the audit manager. You can store a list
+ * of filenames for example. You can store the list per group and you can specify the type of list.
  */
 public class AuditList {
 
-  private List<String> names;
+    private List<String> names;
 
-  public AuditList() {
-    names = new ArrayList<>();
-  }
+    public AuditList() {
+        names = new ArrayList<>();
+    }
 
-  public AuditList( List<String> names ) {
-    this.names = names;
-  }
+    public AuditList(List<String> names) {
+        this.names = names;
+    }
 
-  /**
-   * Gets names
-   *
-   * @return value of names
-   */
-  public List<String> getNames() {
-    return names;
-  }
+    /**
+     * Gets names
+     *
+     * @return value of names
+     */
+    public List<String> getNames() {
+        return names;
+    }
 
-  /**
-   * @param names The names to set
-   */
-  public void setNames( List<String> names ) {
-    this.names = names;
-  }
+    /** @param names The names to set */
+    public void setNames(List<String> names) {
+        this.names = names;
+    }
 }
