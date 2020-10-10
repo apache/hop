@@ -178,7 +178,10 @@ public class PreviewRowsDialog {
 
     Button wClose = new Button( shell, SWT.PUSH );
     wClose.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );
-    wClose.addListener( SWT.Selection, e -> close() );
+    wClose.addListener( SWT.Selection, e -> {
+      askingToStop = true;
+      close();
+    } );
     buttons.add( wClose );
 
     if ( !Utils.isEmpty( loggingText ) ) {
@@ -223,6 +226,7 @@ public class PreviewRowsDialog {
     shell.addShellListener( new ShellAdapter() {
       @Override
       public void shellClosed( ShellEvent e ) {
+        askingToStop = true;
         close();
       }
     } );
@@ -230,6 +234,7 @@ public class PreviewRowsDialog {
     KeyListener escapeListener = new KeyAdapter() {
       @Override public void keyPressed( KeyEvent e ) {
         if (e.keyCode==SWT.ESC) {
+          askingToStop = true;
           close();
         }
       }
