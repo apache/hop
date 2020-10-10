@@ -33,7 +33,7 @@
   </repositories>
 
   <properties>
-    <apache-beam-version>2.23.0</apache-beam-version>
+    <apache-beam-version>2.24.0</apache-beam-version>
     <spark-version>2.4.6</spark-version>
     <flink-version>1.9.3</flink-version>
 
