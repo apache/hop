@@ -76,7 +76,11 @@ public class AuditManager {
     public static final List<AuditEvent> findEvents(
             String group, String type, String operation, int maxNrEvents, boolean unique)
             throws HopException {
-        List<AuditEvent> events = getActive().findEvents(group, type, unique);
+        List<AuditEvent> events =
+                getActive()
+                        .findEvents(
+                                group, type,
+                                unique); // We are getting events based on unique or not.
         Set<String> names = new HashSet<>();
 
         if (operation == null) {
@@ -88,7 +92,7 @@ public class AuditManager {
         for (AuditEvent event : events) {
             if (event.getOperation().equalsIgnoreCase(operation)) {
 
-                if (unique) {
+                if (unique) { // Why to check again?
                     if (!names.contains(event.getName())) {
                         operationEvents.add(event);
                         names.add(event.getName());
