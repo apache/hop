@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.history.local.LocalAuditManager;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -59,48 +60,98 @@ public class AuditManagerTest {
 
     @Test
     public void testEvents() throws HopException {
+        String group = "testEvents";
         IAuditManager mockManager = Mockito.mock(IAuditManager.class);
         AuditManager.getInstance().setActiveAuditManager(mockManager);
 
         List<AuditEvent> events = new ArrayList<>();
-        events.add(new AuditEvent("group1", "type1", "name1", "operation1", new Date()));
-        events.add(new AuditEvent("group1", "type1", "name1", "operation1", new Date()));
+        events.add(new AuditEvent(group, "type1", "name1", "operation1", new Date()));
+        events.add(new AuditEvent(group, "type1", "name2", "operation1", new Date()));
 
-        when(mockManager.findEvents("group1", "type1", false)).thenReturn(events);
+        when(mockManager.findEvents(group, "type1", false)).thenReturn(events);
         List<AuditEvent> allEvents =
-                AuditManager.findEvents("group1", "type1", "operation1", 10, false);
+                AuditManager.findEvents(group, "type1", "operation1", 10, false);
         assertEquals("Not getting all events", 2, allEvents.size());
     }
 
     @Test
     public void testFindUniqueEvents() throws HopException {
+        String group = "testFindUniqueEvents";
         IAuditManager mockManager = Mockito.mock(IAuditManager.class);
         AuditManager.getInstance().setActiveAuditManager(mockManager);
 
         List<AuditEvent> events = new ArrayList<>();
-        events.add(new AuditEvent("group1", "type1", "name1", "operation1", new Date()));
-        events.add(new AuditEvent("group1", "type1", "name1", "operation1", new Date()));
+        events.add(new AuditEvent(group, "type1", "name1", "operation1", new Date()));
+        events.add(new AuditEvent(group, "type1", "name2", "operation1", new Date()));
 
-        when(mockManager.findEvents("group1", "type1", true)).thenReturn(events);
+        when(mockManager.findEvents(group, "type1", true)).thenReturn(events);
         List<AuditEvent> uniqueEvents =
-                AuditManager.findEvents("group1", "type1", "operation1", 10, true);
+                AuditManager.findEvents(group, "type1", "operation1", 10, true);
+        assertEquals("Not getting unique events", 2, uniqueEvents.size());
+    }
+
+    @Test
+    public void testFindAllEventsWithDefaultAuditManager() throws HopException {
+        AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager());
+        String group = "testFindAllEventsWithDefaultAuditManager";
+        AuditManager.clearEvents();
+        AuditManager.registerEvent(group, "type1", "name1", "operation1");
+        AuditManager.registerEvent(group, "type1", "name1", "operation1");
+        AuditManager.registerEvent(group, "type1", "name1", "operation1");
+        AuditManager.registerEvent(group, "type1", "name2", "operation1");
+        AuditManager.registerEvent(group, "type2", "name2", "operation1");
+
+        List<AuditEvent> allEvents =
+                AuditManager.findEvents(group, "type1", "operation1", 10, false);
+        assertEquals("Not getting unique events", 4, allEvents.size());
+        AuditManager.clearEvents();
+    }
+
+    @Test
+    public void testFindUniqueEventsWithDefaultAuditManager() throws HopException {
+        AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager());
+        String group = "testFindUniqueEventsWithDefaultAuditManager";
+        AuditManager.clearEvents();
+        AuditManager.registerEvent(group, "type1", "name1", "operation1");
+        AuditManager.registerEvent(group, "type1", "name1", "operation1");
+
+        List<AuditEvent> uniqueEvents =
+                AuditManager.findEvents(group, "type1", "operation1", 10, true);
         assertEquals("Not getting unique events", 1, uniqueEvents.size());
+        AuditManager.clearEvents();
     }
 
     @Test
     public void testFindMaxEvents() throws HopException {
+        String group = "testFindMaxEvents";
         IAuditManager mockManager = Mockito.mock(IAuditManager.class);
         AuditManager.getInstance().setActiveAuditManager(mockManager);
 
         List<AuditEvent> events = new ArrayList<>();
-        AuditEvent auditEvent =
-                new AuditEvent("group1", "type1", "name1", "operation1", new Date());
-        events.add(auditEvent);
-        events.add(auditEvent);
-        events.add(auditEvent);
-        when(mockManager.findEvents("group1", "type1", false)).thenReturn(events);
+        events.add(new AuditEvent(group, "type1", "name1", "operation1", new Date()));
+        events.add(new AuditEvent(group, "type1", "name2", "operation1", new Date()));
+        events.add(new AuditEvent(group, "type1", "name3", "operation1", new Date()));
+        events.add(new AuditEvent(group, "type1", "name4", "operation1", new Date()));
+        when(mockManager.findEvents(group, "type1", false)).thenReturn(events);
         List<AuditEvent> maxEvents =
-                AuditManager.findEvents("group1", "type1", "operation1", 2, false);
+                AuditManager.findEvents(group, "type1", "operation1", 2, false);
         assertEquals("Not getting unique events", 2, maxEvents.size());
+    }
+
+    @Test
+    public void testClearEvents() throws HopException {
+        AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager());
+        String group = "testClearEvents";
+        AuditManager.registerEvent(group, "type1", "name1", "operation1");
+        AuditManager.registerEvent(group, "type1", "name1", "operation1");
+        assertEquals(
+                "Problem in registering event",
+                2,
+                AuditManager.findEvents(group, "type1", "operation1", 10, false).size());
+        AuditManager.clearEvents();
+        assertEquals(
+                "Problem in clearning event",
+                0,
+                AuditManager.findEvents(group, "type1", "operation1", 10, false).size());
     }
 }

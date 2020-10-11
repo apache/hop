@@ -126,4 +126,11 @@ public interface IAuditManager {
      * @throws HopException
      */
     void saveMap(String group, String type, Map<String, String> map) throws HopException;
+
+    /**
+     * Clear all events.
+     *
+     * @throws HopException
+     */
+    void clearEvents() throws HopException;
 }

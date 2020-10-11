@@ -24,6 +24,7 @@ package org.apache.hop.history.local;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,6 +32,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -346,6 +348,15 @@ public class LocalAuditManager implements IAuditManager {
             new ObjectMapper().writeValue(new File(filename), map);
         } catch (Exception e) {
             throw new HopException("Error saving strings map to file '" + filename + "'", e);
+        }
+    }
+
+    @Override
+    public void clearEvents() throws HopException {
+        try {
+            FileUtils.deleteDirectory(Paths.get(rootFolder).toFile());
+        } catch (IOException e) {
+            throw new HopException(e);
         }
     }
 }
