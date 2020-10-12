@@ -292,7 +292,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
    */
   public MenuItem enableMenuItem( String id, boolean enabled ) {
     MenuItem menuItem = menuItemMap.get( id );
-    if ( menuItem == null ) {
+    if ( menuItem == null || menuItem.isDisposed() ) {
       return null;
     }
     menuItem.setEnabled( enabled );
@@ -326,7 +326,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
    */
   public MenuItem enableMenuItem( IHopFileType fileType, String id, String permission, boolean active ) {
     MenuItem menuItem = menuItemMap.get( id );
-    if ( menuItem == null ) {
+    if ( menuItem == null || menuItem.isDisposed() ) {
       return null;
     }
     boolean hasCapability = fileType.hasCapability( permission );

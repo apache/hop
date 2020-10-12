@@ -29,6 +29,7 @@
         <module>closure</module>
         <module>columnexists</module>
         <module>combinationlookup</module>
+        <module>concatfields</module>
         <module>constant</module>
         <module>creditcardvalidator</module>
         <module>cubeinput</module>

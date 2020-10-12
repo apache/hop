@@ -203,7 +203,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
   public void enableToolbarItem( String id, boolean enabled ) {
     ToolItem toolItem = toolItemMap.get( id );
-    if ( toolItem == null ) {
+    if ( toolItem == null || toolItem.isDisposed()) {
       return;
     }
     if ( enabled != toolItem.isEnabled() ) {
@@ -238,7 +238,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
    */
   public ToolItem enableToolbarItem( IHopFileType fileType, String id, String permission, boolean active ) {
     ToolItem item = findToolItem( id );
-    if (item == null ) {
+    if (item == null || item.isDisposed()) {
       return null;
     }
     boolean hasCapability = fileType.hasCapability( permission );

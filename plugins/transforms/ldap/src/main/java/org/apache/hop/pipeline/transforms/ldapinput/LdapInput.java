@@ -58,8 +58,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> imple
   @Override
   public boolean processRow() throws HopException {
 
-    if ( !data.dynamic ) {
-      if ( first ) {
+    if ( !data.dynamic && first) {
 
         first = false;
 
@@ -75,7 +74,6 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> imple
 
         // Search records once
         search( data.staticSearchBase, data.staticFilter );
-      }
     }
 
     Object[] outputRowData = null;
@@ -95,10 +93,8 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> imple
           .getString( outputRowData ) );
       }
 
-      if ( checkFeedback( getLinesInput() ) ) {
-        if ( log.isDetailed() ) {
+      if ( checkFeedback( getLinesInput() ) &&  log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "LdapInput.log.LineRow" ) + getLinesInput() );
-        }
       }
 
       return true;
@@ -140,15 +136,11 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> imple
     if ( first ) {
       first = false;
 
-      if ( meta.isDynamicSearch() ) {
-        if ( Utils.isEmpty( meta.getDynamicSearchFieldName() ) ) {
+      if ( meta.isDynamicSearch() &&  Utils.isEmpty( meta.getDynamicSearchFieldName() ) ) {
           throw new HopException( BaseMessages.getString( PKG, "LdapInput.Error.DynamicSearchFieldMissing" ) );
-        }
       }
-      if ( meta.isDynamicFilter() ) {
-        if ( Utils.isEmpty( meta.getDynamicFilterFieldName() ) ) {
+      if ( meta.isDynamicFilter() &&  Utils.isEmpty( meta.getDynamicFilterFieldName() ) ) {
           throw new HopException( BaseMessages.getString( PKG, "LdapInput.Error.DynamicFilterFieldMissing" ) );
-        }
       }
 
       // Create the output row meta-data
@@ -247,10 +239,8 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> imple
         }
 
         // Do we need to repeat this field if it is null?
-        if ( field.isRepeated() ) {
-          if ( data.previousRow != null && outputRowData[ index ] == null ) {
+        if ( field.isRepeated() &&  data.previousRow != null && outputRowData[ index ] == null ) {
             outputRowData[ index ] = data.previousRow[ index ];
-          }
         }
 
       } // End of loop over fields...
@@ -377,7 +367,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData> imple
     }
     // Set the page size?
     if ( meta.isPaging() ) {
-      data.connection.SetPagingSize( Const.toInt( environmentSubstitute( meta.getPageSize() ), -1 ) );
+      data.connection.setPagingSize( Const.toInt( environmentSubstitute( meta.getPageSize() ), -1 ) );
     }
   }
 

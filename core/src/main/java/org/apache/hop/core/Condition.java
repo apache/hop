@@ -22,6 +22,13 @@
 
 package org.apache.hop.core;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -31,13 +38,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * This class describes a condition in a general meaning.
@@ -275,11 +275,11 @@ public class Condition implements Cloneable, IXml {
   }
 
   public boolean isAtomic() {
-    return list.size() == 0;
+    return list.isEmpty();
   }
 
   public boolean isComposite() {
-    return list.size() != 0;
+    return !list.isEmpty();
   }
 
   public boolean isNegated() {
@@ -557,7 +557,7 @@ public class Condition implements Cloneable, IXml {
       list.add( current );
     } else {
       // Set default operator if not on first position...
-      if ( isComposite() && list.size() > 0 && cb.getOperator() == OPERATOR_NONE ) {
+      if ( isComposite()  && cb.getOperator() == OPERATOR_NONE ) {
         cb.setOperator( OPERATOR_AND );
       }
     }
@@ -664,76 +664,81 @@ public class Condition implements Cloneable, IXml {
   }
 
   public String toString( int level, boolean show_negate, boolean show_operator ) {
-    String retval = "";
+    StringBuilder retval = new StringBuilder();
 
     if ( isAtomic() ) {
       for ( int i = 0; i < level; i++ ) {
-        retval += "  ";
+        retval.append("  ");
       }
 
       if ( show_operator && getOperator() != OPERATOR_NONE ) {
-        retval += getOperatorDesc() + " ";
+        retval.append(getOperatorDesc());
+        retval.append(" ");
       } else {
-        retval += "        ";
+        retval.append("        ");
       }
 
       // Atomic is negated?
       if ( isNegated() && ( show_negate || level > 0 ) ) {
-        retval += "NOT ( ";
+        retval.append("NOT ( ");
       } else {
-        retval += "      ";
+        retval.append("      ");
       }
 
       if ( function == FUNC_TRUE ) {
-        retval += " TRUE";
+        retval.append(" TRUE");
       } else {
-        retval += left_valuename + " " + getFunctionDesc();
+        retval.append(left_valuename + " " + getFunctionDesc());
         if ( function != FUNC_NULL && function != FUNC_NOT_NULL ) {
           if ( right_valuename != null ) {
-            retval += " " + right_valuename;
+            retval.append(" ");
+            retval.append(right_valuename);
           } else {
-            retval += " [" + ( getRightExactString() == null ? "" : getRightExactString() ) + "]";
+            retval.append(" [" + ( getRightExactString() == null ? "" : getRightExactString() ) + "]");
           }
         }
       }
 
       if ( isNegated() && ( show_negate || level > 0 ) ) {
-        retval += " )";
+        retval.append(" )");
       }
 
-      retval += Const.CR;
+      retval.append(Const.CR);
     } else {
       // retval+="<COMP "+level+", "+show_negate+", "+show_operator+">";
 
       // Group is negated?
       if ( isNegated() && ( show_negate || level > 0 ) ) {
         for ( int i = 0; i < level; i++ ) {
-          retval += "  ";
+          retval.append("  ");
         }
-        retval += "NOT" + Const.CR;
+        retval.append("NOT");
+        retval.append(Const.CR);
       }
       // Group is preceded by an operator:
       if ( getOperator() != OPERATOR_NONE && ( show_operator || level > 0 ) ) {
         for ( int i = 0; i < level; i++ ) {
-          retval += "  ";
+          retval.append("  ");
         }
-        retval += getOperatorDesc() + Const.CR;
+        retval.append(getOperatorDesc());
+        retval.append(Const.CR);
       }
       for ( int i = 0; i < level; i++ ) {
-        retval += "  ";
+        retval.append("  ");
       }
-      retval += "(" + Const.CR;
+      retval.append("(" + Const.CR);
       for ( int i = 0; i < list.size(); i++ ) {
         Condition cb = list.get( i );
-        retval += cb.toString( level + 1, true, i > 0 );
+        retval.append(cb.toString( level + 1, true, i > 0 ));
       }
       for ( int i = 0; i < level; i++ ) {
-        retval += "  ";
+        retval.append("  ");
       }
-      retval += ")" + Const.CR;
+      retval.append(")");
+      retval.append(Const.CR);
     }
 
-    return retval;
+    return retval.toString();
   }
 
   @Override
@@ -822,7 +827,7 @@ public class Condition implements Cloneable, IXml {
   }
 
   public String[] getUsedFields() {
-    Hashtable<String, String> fields = new Hashtable<String, String>();
+    Hashtable<String, String> fields = new Hashtable<>();
     getUsedFields( fields );
 
     String[] retval = new String[ fields.size() ];
@@ -836,7 +841,7 @@ public class Condition implements Cloneable, IXml {
     return retval;
   }
 
-  public void getUsedFields( Hashtable<String, String> fields ) {
+  public void getUsedFields( Map<String, String> fields ) {
     if ( isAtomic() ) {
       if ( getLeftValuename() != null ) {
         fields.put( getLeftValuename(), "-" );

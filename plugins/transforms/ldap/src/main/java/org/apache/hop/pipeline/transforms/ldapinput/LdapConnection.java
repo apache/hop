@@ -28,6 +28,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
+import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -47,7 +48,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.PagedResultsControl;
 import javax.naming.ldap.PagedResultsResponseControl;
 import javax.naming.ldap.SortControl;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.Map;
 
 public class LdapConnection {
-  private static Class<?> PKG = LdapInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static Class<?> classFromResourcesPackage = LdapInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int SEARCH_SCOPE_OBJECT_SCOPE = 0;
 
@@ -171,16 +171,16 @@ public class LdapConnection {
     return this.timeLimit;
   }
 
-  public void SetPagingSize( int value ) {
+  public void setPagingSize( int value ) {
     this.pagingSize = value;
   }
 
-  private int GetPagingSize() {
+  private int getPagingSize() {
     return this.pagingSize;
   }
 
   private boolean isPagingUsed() {
-    return ( GetPagingSize() > 0 );
+    return ( getPagingSize() > 0 );
   }
 
   public void search( String searchBase, String filter, int limitRows, String[] attributeReturned, int searchScope ) throws HopException {
@@ -197,7 +197,7 @@ public class LdapConnection {
 
         setSearchBase( attr.get().toString() );
         if ( log.isDetailed() ) {
-          log.logDetailed( BaseMessages.getString( PKG, "LdapInput.SearchBaseFound", getSearchBase() ) );
+          log.logDetailed( BaseMessages.getString( classFromResourcesPackage, "LdapInput.SearchBaseFound", getSearchBase() ) );
         }
       }
 
@@ -249,10 +249,10 @@ public class LdapConnection {
       if ( isPagingUsed() ) {
         // paging is activated
         // Request the paged results control
-        ctlp = new PagedResultsControl( GetPagingSize(), Control.CRITICAL );
+        ctlp = new PagedResultsControl( getPagingSize(), Control.CRITICAL );
         nrCtl++;
         if ( log.isDebug() ) {
-          log.logDebug( BaseMessages.getString( "LdapInput.Log.PageSize", String.valueOf( GetPagingSize() ) ) );
+          log.logDebug( BaseMessages.getString( "LdapInput.Log.PageSize", String.valueOf( getPagingSize() ) ) );
         }
       }
 
@@ -260,10 +260,11 @@ public class LdapConnection {
         Control[] ctls = new Control[ nrCtl ];
         int index = 0;
         if ( ctlk != null ) {
-          ctls[ index++ ] = ctlk;
+          ctls[ index ] = ctlk;
+          index++;
         }
         if ( ctlp != null ) {
-          ctls[ index++ ] = ctlp;
+          ctls[ index ] = ctlp;
         }
         getInitialContext().setRequestControls( ctls );
       }
@@ -285,18 +286,18 @@ public class LdapConnection {
       // The entry exists
       getInitialContext().destroySubcontext( dn );
       if ( log.isDebug() ) {
-        log.logDebug( BaseMessages.getString( PKG, "LDAPinput.Exception.Deleted", dn ) );
+        log.logDebug( BaseMessages.getString( classFromResourcesPackage, "LDAPinput.Exception.Deleted", dn ) );
       }
       return STATUS_DELETED;
     } catch ( NameNotFoundException n ) {
       // The entry is not found
       if ( checkEntry ) {
         throw new HopException(
-          BaseMessages.getString( PKG, "LdapConnection.Error.Deleting.NameNotFound", dn ), n );
+          BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.Deleting.NameNotFound", dn ), n );
       }
       return STATUS_SKIPPED;
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "LdapConnection.Error.Delete", dn ), e );
+      throw new HopException( BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.Delete", dn ), e );
     }
   }
 
@@ -309,7 +310,7 @@ public class LdapConnection {
         Attribute mod = new BasicAttribute( attributes[ i ], values[ i ] );
         if ( log.isDebug() ) {
           log
-            .logDebug( BaseMessages.getString( PKG, "LdapConnection.Update.Attribute", attributes[ i ], values[ i ] ) );
+            .logDebug( BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Update.Attribute", attributes[ i ], values[ i ] ) );
         }
         // Save update action on attribute
         mods[ i ] = new ModificationItem( DirContext.REPLACE_ATTRIBUTE, mod );
@@ -322,11 +323,11 @@ public class LdapConnection {
       // The entry is not found
       if ( checkEntry ) {
         throw new HopException(
-          BaseMessages.getString( PKG, "LdapConnection.Error.Deleting.NameNotFound", dn ), n );
+          BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.Deleting.NameNotFound", dn ), n );
       }
       return STATUS_SKIPPED;
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "LdapConnection.Error.Update", dn ), e );
+      throw new HopException( BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.Update", dn ), e );
     }
   }
 
@@ -340,11 +341,11 @@ public class LdapConnection {
       // The entry is not found
       if ( checkEntry ) {
         throw new HopException(
-          BaseMessages.getString( PKG, "LdapConnection.Error.Deleting.NameNotFound", dn ), n );
+          BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.Deleting.NameNotFound", dn ), n );
       }
       return STATUS_SKIPPED;
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "LdapConnection.Error.Add", dn ), e );
+      throw new HopException( BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.Add", dn ), e );
     }
   }
 
@@ -366,7 +367,7 @@ public class LdapConnection {
       getInitialContext().createSubcontext( dn, attrs );
 
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "LdapConnection.Error.Insert", dn ), e );
+      throw new HopException( BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.Insert", dn ), e );
     }
 
   }
@@ -408,7 +409,7 @@ public class LdapConnection {
       }
 
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "LdapConnection.Error.Upsert", dn ), e );
+      throw new HopException( BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.Upsert", dn ), e );
     }
     return STATUS_SKIPPED;
   }
@@ -482,7 +483,7 @@ public class LdapConnection {
       }
 
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "LdapConnection.Error.Renaming", oldDn, newDn ), e );
+      throw new HopException( BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.Renaming", oldDn, newDn ), e );
     } finally {
       try {
         if ( !deleteRDN ) {
@@ -515,17 +516,12 @@ public class LdapConnection {
    * @throws HopException
    */
   public void close() throws HopException {
-    if ( protocol != null ) {
-      try {
-        protocol.close();
-      } catch ( HopException e ) {
-        throw e;
-      } finally {
-        protocol = null;
-        if ( results != null ) {
-          results = null;
-        }
-      }
+    if (protocol != null) {
+      protocol.close();
+      protocol = null;
+    }
+    if (results != null) {
+      results = null;
     }
   }
 
@@ -553,10 +549,10 @@ public class LdapConnection {
             getInitialContext().setRequestControls(
               new Control[] {
                 new SortControl( getSortingAttributesKeys(), Control.NONCRITICAL ),
-                new PagedResultsControl( GetPagingSize(), cookie, Control.CRITICAL ) } );
+                new PagedResultsControl( getPagingSize(), cookie, Control.CRITICAL ) } );
           } else {
             getInitialContext().setRequestControls(
-              new Control[] { new PagedResultsControl( GetPagingSize(), cookie, Control.CRITICAL ) } );
+              new Control[] { new PagedResultsControl( getPagingSize(), cookie, Control.CRITICAL ) } );
           }
           if ( ( cookie != null ) && ( cookie.length != 0 ) ) {
             // get search result for the page
@@ -566,7 +562,7 @@ public class LdapConnection {
           }
 
         } catch ( Exception e ) {
-          throw new HopException( BaseMessages.getString( PKG, "LdapInput.Exception.ErrorPaging" ), e );
+          throw new HopException( BaseMessages.getString( classFromResourcesPackage, "LdapInput.Exception.ErrorPaging" ), e );
         }
 
         while ( !getSearchResult().hasMoreElements() ) {
@@ -585,7 +581,7 @@ public class LdapConnection {
       results.put( "dn", searchResult.getNameInNamespace() );
       return results;
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "LdapConnection.Exception.GettingAttributes" ), e );
+      throw new HopException( BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Exception.GettingAttributes" ), e );
     }
   }
 
@@ -699,13 +695,12 @@ public class LdapConnection {
             String attributeValue = attr.get().toString();
             int valueType;
 
-            // Try to determine the data type
-            //
-            if ( IsDate( attributeValue ) ) {
+            // TODO: Find alternative for StingUtil or refactor with junit test cases.
+            if ( StringUtil.IsDate( attributeValue ) ) {
               valueType = IValueMeta.TYPE_DATE;
-            } else if ( IsInteger( attributeValue ) ) {
+            } else if ( StringUtil.IsInteger( attributeValue ) ) {
               valueType = IValueMeta.TYPE_INTEGER;
-            } else if ( IsNumber( attributeValue ) ) {
+            } else if ( StringUtil.IsNumber( attributeValue ) ) {
               valueType = IValueMeta.TYPE_NUMBER;
             } else {
               valueType = IValueMeta.TYPE_STRING;
@@ -718,38 +713,8 @@ public class LdapConnection {
       }
       return fields;
     } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString( PKG, "LdapConnection.Error.RetrievingFields" ) );
-    } finally {
-      fieldsl = null;
-    }
+      throw new HopException( BaseMessages.getString( classFromResourcesPackage, "LdapConnection.Error.RetrievingFields" ) );
+    } 
   }
 
-  private boolean IsNumber( String str ) {
-    try {
-      Float.parseFloat( str );
-    } catch ( Exception e ) {
-      return false;
-    }
-    return true;
-  }
-
-  private boolean IsDate( String str ) {
-    // TODO: What about other dates? Maybe something for a CRQ
-    try {
-      SimpleDateFormat fdate = new SimpleDateFormat( "yy-mm-dd" );
-      fdate.parse( str );
-    } catch ( Exception e ) {
-      return false;
-    }
-    return true;
-  }
-
-  private boolean IsInteger( String str ) {
-    try {
-      Integer.parseInt( str );
-    } catch ( NumberFormatException e ) {
-      return false;
-    }
-    return true;
-  }
 }

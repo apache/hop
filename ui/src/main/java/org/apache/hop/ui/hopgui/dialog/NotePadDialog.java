@@ -181,10 +181,10 @@ public class NotePadDialog extends Dialog {
     //
     wOk = new Button( shell, SWT.PUSH );
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, e -> cancel() );
+    wOk.addListener( SWT.Selection, e -> ok() );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, e -> ok() );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
 
