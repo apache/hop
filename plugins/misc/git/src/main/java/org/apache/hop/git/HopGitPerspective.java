@@ -88,12 +88,13 @@ import java.util.List;
 @HopPerspectivePlugin(
   id = "HopGitPerspective",
   name = "Git",
+  image = "git_icon.svg",
   description = "The git perspective"
 )
 @GuiPlugin
 public class HopGitPerspective implements IHopPerspective {
 
-  private static Class<?> PKG = HopGitPerspective.class;
+  private static final Class<?> PKG = HopGitPerspective.class;
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20040-perspective-git";
 
@@ -123,7 +124,6 @@ public class HopGitPerspective implements IHopPerspective {
   private HopGui hopGui;
   private Composite parent;
   private Composite perspectiveComposite;
-  private Composite composite;
   private FormData formData;
 
   private Button commitButton;
@@ -146,10 +146,10 @@ public class HopGitPerspective implements IHopPerspective {
   private Text diffText;
   private Composite rightComposite;
 
-  private Image gitActiveImage;
-  private Image gitInactiveImage;
+
   private ToolItem gitPerspectiveToolbarItem;
 
+  private Image imageGit;
   private Image imageAdded;
   private Image imageChanged;
   private Image imageRemoved;
@@ -218,19 +218,9 @@ public class HopGitPerspective implements IHopPerspective {
     toolBarWidgets.createToolbarWidgets( toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
     toolBar.pack();
 
-    composite = new Composite( perspectiveComposite, SWT.NONE );
-    composite.setLayout( new FormLayout() );
-
-    formData = new FormData();
-    formData.left = new FormAttachment( 0, 0 );
-    formData.top = new FormAttachment( toolBar, 0 );
-    formData.right = new FormAttachment( 100, 0 );
-    formData.bottom = new FormAttachment( 100, 0 );
-    composite.setLayoutData( formData );
-
     // The screen is split horizontally with a vertical sash as a result
     //
-    verticalSash = new SashForm( composite, SWT.HORIZONTAL );
+    verticalSash = new SashForm( perspectiveComposite, SWT.HORIZONTAL );
     FormData fdVerticalSash = new FormData();
     fdVerticalSash.left = new FormAttachment( 0, 0 );
     fdVerticalSash.top = new FormAttachment( 0, 0 );
@@ -472,17 +462,12 @@ public class HopGitPerspective implements IHopPerspective {
     }
   }
 
-  @GuiToolbarElement(
-    root = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
-    id = ID_PERSPECTIVE_TOOLBAR_ITEM,
-    image = "git_icon.svg",
-    disabledImage = "git_icon_inactive.svg",
-    toolTip = "git: version control your work"
-  )
   public void activate() {
-    hopGui.getPerspectiveManager().showPerspective( this.getClass() );
+    hopGui.setActivePerspective( this );
   }
-
+  
+  @Override public void perspectiveActivated() {
+  }
 
   private Combo getRepositoryCombo() {
     Control control = toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_REPOSITORY_SELECT );
@@ -849,33 +834,12 @@ public class HopGitPerspective implements IHopPerspective {
   }
 
   private void getPerspectiveToolbarImages() {
-    if ( gitPerspectiveToolbarItem != null ) {
-      return;
-    }
-    gitPerspectiveToolbarItem = hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM );
-    if ( gitPerspectiveToolbarItem == null ) {
-      throw new RuntimeException( "Unable to find the git perspective toolbar item with id : " + ID_PERSPECTIVE_TOOLBAR_ITEM );
-    }
-    gitActiveImage = gitPerspectiveToolbarItem.getImage();
-    gitInactiveImage = gitPerspectiveToolbarItem.getDisabledImage();
-
     int iconSize = (int) ( ConstUi.SMALL_ICON_SIZE * props.getZoomFactor() );
 
+    imageGit = SwtSvgImageUtil.getImage( hopGui.getDisplay(), getClass().getClassLoader(), "git_icon.svg", iconSize, iconSize );
     imageAdded = SwtSvgImageUtil.getImage( hopGui.getDisplay(), getClass().getClassLoader(), "added.svg", iconSize, iconSize );
     imageRemoved = SwtSvgImageUtil.getImage( hopGui.getDisplay(), getClass().getClassLoader(), "removed.svg", iconSize, iconSize );
     imageChanged = SwtSvgImageUtil.getImage( hopGui.getDisplay(), getClass().getClassLoader(), "changed.svg", iconSize, iconSize );
-  }
-
-  @Override public void show() {
-    composite.setVisible( true );
-    getPerspectiveToolbarImages();
-    gitPerspectiveToolbarItem.setImage( gitActiveImage );
-  }
-
-  @Override public void hide() {
-    composite.setVisible( false );
-    getPerspectiveToolbarImages();
-    gitPerspectiveToolbarItem.setImage( gitInactiveImage );
   }
 
   @Override public void navigateToPreviousFile() {
@@ -887,7 +851,7 @@ public class HopGitPerspective implements IHopPerspective {
   }
 
   @Override public boolean isActive() {
-    return composite.isVisible();
+	  return hopGui.isActivePerspective(this);
   }
 
   @Override public boolean hasNavigationPreviousFile() {
@@ -899,11 +863,7 @@ public class HopGitPerspective implements IHopPerspective {
   }
 
   @Override public Composite getComposite() {
-    return composite;
-  }
-
-  @Override public FormData getFormData() {
-    return formData;
+    return perspectiveComposite;
   }
 
   @Override public boolean remove( IHopFileTypeHandler typeHandler ) {
@@ -931,14 +891,13 @@ public class HopGitPerspective implements IHopPerspective {
   }
 
   /**
-   * Gets gitActiveImage
+   * Gets git image
    *
-   * @return value of gitActiveImage
+   * @return image
    */
-  public Image getGitActiveImage() {
-    return gitActiveImage;
+  public Image getGitImage() {
+    return imageGit;
   }
-
 
   @GuiToolbarElement(
     root = GUI_PLUGIN_FILES_TOOLBAR_PARENT_ID,
@@ -1061,7 +1020,7 @@ public class HopGitPerspective implements IHopPerspective {
     if ( !typeHandlers.isEmpty() ) {
       // switch to the data orchestration perspective and select the first opened file
       //
-      doPerspective.show();
+      doPerspective.activate();
 
       TabItemHandler tabItemHandler = doPerspective.findTabItemHandler( typeHandlers.get( 0 ) );
       if ( tabItemHandler != null ) {

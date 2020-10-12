@@ -58,18 +58,17 @@ public class EmptyHopPerspective implements IHopPerspective {
     return Collections.emptyList();
   }
 
-  @Override public void show() {
+  @Override public void activate() {
   }
-
-  @Override public void hide() {
+  
+  @Override public void perspectiveActivated() {
   }
-
+  
   @Override public void navigateToPreviousFile() {
   }
 
   @Override public void navigateToNextFile() {
   }
-
 
   @Override public boolean hasNavigationPreviousFile() {
     return false;
@@ -79,7 +78,6 @@ public class EmptyHopPerspective implements IHopPerspective {
     return false;
   }
 
-
   @Override public boolean isActive() {
     return false;
   }
@@ -88,10 +86,6 @@ public class EmptyHopPerspective implements IHopPerspective {
   }
 
   @Override public Composite getComposite() {
-    return null;
-  }
-
-  @Override public FormData getFormData() {
     return null;
   }
 
@@ -111,5 +105,5 @@ public class EmptyHopPerspective implements IHopPerspective {
   @Override public List<ISearchable> getSearchables() {
     List<ISearchable> searchables = new ArrayList<>();
     return searchables;
-  }
+  } 
 }

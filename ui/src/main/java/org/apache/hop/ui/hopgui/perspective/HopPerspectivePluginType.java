@@ -34,7 +34,7 @@ import org.apache.hop.core.plugins.IPluginType;
 public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugin> implements IPluginType<HopPerspectivePlugin> {
 
   private HopPerspectivePluginType() {
-    super( HopPerspectivePlugin.class, "HOP_PERSPECTIVES", "Hop Perspective Plugin" );
+    super( HopPerspectivePlugin.class, "HOP_PERSPECTIVES", "Hop Perspective" );
 
     pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }
@@ -64,11 +64,6 @@ public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugi
   }
 
   @Override
-  protected String getPath() {
-    return "./";
-  }
-
-  @Override
   protected String extractDesc( HopPerspectivePlugin annotation ) {
     return annotation.description();
   }
@@ -81,5 +76,10 @@ public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugi
   @Override
   protected String extractName( HopPerspectivePlugin annotation ) {
     return annotation.name();
+  }
+
+  @Override
+  protected String extractImageFile(HopPerspectivePlugin annotation) {
+	return annotation.image();
   }
 }

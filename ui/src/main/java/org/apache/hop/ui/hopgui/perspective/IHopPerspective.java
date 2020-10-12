@@ -61,15 +61,15 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
   List<IHopFileType> getSupportedHopFileTypes();
 
   /**
-   * Switch to this perspective.
+   * Switch to this perspective (shown).
    */
-  void show();
+  void activate();
 
   /**
-   * Hide this perspective.
+   * Notify this perspective that it has been activated.
    */
-  void hide();
-
+  void perspectiveActivated();
+  
   /**
    * Navigate the file usage history to the previous file
    */
@@ -103,11 +103,6 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
    * @return The composite of this perspective
    */
   Composite getComposite();
-
-  /**
-   * @return The layout data of the composite of this perspective
-   */
-  FormData getFormData();
 
   /**
    * Remove this file type handler from the perspective

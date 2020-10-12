@@ -25,7 +25,6 @@ package org.apache.hop.ui.hopgui.perspective.pluginexplorer;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
@@ -33,7 +32,6 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.variables.Variables;
-import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -43,6 +41,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
@@ -50,7 +49,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -66,28 +64,27 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@HopPerspectivePlugin(id = "Hop-Plugin-Explorer-Perspective", name = "Plugin explorer", description = "The Hop Plugin Explorer Perspective")
+@HopPerspectivePlugin(
+	id = "Hop-Plugin-Explorer-Perspective",
+	name = "Plugin explorer",
+	description = "The Hop Plugin Explorer Perspective",
+	image = "ui/images/Plugin.svg"
+)
 @GuiPlugin
 public class HopPluginExplorePerspective implements IHopPerspective {
 
 	public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20030-perspective-plugins";
 
 	private HopGui hopGui;
-	private Composite parent;
 	private Composite composite;
 	private CCombo wPluginType;
 	private TableView wPluginView;
-	private FormData formData;
 
 	private Map<String, List<Object[]>> dataMap;
 	private Map<String, IRowMeta> metaMap;
 
 	private String[] pluginsType;
 	private String selectedPluginType;
-
-	private Image pluginImage;
-	private Image pluginDisabledImage;
-
 
 	public HopPluginExplorePerspective() {
 	}
@@ -96,42 +93,20 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 		return "plugin-explorer";
 	}
 
-	@GuiToolbarElement(
-		root = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
-		id = ID_PERSPECTIVE_TOOLBAR_ITEM,
-		image = "ui/images/Plugin.svg",
-		toolTip = "Explore plugin"
-	)
-	public void activate() {
-		hopGui.getPerspectiveManager().showPerspective( this.getClass() );
+	@Override public void activate() {
+		hopGui.setActivePerspective( this );
 	}
 
-	@Override
-	public void show() {
-		composite.setVisible( true );
-		if ( pluginImage == null ) {
-			pluginImage = GuiResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin.svg", ConstUi.SMALL_ICON_SIZE );
-		}
-		hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( pluginImage );
+	@Override public void perspectiveActivated() {
 	}
-
-	@Override
-	public void hide() {
-		composite.setVisible( false );
-		if ( pluginDisabledImage == null ) {
-			pluginDisabledImage = GuiResource.getInstance().loadAsResource( hopGui.getDisplay(), "ui/images/Plugin_inactive.svg", ConstUi.SMALL_ICON_SIZE );
-		}
-		hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( pluginDisabledImage );
-	}
-
-	@Override
-	public boolean isActive() {
-		return composite != null && !composite.isDisposed() && composite.isVisible();
+	
+	@Override public boolean isActive() {
+		return hopGui.isActivePerspective(this);
 	}
 
 	@Override
 	public IHopFileTypeHandler getActiveFileTypeHandler() {
-		return null; // Not handling anything really
+		return new EmptyHopFileTypeHandler();
 	}
 
 	@Override public void setActiveFileTypeHandler( IHopFileTypeHandler activeFileTypeHandler ) {
@@ -145,7 +120,6 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	@Override
 	public void initialize( HopGui hopGui, Composite parent ) {
 		this.hopGui = hopGui;
-		this.parent = parent;
 
 		this.loadPlugin();
 
@@ -154,7 +128,7 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 		composite = new Composite( parent, SWT.NONE );
 		composite.setLayout( new FormLayout() );
 
-		formData = new FormData();
+		FormData formData = new FormData();
 		formData.left = new FormAttachment( 0, 0 );
 		formData.top = new FormAttachment( 0, 0 );
 		formData.right = new FormAttachment( 100, 0 );
@@ -314,38 +288,6 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	}
 
 	/**
-	 * Gets hopGui
-	 *
-	 * @return value of hopGui
-	 */
-	public HopGui getHopGui() {
-		return hopGui;
-	}
-
-	/**
-	 * @param hopGui The hopGui to set
-	 */
-	public void setHopGui( HopGui hopGui ) {
-		this.hopGui = hopGui;
-	}
-
-	/**
-	 * Gets parent
-	 *
-	 * @return value of parent
-	 */
-	public Composite getParent() {
-		return parent;
-	}
-
-	/**
-	 * @param parent The parent to set
-	 */
-	public void setParent( Composite parent ) {
-		this.parent = parent;
-	}
-
-	/**
 	 * Gets composite
 	 *
 	 * @return value of composite
@@ -353,23 +295,6 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	@Override
 	public Composite getComposite() {
 		return composite;
-	}
-
-	/**
-	 * @param composite The composite to set
-	 */
-	public void setComposite( Composite composite ) {
-		this.composite = composite;
-	}
-
-	/**
-	 * Gets formData
-	 *
-	 * @return value of formData
-	 */
-	@Override
-	public FormData getFormData() {
-		return formData;
 	}
 
 	@Override
