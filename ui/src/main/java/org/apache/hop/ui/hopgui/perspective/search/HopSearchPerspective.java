@@ -24,7 +24,6 @@ package org.apache.hop.ui.hopgui.perspective.search;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.search.ISearchResult;
@@ -42,6 +41,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
+import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.perspective.HopPerspectivePlugin;
 import org.apache.hop.ui.hopgui.perspective.IHopPerspective;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
@@ -68,7 +68,8 @@ import java.util.Map;
 @HopPerspectivePlugin(
   id = "HopSearchPerspective",
   name = "Search",
-  description = "The Hop Search Perspective"
+  description = "The Hop Search Perspective",
+  image = "ui/images/search.svg"
 )
 @GuiPlugin
 public class HopSearchPerspective implements IHopPerspective {
@@ -98,31 +99,30 @@ public class HopSearchPerspective implements IHopPerspective {
     return "search";
   }
 
-  @GuiToolbarElement(
-    root = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
-    id = ID_PERSPECTIVE_TOOLBAR_ITEM,
-    image = "ui/images/search.svg",
-    toolTip = "Search"
-  )
+
   public void activate() {
     // Someone clicked on the search icon of used CTRL-F
     //
-    hopGui.getPerspectiveManager().showPerspective( this.getClass() );
-    wSearchString.setFocus();
-
-    // Refresh the list of searchableLocations
-    //
-    searchablesLocations = hopGui.getSearchablesLocations();
-    locations = new String[ searchablesLocations.size() ];
-    for ( int i = 0; i < locations.length; i++ ) {
-      locations[ i ] = searchablesLocations.get( i ).getLocationDescription();
-    }
-
-    refreshLastUsedLocation();
-
-    refreshLastUsedSearchStrings();
+    hopGui.setActivePerspective( this );
   }
+  
+  @Override public void perspectiveActivated() {
+	    wSearchString.setFocus();
 
+	    // Refresh the list of searchableLocations
+	    //
+	    searchablesLocations = hopGui.getSearchablesLocations();
+	    locations = new String[ searchablesLocations.size() ];
+	    for ( int i = 0; i < locations.length; i++ ) {
+	      locations[ i ] = searchablesLocations.get( i ).getLocationDescription();
+	    }
+
+	    refreshLastUsedLocation();
+
+	    refreshLastUsedSearchStrings();
+  }
+  
+  
   private void refreshLastUsedLocation() {
     if (wLocations!=null && !wLocations.isDisposed()) {
       wLocations.setItems( locations );
@@ -149,7 +149,7 @@ public class HopSearchPerspective implements IHopPerspective {
   }
 
   @Override public IHopFileTypeHandler getActiveFileTypeHandler() {
-    return null; // Not handling anything really
+    return new EmptyHopFileTypeHandler(); // Not handling anything really
   }
 
   @Override public void setActiveFileTypeHandler( IHopFileTypeHandler activeFileTypeHandler ) {
@@ -161,20 +161,8 @@ public class HopSearchPerspective implements IHopPerspective {
   }
 
   @Override
-  public void show() {
-    composite.setVisible( true );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GuiResource.getInstance().getImageToolbarSearch() );
-  }
-
-  @Override
-  public void hide() {
-    composite.setVisible( false );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GuiResource.getInstance().getImageToolbarSearchInactive() );
-  }
-
-  @Override
   public boolean isActive() {
-    return composite != null && !composite.isDisposed() && composite.isVisible();
+	  return hopGui.isActivePerspective(this);
   }
 
   @Override public void initialize( HopGui hopGui, Composite parent ) {
@@ -508,15 +496,6 @@ public class HopSearchPerspective implements IHopPerspective {
    */
   public void setComposite( Composite composite ) {
     this.composite = composite;
-  }
-
-  /**
-   * Gets formData
-   *
-   * @return value of formData
-   */
-  @Override public FormData getFormData() {
-    return formData;
   }
 
   @Override public List<IGuiContextHandler> getContextHandlers() {

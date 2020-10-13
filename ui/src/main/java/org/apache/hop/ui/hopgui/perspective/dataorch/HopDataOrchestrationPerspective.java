@@ -34,14 +34,11 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.GuiMenuWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.widget.TabFolderReorder;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.HopGuiKeyHandler;
@@ -74,6 +71,7 @@ import org.eclipse.swt.widgets.MenuItem;
 @HopPerspectivePlugin(
   id = "HopDataOrchestrationPerspective",
   name = "Data Orchestration",
+  image = "ui/images/pipeline.svg",
   description = "The Hop Data Orchestration Perspective for pipelines and workflows"
 )
 @GuiPlugin
@@ -113,28 +111,15 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     return "data-orch";
   }
 
-  @GuiToolbarElement(
-    root = HopGui.GUI_PLUGIN_PERSPECTIVES_PARENT_ID,
-    id = ID_PERSPECTIVE_TOOLBAR_ITEM,
-    image = "ui/images/pipeline.svg",
-    toolTip = "Data Orchestration"
-  )
-  public void activate() {
-    hopGui.getPerspectiveManager().showPerspective( this.getClass() );
+  @Override public void activate() {
+	  hopGui.setActivePerspective(this);
   }
 
-  @Override public void show() {
-    composite.setVisible( true );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GuiResource.getInstance().getImageToolbarDataOrchestration() );
+  @Override public void perspectiveActivated() {
   }
-
-  @Override public void hide() {
-    composite.setVisible( false );
-    hopGui.getPerspectivesToolbarWidgets().findToolItem( ID_PERSPECTIVE_TOOLBAR_ITEM ).setImage( GuiResource.getInstance().getImageToolbarDataOrchestrationInactive() );
-  }
-
+	
   @Override public boolean isActive() {
-    return composite != null && !composite.isDisposed() && composite.isVisible();
+    return hopGui.isActivePerspective(this); // composite != null && !composite.isDisposed() && composite.isVisible();;
   }
 
   @Override public void initialize( HopGui hopGui, Composite parent ) {
@@ -579,7 +564,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       return null;
     }
     for ( TabItemHandler item : items ) {
-      if ( item.getTypeHandler().getFilename().equals( filename ) ) {
+      if ( filename.equals(item.getTypeHandler().getFilename()) ) {
         return item;
       }
     }
@@ -615,7 +600,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
         @Override public ISearchableCallback getSearchCallback() {
           return ( searchable, searchResult ) -> {
-            show();
+            activate();
             switchToTab( item );
           };
         }
@@ -702,22 +687,6 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    */
   public void setComposite( Composite composite ) {
     this.composite = composite;
-  }
-
-  /**
-   * Gets formData
-   *
-   * @return value of formData
-   */
-  @Override public FormData getFormData() {
-    return formData;
-  }
-
-  /**
-   * @param formData The formData to set
-   */
-  public void setFormData( FormData formData ) {
-    this.formData = formData;
   }
 
   /**

@@ -65,7 +65,7 @@ public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
   @Override public ISearchableCallback getSearchCallback() {
     return ( searchable, searchResult ) -> {
       HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-      perspective.show();
+      perspective.activate();
 
       HopGuiWorkflowGraph workflowGraph;
 

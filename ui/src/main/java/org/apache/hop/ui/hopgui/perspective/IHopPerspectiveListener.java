@@ -22,26 +22,14 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * This marks a class as a Hop GUI Perspective
+ * Interface for listening to perspective activation.
  */
+public interface IHopPerspectiveListener  {
 
-@Documented
-@Retention( RetentionPolicy.RUNTIME )
-@Target( ElementType.TYPE )
-public @interface HopPerspectivePlugin {
+  /**
+   * Notifies this listener that a perspective has been activated.
+   */
+  void perspectiveActivated(IHopPerspective perspective);
 
-  String id();
-
-  String name() default "";
-
-  String description() default "";
-  
-  String image() default "";
 }

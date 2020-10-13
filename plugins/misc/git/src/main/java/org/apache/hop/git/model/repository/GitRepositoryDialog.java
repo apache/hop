@@ -108,7 +108,7 @@ public class GitRepositoryDialog implements IMetadataDialog {
   protected Control addStandardWidgets() {
     shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE );
     shell.setText( APPLICATION_NAME );
-    shell.setImage( HopGitPerspective.getInstance().getGitActiveImage() );
+    shell.setImage( HopGitPerspective.getInstance().getGitImage() );
     shell.addListener( SWT.Close, e->cancel() );
     shell.setLayout( new FormLayout() );
 
