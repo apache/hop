@@ -131,4 +131,13 @@ public class AuditManager {
             return null;
         }
     }
+
+    /**
+     * Convenience method for clearing events.
+     *
+     * @throws HopException
+     */
+    public static final void clearEvents() throws HopException {
+        getActive().clearEvents();
+    }
 }
