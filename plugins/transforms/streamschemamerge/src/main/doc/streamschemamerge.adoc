@@ -1,0 +1,21 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/streamschemamerge/src/main/doc/streamschemamerge.adoc
+= Stream Schema Merge
+
+== Description
+
+This transform type allows you to merge multiple inputs with different structures. It will then create a combination of fields.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Transform|The transforms to merge.
+|OK|Confirms the current settings
+|Get|Populates the Transform column with all transforms connected to this transform
+|Cancel|Cancels the current settings
+|===
+
