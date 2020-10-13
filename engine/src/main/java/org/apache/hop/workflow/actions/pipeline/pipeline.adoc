@@ -1,0 +1,84 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/pipeline/src/main/doc/pipeline.adoc
+= Pipeline
+
+== Description
+
+The Pipeline action runs a previously-defined pipeline within a workflow. This action is the access point from your workflow to your ETL activity (pipeline).
+
+An example of a common workflow includes getting FTP files, checking existence of a necessary target database table, running a pipeline that populates that table, and e-mailing an error log if a pipeline fails. For this example, the Pipeline action defines which pipeline to run to populate the table.
+
+== Options
+
+=== General
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Action name|Name of the action.
+|Pipeline|Specify your pipeline by entering in its path or clicking Browse.
+
+If you select a pipeline that has the same root path as the current pipeline, the variable ${Internal.Action.Current.Directory} will automatically be inserted in place of the common root path. For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl than the path will automatically be converted to ${Internal.Action.Current.Directory}/path/sub.hpl.
+
+Pipelines previously specified by reference are automatically converted to be specified by name.
+|===
+
+=== Options Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Run Configuration|The pipeline can run in different types of environment configurations. Specify a run configuration to control how the pipeline is executed.
+|Execute every input row|Runs the pipeline once for every input row (looping).
+|Clear results rows before execution|Makes sure the results rows are cleared before the pipeline starts. 
+|Clear results files before execution|Makes sure the results files are cleared before the pipeline starts. 
+|Wait for remote pipeline to finish|If you selected Server as your environment type, choose this option to block the workflow until the pipeline runs on the server.
+|Follow local abort to remote pipeline|If you selected Server as your environment type, choose this option to send the local abort signal remotely.
+|===
+
+=== Logging Tab
+
+By default, if you do not set logging, Hop will take generated log entries and create a log record inside the workflow. For example, suppose a workflow has three pipelines to run and you have not set logging. The pipelines will not log information to other files, locations, or special configurations. In this instance, the workflow runs and logs information into its master workflow log.
+
+In most instances, it is acceptable for logging information to be available in the workflow log. For example, if you have load dimensions, you want logs for your load dimension runs to display in the workflow logs. If there are errors in the pipelines, they will be displayed in the workflow logs. However, you want all your log information kept in one place, you must then set up logging.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Specify logfile|Specifies a separate logging file for running this pipeline.
+|Name|Specifies the directory and base name of the log file (C:\logs for example).
+|Extension|Specifies the file name extension (.log or .txt for example).
+|Log level|Specifies the logging level for running the pipeline. See Logging for more details.
+|Append logfile|Appends the logfile as opposed to creating a new one.
+|Create parent folder|Creates a parent folder for the log file if it does not exist.
+|Include date in filename|Adds the system date to the filename with format YYYYMMDD (_20051231). 
+|Include time in filename|Adds the system time to the filename with format HHMMSS (_235959). 
+|===
+
+=== Arguments Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Copy results to arguments|Copies the results from a previous pipeline as arguments of the pipeline using the Copy rows to result transform. If the Execute every input row option is selected then each row is a set of command-line arguments to be passed into the pipeline, otherwise only the first row is used to generate the command line arguments.
+|Arguments|Specify which command-line arguments will be passed to the pipeline. 
+|===
+
+=== Parameters Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Copy results to parameters  	Copies the results from a previous pipeline as parameters of the pipeline using the Copy rows to result transform. 
+|Pass parameter values to sub pipeline  	Pass all parameters of the workflow down to the sub-pipeline. 
+|Parameters 	Specify the parameter name passed to the pipeline.
+|Stream column name  	Specify the field of an incoming record from a previous pipeline as the parameter.
+|Value|Specify pipeline parameter values through one of the following actions:
+
+- Manually entering a value (ETL workflow for example).
+- Using another parameter to set the value (${Internal.workflow.Name} for example).
+- Using a combination of manually specified values and parameter values (${FILE_PREFIX}_${FILE_DATE}.txt for example).
+
+|Get Parameters|Get the existing parameters already associated by the pipeline.
+|===
