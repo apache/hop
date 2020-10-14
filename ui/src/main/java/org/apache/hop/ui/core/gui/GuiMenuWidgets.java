@@ -212,6 +212,9 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
       if ( keyCode == SWT.ESC ) {
         return s + "Esc";
       }
+      if ( keyCode == SWT.DEL ) {
+          return s + "Delete";
+        }
       if ( keyCode == SWT.ARROW_LEFT ) {
         return s + "LEFT";
       }
