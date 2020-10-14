@@ -77,9 +77,13 @@ public class KeyboardShortcut {
       str.append( "CMD-" );
     }
         
-    // Character or delete key
-    if ( ( keyCode >= 97 && keyCode <= 122 ) || keyCode == 127 ) {
+    // Character
+    if ( keyCode >= 97 && keyCode <= 122 ) {
       str.append( ( (char) keyCode ) );
+    }
+    // Delete key
+    else if ( keyCode == 127 ) {
+      str.append( "Delete" );
     } 
     // Digit
     else if ( keyCode >= 48 && keyCode <= 57 ) {
