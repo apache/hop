@@ -75,7 +75,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     wlLogLevel.setText( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.LogLevel.Label" ) );
     wlLogLevel.setToolTipText( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.LogLevel.Tooltip" ) );
     FormData fdlLogLevel = new FormData();
-    fdlLogLevel.top = new FormAttachment( 0, 10 );
+    fdlLogLevel.top = new FormAttachment( 0, 0 );
     fdlLogLevel.left = new FormAttachment( 0, 0 );
     wlLogLevel.setLayoutData( fdlLogLevel );
 

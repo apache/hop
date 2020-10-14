@@ -74,7 +74,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     wlLogLevel.setToolTipText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.LogLevel.Tooltip" ) );
     props.setLook( wlLogLevel );
     FormData fdlLogLevel = new FormData();
-    fdlLogLevel.top = new FormAttachment( 0, 10 );
+    fdlLogLevel.top = new FormAttachment( 0, 0 );
     fdlLogLevel.left = new FormAttachment( 0, 0 );
     wlLogLevel.setLayoutData( fdlLogLevel );
 
