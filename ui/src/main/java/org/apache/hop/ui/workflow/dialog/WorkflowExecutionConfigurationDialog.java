@@ -75,7 +75,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     props.setLook( wlLogLevel );
     FormData fdlLogLevel = new FormData();
     fdlLogLevel.top = new FormAttachment( 0, 10 );
-    fdlLogLevel.left = new FormAttachment( 0, 10 );
+    fdlLogLevel.left = new FormAttachment( 0, 0 );
     wlLogLevel.setLayoutData( fdlLogLevel );
 
     wLogLevel = new CCombo( gDetails, SWT.READ_ONLY | SWT.BORDER );
@@ -83,7 +83,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     props.setLook( wLogLevel );
     FormData fdLogLevel = new FormData();
     fdLogLevel.top = new FormAttachment( wlLogLevel, -2, SWT.TOP );
-    fdLogLevel.width = 350;
+    fdLogLevel.right = new FormAttachment( 100, 0 );
     fdLogLevel.left = new FormAttachment( wlLogLevel, 6 );
     wLogLevel.setLayoutData( fdLogLevel );
     wLogLevel.setItems( LogLevel.getLogLevelDescriptions() );
@@ -94,7 +94,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     props.setLook( wClearLog );
     FormData fdClearLog = new FormData();
     fdClearLog.top = new FormAttachment( wLogLevel, 10 );
-    fdClearLog.left = new FormAttachment( 0, 10 );
+    fdClearLog.left = new FormAttachment( 0, 0 );
     wClearLog.setLayoutData( fdClearLog );
 
     Label wlStartAction = new Label( gDetails, SWT.RIGHT );
@@ -102,8 +102,8 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     wlStartAction.setToolTipText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.StartCopy.Tooltip" ) );
     props.setLook( wlStartAction );
     FormData fdlStartAction = new FormData();
-    fdlStartAction.top = new FormAttachment( wClearLog, props.getMargin() );
-    fdlStartAction.left = new FormAttachment( 0, 10 );
+    fdlStartAction.top = new FormAttachment( wClearLog, 10 );
+    fdlStartAction.left = new FormAttachment( 0, 0 );
     wlStartAction.setLayoutData( fdlStartAction );
 
     wStartAction = new CCombo( gDetails, SWT.READ_ONLY | SWT.BORDER );

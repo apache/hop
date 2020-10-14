@@ -54,7 +54,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
-  private static Class<?> PKG = PipelineExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PipelineExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
   public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS = "last-pipeline-run-configurations";
   private MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
@@ -76,7 +76,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     wlLogLevel.setToolTipText( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.LogLevel.Tooltip" ) );
     FormData fdlLogLevel = new FormData();
     fdlLogLevel.top = new FormAttachment( 0, 10 );
-    fdlLogLevel.left = new FormAttachment( 0, 10 );
+    fdlLogLevel.left = new FormAttachment( 0, 0 );
     wlLogLevel.setLayoutData( fdlLogLevel );
 
     wLogLevel = new CCombo( gDetails, SWT.READ_ONLY | SWT.BORDER );
@@ -84,7 +84,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     props.setLook( wLogLevel );
     FormData fdLogLevel = new FormData();
     fdLogLevel.top = new FormAttachment( wlLogLevel, -2, SWT.TOP );
-    fdLogLevel.width = 350;
+    fdLogLevel.right = new FormAttachment( 100, 0 );
     fdLogLevel.left = new FormAttachment( wlLogLevel, 6 );
     wLogLevel.setLayoutData( fdLogLevel );
     wLogLevel.setItems( LogLevel.getLogLevelDescriptions() );
@@ -95,7 +95,7 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     props.setLook( wClearLog );
     FormData fdClearLog = new FormData();
     fdClearLog.top = new FormAttachment( wLogLevel, 10 );
-    fdClearLog.left = new FormAttachment( 0, 10 );
+    fdClearLog.left = new FormAttachment( 0, 0 );
     wClearLog.setLayoutData( fdClearLog );
 
   }
@@ -130,9 +130,9 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     wRunConfigurationControl = wRunConfiguration;
     props.setLook( wRunConfiguration );
     FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.right = new FormAttachment( 100, -10 );
+    fdRunConfiguration.right = new FormAttachment( 100, 0 );
     fdRunConfiguration.top = new FormAttachment( 0, props.getMargin() );
-    fdRunConfiguration.left = new FormAttachment( 0, 10 );
+    fdRunConfiguration.left = new FormAttachment( 0, 0 );
     wRunConfiguration.setLayoutData( fdRunConfiguration );
   }
 
