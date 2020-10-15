@@ -11,8 +11,8 @@ This works also on remote file systems (via VFS, e.g. with FTP.
 
 Example for a move (rename) of a file on a FTP server (username/password must be given for source and destination).
 
-* File source: ftp://username:password@ftpserver/dir/testfile_partly.txt
-* File destination: ftp://username:password@ftpserver/dir/testfile.txt
+* File source: \ftp://username:password@ftpserver/dir/testfile_partly.txt
+* File destination: \ftp://username:password@ftpserver/dir/testfile.txt
 * Check "Destination is a file" in the "Destination File" tab.
 
 == Options
