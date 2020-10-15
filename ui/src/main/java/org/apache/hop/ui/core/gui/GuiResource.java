@@ -1064,7 +1064,7 @@ public class GuiResource {
 
     imagePartitionSchema = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Image_Partition_Schema" ) );
 
-    imageWorkflowGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "ChefIcon_image" ) );
+    imageWorkflowGraph = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "WorkflowGraph_image" ) );
 
     imagePipelineTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Pipeline_tree_image" ) );
     imageWorkflowTree = SwtSvgImageUtil.getUniversalImage( display, getClass().getClassLoader(), BasePropertyHandler.getProperty( "Workflow_tree_image" ) );

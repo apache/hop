@@ -76,14 +76,19 @@ public class KeyboardShortcut {
     if ( command ) {
       str.append( "CMD-" );
     }
+        
     // Character
     if ( keyCode >= 97 && keyCode <= 122 ) {
       str.append( ( (char) keyCode ) );
-    } else
-      // Digit
-      if ( keyCode >= 48 && keyCode <= 57 ) {
+    }
+    // Delete key
+    else if ( keyCode == 127 ) {
+      str.append( "Delete" );
+    } 
+    // Digit
+    else if ( keyCode >= 48 && keyCode <= 57 ) {
         str.append( ( (char) keyCode ) );
-      }
+    }
     return str.toString();
   }
 
