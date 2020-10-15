@@ -1,0 +1,49 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/groupby/src/main/doc/groupby.adoc
+= Group By
+
+== Description
+
+This transform groups rows from a source, based on a specified field or collection of fields. A new row is generated for each group. It can also generate one or more aggregate values for the groups. Common uses are calculating the average sales per product and counting the number of an item you have in stock.
+
+The Group By transform is designed for sorted inputs. If your input is not sorted, only double consecutive rows are grouped correctly. If you sort the data outside of Hop, the case sensitivity of the data in the fields may produce unexpected grouping results.
+
+You can use the Memory Group By transform to handle non-sorted input.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Include all rows?|Enable if you want all rows in the output, not just the aggregation; to differentiate between the two types of rows in the output, a flag is required in the output. You must specify the name of the flag field in that case (the type is boolean).
+|Temporary files directory|The directory in which the temporary files are stored (needed when the Include all rows option is enabled and the number or grouped rows exceed 5000 rows); the default is the standard temporary directory for the system
+|TMP-file prefix|Specify the file prefix used when naming temporary files
+|Add line number, restart in each group|Enable to add a line number that restarts at 1 in each group
+|Line number field name|Enable to add a line number that restarts at 1 in each group
+|Always give back a row|If you enable this option, the Group By transform will always give back a result row, even if there is no input row. 
+This can be useful if you want to count the number of rows.  Without this option you would never get a count of zero (0).
+|Group fields table|Specify the fields over which you want to group. Click Get Fields to add all fields from the input stream(s).
+|Aggregates table a|Specify the fields that must be aggregated, the method and the name of the resulting new field.
+Here are the available aggregation methods :
+
+- Sum
+- Average (Mean)
+- Median
+- Percentile
+- Minimum
+- Maximum
+- Number of values (N)
+- Concatenate strings separated by , (comma)
+- First non-null value
+- Last non-null value
+- First value (including null)
+- Last value (including null)
+- Cumulative sum (all rows option only!)
+- Cumulative average (all rows option only!)
+- Standard deviation
+- Concatenate strings separated by <Value>: specify the separator in the Value column
+- Number of distinct values 
+- Number of rows (without field argument)
+|===

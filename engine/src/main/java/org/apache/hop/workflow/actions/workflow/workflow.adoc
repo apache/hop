@@ -1,0 +1,81 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/actions/workflow/src/main/doc/workflow.adoc
+= Workflow
+
+== Description
+
+You can use the Workflow action to execute a previously defined workflow.
+
+For ease of use, it is also possible to create a new workflow within the dialog, pressing the New Workflow button.
+
+Use the Workflow action to execute a previously defined workflow. This allows you to perform "functional decomposition." That is, you use them to break out workflows into more manageable units. For example, you would not write a data warehouse load using one workflow that contains 500 actions. It is better to create smaller workflows and aggregate them.
+
+== Options
+
+=== pipeline Specification Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Action name|Name of the action.
+|Workflow Filename|Specify the XML file name of the pipeline to start. Click to browse through your local files.
+|===
+
+=== Advanced Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Copy previous results to args?|The results from a previous pipeline can copied as arguments of the workflow using the "Copy rows to result" transform. If Execute for every input row is enabled then each row is a set of command line arguments to be passed into the workflow, otherwise only the first row is used to generate the command line arguments.
+|Copy previous results to parameters?|If Execute for every input row is enabled then each row is a set of command line workflowarguments to be passed into the , otherwise only the first row is used to generate the command line arguments.
+|Execute for every input row?|Implements looping; if the previous workflow action returns a set of result rows, the workflow executes once for every row found. One row is passed to the workflow at every execution. For example, you can execute a workflow for each file found in a directory.
+|Remote slave server|The slave server on which to execute the workflow
+|Pass workflow export to slave|Pass the complete workflow (including referenced sub-workflows and sub-pipelines) to the remote server.
+|Wait for the remote workflow to finish?|Enable to block until the workflow on the slave server has finished executing
+|Follow local abort to remote workflow|Enable to send the abort signal to the remote workflow if it is called locally
+|Expand child workflows and pipelines on the server|When the remote workflow starts child workflows and pipelines, they are exposed on the slave server and can be monitored.
+|===
+
+=== Logging Settings Tab
+
+By default, if you do not set logging, Hop will take log actions that are being generated and create a log record inside the workflow. For example, suppose a workflow has three pipelines to run and you have not set logging. The pipelines will not output logging information to other files, locations, or special configuration. In this instance, the workflow executes and puts logging information into its master workflow log.
+In most instances, it is acceptable for logging information to be available in the workflow log. For example, if you have load dimensions, you want logs for your load dimension runs to display in the workflow logs. If there are errors in the pipelines, they will be displayed in the workflow logs. If, however, you want all your log information kept in one place, you must set up logging.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Specify logfile?|Enable to specify a separate logging file for the execution of this workflow
+|Append logfile?|Enable to append to the logfile as opposed to creating a new one
+|Name of logfile|The directory and base name of the log file; for example C:\logs
+|Create parent folder|Create the parent folder for the log file if it does not exist
+|Extension of logfile|The file name extension; for example, log or txt
+|Include date in logfile?|Adds the system date to the filename with format YYYYMMDD (_20051231).
+|Include time in logfile?|Adds the system time to the filename with format HHMMSS (_235959).
+|Loglevel|Specifies the logging level for the execution of the workflow. See also the logging window in Logging
+|===
+
+=== Argument Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Arguments|Specify which command-line arguments will be passed to the pipeline.
+|===
+
+=== Parameters Tab
+
+Specify which parameters will be passed to the pipeline:
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Pass all parameter values down to the sub-pipeline|Enable this option to pass all parameters of the workflow down to the sub-pipeline.
+|Parameters|Specify the parameter name that will be passed to the pipeline.
+|Stream column name|Allows you to capture fields of incoming records of a result set as a parameter.
+|Value a| Allows you to specify the values for the pipeline's parameters. You can do this by:
+- Manually typing a value (Ex: ETL workflow)
+- Use a parameter to set the value (Ex: ${Internal.workflow.Name}
+- Using a combination of manually specified values and parameter values (Ex: ${FILE_PREFIX}_${FILE_DATE}.txt)
+|===
+

@@ -1,0 +1,55 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/workflowexecutor/src/main/doc/workflowexecutor.adoc
+= Workflow Executor
+
+== Description
+
+The workflow executor allows you to execute a Hop workflow.
+By default the specified workflow will be executed once for each input row.  This row can be used to set parameters and variables and it is passed to the workflow in the form of a result row.
+You can also allow a group of records to be passed based on the value in a field (when the value changes the workflow is executed) or on time.  In these cases, the first row of the group or rows is used to set parameters or variables in the workflow.
+
+It is possible to launch multiple copies of this transform to facilitate parallel workflow processing.
+
+== Options
+
+=== General
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Workflow|Use this option to specify a workflow stored in a file (.hwf file)
+|===
+
+=== Parameters Tab
+
+In this tab you can specify which field to use to set a certain parameter or variable value.  If you specify an input field to use, the static input value is not used.   If multiple rows are passed to the workflow, the first row is taken to set the parameters or variables.
+
+There is a button in the lower right corner of the tab that will insert all the defined parameters of the specified workflow.  For information the description of the parameter is inserted into the static input value field.
+
+If you enable the "Inherit all variables from the pipeline" option, all the variables defined in the parent pipeline are passed to the workflow.
+
+=== Row Grouping Tab
+
+On this tab you can specify the amount of input rows that are passed to the workflow in the form of result rows.  You can use the result rows in a workflow or Pipeline workflow action to loop over or you can get the records themselves in a Get rows from result transform in a pipeline.
+
+- The number of rows to send to the workflow: after every X rows the workflow will be executed and these X rows will be passed to the workflow.
+- Field to group rows on: Rows will be accumulated in a group as long as the field value stays the same.  If the value changes the workflow will be executed and the accumulated rows will be passed to the workflow.
+- The time to wait collecting rows before execution: This is time the transform will spend accumulating rows prior to the execution of the workflow.
+
+Please note that you can only specify one method of grouping.
+
+=== Execution Results Tab
+
+You can specify result fields and to which transform to send them.  If you don't need a certain result simply leave a blank input field.
+
+=== Result Rows Tab
+
+In the "Result rows" tab you can specify the layout of the expected result rows of this workflow and to which transform to send them after execution.
+
+Please note that this transform will verify that the data type of the result row fields are identical to what is specified.  If there is a difference an error will be thrown.
+
+=== Result Files Tab
+
+Here you can specify where to send the result files from the workflow execution.
