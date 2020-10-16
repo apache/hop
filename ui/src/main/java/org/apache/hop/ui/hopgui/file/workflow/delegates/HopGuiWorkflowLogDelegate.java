@@ -245,7 +245,7 @@ public class HopGuiWorkflowLogDelegate {
         for ( i = 0; i < workflowMeta.nrActions(); i++ ) {
           ActionCopy entryCopy = workflowMeta.getAction( i );
           if ( line.indexOf( entryCopy.getName() ) >= 0 ) {
-            workflowGraph.editJobEntry( workflowMeta, entryCopy );
+            workflowGraph.editAction( workflowMeta, entryCopy );
           }
         }
       }

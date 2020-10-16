@@ -457,7 +457,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         } else {
           // Clicked on the background...
           //
-          editJobProperties();
+          editWorkflowProperties();
         }
       }
 
@@ -1710,11 +1710,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     tooltip = "Edit the workflow properties",
     image = "ui/images/toolbar/workflow3.svg"
   )
-  public void editJobProperties( HopGuiWorkflowContext context ) {
+  public void editWorkflowProperties( HopGuiWorkflowContext context ) {
     editProperties( workflowMeta, hopGui, true );
   }
 
-  public void editJobProperties() {
+  public void editWorkflowProperties() {
     editProperties( workflowMeta, hopGui, true );
   }
 
@@ -3397,7 +3397,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   // TODO
-  public void editJobEntry( WorkflowMeta workflowMeta, ActionCopy actionCopy ) {
+  public void editAction( WorkflowMeta workflowMeta, ActionCopy actionCopy ) {
   }
 
   @Override
