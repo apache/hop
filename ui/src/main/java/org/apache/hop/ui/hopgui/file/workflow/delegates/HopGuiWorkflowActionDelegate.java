@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -57,7 +56,7 @@ public class HopGuiWorkflowActionDelegate {
     this.workflowGraph = workflowGraph;
   }
 
-  public ActionCopy newJobEntry( WorkflowMeta workflowMeta, String pluginId, String pluginName, boolean openIt, Point location ) {
+  public ActionCopy newAction( WorkflowMeta workflowMeta, String pluginId, String pluginName, boolean openIt, Point location ) {
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin actionPlugin;
 
@@ -222,7 +221,7 @@ public class HopGuiWorkflowActionDelegate {
     }
   }
 
-  public void deleteJobEntryCopies( WorkflowMeta workflow, List<ActionCopy> actions ) {
+  public void deleteActionCopies( WorkflowMeta workflow, List<ActionCopy> actions ) {
 
     // Hops belonging to the deleting actions are placed in a single transaction and removed.
     List<WorkflowHopMeta> jobHops = new ArrayList<>();
@@ -258,7 +257,7 @@ public class HopGuiWorkflowActionDelegate {
     workflowGraph.updateGui();
   }
 
-  public void deleteJobEntryCopies( WorkflowMeta workflowMeta, ActionCopy action ) {
+  public void deleteActionCopies( WorkflowMeta workflowMeta, ActionCopy action ) {
     for ( int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i-- ) {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop( i );
       if ( hi.getFromAction().equals( action ) || hi.getToAction().equals( action ) ) {
@@ -275,7 +274,7 @@ public class HopGuiWorkflowActionDelegate {
     workflowGraph.updateGui();
   }
 
-  public void dupeJobEntry( WorkflowMeta workflowMeta, ActionCopy action ) {
+  public void dupeAction( WorkflowMeta workflowMeta, ActionCopy action ) {
     if ( action == null ) {
       return;
     }

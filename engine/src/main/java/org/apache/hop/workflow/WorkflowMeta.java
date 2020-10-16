@@ -1248,7 +1248,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param entryname The action name to find an alternative for..
    * @return The alternative transformName.
    */
-  public String getAlternativeJobentryName( String entryname ) {
+  public String getAlternativeActionName( String entryname ) {
     String newname = entryname;
     ActionCopy jec = findAction( newname );
     int nr = 1;
@@ -1267,7 +1267,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param name the name
    * @return the all workflow graph actions
    */
-  public ActionCopy[] getAllJobGraphEntries( String name ) {
+  public ActionCopy[] getAllWorkflowGraphActions( String name ) {
     int count = 0;
     for ( int i = 0; i < nrActions(); i++ ) {
       ActionCopy je = getAction( i );
@@ -1439,7 +1439,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return the selected locations
    */
   public Point[] getSelectedLocations() {
-    List<ActionCopy> selectedEntries = getSelectedEntries();
+    List<ActionCopy> selectedEntries = getSelectedActions();
     Point[] retval = new Point[ selectedEntries.size() ];
     for ( int i = 0; i < retval.length; i++ ) {
       ActionCopy si = selectedEntries.get( i );
@@ -1470,7 +1470,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @return the selected actions
    */
-  public List<ActionCopy> getSelectedEntries() {
+  public List<ActionCopy> getSelectedActions() {
     List<ActionCopy> selection = new ArrayList<ActionCopy>();
     for ( ActionCopy je : actionCopies ) {
       if ( je.isSelected() ) {
@@ -1486,7 +1486,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param actions the actions
    * @return the action indexes
    */
-  public int[] getEntryIndexes( List<ActionCopy> actions ) {
+  public int[] getActionIndexes( List<ActionCopy> actions ) {
     int[] retval = new int[ actions.size() ];
 
     for ( int i = 0; i < actions.size(); i++ ) {
