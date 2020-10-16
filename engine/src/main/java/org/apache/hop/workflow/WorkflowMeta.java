@@ -1245,16 +1245,16 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Proposes an alternative action name when the original already exists...
    *
-   * @param entryname The action name to find an alternative for..
-   * @return The alternative transformName.
+   * @param name The action name to find an alternative for..
+   * @return The alternative action name.
    */
-  public String getAlternativeActionName( String entryname ) {
-    String newname = entryname;
+  public String getAlternativeActionName( String name ) {
+    String newname = name;
     ActionCopy jec = findAction( newname );
     int nr = 1;
     while ( jec != null ) {
       nr++;
-      newname = entryname + " " + nr;
+      newname = name + " " + nr;
       jec = findAction( newname );
     }
 
