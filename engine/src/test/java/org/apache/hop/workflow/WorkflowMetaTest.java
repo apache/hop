@@ -28,7 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.IContentChangedListener;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.empty.ActionEmpty;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -88,17 +88,17 @@ public class WorkflowMetaTest {
     ActionEmpty je2 = new ActionEmpty();
     je2.setName( "je2" );
 
-    WorkflowHopMeta hop = new WorkflowHopMeta( new ActionCopy( je1 ), new ActionCopy( je2 ) );
+    WorkflowHopMeta hop = new WorkflowHopMeta( new ActionMeta( je1 ), new ActionMeta( je2 ) );
     workflowMeta.addWorkflowHop( hop );
 
     ActionEmpty je3 = new ActionEmpty();
     je3.setName( "je3" );
-    hop = new WorkflowHopMeta( new ActionCopy( je1 ), new ActionCopy( je3 ) );
+    hop = new WorkflowHopMeta( new ActionMeta( je1 ), new ActionMeta( je3 ) );
     workflowMeta.addWorkflowHop( hop );
 
     ActionEmpty je4 = new ActionEmpty();
     je4.setName( "je4" );
-    hop = new WorkflowHopMeta( new ActionCopy( je3 ), new ActionCopy( je4 ) );
+    hop = new WorkflowHopMeta( new ActionMeta( je3 ), new ActionMeta( je4 ) );
     workflowMeta.addWorkflowHop( hop );
 
     if ( branch.equals( "je1-je4" ) ) {
@@ -133,7 +133,7 @@ public class WorkflowMetaTest {
   public void shouldUseCoordinatesOfItsTransformsAndNotesWhenCalculatingMinimumPoint() {
     Point jobEntryPoint = new Point( 500, 500 );
     Point notePadMetaPoint = new Point( 400, 400 );
-    ActionCopy actionCopy = mock( ActionCopy.class );
+    ActionMeta actionCopy = mock( ActionMeta.class );
     when( actionCopy.getLocation() ).thenReturn( jobEntryPoint );
     NotePadMeta notePadMeta = mock( NotePadMeta.class );
     when( notePadMeta.getLocation() ).thenReturn( notePadMetaPoint );
@@ -236,7 +236,7 @@ public class WorkflowMetaTest {
 
   @Test
   public void testAddRemoveJobEntryCopySetUnsetParent() throws Exception {
-    ActionCopy actionCopy = mock( ActionCopy.class );
+    ActionMeta actionCopy = mock( ActionMeta.class );
     workflowMeta.addAction( actionCopy );
     workflowMeta.removeAction( 0 );
     verify( actionCopy, times( 1 ) ).setParentWorkflowMeta( workflowMeta );
@@ -247,9 +247,9 @@ public class WorkflowMetaTest {
   public void testHasLoop_simpleLoop() throws Exception {
     //main->2->3->main
     WorkflowMeta workflowMetaSpy = spy( workflowMeta );
-    ActionCopy actionCopyMain = createJobEntryCopy( "mainTransform" );
-    ActionCopy actionCopy2 = createJobEntryCopy( "transform2" );
-    ActionCopy actionCopy3 = createJobEntryCopy( "transform3" );
+    ActionMeta actionCopyMain = createJobEntryCopy( "mainTransform" );
+    ActionMeta actionCopy2 = createJobEntryCopy( "transform2" );
+    ActionMeta actionCopy3 = createJobEntryCopy( "transform3" );
     when( workflowMetaSpy.findNrPrevActions( actionCopyMain ) ).thenReturn( 1 );
     when( workflowMetaSpy.findPrevAction( actionCopyMain, 0 ) ).thenReturn( actionCopy2 );
     when( workflowMetaSpy.findNrPrevActions( actionCopy2 ) ).thenReturn( 1 );
@@ -263,10 +263,10 @@ public class WorkflowMetaTest {
   public void testHasLoop_loopInPrevTransforms() throws Exception {
     //main->2->3->4->3
     WorkflowMeta workflowMetaSpy = spy( workflowMeta );
-    ActionCopy actionCopyMain = createJobEntryCopy( "mainTransform" );
-    ActionCopy actionCopy2 = createJobEntryCopy( "transform2" );
-    ActionCopy actionCopy3 = createJobEntryCopy( "transform3" );
-    ActionCopy actionCopy4 = createJobEntryCopy( "transform4" );
+    ActionMeta actionCopyMain = createJobEntryCopy( "mainTransform" );
+    ActionMeta actionCopy2 = createJobEntryCopy( "transform2" );
+    ActionMeta actionCopy3 = createJobEntryCopy( "transform3" );
+    ActionMeta actionCopy4 = createJobEntryCopy( "transform4" );
     when( workflowMetaSpy.findNrPrevActions( actionCopyMain ) ).thenReturn( 1 );
     when( workflowMetaSpy.findPrevAction( actionCopyMain, 0 ) ).thenReturn( actionCopy2 );
     when( workflowMetaSpy.findNrPrevActions( actionCopy2 ) ).thenReturn( 1 );
@@ -279,9 +279,9 @@ public class WorkflowMetaTest {
     assertFalse( workflowMetaSpy.hasLoop( actionCopyMain ) );
   }
 
-  private ActionCopy createJobEntryCopy( String name ) {
+  private ActionMeta createJobEntryCopy( String name ) {
     IAction action = mock( IAction.class );
-    ActionCopy actionCopy = new ActionCopy( action );
+    ActionMeta actionCopy = new ActionMeta( action );
     when( actionCopy.getName() ).thenReturn( name );
     actionCopy.setNr( 0 );
     return actionCopy;

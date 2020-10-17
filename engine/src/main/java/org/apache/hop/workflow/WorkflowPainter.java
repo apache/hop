@@ -39,21 +39,21 @@ import org.apache.hop.core.gui.IScrollBar;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
+public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
   private WorkflowMeta workflowMeta;
 
-  private ActionCopy startHopAction;
+  private ActionMeta startHopAction;
   private Point endHopLocation;
-  private ActionCopy endHopAction;
-  private ActionCopy noInputAction;
-  private List<ActionCopy> activeActions;
+  private ActionMeta endHopAction;
+  private ActionMeta noInputAction;
+  private List<ActionMeta> activeActions;
   private List<ActionResult> actionResults;
 
   public WorkflowPainter( IGc gc, WorkflowMeta workflowMeta, Point area, IScrollBar hori,
@@ -163,8 +163,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     }
 
     for ( int j = 0; j < workflowMeta.nrActions(); j++ ) {
-      ActionCopy je = workflowMeta.getAction( j );
-      drawActionCopy( je );
+      ActionMeta je = workflowMeta.getAction( j );
+      drawActionMeta( je );
     }
 
     // Display an icon on the indicated location signaling to the user that the transform in question does not accept input
@@ -195,10 +195,10 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     drawRect( selectionRectangle );
   }
 
-  protected void drawActionCopy( ActionCopy actionCopy ) throws HopException {
+  protected void drawActionMeta( ActionMeta actionMeta ) throws HopException {
     int alpha = gc.getAlpha();
 
-    Point pt = actionCopy.getLocation();
+    Point pt = actionMeta.getLocation();
     if ( pt == null ) {
       pt = new Point( 50, 50 );
     }
@@ -207,8 +207,8 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     int x = screen.x;
     int y = screen.y;
 
-    String name = actionCopy.getName();
-    if ( actionCopy.isSelected() ) {
+    String name = actionMeta.getName();
+    if ( actionMeta.isSelected() ) {
       gc.setLineWidth( 3 );
     } else {
       gc.setLineWidth( 1 );
@@ -216,13 +216,13 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
     gc.setBackground( EColor.BACKGROUND );
     gc.fillRoundRectangle( x - 1, y - 1, iconSize + 1, iconSize + 1, 7, 7 );
-    gc.drawActionIcon( x, y, actionCopy, magnification );
+    gc.drawActionIcon( x, y, actionMeta, magnification );
 
-    areaOwners.add( new AreaOwner( AreaType.ACTION_ICON, x, y, iconSize, iconSize, offset, subject, actionCopy ) );
+    areaOwners.add( new AreaOwner( AreaType.ACTION_ICON, x, y, iconSize, iconSize, offset, subject, actionMeta ) );
 
-    if ( actionCopy.isMissing() ) {
+    if ( actionMeta.isMissing() ) {
       gc.setForeground( EColor.RED );
-    } else if ( actionCopy.isDeprecated() ) {
+    } else if ( actionMeta.isDeprecated() ) {
       gc.setForeground( EColor.DEPRECATED );
     } else {
       gc.setForeground( EColor.CRYSTAL );
@@ -240,17 +240,17 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     gc.setForeground( EColor.BLACK );
     gc.drawText( name, xpos, ypos, true );
 
-    if ( activeActions != null && activeActions.contains( actionCopy ) ) {
+    if ( activeActions != null && activeActions.contains( actionMeta ) ) {
       gc.setForeground( EColor.BLUE );
       int iconX = ( x + iconSize ) - ( miniIconSize / 2 );
       int iconY = y - ( miniIconSize / 2 );
       gc.drawImage( EImage.BUSY, iconX, iconY, magnification );
-      areaOwners.add( new AreaOwner( AreaType.ACTION_BUSY, iconX, iconY, miniIconSize, miniIconSize, offset, subject, actionCopy ) );
+      areaOwners.add( new AreaOwner( AreaType.ACTION_BUSY, iconX, iconY, miniIconSize, miniIconSize, offset, subject, actionMeta ) );
     } else {
       gc.setForeground( EColor.BLACK );
     }
 
-    ActionResult actionResult = findJobEntryResult( actionCopy );
+    ActionResult actionResult = findJobEntryResult( actionMeta );
     if ( actionResult != null ) {
       Result result = actionResult.getResult();
       int iconX = ( x + iconSize ) - ( miniIconSize / 2 );
@@ -261,21 +261,21 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
       if ( actionResult.isCheckpoint() ) {
         gc.drawImage( EImage.CHECKPOINT, iconX, iconY, magnification );
         areaOwners.add( new AreaOwner( AreaType.ACTION_RESULT_CHECKPOINT, iconX, iconY, miniIconSize,
-          miniIconSize, offset, actionCopy, actionResult ) );
+          miniIconSize, offset, actionMeta, actionResult ) );
       } else {
         if ( result.getResult() ) {
           gc.drawImage( EImage.TRUE, iconX, iconY, magnification );
           areaOwners.add( new AreaOwner( AreaType.ACTION_RESULT_SUCCESS, iconX, iconY, miniIconSize,
-            miniIconSize, offset, actionCopy, actionResult ) );
+            miniIconSize, offset, actionMeta, actionResult ) );
         } else {
           gc.drawImage( EImage.FALSE, iconX, iconY, magnification );
           areaOwners.add( new AreaOwner( AreaType.ACTION_RESULT_FAILURE, iconX, iconY, miniIconSize,
-            miniIconSize, offset, actionCopy, actionResult ) );
+            miniIconSize, offset, actionMeta, actionResult ) );
         }
       }
     }
 
-    WorkflowPainterExtension extension = new WorkflowPainterExtension( gc, areaOwners, workflowMeta, null, actionCopy, x, y, 0, 0, 0, 0, offset, iconSize );
+    WorkflowPainterExtension extension = new WorkflowPainterExtension( gc, areaOwners, workflowMeta, null, actionMeta, x, y, 0, 0, 0, 0, offset, iconSize );
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowPainterAction.id, extension );
     } catch ( Exception e ) {
@@ -287,7 +287,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     gc.setAlpha( alpha );
   }
 
-  private ActionResult findJobEntryResult( ActionCopy actionCopy ) {
+  private ActionResult findJobEntryResult( ActionMeta actionCopy ) {
     if ( actionResults == null ) {
       return null;
     }
@@ -460,7 +460,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     }
   }
 
-  public void setStartHopAction( ActionCopy action ) {
+  public void setStartHopAction( ActionMeta action ) {
     this.startHopAction = action;
   }
 
@@ -468,15 +468,15 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     this.endHopLocation = location;
   }
 
-  public void setEndHopAction( ActionCopy action ) {
+  public void setEndHopAction( ActionMeta action ) {
     this.endHopAction = action;
   }
 
-  public void setNoInputAction( ActionCopy action ) {
+  public void setNoInputAction( ActionMeta action ) {
     this.noInputAction = action;
   }
 
-  public void setActiveActions( List<ActionCopy> activeActions ) {
+  public void setActiveActions( List<ActionMeta> activeActions ) {
     this.activeActions = activeActions;
   }
 
@@ -503,7 +503,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     this.workflowMeta = workflowMeta;
   }
 
-  public ActionCopy getStartHopAction() {
+  public ActionMeta getStartHopAction() {
     return startHopAction;
   }
 
@@ -511,15 +511,15 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     return endHopLocation;
   }
 
-  public ActionCopy getEndHopAction() {
+  public ActionMeta getEndHopAction() {
     return endHopAction;
   }
 
-  public ActionCopy getNoInputAction() {
+  public ActionMeta getNoInputAction() {
     return noInputAction;
   }
 
-  public List<ActionCopy> getActiveActions() {
+  public List<ActionMeta> getActiveActions() {
     return activeActions;
   }
 

@@ -46,14 +46,13 @@ import org.eclipse.swt.widgets.Shell;
 import java.util.List;
 
 public class MissingActionDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = MissingActionDialog.class;
+  private static final Class<?> PKG = MissingActionDialog.class;
 
   private Shell shell;
   private Shell shellParent;
   private List<MissingAction> missingActions;
   private int mode;
   private PropsUi props;
-  private IAction action;
 
   public static final int MISSING_ACTIONS = 1;
   public static final int MISSING_ACTION_ID = 2;
@@ -87,8 +86,8 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
 
     if ( mode == MISSING_ACTION_ID ) {
       message =
-        BaseMessages.getString( PKG, "MissingActionDialog.MissingActionId", iAction.getName() + " - "
-          + ( (MissingAction) iAction ).getMissingPluginId() );
+        BaseMessages.getString( PKG, "MissingActionDialog.MissingActionId", action.getName() + " - "
+          + ( (MissingAction) action ).getMissingPluginId() );
     }
     return message;
   }

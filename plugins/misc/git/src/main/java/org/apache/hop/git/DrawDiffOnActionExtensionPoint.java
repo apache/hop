@@ -50,7 +50,7 @@ public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
     IGc gc = painter.getGc();
     WorkflowMeta pipelineMeta = painter.getWorkflowMeta();
     try {
-      pipelineMeta.getActionCopies().stream().filter( je -> je.getAttribute( ATTR_GIT, ATTR_STATUS ) != null )
+      pipelineMeta.getActions().stream().filter( je -> je.getAttribute( ATTR_GIT, ATTR_STATUS ) != null )
         .forEach( je -> {
           if ( pipelineMeta.getWorkflowVersion() == null ? false : pipelineMeta.getWorkflowVersion().startsWith( "git" ) ) {
             String status = je.getAttribute( ATTR_GIT, ATTR_STATUS );

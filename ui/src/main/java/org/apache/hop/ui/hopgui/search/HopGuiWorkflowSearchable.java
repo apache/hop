@@ -30,7 +30,7 @@ import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 
 public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
 
@@ -86,7 +86,7 @@ public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
       // Select and open the found action?
       //
       if (searchResult.getComponent()!=null) {
-        ActionCopy actionCopy = workflowMeta.findAction( searchResult.getComponent(), 0 );
+        ActionMeta actionCopy = workflowMeta.findAction( searchResult.getComponent(), 0 );
         if (actionCopy!=null) {
           actionCopy.setSelected( true );
           workflowGraph.editAction(actionCopy);

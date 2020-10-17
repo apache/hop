@@ -31,7 +31,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.context.HopGuiWorkflowActionContext;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +49,7 @@ public class ActionDebugGuiPlugin {
   )
   public void clearCustomActionLogging( HopGuiWorkflowActionContext context ) {
     WorkflowMeta workflowMeta = context.getWorkflowMeta();
-    ActionCopy action = context.getActionCopy();
+    ActionMeta action = context.getActionMeta();
 
     Map<String, Map<String, String>> attributesMap = workflowMeta.getAttributesMap();
     Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.DEBUG_GROUP );
@@ -70,7 +70,7 @@ public class ActionDebugGuiPlugin {
     HopGui hopGui = HopGui.getInstance();
     try {
       WorkflowMeta workflowMeta = context.getWorkflowMeta();
-      ActionCopy action = context.getActionCopy();
+      ActionMeta action = context.getActionMeta();
 
       Map<String, Map<String, String>> attributesMap = workflowMeta.getAttributesMap();
       Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.DEBUG_GROUP );

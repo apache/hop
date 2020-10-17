@@ -54,7 +54,7 @@ import java.util.Map;
  * @since 01-10-2003
  */
 
-public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
+public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
   IAttributes, IBaseMeta {
   public static final String XML_TAG = "action";
 
@@ -81,11 +81,11 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
 
   private Map<String, Map<String, String>> attributesMap;
 
-  public ActionCopy() {
+  public ActionMeta() {
     clear();
   }
 
-  public ActionCopy( IAction action ) {
+  public ActionMeta( IAction action ) {
     this();
     setAction( action );
   }
@@ -109,7 +109,7 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
   }
 
 
-  public ActionCopy( Node actionNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public ActionMeta( Node actionNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       String stype = XmlHandler.getTagValue( actionNode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
@@ -163,8 +163,8 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
     attributesMap = new HashMap<>();
   }
 
-  public ActionCopy clone() {
-    ActionCopy ge = new ActionCopy();
+  public ActionMeta clone() {
+    ActionMeta ge = new ActionMeta();
     ge.replaceMeta( this );
 
     for ( final Map.Entry<String, Map<String, String>> attribute : attributesMap.entrySet() ) {
@@ -174,7 +174,7 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
     return ge;
   }
 
-  public void replaceMeta( ActionCopy actionCopy ) {
+  public void replaceMeta( ActionMeta actionCopy ) {
     action = (IAction) actionCopy.action.clone();
     nr = actionCopy.nr; // Copy nr. 0 is the base copy...
 
@@ -188,7 +188,7 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
   }
 
   public Object cloneDeep() {
-    ActionCopy ge = (ActionCopy) clone();
+    ActionMeta ge = (ActionMeta) clone();
 
     // Copy underlying object as well...
     ge.action = (IAction) action.clone();
@@ -200,7 +200,7 @@ public class ActionCopy implements Cloneable, IXml, IGuiPosition, IChanged,
     if ( o == null ) {
       return false;
     }
-    ActionCopy je = (ActionCopy) o;
+    ActionMeta je = (ActionMeta) o;
     return je.action.getName().equalsIgnoreCase( action.getName() ) && je.getNr() == getNr();
   }
 
