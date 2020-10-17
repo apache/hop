@@ -519,7 +519,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     return noInputAction;
   }
 
-  public List<ActionCopy> getActiveJobEntries() {
+  public List<ActionCopy> getActiveActions() {
     return activeActions;
   }
 
