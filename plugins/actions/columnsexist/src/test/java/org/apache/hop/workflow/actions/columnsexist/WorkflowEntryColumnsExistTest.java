@@ -30,7 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
@@ -84,7 +84,7 @@ public class WorkflowEntryColumnsExistTest {
   public void setUp() {
     IWorkflowEngine<WorkflowMeta> parentWorkflow = new LocalWorkflowEngine( new WorkflowMeta() );
     action = spy( new ActionColumnsExist( "" ) );
-    parentWorkflow.getWorkflowMeta().addAction( new ActionCopy( action ) );
+    parentWorkflow.getWorkflowMeta().addAction( new ActionMeta( action ) );
     parentWorkflow.setStopped( false );
     action.setParentWorkflow( parentWorkflow );
     parentWorkflow.setLogLevel( LogLevel.NOTHING );

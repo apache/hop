@@ -23,7 +23,7 @@
 package org.apache.hop.workflow;
 
 import org.apache.hop.core.Result;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 
 import java.util.Comparator;
 import java.util.Date;
@@ -86,14 +86,14 @@ public class ActionResult implements Cloneable, Comparator<ActionResult>, Compar
    * @param result
    * @param comment
    * @param reason
-   * @param copy
+   * @param actionMeta
    * @deprecated use {@link #ActionResult(Result, String, String, String, String, int, String)}
    */
   @Deprecated
-  public ActionResult( Result result, String comment, String reason, ActionCopy copy ) {
+  public ActionResult( Result result, String comment, String reason, ActionMeta actionMeta ) {
 
-    this( result, copy.getAction().getLogChannel().getLogChannelId(), comment, reason, copy != null ? copy
-      .getName() : null, copy != null ? copy.getNr() : 0, copy == null ? null : ( copy.getAction() != null ? copy
+    this( result, actionMeta.getAction().getLogChannel().getLogChannelId(), comment, reason, actionMeta != null ? actionMeta
+      .getName() : null, actionMeta != null ? actionMeta.getNr() : 0, actionMeta == null ? null : ( actionMeta.getAction() != null ? actionMeta
       .getAction().getFilename() : null ) );
   }
 

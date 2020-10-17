@@ -57,9 +57,9 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
 
   private boolean passingExport;
 
-  private String startCopyName;
+  private String startActionName;
 
-  private int startCopyNr;
+  private int startActionNr;
 
   private boolean gatheringMetrics;
 
@@ -235,8 +235,8 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     xml.append( "    " ).append( XmlHandler.addTagValue( "log_level", logLevel.getCode() ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "clear_log", clearingLog ) );
 
-    xml.append( "    " ).append( XmlHandler.addTagValue( "start_copy_name", startCopyName ) );
-    xml.append( "    " ).append( XmlHandler.addTagValue( "start_copy_nr", startCopyNr ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "start_copy_name", startActionName ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "start_copy_nr", startActionNr ) );
 
     xml.append( "    " ).append( XmlHandler.addTagValue( "gather_metrics", gatheringMetrics ) );
     xml.append( "    " ).append( XmlHandler.addTagValue( "expand_remote_workflow", expandingRemoteWorkflow ) );
@@ -287,8 +287,8 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     logLevel = LogLevel.getLogLevelForCode( XmlHandler.getTagValue( configNode, "log_level" ) );
     clearingLog = "Y".equalsIgnoreCase( XmlHandler.getTagValue( configNode, "clear_log" ) );
 
-    startCopyName = XmlHandler.getTagValue( configNode, "start_copy_name" );
-    startCopyNr = Const.toInt( XmlHandler.getTagValue( configNode, "start_copy_nr" ), 0 );
+    startActionName = XmlHandler.getTagValue( configNode, "start_copy_name" );
+    startActionNr = Const.toInt( XmlHandler.getTagValue( configNode, "start_copy_nr" ), 0 );
 
     gatheringMetrics = "Y".equalsIgnoreCase( XmlHandler.getTagValue( configNode, "gather_metrics" ) );
 
@@ -348,31 +348,31 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
   }
 
   /**
-   * @return the startCopyName
+   * @return the start action name
    */
-  public String getStartCopyName() {
-    return startCopyName;
+  public String getStartActionName() {
+    return startActionName;
   }
 
   /**
-   * @param startCopyName the startCopyName to set
+   * @param name the name to set
    */
-  public void setStartCopyName( String startCopyName ) {
-    this.startCopyName = startCopyName;
+  public void setStartActionName( String name ) {
+    this.startActionName = name;
   }
 
   /**
    * @return the startCopyNr
    */
-  public int getStartCopyNr() {
-    return startCopyNr;
+  public int getStartActionNr() {
+    return startActionNr;
   }
 
   /**
    * @param startCopyNr the startCopyNr to set
    */
-  public void setStartCopyNr( int startCopyNr ) {
-    this.startCopyNr = startCopyNr;
+  public void setStartActionNr( int startCopyNr ) {
+    this.startActionNr = startCopyNr;
   }
 
   /**

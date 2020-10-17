@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.engine.PipelineEngineFactory;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 import org.json.simple.parser.ParseException;
@@ -80,11 +80,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     copyWorkflowParameters( workflow, workflowExecutionConfiguration.getParametersMap() );
 
     // Check if there is a starting point specified.
-    String startCopyName = workflowExecutionConfiguration.getStartCopyName();
-    if ( startCopyName != null && !startCopyName.isEmpty() ) {
-      int startCopyNr = workflowExecutionConfiguration.getStartCopyNr();
-      ActionCopy startActionCopy = workflowMeta.findAction( startCopyName, startCopyNr );
-      workflow.setStartActionCopy( startActionCopy );
+    String startActionName = workflowExecutionConfiguration.getStartActionName();
+    if ( startActionName != null && !startActionName.isEmpty() ) {
+      int startCopyNr = workflowExecutionConfiguration.getStartActionNr();
+      ActionMeta startActionMeta = workflowMeta.findAction( startActionName, startCopyNr );
+      workflow.setStartActionMeta( startActionMeta );
     }
 
     getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration );

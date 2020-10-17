@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.IActionListener;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -132,7 +132,7 @@ public class ModifyActionLogLevelExtensionPoint implements IExtensionPoint<IWork
 
       workflow.addActionListener( new IActionListener<WorkflowMeta>() {
 
-        @Override public void beforeExecution( IWorkflowEngine<WorkflowMeta> workflow, ActionCopy actionCopy, IAction action ) {
+        @Override public void beforeExecution( IWorkflowEngine<WorkflowMeta> workflow, ActionMeta actionCopy, IAction action ) {
 
           ILogChannel log = action.getLogChannel();
 
@@ -153,7 +153,7 @@ public class ModifyActionLogLevelExtensionPoint implements IExtensionPoint<IWork
           }
         }
 
-        @Override public void afterExecution( IWorkflowEngine<WorkflowMeta> workflow, ActionCopy actionCopy, IAction action, Result result ) {
+        @Override public void afterExecution( IWorkflowEngine<WorkflowMeta> workflow, ActionMeta actionCopy, IAction action, Result result ) {
 
           ILogChannel log = action.getLogChannel();
 

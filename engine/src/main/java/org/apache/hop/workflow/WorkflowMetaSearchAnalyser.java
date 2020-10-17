@@ -32,7 +32,7 @@ import org.apache.hop.core.search.ISearchResult;
 import org.apache.hop.core.search.ISearchable;
 import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.SearchableAnalyserPlugin;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 
 import java.util.ArrayList;
@@ -58,12 +58,12 @@ public class WorkflowMetaSearchAnalyser extends BaseSearchableAnalyser<WorkflowM
 
     // The actions...
     //
-    for ( ActionCopy actionCopy : workflowMeta.getActionCopies() ) {
-      String actionName = actionCopy.getName();
+    for ( ActionMeta actionMeta : workflowMeta.getActions() ) {
+      String actionName = actionMeta.getName();
       matchProperty( searchable, results, searchQuery, "workflow action name", actionName, actionName );
-      matchProperty( searchable, results, searchQuery, "workflow action description", actionCopy.getDescription(), actionName );
+      matchProperty( searchable, results, searchQuery, "workflow action description", actionMeta.getDescription(), actionName );
 
-      IAction action = actionCopy.getAction();
+      IAction action = actionMeta.getAction();
       if (action!=null) {
 
         String actionPluginId = action.getPluginId();
