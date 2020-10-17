@@ -133,6 +133,7 @@
         <sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
         <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
         <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
+        <spotless-maven-plugin.version>2.4.2</spotless-maven-plugin.version>
 
         <codehaus-jackson.version>1.9.13</codehaus-jackson.version>
         <fasterxml-jackson.version>2.10.2</fasterxml-jackson.version>
@@ -581,6 +582,73 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven-assembly-plugin.version}</version>
                 </plugin>
+                <plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>${spotless-maven-plugin.version}</version>
+				<configuration>
+					<!-- optional: limit format enforcement to just the files changed by 
+						this feature branch -->
+					<!-- <ratchetFrom>origin/main</ratchetFrom> -->
+					<formats>
+						<!-- you can define as many formats as you want, each is independent -->
+						<format>
+							<!-- define the files to apply to -->
+							<includes>
+								<include>*.md</include>
+								<include>.gitignore</include>
+							</includes>
+							<!-- define the steps to apply to those files -->
+							<trimTrailingWhitespace />
+							<endWithNewline />
+							<indent>
+								<tabs>true</tabs>
+								<spacesPerTab>4</spacesPerTab>
+							</indent>
+						</format>
+					</formats>
+					<!-- define a language-specific format -->
+					<java>
+						<!-- no need to specify files, inferred automatically, but you can 
+							if you want -->
+
+						<!-- apply a specific flavor of google-java-format -->
+						<googleJavaFormat>
+							<version>1.8</version>
+							<style>AOSP</style>
+						</googleJavaFormat>
+
+						<!-- make sure every file has the following copyright header. optionally, 
+							Spotless can set copyright years by digging through git history (see "license" 
+							section below) -->
+						<licenseHeader>
+							<content><![CDATA[/*! ******************************************************************************
+ *
+ * Hop : The Hop Orchestration Platform
+ *
+ * http://www.project-hop.org
+ *
+ *******************************************************************************
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ ******************************************************************************/]]>
+
+</content>  <!-- or <file>${basedir}/license-header</file> -->
+						</licenseHeader>
+					</java>
+				</configuration>
+			</plugin>
             </plugins>
         </pluginManagement>
 
