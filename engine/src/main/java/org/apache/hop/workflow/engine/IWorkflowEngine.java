@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.IActionListener;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
 import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
@@ -91,9 +91,9 @@ public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILo
 
   void setInteractive( boolean interactive );
 
-  Map<ActionCopy, ActionPipeline> getActiveActionPipeline();
+  Map<ActionMeta, ActionPipeline> getActiveActionPipeline();
 
-  Map<ActionCopy, ActionWorkflow> getActiveActionWorkflows();
+  Map<ActionMeta, ActionWorkflow> getActiveActionWorkflows();
 
   Map<String, Object> getExtensionDataMap();
 
@@ -101,7 +101,7 @@ public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILo
 
   List<IActionListener> getActionListeners();
 
-  void setStartActionCopy( ActionCopy startActionCopy );
+  void setStartActionMeta( ActionMeta actionMeta );
 
   T getWorkflowMeta();
 

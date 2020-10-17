@@ -27,7 +27,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -93,7 +93,7 @@ public class HopGuiWorkflowUndoDelegate {
       case DeleteAction:
         // un-Delete the transform at correct location: re-insert
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
-          ActionCopy action = (ActionCopy) changeAction.getCurrent()[ i ];
+          ActionMeta action = (ActionMeta) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
           workflowMeta.addAction( idx, action );
         }
@@ -116,8 +116,8 @@ public class HopGuiWorkflowUndoDelegate {
           WorkflowHopMeta hopMeta = (WorkflowHopMeta) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
           // Build a new hop:
-          ActionCopy from = workflowMeta.findAction( hopMeta.getFromAction().getName() );
-          ActionCopy to = workflowMeta.findAction( hopMeta.getToAction().getName() );
+          ActionMeta from = workflowMeta.findAction( hopMeta.getFromAction().getName() );
+          ActionMeta to = workflowMeta.findAction( hopMeta.getToAction().getName() );
           WorkflowHopMeta newHopMeta = new WorkflowHopMeta( from, to );
           workflowMeta.addWorkflowHop( idx, newHopMeta );
         }
@@ -131,7 +131,7 @@ public class HopGuiWorkflowUndoDelegate {
       case ChangeAction:
         // Delete the current transform, insert previous version.
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
-          ActionCopy prev = ( (ActionCopy) changeAction.getPrevious()[ i ] ).clone();
+          ActionMeta prev = ( (ActionMeta) changeAction.getPrevious()[ i ] ).clone();
           int idx = changeAction.getCurrentIndex()[ i ];
 
           workflowMeta.getAction( idx ).replaceMeta( prev );
@@ -169,7 +169,7 @@ public class HopGuiWorkflowUndoDelegate {
       case PositionAction:
         // Find the location of the transform:
         for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
-          ActionCopy action = workflowMeta.getAction( changeAction.getCurrentIndex()[ i ] );
+          ActionMeta action = workflowMeta.getAction( changeAction.getCurrentIndex()[ i ] );
           action.setLocation( changeAction.getPreviousLocation()[ i ] );
         }
         break;
@@ -209,7 +209,7 @@ public class HopGuiWorkflowUndoDelegate {
       case NewAction:
         // re-delete the transform at correct location:
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
-          ActionCopy entryCopy = (ActionCopy) changeAction.getCurrent()[ i ];
+          ActionMeta entryCopy = (ActionMeta) changeAction.getCurrent()[ i ];
           int idx = changeAction.getCurrentIndex()[ i ];
           workflowMeta.addAction( idx, entryCopy );
         }
@@ -268,7 +268,7 @@ public class HopGuiWorkflowUndoDelegate {
       case ChangeTransform:
         // Delete the current transform, insert previous version.
         for ( int i = 0; i < changeAction.getCurrent().length; i++ ) {
-          ActionCopy clonedEntry = ( (ActionCopy) changeAction.getCurrent()[ i ] ).clone();
+          ActionMeta clonedEntry = ( (ActionMeta) changeAction.getCurrent()[ i ] ).clone();
           workflowMeta.getAction( changeAction.getCurrentIndex()[ i ] ).replaceMeta( clonedEntry );
         }
         break;
@@ -303,7 +303,7 @@ public class HopGuiWorkflowUndoDelegate {
       case PositionTransform:
         for ( int i = 0; i < changeAction.getCurrentIndex().length; i++ ) {
           // Find & change the location of the transform:
-          ActionCopy action = workflowMeta.getAction( changeAction.getCurrentIndex()[ i ] );
+          ActionMeta action = workflowMeta.getAction( changeAction.getCurrentIndex()[ i ] );
           action.setLocation( changeAction.getCurrentLocation()[ i ] );
         }
         break;

@@ -68,7 +68,7 @@ public class ActionDialog extends Dialog {
   /**
    * A reference to the action interface
    */
-  protected IAction iAction;
+  protected IAction action;
 
   /**
    * the MetaStore
@@ -111,7 +111,7 @@ public class ActionDialog extends Dialog {
     super( parent, SWT.NONE );
     props = PropsUi.getInstance();
 
-    this.iAction = action;
+    this.action = action;
     this.workflowMeta = workflowMeta;
     this.shell = parent;
   }
