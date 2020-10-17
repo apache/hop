@@ -35,7 +35,7 @@ import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IAction;
 
 import java.util.ArrayList;
@@ -46,15 +46,15 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
   public static final String CONTEXT_ID = "HopGuiWorkflowActionContext";
 
   private WorkflowMeta workflowMeta;
-  private ActionCopy actionCopy;
+  private ActionMeta actionMeta;
   private HopGuiWorkflowGraph workflowGraph;
   private Point click;
   private GuiActionLambdaBuilder<HopGuiWorkflowActionContext> lambdaBuilder;
 
-  public HopGuiWorkflowActionContext( WorkflowMeta workflowMeta, ActionCopy actionCopy, HopGuiWorkflowGraph workflowGraph, Point click ) {
+  public HopGuiWorkflowActionContext( WorkflowMeta workflowMeta, ActionMeta actionMeta, HopGuiWorkflowGraph workflowGraph, Point click ) {
     super();
     this.workflowMeta = workflowMeta;
-    this.actionCopy = actionCopy;
+    this.actionMeta = actionMeta;
     this.workflowGraph = workflowGraph;
     this.click = click;
     this.lambdaBuilder = new GuiActionLambdaBuilder<>();
@@ -74,7 +74,7 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
 
     // Put references at the start since we use those things a lot
     //
-    IAction action = actionCopy.getAction();
+    IAction action = actionMeta.getAction();
     String[] objectDescriptions = action.getReferencedObjectDescriptions();
     for ( int i = 0; objectDescriptions != null && i < objectDescriptions.length; i++ ) {
       final String objectDescription = objectDescriptions[ i ];
@@ -149,15 +149,15 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
    *
    * @return value of actionCopy
    */
-  public ActionCopy getActionCopy() {
-    return actionCopy;
+  public ActionMeta getActionMeta() {
+    return actionMeta;
   }
 
   /**
-   * @param actionCopy The actionCopy to set
+   * @param actionMeta The actionCopy to set
    */
-  public void setActionCopy( ActionCopy actionCopy ) {
-    this.actionCopy = actionCopy;
+  public void setActionMeta( ActionMeta actionMeta ) {
+    this.actionMeta = actionMeta;
   }
 
   /**

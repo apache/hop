@@ -34,7 +34,7 @@ import org.apache.hop.core.svg.SvgImage;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -414,8 +414,8 @@ public class SwtGc implements IGc {
     }
   }
 
-  public void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) {
-    if ( actionCopy == null ) {
+  public void drawActionIcon( int x, int y, ActionMeta actionMeta, float magnification ) {
+    if ( actionMeta == null ) {
       return; // Don't draw anything
     }
 
@@ -424,20 +424,20 @@ public class SwtGc implements IGc {
     int w = Math.round( iconSize * magnification );
     int h = Math.round( iconSize * magnification );
 
-    if ( actionCopy.isSpecial() ) {
-      if ( actionCopy.isStart() ) {
+    if ( actionMeta.isSpecial() ) {
+      if ( actionMeta.isStart() ) {
         swtImage = GuiResource.getInstance().getSwtImageStart();
       }
-      if ( actionCopy.isDummy() ) {
+      if ( actionMeta.isDummy() ) {
         swtImage = GuiResource.getInstance().getSwtImageDummy();
       }
     } else {
-      String configId = actionCopy.getAction().getPluginId();
+      String configId = actionMeta.getAction().getPluginId();
       if ( configId != null ) {
         swtImage = GuiResource.getInstance().getImagesActions().get( configId );
       }
     }
-    if ( actionCopy.isMissing() ) {
+    if ( actionMeta.isMissing() ) {
       swtImage = GuiResource.getInstance().getSwtImageMissing();
     }
     if ( swtImage == null ) {

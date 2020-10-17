@@ -34,7 +34,7 @@ import org.apache.hop.core.svg.SvgCacheEntry;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.laf.BasePropertyHandler;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -606,22 +606,22 @@ public class SvgGc implements IGc {
     }
   }
 
-  public void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) throws HopException {
-    if ( actionCopy == null ) {
+  public void drawActionIcon( int x, int y, ActionMeta actionMeta, float magnification ) throws HopException {
+    if ( actionMeta == null ) {
       return; // Don't draw anything
     }
 
     SvgFile svgFile = null;
 
-    if ( actionCopy.isSpecial() ) {
-      if ( actionCopy.isStart() ) {
+    if ( actionMeta.isSpecial() ) {
+      if ( actionMeta.isStart() ) {
         svgFile = imageStart;
       }
-      if ( actionCopy.isDummy() ) {
+      if ( actionMeta.isDummy() ) {
         svgFile = imageDummy;
       }
     } else {
-      String configId = actionCopy.getAction().getPluginId();
+      String configId = actionMeta.getAction().getPluginId();
       if ( configId != null ) {
         svgFile = actionImages.get( configId );
       }

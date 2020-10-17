@@ -32,7 +32,7 @@ import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.extension.HopGuiWorkflowGraphExtension;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 
 @ExtensionPoint(
   id = "EditActionDebugLevelExtensionPoint",
@@ -52,7 +52,7 @@ public class EditActionDebugLevelExtensionPoint implements IExtensionPoint<HopGu
       ActionDebugLevelDialog dialog = new ActionDebugLevelDialog( HopGui.getInstance().getShell(), debugLevel );
       if ( dialog.open() ) {
         WorkflowMeta workflowMeta = ext.getWorkflowGraph().getWorkflowMeta();
-        ActionCopy actionCopy = (ActionCopy) ext.getAreaOwner().getParent();
+        ActionMeta actionCopy = (ActionMeta) ext.getAreaOwner().getParent();
 
         DebugLevelUtil.storeActionDebugLevel(
           workflowMeta.getAttributesMap().get( Defaults.DEBUG_GROUP ),

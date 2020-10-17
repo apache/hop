@@ -31,7 +31,7 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engine.WorkflowEngineFactory;
 
@@ -138,11 +138,11 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       }
       workflowMeta.activateParameters();
       // Check if there is a starting point specified.
-      String startCopyName = workflowExecutionConfiguration.getStartCopyName();
-      if ( startCopyName != null && !startCopyName.isEmpty() ) {
-        int startCopyNr = workflowExecutionConfiguration.getStartCopyNr();
-        ActionCopy startActionCopy = workflowMeta.findAction( startCopyName, startCopyNr );
-        workflow.setStartActionCopy( startActionCopy );
+      String startActionName = workflowExecutionConfiguration.getStartActionName();
+      if ( startActionName != null && !startActionName.isEmpty() ) {
+        int startActionNr = workflowExecutionConfiguration.getStartActionNr();
+        ActionMeta startActionMeta = workflowMeta.findAction( startActionName, startActionNr );
+        workflow.setStartActionMeta( startActionMeta );
       }
 
       getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration );
