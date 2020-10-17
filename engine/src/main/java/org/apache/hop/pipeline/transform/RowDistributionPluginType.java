@@ -38,7 +38,7 @@ import java.util.Map;
 @PluginMainClassType( IRowDistribution.class )
 @PluginAnnotationType( RowDistributionPlugin.class )
 public class RowDistributionPluginType extends BasePluginType<RowDistributionPlugin> implements IPluginType<RowDistributionPlugin> {
-  private static RowDistributionPluginType pluginType;
+  private static RowDistributionPluginType instance;
 
   private RowDistributionPluginType() {
     super( RowDistributionPlugin.class, "ROW_DISTRIBUTION", "Row Distribution" );
@@ -46,10 +46,10 @@ public class RowDistributionPluginType extends BasePluginType<RowDistributionPlu
   }
 
   public static RowDistributionPluginType getInstance() {
-    if ( pluginType == null ) {
-      pluginType = new RowDistributionPluginType();
+    if ( instance == null ) {
+      instance = new RowDistributionPluginType();
     }
-    return pluginType;
+    return instance;
   }
 
   /**
