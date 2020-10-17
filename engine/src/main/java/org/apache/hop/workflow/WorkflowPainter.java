@@ -49,11 +49,11 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
   private WorkflowMeta workflowMeta;
 
-  private ActionCopy startHopEntry;
+  private ActionCopy startHopAction;
   private Point endHopLocation;
-  private ActionCopy endHopEntry;
-  private ActionCopy noInputEntry;
-  private List<ActionCopy> activeJobEntries;
+  private ActionCopy endHopAction;
+  private ActionCopy noInputAction;
+  private List<ActionCopy> activeActions;
   private List<ActionResult> actionResults;
 
   public WorkflowPainter( IGc gc, WorkflowMeta workflowMeta, Point area, IScrollBar hori,
@@ -131,10 +131,10 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     if ( candidate != null ) {
       drawWorkflowHop( candidate, true );
     } else {
-      if ( startHopEntry != null && endHopLocation != null ) {
-        Point fr = startHopEntry.getLocation();
+      if ( startHopAction != null && endHopLocation != null ) {
+        Point fr = startHopAction.getLocation();
         Point to = endHopLocation;
-        if ( endHopEntry == null ) {
+        if ( endHopAction == null ) {
           gc.setForeground( EColor.GRAY );
           arrow = EImage.ARROW_DISABLED;
         } else {
@@ -143,12 +143,12 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
         }
         Point start = real2screen( fr.x + iconSize / 2, fr.y + iconSize / 2 );
         Point end = real2screen( to.x, to.y );
-        drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopEntry,
-          endHopEntry == null ? endHopLocation : endHopEntry );
-      } else if ( endHopEntry != null && endHopLocation != null ) {
+        drawArrow( arrow, start.x, start.y, end.x, end.y, theta, calcArrowLength(), 1.2, null, startHopAction,
+        	endHopAction == null ? endHopLocation : endHopAction );
+      } else if ( endHopAction != null && endHopLocation != null ) {
         Point fr = endHopLocation;
-        Point to = endHopEntry.getLocation();
-        if ( startHopEntry == null ) {
+        Point to = endHopAction.getLocation();
+        if ( startHopAction == null ) {
           gc.setForeground( EColor.GRAY );
           arrow = EImage.ARROW_DISABLED;
         } else {
@@ -158,7 +158,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
         Point start = real2screen( fr.x, fr.y );
         Point end = real2screen( to.x + iconSize / 2, to.y + iconSize / 2 );
         drawArrow( arrow, start.x, start.y, end.x, end.y + iconSize / 2, theta, calcArrowLength(), 1.2, null,
-          startHopEntry == null ? endHopLocation : startHopEntry, endHopEntry );
+          startHopAction == null ? endHopLocation : startHopAction, endHopAction );
       }
     }
 
@@ -169,10 +169,10 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
 
     // Display an icon on the indicated location signaling to the user that the transform in question does not accept input
     //
-    if ( noInputEntry != null ) {
+    if ( noInputAction != null ) {
       gc.setLineWidth( 2 );
       gc.setForeground( EColor.RED );
-      Point n = noInputEntry.getLocation();
+      Point n = noInputAction.getLocation();
       gc.drawLine( offset.x + n.x - 5, offset.y + n.y - 5, offset.x + n.x + iconSize + 5, offset.y
         + n.y + iconSize + 5 );
       gc.drawLine( offset.x + n.x - 5, offset.y + n.y + iconSize + 5, offset.x + n.x + iconSize + 5, offset.y
@@ -240,7 +240,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     gc.setForeground( EColor.BLACK );
     gc.drawText( name, xpos, ypos, true );
 
-    if ( activeJobEntries != null && activeJobEntries.contains( actionCopy ) ) {
+    if ( activeActions != null && activeActions.contains( actionCopy ) ) {
       gc.setForeground( EColor.BLUE );
       int iconX = ( x + iconSize ) - ( miniIconSize / 2 );
       int iconY = y - ( miniIconSize / 2 );
@@ -460,24 +460,24 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     }
   }
 
-  public void setStartHopEntry( ActionCopy startHopEntry ) {
-    this.startHopEntry = startHopEntry;
+  public void setStartHopAction( ActionCopy action ) {
+    this.startHopAction = action;
   }
 
-  public void setEndHopLocation( Point endHopLocation ) {
-    this.endHopLocation = endHopLocation;
+  public void setEndHopLocation( Point location ) {
+    this.endHopLocation = location;
   }
 
-  public void setEndHopEntry( ActionCopy endHopEntry ) {
-    this.endHopEntry = endHopEntry;
+  public void setEndHopAction( ActionCopy action ) {
+    this.endHopAction = action;
   }
 
-  public void setNoInputEntry( ActionCopy noInputEntry ) {
-    this.noInputEntry = noInputEntry;
+  public void setNoInputAction( ActionCopy action ) {
+    this.noInputAction = action;
   }
 
-  public void setActiveJobEntries( List<ActionCopy> activeJobEntries ) {
-    this.activeJobEntries = activeJobEntries;
+  public void setActiveActions( List<ActionCopy> activeActions ) {
+    this.activeActions = activeActions;
   }
 
   /**
@@ -503,24 +503,24 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionCopy> {
     this.workflowMeta = workflowMeta;
   }
 
-  public ActionCopy getStartHopEntry() {
-    return startHopEntry;
+  public ActionCopy getStartHopAction() {
+    return startHopAction;
   }
 
   public Point getEndHopLocation() {
     return endHopLocation;
   }
 
-  public ActionCopy getEndHopEntry() {
-    return endHopEntry;
+  public ActionCopy getEndHopAction() {
+    return endHopAction;
   }
 
-  public ActionCopy getNoInputEntry() {
-    return noInputEntry;
+  public ActionCopy getNoInputAction() {
+    return noInputAction;
   }
 
   public List<ActionCopy> getActiveJobEntries() {
-    return activeJobEntries;
+    return activeActions;
   }
 
 }

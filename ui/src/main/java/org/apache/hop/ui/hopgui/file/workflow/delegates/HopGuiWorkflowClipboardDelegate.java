@@ -136,7 +136,7 @@ public class HopGuiWorkflowClipboardDelegate {
 
         // Check the name, find alternative...
         entriesOldNames.add( name );
-        entries[ i ].setName( workflowMeta.getAlternativeJobentryName( name ) );
+        entries[ i ].setName( workflowMeta.getAlternativeActionName( name ) );
         workflowMeta.addAction( entries[ i ] );
         position[ i ] = workflowMeta.indexOfAction( entries[ i ] );
         entries[ i ].setSelected( true );
