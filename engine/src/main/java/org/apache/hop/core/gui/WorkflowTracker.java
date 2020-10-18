@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -196,11 +196,11 @@ public class WorkflowTracker<T extends WorkflowMeta> {
   /**
    * Finds the WorkflowTracker for the action specified. Use this to
    *
-   * @param actionCopy The entry to search the workflow tracker for
+   * @param actionMeta The action to search the workflow tracker for
    * @return The WorkflowTracker of null if none could be found...
    */
-  public WorkflowTracker findWorkflowTracker( ActionCopy actionCopy ) {
-    if ( actionCopy.getName() == null ) {
+  public WorkflowTracker findWorkflowTracker( ActionMeta actionMeta ) {
+    if ( actionMeta.getName() == null ) {
       return null;
     }
 
@@ -211,8 +211,8 @@ public class WorkflowTracker<T extends WorkflowMeta> {
         WorkflowTracker tracker = it.previous();
         ActionResult result = tracker.getActionResult();
         if ( result != null ) {
-          if ( actionCopy.getName().equals( result.getActionName() )
-            && actionCopy.getNr() == result.getActionNr() ) {
+          if ( actionMeta.getName().equals( result.getActionName() )
+            && actionMeta.getNr() == result.getActionNr() ) {
             return tracker;
           }
         }

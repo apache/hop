@@ -57,7 +57,7 @@ import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
 import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
@@ -123,9 +123,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
   protected List<IDelegationListener> delegationListeners;
 
-  protected Map<ActionCopy, ActionPipeline> activeActionPipeline;
+  protected Map<ActionMeta, ActionPipeline> activeActionPipeline;
 
-  protected Map<ActionCopy, ActionWorkflow> activeActionWorkflows;
+  protected Map<ActionMeta, ActionWorkflow> activeActionWorkflows;
 
   protected Map<String, Object> extensionDataMap;
 
@@ -140,7 +140,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
    */
   private INamedParams namedParams = new NamedParamsDefault();
 
-  private ActionCopy startActionCopy;
+  private ActionMeta startActionMeta;
 
   /**
    * The workflow that's launching this (sub-) workflow. This gives us access to the whole chain, including the parent variables,
@@ -1070,14 +1070,14 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
    *
    * @return value of activeActionPipeline
    */
-  @Override public Map<ActionCopy, ActionPipeline> getActiveActionPipeline() {
+  @Override public Map<ActionMeta, ActionPipeline> getActiveActionPipeline() {
     return activeActionPipeline;
   }
 
   /**
    * @param activeActionPipeline The activeActionPipeline to set
    */
-  public void setActiveActionPipeline( Map<ActionCopy, ActionPipeline> activeActionPipeline ) {
+  public void setActiveActionPipeline( Map<ActionMeta, ActionPipeline> activeActionPipeline ) {
     this.activeActionPipeline = activeActionPipeline;
   }
 
@@ -1086,14 +1086,14 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
    *
    * @return value of activeActionWorkflows
    */
-  @Override public Map<ActionCopy, ActionWorkflow> getActiveActionWorkflows() {
+  @Override public Map<ActionMeta, ActionWorkflow> getActiveActionWorkflows() {
     return activeActionWorkflows;
   }
 
   /**
    * @param activeActionWorkflows The activeActionWorkflows to set
    */
-  public void setActiveActionWorkflows( Map<ActionCopy, ActionWorkflow> activeActionWorkflows ) {
+  public void setActiveActionWorkflows( Map<ActionMeta, ActionWorkflow> activeActionWorkflows ) {
     this.activeActionWorkflows = activeActionWorkflows;
   }
 
@@ -1146,19 +1146,19 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * Gets startActionCopy
+   * Gets start action meta
    *
-   * @return value of startActionCopy
+   * @return value of start action meta
    */
-  public ActionCopy getStartActionCopy() {
-    return startActionCopy;
+  public ActionMeta getStartActionMeta() {
+    return startActionMeta;
   }
 
   /**
    * @param startActionCopy The startActionCopy to set
    */
-  @Override public void setStartActionCopy( ActionCopy startActionCopy ) {
-    this.startActionCopy = startActionCopy;
+  @Override public void setStartActionMeta( ActionMeta actionMeta ) {
+    this.startActionMeta = actionMeta;
   }
 
   /**

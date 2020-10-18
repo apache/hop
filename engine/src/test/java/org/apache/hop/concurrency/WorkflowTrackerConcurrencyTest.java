@@ -26,7 +26,7 @@ import org.apache.commons.collections.ListUtils;
 import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.workflow.ActionResult;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -49,7 +49,7 @@ import static org.mockito.Mockito.when;
 /**
  * This test consists of two similar cases. There are three type of actors: getters, searchers and updaters. They work
  * simultaneously within their own threads. Getters invoke {@linkplain WorkflowTracker#getWorkflowTracker(int)} with a random
- * index, searchers call {@linkplain WorkflowTracker#findWorkflowTracker(ActionCopy)}, updaters add new children
+ * index, searchers call {@linkplain WorkflowTracker#findWorkflowTracker(ActionMeta)}, updaters add new children
  * <tt>updatersCycles</tt> times. The difference between two cases is the second has a small limit of stored children,
  * so the parent WorkflowTracker will be forced to remove some of its elements.
  *
@@ -125,8 +125,8 @@ public class WorkflowTrackerConcurrencyTest {
     assertEquals( updatersAmount * updatersCycles, generator.get() );
   }
 
-  static ActionCopy mockJobEntryCopy( String name, int number ) {
-    ActionCopy copy = mock( ActionCopy.class );
+  static ActionMeta mockJobEntryCopy( String name, int number ) {
+    ActionMeta copy = mock( ActionMeta.class );
     when( copy.getName() ).thenReturn( name );
     when( copy.getNr() ).thenReturn( number );
     return copy;
@@ -164,9 +164,9 @@ public class WorkflowTrackerConcurrencyTest {
 
   private static class Searcher extends StopOnErrorCallable<Object> {
     private final WorkflowTracker tracker;
-    private final ActionCopy copy;
+    private final ActionMeta copy;
 
-    public Searcher( AtomicBoolean condition, WorkflowTracker tracker, ActionCopy copy ) {
+    public Searcher( AtomicBoolean condition, WorkflowTracker tracker, ActionMeta copy ) {
       super( condition );
       this.tracker = tracker;
       this.copy = copy;

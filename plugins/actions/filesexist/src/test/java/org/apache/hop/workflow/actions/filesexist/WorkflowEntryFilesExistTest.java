@@ -26,7 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.utils.TestUtils;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -55,7 +55,7 @@ public class WorkflowEntryFilesExistTest {
     workflow = new LocalWorkflowEngine( new WorkflowMeta() );
     entry = new ActionFilesExist();
 
-    workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );
+    workflow.getWorkflowMeta().addAction( new ActionMeta( entry ) );
     entry.setParentWorkflow( workflow );
     WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
     entry.setParentWorkflowMeta( mockWorkflowMeta );
