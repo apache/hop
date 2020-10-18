@@ -74,7 +74,6 @@
     </licenses>
 
     <properties>
-        <project.version>0.1.0-SNAPSHOT</project.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
@@ -614,8 +613,7 @@
 
 						<!-- apply a specific flavor of google-java-format -->
 						<googleJavaFormat>
-							<version>1.8</version>
-							<style>AOSP</style>
+							<version>1.9</version>
 						</googleJavaFormat>
 
 						<!-- make sure every file has the following copyright header. optionally, 

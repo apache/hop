@@ -19,24 +19,21 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.ldapinput.store;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapInputMeta;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.security.KeyManagementException;
-import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
 
 public class CustomSocketFactory extends SSLSocketFactory {
 
@@ -46,96 +43,92 @@ public class CustomSocketFactory extends SSLSocketFactory {
 
   private static TrustManager[] trustManagers = null;
 
-  private static final TrustManager[] ALWAYS_TRUST_MANAGER = new TrustManager[] { new TrustAlwaysManager() };
+  private static final TrustManager[] ALWAYS_TRUST_MANAGER =
+      new TrustManager[] {new TrustAlwaysManager()};
 
   private SSLSocketFactory factory;
 
-  /**
-   * Required for reflection.
-   */
+  /** Required for reflection. */
   public CustomSocketFactory() {
     super();
   }
 
-  /**
-   * For internal use only.
-   */
-  protected CustomSocketFactory( SSLSocketFactory factory ) {
+  /** For internal use only. */
+  protected CustomSocketFactory(SSLSocketFactory factory) {
     this.factory = factory;
   }
 
   public static synchronized CustomSocketFactory getDefault() {
-    if ( !configured ) {
+    if (!configured) {
       throw new IllegalStateException();
     }
 
     SSLContext ctx;
     try {
-      ctx = SSLContext.getInstance( "TLS" );
-      ctx.init( null, trustManagers, null );
-    } catch ( KeyManagementException e ) {
-      throw new RuntimeException( e );
-    } catch ( NoSuchAlgorithmException e ) {
-      throw new RuntimeException( e );
+      ctx = SSLContext.getInstance("TLS");
+      ctx.init(null, trustManagers, null);
+    } catch (KeyManagementException e) {
+      throw new RuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
     }
-    return new CustomSocketFactory( ctx.getSocketFactory() );
+    return new CustomSocketFactory(ctx.getSocketFactory());
   }
 
-  /**
-   * Configures this SSLSocketFactory so that it uses the given keystore as its truststore.
-   */
-  public static synchronized void configure( String path, String password ) throws HopException {
+  /** Configures this SSLSocketFactory so that it uses the given keystore as its truststore. */
+  public static synchronized void configure(String path, String password) throws HopException {
 
     // Get the appropriate key-store based on the file path...
     //
     KeyStore keyStore;
 
     try {
-      if ( !Utils.isEmpty( path ) && path.endsWith( ".p12" ) ) {
-        keyStore = KeyStore.getInstance( "PKCS12" );
+      if (!Utils.isEmpty(path) && path.endsWith(".p12")) {
+        keyStore = KeyStore.getInstance("PKCS12");
       } else {
-        keyStore = KeyStore.getInstance( "JKS" );
+        keyStore = KeyStore.getInstance("JKS");
       }
-    } catch ( Exception e ) {
-      throw new HopException( BaseMessages.getString(
-        PKG, "HopTrustManager.Exception.CouldNotCreateCertStore" ), e );
+    } catch (Exception e) {
+      throw new HopException(
+          BaseMessages.getString(PKG, "HopTrustManager.Exception.CouldNotCreateCertStore"), e);
     }
 
-    trustManagers = new HopTrustManager[] { new HopTrustManager( keyStore, path, password ) };
+    trustManagers = new HopTrustManager[] {new HopTrustManager(keyStore, path, password)};
     configured = true;
   }
 
-  /**
-   * Configures this SSLSocketFactory so that it trusts any signer.
-   */
+  /** Configures this SSLSocketFactory so that it trusts any signer. */
   public static synchronized void configure() {
     trustManagers = ALWAYS_TRUST_MANAGER;
     configured = true;
   }
 
   @Override
-  public Socket createSocket( String host, int port ) throws IOException {
-    return factory.createSocket( host, port );
+  public Socket createSocket(String host, int port) throws IOException {
+    return factory.createSocket(host, port);
   }
 
   @Override
-  public Socket createSocket( String host, int port, InetAddress clientHost, int clientPort ) throws IOException {
-    return factory.createSocket( host, port, clientHost, clientPort );
+  public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort)
+      throws IOException {
+    return factory.createSocket(host, port, clientHost, clientPort);
   }
 
   @Override
-  public Socket createSocket( InetAddress host, int port ) throws IOException {
-    return factory.createSocket( host, port );
+  public Socket createSocket(InetAddress host, int port) throws IOException {
+    return factory.createSocket(host, port);
   }
 
   @Override
-  public Socket createSocket( InetAddress host, int port, InetAddress clientHost, int clientPort ) throws IOException {
-    return factory.createSocket( host, port, clientHost, clientPort );
+  public Socket createSocket(InetAddress host, int port, InetAddress clientHost, int clientPort)
+      throws IOException {
+    return factory.createSocket(host, port, clientHost, clientPort);
   }
 
   @Override
-  public Socket createSocket( Socket socket, String host, int port, boolean autoclose ) throws IOException {
-    return factory.createSocket( socket, host, port, autoclose );
+  public Socket createSocket(Socket socket, String host, int port, boolean autoclose)
+      throws IOException {
+    return factory.createSocket(socket, host, port, autoclose);
   }
 
   @Override
@@ -147,5 +140,4 @@ public class CustomSocketFactory extends SSLSocketFactory {
   public String[] getSupportedCipherSuites() {
     return factory.getSupportedCipherSuites();
   }
-
 }
