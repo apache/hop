@@ -27,7 +27,7 @@ import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.utils.TestUtils;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -69,7 +69,7 @@ public class WorkflowEntryFtpTest {
     workflow = new LocalWorkflowEngine( new WorkflowMeta() );
     entry = new MockedActionFtp();
 
-    workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );
+    workflow.getWorkflowMeta().addAction( new ActionMeta( entry ) );
     entry.setParentWorkflow( workflow );
 
     workflow.setStopped( false );
