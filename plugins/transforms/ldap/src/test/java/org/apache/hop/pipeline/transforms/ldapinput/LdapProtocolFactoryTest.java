@@ -29,22 +29,22 @@ import org.mockito.Mockito;
 
 public class LdapProtocolFactoryTest {
 
-    @Test
-    public void createLdapProtocol() throws Exception {
-        String ldapVariable = "${ldap_protocol_variable}";
-        String ldap = "LDAP";
-        String host = "localhost";
+  @Test
+  public void createLdapProtocol() throws Exception {
+    String ldapVariable = "${ldap_protocol_variable}";
+    String ldap = "LDAP";
+    String host = "localhost";
 
-        LdapProtocolFactory ldapProtocolFactory =
-                new LdapProtocolFactory(Mockito.mock(ILogChannel.class));
-        IVariables variables = Mockito.mock(IVariables.class);
-        ILdapMeta meta = Mockito.mock(ILdapMeta.class);
-        Mockito.doReturn(ldapVariable).when(meta).getProtocol();
-        Mockito.doReturn(ldap).when(variables).environmentSubstitute(ldapVariable);
-        Mockito.doReturn(host).when(meta).getHost();
-        Mockito.doReturn(host).when(variables).environmentSubstitute(host);
+    LdapProtocolFactory ldapProtocolFactory =
+        new LdapProtocolFactory(Mockito.mock(ILogChannel.class));
+    IVariables variables = Mockito.mock(IVariables.class);
+    ILdapMeta meta = Mockito.mock(ILdapMeta.class);
+    Mockito.doReturn(ldapVariable).when(meta).getProtocol();
+    Mockito.doReturn(ldap).when(variables).environmentSubstitute(ldapVariable);
+    Mockito.doReturn(host).when(meta).getHost();
+    Mockito.doReturn(host).when(variables).environmentSubstitute(host);
 
-        ldapProtocolFactory.createLdapProtocol(variables, meta, Collections.emptyList());
-        Mockito.verify(variables, Mockito.times(1)).environmentSubstitute(ldapVariable);
-    }
+    ldapProtocolFactory.createLdapProtocol(variables, meta, Collections.emptyList());
+    Mockito.verify(variables, Mockito.times(1)).environmentSubstitute(ldapVariable);
+  }
 }

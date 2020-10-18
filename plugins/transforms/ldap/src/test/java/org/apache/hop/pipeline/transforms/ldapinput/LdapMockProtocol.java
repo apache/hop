@@ -34,48 +34,45 @@ import org.mockito.Mockito;
  * @author nhudak
  */
 public class LdapMockProtocol extends LdapProtocol {
-    public static InitialLdapContext mockContext;
+  public static InitialLdapContext mockContext;
 
-    public LdapMockProtocol(
-            ILogChannel log,
-            IVariables variables,
-            ILdapMeta meta,
-            Collection<String> binaryAttributes) {
-        super(log, variables, meta, binaryAttributes);
-    }
+  public LdapMockProtocol(
+      ILogChannel log, IVariables variables, ILdapMeta meta, Collection<String> binaryAttributes) {
+    super(log, variables, meta, binaryAttributes);
+  }
 
-    public static String getName() {
-        return "LDAP MOCK";
-    }
+  public static String getName() {
+    return "LDAP MOCK";
+  }
 
-    public static InitialLdapContext setup() {
-        LdapProtocolFactory.protocols.add(LdapMockProtocol.class);
-        return mockContext = Mockito.mock(InitialLdapContext.class);
-    }
+  public static InitialLdapContext setup() {
+    LdapProtocolFactory.protocols.add(LdapMockProtocol.class);
+    return mockContext = Mockito.mock(InitialLdapContext.class);
+  }
 
-    public static void cleanup() {
-        LdapProtocolFactory.protocols.remove(LdapMockProtocol.class);
-        mockContext = null;
-    }
+  public static void cleanup() {
+    LdapProtocolFactory.protocols.remove(LdapMockProtocol.class);
+    mockContext = null;
+  }
 
-    @Override
-    protected void doConnect(String username, String password) throws HopException {
-        if (mockContext == null) {
-            throw new RuntimeException("LDAP Mock Connection was not setup");
-        }
+  @Override
+  protected void doConnect(String username, String password) throws HopException {
+    if (mockContext == null) {
+      throw new RuntimeException("LDAP Mock Connection was not setup");
     }
+  }
 
-    @Override
-    public InitialLdapContext getCtx() {
-        if (mockContext == null) {
-            throw new RuntimeException("LDAP Mock Connection was not setup");
-        } else {
-            return mockContext;
-        }
+  @Override
+  public InitialLdapContext getCtx() {
+    if (mockContext == null) {
+      throw new RuntimeException("LDAP Mock Connection was not setup");
+    } else {
+      return mockContext;
     }
+  }
 
-    @Override
-    public void close() {
-        mockContext = null;
-    }
+  @Override
+  public void close() {
+    mockContext = null;
+  }
 }

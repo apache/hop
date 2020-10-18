@@ -40,102 +40,102 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class LdapConnectionTest {
 
-    @Mock private ILogChannel logChannelInterface;
+  @Mock private ILogChannel logChannelInterface;
 
-    @Mock private IVariables variables;
+  @Mock private IVariables variables;
 
-    private LdapInputMeta meta;
+  private LdapInputMeta meta;
 
-    @Rule public ExpectedException expectedEx = ExpectedException.none();
+  @Rule public ExpectedException expectedEx = ExpectedException.none();
 
-    @Test
-    public void testFake() {
-        Assert.assertTrue("To Keep RunWith annotation", true);
+  @Test
+  public void testFake() {
+    Assert.assertTrue("To Keep RunWith annotation", true);
+  }
+
+  // @Test
+  public void testLdapConnect() {
+    meta = new LdapInputMeta();
+    meta.setProtocol("LDAP");
+    meta.setHost("localhost");
+    meta.setPort("1389");
+
+    when(variables.environmentSubstitute(Matchers.<String>any()))
+        .thenAnswer(AdditionalAnswers.returnsFirstArg());
+
+    LdapConnection connection;
+    try {
+      connection = new LdapConnection(logChannelInterface, variables, meta, null);
+      connection.connect("cn=Directory Manager", "password");
+    } catch (HopException e) {
+      fail(e.getMessage());
     }
+  }
 
-    // @Test
-    public void testLdapConnect() {
-        meta = new LdapInputMeta();
-        meta.setProtocol("LDAP");
-        meta.setHost("localhost");
-        meta.setPort("1389");
+  // @Test
+  public void testLdapConnectBadCredential() throws HopException {
+    meta = new LdapInputMeta();
+    meta.setProtocol("LDAP");
+    meta.setHost("localhost");
+    meta.setPort("1389");
 
-        when(variables.environmentSubstitute(Matchers.<String>any()))
-                .thenAnswer(AdditionalAnswers.returnsFirstArg());
+    when(variables.environmentSubstitute(Matchers.<String>any()))
+        .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
-        LdapConnection connection;
-        try {
-            connection = new LdapConnection(logChannelInterface, variables, meta, null);
-            connection.connect("cn=Directory Manager", "password");
-        } catch (HopException e) {
-            fail(e.getMessage());
-        }
+    expectedEx.expect(HopException.class);
+    expectedEx.expectMessage("Invalid Credentials");
+
+    LdapConnection connection;
+    connection = new LdapConnection(logChannelInterface, variables, meta, null);
+    connection.connect("cn=Directory Manager", "idontknow");
+  }
+
+  // Failing test case - TODO Need to mock Utils.resolvePassword
+  public void testLdapsTrustAllConnect() {
+
+    meta = new LdapInputMeta();
+    meta.setProtocol("LDAP SSL");
+    meta.setHost("localhost");
+    meta.setPort("1636");
+    meta.setTrustStorePath("self-signed.truststore");
+    meta.setTrustStorePassword("changeit");
+    meta.setUseCertificate(true);
+    meta.setTrustAllCertificates(true);
+
+    when(variables.environmentSubstitute(Matchers.<String>any()))
+        .thenAnswer(AdditionalAnswers.returnsFirstArg());
+
+    LdapConnection connection;
+    try {
+      connection = new LdapConnection(logChannelInterface, variables, meta, null);
+      connection.connect("cn=Directory Manager", "password");
+    } catch (HopException e) {
+      fail(e.getMessage());
     }
+  }
 
-    // @Test
-    public void testLdapConnectBadCredential() throws HopException {
-        meta = new LdapInputMeta();
-        meta.setProtocol("LDAP");
-        meta.setHost("localhost");
-        meta.setPort("1389");
+  // Failing test case - I expect connection to be successful
+  public void testLdapsTrustOnlyStoreConnect() {
 
-        when(variables.environmentSubstitute(Matchers.<String>any()))
-                .thenAnswer(AdditionalAnswers.returnsFirstArg());
+    meta = new LdapInputMeta();
+    meta.setProtocol("LDAP SSL");
+    meta.setHost("localhost");
+    meta.setPort("1636");
+    meta.setTrustStorePath(
+        getClass().getClassLoader().getResource("self-signed.truststore").getPath());
+    meta.setTrustStorePassword("changeit");
+    meta.setUseCertificate(true);
+    meta.setTrustAllCertificates(false);
 
-        expectedEx.expect(HopException.class);
-        expectedEx.expectMessage("Invalid Credentials");
+    when(variables.environmentSubstitute(Matchers.<String>any()))
+        .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
-        LdapConnection connection;
-        connection = new LdapConnection(logChannelInterface, variables, meta, null);
-        connection.connect("cn=Directory Manager", "idontknow");
+    LdapConnection connection;
+    try {
+      connection = new LdapConnection(logChannelInterface, variables, meta, null);
+      connection.connect("cn=Directory Manager", "password");
+    } catch (HopException e) {
+      fail(e.getMessage());
     }
-
-    // Failing test case - TODO Need to mock Utils.resolvePassword
-    public void testLdapsTrustAllConnect() {
-
-        meta = new LdapInputMeta();
-        meta.setProtocol("LDAP SSL");
-        meta.setHost("localhost");
-        meta.setPort("1636");
-        meta.setTrustStorePath("self-signed.truststore");
-        meta.setTrustStorePassword("changeit");
-        meta.setUseCertificate(true);
-        meta.setTrustAllCertificates(true);
-
-        when(variables.environmentSubstitute(Matchers.<String>any()))
-                .thenAnswer(AdditionalAnswers.returnsFirstArg());
-
-        LdapConnection connection;
-        try {
-            connection = new LdapConnection(logChannelInterface, variables, meta, null);
-            connection.connect("cn=Directory Manager", "password");
-        } catch (HopException e) {
-            fail(e.getMessage());
-        }
-    }
-
-    // Failing test case - I expect connection to be successful
-    public void testLdapsTrustOnlyStoreConnect() {
-
-        meta = new LdapInputMeta();
-        meta.setProtocol("LDAP SSL");
-        meta.setHost("localhost");
-        meta.setPort("1636");
-        meta.setTrustStorePath(
-                getClass().getClassLoader().getResource("self-signed.truststore").getPath());
-        meta.setTrustStorePassword("changeit");
-        meta.setUseCertificate(true);
-        meta.setTrustAllCertificates(false);
-
-        when(variables.environmentSubstitute(Matchers.<String>any()))
-                .thenAnswer(AdditionalAnswers.returnsFirstArg());
-
-        LdapConnection connection;
-        try {
-            connection = new LdapConnection(logChannelInterface, variables, meta, null);
-            connection.connect("cn=Directory Manager", "password");
-        } catch (HopException e) {
-            fail(e.getMessage());
-        }
-    }
+  }
 }

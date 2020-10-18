@@ -33,56 +33,53 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transforms.ldapinput.store.CustomSocketFactory;
 
 public class LdapTlsProtocol extends LdapSslProtocol {
-    private StartTlsResponse startTlsResponse;
+  private StartTlsResponse startTlsResponse;
 
-    public LdapTlsProtocol(
-            ILogChannel log,
-            IVariables variables,
-            ILdapMeta meta,
-            Collection<String> binaryAttributes) {
-        super(log, variables, meta, binaryAttributes);
-    }
+  public LdapTlsProtocol(
+      ILogChannel log, IVariables variables, ILdapMeta meta, Collection<String> binaryAttributes) {
+    super(log, variables, meta, binaryAttributes);
+  }
 
-    @Override
-    protected String getConnectionPrefix() {
-        return "ldap://";
-    }
+  @Override
+  protected String getConnectionPrefix() {
+    return "ldap://";
+  }
 
-    public static String getName() {
-        return "LDAP TLS";
-    }
+  public static String getName() {
+    return "LDAP TLS";
+  }
 
-    @Override
-    protected void doConnect(String username, String password) throws HopException {
-        super.doConnect(username, password);
-        StartTlsRequest tlsRequest = new StartTlsRequest();
-        try {
-            this.startTlsResponse = (StartTlsResponse) getCtx().extendedOperation(tlsRequest);
-            /* Starting TLS */
-            this.startTlsResponse.negotiate(CustomSocketFactory.getDefault());
-        } catch (NamingException e) {
-            throw new HopException(e);
-        } catch (IOException e) {
-            throw new HopException(e);
-        }
+  @Override
+  protected void doConnect(String username, String password) throws HopException {
+    super.doConnect(username, password);
+    StartTlsRequest tlsRequest = new StartTlsRequest();
+    try {
+      this.startTlsResponse = (StartTlsResponse) getCtx().extendedOperation(tlsRequest);
+      /* Starting TLS */
+      this.startTlsResponse.negotiate(CustomSocketFactory.getDefault());
+    } catch (NamingException e) {
+      throw new HopException(e);
+    } catch (IOException e) {
+      throw new HopException(e);
     }
+  }
 
-    @Override
-    protected void configureSslEnvironment(Map<String, String> env) {
-        // noop
-    }
+  @Override
+  protected void configureSslEnvironment(Map<String, String> env) {
+    // noop
+  }
 
-    @Override
-    public void close() throws HopException {
-        if (startTlsResponse != null) {
-            try {
-                startTlsResponse.close();
-            } catch (IOException e) {
-                throw new HopException(e);
-            } finally {
-                startTlsResponse = null;
-            }
-        }
-        super.close();
+  @Override
+  public void close() throws HopException {
+    if (startTlsResponse != null) {
+      try {
+        startTlsResponse.close();
+      } catch (IOException e) {
+        throw new HopException(e);
+      } finally {
+        startTlsResponse = null;
+      }
     }
+    super.close();
+  }
 }

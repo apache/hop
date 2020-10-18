@@ -40,69 +40,63 @@ import org.junit.Test;
  * @author nhudak
  */
 public class LdapInputTest {
-    private static TransformMockHelper<LdapInputMeta, LdapInputData> mockHelper;
+  private static TransformMockHelper<LdapInputMeta, LdapInputData> mockHelper;
 
-    @BeforeClass
-    public static void setup() {
-        mockHelper =
-                new TransformMockHelper<LdapInputMeta, LdapInputData>(
-                        "LDAP INPUT TEST", LdapInputMeta.class, LdapInputData.class);
-        when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
-                .thenReturn(mockHelper.logChannelInterface);
-        when(mockHelper.pipeline.isRunning()).thenReturn(true);
+  @BeforeClass
+  public static void setup() {
+    mockHelper =
+        new TransformMockHelper<LdapInputMeta, LdapInputData>(
+            "LDAP INPUT TEST", LdapInputMeta.class, LdapInputData.class);
+    when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
+        .thenReturn(mockHelper.logChannelInterface);
+    when(mockHelper.pipeline.isRunning()).thenReturn(true);
+  }
+
+  @AfterClass
+  public static void tearDown() {
+    mockHelper.cleanUp();
+  }
+
+  @Test
+  public void testRowProcessing() throws Exception {
+
+    // Setup transform
+    LdapInputMeta meta = mock(LdapInputMeta.class);
+    LdapInputData data = new LdapInputData();
+    LdapInput ldapInput =
+        new LdapInput(
+            mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline);
+
+    // Mock fields
+    LdapInputField[] fields =
+        new LdapInputField[] {
+          new LdapInputField("dn"), new LdapInputField("cn"), new LdapInputField("role")
+        };
+    int sortedField = 1;
+    fields[sortedField].setSortedKey(true);
+    meta.setInputFields(fields);
+    when(meta.getInputFields()).thenReturn(fields);
+
+    // Mock LDAP Connection
+    when(meta.getProtocol()).thenReturn(LdapMockProtocol.getName());
+    when(meta.getHost()).thenReturn("host.mock");
+    when(meta.getDerefAliases()).thenReturn("never");
+    when(meta.getReferrals()).thenReturn("ignore");
+    LdapMockProtocol.setup();
+
+    try {
+      // Run Initialization
+      assertTrue("Input Initialization Failed", ldapInput.init());
+
+      // Verify
+      assertEquals("Field not marked as sorted", 1, data.connection.getSortingAttributes().size());
+      assertEquals(
+          "Field not marked as sorted",
+          data.attrReturned[sortedField],
+          data.connection.getSortingAttributes().get(0));
+      assertNotNull(data.attrReturned[sortedField]);
+    } finally {
+      LdapMockProtocol.cleanup();
     }
-
-    @AfterClass
-    public static void tearDown() {
-        mockHelper.cleanUp();
-    }
-
-    @Test
-    public void testRowProcessing() throws Exception {
-
-        // Setup transform
-        LdapInputMeta meta = mock(LdapInputMeta.class);
-        LdapInputData data = new LdapInputData();
-        LdapInput ldapInput =
-                new LdapInput(
-                        mockHelper.transformMeta,
-                        meta,
-                        data,
-                        0,
-                        mockHelper.pipelineMeta,
-                        mockHelper.pipeline);
-
-        // Mock fields
-        LdapInputField[] fields =
-                new LdapInputField[] {
-                    new LdapInputField("dn"), new LdapInputField("cn"), new LdapInputField("role")
-                };
-        int sortedField = 1;
-        fields[sortedField].setSortedKey(true);
-        meta.setInputFields(fields);
-        when(meta.getInputFields()).thenReturn(fields);
-
-        // Mock LDAP Connection
-        when(meta.getProtocol()).thenReturn(LdapMockProtocol.getName());
-        when(meta.getHost()).thenReturn("host.mock");
-        when(meta.getDerefAliases()).thenReturn("never");
-        when(meta.getReferrals()).thenReturn("ignore");
-        LdapMockProtocol.setup();
-
-        try {
-            // Run Initialization
-            assertTrue("Input Initialization Failed", ldapInput.init());
-
-            // Verify
-            assertEquals(
-                    "Field not marked as sorted", 1, data.connection.getSortingAttributes().size());
-            assertEquals(
-                    "Field not marked as sorted",
-                    data.attrReturned[sortedField],
-                    data.connection.getSortingAttributes().get(0));
-            assertNotNull(data.attrReturned[sortedField]);
-        } finally {
-            LdapMockProtocol.cleanup();
-        }
-    }
+  }
 }

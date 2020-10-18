@@ -22,21 +22,21 @@
 package org.apache.hop.pipeline.transforms.ldapinput;
 
 public interface ILdapMeta {
-    String getProtocol();
+  String getProtocol();
 
-    String getHost();
+  String getHost();
 
-    String getPort();
+  String getPort();
 
-    String getDerefAliases();
+  String getDerefAliases();
 
-    String getReferrals();
+  String getReferrals();
 
-    boolean isUseCertificate();
+  boolean isUseCertificate();
 
-    String getTrustStorePath();
+  String getTrustStorePath();
 
-    String getTrustStorePassword();
+  String getTrustStorePassword();
 
-    boolean isTrustAllCertificates();
+  boolean isTrustAllCertificates();
 }

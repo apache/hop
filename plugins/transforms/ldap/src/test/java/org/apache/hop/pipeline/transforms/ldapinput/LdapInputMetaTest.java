@@ -43,126 +43,124 @@ import org.junit.ClassRule;
 import org.junit.Test;
 
 public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
-    LoadSaveTester<LdapInputMeta> loadSaveTester;
-    Class<LdapInputMeta> testMetaClass = LdapInputMeta.class;
-    @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+  LoadSaveTester<LdapInputMeta> loadSaveTester;
+  Class<LdapInputMeta> testMetaClass = LdapInputMeta.class;
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
-    @Before
-    public void setUpLoadSave() throws Exception {
-        HopEnvironment.init();
-        PluginRegistry.init(false);
-        List<String> attributes =
-                Arrays.asList(
-                        "useAuthentication",
-                        "paging",
-                        "pageSize",
-                        "includeRowNumber",
-                        "rowNumberField",
-                        "rowLimit",
-                        "Host",
-                        "userName",
-                        "password",
-                        "port",
-                        "filterString",
-                        "searchBase",
-                        "timeLimit",
-                        "multiValuedSeparator",
-                        "dynamicSearch",
-                        "dynamicSearchFieldName",
-                        "dynamicFilter",
-                        "dynamicFilterFieldName",
-                        "searchScope",
-                        "protocol",
-                        "useCertificate",
-                        "trustStorePath",
-                        "trustStorePassword",
-                        "trustAllCertificates",
-                        "inputFields");
+  @Before
+  public void setUpLoadSave() throws Exception {
+    HopEnvironment.init();
+    PluginRegistry.init(false);
+    List<String> attributes =
+        Arrays.asList(
+            "useAuthentication",
+            "paging",
+            "pageSize",
+            "includeRowNumber",
+            "rowNumberField",
+            "rowLimit",
+            "Host",
+            "userName",
+            "password",
+            "port",
+            "filterString",
+            "searchBase",
+            "timeLimit",
+            "multiValuedSeparator",
+            "dynamicSearch",
+            "dynamicSearchFieldName",
+            "dynamicFilter",
+            "dynamicFilterFieldName",
+            "searchScope",
+            "protocol",
+            "useCertificate",
+            "trustStorePath",
+            "trustStorePassword",
+            "trustAllCertificates",
+            "inputFields");
 
-        Map<String, String> getterMap = new HashMap<>();
-        Map<String, String> setterMap = new HashMap<>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
-        Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap =
-                new HashMap<String, IFieldLoadSaveValidator<?>>();
-        attrValidatorMap.put(
-                "inputFields",
-                new ArrayLoadSaveValidator<LdapInputField>(
-                        new LDAPInputFieldLoadSaveValidator(), 5));
-        attrValidatorMap.put(
-                "searchScope", new IntLoadSaveValidator(LdapInputMeta.searchScopeCode.length));
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap =
+        new HashMap<String, IFieldLoadSaveValidator<?>>();
+    attrValidatorMap.put(
+        "inputFields",
+        new ArrayLoadSaveValidator<LdapInputField>(new LDAPInputFieldLoadSaveValidator(), 5));
+    attrValidatorMap.put(
+        "searchScope", new IntLoadSaveValidator(LdapInputMeta.searchScopeCode.length));
 
-        Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap =
-                new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap =
+        new HashMap<String, IFieldLoadSaveValidator<?>>();
 
-        loadSaveTester =
-                new LoadSaveTester<>(
-                        testMetaClass,
-                        attributes,
-                        new ArrayList<>(),
-                        getterMap,
-                        setterMap,
-                        attrValidatorMap,
-                        typeValidatorMap,
-                        this);
+    loadSaveTester =
+        new LoadSaveTester<>(
+            testMetaClass,
+            attributes,
+            new ArrayList<>(),
+            getterMap,
+            setterMap,
+            attrValidatorMap,
+            typeValidatorMap,
+            this);
+  }
+
+  // Call the allocate method on the LoadSaveTester meta class
+  @Override
+  public void modify(LdapInputMeta someMeta) {
+    if (someMeta instanceof LdapInputMeta) {
+      ((LdapInputMeta) someMeta).allocate(5);
     }
+  }
 
-    // Call the allocate method on the LoadSaveTester meta class
+  @Test
+  public void testSerialization() throws HopException {
+    loadSaveTester.testSerialization();
+  }
+
+  public class LDAPInputFieldLoadSaveValidator implements IFieldLoadSaveValidator<LdapInputField> {
+    final Random rand = new Random();
+
     @Override
-    public void modify(LdapInputMeta someMeta) {
-        if (someMeta instanceof LdapInputMeta) {
-            ((LdapInputMeta) someMeta).allocate(5);
-        }
+    public LdapInputField getTestObject() {
+      LdapInputField rtn = new LdapInputField();
+      rtn.setCurrencySymbol(UUID.randomUUID().toString());
+      rtn.setDecimalSymbol(UUID.randomUUID().toString());
+      rtn.setFormat(UUID.randomUUID().toString());
+      rtn.setGroupSymbol(UUID.randomUUID().toString());
+      rtn.setName(UUID.randomUUID().toString());
+      rtn.setTrimType(rand.nextInt(4));
+      rtn.setPrecision(rand.nextInt(9));
+      rtn.setRepeated(rand.nextBoolean());
+      rtn.setLength(rand.nextInt(50));
+      rtn.setType(rand.nextInt(7));
+      rtn.setSortedKey(rand.nextBoolean());
+      rtn.setFetchAttributeAs(rand.nextInt(LdapInputField.FetchAttributeAsCode.length));
+      rtn.setAttribute(UUID.randomUUID().toString());
+      return rtn;
     }
 
-    @Test
-    public void testSerialization() throws HopException {
-        loadSaveTester.testSerialization();
+    @Override
+    public boolean validateTestObject(LdapInputField testObject, Object actual) {
+      if (!(actual instanceof LdapInputField)) {
+        return false;
+      }
+      LdapInputField another = (LdapInputField) actual;
+      return new EqualsBuilder()
+          .append(testObject.getName(), another.getName())
+          .append(testObject.getAttribute(), another.getAttribute())
+          .append(testObject.getReturnType(), another.getReturnType())
+          .append(testObject.getType(), another.getType())
+          .append(testObject.getLength(), another.getLength())
+          .append(testObject.getFormat(), another.getFormat())
+          .append(testObject.getTrimType(), another.getTrimType())
+          .append(testObject.getPrecision(), another.getPrecision())
+          .append(testObject.getCurrencySymbol(), another.getCurrencySymbol())
+          .append(testObject.getDecimalSymbol(), another.getDecimalSymbol())
+          .append(testObject.getGroupSymbol(), another.getGroupSymbol())
+          .append(testObject.isRepeated(), another.isRepeated())
+          .append(testObject.isSortedKey(), another.isSortedKey())
+          .isEquals();
     }
-
-    public class LDAPInputFieldLoadSaveValidator
-            implements IFieldLoadSaveValidator<LdapInputField> {
-        final Random rand = new Random();
-
-        @Override
-        public LdapInputField getTestObject() {
-            LdapInputField rtn = new LdapInputField();
-            rtn.setCurrencySymbol(UUID.randomUUID().toString());
-            rtn.setDecimalSymbol(UUID.randomUUID().toString());
-            rtn.setFormat(UUID.randomUUID().toString());
-            rtn.setGroupSymbol(UUID.randomUUID().toString());
-            rtn.setName(UUID.randomUUID().toString());
-            rtn.setTrimType(rand.nextInt(4));
-            rtn.setPrecision(rand.nextInt(9));
-            rtn.setRepeated(rand.nextBoolean());
-            rtn.setLength(rand.nextInt(50));
-            rtn.setType(rand.nextInt(7));
-            rtn.setSortedKey(rand.nextBoolean());
-            rtn.setFetchAttributeAs(rand.nextInt(LdapInputField.FetchAttributeAsCode.length));
-            rtn.setAttribute(UUID.randomUUID().toString());
-            return rtn;
-        }
-
-        @Override
-        public boolean validateTestObject(LdapInputField testObject, Object actual) {
-            if (!(actual instanceof LdapInputField)) {
-                return false;
-            }
-            LdapInputField another = (LdapInputField) actual;
-            return new EqualsBuilder()
-                    .append(testObject.getName(), another.getName())
-                    .append(testObject.getAttribute(), another.getAttribute())
-                    .append(testObject.getReturnType(), another.getReturnType())
-                    .append(testObject.getType(), another.getType())
-                    .append(testObject.getLength(), another.getLength())
-                    .append(testObject.getFormat(), another.getFormat())
-                    .append(testObject.getTrimType(), another.getTrimType())
-                    .append(testObject.getPrecision(), another.getPrecision())
-                    .append(testObject.getCurrencySymbol(), another.getCurrencySymbol())
-                    .append(testObject.getDecimalSymbol(), another.getDecimalSymbol())
-                    .append(testObject.getGroupSymbol(), another.getGroupSymbol())
-                    .append(testObject.isRepeated(), another.isRepeated())
-                    .append(testObject.isSortedKey(), another.isSortedKey())
-                    .isEquals();
-        }
-    }
+  }
 }

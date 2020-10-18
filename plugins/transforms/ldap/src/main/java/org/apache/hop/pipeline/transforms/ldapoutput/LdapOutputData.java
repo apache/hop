@@ -30,32 +30,32 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapConnection;
  * @since 21-09-2007
  */
 public class LdapOutputData extends BaseTransformData implements ITransformData {
-    LdapConnection connection;
-    int indexOfDNField;
-    int[] fieldStream;
-    String[] fieldsAttribute;
-    int nrFields;
-    int nrFieldsToUpdate;
-    String separator;
-    String[] attributes;
-    String[] attributesToUpdate;
+  LdapConnection connection;
+  int indexOfDNField;
+  int[] fieldStream;
+  String[] fieldsAttribute;
+  int nrFields;
+  int nrFieldsToUpdate;
+  String separator;
+  String[] attributes;
+  String[] attributesToUpdate;
 
-    int[] fieldStreamToUpdate;
-    String[] fieldsAttributeToUpdate;
+  int[] fieldStreamToUpdate;
+  String[] fieldsAttributeToUpdate;
 
-    int indexOfOldDNField;
-    int indexOfNewDNField;
+  int indexOfOldDNField;
+  int indexOfNewDNField;
 
-    public LdapOutputData() {
-        super();
-        this.indexOfDNField = -1;
-        this.nrFields = 0;
-        this.separator = null;
-        this.fieldStreamToUpdate = null;
-        this.fieldsAttributeToUpdate = null;
-        this.attributesToUpdate = null;
-        this.nrFieldsToUpdate = 0;
-        this.indexOfOldDNField = -1;
-        this.indexOfNewDNField = -1;
-    }
+  public LdapOutputData() {
+    super();
+    this.indexOfDNField = -1;
+    this.nrFields = 0;
+    this.separator = null;
+    this.fieldStreamToUpdate = null;
+    this.fieldsAttributeToUpdate = null;
+    this.attributesToUpdate = null;
+    this.nrFieldsToUpdate = 0;
+    this.indexOfOldDNField = -1;
+    this.indexOfNewDNField = -1;
+  }
 }

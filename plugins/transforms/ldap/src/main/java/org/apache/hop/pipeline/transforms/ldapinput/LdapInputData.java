@@ -32,40 +32,40 @@ import org.apache.hop.pipeline.transform.ITransformData;
  * @since 21-09-2007
  */
 public class LdapInputData extends BaseTransformData implements ITransformData {
-    public String thisline;
-    public IRowMeta outputRowMeta;
-    public IRowMeta convertRowMeta;
-    public Object[] previousRow;
-    public int nrRepeats;
-    public long rownr;
-    public String multiValuedFieldSeparator;
-    public int nrFields;
-    public HashSet<String> attributesBinary;
-    public LdapConnection connection;
-    public String staticFilter;
-    public String staticSearchBase;
-    public String[] attrReturned;
-    public Object[] readRow;
-    public int indexOfSearchBaseField;
-    public int indexOfFilterField;
-    public Attributes attributes;
-    public int nrIncomingFields;
-    public boolean dynamic;
+  public String thisline;
+  public IRowMeta outputRowMeta;
+  public IRowMeta convertRowMeta;
+  public Object[] previousRow;
+  public int nrRepeats;
+  public long rownr;
+  public String multiValuedFieldSeparator;
+  public int nrFields;
+  public HashSet<String> attributesBinary;
+  public LdapConnection connection;
+  public String staticFilter;
+  public String staticSearchBase;
+  public String[] attrReturned;
+  public Object[] readRow;
+  public int indexOfSearchBaseField;
+  public int indexOfFilterField;
+  public Attributes attributes;
+  public int nrIncomingFields;
+  public boolean dynamic;
 
-    public LdapInputData() {
-        super();
-        previousRow = null;
-        thisline = null;
-        nrRepeats = 0;
-        previousRow = null;
-        multiValuedFieldSeparator = null;
-        nrFields = 0;
-        staticFilter = null;
-        staticSearchBase = null;
-        indexOfSearchBaseField = -1;
-        indexOfFilterField = -1;
-        attributes = null;
-        nrIncomingFields = 0;
-        dynamic = false;
-    }
+  public LdapInputData() {
+    super();
+    previousRow = null;
+    thisline = null;
+    nrRepeats = 0;
+    previousRow = null;
+    multiValuedFieldSeparator = null;
+    nrFields = 0;
+    staticFilter = null;
+    staticSearchBase = null;
+    indexOfSearchBaseField = -1;
+    indexOfFilterField = -1;
+    attributes = null;
+    nrIncomingFields = 0;
+    dynamic = false;
+  }
 }

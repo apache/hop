@@ -31,59 +31,56 @@ import org.apache.hop.pipeline.transforms.ldapinput.store.CustomSocketFactory;
 
 public class LdapSslProtocol extends LdapProtocol {
 
-    private final boolean trustAllCertificates;
+  private final boolean trustAllCertificates;
 
-    private final String trustStorePath;
+  private final String trustStorePath;
 
-    private final String trustStorePassword;
+  private final String trustStorePassword;
 
-    public LdapSslProtocol(
-            ILogChannel log,
-            IVariables variables,
-            ILdapMeta meta,
-            Collection<String> binaryAttributes) {
-        super(log, variables, meta, binaryAttributes);
+  public LdapSslProtocol(
+      ILogChannel log, IVariables variables, ILdapMeta meta, Collection<String> binaryAttributes) {
+    super(log, variables, meta, binaryAttributes);
 
-        if (meta.isUseCertificate()) {
-            trustStorePath = variables.environmentSubstitute(meta.getTrustStorePath());
-            trustStorePassword = Utils.resolvePassword(variables, meta.getTrustStorePassword());
-            trustAllCertificates = meta.isTrustAllCertificates();
-        } else {
-            trustAllCertificates = false;
-            trustStorePath = null;
-            trustStorePassword = null;
-        }
+    if (meta.isUseCertificate()) {
+      trustStorePath = variables.environmentSubstitute(meta.getTrustStorePath());
+      trustStorePassword = Utils.resolvePassword(variables, meta.getTrustStorePassword());
+      trustAllCertificates = meta.isTrustAllCertificates();
+    } else {
+      trustAllCertificates = false;
+      trustStorePath = null;
+      trustStorePassword = null;
     }
+  }
 
-    @Override
-    protected String getConnectionPrefix() {
-        return "ldaps://";
-    }
+  @Override
+  protected String getConnectionPrefix() {
+    return "ldaps://";
+  }
 
-    public static String getName() {
-        return "LDAP SSL";
-    }
+  public static String getName() {
+    return "LDAP SSL";
+  }
 
-    protected void configureSslEnvironment(Map<String, String> env) {
-        env.put(javax.naming.Context.SECURITY_PROTOCOL, "ssl");
-        env.put("java.naming.ldap.factory.socket", CustomSocketFactory.class.getCanonicalName());
-    }
+  protected void configureSslEnvironment(Map<String, String> env) {
+    env.put(javax.naming.Context.SECURITY_PROTOCOL, "ssl");
+    env.put("java.naming.ldap.factory.socket", CustomSocketFactory.class.getCanonicalName());
+  }
 
-    @Override
-    protected void setupEnvironment(Map<String, String> env, String username, String password)
-            throws HopException {
-        super.setupEnvironment(env, username, password);
-        configureSslEnvironment(env);
-        configureSocketFactory(trustAllCertificates, trustStorePath, trustStorePassword);
-    }
+  @Override
+  protected void setupEnvironment(Map<String, String> env, String username, String password)
+      throws HopException {
+    super.setupEnvironment(env, username, password);
+    configureSslEnvironment(env);
+    configureSocketFactory(trustAllCertificates, trustStorePath, trustStorePassword);
+  }
 
-    protected void configureSocketFactory(
-            boolean trustAllCertificates, String trustStorePath, String trustStorePassword)
-            throws HopException {
-        if (trustAllCertificates) {
-            CustomSocketFactory.configure();
-        } else {
-            CustomSocketFactory.configure(trustStorePath, trustStorePassword);
-        }
+  protected void configureSocketFactory(
+      boolean trustAllCertificates, String trustStorePath, String trustStorePassword)
+      throws HopException {
+    if (trustAllCertificates) {
+      CustomSocketFactory.configure();
+    } else {
+      CustomSocketFactory.configure(trustStorePath, trustStorePassword);
     }
+  }
 }
