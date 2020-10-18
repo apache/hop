@@ -12,7 +12,6 @@
 
 
     <artifactId>hop-assemblies-plugins-transforms-ldifinput</artifactId>
-    <version>0.40-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms LDIF Input</name>
