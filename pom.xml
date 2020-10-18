@@ -74,7 +74,6 @@
     </licenses>
 
     <properties>
-        <project.version>0.1.0-SNAPSHOT</project.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
