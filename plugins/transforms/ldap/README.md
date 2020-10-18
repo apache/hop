@@ -32,8 +32,8 @@ Issuer: CN=localhost, O=OpenDJ RSA Self-Signed Certificate
 Serial number: 1a7469aa
 Valid from: Tue Oct 06 21:29:41 EDT 2020 until: Mon Oct 01 21:29:41 EDT 2040
 Certificate fingerprints:
-	 SHA1: B3:67:7D:BE:10:13:63:38:BF:D3:2D:4C:27:F7:CD:4A:86:66:34:AC
-	 SHA256: 3E:FD:D1:1F:E4:24:9F:BF:4B:C1:BA:4E:38:FF:06:0D:37:CF:AF:A1:85:12:B1:A0:28:C1:62:8F:C6:10:EC:DC
+	SHA1: B3:67:7D:BE:10:13:63:38:BF:D3:2D:4C:27:F7:CD:4A:86:66:34:AC
+	SHA256: 3E:FD:D1:1F:E4:24:9F:BF:4B:C1:BA:4E:38:FF:06:0D:37:CF:AF:A1:85:12:B1:A0:28:C1:62:8F:C6:10:EC:DC
 Signature algorithm name: SHA256withRSA
 Subject Public Key Algorithm: 2048-bit RSA key
 Version: 3
@@ -48,4 +48,3 @@ $ keytool -list -keystore self-signed.truststore
 ### Testing
 
 Enable JUnit test cases by uncommenting @Test annotation (TODO: Use JUnit include and exclude option so that these test case is not running in CI/CD (Jenkins)
-

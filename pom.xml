@@ -614,8 +614,7 @@
 
 						<!-- apply a specific flavor of google-java-format -->
 						<googleJavaFormat>
-							<version>1.8</version>
-							<style>AOSP</style>
+							<version>1.9</version>
 						</googleJavaFormat>
 
 						<!-- make sure every file has the following copyright header. optionally, 

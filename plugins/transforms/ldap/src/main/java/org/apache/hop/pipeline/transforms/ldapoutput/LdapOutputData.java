@@ -19,7 +19,6 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
 import org.apache.hop.pipeline.transform.BaseTransformData;
@@ -59,5 +58,4 @@ public class LdapOutputData extends BaseTransformData implements ITransformData 
     this.indexOfOldDNField = -1;
     this.indexOfNewDNField = -1;
   }
-
 }
