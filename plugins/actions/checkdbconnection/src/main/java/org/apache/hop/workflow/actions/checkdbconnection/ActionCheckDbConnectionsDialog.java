@@ -65,7 +65,8 @@ import java.util.List;
 public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator!!
 
-
+  private Shell shell;
+  
   private Text wName;
 
   private ActionCheckDbConnections action;
@@ -75,7 +76,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
   private TableView wFields;
 
   public ActionCheckDbConnectionsDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionCheckDbConnections) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionCheckDbConnections.Name.Default" ) );
@@ -162,7 +163,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
       new ColumnInfo[] {
         new ColumnInfo(
           BaseMessages.getString( PKG, "ActionCheckDbConnections.Fields.Argument.Label" ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, workflowMeta.getDatabaseNames(), false ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, this.getWorkflowMeta().getDatabaseNames(), false ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "ActionCheckDbConnections.Fields.WaitFor.Label" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
@@ -176,7 +177,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
     wFields =
       new TableView(
-        workflowMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  this.getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -258,7 +259,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
   public void getDatabases() {
     wFields.removeAll();
-    List<DatabaseMeta> databases = workflowMeta.getDatabases();
+    List<DatabaseMeta> databases = this.getWorkflowMeta().getDatabases();
     for (DatabaseMeta ci : databases) {
       if (ci != null) {
         wFields.add(new String[]{ci.getName(), "0", ActionCheckDbConnections.unitTimeDesc[0]});
@@ -324,7 +325,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
     for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
-      DatabaseMeta dbMeta = workflowMeta.findDatabase( arg );
+      DatabaseMeta dbMeta = this.getWorkflowMeta().findDatabase( arg );
       if ( dbMeta != null ) {
         connections[ i ] = dbMeta;
         waitfors[ i ] = "" + Const.toInt( wFields.getNonEmpty( i ).getText( 2 ), 0 );

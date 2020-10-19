@@ -72,7 +72,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
   private boolean changed;
 
   public ActionTableExistsDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionTableExists) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobTableExists.Name.Default" ) );
@@ -144,7 +144,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
       }
     } );
 
-    wSchemaname = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.addModifyListener( lsMod );
     FormData fdSchemaname = new FormData();
@@ -176,7 +176,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
       }
     } );
 
-    wTablename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTablename );
     wTablename.addModifyListener( lsMod );
     FormData fdTablename = new FormData();
@@ -274,7 +274,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
       return;
     }
     action.setName( wName.getText() );
-    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
     action.setTablename( wTablename.getText() );
     action.setSchemaname( wSchemaname.getText() );
 
@@ -285,10 +285,10 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     if ( wSchemaname.isDisposed() ) {
       return;
     }
-    DatabaseMeta databaseMeta = workflowMeta.findDatabase( wConnection.getText() );
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
       Database database = new Database( loggingObject, databaseMeta );
-      database.shareVariablesWith( workflowMeta );
+      database.shareVariablesWith( getWorkflowMeta() );
       try {
         database.connect();
         String[] schemas = database.getSchemas();
@@ -324,9 +324,9 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
   private void getTableName() {
     String databaseName = wConnection.getText();
     if ( StringUtils.isNotEmpty( databaseName ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( databaseName );
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( databaseName );
       if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, workflowMeta.getDatabases() );
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
         std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
         if ( std.open() ) {
           wSchemaname.setText( Const.NVL( std.getSchemaName(), "" ) );

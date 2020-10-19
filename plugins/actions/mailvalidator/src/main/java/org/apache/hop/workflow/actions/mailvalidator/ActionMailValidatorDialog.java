@@ -66,7 +66,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
   private Button wSMTPCheck;
 
   public ActionMailValidatorDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionMailValidator) action;
 
     if ( this.action.getName() == null ) {
@@ -114,7 +114,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     wName.setLayoutData(fdName);
 
     // eMail address
-    wMailAddress = new LabelTextVar( workflowMeta, shell,
+    wMailAddress = new LabelTextVar( getWorkflowMeta(), shell,
       BaseMessages.getString( PKG, "ActionMailValidatorDialog.MailAddress.Label" ),
       BaseMessages.getString( PKG, "ActionMailValidatorDialog.MailAddress.Tooltip" ) );
     wMailAddress.addModifyListener( lsMod );
@@ -170,7 +170,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     fdlTimeOut.top = new FormAttachment( wSMTPCheck, margin );
     wlTimeOut.setLayoutData(fdlTimeOut);
 
-    wTimeOut = new TextVar( workflowMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( getWorkflowMeta(), wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTimeOut.setToolTipText( BaseMessages.getString( PKG, "ActionMailValidatorDialog.TimeOutField.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
@@ -190,7 +190,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     fdleMailSender.top = new FormAttachment( wTimeOut, margin );
     wleMailSender.setLayoutData(fdleMailSender);
 
-    weMailSender = new TextVar( workflowMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    weMailSender = new TextVar( getWorkflowMeta(), wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     weMailSender.setToolTipText( BaseMessages.getString(
       PKG, "ActionMailValidatorDialog.eMailSenderField.Tooltip" ) );
     props.setLook( weMailSender );
@@ -211,7 +211,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     fdlDefaultSMTP.top = new FormAttachment( weMailSender, margin );
     wlDefaultSMTP.setLayoutData(fdlDefaultSMTP);
 
-    wDefaultSMTP = new TextVar( workflowMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDefaultSMTP = new TextVar( getWorkflowMeta(), wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wDefaultSMTP.setToolTipText( BaseMessages.getString(
       PKG, "ActionMailValidatorDialog.DefaultSMTPField.Tooltip" ) );
     props.setLook( wDefaultSMTP );

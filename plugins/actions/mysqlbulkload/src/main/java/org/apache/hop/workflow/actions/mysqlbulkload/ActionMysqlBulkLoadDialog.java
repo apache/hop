@@ -103,7 +103,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
   private Button wAddFileToResult;
 
   public ActionMysqlBulkLoadDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionMysqlBulkLoad) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobMysqlBulkLoad.Name.Default" ) );
@@ -163,7 +163,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlSchemaname.top = new FormAttachment( wConnection, margin );
     wlSchemaname.setLayoutData(fdlSchemaname);
 
-    wSchemaname = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "JobMysqlBulkLoad.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
@@ -196,7 +196,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
       }
     } );
 
-    wTablename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTablename );
     wTablename.addModifyListener( lsMod );
     FormData fdTablename = new FormData();
@@ -224,7 +224,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdbFilename.top = new FormAttachment( wTablename, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -234,9 +234,9 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
       new String[] { "*.txt", "*.csv", "*"  }, FILETYPES, true )
     );
 
@@ -304,7 +304,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlSeparator.top = new FormAttachment( wProrityValue, margin );
     wlSeparator.setLayoutData(fdlSeparator);
 
-    wSeparator = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeparator = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSeparator );
     wSeparator.addModifyListener( lsMod );
     FormData fdSeparator = new FormData();
@@ -324,7 +324,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlEnclosed.top = new FormAttachment( wSeparator, margin );
     wlEnclosed.setLayoutData(fdlEnclosed);
 
-    wEnclosed = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEnclosed = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEnclosed );
     wEnclosed.addModifyListener( lsMod );
     FormData fdEnclosed = new FormData();
@@ -344,7 +344,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlEscaped.top = new FormAttachment( wEnclosed, margin );
     wlEscaped.setLayoutData(fdlEscaped);
 
-    wEscaped = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEscaped = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEscaped );
     wEscaped.setToolTipText( BaseMessages.getString( PKG, "JobMysqlBulkLoad.Escaped.Tooltip" ) );
     wEscaped.addModifyListener( lsMod );
@@ -365,7 +365,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlLinestarted.top = new FormAttachment( wEscaped, margin );
     wlLinestarted.setLayoutData(fdlLinestarted);
 
-    wLinestarted = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLinestarted = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLinestarted );
     wLinestarted.addModifyListener( lsMod );
     FormData fdLinestarted = new FormData();
@@ -385,7 +385,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlLineterminated.top = new FormAttachment( wLinestarted, margin );
     wlLineterminated.setLayoutData(fdlLineterminated);
 
-    wLineterminated = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLineterminated = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLineterminated );
     wLineterminated.addModifyListener( lsMod );
     FormData fdLineterminated = new FormData();
@@ -418,7 +418,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
       }
     } );
 
-    wListattribut = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wListattribut = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wListattribut );
     wListattribut.setToolTipText( BaseMessages.getString( PKG, "JobMysqlBulkLoad.Listattribut.Tooltip" ) );
     wListattribut.addModifyListener( lsMod );
@@ -463,7 +463,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlIgnorelines.top = new FormAttachment( wReplacedata, margin );
     wlIgnorelines.setLayoutData(fdlIgnorelines);
 
-    wIgnorelines = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIgnorelines = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIgnorelines );
     wIgnorelines.addModifyListener( lsMod );
     FormData fdIgnorelines = new FormData();
@@ -654,7 +654,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
       return;
     }
     action.setName( wName.getText() );
-    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
     action.setSchemaname( wSchemaname.getText() );
     action.setTablename( wTablename.getText() );
     action.setFilename( wFilename.getText() );
@@ -677,9 +677,9 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
   private void getTableName() {
     String databaseName = wConnection.getText();
     if ( StringUtils.isNotEmpty( databaseName ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( databaseName );
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( databaseName );
       if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, workflowMeta.getDatabases() );
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
         std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
         if ( std.open() ) {
           wTablename.setText( Const.NVL( std.getTableName(), "" ) );
@@ -698,10 +698,10 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
    */
   private void getListColumns() {
     if ( !Utils.isEmpty( wTablename.getText() ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( wConnection.getText() );
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
         Database database = new Database( loggingObject, databaseMeta );
-        database.shareVariablesWith( workflowMeta );
+        database.shareVariablesWith( getWorkflowMeta() );
         try {
           database.connect();
           String schemaTable =

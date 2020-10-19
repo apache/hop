@@ -65,7 +65,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
 
   public ActionWebServiceAvailableDialog( Shell parent, IAction action,
                                           WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionWebServiceAvailable) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionWebServiceAvailable.Name.Default" ) );
@@ -121,7 +121,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     fdlURL.right = new FormAttachment( middle, -margin );
     wlURL.setLayoutData(fdlURL);
 
-    wURL = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wURL = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wURL );
     wURL.addModifyListener( lsMod );
     FormData fdURL = new FormData();
@@ -131,7 +131,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wURL.setLayoutData(fdURL);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wURL.addModifyListener( e -> wURL.setToolTipText( workflowMeta.environmentSubstitute( wURL.getText() ) ) );
+    wURL.addModifyListener( e -> wURL.setToolTipText( getWorkflowMeta().environmentSubstitute( wURL.getText() ) ) );
 
     // connect timeout line
     Label wlConnectTimeOut = new Label(shell, SWT.RIGHT);
@@ -143,7 +143,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     fdlConnectTimeOut.right = new FormAttachment( middle, -margin );
     wlConnectTimeOut.setLayoutData(fdlConnectTimeOut);
 
-    wConnectTimeOut = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wConnectTimeOut = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wConnectTimeOut.setToolTipText( BaseMessages.getString(
       PKG, "ActionWebServiceAvailable.ConnectTimeOut.Tooltip" ) );
     props.setLook( wConnectTimeOut );
@@ -155,7 +155,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wConnectTimeOut.setLayoutData(fdConnectTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( workflowMeta.environmentSubstitute( wConnectTimeOut.getText() ) ) );
+    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( getWorkflowMeta().environmentSubstitute( wConnectTimeOut.getText() ) ) );
 
     // Read timeout line
     Label wlReadTimeOut = new Label(shell, SWT.RIGHT);
@@ -167,7 +167,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     fdlReadTimeOut.right = new FormAttachment( middle, -margin );
     wlReadTimeOut.setLayoutData(fdlReadTimeOut);
 
-    wReadTimeOut = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReadTimeOut = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReadTimeOut.setToolTipText( BaseMessages.getString( PKG, "ActionWebServiceAvailable.ReadTimeOut.Tooltip" ) );
     props.setLook( wReadTimeOut );
     wReadTimeOut.addModifyListener( lsMod );
@@ -178,7 +178,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wReadTimeOut.setLayoutData(fdReadTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( workflowMeta.environmentSubstitute( wReadTimeOut.getText() ) ) );
+    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( getWorkflowMeta().environmentSubstitute( wReadTimeOut.getText() ) ) );
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

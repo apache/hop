@@ -152,7 +152,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
   public ActionPGPEncryptFilesDialog( Shell parent, IAction action,
                                       WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionPGPEncryptFiles) action;
 
     if ( this.action.getName() == null ) {
@@ -168,7 +168,8 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
-
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 

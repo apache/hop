@@ -86,7 +86,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
   private Button wAddHostName;
 
   public ActionSyslogDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionSyslog) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionSyslog.Name.Default" ) );
@@ -159,7 +159,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     // Server port line
     wServerName =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Server.Label" ), BaseMessages
+    		  getWorkflowMeta(), wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Server.Label" ), BaseMessages
         .getString( PKG, "ActionSyslog.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
@@ -172,7 +172,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     // Server port line
     wPort =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Port.Label" ), BaseMessages
+    		  getWorkflowMeta(), wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Port.Label" ), BaseMessages
         .getString( PKG, "ActionSyslog.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
@@ -338,7 +338,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     fdlDatePattern.right = new FormAttachment( middle, -margin );
     fdlDatePattern.top = new FormAttachment( wAddTimestamp, margin );
     wlDatePattern.setLayoutData(fdlDatePattern);
-    wDatePattern = new ComboVar( workflowMeta, wMessageGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wDatePattern = new ComboVar( getWorkflowMeta(), wMessageGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wDatePattern.setItems( Const.getDateFormats() );
     props.setLook( wDatePattern );
     FormData fdDatePattern = new FormData();
@@ -460,8 +460,8 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = workflowMeta.environmentSubstitute( wServerName.getText() );
-    int nrPort = Const.toInt( workflowMeta.environmentSubstitute( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
+    String hostname = getWorkflowMeta().environmentSubstitute( wServerName.getText() );
+    int nrPort = Const.toInt( getWorkflowMeta().environmentSubstitute( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
 
     try {
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( hostname ), nrPort );

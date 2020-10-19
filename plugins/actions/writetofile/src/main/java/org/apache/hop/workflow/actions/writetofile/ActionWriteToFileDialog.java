@@ -78,7 +78,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
   private boolean gotEncodings = false;
 
   public ActionWriteToFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionWriteToFile) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobWriteToFile.Name.Default" ) );
@@ -162,7 +162,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     fdbFilename.top = new FormAttachment( wName, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( workflowMeta, wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( getWorkflowMeta(), wFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -172,9 +172,9 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -255,7 +255,7 @@ public class ActionWriteToFileDialog extends ActionDialog implements IActionDial
     fdlEncoding.top = new FormAttachment( wAppendFile, margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
     wlEncoding.setLayoutData(fdlEncoding);
-    wEncoding = new ComboVar( workflowMeta, wContentGroup, SWT.BORDER | SWT.READ_ONLY );
+    wEncoding = new ComboVar( getWorkflowMeta(), wContentGroup, SWT.BORDER | SWT.READ_ONLY );
     wEncoding.setEditable( true );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );

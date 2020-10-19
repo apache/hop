@@ -86,7 +86,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
   public ActionSendNagiosPassiveCheckDialog( Shell parent, IAction action,
                                              WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionSendNagiosPassiveCheck) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Name.Default" ) );
@@ -158,7 +158,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wServerSettings.setLayout( ServerSettingsgroupLayout );
 
     // ServerName line
-    wServerName = new LabelTextVar( workflowMeta, wServerSettings,
+    wServerName = new LabelTextVar( getWorkflowMeta(), wServerSettings,
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Server.Label" ),
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Server.Tooltip" ) );
     props.setLook( wServerName );
@@ -170,7 +170,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wServerName.setLayoutData(fdServerName);
 
     // Server port line
-    wPort = new LabelTextVar( workflowMeta, wServerSettings,
+    wPort = new LabelTextVar( getWorkflowMeta(), wServerSettings,
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Port.Label" ),
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Port.Tooltip" ) );
     props.setLook( wPort );
@@ -183,7 +183,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     // Password String line
     wPassword =
-      new LabelTextVar( workflowMeta, wServerSettings, BaseMessages.getString(
+      new LabelTextVar( getWorkflowMeta(), wServerSettings, BaseMessages.getString(
         PKG, "JobSendNagiosPassiveCheck.Password.Label" ), BaseMessages
         .getString( "JobSendNagiosPassiveCheck.Password.Tooltip" ), true );
     props.setLook( wPassword );
@@ -196,7 +196,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
 
     // Server wConnectionTimeOut line
     wConnectionTimeOut =
-      new LabelTextVar( workflowMeta, wServerSettings,
+      new LabelTextVar( getWorkflowMeta(), wServerSettings,
         BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.ConnectionTimeOut.Label" ),
         BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.ConnectionTimeOut.Tooltip" ) );
     props.setLook( wConnectionTimeOut );
@@ -208,7 +208,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wConnectionTimeOut.setLayoutData(fdwConnectionTimeOut);
 
     // ResponseTimeOut line
-    wResponseTimeOut = new LabelTextVar( workflowMeta, wServerSettings,
+    wResponseTimeOut = new LabelTextVar( getWorkflowMeta(), wServerSettings,
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.ResponseTimeOut.Label" ),
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.ResponseTimeOut.Tooltip" ) );
     props.setLook( wResponseTimeOut );
@@ -251,7 +251,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wSenderSettings.setLayout( SenderSettingsgroupLayout );
 
     // SenderServerName line
-    wSenderServerName = new LabelTextVar( workflowMeta, wSenderSettings,
+    wSenderServerName = new LabelTextVar( getWorkflowMeta(), wSenderSettings,
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.SenderServerName.Label" ),
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.SenderServerName.Tooltip" ) );
     props.setLook( wSenderServerName );
@@ -263,7 +263,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wSenderServerName.setLayoutData(fdSenderServerName);
 
     // SenderServiceName line
-    wSenderServiceName = new LabelTextVar( workflowMeta, wSenderSettings,
+    wSenderServiceName = new LabelTextVar( getWorkflowMeta(), wSenderSettings,
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.SenderServiceName.Label" ),
       BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.SenderServiceName.Tooltip" ) );
     props.setLook( wSenderServiceName );
@@ -353,7 +353,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     wlMessage.setLayoutData(fdlMessage);
 
     wMessage =
-      new StyledTextComp( workflowMeta, wMessageGroup, SWT.MULTI
+      new StyledTextComp( getWorkflowMeta(), wMessageGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wMessage );
     wMessage.addModifyListener( lsMod );
@@ -447,11 +447,11 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = workflowMeta.environmentSubstitute( wServerName.getText() );
+    String hostname = getWorkflowMeta().environmentSubstitute( wServerName.getText() );
     int nrPort =
       Const.toInt(
-        workflowMeta.environmentSubstitute( "" + wPort.getText() ), ActionSendNagiosPassiveCheck.DEFAULT_PORT );
-    int realConnectionTimeOut = Const.toInt( workflowMeta.environmentSubstitute( wConnectionTimeOut.getText() ), -1 );
+    		  getWorkflowMeta().environmentSubstitute( "" + wPort.getText() ), ActionSendNagiosPassiveCheck.DEFAULT_PORT );
+    int realConnectionTimeOut = Const.toInt( getWorkflowMeta().environmentSubstitute( wConnectionTimeOut.getText() ), -1 );
 
     try {
       SocketUtil.connectToHost( hostname, nrPort, realConnectionTimeOut );

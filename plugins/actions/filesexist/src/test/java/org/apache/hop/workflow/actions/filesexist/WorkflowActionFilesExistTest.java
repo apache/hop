@@ -41,9 +41,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class WorkflowEntryFilesExistTest {
+public class WorkflowActionFilesExistTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
-  private ActionFilesExist entry;
+  private ActionFilesExist action;
 
   private String existingFile1;
   private String existingFile2;
@@ -53,17 +53,17 @@ public class WorkflowEntryFilesExistTest {
   @Before
   public void setUp() throws Exception {
     workflow = new LocalWorkflowEngine( new WorkflowMeta() );
-    entry = new ActionFilesExist();
+    action = new ActionFilesExist();
 
-    workflow.getWorkflowMeta().addAction( new ActionMeta( entry ) );
-    entry.setParentWorkflow( workflow );
+    workflow.getWorkflowMeta().addAction( new ActionMeta( action ) );
+    action.setParentWorkflow( workflow );
     WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
-    entry.setParentWorkflowMeta( mockWorkflowMeta );
+    action.setParentWorkflowMeta( mockWorkflowMeta );
 
     workflow.setStopped( false );
 
-    existingFile1 = TestUtils.createRamFile( getClass().getSimpleName() + "/existingFile1.ext", entry );
-    existingFile2 = TestUtils.createRamFile( getClass().getSimpleName() + "/existingFile2.ext", entry );
+    existingFile1 = TestUtils.createRamFile( getClass().getSimpleName() + "/existingFile1.ext", action );
+    existingFile2 = TestUtils.createRamFile( getClass().getSimpleName() + "/existingFile2.ext", action );
   }
 
   @After
@@ -73,9 +73,9 @@ public class WorkflowEntryFilesExistTest {
   @Test
   public void testSetNrErrorsNewBehaviorFalseResult() throws Exception {
     // this tests fix for PDI-10270
-    entry.setArguments( new String[] { "nonExistingFile.ext" } );
+    action.setArguments( new String[] { "nonExistingFile.ext" } );
 
-    Result res = entry.execute( new Result(), 0 );
+    Result res = action.execute( new Result(), 0 );
 
     assertFalse( "Entry should fail", res.getResult() );
     assertEquals( "Files not found. Result is false. But... No of errors should be zero", 0, res.getNrErrors() );
@@ -84,23 +84,23 @@ public class WorkflowEntryFilesExistTest {
   @Test
   public void testSetNrErrorsOldBehaviorFalseResult() throws Exception {
     // this tests backward compatibility settings for PDI-10270
-    entry.setArguments( new String[] { "nonExistingFile1.ext", "nonExistingFile2.ext" } );
+    action.setArguments( new String[] { "nonExistingFile1.ext", "nonExistingFile2.ext" } );
 
-    entry.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
+    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
 
-    Result res = entry.execute( new Result(), 0 );
+    Result res = action.execute( new Result(), 0 );
 
     assertFalse( "Entry should fail", res.getResult() );
     assertEquals(
       "Files not found. Result is false. And... Number of errors should be the same as number of not found files",
-      entry.getArguments().length, res.getNrErrors() );
+      action.getArguments().length, res.getNrErrors() );
   }
 
   @Test
   public void testExecuteWithException() throws Exception {
-    entry.setArguments( new String[] { null } );
+    action.setArguments( new String[] { null } );
 
-    Result res = entry.execute( new Result(), 0 );
+    Result res = action.execute( new Result(), 0 );
 
     assertFalse( "Entry should fail", res.getResult() );
     assertEquals( "File with wrong name was specified. One error should be reported", 1, res.getNrErrors() );
@@ -108,19 +108,19 @@ public class WorkflowEntryFilesExistTest {
 
   @Test
   public void testExecuteSuccess() throws Exception {
-    entry.setArguments( new String[] { existingFile1, existingFile2 } );
+    action.setArguments( new String[] { existingFile1, existingFile2 } );
 
-    Result res = entry.execute( new Result(), 0 );
+    Result res = action.execute( new Result(), 0 );
 
     assertTrue( "Entry failed", res.getResult() );
   }
 
   @Test
   public void testExecuteFail() throws Exception {
-    entry.setArguments(
+    action.setArguments(
       new String[] { existingFile1, existingFile2, "nonExistingFile1.ext", "nonExistingFile2.ext" } );
 
-    Result res = entry.execute( new Result(), 0 );
+    Result res = action.execute( new Result(), 0 );
 
     assertFalse( "Entry should fail", res.getResult() );
   }

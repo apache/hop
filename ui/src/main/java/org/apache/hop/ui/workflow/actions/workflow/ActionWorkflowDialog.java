@@ -214,7 +214,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       if ( inputWorkflowMeta == null ) {
         ActionWorkflow jej = new ActionWorkflow();
         getInfo( jej );
-        inputWorkflowMeta = jej.getWorkflowMeta( metadataProvider, workflowMeta );
+        inputWorkflowMeta = jej.getWorkflowMeta( this.getMetadataProvider(), this.getWorkflowMeta() );
       }
       String[] parameters = inputWorkflowMeta.listParameters();
 
@@ -238,7 +238,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
   protected void pickFileVFS() {
     HopWorkflowFileType<WorkflowMeta> workflowFileType = new HopWorkflowFileType<>();
-    BaseDialog.presentFileDialog( shell, wPath, workflowMeta, workflowFileType.getFilterExtensions(), workflowFileType.getFilterNames(), true );
+    BaseDialog.presentFileDialog( shell, wPath, this.getWorkflowMeta(), workflowFileType.getFilterExtensions(), workflowFileType.getFilterNames(), true );
   }
 
   public void dispose() {
@@ -296,7 +296,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     wFollowingAbortRemotely.setSelection( action.isFollowingAbortRemotely() );
 
     try {
-      List<String> runConfigurations = metadataProvider.getSerializer( WorkflowRunConfiguration.class ).listObjectNames();
+      List<String> runConfigurations = this.getMetadataProvider().getSerializer( WorkflowRunConfiguration.class ).listObjectNames();
 
       try {
         ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );

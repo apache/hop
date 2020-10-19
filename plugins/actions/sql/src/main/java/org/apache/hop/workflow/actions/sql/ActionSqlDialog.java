@@ -87,7 +87,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
   private TextVar wFilename;
 
   public ActionSqlDialog(Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionSql) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobSQL.Name.Default" ) );
@@ -185,7 +185,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     fdbFilename.top = new FormAttachment( wSqlFromFile, margin );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.setToolTipText( BaseMessages.getString( PKG, "JobSQL.Filename.Tooltip" ) );
     wFilename.addModifyListener( lsMod );
@@ -196,9 +196,9 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
       new String[] { "*.sql", "*.txt", "*" }, FILETYPES, true )
     );
 
@@ -428,7 +428,7 @@ public class ActionSqlDialog extends ActionDialog implements IActionDialog {
     action.setSqlFromFile( wSqlFromFile.getSelection() );
     action.setSqlFilename( wFilename.getText() );
     action.setSendOneStatement( wSendOneStatement.getSelection() );
-    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
     dispose();
   }
 }

@@ -124,7 +124,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
   private boolean changed;
 
   public ActionHttpDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionHttp) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobHTTP.Name.Default" ) );
@@ -139,6 +139,8 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 

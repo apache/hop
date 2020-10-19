@@ -117,7 +117,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
 
   public ActionCopyMoveResultFilenamesDialog( Shell parent, IAction action,
                                               WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionCopyMoveResultFilenames) action;
 
     if ( this.action.getName() == null ) {
@@ -210,7 +210,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     fdbFoldername.top = new FormAttachment( wAction, 0 );
     wbFoldername.setLayoutData(fdbFoldername);
 
-    wFoldername = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFoldername = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFoldername );
     wFoldername.addModifyListener( lsMod );
     FormData fdFoldername = new FormData();
@@ -220,9 +220,9 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wFoldername.setLayoutData(fdFoldername);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( workflowMeta.environmentSubstitute( wFoldername.getText() ) ) );
+    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( getWorkflowMeta().environmentSubstitute( wFoldername.getText() ) ) );
 
-    wbFoldername.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFoldername, workflowMeta ) );
+    wbFoldername.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFoldername, getWorkflowMeta() ) );
 
     // Create destination folder
     wlCreateDestinationFolder = new Label( shell, SWT.RIGHT );
@@ -497,7 +497,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     fdlWildcard.top = new FormAttachment( wSpecifyWildcard, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
-    wWildcard = new TextVar( workflowMeta, wLimitTo, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( getWorkflowMeta(), wLimitTo, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "ActionCopyMoveResultFilenames.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -508,7 +508,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( workflowMeta.environmentSubstitute( wWildcard.getText() ) ) );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( getWorkflowMeta().environmentSubstitute( wWildcard.getText() ) ) );
 
     // wWildcardExclude
     wlWildcardExclude = new Label(wLimitTo, SWT.RIGHT );
@@ -520,7 +520,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     fdlWildcardExclude.top = new FormAttachment( wWildcard, margin );
     fdlWildcardExclude.right = new FormAttachment( middle, -margin );
     wlWildcardExclude.setLayoutData(fdlWildcardExclude);
-    wWildcardExclude = new TextVar( workflowMeta, wLimitTo, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcardExclude = new TextVar( getWorkflowMeta(), wLimitTo, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcardExclude.setToolTipText( BaseMessages.getString(
       PKG, "ActionCopyMoveResultFilenames.WildcardExclude.Tooltip" ) );
     props.setLook( wWildcardExclude );
@@ -532,7 +532,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wWildcardExclude.setLayoutData(fdWildcardExclude);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( workflowMeta.environmentSubstitute( wWildcardExclude.getText() ) ) );
+    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( getWorkflowMeta().environmentSubstitute( wWildcardExclude.getText() ) ) );
 
     FormData fdLimitTo = new FormData();
     fdLimitTo.left = new FormAttachment( 0, margin );
@@ -602,7 +602,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wlNrErrorsLessThan.setLayoutData(fdlNrErrorsLessThan);
 
     wNrErrorsLessThan =
-      new TextVar( workflowMeta, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "ActionCopyMoveResultFilenames.NrErrorsLessThan.Tooltip" ) );
     props.setLook( wNrErrorsLessThan );
     wNrErrorsLessThan.addModifyListener( lsMod );
