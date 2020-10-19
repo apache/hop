@@ -20,7 +20,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 
 import java.util.Map;
 import java.util.Optional;
@@ -69,8 +69,8 @@ public class PdiDiff {
   }
 
   public static WorkflowMeta compareJobEntries( WorkflowMeta jobMeta1, WorkflowMeta jobMeta2, boolean isForward ) {
-    jobMeta1.getActionCopies().forEach( je -> {
-      Optional<ActionCopy> je2 = jobMeta2.getActionCopies().stream()
+    jobMeta1.getActions().forEach( je -> {
+      Optional<ActionMeta> je2 = jobMeta2.getActions().stream()
           .filter( obj -> je.getName().equals( obj.getName() ) ).findFirst();
       String status = null;
       if ( je2.isPresent() ) {

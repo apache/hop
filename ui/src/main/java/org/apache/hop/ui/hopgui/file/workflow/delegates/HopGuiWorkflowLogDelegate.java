@@ -33,7 +33,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
@@ -243,7 +243,7 @@ public class HopGuiWorkflowLogDelegate {
       if ( line != null ) {
         WorkflowMeta workflowMeta = workflowGraph.getManagedObject();
         for ( i = 0; i < workflowMeta.nrActions(); i++ ) {
-          ActionCopy entryCopy = workflowMeta.getAction( i );
+          ActionMeta entryCopy = workflowMeta.getAction( i );
           if ( line.indexOf( entryCopy.getName() ) >= 0 ) {
             workflowGraph.editAction( workflowMeta, entryCopy );
           }

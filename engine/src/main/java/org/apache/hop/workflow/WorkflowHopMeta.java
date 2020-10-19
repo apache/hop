@@ -27,7 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -38,7 +38,7 @@ import java.util.List;
  * @author Matt
  * @since 19-06-2003
  */
-public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> implements Cloneable {
+public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneable {
   private static Class<?> PKG = WorkflowHopMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_FROM_TAG = "from";
@@ -57,7 +57,7 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> implements Cloneabl
     unconditional = hop.unconditional;
   }
 
-  public WorkflowHopMeta( ActionCopy from, ActionCopy to ) {
+  public WorkflowHopMeta( ActionMeta from, ActionMeta to ) {
     this.from = from;
     this.to = to;
     enabled = true;
@@ -70,10 +70,10 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> implements Cloneabl
     }
   }
 
-  public WorkflowHopMeta( Node hopNode, List<ActionCopy> actions ) throws HopXmlException {
+  public WorkflowHopMeta( Node hopNode, List<ActionMeta> actions ) throws HopXmlException {
     try {
-      this.from = searchEntry( actions, XmlHandler.getTagValue( hopNode, WorkflowHopMeta.XML_FROM_TAG ) );
-      this.to = searchEntry( actions, XmlHandler.getTagValue( hopNode, WorkflowHopMeta.XML_TO_TAG ) );
+      this.from = searchAction( actions, XmlHandler.getTagValue( hopNode, WorkflowHopMeta.XML_FROM_TAG ) );
+      this.to = searchAction( actions, XmlHandler.getTagValue( hopNode, WorkflowHopMeta.XML_TO_TAG ) );
       String en = XmlHandler.getTagValue( hopNode, "enabled" );
 
       if ( en == null ) {
@@ -98,8 +98,8 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> implements Cloneabl
     return strFrom + " --> " + strTo + " [" + strEnabled + ", " + strEvaluation + ")";
   }
 
-  private ActionCopy searchEntry( List<ActionCopy> actions, String name ) {
-    for ( ActionCopy action : actions ) {
+  private ActionMeta searchAction( List<ActionMeta> actions, String name ) {
+    for ( ActionMeta action : actions ) {
       if ( action.getName().equalsIgnoreCase( name ) ) {
         return action;
       }
@@ -206,20 +206,20 @@ public class WorkflowHopMeta extends BaseHopMeta<ActionCopy> implements Cloneabl
   }
 
 
-  public ActionCopy getFromAction() {
+  public ActionMeta getFromAction() {
     return this.from;
   }
 
-  public void setFromAction( ActionCopy fromAction ) {
+  public void setFromAction( ActionMeta fromAction ) {
     this.from = fromAction;
     changed = true;
   }
 
-  public ActionCopy getToAction() {
+  public ActionMeta getToAction() {
     return this.to;
   }
 
-  public void setToAction( ActionCopy toAction ) {
+  public void setToAction( ActionMeta toAction ) {
     this.to = toAction;
     changed = true;
   }

@@ -48,11 +48,11 @@ public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
     PipelinePainter painter = (PipelinePainter) object;
     Point offset = painter.getOffset();
     IGc gc = painter.getGc();
-    PipelineMeta transMeta = painter.getPipelineMeta();
+    PipelineMeta pipelineMeta = painter.getPipelineMeta();
     try {
-      transMeta.getTransforms().stream().filter( step -> step.getAttribute( ATTR_GIT, ATTR_STATUS ) != null )
+      pipelineMeta.getTransforms().stream().filter( step -> step.getAttribute( ATTR_GIT, ATTR_STATUS ) != null )
         .forEach( step -> {
-          if ( transMeta.getPipelineVersion() == null ? false : transMeta.getPipelineVersion().startsWith( "git" ) ) {
+          if ( pipelineMeta.getPipelineVersion() == null ? false : pipelineMeta.getPipelineVersion().startsWith( "git" ) ) {
             String status = step.getAttribute( ATTR_GIT, ATTR_STATUS );
             Point n = step.getLocation();
             String location = "images/git/";

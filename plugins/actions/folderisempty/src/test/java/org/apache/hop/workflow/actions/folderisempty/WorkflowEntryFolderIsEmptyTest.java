@@ -27,7 +27,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
@@ -66,7 +66,7 @@ public class WorkflowEntryFolderIsEmptyTest {
     workflow = new LocalWorkflowEngine( new WorkflowMeta() );
     entry = new ActionFolderIsEmpty();
 
-    workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );
+    workflow.getWorkflowMeta().addAction( new ActionMeta( entry ) );
     entry.setParentWorkflow( workflow );
     WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
     entry.setParentWorkflowMeta( mockWorkflowMeta );

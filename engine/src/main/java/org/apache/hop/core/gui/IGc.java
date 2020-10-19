@@ -24,7 +24,7 @@ package org.apache.hop.core.gui;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.svg.SvgFile;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 public interface IGc {
@@ -120,5 +120,5 @@ public interface IGc {
 
   void drawTransformIcon( int x, int y, TransformMeta transformMeta, float magnification ) throws HopException;
 
-  void drawActionIcon( int x, int y, ActionCopy actionCopy, float magnification ) throws HopException;
+  void drawActionIcon( int x, int y, ActionMeta actionMeta, float magnification ) throws HopException;
 }

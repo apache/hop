@@ -40,7 +40,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -117,10 +117,10 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
 
     WorkflowMeta workflowMeta = (WorkflowMeta) super.abstractMeta;
 
-    String[] names = new String[ workflowMeta.getActionCopies().size() ];
+    String[] names = new String[ workflowMeta.getActions().size() ];
     for ( int i = 0; i < names.length; i++ ) {
-      ActionCopy copy = workflowMeta.getActionCopies().get( i );
-      names[ i ] = getActionCopyName( copy );
+      ActionMeta actionMeta = workflowMeta.getActions().get( i );
+      names[ i ] = getActionName( actionMeta );
     }
     wStartAction.setItems( names );
   }
@@ -162,8 +162,8 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
     wRunConfiguration.setLayoutData( fdRunConfiguration );
   }
 
-  private String getActionCopyName( ActionCopy copy ) {
-    return copy.getName() + ( copy.getNr() > 0 ? copy.getNr() : "" );
+  private String getActionName( ActionMeta meta ) {
+    return meta.getName() + ( meta.getNr() > 0 ? meta.getNr() : "" );
   }
 
   private void getVariablesData() {
@@ -223,15 +223,15 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       }
     }
 
-    String startCopy = "";
-    if ( !Utils.isEmpty( getConfiguration().getStartCopyName() ) ) {
-      ActionCopy copy =
-        ( (WorkflowMeta) abstractMeta ).findAction( getConfiguration().getStartCopyName(), getConfiguration().getStartCopyNr() );
-      if ( copy != null ) {
-        startCopy = getActionCopyName( copy );
+    String startAction = "";
+    if ( !Utils.isEmpty( getConfiguration().getStartActionName() ) ) {
+      ActionMeta action =
+        ( (WorkflowMeta) abstractMeta ).findAction( getConfiguration().getStartActionName(), getConfiguration().getStartActionNr() );
+      if ( action != null ) {
+        startAction = getActionName( action );
       }
     }
-    wStartAction.setText( startCopy );
+    wStartAction.setText( startAction );
 
     getParamsData();
     getVariablesData();
@@ -248,17 +248,17 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       configuration.setClearingLog( wClearLog.getSelection() );
       configuration.setLogLevel( LogLevel.values()[ wLogLevel.getSelectionIndex() ] );
 
-      String startCopyName = null;
-      int startCopyNr = 0;
+      String startActionName = null;
+      int startActionNr = 0;
       if ( !Utils.isEmpty( wStartAction.getText() ) ) {
         if ( wStartAction.getSelectionIndex() >= 0 ) {
-          ActionCopy copy = ( (WorkflowMeta) abstractMeta ).getActionCopies().get( wStartAction.getSelectionIndex() );
-          startCopyName = copy.getName();
-          startCopyNr = copy.getNr();
+          ActionMeta action = ( (WorkflowMeta) abstractMeta ).getActions().get( wStartAction.getSelectionIndex() );
+          startActionName = action.getName();
+          startActionNr = action.getNr();
         }
       }
-      getConfiguration().setStartCopyName( startCopyName );
-      getConfiguration().setStartCopyNr( startCopyNr );
+      getConfiguration().setStartActionName( startActionName );
+      getConfiguration().setStartActionNr( startActionNr );
 
       // The lower part of the dialog...
       getInfoParameters();
