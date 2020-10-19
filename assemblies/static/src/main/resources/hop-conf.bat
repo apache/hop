@@ -6,9 +6,9 @@ set SWTJAR=libswt\win64
 :NormalStart
 REM set java primary is HOP_JAVA_HOME fallback to JAVA_HOME or default java
 if not "%HOP_JAVA_HOME%"=="" (
-    set _HOP_JAVA="%HOP_JAVA_HOME%bin\java"
+    set _HOP_JAVA="%HOP_JAVA_HOME%\bin\java"
 ) else if not "%JAVA_HOME%"=="" (
-    set _HOP_JAVA="%JAVA_HOME%bin\java"
+    set _HOP_JAVA="%JAVA_HOME%\bin\java"
 ) else (
     set _HOP_JAVA=java
 )
