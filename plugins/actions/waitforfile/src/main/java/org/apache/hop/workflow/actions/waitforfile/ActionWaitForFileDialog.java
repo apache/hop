@@ -73,7 +73,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
   private boolean changed;
 
   public ActionWaitForFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionWaitForFile) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobWaitForFile.Name.Default" ) );
@@ -137,7 +137,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     fdbFilename.top = new FormAttachment( wName, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -147,9 +147,9 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -162,7 +162,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     fdlMaximumTimeout.top = new FormAttachment( wFilename, margin );
     fdlMaximumTimeout.right = new FormAttachment( middle, -margin );
     wlMaximumTimeout.setLayoutData(fdlMaximumTimeout);
-    wMaximumTimeout = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaximumTimeout = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMaximumTimeout );
     wMaximumTimeout.setToolTipText( BaseMessages.getString( PKG, "JobWaitForFile.MaximumTimeout.Tooltip" ) );
     wMaximumTimeout.addModifyListener( lsMod );
@@ -181,7 +181,7 @@ public class ActionWaitForFileDialog extends ActionDialog implements IActionDial
     fdlCheckCycleTime.top = new FormAttachment( wMaximumTimeout, margin );
     fdlCheckCycleTime.right = new FormAttachment( middle, -margin );
     wlCheckCycleTime.setLayoutData(fdlCheckCycleTime);
-    wCheckCycleTime = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCheckCycleTime = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCheckCycleTime );
     wCheckCycleTime.setToolTipText( BaseMessages.getString( PKG, "JobWaitForFile.CheckCycleTime.Tooltip" ) );
     wCheckCycleTime.addModifyListener( lsMod );

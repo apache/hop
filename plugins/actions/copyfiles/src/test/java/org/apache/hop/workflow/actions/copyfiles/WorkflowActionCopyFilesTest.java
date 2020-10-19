@@ -47,7 +47,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class WorkflowEntryCopyFilesTest {
+public class WorkflowActionCopyFilesTest {
   private ActionCopyFiles entry;
 
   private final String EMPTY = "";

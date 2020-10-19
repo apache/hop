@@ -76,7 +76,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
   private boolean changed;
 
   public ActionPGPVerifyDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent,  workflowMeta );
     this.action = (ActionPGPVerify) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobPGPVerify.Name.Default" ) );
@@ -90,7 +90,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
-
+    WorkflowMeta workflowMeta = getWorkflowMeta();
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 

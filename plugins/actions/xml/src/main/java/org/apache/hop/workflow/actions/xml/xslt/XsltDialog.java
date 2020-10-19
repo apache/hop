@@ -83,7 +83,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
   private CCombo wIfFileExists;
 
-  private Xslt jobEntry;
+  private Xslt action;
   private Shell shell;
 
   private boolean changed;
@@ -98,11 +98,11 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
   private TableView wOutputProperties;
 
-  public XsltDialog(Shell parent, IAction jobEntryInt, WorkflowMeta jobMeta ) {
-    super( parent, jobEntryInt, jobMeta );
-    jobEntry = (Xslt) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryXSLT.Name.Default" ) );
+  public XsltDialog(Shell parent, IAction action, WorkflowMeta jobMeta ) {
+    super( parent, jobMeta );
+    action = (Xslt) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobEntryXSLT.Name.Default" ) );
     }
   }
 
@@ -112,10 +112,12 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = e -> jobEntry.setChanged();
-    changed = jobEntry.hasChanged();
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
+    ModifyListener lsMod = e -> action.setChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -453,7 +455,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wAddFileToResult.setLayoutData(fdAddFileToResult);
     wAddFileToResult.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -505,7 +507,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     fdlOutputProperties.top = new FormAttachment( 0, margin );
     wlOutputProperties.setLayoutData(fdlOutputProperties);
 
-    final int OutputPropertiesRows = jobEntry.getOutputPropertyName().length;
+    final int OutputPropertiesRows = action.getOutputPropertyName().length;
 
     ColumnInfo[] colinf = new ColumnInfo[]{
             new ColumnInfo(BaseMessages.getString(PKG, "XsltDialog.ColumnInfo.OutputProperties.Name"),
@@ -535,7 +537,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     fdlFields.top = new FormAttachment( wOutputProperties, 2 * margin );
     wlFields.setLayoutData(fdlFields);
 
-    final int FieldsRows = jobEntry.getParameterField().length;
+    final int FieldsRows = action.getParameterField().length;
 
     colinf =
         new ColumnInfo[] {
@@ -619,7 +621,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void RefreshArgFromPrevious() {
@@ -644,36 +646,36 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wxmlFilename.setText( Const.nullToEmpty( jobEntry.getxmlFilename() ) );
-    wxslFilename.setText( Const.nullToEmpty( jobEntry.getxslFilename() ) );
-    wOutputFilename.setText( Const.nullToEmpty( jobEntry.getoutputFilename() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wxmlFilename.setText( Const.nullToEmpty( action.getxmlFilename() ) );
+    wxslFilename.setText( Const.nullToEmpty( action.getxslFilename() ) );
+    wOutputFilename.setText( Const.nullToEmpty( action.getoutputFilename() ) );
 
-    if ( jobEntry.iffileexists >= 0 ) {
-      wIfFileExists.select( jobEntry.iffileexists );
+    if ( action.iffileexists >= 0 ) {
+      wIfFileExists.select( action.iffileexists );
     } else {
       wIfFileExists.select( 2 ); // NOTHING
     }
 
-    wAddFileToResult.setSelection( jobEntry.isAddFileToResult() );
-    wPrevious.setSelection( jobEntry.isFilenamesFromPrevious() );
-    if ( jobEntry.getXSLTFactory() != null ) {
-      wXSLTFactory.setText( jobEntry.getXSLTFactory() );
+    wAddFileToResult.setSelection( action.isAddFileToResult() );
+    wPrevious.setSelection( action.isFilenamesFromPrevious() );
+    if ( action.getXSLTFactory() != null ) {
+      wXSLTFactory.setText( action.getXSLTFactory() );
     } else {
       wXSLTFactory.setText( "JAXP" );
     }
-    if ( jobEntry.getParameterName() != null ) {
-      for ( int i = 0; i < jobEntry.getParameterName().length; i++ ) {
+    if ( action.getParameterName() != null ) {
+      for ( int i = 0; i < action.getParameterName().length; i++ ) {
         TableItem item = wFields.table.getItem( i );
-        item.setText( 1, Const.NVL( jobEntry.getParameterField()[i], "" ) );
-        item.setText( 2, Const.NVL( jobEntry.getParameterName()[i], "" ) );
+        item.setText( 1, Const.NVL( action.getParameterField()[i], "" ) );
+        item.setText( 2, Const.NVL( action.getParameterName()[i], "" ) );
       }
     }
-    if ( jobEntry.getOutputPropertyName() != null ) {
-      for ( int i = 0; i < jobEntry.getOutputPropertyName().length; i++ ) {
+    if ( action.getOutputPropertyName() != null ) {
+      for ( int i = 0; i < action.getOutputPropertyName().length; i++ ) {
         TableItem item = wOutputProperties.table.getItem( i );
-        item.setText( 1, Const.NVL( jobEntry.getOutputPropertyName()[i], "" ) );
-        item.setText( 2, Const.NVL( jobEntry.getOutputPropertyValue()[i], "" ) );
+        item.setText( 1, Const.NVL( action.getOutputPropertyName()[i], "" ) );
+        item.setText( 2, Const.NVL( action.getOutputPropertyValue()[i], "" ) );
       }
     }
 
@@ -682,8 +684,8 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -695,29 +697,29 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setxmlFilename( wxmlFilename.getText() );
-    jobEntry.setxslFilename( wxslFilename.getText() );
-    jobEntry.setoutputFilename( wOutputFilename.getText() );
-    jobEntry.iffileexists = wIfFileExists.getSelectionIndex();
-    jobEntry.setFilenamesFromPrevious( wPrevious.getSelection() );
-    jobEntry.setAddFileToResult( wAddFileToResult.getSelection() );
-    jobEntry.setXSLTFactory( wXSLTFactory.getText() );
+    action.setName( wName.getText() );
+    action.setxmlFilename( wxmlFilename.getText() );
+    action.setxslFilename( wxslFilename.getText() );
+    action.setoutputFilename( wOutputFilename.getText() );
+    action.iffileexists = wIfFileExists.getSelectionIndex();
+    action.setFilenamesFromPrevious( wPrevious.getSelection() );
+    action.setAddFileToResult( wAddFileToResult.getSelection() );
+    action.setXSLTFactory( wXSLTFactory.getText() );
 
     int nrparams = wFields.nrNonEmpty();
     int nroutputprops = wOutputProperties.nrNonEmpty();
-    jobEntry.allocate( nrparams, nroutputprops );
+    action.allocate( nrparams, nroutputprops );
 
     // CHECKSTYLE:Indentation:OFF
     for ( int i = 0; i < nrparams; i++ ) {
       TableItem item = wFields.getNonEmpty( i );
-      jobEntry.getParameterField()[i] = item.getText( 1 );
-      jobEntry.getParameterName()[i] = item.getText( 2 );
+      action.getParameterField()[i] = item.getText( 1 );
+      action.getParameterName()[i] = item.getText( 2 );
     }
     for ( int i = 0; i < nroutputprops; i++ ) {
       TableItem item = wOutputProperties.getNonEmpty( i );
-      jobEntry.getOutputPropertyName()[i] = item.getText( 1 );
-      jobEntry.getOutputPropertyValue()[i] = item.getText( 2 );
+      action.getOutputPropertyName()[i] = item.getText( 1 );
+      action.getOutputPropertyValue()[i] = item.getText( 2 );
     }
 
     dispose();

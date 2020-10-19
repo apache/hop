@@ -133,7 +133,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   private SftpClient sftpclient = null;
 
   public ActionSftpPutDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionSftpPut) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobSFTPPUT.Title" ) );
@@ -148,6 +148,8 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> {
       sftpclient = null;
       action.setChanged();
@@ -937,6 +939,8 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   private boolean connectToSftp(boolean checkFolder, String Remotefoldername ) {
     boolean retval = false;
     try {
+      WorkflowMeta workflowMeta = getWorkflowMeta();
+    	
       if ( sftpclient == null ) {
         // Create sftp client to host ...
         sftpclient = new SftpClient(
@@ -986,7 +990,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   }
 
   private void checkRemoteFolder() {
-    String changeFtpFolder = workflowMeta.environmentSubstitute( wScpDirectory.getText() );
+    String changeFtpFolder = getWorkflowMeta().environmentSubstitute( wScpDirectory.getText() );
     if ( !Utils.isEmpty( changeFtpFolder ) ) {
       if ( connectToSftp( true, changeFtpFolder ) ) {
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );

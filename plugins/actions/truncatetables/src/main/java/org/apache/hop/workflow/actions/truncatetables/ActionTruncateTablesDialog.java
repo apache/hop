@@ -59,6 +59,8 @@ import java.util.Arrays;
 public class ActionTruncateTablesDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionTruncateTables.class; // for i18n purposes, needed by Translator!!
 
+  private Shell shell;
+  
   private Button wbTable;
 
   private Text wName;
@@ -76,7 +78,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   private Button wPrevious;
 
   public ActionTruncateTablesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionTruncateTables) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionTruncateTables.Name.Default" ) );
@@ -204,7 +206,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
 
     wFields =
       new TableView(
-        workflowMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -335,7 +337,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
       return;
     }
     action.setName( wName.getText() );
-    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
     action.setArgFromPrevious(wPrevious.getSelection());
 
     int nritems = wFields.nrNonEmpty();
@@ -366,7 +368,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
   }
 
   private void getTableName() {
-    DatabaseMeta databaseMeta = workflowMeta.findDatabase( wConnection.getText() );
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
       Database database = new Database( loggingObject, databaseMeta );
       try {

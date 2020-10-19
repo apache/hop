@@ -62,7 +62,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
   private boolean changed;
 
   public ActionDelayDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionDelay) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionDelay.Title" ) );
@@ -110,8 +110,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
 
     // MaximumTimeout line
     wMaximumTimeout =
-      new LabelTextVar(
-        workflowMeta, shell, BaseMessages.getString( PKG, "ActionDelay.MaximumTimeout.Label" ), BaseMessages
+      new LabelTextVar(getWorkflowMeta(), shell, BaseMessages.getString( PKG, "ActionDelay.MaximumTimeout.Label" ), BaseMessages
         .getString( PKG, "ActionDelay.MaximumTimeout.Tooltip" ) );
     props.setLook( wMaximumTimeout );
     wMaximumTimeout.addModifyListener( lsMod );
@@ -122,7 +121,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
     wMaximumTimeout.setLayoutData(fdMaximumTimeout);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wMaximumTimeout.addModifyListener( e -> wMaximumTimeout.setToolTipText( workflowMeta.environmentSubstitute( wMaximumTimeout.getText() ) ) );
+    wMaximumTimeout.addModifyListener( e -> wMaximumTimeout.setToolTipText( getWorkflowMeta().environmentSubstitute( wMaximumTimeout.getText() ) ) );
 
     // Scale time
 

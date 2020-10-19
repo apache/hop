@@ -136,7 +136,7 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
   private FtpsConnection connection = null;
 
   public ActionFtpsGetDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionFtpsGet) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobFTPS.Name.Default" ) );
@@ -151,6 +151,8 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> {
       // pwdFolder=null;
       connection = null;
@@ -1102,6 +1104,8 @@ public class ActionFtpsGetDialog extends ActionDialog implements IActionDialog {
     boolean retval = true;
     String realServername = null;
     try {
+      WorkflowMeta workflowMeta = getWorkflowMeta();
+    	
       if ( connection == null ) {
         // Create FTPS client to host:port ...
         realServername = workflowMeta.environmentSubstitute( wServerName.getText() );

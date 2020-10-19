@@ -212,7 +212,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
   private MailConnection mailConn = null;
 
   public ActionGetPOPDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionGetPOP) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobGetPOP.Name.Default" ) );
@@ -227,6 +227,8 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> {
       closeMailConnection();
       action.setChanged();
@@ -1520,11 +1522,11 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     }
 
     if ( !retval ) {
-      String realserver = workflowMeta.environmentSubstitute( wServerName.getText() );
-      String realuser = workflowMeta.environmentSubstitute( wUserName.getText() );
-      String realpass = action.getRealPassword( workflowMeta.environmentSubstitute( wPassword.getText() ) );
-      int realport = Const.toInt( workflowMeta.environmentSubstitute( wPort.getText() ), -1 );
-      String realproxyuser = workflowMeta.environmentSubstitute( wProxyUsername.getText() );
+      String realserver = getWorkflowMeta().environmentSubstitute( wServerName.getText() );
+      String realuser = getWorkflowMeta().environmentSubstitute( wUserName.getText() );
+      String realpass = action.getRealPassword( getWorkflowMeta().environmentSubstitute( wPassword.getText() ) );
+      int realport = Const.toInt( getWorkflowMeta().environmentSubstitute( wPort.getText() ), -1 );
+      String realproxyuser = getWorkflowMeta().environmentSubstitute( wProxyUsername.getText() );
       try {
         mailConn =
           new MailConnection(
