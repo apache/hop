@@ -328,12 +328,6 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
             infoStream.setSubject(step);
         }
     }
-
-    @Override
-    protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
-        plugin.setDocumentationUrl("https://github.com/graphiq-data/pdi-streamschemamerge-plugin/blob/master/help.md");
-        return super.createHelpButton(shell, stepMeta, plugin);
-    }
 	
 	/**
 	 * Called when the user confirms the dialog

@@ -23,11 +23,13 @@
 package org.apache.hop.ui.pipeline.transforms.dummy;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -166,4 +168,11 @@ public class DummyDialog extends BaseTransformDialog implements ITransformDialog
 
     dispose();
   }
+
+  @Override
+  protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
+    plugin.setDocumentationUrl("https://www.project-hop.org/manual/latest/plugins/transforms/dummy.html");
+    return super.createHelpButton(shell, stepMeta, plugin);
+  }
+
 }

@@ -64,7 +64,7 @@ import java.util.Map.Entry;
     name = "BaseTransform.TypeLongDesc.MetaInject",
     description = "BaseTransform.TypeTooltipDesc.MetaInject",
     categoryDescription = "",
-    documentationUrl = "" )
+    documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/metainject.html" )
 @InjectionSupported( localizationPrefix = "MetaInject.Injection.", groups = { "SOURCE_OUTPUT_FIELDS",
   "MAPPING_FIELDS" } )
 public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<MetaInject, MetaInjectData>, ITransformMetaChangeListener, ISubPipelineAwareMeta {
