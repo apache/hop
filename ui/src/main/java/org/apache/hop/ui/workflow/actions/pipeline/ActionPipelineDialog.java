@@ -22,13 +22,14 @@
 
 package org.apache.hop.ui.workflow.actions.pipeline;
 
+import java.util.List;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -41,7 +42,6 @@ import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.apache.hop.ui.util.HelpUtils;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -62,8 +62,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.List;
 
 /**
  * This dialog allows you to edit the pipeline action (ActionPipeline)
@@ -127,8 +125,8 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     protected void createElements() {
         super.createElements();
         shell.setText(BaseMessages.getString(PKG, "ActionPipeline.Header"));
-
-        wlPath.setText(BaseMessages.getString(PKG, "ActionPipeline.Filename.Label"));
+        
+        wlPath.setText(BaseMessages.getString(PKG, "ActionPipeline.PipelineFile.Label"));
         wPassParams.setText(BaseMessages.getString(PKG, "ActionPipeline.PassAllParameters.Label"));
 
         wClearRows = new Button(gExecution, SWT.CHECK);
