@@ -44,7 +44,7 @@ public class LdapProtocol {
 
   private static final String CONNECTION_PREFIX = "ldap://";
 
-  public static final String NAME = "";
+  public static final String NAME = "LDAP";
 
   private final String hostname;
 
