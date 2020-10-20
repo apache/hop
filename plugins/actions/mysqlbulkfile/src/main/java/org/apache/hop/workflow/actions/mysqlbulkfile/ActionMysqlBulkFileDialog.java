@@ -106,7 +106,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
   private Button wAddFileToResult;
 
   public ActionMysqlBulkFileDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionMysqlBulkFile) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobMysqlBulkFile.Name.Default" ) );
@@ -120,7 +120,9 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
-
+    
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
@@ -669,7 +671,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       return;
     }
     action.setName( wName.getText() );
-    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
     action.setSchemaname( wSchemaname.getText() );
     action.setTablename( wTablename.getText() );
     action.setFilename( wFilename.getText() );
@@ -694,9 +696,9 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
   private void getTableName() {
     String databaseName = wConnection.getText();
     if ( StringUtils.isNotEmpty( databaseName ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( databaseName );
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( databaseName );
       if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, workflowMeta.getDatabases() );
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
         std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
         if ( std.open() ) {
           // wSchemaname.setText(Const.NVL(std.getSchemaName(), ""));
@@ -716,10 +718,10 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
    */
   private void getListColumns() {
     if ( !Utils.isEmpty( wTablename.getText() ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( wConnection.getText() );
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
         Database database = new Database( loggingObject, databaseMeta );
-        database.shareVariablesWith( workflowMeta );
+        database.shareVariablesWith( getWorkflowMeta() );
         try {
           database.connect();
           IRowMeta row =

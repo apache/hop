@@ -107,7 +107,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
 
   public ActionEvalTableContentDialog( Shell parent, IAction action,
                                        WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionEvalTableContent) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionEvalTableContent.Name.Default" ) );
@@ -184,7 +184,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     fdlSchemaname.top = new FormAttachment( wConnection, margin );
     wlSchemaname.setLayoutData(fdlSchemaname);
 
-    wSchemaname = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "ActionEvalTableContent.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
@@ -217,7 +217,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
       }
     } );
 
-    wTablename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTablename );
     wTablename.setToolTipText( BaseMessages.getString( PKG, "ActionEvalTableContent.Tablename.Tooltip" ) );
     wTablename.addModifyListener( lsMod );
@@ -276,7 +276,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
     wlLimit.setLayoutData(fdlLimit);
 
     wLimit =
-      new TextVar( workflowMeta, wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "ActionEvalTableContent.Limit.Tooltip" ) );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
@@ -527,9 +527,9 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
   }
 
   private void getSql() {
-    DatabaseMeta inf = workflowMeta.findDatabase( wConnection.getText() );
+    DatabaseMeta inf = getWorkflowMeta().findDatabase( wConnection.getText() );
     if ( inf != null ) {
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, workflowMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, getWorkflowMeta().getDatabases() );
       if ( std.open() ) {
         String sql =
           "SELECT *"
@@ -692,7 +692,7 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
       return;
     }
     action.setName( wName.getText() );
-    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
 
     action.setSchemaname( wSchemaname.getText() );
     action.setTablename( wTablename.getText() );
@@ -710,9 +710,9 @@ public class ActionEvalTableContentDialog extends ActionDialog implements IActio
   private void getTableName() {
     String databaseName = wConnection.getText();
     if ( StringUtils.isNotEmpty( databaseName ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( databaseName );
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( databaseName );
       if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, workflowMeta.getDatabases() );
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
         std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
         if ( std.open() ) {
           wTablename.setText( Const.NVL( std.getTableName(), "" ) );

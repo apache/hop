@@ -106,7 +106,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
   private ToolItem deleteToolItem; // Delete
 
   public ActionCopyFilesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionCopyFiles) action;
 
     if ( this.action.getName() == null ) {
@@ -352,7 +352,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     wFields =
       new TableView(
-        workflowMeta, wFilesComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        getWorkflowMeta(), wFilesComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, margin );

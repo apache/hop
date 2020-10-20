@@ -60,7 +60,7 @@ import static org.mockito.Mockito.when;
  * @since 21-03-2017
  */
 
-public class WorkflowEntryColumnsExistTest {
+public class WorkflowActionColumnsExistTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static final String TABLENAME = "TABLE";

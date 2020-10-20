@@ -64,7 +64,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
   private TextVar wTitleMessage;
 
   public ActionMsgBoxInfoDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionMsgBoxInfo) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "MsgBoxInfo.Name.Default" ) );
@@ -129,7 +129,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     fdlTitleMessage.right = new FormAttachment( middle, -margin );
     wlTitleMessage.setLayoutData(fdlTitleMessage);
 
-    wTitleMessage = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTitleMessage = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTitleMessage );
     wTitleMessage.addModifyListener( lsMod );
     FormData fdTitleMessage = new FormData();
@@ -148,7 +148,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     fdlBodyMessage.right = new FormAttachment( middle, -margin );
     wlBodyMessage.setLayoutData(fdlBodyMessage);
 
-    wBodyMessage = new TextVar( workflowMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
+    wBodyMessage = new TextVar( getWorkflowMeta(), shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     wBodyMessage.setText( BaseMessages.getString( PKG, "MsgBoxInfo.Name.Default" ) );
     props.setLook( wBodyMessage, Props.WIDGET_STYLE_FIXED );
     wBodyMessage.addModifyListener( lsMod );
@@ -160,7 +160,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     wBodyMessage.setLayoutData(fdBodyMessage);
 
     // SelectionAdapter lsVar = VariableButtonListenerFactory.getSelectionAdapter(shell, wBodyMessage, workflowMeta);
-    wBodyMessage.addKeyListener( new ControlSpaceKeyAdapter( workflowMeta, wBodyMessage ) );
+    wBodyMessage.addKeyListener( new ControlSpaceKeyAdapter( getWorkflowMeta(), wBodyMessage ) );
 
     // Add listeners
     Listener lsCancel = e -> cancel();

@@ -121,7 +121,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
   private boolean changed;
 
   public ActionUnZipDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionUnZip) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobUnZip.Name.Default" ) );
@@ -243,7 +243,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdbSourceDirectory.top = new FormAttachment( wArgsPrevious, margin );
     wbSourceDirectory.setLayoutData(fdbSourceDirectory);
 
-    wbSourceDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wZipFilename, workflowMeta ) );
+    wbSourceDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wZipFilename, getWorkflowMeta() ) );
 
 
     // Browse files...
@@ -255,7 +255,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdbZipFilename.top = new FormAttachment( wArgsPrevious, margin );
     wbZipFilename.setLayoutData(fdbZipFilename);
 
-    wZipFilename = new TextVar( workflowMeta, wSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wZipFilename = new TextVar( getWorkflowMeta(), wSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wZipFilename );
     wZipFilename.addModifyListener( lsMod );
     FormData fdZipFilename = new FormData();
@@ -266,9 +266,9 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wZipFilename.setLayoutData(fdZipFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wZipFilename.addModifyListener( e -> wZipFilename.setToolTipText( workflowMeta.environmentSubstitute( wZipFilename.getText() ) ) );
+    wZipFilename.addModifyListener( e -> wZipFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wZipFilename.getText() ) ) );
 
-    wbZipFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wZipFilename, workflowMeta,
+    wbZipFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wZipFilename, getWorkflowMeta(),
       new String[] { "*.zip;*.ZIP", "*.jar;*.JAR", "*" }, FILETYPES, true )
     );
 
@@ -282,7 +282,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdlWildcardSource.right = new FormAttachment( middle, -margin );
     wlWildcardSource.setLayoutData(fdlWildcardSource);
     wWildcardSource =
-      new TextVar( workflowMeta, wSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobUnZip.WildcardSource.Tooltip" ) );
     props.setLook( wWildcardSource );
     wWildcardSource.addModifyListener( lsMod );
@@ -358,7 +358,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wbTargetDirectory.setLayoutData(fdbTargetDirectory);
 
     wTargetDirectory =
-      new TextVar( workflowMeta, wUnzippedFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wUnzippedFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobUnZip.TargetDir.Tooltip" ) );
     props.setLook( wTargetDirectory );
     wTargetDirectory.addModifyListener( lsMod );
@@ -401,7 +401,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard =
-      new TextVar( workflowMeta, wUnzippedFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wUnzippedFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobUnZip.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -421,7 +421,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdlWildcardExclude.right = new FormAttachment( middle, -margin );
     wlWildcardExclude.setLayoutData(fdlWildcardExclude);
     wWildcardExclude =
-      new TextVar( workflowMeta, wUnzippedFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wUnzippedFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobUnZip.WildcardExclude.Tooltip" ) );
     props.setLook( wWildcardExclude );
     wWildcardExclude.addModifyListener( lsMod );
@@ -639,7 +639,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     fdlMovetoDirectory.right = new FormAttachment( middle, -margin );
     wlMovetoDirectory.setLayoutData(fdlMovetoDirectory);
     wMovetoDirectory =
-      new TextVar( workflowMeta, wUnzippedFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wUnzippedFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobUnZip.MovetoDirectory.Tooltip" ) );
     props.setLook( wMovetoDirectory );
 
@@ -820,7 +820,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wlNrErrorsLessThan.setLayoutData(fdlNrErrorsLessThan);
 
     wNrErrorsLessThan =
-      new TextVar( workflowMeta, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobUnZip.NrBadFormedLessThan.Tooltip" ) );
     props.setLook( wNrErrorsLessThan );
     wNrErrorsLessThan.addModifyListener( lsMod );
@@ -881,8 +881,8 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
       }
     };
 
-    wbTargetDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wTargetDirectory, workflowMeta ) );
-    wbMovetoDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wMovetoDirectory, workflowMeta ) );
+    wbTargetDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wTargetDirectory, getWorkflowMeta() ) );
+    wbMovetoDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wMovetoDirectory, getWorkflowMeta() ) );
 
 
     wName.addSelectionListener(lsDef);

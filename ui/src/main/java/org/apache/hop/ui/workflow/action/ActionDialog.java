@@ -27,13 +27,11 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
-import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.widgets.Composite;
@@ -58,7 +56,7 @@ public class ActionDialog extends Dialog {
   /**
    * The package name, used for internationalization.
    */
-  private static Class<?> PKG = ITransform.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = IAction.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The loggingObject for the dialog
@@ -66,24 +64,14 @@ public class ActionDialog extends Dialog {
   public static final ILoggingObject loggingObject = new SimpleLoggingObject( "Action dialog", LoggingObjectType.ACTION_DIALOG, null );
 
   /**
-   * A reference to the action interface
+   * The Metadata provider
    */
-  protected IAction action;
-
-  /**
-   * the MetaStore
-   */
-  protected IHopMetadataProvider metadataProvider;
+  private IHopMetadataProvider metadataProvider;
 
   /**
    * The workflow metadata object.
    */
-  protected WorkflowMeta workflowMeta;
-
-  /**
-   * A reference to the shell object
-   */
-  protected Shell shell;
+  private WorkflowMeta workflowMeta;
 
   /**
    * A reference to the properties user interface
@@ -91,29 +79,16 @@ public class ActionDialog extends Dialog {
   protected PropsUi props;
 
   /**
-   * A reference to the parent shell
-   */
-  protected Shell parent;
-
-  /**
-   * A reference to a database dialog
-   */
-  protected DatabaseDialog databaseDialog;
-
-  /**
    * Instantiates a new action dialog.
    *
    * @param parent   the parent shell
-   * @param action the action to edit
    * @param workflowMeta  the workflow metadata object
    */
-  public ActionDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+  public ActionDialog( Shell parent, WorkflowMeta workflowMeta ) {
     super( parent, SWT.NONE );
     props = PropsUi.getInstance();
 
-    this.action = action;
     this.workflowMeta = workflowMeta;
-    this.shell = parent;
   }
 
   /**
@@ -145,5 +120,7 @@ public class ActionDialog extends Dialog {
     this.metadataProvider = metadataProvider;
   }
 
-
+  public WorkflowMeta getWorkflowMeta() {
+	return workflowMeta;
+  }
 }

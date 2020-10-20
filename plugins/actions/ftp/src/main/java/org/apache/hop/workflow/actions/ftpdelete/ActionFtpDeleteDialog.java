@@ -140,7 +140,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     BaseMessages.getString( PKG, "JobFTPDelete.Filetype.All" ) };
 
   public ActionFtpDeleteDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionFtpDelete) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobFTPDelete.Name.Default" ) );
@@ -155,6 +155,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> {
       pwdFolder = null;
       ftpclient = null;
@@ -978,7 +980,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     boolean folderexists = false;
     String errmsg = "";
     try {
-      String realfoldername = workflowMeta.environmentSubstitute( wFtpDirectory.getText() );
+      String realfoldername = getWorkflowMeta().environmentSubstitute( wFtpDirectory.getText() );
       if ( !Utils.isEmpty( realfoldername ) ) {
         if ( connect() ) {
           if ( wProtocol.getText().equals( ActionFtpDelete.PROTOCOL_FTP ) ) {
@@ -1055,6 +1057,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     boolean retval = false;
     String realServername = null;
     try {
+      WorkflowMeta workflowMeta = getWorkflowMeta();
+      
       if ( ftpclient == null || !ftpclient.connected() ) {
         // Create ftp client to host:port ...
         ftpclient = new FTPClient();
@@ -1112,6 +1116,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
   private boolean connectToFtps() {
     boolean retval = false;
     try {
+      WorkflowMeta workflowMeta = getWorkflowMeta();
+    	
       if ( ftpsclient == null ) {
         String realServername = workflowMeta.environmentSubstitute( wServerName.getText() );
         String realUsername = workflowMeta.environmentSubstitute( wUserName.getText() );
@@ -1168,6 +1174,9 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
   private boolean connectToSftp() {
     boolean retval = false;
     try {
+    	
+      WorkflowMeta workflowMeta = getWorkflowMeta();
+      
       if ( sftpclient == null ) {
         // Create sftp client to host ...
         sftpclient =
@@ -1202,6 +1211,9 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
   private boolean connectToSSH() {
     boolean retval = false;
     try {
+    	
+      WorkflowMeta workflowMeta = getWorkflowMeta();
+    	
       if ( conn == null ) { // Create a connection instance
         conn =
           new Connection( workflowMeta.environmentSubstitute( wServerName.getText() ), Const.toInt( workflowMeta

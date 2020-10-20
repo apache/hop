@@ -150,7 +150,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
   public ActionBaseDialog( Shell parent,
                            IAction action,
                            WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     log = new LogChannel( workflowMeta );
   }
 
@@ -211,7 +211,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
     wbBrowse.setLayoutData( fdBrowse );
 
-    wPath = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPath = new TextVar( this.getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
     FormData fdPath = new FormData();
     fdPath.left = new FormAttachment( 0, 0 );
@@ -230,7 +230,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdlRunConfiguration.right = new FormAttachment( 50, 0 );
     wlRunConfiguration.setLayoutData( fdlRunConfiguration );
 
-    wRunConfiguration = new ComboVar( workflowMeta, shell, SWT.LEFT | SWT.BORDER );
+    wRunConfiguration = new ComboVar( this.getWorkflowMeta(), shell, SWT.LEFT | SWT.BORDER );
     props.setLook( wlRunConfiguration );
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment( wlRunConfiguration, 10 );
@@ -327,7 +327,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdlName.top = new FormAttachment( 0, 0 );
     wlLogfile.setLayoutData( fdlName );
 
-    wLogfile = new TextVar( workflowMeta, gLogFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogfile = new TextVar( this.getWorkflowMeta(), gLogFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLogfile );
     FormData fdName = new FormData();
     fdName.width = 250;
@@ -351,7 +351,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdlExtension.top = new FormAttachment( wLogfile, 10 );
     wlLogext.setLayoutData( fdlExtension );
 
-    wLogext = new TextVar( workflowMeta, gLogFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogext = new TextVar( this.getWorkflowMeta(), gLogFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLogext );
     FormData fdExtension = new FormData();
     fdExtension.width = 250;
@@ -478,7 +478,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     colinf[ 2 ].setUsingVariables( true );
 
     wParameters =
-      new TableView( workflowMeta, wParameterComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, parameterRows, false,
+      new TableView( this.getWorkflowMeta(), wParameterComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, parameterRows, false,
         lsMod, props, false );
     props.setLook( wParameters );
     FormData fdParameters = new FormData();
@@ -547,7 +547,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected void selectLogFile( String[] filters ) {
 
-    String filename = BaseDialog.presentFileDialog(shell, wLogfile, workflowMeta,
+    String filename = BaseDialog.presentFileDialog(shell, wLogfile, this.getWorkflowMeta(),
       new String[] { "*.txt", "*.log", "*" },
       filters,
       true

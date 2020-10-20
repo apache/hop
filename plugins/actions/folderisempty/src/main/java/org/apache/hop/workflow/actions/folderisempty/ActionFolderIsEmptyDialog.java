@@ -68,7 +68,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
   private boolean changed;
 
   public ActionFolderIsEmptyDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionFolderIsEmpty) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobFolderIsEmpty.Name.Default" ) );
@@ -132,7 +132,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     fdbFoldername.top = new FormAttachment( wName, 0 );
     wbFoldername.setLayoutData(fdbFoldername);
 
-    wFoldername = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFoldername = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFoldername );
     wFoldername.addModifyListener( lsMod );
     FormData fdFoldername = new FormData();
@@ -198,7 +198,7 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     fdlWildcard.top = new FormAttachment( wSpecifyWildcard, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
-    wWildcard = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
     FormData fdWildcard = new FormData();
@@ -208,11 +208,11 @@ public class ActionFolderIsEmptyDialog extends ActionDialog implements IActionDi
     wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( workflowMeta.environmentSubstitute( wFoldername.getText() ) ) );
+    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( getWorkflowMeta().environmentSubstitute( wFoldername.getText() ) ) );
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( workflowMeta.environmentSubstitute( wWildcard.getText() ) ) );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( getWorkflowMeta().environmentSubstitute( wWildcard.getText() ) ) );
 
-    wbFoldername.addListener(SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFoldername, workflowMeta ));
+    wbFoldername.addListener(SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFoldername, getWorkflowMeta() ));
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

@@ -198,7 +198,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
             if (inputPipelineMeta == null) {
                 ActionPipeline jet = new ActionPipeline();
                 getInfo(jet);
-                inputPipelineMeta = jet.getPipelineMeta(metadataProvider, workflowMeta);
+                inputPipelineMeta = jet.getPipelineMeta(this.getMetadataProvider(), this.getWorkflowMeta());
             }
             String[] parameters = inputPipelineMeta.listParameters();
 
@@ -224,7 +224,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     protected void pickFileVFS() {
 
         HopPipelineFileType<PipelineMeta> pipelineFileType = new HopPipelineFileType<>();
-        String filename = BaseDialog.presentFileDialog(shell, wPath, workflowMeta, pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true);
+        String filename = BaseDialog.presentFileDialog(shell, wPath, this.getWorkflowMeta(), pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true);
         if (filename != null) {
             wPath.setText(filename);
         }
@@ -287,7 +287,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
         }
 
         try {
-            List<String> runConfigurations = metadataProvider.getSerializer( PipelineRunConfiguration.class).listObjectNames();
+            List<String> runConfigurations = this.getMetadataProvider().getSerializer( PipelineRunConfiguration.class).listObjectNames();
 
             try {
                 ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[]{runConfigurations, PipelineMeta.XML_TAG});

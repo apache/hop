@@ -31,7 +31,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.verify;
 
-public class WorkflowEntryShellTest {
+public class WorkflowActionShellTest {
 
   @Mock
   private ActionShell jobEntryShellMock;

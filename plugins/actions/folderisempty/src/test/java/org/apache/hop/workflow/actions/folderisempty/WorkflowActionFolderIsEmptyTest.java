@@ -25,7 +25,6 @@ package org.apache.hop.workflow.actions.folderisempty;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -45,9 +44,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
-public class WorkflowEntryFolderIsEmptyTest {
+public class WorkflowActionFolderIsEmptyTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
-  private ActionFolderIsEmpty entry;
+  private ActionFolderIsEmpty action;
 
   private String emptyDir;
   private String nonEmptyDir;
@@ -64,12 +63,12 @@ public class WorkflowEntryFolderIsEmptyTest {
   @Before
   public void setUp() throws Exception {
     workflow = new LocalWorkflowEngine( new WorkflowMeta() );
-    entry = new ActionFolderIsEmpty();
+    action = new ActionFolderIsEmpty();
 
-    workflow.getWorkflowMeta().addAction( new ActionMeta( entry ) );
-    entry.setParentWorkflow( workflow );
+    workflow.getWorkflowMeta().addAction( new ActionMeta( action ) );
+    action.setParentWorkflow( workflow );
     WorkflowMeta mockWorkflowMeta = mock( WorkflowMeta.class );
-    entry.setParentWorkflowMeta( mockWorkflowMeta );
+    action.setParentWorkflowMeta( mockWorkflowMeta );
 
     workflow.setStopped( false );
 
@@ -91,9 +90,9 @@ public class WorkflowEntryFolderIsEmptyTest {
 
   @Test
   public void testSetNrErrorsSuccess() throws Exception {
-    entry.setFoldername( emptyDir );
+    action.setFoldername( emptyDir );
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = action.execute( new Result(), 0 );
 
     assertTrue( "For empty folder result should be true", result.getResult() );
     assertEquals( "There should be no errors", 0, result.getNrErrors() );
@@ -101,9 +100,9 @@ public class WorkflowEntryFolderIsEmptyTest {
 
   @Test
   public void testSetNrErrorsNewBehaviorFail() throws Exception {
-    entry.setFoldername( nonEmptyDir );
+    action.setFoldername( nonEmptyDir );
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = action.execute( new Result(), 0 );
 
     assertFalse( "For non-empty folder result should be false", result.getResult() );
     assertEquals( "There should be still no errors", 0, result.getNrErrors() );
@@ -111,11 +110,11 @@ public class WorkflowEntryFolderIsEmptyTest {
 
   @Test
   public void testSetNrErrorsOldBehaviorFail() throws Exception {
-    entry.setFoldername( nonEmptyDir );
+    action.setFoldername( nonEmptyDir );
 
-    entry.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
+    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = action.execute( new Result(), 0 );
 
     assertFalse( "For non-empty folder result should be false", result.getResult() );
     assertEquals( "According to old behaviour there should be an error", 1, result.getNrErrors() );
