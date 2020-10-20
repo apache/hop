@@ -8,7 +8,7 @@
 The HTTP client transform performs a simple call to a base URL with options appended as shown below:
 
 ====
-http://<URL>?param1=value1&amp;param2=value2&amp;..
+http://<URL>?param1=value1&amp;param2=value2&amp;param3..
 ====
 
 The result is stored in a String field with the specified name. 

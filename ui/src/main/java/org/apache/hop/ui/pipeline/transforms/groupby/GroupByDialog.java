@@ -24,6 +24,7 @@ package org.apache.hop.ui.pipeline.transforms.groupby;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
@@ -679,4 +680,11 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
       }
     }
   }
+
+  @Override
+  protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
+    plugin.setDocumentationUrl("https://www.project-hop.org/manual/latest/plugins/transforms/groupby.html");
+    return super.createHelpButton(shell, stepMeta, plugin);
+  }
+
 }
