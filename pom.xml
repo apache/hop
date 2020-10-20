@@ -103,7 +103,7 @@
         <powermock-module-junit4.version>1.7.3</powermock-module-junit4.version>
         <powermock-api-mockito.version>1.7.3</powermock-api-mockito.version>
         <java-hamcrest.version>2.0.0.0</java-hamcrest.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
 
         <!-- Copy from master POM (NEEDS CLEANUP) -->
         <!-- VERSIONS -->
@@ -132,6 +132,7 @@
         <sonar-maven-plugin.version>3.5.0.1254</sonar-maven-plugin.version>
         <maven-bundle-plugin.version>2.5.3</maven-bundle-plugin.version>
         <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
+        <maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
         <spotless-maven-plugin.version>2.4.2</spotless-maven-plugin.version>
 
         <codehaus-jackson.version>1.9.13</codehaus-jackson.version>
@@ -181,7 +182,6 @@
         <!-- Documentation properties -->
         <!-- parsedVersion.* properties are dynamically created by the build-helper-maven-plugin:create-doc-version-property -->
 
-        <junit.version>4.11</junit.version>
 
         <!-- http://maven.apache.org/surefire/maven-surefire-plugin/examples/fork-options-and-parallel-execution.html -->
         <maven-surefire-plugin.reuseForks>true
@@ -582,6 +582,10 @@
                     <version>${maven-assembly-plugin.version}</version>
                 </plugin>
                 <plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+				</plugin>
+                <plugin>
 				<groupId>com.diffplug.spotless</groupId>
 				<artifactId>spotless-maven-plugin</artifactId>
 				<version>${spotless-maven-plugin.version}</version>
@@ -961,6 +965,35 @@
                 </dependencies>
             </dependencyManagement>
         </profile>
+        <profile>
+			<id>code-quality</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-checkstyle-plugin</artifactId>
+						<version>${maven-checkstyle-plugin.version}</version>
+						<executions>
+							<execution>
+								<id>validate</id>
+								<goals>
+									<goal>check</goal>
+								</goals>
+								<phase>validate</phase>
+								<configuration>
+									<configLocation>google_checks.xml</configLocation>
+									<encoding>UTF-8</encoding>
+									<failOnViolation>true</failOnViolation>
+									<violationSeverity>warning</violationSeverity>
+									<includeResources>false</includeResources>
+									<includeTestSourceDirectory>false</includeTestSourceDirectory>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
     </profiles>
 
     <reporting>

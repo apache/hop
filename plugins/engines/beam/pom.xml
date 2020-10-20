@@ -35,8 +35,6 @@
     <apache-beam-version>2.24.0</apache-beam-version>
     <spark-version>2.4.6</spark-version>
     <flink-version>1.9.3</flink-version>
-
-    <junit.version>4.4</junit.version>
     <json-simple.version>1.1.1</json-simple.version>
   </properties>
 
