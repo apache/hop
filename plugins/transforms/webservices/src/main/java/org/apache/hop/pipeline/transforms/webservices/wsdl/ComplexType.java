@@ -46,7 +46,7 @@ public final class ComplexType implements java.io.Serializable {
   private static final long serialVersionUID = 1L;
   private final HashMap<String, QName> _elements = new HashMap<String, QName>();
   private final List<String> _elementNames = new ArrayList<>();
-  private final String _name;
+  private final String Name;
   private WsdlTypes _wsdlTypes;
 
   /**
@@ -57,7 +57,7 @@ public final class ComplexType implements java.io.Serializable {
    */
   ComplexType( Element type, WsdlTypes wsdlTypes ) {
 
-    _name = type.getAttribute( "name" );
+    Name = type.getAttribute( "name" );
     _wsdlTypes = wsdlTypes;
 
     // annotation?, (simpleContent | complexContent
@@ -87,7 +87,7 @@ public final class ComplexType implements java.io.Serializable {
    * @return String containing name of complex type.
    */
   public String getName() {
-    return _name;
+    return Name;
   }
 
   /**

@@ -310,24 +310,24 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransformMet
           PKG, "StreamLookupMeta.CheckResult.TransformReceivingFields", prev.size() + "" ), transformMeta );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       // Check the fields from the previous stream!
       for ( String aKeystream : getKeystream() ) {
         int idx = prev.indexOfValue( aKeystream );
         if ( idx < 0 ) {
-          error_message += "\t\t" + aKeystream + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + aKeystream + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
+      if ( errorFound ) {
+        errorMessage =
           BaseMessages.getString( PKG, "StreamLookupMeta.CheckResult.FieldsNotFound" )
-            + Const.CR + Const.CR + error_message;
+            + Const.CR + Const.CR + errorMessage;
 
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =
@@ -348,23 +348,23 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransformMet
           PKG, "StreamLookupMeta.CheckResult.TransformReceivingLookupData", info.size() + "" ), transformMeta );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Check the fields from the lookup stream!
       for ( String aKeylookup : getKeylookup() ) {
         int idx = info.indexOfValue( aKeylookup );
         if ( idx < 0 ) {
-          error_message += "\t\t" + aKeylookup + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + aKeylookup + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
+      if ( errorFound ) {
+        errorMessage =
           BaseMessages.getString( PKG, "StreamLookupMeta.CheckResult.FieldsNotFoundInLookupStream" )
-            + Const.CR + Const.CR + error_message;
+            + Const.CR + Const.CR + errorMessage;
 
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =
@@ -377,16 +377,16 @@ public class StreamLookupMeta extends BaseTransformMeta implements ITransformMet
       for ( String aValue : getValue() ) {
         int idx = info.indexOfValue( aValue );
         if ( idx < 0 ) {
-          error_message += "\t\t" + aValue + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + aValue + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
+      if ( errorFound ) {
+        errorMessage =
           BaseMessages.getString( PKG, "StreamLookupMeta.CheckResult.FieldsNotFoundInLookupStream2" )
-            + Const.CR + Const.CR + error_message;
+            + Const.CR + Const.CR + errorMessage;
 
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =

@@ -105,10 +105,10 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
    */
   public static int DEFAULT_PORT = 162;
 
-  public static final String[] target_type_Desc = new String[] {
+  public static final String[] targetTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobSNMPTrap.TargetType.Community" ),
     BaseMessages.getString( PKG, "JobSNMPTrap.TargetType.User" ) };
-  public static final String[] target_type_Code = new String[] { "community", "user" };
+  public static final String[] targetTypeCode = new String[] { "community", "user" };
 
   public ActionSNMPTrap( String n ) {
     super( n, "" );
@@ -119,7 +119,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     timeout = "" + DEFAULT_TIME_OUT;
     message = null;
     oid = null;
-    targettype = target_type_Code[ 0 ];
+    targettype = targetTypeCode[ 0 ];
     user = null;
     passphrase = null;
     engineid = null;
@@ -136,23 +136,23 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
 
   public String getTargetTypeDesc( String tt ) {
     if ( Utils.isEmpty( tt ) ) {
-      return target_type_Desc[ 0 ];
+      return targetTypeDesc[ 0 ];
     }
-    if ( tt.equalsIgnoreCase( target_type_Code[ 1 ] ) ) {
-      return target_type_Desc[ 1 ];
+    if ( tt.equalsIgnoreCase( targetTypeCode[ 1 ] ) ) {
+      return targetTypeDesc[ 1 ];
     } else {
-      return target_type_Desc[ 0 ];
+      return targetTypeDesc[ 0 ];
     }
   }
 
   public String getTargetTypeCode( String tt ) {
     if ( tt == null ) {
-      return target_type_Code[ 0 ];
+      return targetTypeCode[ 0 ];
     }
-    if ( tt.equals( target_type_Desc[ 1 ] ) ) {
-      return target_type_Code[ 1 ];
+    if ( tt.equals( targetTypeDesc[ 1 ] ) ) {
+      return targetTypeCode[ 1 ];
     } else {
-      return target_type_Code[ 0 ];
+      return targetTypeCode[ 0 ];
     }
   }
 
@@ -364,7 +364,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
 
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( servername ), nrPort );
       ResponseEvent response = null;
-      if ( targettype.equals( target_type_Code[ 0 ] ) ) {
+      if ( targettype.equals( targetTypeCode[ 0 ] ) ) {
         // Community target
         String community = environmentSubstitute( comString );
 

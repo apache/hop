@@ -896,12 +896,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param full_name_nr the full_name_nr
    * @return the action copy
    */
-  public ActionCopy findAction( String full_name_nr ) {
+  public ActionCopy findAction( String fullName_nr ) {
     int i;
     for ( i = 0; i < nrActions(); i++ ) {
       ActionCopy jec = getAction( i );
       IAction je = jec.getAction();
-      if ( je.toString().equalsIgnoreCase( full_name_nr ) ) {
+      if ( je.toString().equalsIgnoreCase( fullName_nr ) ) {
         return jec;
       }
     }

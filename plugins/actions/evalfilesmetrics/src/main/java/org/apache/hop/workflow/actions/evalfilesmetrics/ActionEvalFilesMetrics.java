@@ -22,13 +22,6 @@
 
 package org.apache.hop.workflow.actions.evalfilesmetrics;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Iterator;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.AllFileSelector;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
@@ -56,6 +49,13 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.action.validator.ValidatorContext;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
+
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines a 'evaluate files metrics' action.
@@ -149,7 +149,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
 
   private String resultFilenamesWildcard;
 
-  public boolean arg_from_previous;
+  public boolean argFromPrevious;
 
   private String[] sourceFileFolder;
   private String[] sourceWildcard;
@@ -317,7 +317,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
     }
 
     // Get source and destination files, also wildcard
-    String[] vsourcefilefolder = sourceFileFolder;
+    String[] vSourceFileFolder = sourceFileFolder;
     String[] vwildcard = sourceWildcard;
     String[] vincludeSubFolders = sourceIncludeSubfolders;
 
@@ -376,23 +376,23 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
             resultRow = rows.get( iteration );
 
             // Get source and destination file names, also wildcard
-            String vsourcefilefolder_previous = resultRow.getString( indexOfResultFieldFile, null );
-            String vwildcard_previous = null;
+            String vSourceFileFolderPrevious = resultRow.getString( indexOfResultFieldFile, null );
+            String vWildcardPrevious = null;
             if ( indexOfResultFieldWildcard > -1 ) {
-              vwildcard_previous = resultRow.getString( indexOfResultFieldWildcard, null );
+              vWildcardPrevious = resultRow.getString( indexOfResultFieldWildcard, null );
             }
-            String vincludeSubFolders_previous = NO;
+            String vincludeSubFoldersPrevious = NO;
             if ( indexOfResultFieldIncludeSubfolders > -1 ) {
-              vincludeSubFolders_previous = resultRow.getString( indexOfResultFieldIncludeSubfolders, NO );
+              vincludeSubFoldersPrevious = resultRow.getString( indexOfResultFieldIncludeSubfolders, NO );
             }
 
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobEvalFilesMetrics.Log.ProcessingRow", vsourcefilefolder_previous, vwildcard_previous ) );
+                PKG, "JobEvalFilesMetrics.Log.ProcessingRow", vSourceFileFolderPrevious, vWildcardPrevious ) );
             }
 
             ProcessFileFolder(
-              vsourcefilefolder_previous, vwildcard_previous, vincludeSubFolders_previous, parentWorkflow, result );
+              vSourceFileFolderPrevious, vWildcardPrevious, vincludeSubFoldersPrevious, parentWorkflow, result );
           }
         }
 
@@ -445,15 +445,15 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
       default:
         // static files/folders
         // from grid entered by user
-        if ( vsourcefilefolder != null && vsourcefilefolder.length > 0 ) {
-          for ( int i = 0; i < vsourcefilefolder.length && !parentWorkflow.isStopped(); i++ ) {
+        if ( vSourceFileFolder != null && vSourceFileFolder.length > 0 ) {
+          for ( int i = 0; i < vSourceFileFolder.length && !parentWorkflow.isStopped(); i++ ) {
 
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString(
-                PKG, "JobEvalFilesMetrics.Log.ProcessingRow", vsourcefilefolder[ i ], vwildcard[ i ] ) );
+                PKG, "JobEvalFilesMetrics.Log.ProcessingRow", vSourceFileFolder[ i ], vwildcard[ i ] ) );
             }
 
-            ProcessFileFolder( vsourcefilefolder[ i ], vwildcard[ i ], vincludeSubFolders[ i ], parentWorkflow, result );
+            ProcessFileFolder( vSourceFileFolder[ i ], vwildcard[ i ], vincludeSubFolders[ i ], parentWorkflow, result );
           }
         } else {
           logError( BaseMessages.getString( PKG, "JobEvalFilesMetrics.Error.FilesGridEmpty" ) );
@@ -600,7 +600,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
         compareValue = compareValue.multiply( BigDecimal.valueOf( multyply ) );
       }
     }
-    arg_from_previous = ( getSourceFiles() == SOURCE_FILES_PREVIOUS_RESULT );
+    argFromPrevious = ( getSourceFiles() == SOURCE_FILES_PREVIOUS_RESULT );
   }
 
   private void incrementErrors() {
@@ -682,7 +682,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
       return;
     }
     String realWildcard = environmentSubstitute( wildcard );
-    final boolean include_subfolders = YES.equalsIgnoreCase( includeSubfolders );
+    final boolean includeSubFolders = YES.equalsIgnoreCase( includeSubfolders );
 
     try {
       sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername );
@@ -704,7 +704,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
           // we will fetch and extract files
           FileObject[] fileObjects = sourcefilefolder.findFiles( new AllFileSelector() {
             public boolean traverseDescendents( FileSelectInfo info ) {
-              return info.getDepth() == 0 || include_subfolders;
+              return info.getDepth() == 0 || includeSubFolders;
             }
 
             public boolean includeFile( FileSelectInfo info ) {
@@ -738,7 +738,7 @@ public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAc
 
               if ( !CurrentFile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
                 // Not in the Base Folder..Only if include sub folders
-                if ( include_subfolders ) {
+                if ( includeSubFolders ) {
                   if ( GetFileWildcard( CurrentFile.getName().getBaseName(), realWildcard ) ) {
                     getFileSize( CurrentFile, result, parentWorkflow );
                   }

@@ -175,27 +175,27 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
     return true;
   }
 
-  private boolean truncateTables( String tablename, String schemaname, Database db ) {
+  private boolean truncateTables( String tableName, String schemaname, Database db ) {
     boolean retval = false;
     try {
       // check if table exists!
-      if ( db.checkTableExists( schemaname, tablename ) ) {
+      if ( db.checkTableExists( schemaname, tableName ) ) {
         if ( !Utils.isEmpty( schemaname ) ) {
-          db.truncateTable( schemaname, tablename );
+          db.truncateTable( schemaname, tableName );
         } else {
-          db.truncateTable( tablename );
+          db.truncateTable( tableName );
         }
 
         if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "ActionTruncateTables.Log.TableTruncated", tablename ) );
+          logDetailed( BaseMessages.getString( PKG, "ActionTruncateTables.Log.TableTruncated", tableName ) );
         }
 
         retval = true;
       } else {
-        logError( BaseMessages.getString( PKG, "ActionTruncateTables.Error.CanNotFindTable", tablename ) );
+        logError( BaseMessages.getString( PKG, "ActionTruncateTables.Error.CanNotFindTable", tableName ) );
       }
     } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "ActionTruncateTables.Error.CanNotTruncateTables", tablename, e
+      logError( BaseMessages.getString( PKG, "ActionTruncateTables.Error.CanNotTruncateTables", tableName, e
         .toString() ) );
     }
     return retval;

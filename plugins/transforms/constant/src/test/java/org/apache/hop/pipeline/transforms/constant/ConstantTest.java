@@ -76,7 +76,7 @@ public class ConstantTest {
   }
 
   @Test
-  public void testProcessRow_success() throws Exception {
+  public void testProcessRowSuccess() throws Exception {
 
     doReturn( new Object[ 1 ] ).when( constantSpy ).getRow();
     doReturn( new RowMeta() ).when( constantSpy ).getInputRowMeta();

@@ -76,7 +76,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
   private static Class<?> PKG = ActionMysqlBulkLoad.class; // for i18n purposes, needed by Translator!!
 
   private String schemaname;
-  private String tablename;
+  private String tableName;
   private String filename;
   private String separator;
   private String enclosed;
@@ -94,7 +94,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
   public ActionMysqlBulkLoad( String n ) {
     super( n, "" );
-    tablename = null;
+    tableName = null;
     schemaname = null;
     filename = null;
     separator = null;
@@ -124,7 +124,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
 
     retval.append( super.getXml() );
     retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "separator", separator ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "enclosed", enclosed ) );
@@ -153,7 +153,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     try {
       super.loadXml( entrynode );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
       filename = XmlHandler.getTagValue( entrynode, "filename" );
       separator = XmlHandler.getTagValue( entrynode, "separator" );
       enclosed = XmlHandler.getTagValue( entrynode, "enclosed" );
@@ -174,8 +174,8 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     }
   }
 
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTablename( String tableName ) {
+    this.tableName = tableName;
   }
 
   public void setSchemaname( String schemaname ) {
@@ -187,7 +187,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getTablename() {
-    return tablename;
+    return tableName;
   }
 
   public void setDatabase( DatabaseMeta database ) {
@@ -260,7 +260,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
               // Get schemaname
               String realSchemaname = environmentSubstitute( schemaname );
               // Get tablename
-              String realTablename = environmentSubstitute( tablename );
+              String realTablename = environmentSubstitute( tableName );
 
               if ( db.checkTableExists( realTablename ) ) {
                 // The table existe, We can continue ...

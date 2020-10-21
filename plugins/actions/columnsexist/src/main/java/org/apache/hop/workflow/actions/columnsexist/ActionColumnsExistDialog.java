@@ -405,9 +405,9 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     action.setTablename( wTablename.getText() );
     action.setSchemaname( wSchemaname.getText() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -415,7 +415,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     }
     String[] args = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         args[ nr ] = arg;

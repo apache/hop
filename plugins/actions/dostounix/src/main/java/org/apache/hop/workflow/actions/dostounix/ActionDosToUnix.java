@@ -101,16 +101,16 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   public static final String ADD_PROCESSED_FILES_ONLY = "only_processed_filenames";
   public static final String ADD_ERROR_FILES_ONLY = "only_error_filenames";
 
-  public boolean arg_from_previous;
-  public boolean include_subfolders;
+  public boolean argFromPrevious;
+  public boolean includeSubFolders;
 
-  public String[] source_filefolder;
+  public String[] sourceFileFolder;
   public String[] wildcard;
   public int[] conversionTypes;
 
-  private String nr_errors_less_than;
+  private String nrErrorsLessThan;
   private String successCondition;
-  private String resultfilenames;
+  private String resultFilenames;
 
   int nrAllErrors = 0;
   int nrErrorFiles = 0;
@@ -125,13 +125,13 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
 
   public ActionDosToUnix( String n ) {
     super( n, "" );
-    resultfilenames = ADD_ALL_FILENAMES;
-    arg_from_previous = false;
-    source_filefolder = null;
+    resultFilenames = ADD_ALL_FILENAMES;
+    argFromPrevious = false;
+    sourceFileFolder = null;
     conversionTypes = null;
     wildcard = null;
-    include_subfolders = false;
-    nr_errors_less_than = "10";
+    includeSubFolders = false;
+    nrErrorsLessThan = "10";
     successCondition = SUCCESS_IF_NO_ERRORS;
   }
 
@@ -140,17 +140,17 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
   }
 
   public void allocate( int nrFields ) {
-    source_filefolder = new String[ nrFields ];
+    sourceFileFolder = new String[ nrFields ];
     wildcard = new String[ nrFields ];
     conversionTypes = new int[ nrFields ];
   }
 
   public Object clone() {
     ActionDosToUnix je = (ActionDosToUnix) super.clone();
-    if ( source_filefolder != null ) {
-      int nrFields = source_filefolder.length;
+    if ( sourceFileFolder != null ) {
+      int nrFields = sourceFileFolder.length;
       je.allocate( nrFields );
-      System.arraycopy( source_filefolder, 0, je.source_filefolder, 0, nrFields );
+      System.arraycopy( sourceFileFolder, 0, je.sourceFileFolder, 0, nrFields );
       System.arraycopy( wildcard, 0, je.wildcard, 0, nrFields );
       System.arraycopy( conversionTypes, 0, je.conversionTypes, 0, nrFields );
     }
@@ -162,16 +162,16 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     StringBuilder retval = new StringBuilder( 300 );
 
     retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", arg_from_previous ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", include_subfolders ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nr_errors_less_than ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubFolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nrErrorsLessThan ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "resultfilenames", resultfilenames ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "resultfilenames", resultFilenames ) );
     retval.append( "      <fields>" ).append( Const.CR );
-    if ( source_filefolder != null ) {
-      for ( int i = 0; i < source_filefolder.length; i++ ) {
+    if ( sourceFileFolder != null ) {
+      for ( int i = 0; i < sourceFileFolder.length; i++ ) {
         retval.append( "        <field>" ).append( Const.CR );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", source_filefolder[ i ] ) );
+        retval.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", sourceFileFolder[ i ] ) );
         retval.append( "          " ).append( XmlHandler.addTagValue( "wildcard", wildcard[ i ] ) );
         retval.append( "          " ).append(
           XmlHandler.addTagValue( "ConversionType", getConversionTypeCode( conversionTypes[ i ] ) ) );
@@ -231,12 +231,12 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     try {
       super.loadXml( entrynode );
 
-      arg_from_previous = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      include_subfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
+      argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
+      includeSubFolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
 
-      nr_errors_less_than = XmlHandler.getTagValue( entrynode, "nr_errors_less_than" );
+      nrErrorsLessThan = XmlHandler.getTagValue( entrynode, "nr_errors_less_than" );
       successCondition = XmlHandler.getTagValue( entrynode, "success_condition" );
-      resultfilenames = XmlHandler.getTagValue( entrynode, "resultfilenames" );
+      resultFilenames = XmlHandler.getTagValue( entrynode, "resultfilenames" );
 
       Node fields = XmlHandler.getSubNode( entrynode, "fields" );
 
@@ -248,7 +248,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
-        source_filefolder[ i ] = XmlHandler.getTagValue( fnode, "source_filefolder" );
+        sourceFileFolder[ i ] = XmlHandler.getTagValue( fnode, "source_filefolder" );
         wildcard[ i ] = XmlHandler.getTagValue( fnode, "wildcard" );
         conversionTypes[ i ] =
           getConversionTypeByCode( Const.NVL( XmlHandler.getTagValue( fnode, "ConversionType" ), "" ) );
@@ -278,10 +278,10 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     tempFolder = environmentSubstitute( "%%java.io.tmpdir%%" );
 
     // Get source and destination files, also wildcard
-    String[] vsourcefilefolder = source_filefolder;
+    String[] vSourceFileFolder = sourceFileFolder;
     String[] vwildcard = wildcard;
 
-    if ( arg_from_previous ) {
+    if ( argFromPrevious ) {
       if ( isDetailed() ) {
         logDetailed( BaseMessages.getString( PKG, "JobDosToUnix.Log.ArgFromPrevious.Found", ( rows != null ? rows
           .size() : 0 )
@@ -289,7 +289,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
       }
 
     }
-    if ( arg_from_previous && rows != null ) {
+    if ( argFromPrevious && rows != null ) {
       // Copy the input row to the (command line) arguments
       for ( int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++ ) {
         if ( successConditionBroken ) {
@@ -306,19 +306,19 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
         resultRow = rows.get( iteration );
 
         // Get source and destination file names, also wildcard
-        String vsourcefilefolder_previous = resultRow.getString( 0, null );
-        String vwildcard_previous = resultRow.getString( 1, null );
-        int convertion_type = ActionDosToUnix.getConversionTypeByCode( resultRow.getString( 2, null ) );
+        String vSourceFileFolderPrevious = resultRow.getString( 0, null );
+        String vWildcardPrevious = resultRow.getString( 1, null );
+        int conversionType = ActionDosToUnix.getConversionTypeByCode( resultRow.getString( 2, null ) );
 
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString(
-            PKG, "JobDosToUnix.Log.ProcessingRow", vsourcefilefolder_previous, vwildcard_previous ) );
+            PKG, "JobDosToUnix.Log.ProcessingRow", vSourceFileFolderPrevious, vWildcardPrevious ) );
         }
 
-        processFileFolder( vsourcefilefolder_previous, vwildcard_previous, convertion_type, parentWorkflow, result );
+        processFileFolder( vSourceFileFolderPrevious, vWildcardPrevious, conversionType, parentWorkflow, result );
       }
-    } else if ( vsourcefilefolder != null ) {
-      for ( int i = 0; i < vsourcefilefolder.length && !parentWorkflow.isStopped(); i++ ) {
+    } else if ( vSourceFileFolder != null ) {
+      for ( int i = 0; i < vSourceFileFolder.length && !parentWorkflow.isStopped(); i++ ) {
         if ( successConditionBroken ) {
           if ( !successConditionBrokenExit ) {
             logError( BaseMessages.getString( PKG, "JobDosToUnix.Error.SuccessConditionbroken", "" + nrAllErrors ) );
@@ -332,10 +332,10 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
 
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString(
-            PKG, "JobDosToUnix.Log.ProcessingRow", vsourcefilefolder[ i ], vwildcard[ i ] ) );
+            PKG, "JobDosToUnix.Log.ProcessingRow", vSourceFileFolder[ i ], vwildcard[ i ] ) );
         }
 
-        processFileFolder( vsourcefilefolder[ i ], vwildcard[ i ], conversionTypes[ i ], parentWorkflow, result );
+        processFileFolder( vSourceFileFolder[ i ], vwildcard[ i ], conversionTypes[ i ], parentWorkflow, result );
 
       }
     }
@@ -512,7 +512,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
         } else if ( sourcefilefolder.getType() == FileType.FOLDER ) {
           FileObject[] fileObjects = sourcefilefolder.findFiles( new AllFileSelector() {
             public boolean traverseDescendents( FileSelectInfo info ) {
-              return info.getDepth() == 0 || include_subfolders;
+              return info.getDepth() == 0 || includeSubFolders;
             }
 
             public boolean includeFile( FileSelectInfo info ) {
@@ -556,7 +556,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
 
               if ( !currentFile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
                 // Not in the Base Folder..Only if include sub folders
-                if ( include_subfolders ) {
+                if ( includeSubFolders ) {
                   if ( getFileWildcard( currentFile.toString(), realWildcard ) ) {
                     convertOneFile( currentFile, convertion, result, parentWorkflow );
                   }
@@ -636,7 +636,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
         logError( BaseMessages.getString( PKG, "JobDosToUnix.Error.FileNotConverted", file.toString() ) );
         // Update Bad files number
         updateBadFormed();
-        if ( resultfilenames.equals( ADD_ALL_FILENAMES ) || resultfilenames.equals( ADD_ERROR_FILES_ONLY ) ) {
+        if ( resultFilenames.equals( ADD_ALL_FILENAMES ) || resultFilenames.equals( ADD_ERROR_FILES_ONLY ) ) {
           addFileToResultFilenames( file, result, parentWorkflow );
         }
       } else {
@@ -647,7 +647,7 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
         }
         // Update processed files number
         updateProcessedFormed();
-        if ( resultfilenames.equals( ADD_ALL_FILENAMES ) || resultfilenames.equals( ADD_PROCESSED_FILES_ONLY ) ) {
+        if ( resultFilenames.equals( ADD_ALL_FILENAMES ) || resultFilenames.equals( ADD_PROCESSED_FILES_ONLY ) ) {
           addFileToResultFilenames( file, result, parentWorkflow );
         }
       }
@@ -705,36 +705,36 @@ public class ActionDosToUnix extends ActionBase implements Cloneable, IAction {
     return getIt;
   }
 
-  public void setIncludeSubfolders( boolean include_subfoldersin ) {
-    this.include_subfolders = include_subfoldersin;
+  public void setIncludeSubFolders( boolean includeSubFolders ) {
+    this.includeSubFolders = includeSubFolders;
   }
 
-  public void setArgFromPrevious( boolean argfrompreviousin ) {
-    this.arg_from_previous = argfrompreviousin;
+  public void setArgFromPrevious( boolean argFromPrevious ) {
+    this.argFromPrevious = argFromPrevious;
   }
 
-  public void setNrErrorsLessThan( String nr_errors_less_than ) {
-    this.nr_errors_less_than = nr_errors_less_than;
+  public void setNrErrorsLessThan( String nrErrorsLessThan ) {
+    this.nrErrorsLessThan = nrErrorsLessThan;
   }
 
   public String getNrErrorsLessThan() {
-    return nr_errors_less_than;
+    return nrErrorsLessThan;
   }
 
-  public void setSuccessCondition( String success_condition ) {
-    this.successCondition = success_condition;
+  public void setSuccessCondition( String successCondition ) {
+    this.successCondition = successCondition;
   }
 
   public String getSuccessCondition() {
     return successCondition;
   }
 
-  public void setResultFilenames( String resultfilenames ) {
-    this.resultfilenames = resultfilenames;
+  public void setResultFilenames( String resultFilenames ) {
+    this.resultFilenames = resultFilenames;
   }
 
   public String getResultFilenames() {
-    return resultfilenames;
+    return resultFilenames;
   }
 
   @Override

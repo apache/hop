@@ -215,7 +215,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
     joinTypeCombo = new CCombo( shell, SWT.BORDER );
     props.setLook( joinTypeCombo );
 
-    joinTypeCombo.setItems( MultiMergeJoinMeta.join_types );
+    joinTypeCombo.setItems( MultiMergeJoinMeta.joinTypes );
 
     joinTypeCombo.addModifyListener( lsMod );
     FormData fdType = new FormData();
@@ -482,7 +482,7 @@ public class MultiMergeJoinDialog extends BaseTransformDialog implements ITransf
       if ( joinType != null && joinType.length() > 0 ) {
         joinTypeCombo.setText( joinType );
       } else {
-        joinTypeCombo.setText( MultiMergeJoinMeta.join_types[ 0 ] );
+        joinTypeCombo.setText( MultiMergeJoinMeta.joinTypes[ 0 ] );
       }
     }
     wTransformName.selectAll();

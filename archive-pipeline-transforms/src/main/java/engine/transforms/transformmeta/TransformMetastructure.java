@@ -93,32 +93,32 @@ public class TransformMetastructure extends BaseTransform implements ITransform 
 
         IValueMeta v = row.getValueMeta( i );
 
-        IValueMeta v_position = data.outputRowMeta.getValueMeta( 0 );
+        IValueMeta vPosition = data.outputRowMeta.getValueMeta( 0 );
         metastructureRow =
-          RowDataUtil.addValueData( metastructureRow, 0, v_position.convertDataCompatible( v_position, new Long(
+          RowDataUtil.addValueData( metastructureRow, 0, vPosition.convertDataCompatible( vPosition, new Long(
             i + 1 ) ) );
 
         metastructureRow = RowDataUtil.addValueData( metastructureRow, 1, v.getName() );
         metastructureRow = RowDataUtil.addValueData( metastructureRow, 2, v.getComments() );
         metastructureRow = RowDataUtil.addValueData( metastructureRow, 3, v.getTypeDesc() );
 
-        IValueMeta v_length = data.outputRowMeta.getValueMeta( 4 );
+        IValueMeta vLength = data.outputRowMeta.getValueMeta( 4 );
         metastructureRow =
-          RowDataUtil.addValueData( metastructureRow, 4, v_length.convertDataCompatible( v_length, new Long( v
+          RowDataUtil.addValueData( metastructureRow, 4, vLength.convertDataCompatible( vLength, new Long( v
             .getLength() ) ) );
 
-        IValueMeta v_precision = data.outputRowMeta.getValueMeta( 5 );
+        IValueMeta vPrecision = data.outputRowMeta.getValueMeta( 5 );
         metastructureRow =
-          RowDataUtil.addValueData( metastructureRow, 5, v_precision.convertDataCompatible(
-            v_precision, new Long( v.getPrecision() ) ) );
+          RowDataUtil.addValueData( metastructureRow, 5, vPrecision.convertDataCompatible(
+            vPrecision, new Long( v.getPrecision() ) ) );
 
         metastructureRow = RowDataUtil.addValueData( metastructureRow, 6, v.getOrigin() );
 
         if ( meta.isOutputRowcount() ) {
-          IValueMeta v_rowCount = data.outputRowMeta.getValueMeta( 7 );
+          IValueMeta vRowCount = data.outputRowMeta.getValueMeta( 7 );
           metastructureRow =
-            RowDataUtil.addValueData( metastructureRow, 7, v_rowCount.convertDataCompatible(
-              v_rowCount, new Long( data.rowCount ) ) );
+            RowDataUtil.addValueData( metastructureRow, 7, vRowCount.convertDataCompatible(
+              vRowCount, new Long( data.rowCount ) ) );
         }
         putRow( data.outputRowMeta, metastructureRow.clone() );
       }

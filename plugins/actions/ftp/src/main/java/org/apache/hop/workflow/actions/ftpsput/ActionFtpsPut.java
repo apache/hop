@@ -22,12 +22,6 @@
 
 package org.apache.hop.workflow.actions.ftpsput;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -49,6 +43,12 @@ import org.apache.hop.workflow.action.validator.ActionValidatorUtils;
 import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.actions.ftpsget.FtpsConnection;
 import org.w3c.dom.Node;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines an FTPS put action.
@@ -569,20 +569,20 @@ public class ActionFtpsPut extends ActionBase implements Cloneable, IAction {
 
   void buildFtpsConnection(FtpsConnection connection ) throws Exception {
     if ( !Utils.isEmpty( proxyHost ) ) {
-      String realProxy_host = environmentSubstitute( proxyHost );
-      String realProxy_username = environmentSubstitute( proxyUsername );
-      String realProxy_password = environmentSubstitute( proxyPassword );
-      realProxy_password = Encr.decryptPasswordOptionallyEncrypted( realProxy_password );
+      String realProxyHost = environmentSubstitute( proxyHost );
+      String realProxyUsername = environmentSubstitute( proxyUsername );
+      String realProxyPassword = environmentSubstitute( proxyPassword );
+      realProxyPassword = Encr.decryptPasswordOptionallyEncrypted( realProxyPassword );
 
-      connection.setProxyHost( realProxy_host );
-      if ( !Utils.isEmpty( realProxy_username ) ) {
-        connection.setProxyUser( realProxy_username );
+      connection.setProxyHost( realProxyHost );
+      if ( !Utils.isEmpty( realProxyUsername ) ) {
+        connection.setProxyUser( realProxyUsername );
       }
-      if ( !Utils.isEmpty( realProxy_password ) ) {
-        connection.setProxyPassword( realProxy_password );
+      if ( !Utils.isEmpty( realProxyPassword ) ) {
+        connection.setProxyPassword( realProxyPassword );
       }
       if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPSPUT.OpenedProxyConnectionOn", realProxy_host ) );
+        logDetailed( BaseMessages.getString( PKG, "ActionFTPSPUT.OpenedProxyConnectionOn", realProxyHost ) );
       }
 
       int proxyport = Const.toInt( environmentSubstitute( proxyPort ), 21 );

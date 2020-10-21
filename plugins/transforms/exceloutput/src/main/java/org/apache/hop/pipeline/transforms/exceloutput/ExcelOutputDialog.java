@@ -955,7 +955,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlHeaderFontName.right = new FormAttachment( middle, -margin );
     wlHeaderFontName.setLayoutData(fdlHeaderFontName);
     wHeaderFontName = new CCombo(wFontHeaderGroup, SWT.BORDER | SWT.READ_ONLY );
-    wHeaderFontName.setItems( ExcelOutputMeta.font_name_desc );
+    wHeaderFontName.setItems( ExcelOutputMeta.fontNameDesc );
     props.setLook( wHeaderFontName );
     wHeaderFontName.addModifyListener( lsMod );
     FormData fdHeaderFontName = new FormData();
@@ -1039,7 +1039,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlHeaderFontUnderline.right = new FormAttachment( middle, -margin );
     wlHeaderFontUnderline.setLayoutData(fdlHeaderFontUnderline);
     wHeaderFontUnderline = new CCombo(wFontHeaderGroup, SWT.BORDER | SWT.READ_ONLY );
-    wHeaderFontUnderline.setItems( ExcelOutputMeta.font_underline_desc );
+    wHeaderFontUnderline.setItems( ExcelOutputMeta.font_underlineDesc );
     props.setLook( wHeaderFontUnderline );
     wHeaderFontUnderline.addModifyListener( lsMod );
     FormData fdHeaderFontUnderline = new FormData();
@@ -1059,7 +1059,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlHeaderFontOrientation.right = new FormAttachment( middle, -margin );
     wlHeaderFontOrientation.setLayoutData(fdlHeaderFontOrientation);
     wHeaderFontOrientation = new CCombo(wFontHeaderGroup, SWT.BORDER | SWT.READ_ONLY );
-    wHeaderFontOrientation.setItems( ExcelOutputMeta.font_orientation_desc );
+    wHeaderFontOrientation.setItems( ExcelOutputMeta.font_orientationDesc );
     props.setLook( wHeaderFontOrientation );
     wHeaderFontOrientation.addModifyListener( lsMod );
     FormData fdHeaderFontOrientation = new FormData();
@@ -1085,7 +1085,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdHeaderFontColor.top = new FormAttachment( wHeaderFontOrientation, margin );
     fdHeaderFontColor.right = new FormAttachment( 100, 0 );
     wHeaderFontColor.setLayoutData(fdHeaderFontColor);
-    wHeaderFontColor.setItems( ExcelOutputMeta.font_color_desc );
+    wHeaderFontColor.setItems( ExcelOutputMeta.fontColorDesc );
 
     // Font header background color
     Label wlHeaderBackGroundColor = new Label(wFontHeaderGroup, SWT.RIGHT);
@@ -1105,7 +1105,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdHeaderBackGroundColor.top = new FormAttachment( wHeaderFontColor, margin );
     fdHeaderBackGroundColor.right = new FormAttachment( 100, 0 );
     wHeaderBackGroundColor.setLayoutData(fdHeaderBackGroundColor);
-    wHeaderBackGroundColor.setItems( ExcelOutputMeta.font_color_desc );
+    wHeaderBackGroundColor.setItems( ExcelOutputMeta.fontColorDesc );
 
     // Header font size
     Label wlHeaderRowHeight = new Label(wFontHeaderGroup, SWT.RIGHT);
@@ -1136,7 +1136,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlHeaderAlignment.right = new FormAttachment( middle, -margin );
     wlHeaderAlignment.setLayoutData(fdlHeaderAlignment);
     wHeaderAlignment = new CCombo(wFontHeaderGroup, SWT.BORDER | SWT.READ_ONLY );
-    wHeaderAlignment.setItems( ExcelOutputMeta.font_alignment_desc );
+    wHeaderAlignment.setItems( ExcelOutputMeta.font_alignmentDesc );
     props.setLook( wHeaderAlignment );
     wHeaderAlignment.addModifyListener( lsMod );
     FormData fdHeaderAlignment = new FormData();
@@ -1213,7 +1213,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlRowFontName.right = new FormAttachment( middle, -margin );
     wlRowFontName.setLayoutData(fdlRowFontName);
     wRowFontName = new CCombo(wFontRowGroup, SWT.BORDER | SWT.READ_ONLY );
-    wRowFontName.setItems( ExcelOutputMeta.font_name_desc );
+    wRowFontName.setItems( ExcelOutputMeta.fontNameDesc );
     props.setLook( wRowFontName );
     wRowFontName.addModifyListener( lsMod );
     FormData fdRowFontName = new FormData();
@@ -1257,7 +1257,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdRowFontColor.top = new FormAttachment( wRowFontSize, margin );
     fdRowFontColor.right = new FormAttachment( 100, 0 );
     wRowFontColor.setLayoutData(fdRowFontColor);
-    wRowFontColor.setItems( ExcelOutputMeta.font_color_desc );
+    wRowFontColor.setItems( ExcelOutputMeta.fontColorDesc );
 
     // Font Row background color
     Label wlRowBackGroundColor = new Label(wFontRowGroup, SWT.RIGHT);
@@ -1276,7 +1276,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdRowBackGroundColor.top = new FormAttachment( wRowFontColor, margin );
     fdRowBackGroundColor.right = new FormAttachment( 100, 0 );
     wRowBackGroundColor.setLayoutData(fdRowBackGroundColor);
-    wRowBackGroundColor.setItems( ExcelOutputMeta.font_color_desc );
+    wRowBackGroundColor.setItems( ExcelOutputMeta.fontColorDesc );
 
     FormData fdFontRowGroup = new FormData();
     fdFontRowGroup.left = new FormAttachment( 0, margin );

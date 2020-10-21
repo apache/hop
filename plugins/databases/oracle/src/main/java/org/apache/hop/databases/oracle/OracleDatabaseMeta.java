@@ -94,8 +94,8 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
 
     @Override
-    public String getSqlTableExists(String tablename) {
-        return getSqlQueryFields(tablename);
+    public String getSqlTableExists(String tableName) {
+        return getSqlQueryFields(tableName);
     }
 
     @Override
@@ -245,7 +245,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     /**
      * Generates the SQL statement to add a column to the specified table
      *
-     * @param tablename  The table to add
+     * @param tableName  The table to add
      * @param v          The column defined as a value
      * @param tk         the name of the technical key field
      * @param useAutoinc whether or not this field uses auto increment
@@ -254,16 +254,16 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
      * @return the SQL statement to add a column to the specified table
      */
     @Override
-    public String getAddColumnStatement(String tablename, IValueMeta v, String tk, boolean useAutoinc,
+    public String getAddColumnStatement(String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon) {
         return "ALTER TABLE "
-                + tablename + " ADD ( " + getFieldDefinition(v, tk, pk, useAutoinc, true, false) + " ) ";
+                + tableName + " ADD ( " + getFieldDefinition(v, tk, pk, useAutoinc, true, false) + " ) ";
     }
 
     /**
      * Generates the SQL statement to drop a column from the specified table
      *
-     * @param tablename  The table to add
+     * @param tableName  The table to add
      * @param v          The column defined as a value
      * @param tk         the name of the technical key field
      * @param useAutoinc whether or not this field uses auto increment
@@ -272,15 +272,15 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
      * @return the SQL statement to drop a column from the specified table
      */
     @Override
-    public String getDropColumnStatement(String tablename, IValueMeta v, String tk, boolean useAutoinc,
+    public String getDropColumnStatement(String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                          String pk, boolean semicolon) {
-        return "ALTER TABLE " + tablename + " DROP ( " + v.getName() + " ) " + Const.CR;
+        return "ALTER TABLE " + tableName + " DROP ( " + v.getName() + " ) " + Const.CR;
     }
 
     /**
      * Generates the SQL statement to modify a column in the specified table
      *
-     * @param tablename  The table to add
+     * @param tableName  The table to add
      * @param v          The column defined as a value
      * @param tk         the name of the technical key field
      * @param useAutoinc whether or not this field uses auto increment
@@ -289,7 +289,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
      * @return the SQL statement to modify a column in the specified table
      */
     @Override
-    public String getModifyColumnStatement(String tablename, IValueMeta v, String tk, boolean useAutoinc,
+    public String getModifyColumnStatement(String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                            String pk, boolean semicolon) {
         IValueMeta tmpColumn = v.clone();
         String tmpName = v.getName();
@@ -317,18 +317,18 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         String sql = "";
 
         // Create a new tmp column
-        sql += getAddColumnStatement(tablename, tmpColumn, tk, useAutoinc, pk, semicolon) + ";" + Const.CR;
+        sql += getAddColumnStatement(tableName, tmpColumn, tk, useAutoinc, pk, semicolon) + ";" + Const.CR;
         // copy the old data over to the tmp column
-        sql += "UPDATE " + tablename + " SET " + tmpColumn.getName() + "=" + v.getName() + ";" + Const.CR;
+        sql += "UPDATE " + tableName + " SET " + tmpColumn.getName() + "=" + v.getName() + ";" + Const.CR;
         // drop the old column
-        sql += getDropColumnStatement(tablename, v, tk, useAutoinc, pk, semicolon) + ";" + Const.CR;
+        sql += getDropColumnStatement(tableName, v, tk, useAutoinc, pk, semicolon) + ";" + Const.CR;
         // create the wanted column
-        sql += getAddColumnStatement(tablename, v, tk, useAutoinc, pk, semicolon) + ";" + Const.CR;
+        sql += getAddColumnStatement(tableName, v, tk, useAutoinc, pk, semicolon) + ";" + Const.CR;
         // copy the data from the tmp column to the wanted column (again)
         // All this to avoid the rename clause as this is not supported on all Oracle versions
-        sql += "UPDATE " + tablename + " SET " + v.getName() + "=" + tmpColumn.getName() + ";" + Const.CR;
+        sql += "UPDATE " + tableName + " SET " + v.getName() + "=" + tmpColumn.getName() + ";" + Const.CR;
         // drop the temp column
-        sql += getDropColumnStatement(tablename, tmpColumn, tk, useAutoinc, pk, semicolon);
+        sql += getDropColumnStatement(tableName, tmpColumn, tk, useAutoinc, pk, semicolon);
 
         return sql;
     }
@@ -471,11 +471,11 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
      * @throws HopDatabaseException
      */
     @Override
-    public boolean checkIndexExists(Database database, String schemaName, String tableName, String[] idx_fields) throws HopDatabaseException {
+    public boolean checkIndexExists(Database database, String schemaName, String tableName, String[] idxFields) throws HopDatabaseException {
 
-        String tablename = database.getDatabaseMeta().getQuotedSchemaTableCombination(schemaName, tableName);
+        String schemaTable = database.getDatabaseMeta().getQuotedSchemaTableCombination(schemaName, tableName);
 
-        boolean[] exists = new boolean[idx_fields.length];
+        boolean[] exists = new boolean[idxFields.length];
         for (int i = 0; i < exists.length; i++) {
             exists[i] = false;
         }
@@ -484,7 +484,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
             //
             // Get the info from the data dictionary...
             //
-            String sql = "SELECT * FROM USER_IND_COLUMNS WHERE TABLE_NAME = '" + tableName + "'";
+            String sql = "SELECT * FROM USER_IND_COLUMNS WHERE TABLE_NAME = '" + schemaTable + "'";
             ResultSet res = null;
             try {
                 res = database.openQuery(sql);
@@ -492,7 +492,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
                     Object[] row = database.getRow(res);
                     while (row != null) {
                         String column = database.getReturnRowMeta().getString(row, "COLUMN_NAME", "");
-                        int idx = Const.indexOfString(column, idx_fields);
+                        int idx = Const.indexOfString(column, idxFields);
                         if (idx >= 0) {
                             exists[idx] = true;
                         }
@@ -519,7 +519,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
             return all;
         } catch (Exception e) {
-            throw new HopDatabaseException("Unable to determine if indexes exists on table [" + tablename + "]", e);
+            throw new HopDatabaseException("Unable to determine if indexes exists on table [" + schemaTable + "]", e);
         }
     }
 

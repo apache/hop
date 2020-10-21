@@ -294,8 +294,8 @@ public class JsonOutputTest extends TestCase {
     pipelineMeta.addTransform( rowGeneratorTransform );
 
     // create a PipelineHopMeta for injector and add it to the pipelineMeta
-    PipelineHopMeta hop_injectory_rowGenerator = new PipelineHopMeta( injectorTransform, rowGeneratorTransform );
-    pipelineMeta.addPipelineHop( hop_injectory_rowGenerator );
+    PipelineHopMeta hop_injectoryRowGenerator = new PipelineHopMeta( injectorTransform, rowGeneratorTransform );
+    pipelineMeta.addPipelineHop( hop_injectoryRowGenerator );
 
     // create the json output transform
     // but first lets get a filename
@@ -305,8 +305,8 @@ public class JsonOutputTest extends TestCase {
     pipelineMeta.addTransform( jsonOutputTransform );
 
     // create a PipelineHopMeta for jsonOutputTransform and add it to the pipelineMeta
-    PipelineHopMeta hop_RowGenerator_outputTextFile = new PipelineHopMeta( rowGeneratorTransform, jsonOutputTransform );
-    pipelineMeta.addPipelineHop( hop_RowGenerator_outputTextFile );
+    PipelineHopMeta hop_RowGeneratorOutputTextFile = new PipelineHopMeta( rowGeneratorTransform, jsonOutputTransform );
+    pipelineMeta.addPipelineHop( hop_RowGeneratorOutputTextFile );
 
     // Create a dummy transform and add it to the tranMeta
     String dummyTransformName = "dummy transform";
@@ -314,8 +314,8 @@ public class JsonOutputTest extends TestCase {
     pipelineMeta.addTransform( dummyTransform );
 
     // create a PipelineHopMeta for the
-    PipelineHopMeta hop_outputJson_dummyTransform = new PipelineHopMeta( jsonOutputTransform, dummyTransform );
-    pipelineMeta.addPipelineHop( hop_outputJson_dummyTransform );
+    PipelineHopMeta hopOutputJson_dummyTransform = new PipelineHopMeta( jsonOutputTransform, dummyTransform );
+    pipelineMeta.addPipelineHop( hopOutputJson_dummyTransform );
 
     // Now execute the transformation...
     Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );

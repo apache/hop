@@ -113,7 +113,7 @@ public interface IRowSet {
    * This method is used only in Pipeline.java when created IRowSet at line 333. Don't need any synchronization on this
    * method
    */
-  void setThreadNameFromToCopy( String from, int from_copy, String to, int to_copy );
+  void setThreadNameFromToCopy( String from, int fromCopy, String to, int toCopy );
 
   /**
    * @return the rowMeta

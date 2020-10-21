@@ -39,15 +39,15 @@ public class UnivariateStatsData extends BaseTransformData implements ITransform
   // format etc.
 
   // the input data format
-  protected IRowMeta m_inputRowMeta;
+  protected IRowMeta mInputRowMeta;
 
   // the output data format
-  protected IRowMeta m_outputRowMeta;
+  protected IRowMeta mOutputRowMeta;
 
   /**
    * contains the FieldIndexs - one for each UnivariateStatsMetaFunction
    */
-  protected FieldIndex[] m_indexes;
+  protected FieldIndex[] mIndexes;
 
   /**
    * Creates a new <code>UnivariateStatsData</code> instance.
@@ -62,7 +62,7 @@ public class UnivariateStatsData extends BaseTransformData implements ITransform
    * @param fis a <code>FieldIndex[]</code> value
    */
   public void setFieldIndexes( FieldIndex[] fis ) {
-    m_indexes = fis;
+    mIndexes = fis;
   }
 
   /**
@@ -71,7 +71,7 @@ public class UnivariateStatsData extends BaseTransformData implements ITransform
    * @return a <code>FieldIndex[]</code> value
    */
   public FieldIndex[] getFieldIndexes() {
-    return m_indexes;
+    return mIndexes;
   }
 
   /**
@@ -80,7 +80,7 @@ public class UnivariateStatsData extends BaseTransformData implements ITransform
    * @return a <code>IRowMeta</code> value
    */
   public IRowMeta getInputRowMeta() {
-    return m_inputRowMeta;
+    return mInputRowMeta;
   }
 
   /**
@@ -89,7 +89,7 @@ public class UnivariateStatsData extends BaseTransformData implements ITransform
    * @param rmi a <code>IRowMeta</code> value
    */
   public void setInputRowMeta( IRowMeta rmi ) {
-    m_inputRowMeta = rmi;
+    mInputRowMeta = rmi;
   }
 
   /**
@@ -98,7 +98,7 @@ public class UnivariateStatsData extends BaseTransformData implements ITransform
    * @return a <code>IRowMeta</code> value
    */
   public IRowMeta getOutputRowMeta() {
-    return m_outputRowMeta;
+    return mOutputRowMeta;
   }
 
   /**
@@ -107,6 +107,6 @@ public class UnivariateStatsData extends BaseTransformData implements ITransform
    * @param rmi a <code>IRowMeta</code> value
    */
   public void setOutputRowMeta( IRowMeta rmi ) {
-    m_outputRowMeta = rmi;
+    mOutputRowMeta = rmi;
   }
 }

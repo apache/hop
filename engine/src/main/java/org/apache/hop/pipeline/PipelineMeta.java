@@ -306,7 +306,7 @@ public class PipelineMeta extends AbstractMeta
   /**
    * A list of localized strings corresponding to string descriptions of the undo/redo actions.
    */
-  public static final String[] desc_type_undo = {
+  public static final String[] descTypeUndo = {
     "",
     BaseMessages.getString( PKG, "PipelineMeta.UndoTypeDesc.UndoChange" ),
     BaseMessages.getString( PKG, "PipelineMeta.UndoTypeDesc.UndoNew" ),
@@ -516,8 +516,8 @@ public class PipelineMeta extends AbstractMeta
     pipelineVersion = null;
 
     undo = new ArrayList<>();
-    max_undo = Const.MAX_UNDO;
-    undo_position = -1;
+    maxUndo = Const.MAX_UNDO;
+    undoPosition = -1;
 
     super.clear();
 

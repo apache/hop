@@ -141,7 +141,7 @@ public class JavaFilterMeta extends BaseTransformMeta implements ITransformMeta<
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     List<IStream> targetStreams = getTransformIOMeta().getTargetStreams();
 
@@ -207,10 +207,10 @@ public class JavaFilterMeta extends BaseTransformMeta implements ITransformMeta<
       // TODO: verify condition, parse it
       //
     } else {
-      error_message =
+      errorMessage =
         BaseMessages.getString( PKG, "JavaFilterMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform" )
           + Const.CR;
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

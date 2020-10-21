@@ -144,7 +144,7 @@ public interface IDatabase extends Cloneable {
   /**
    * @param data_tablespace the tablespace to store data in
    */
-  public void setDataTablespace( String data_tablespace );
+  public void setDataTablespace( String dataTablespace );
 
   /**
    * @return the tablespace to store indexes in
@@ -154,7 +154,7 @@ public interface IDatabase extends Cloneable {
   /**
    * @param index_tablespace the tablespace to store indexes in
    */
-  public void setIndexTablespace( String index_tablespace );
+  public void setIndexTablespace( String indexTablespace );
 
   /**
    * @return The extra attributes for this database connection
@@ -216,8 +216,8 @@ public interface IDatabase extends Cloneable {
    * @param add_cr        Add a cariage return at the end of the definition or not.
    * @return a value described as a field in this database.
    */
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc,
-                                    boolean add_fieldname, boolean add_cr );
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoInc,
+                                    boolean addFieldname, boolean addCr );
 
   /**
    * Get the list of possible access types for a database.
@@ -256,7 +256,7 @@ public interface IDatabase extends Cloneable {
    * @param use_autoinc Whether or not we want to use an auto increment field
    * @return the lowest possible technical key to be used as the NOT FOUND row in a slowly changing dimension.
    */
-  public int getNotFoundTK( boolean use_autoinc );
+  public int getNotFoundTK( boolean useAutoInc );
 
   /**
    * Obtain the name of the JDBC driver class that we need to use!
@@ -380,7 +380,7 @@ public interface IDatabase extends Cloneable {
    * @param table_part  The tablename
    * @return the schema-table combination to query the right table.
    */
-  public String getSchemaTableCombination( String schema_name, String table_part );
+  public String getSchemaTableCombination( String schemaName, String tablePart );
 
   /**
    * Get the maximum length of a text field for this database connection. This includes optional CLOB, Memo and Text
@@ -401,7 +401,7 @@ public interface IDatabase extends Cloneable {
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param use_autoinc whether or not this field uses auto increment
@@ -409,13 +409,13 @@ public interface IDatabase extends Cloneable {
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
-  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
+  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
                                        String pk, boolean semicolon );
 
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param use_autoinc whether or not this field uses auto increment
@@ -423,13 +423,13 @@ public interface IDatabase extends Cloneable {
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
-  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
+  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
                                         String pk, boolean semicolon );
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param use_autoinc whether or not this field uses auto increment
@@ -437,7 +437,7 @@ public interface IDatabase extends Cloneable {
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
-  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
+  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
                                           String pk, boolean semicolon );
 
   /**
@@ -625,19 +625,19 @@ public interface IDatabase extends Cloneable {
   public boolean supportsSetMaxRows();
 
   /**
-   * @param tablename The table to verify the existance for
+   * @param tableName The table to verify the existance for
    * @return The SQL to execute to verify if the given table exists. If an Exception is thrown for this SQL, we don't
    * have the table.
    */
-  public String getSqlTableExists( String tablename );
+  public String getSqlTableExists( String tableName );
 
   /**
    * @param column    The column to verify the existance for
-   * @param tablename The table to verify the existance for
+   * @param tableName The table to verify the existance for
    * @return The SQL to execute to verify if the given table exists. If an Exception is thrown for this SQL, we don't
    * have the column.
    */
-  public String getSqlColumnExists( String column, String tablename );
+  public String getSqlColumnExists( String column, String tableName );
 
   /**
    * @return true if the database is streaming results (normally this is an option just for MySQL).

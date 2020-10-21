@@ -162,14 +162,14 @@ public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( Utils.isEmpty( timeout ) ) {
-      error_message = BaseMessages.getString( PKG, "DelayMeta.CheckResult.TimeOutMissing" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "DelayMeta.CheckResult.TimeOutMissing" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
     } else {
-      error_message = BaseMessages.getString( PKG, "DelayMeta.CheckResult.TimeOutOk" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "DelayMeta.CheckResult.TimeOutOk" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
     }
     remarks.add( cr );
 

@@ -241,7 +241,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     fdlTargetType.top = new FormAttachment(wServerSettings, margin );
     wlTargetType.setLayoutData(fdlTargetType);
     wTargetType = new CCombo(wAdvancedSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wTargetType.setItems( ActionSNMPTrap.target_type_Desc );
+    wTargetType.setItems( ActionSNMPTrap.targetTypeDesc );
 
     props.setLook( wTargetType );
     FormData fdTargetType = new FormData();

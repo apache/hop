@@ -41,8 +41,8 @@ public class DimensionLookupData extends BaseTransformData implements ITransform
 
   public Database db;
 
-  public Date min_date;
-  public Date max_date;
+  public Date minDate;
+  public Date maxDate;
 
   public int[] keynrs; // nrs in row of the keys
   public int[] fieldnrs; // nrs in row of the fields

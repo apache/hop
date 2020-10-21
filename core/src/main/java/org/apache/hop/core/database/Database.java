@@ -42,12 +42,12 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.DefaultLogLevel;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogTableCore;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LogStatus;
-import org.apache.hop.core.logging.ILogTableCore;
 import org.apache.hop.core.logging.LogTableField;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.Metrics;
@@ -96,7 +96,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -129,12 +128,12 @@ public class Database implements IVariables, ILoggingObject {
 
   private Connection connection;
 
-  private Statement sel_stmt;
+  private Statement selStmt;
   private PreparedStatement pstmt;
   private PreparedStatement prepStatementLookup;
   private PreparedStatement prepStatementUpdate;
   private PreparedStatement prepStatementInsert;
-  private PreparedStatement pstmt_seq;
+  private PreparedStatement pstmtSeq;
   private CallableStatement cstmt;
 
   // private ResultSetMetaData rsmd;
@@ -574,15 +573,15 @@ public class Database implements IVariables, ILoggingObject {
       }
       prepStatementUpdate = null;
     }
-    if ( pstmt_seq != null ) {
+    if ( pstmtSeq != null ) {
       try {
-        pstmt_seq.close();
+        pstmtSeq.close();
       } catch ( SQLException ex ) {
         // cannot do anything about this but log it
         log.logError( "Error closing seq statement:" + Const.CR + ex.getMessage() );
         log.logError( Const.getStackTracker( ex ) );
       }
-      pstmt_seq = null;
+      pstmtSeq = null;
     }
 
     // See if there are other transforms using this connection in a connection
@@ -656,7 +655,7 @@ public class Database implements IVariables, ILoggingObject {
     }
 
     cancelStatement( pstmt );
-    cancelStatement( sel_stmt );
+    cancelStatement( selStmt );
   }
 
   /**
@@ -1078,13 +1077,13 @@ public class Database implements IVariables, ILoggingObject {
     String schemaSequence = databaseMeta.getQuotedSchemaTableCombination( schemaName, sequenceName );
 
     try {
-      if ( pstmt_seq == null ) {
-        pstmt_seq =
+      if ( pstmtSeq == null ) {
+        pstmtSeq =
           connection.prepareStatement( databaseMeta.getSeqNextvalSql( databaseMeta.stripCR( schemaSequence ) ) );
       }
       ResultSet rs = null;
       try {
-        rs = pstmt_seq.executeQuery();
+        rs = pstmtSeq.executeQuery();
         if ( rs.next() ) {
           retval = Long.valueOf( rs.getLong( 1 ) );
         }
@@ -1448,11 +1447,11 @@ public class Database implements IVariables, ILoggingObject {
       boolean resultSet;
       int count;
       if ( params != null ) {
-        PreparedStatement prep_stmt = connection.prepareStatement( databaseMeta.stripCR( sql ) );
-        setValues( params, data, prep_stmt ); // set the parameters!
-        resultSet = prep_stmt.execute();
-        count = prep_stmt.getUpdateCount();
-        prep_stmt.close();
+        PreparedStatement prepStmt = connection.prepareStatement( databaseMeta.stripCR( sql ) );
+        setValues( params, data, prepStmt ); // set the parameters!
+        resultSet = prepStmt.execute();
+        count = prepStmt.getUpdateCount();
+        prepStmt.close();
       } else {
         String sqlStripped = databaseMeta.stripCR( sql );
         // log.logDetailed("Executing SQL Statement: ["+sqlStripped+"]");
@@ -1615,12 +1614,12 @@ public class Database implements IVariables, ILoggingObject {
     return openQuery( sql, params, data, ResultSet.FETCH_FORWARD );
   }
 
-  public ResultSet openQuery( String sql, IRowMeta params, Object[] data, int fetch_mode )
+  public ResultSet openQuery( String sql, IRowMeta params, Object[] data, int fetchMode )
     throws HopDatabaseException {
-    return openQuery( sql, params, data, fetch_mode, false );
+    return openQuery( sql, params, data, fetchMode, false );
   }
 
-  public ResultSet openQuery( String sql, IRowMeta params, Object[] data, int fetch_mode,
+  public ResultSet openQuery( String sql, IRowMeta params, Object[] data, int fetchMode,
                               boolean lazyConversion ) throws HopDatabaseException {
     ResultSet res;
 
@@ -1647,7 +1646,7 @@ public class Database implements IVariables, ILoggingObject {
             pstmt.setFetchSize( fs );
           }
 
-          pstmt.setFetchDirection( fetch_mode );
+          pstmt.setFetchDirection( fetchMode );
         }
 
         if ( rowlimit > 0 && databaseMeta.supportsSetMaxRows() ) {
@@ -1659,24 +1658,24 @@ public class Database implements IVariables, ILoggingObject {
         log.snap( Metrics.METRIC_DATABASE_EXECUTE_SQL_STOP, databaseMeta.getName() );
       } else {
         log.snap( Metrics.METRIC_DATABASE_CREATE_SQL_START, databaseMeta.getName() );
-        sel_stmt = connection.createStatement();
+        selStmt = connection.createStatement();
         log.snap( Metrics.METRIC_DATABASE_CREATE_SQL_STOP, databaseMeta.getName() );
-        if ( canWeSetFetchSize( sel_stmt ) ) {
-          int fs = Const.FETCH_SIZE <= sel_stmt.getMaxRows() ? sel_stmt.getMaxRows() : Const.FETCH_SIZE;
+        if ( canWeSetFetchSize( selStmt ) ) {
+          int fs = Const.FETCH_SIZE <= selStmt.getMaxRows() ? selStmt.getMaxRows() : Const.FETCH_SIZE;
           if ( databaseMeta.getIDatabase().isMySqlVariant()
             && databaseMeta.isStreamingResults() ) {
-            sel_stmt.setFetchSize( Integer.MIN_VALUE );
+            selStmt.setFetchSize( Integer.MIN_VALUE );
           } else {
-            sel_stmt.setFetchSize( fs );
+            selStmt.setFetchSize( fs );
           }
-          sel_stmt.setFetchDirection( fetch_mode );
+          selStmt.setFetchDirection( fetchMode );
         }
         if ( rowlimit > 0 && databaseMeta.supportsSetMaxRows() ) {
-          sel_stmt.setMaxRows( rowlimit );
+          selStmt.setMaxRows( rowlimit );
         }
 
         log.snap( Metrics.METRIC_DATABASE_EXECUTE_SQL_START, databaseMeta.getName() );
-        res = sel_stmt.executeQuery( databaseMeta.stripCR( sql ) );
+        res = selStmt.executeQuery( databaseMeta.stripCR( sql ) );
         log.snap( Metrics.METRIC_DATABASE_EXECUTE_SQL_STOP, databaseMeta.getName() );
       }
 
@@ -1777,10 +1776,10 @@ public class Database implements IVariables, ILoggingObject {
    * to use {@link #getTableFieldsMeta(String, String)}. This other method will not use a SQL query and will populate
    * whatever information it can using @link {@link DatabaseMetaData#getColumns(String, String, String, String)}.
    *
-   * @param tablename This is the properly quoted, and schema prefixed table name.
+   * @param tableName This is the properly quoted, and schema prefixed table name.
    */
-  public IRowMeta getTableFields( String tablename ) throws HopDatabaseException {
-    return getQueryFields( databaseMeta.getSqlQueryFields( tablename ), false );
+  public IRowMeta getTableFields( String tableName ) throws HopDatabaseException {
+    return getQueryFields( databaseMeta.getSqlQueryFields( tableName ), false );
   }
 
   public IRowMeta getQueryFields( String sql, boolean param ) throws HopDatabaseException {
@@ -1790,18 +1789,18 @@ public class Database implements IVariables, ILoggingObject {
   /**
    * See if the table specified exists by reading
    *
-   * @param tablename The name of the table to check.<br> This is supposed to be the properly quoted name of the table
+   * @param tableName The name of the table to check.<br> This is supposed to be the properly quoted name of the table
    *                  or the complete schema-table name combination.
    * @return true if the table exists, false if it doesn't.
    * @deprecated Deprecated in favor of {@link #checkTableExists(String, String)}
    */
-  public boolean checkTableExists( String tablename ) throws HopDatabaseException {
+  public boolean checkTableExists( String tableName ) throws HopDatabaseException {
     try {
       if ( log.isDebug() ) {
-        log.logDebug( "Checking if table [" + tablename + "] exists!" );
+        log.logDebug( "Checking if table [" + tableName + "] exists!" );
       }
       // Just try to read from the table.
-      String sql = databaseMeta.getSqlTableExists( tablename );
+      String sql = databaseMeta.getSqlTableExists( tableName );
       try {
         getOneRow( sql );
         return true;
@@ -1810,7 +1809,7 @@ public class Database implements IVariables, ILoggingObject {
       }
     } catch ( Exception e ) {
       throw new HopDatabaseException(
-        "Unable to check if table [" + tablename + "] exists on connection [" + databaseMeta.getName() + "]", e );
+        "Unable to check if table [" + tableName + "] exists on connection [" + databaseMeta.getName() + "]", e );
     }
   }
 
@@ -1823,41 +1822,41 @@ public class Database implements IVariables, ILoggingObject {
    * <p>Contrary to previous versions of similar duplicated methods, this implementation
    * does not require quoted identifiers.
    *
-   * @param tablename The unquoted name of the table to check.<br> This is NOT the properly quoted name of the table or
+   * @param tableName The unquoted name of the table to check.<br> This is NOT the properly quoted name of the table or
    *                  the complete schema-table name combination.
    * @param schema    The unquoted name of the schema.
    * @return true if the table exists, false if it doesn't.
    */
-  public boolean checkTableExists( String schema, String tablename ) throws HopDatabaseException {
+  public boolean checkTableExists( String schema, String tableName ) throws HopDatabaseException {
 
     if ( useJdbcMeta() ) {
-      return checkTableExistsByDbMeta( schema, tablename );
+      return checkTableExistsByDbMeta( schema, tableName );
     } else {
-      return checkTableExists( databaseMeta.getQuotedSchemaTableCombination( schema, tablename ) );
+      return checkTableExists( databaseMeta.getQuotedSchemaTableCombination( schema, tableName ) );
     }
   }
 
   /**
    * See if the table specified exists by getting db metadata.
    *
-   * @param tablename The name of the table to check.<br> This is supposed to be the properly quoted name of the table
+   * @param tableName The name of the table to check.<br> This is supposed to be the properly quoted name of the table
    *                  or the complete schema-table name combination.
    * @return true if the table exists, false if it doesn't.
    * @throws HopDatabaseException
    * @deprecated Deprecated in favor of {@link #checkTableExists(String, String)}
    */
   @Deprecated
-  public boolean checkTableExistsByDbMeta( String schema, String tablename ) throws HopDatabaseException {
+  public boolean checkTableExistsByDbMeta( String schema, String tableName ) throws HopDatabaseException {
     boolean isTableExist = false;
     if ( log.isDebug() ) {
-      log.logDebug( BaseMessages.getString( PKG, "Database.Info.CheckingIfTableExistsInDbMetaData", tablename ) );
+      log.logDebug( BaseMessages.getString( PKG, "Database.Info.CheckingIfTableExistsInDbMetaData", tableName ) );
     }
-    try ( ResultSet resTables = getTableMetaData( schema, tablename ) ) {
+    try ( ResultSet resTables = getTableMetaData( schema, tableName ) ) {
       while ( resTables.next() ) {
         String resTableName = resTables.getString( TABLES_META_DATA_TABLE_NAME );
-        if ( tablename.equalsIgnoreCase( resTableName ) ) {
+        if ( tableName.equalsIgnoreCase( resTableName ) ) {
           if ( log.isDebug() ) {
-            log.logDebug( BaseMessages.getString( PKG, "Database.Info.TableFound", tablename ) );
+            log.logDebug( BaseMessages.getString( PKG, "Database.Info.TableFound", tableName ) );
           }
           isTableExist = true;
           break;
@@ -1865,7 +1864,7 @@ public class Database implements IVariables, ILoggingObject {
       }
     } catch ( SQLException e ) {
       throw new HopDatabaseException(
-        BaseMessages.getString( PKG, "Database.Error.UnableToCheckExistingTable", tablename, databaseMeta.getName() ),
+        BaseMessages.getString( PKG, "Database.Error.UnableToCheckExistingTable", tableName, databaseMeta.getName() ),
         e );
     }
     return isTableExist;
@@ -1928,30 +1927,30 @@ public class Database implements IVariables, ILoggingObject {
    * does not require quoted identifiers.
    *
    * @param schemaname The name of the schema to check.
-   * @param tablename  The name of the table to check.
+   * @param tableName  The name of the table to check.
    * @param columnname The name of the column to check.
    * @return true if the table exists, false if it doesn't.
    */
-  public boolean checkColumnExists( String schemaname, String tablename, String columnname )
+  public boolean checkColumnExists( String schemaname, String tableName, String columnname )
     throws HopDatabaseException {
     if ( useJdbcMeta() ) {
-      return checkColumnExistsByDbMeta( schemaname, tablename, columnname );
+      return checkColumnExistsByDbMeta( schemaname, tableName, columnname );
     } else {
       return checkColumnExists(
         databaseMeta.quoteField( columnname ),
-        databaseMeta.getQuotedSchemaTableCombination( schemaname, tablename ) );
+        databaseMeta.getQuotedSchemaTableCombination( schemaname, tableName ) );
     }
   }
 
-  public boolean checkColumnExistsByDbMeta( String schemaname, String tablename, String columnname )
+  public boolean checkColumnExistsByDbMeta( String schemaname, String tableName, String columnname )
     throws HopDatabaseException {
     if ( log.isDebug() ) {
-      log.logDebug( "Checking if column [" + columnname + "] exists in table [" + tablename + "] !" );
+      log.logDebug( "Checking if column [" + columnname + "] exists in table [" + tableName + "] !" );
     }
 
     // First try the metadata
     try {
-      ResultSet columns = getColumnsMetaData( schemaname, tablename );
+      ResultSet columns = getColumnsMetaData( schemaname, tableName );
       while ( columns.next() ) {
         if ( columnname.equals( columns.getString( "COLUMN_NAME" ) ) ) {
           return true;
@@ -1969,20 +1968,20 @@ public class Database implements IVariables, ILoggingObject {
    * See if the column specified exists by reading
    *
    * @param columnname The name of the column to check.
-   * @param tablename  The name of the table to check.<br> This is supposed to be the properly quoted name of the table
+   * @param tableName  The name of the table to check.<br> This is supposed to be the properly quoted name of the table
    *                   or the complete schema-table name combination.
    * @return true if the table exists, false if it doesn't.
    * @deprecated Deprecated in favor of the smarter {@link #checkColumnExists(String, String, String)}
    */
   @Deprecated
-  public boolean checkColumnExists( String columnname, String tablename ) throws HopDatabaseException {
+  public boolean checkColumnExists( String columnname, String tableName ) throws HopDatabaseException {
     try {
       if ( log.isDebug() ) {
-        log.logDebug( "Checking if column [" + columnname + "] exists in table [" + tablename + "] !" );
+        log.logDebug( "Checking if column [" + columnname + "] exists in table [" + tableName + "] !" );
       }
 
       // Just try to read from the table.
-      String sql = databaseMeta.getSqlColumnExists( columnname, tablename );
+      String sql = databaseMeta.getSqlColumnExists( columnname, tableName );
 
       try {
         getOneRow( sql );
@@ -1992,7 +1991,7 @@ public class Database implements IVariables, ILoggingObject {
       }
     } catch ( Exception e ) {
       throw new HopDatabaseException( "Unable to check if column ["
-        + columnname + "] exists in table [" + tablename + "] on connection [" + databaseMeta.getName() + "]", e );
+        + columnname + "] exists in table [" + tableName + "] on connection [" + databaseMeta.getName() + "]", e );
     }
   }
 
@@ -2048,8 +2047,8 @@ public class Database implements IVariables, ILoggingObject {
    * @param idx_fields The fields on which the indexe is checked
    * @return True if the index exists
    */
-  public boolean checkIndexExists( String tableName, String[] idx_fields ) throws HopDatabaseException {
-    return checkIndexExists( null, tableName, idx_fields );
+  public boolean checkIndexExists( String tableName, String[] idxFields ) throws HopDatabaseException {
+    return checkIndexExists( null, tableName, idxFields );
   }
 
   /**
@@ -2060,29 +2059,29 @@ public class Database implements IVariables, ILoggingObject {
    * @param idx_fields The fields on which the indexe is checked
    * @return True if the index exists
    */
-  public boolean checkIndexExists( String schemaName, String tableName, String[] idx_fields )
+  public boolean checkIndexExists( String schemaName, String tableName, String[] idxFields )
     throws HopDatabaseException {
-    String tablename = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
-    if ( !checkTableExists( tablename ) ) {
+    String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+    if ( !checkTableExists( schemaTable ) ) {
       return false;
     }
 
     if ( log.isDebug() ) {
-      log.logDebug( "CheckIndexExists() tablename = " + tablename + " type = " + databaseMeta.getPluginId() );
+      log.logDebug( "CheckIndexExists() tablename = " + schemaTable + " type = " + databaseMeta.getPluginId() );
     }
 
-    return databaseMeta.getIDatabase().checkIndexExists( this, schemaName, tableName, idx_fields );
+    return databaseMeta.getIDatabase().checkIndexExists( this, schemaName, schemaTable, idxFields );
   }
 
-  public String getCreateIndexStatement( String tablename, String indexname, String[] idx_fields, boolean tk,
-                                         boolean unique, boolean bitmap, boolean semi_colon ) {
-    return getCreateIndexStatement( null, tablename, indexname, idx_fields, tk, unique, bitmap, semi_colon );
+  public String getCreateIndexStatement( String tableName, String indexname, String[] idxFields, boolean tk,
+                                         boolean unique, boolean bitmap, boolean semiColon ) {
+    return getCreateIndexStatement( null, tableName, indexname, idxFields, tk, unique, bitmap, semiColon );
   }
 
-  public String getCreateIndexStatement( String schemaname, String tablename, String indexname,
-                                         String[] idx_fields, boolean tk, boolean unique, boolean bitmap,
-                                         boolean semi_colon ) {
-    String cr_index = "";
+  public String getCreateIndexStatement( String schemaname, String tableName, String indexname,
+                                         String[] idxFields, boolean tk, boolean unique, boolean bitmap,
+                                         boolean semiColon ) {
+    String crIndex = "";
     IDatabase iDatabase = databaseMeta.getIDatabase();
 
     // Exasol does not support explicit handling of indexes
@@ -2090,94 +2089,94 @@ public class Database implements IVariables, ILoggingObject {
       return "";
     }
 
-    cr_index += "CREATE ";
+    crIndex += "CREATE ";
 
     if ( unique || ( tk && iDatabase.isSybaseVariant() ) ) {
-      cr_index += "UNIQUE ";
+      crIndex += "UNIQUE ";
     }
 
     if ( bitmap && databaseMeta.supportsBitmapIndex() ) {
-      cr_index += "BITMAP ";
+      crIndex += "BITMAP ";
     }
 
-    cr_index += "INDEX " + databaseMeta.quoteField( indexname ) + " ";
-    cr_index += "ON ";
+    crIndex += "INDEX " + databaseMeta.quoteField( indexname ) + " ";
+    crIndex += "ON ";
     // assume table has already been quoted (and possibly includes schema)
-    cr_index += tablename;
-    cr_index += "(";
-    for ( int i = 0; i < idx_fields.length; i++ ) {
+    crIndex += tableName;
+    crIndex += "(";
+    for ( int i = 0; i < idxFields.length; i++ ) {
       if ( i > 0 ) {
-        cr_index += ", ";
+        crIndex += ", ";
       }
-      cr_index += databaseMeta.quoteField( idx_fields[ i ] );
+      crIndex += databaseMeta.quoteField( idxFields[ i ] );
     }
-    cr_index += ")" + Const.CR;
+    crIndex += ")" + Const.CR;
 
-    cr_index += iDatabase.getIndexTablespaceDDL( variables, databaseMeta );
+    crIndex += iDatabase.getIndexTablespaceDDL( variables, databaseMeta );
 
-    if ( semi_colon ) {
-      cr_index += ";" + Const.CR;
+    if ( semiColon ) {
+      crIndex += ";" + Const.CR;
     }
 
-    return cr_index;
+    return crIndex;
   }
 
-  public String getCreateSequenceStatement( String sequence, long start_at, long increment_by, long max_value,
-                                            boolean semi_colon ) {
+  public String getCreateSequenceStatement( String sequence, long startAt, long incrementBy, long maxValue,
+                                            boolean semiColon ) {
     return getCreateSequenceStatement(
-      null, sequence, Long.toString( start_at ), Long.toString( increment_by ), Long.toString( max_value ),
-      semi_colon );
+      null, sequence, Long.toString( startAt ), Long.toString( incrementBy ), Long.toString( maxValue ),
+      semiColon );
   }
 
-  public String getCreateSequenceStatement( String sequence, String start_at, String increment_by,
-                                            String max_value, boolean semi_colon ) {
-    return getCreateSequenceStatement( null, sequence, start_at, increment_by, max_value, semi_colon );
+  public String getCreateSequenceStatement( String sequence, String startAt, String incrementBy,
+                                            String maxValue, boolean semiColon ) {
+    return getCreateSequenceStatement( null, sequence, startAt, incrementBy, maxValue, semiColon );
   }
 
-  public String getCreateSequenceStatement( String schemaName, String sequence, long start_at, long increment_by,
-                                            long max_value, boolean semi_colon ) {
-    return getCreateSequenceStatement( schemaName, sequence, Long.toString( start_at ), Long
-      .toString( increment_by ), Long.toString( max_value ), semi_colon );
+  public String getCreateSequenceStatement( String schemaName, String sequence, long startAt, long incrementBy,
+                                            long maxValue, boolean semiColon ) {
+    return getCreateSequenceStatement( schemaName, sequence, Long.toString( startAt ), Long
+      .toString( incrementBy ), Long.toString( maxValue ), semiColon );
   }
 
-  public String getCreateSequenceStatement( String schemaName, String sequenceName, String start_at,
-                                            String increment_by, String max_value, boolean semi_colon ) {
-    String cr_seq = "";
+  public String getCreateSequenceStatement( String schemaName, String sequenceName, String startAt,
+                                            String incrementBy, String maxValue, boolean semiColon ) {
+    String crSeq = "";
 
     if ( Utils.isEmpty( sequenceName ) ) {
-      return cr_seq;
+      return crSeq;
     }
 
     if ( databaseMeta.supportsSequences() ) {
       String schemaSequence = databaseMeta.getQuotedSchemaTableCombination( schemaName, sequenceName );
-      cr_seq += "CREATE SEQUENCE " + schemaSequence + " " + Const.CR; // Works
+      crSeq += "CREATE SEQUENCE " + schemaSequence + " " + Const.CR; // Works
       // for
       // both
       // Oracle
       // and
       // PostgreSQL
       // :-)
-      cr_seq += "START WITH " + start_at + " " + Const.CR;
-      cr_seq += "INCREMENT BY " + increment_by + " " + Const.CR;
-      if ( max_value != null ) {
+      crSeq += "START WITH " + startAt + " " + Const.CR;
+      crSeq += "INCREMENT BY " + incrementBy + " " + Const.CR;
+      if ( maxValue != null ) {
         // "-1" means there is no maxvalue, must be handles different by DB2 /
         // AS400
         //
-        if ( databaseMeta.supportsSequenceNoMaxValueOption() && max_value.trim().equals( "-1" ) ) {
+        if ( databaseMeta.supportsSequenceNoMaxValueOption() && maxValue.trim().equals( "-1" ) ) {
           IDatabase iDatabase = databaseMeta.getIDatabase();
-          cr_seq += iDatabase.getSequenceNoMaxValueOption() + Const.CR;
+          crSeq += iDatabase.getSequenceNoMaxValueOption() + Const.CR;
         } else {
           // set the max value
-          cr_seq += "MAXVALUE " + max_value + Const.CR;
+          crSeq += "MAXVALUE " + maxValue + Const.CR;
         }
       }
 
-      if ( semi_colon ) {
-        cr_seq += ";" + Const.CR;
+      if ( semiColon ) {
+        crSeq += ";" + Const.CR;
       }
     }
 
-    return cr_seq;
+    return crSeq;
   }
 
   /**
@@ -2442,28 +2441,28 @@ public class Database implements IVariables, ILoggingObject {
         // prepared statement (see BugID 3214)
         && databaseMeta.getIDatabase().isMsSqlServerVariant() )
         || databaseMeta.getIDatabase().supportsResultSetMetadataRetrievalOnly() ) {
-        sel_stmt = connection.createStatement( ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY );
+        selStmt = connection.createStatement( ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY );
         try {
-          if ( databaseMeta.isFetchSizeSupported() && sel_stmt.getMaxRows() >= 1 ) {
+          if ( databaseMeta.isFetchSizeSupported() && selStmt.getMaxRows() >= 1 ) {
             if ( databaseMeta.getIDatabase().isMySqlVariant() ) {
-              sel_stmt.setFetchSize( Integer.MIN_VALUE );
+              selStmt.setFetchSize( Integer.MIN_VALUE );
             } else {
-              sel_stmt.setFetchSize( 1 );
+              selStmt.setFetchSize( 1 );
             }
           }
           if ( databaseMeta.supportsSetMaxRows() ) {
-            sel_stmt.setMaxRows( 1 );
+            selStmt.setMaxRows( 1 );
           }
 
-          ResultSet r = sel_stmt.executeQuery( databaseMeta.stripCR( sql ) );
+          ResultSet r = selStmt.executeQuery( databaseMeta.stripCR( sql ) );
           try {
             fields = getRowInfo( r.getMetaData(), false, false );
           } finally { // avoid leaking resources
             r.close();
           }
         } finally { // avoid leaking resources
-          sel_stmt.close();
-          sel_stmt = null;
+          selStmt.close();
+          selStmt = null;
         }
       } else {
         PreparedStatement ps = connection.prepareStatement( databaseMeta.stripCR( sql ) );
@@ -2517,9 +2516,9 @@ public class Database implements IVariables, ILoggingObject {
       if ( res != null ) {
         res.close();
       }
-      if ( sel_stmt != null ) {
-        sel_stmt.close();
-        sel_stmt = null;
+      if ( selStmt != null ) {
+        selStmt.close();
+        selStmt = null;
       }
       if ( pstmt != null ) {
         pstmt.close();
@@ -3084,16 +3083,16 @@ public class Database implements IVariables, ILoggingObject {
     return dbmd;
   }
 
-  public String getDDL( String tablename, IRowMeta fields ) throws HopDatabaseException {
-    return getDDL( tablename, fields, null, false, null, true );
+  public String getDDL( String tableName, IRowMeta fields ) throws HopDatabaseException {
+    return getDDL( tableName, fields, null, false, null, true );
   }
 
-  public String getDDL( String tablename, IRowMeta fields, String tk, boolean use_autoinc, String pk )
+  public String getDDL( String tableName, IRowMeta fields, String tk, boolean useAutoInc, String pk )
     throws HopDatabaseException {
-    return getDDL( tablename, fields, tk, use_autoinc, pk, true );
+    return getDDL( tableName, fields, tk, useAutoInc, pk, true );
   }
 
-  public String getDDL( String tableName, IRowMeta fields, String tk, boolean use_autoinc, String pk,
+  public String getDDL( String tableName, IRowMeta fields, String tk, boolean useAutoInc, String pk,
                         boolean semicolon ) throws HopDatabaseException {
     String retval;
 
@@ -3102,9 +3101,9 @@ public class Database implements IVariables, ILoggingObject {
     String quotedTk = tk != null ? databaseMeta.quoteField( tk ) : null;
 
     if ( checkTableExists( tableName ) ) {
-      retval = getAlterTableStatement( tableName, fields, quotedTk, use_autoinc, pk, semicolon );
+      retval = getAlterTableStatement( tableName, fields, quotedTk, useAutoInc, pk, semicolon );
     } else {
-      retval = getCreateTableStatement( tableName, fields, quotedTk, use_autoinc, pk, semicolon );
+      retval = getCreateTableStatement( tableName, fields, quotedTk, useAutoInc, pk, semicolon );
     }
 
     return retval;
@@ -3116,13 +3115,13 @@ public class Database implements IVariables, ILoggingObject {
    * @param tableName   the table name or schema/table combination: this needs to be quoted properly in advance.
    * @param fields      the fields
    * @param tk          the name of the technical key field
-   * @param use_autoinc true if we need to use auto-increment fields for a primary key
+   * @param useAutoInc true if we need to use auto-increment fields for a primary key
    * @param pk          the name of the primary/technical key field
    * @param semicolon   append semicolon to the statement
    * @return the SQL needed to create the specified table and fields.
    */
   public String getCreateTableStatement( String tableName, IRowMeta fields, String tk,
-                                         boolean use_autoinc, String pk, boolean semicolon ) {
+                                         boolean useAutoInc, String pk, boolean semicolon ) {
     StringBuilder retval = new StringBuilder();
     IDatabase iDatabase = databaseMeta.getIDatabase();
     retval.append( iDatabase.getCreateTableStatement() );
@@ -3137,7 +3136,7 @@ public class Database implements IVariables, ILoggingObject {
       }
 
       IValueMeta v = fields.getValueMeta( i );
-      retval.append( databaseMeta.getFieldDefinition( v, tk, pk, use_autoinc ) );
+      retval.append( databaseMeta.getFieldDefinition( v, tk, pk, useAutoInc ) );
     }
     // At the end, before the closing of the statement, we might need to add
     // some constraints...
@@ -3170,7 +3169,7 @@ public class Database implements IVariables, ILoggingObject {
     return retval.toString();
   }
 
-  public String getAlterTableStatement( String tableName, IRowMeta fields, String tk, boolean use_autoinc,
+  public String getAlterTableStatement( String tableName, IRowMeta fields, String tk, boolean useAutoInc,
                                         String pk, boolean semicolon ) throws HopDatabaseException {
     String retval = "";
 
@@ -3193,7 +3192,7 @@ public class Database implements IVariables, ILoggingObject {
     if ( missing.size() != 0 ) {
       for ( int i = 0; i < missing.size(); i++ ) {
         IValueMeta v = missing.getValueMeta( i );
-        retval += databaseMeta.getAddColumnStatement( tableName, v, tk, use_autoinc, pk, true );
+        retval += databaseMeta.getAddColumnStatement( tableName, v, tk, useAutoInc, pk, true );
       }
     }
 
@@ -3210,7 +3209,7 @@ public class Database implements IVariables, ILoggingObject {
     if ( surplus.size() != 0 ) {
       for ( int i = 0; i < surplus.size(); i++ ) {
         IValueMeta v = surplus.getValueMeta( i );
-        retval += databaseMeta.getDropColumnStatement( tableName, v, tk, use_autoinc, pk, true );
+        retval += databaseMeta.getDropColumnStatement( tableName, v, tk, useAutoInc, pk, true );
       }
     }
 
@@ -3223,8 +3222,8 @@ public class Database implements IVariables, ILoggingObject {
       IValueMeta desiredField = fields.getValueMeta( i );
       IValueMeta currentField = tabFields.searchValueMeta( desiredField.getName() );
       if ( desiredField != null && currentField != null ) {
-        String desiredDDL = databaseMeta.getFieldDefinition( desiredField, tk, pk, use_autoinc );
-        String currentDDL = databaseMeta.getFieldDefinition( currentField, tk, pk, use_autoinc );
+        String desiredDDL = databaseMeta.getFieldDefinition( desiredField, tk, pk, useAutoInc );
+        String currentDDL = databaseMeta.getFieldDefinition( currentField, tk, pk, useAutoInc );
 
         boolean mod = !desiredDDL.equalsIgnoreCase( currentDDL );
         if ( mod ) {
@@ -3236,36 +3235,36 @@ public class Database implements IVariables, ILoggingObject {
     if ( modify.size() > 0 ) {
       for ( int i = 0; i < modify.size(); i++ ) {
         IValueMeta v = modify.getValueMeta( i );
-        retval += databaseMeta.getModifyColumnStatement( tableName, v, tk, use_autoinc, pk, true );
+        retval += databaseMeta.getModifyColumnStatement( tableName, v, tk, useAutoInc, pk, true );
       }
     }
 
     return retval;
   }
 
-  public void truncateTable( String tablename ) throws HopDatabaseException {
+  public void truncateTable( String tableName ) throws HopDatabaseException {
     if ( Utils.isEmpty( connectionGroup ) ) {
-      String truncateStatement = databaseMeta.getTruncateTableStatement( null, tablename );
+      String truncateStatement = databaseMeta.getTruncateTableStatement( null, tableName );
       if ( truncateStatement == null ) {
         throw new HopDatabaseException( "Truncate table not supported by "
           + databaseMeta.getIDatabase().getPluginName() );
       }
       execStatement( truncateStatement );
     } else {
-      execStatement( "DELETE FROM " + databaseMeta.quoteField( tablename ) );
+      execStatement( "DELETE FROM " + databaseMeta.quoteField( tableName ) );
     }
   }
 
-  public void truncateTable( String schema, String tablename ) throws HopDatabaseException {
+  public void truncateTable( String schema, String tableName ) throws HopDatabaseException {
     if ( Utils.isEmpty( connectionGroup ) ) {
-      String truncateStatement = databaseMeta.getTruncateTableStatement( schema, tablename );
+      String truncateStatement = databaseMeta.getTruncateTableStatement( schema, tableName );
       if ( truncateStatement == null ) {
         throw new HopDatabaseException( "Truncate table not supported by "
           + databaseMeta.getIDatabase().getPluginName() );
       }
       execStatement( truncateStatement );
     } else {
-      execStatement( "DELETE FROM " + databaseMeta.getQuotedSchemaTableCombination( schema, tablename ) );
+      execStatement( "DELETE FROM " + databaseMeta.getQuotedSchemaTableCombination( schema, tableName ) );
     }
   }
 
@@ -3294,13 +3293,13 @@ public class Database implements IVariables, ILoggingObject {
         }
         pstmt = null;
       }
-      if ( sel_stmt != null ) {
+      if ( selStmt != null ) {
         try {
-          sel_stmt.close();
+          selStmt.close();
         } catch ( Exception e ) {
           throw new HopDatabaseException( "Unable to close prepared statement sel_stmt", e );
         }
-        sel_stmt = null;
+        selStmt = null;
       }
       return new RowMetaAndData( rowMeta, row );
     } else {
@@ -3348,13 +3347,13 @@ public class Database implements IVariables, ILoggingObject {
           }
           pstmt = null;
         }
-        if ( sel_stmt != null ) {
+        if ( selStmt != null ) {
           try {
-            sel_stmt.close();
+            selStmt.close();
           } catch ( Exception e ) {
             throw new HopDatabaseException( "Unable to close prepared statement sel_stmt", e );
           }
-          sel_stmt = null;
+          selStmt = null;
         }
 
       }
@@ -3428,21 +3427,21 @@ public class Database implements IVariables, ILoggingObject {
 
   public int countParameters( String sql ) {
     int q = 0;
-    boolean quote_opened = false;
-    boolean dquote_opened = false;
+    boolean quoteOpened = false;
+    boolean dquoteOpened = false;
 
     for ( int x = 0; x < sql.length(); x++ ) {
       char c = sql.charAt( x );
 
       switch ( c ) {
         case '\'':
-          quote_opened = !quote_opened;
+          quoteOpened = !quoteOpened;
           break;
         case '"':
-          dquote_opened = !dquote_opened;
+          dquoteOpened = !dquoteOpened;
           break;
         case '?':
-          if ( !quote_opened && !dquote_opened ) {
+          if ( !quoteOpened && !dquoteOpened ) {
             q++;
           }
           break;
@@ -3614,18 +3613,18 @@ public class Database implements IVariables, ILoggingObject {
     return row;
   }
 
-  public synchronized Long getNextValue( Map<String, Counter> counters, String tableName, String val_key )
+  public synchronized Long getNextValue( Map<String, Counter> counters, String tableName, String valKey )
     throws HopDatabaseException {
-    return getNextValue( counters, null, tableName, val_key );
+    return getNextValue( counters, null, tableName, valKey );
   }
 
   public synchronized Long getNextValue( Map<String, Counter> counters, String schemaName, String tableName,
-                                         String val_key ) throws HopDatabaseException {
+                                         String valKey ) throws HopDatabaseException {
     Long nextValue = null;
 
     String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
 
-    String lookup = schemaTable + "." + databaseMeta.quoteField( val_key );
+    String lookup = schemaTable + "." + databaseMeta.quoteField( valKey );
 
     // Try to find the previous sequence value...
     Counter counter = null;
@@ -3635,7 +3634,7 @@ public class Database implements IVariables, ILoggingObject {
 
     if ( counter == null ) {
       RowMetaAndData rmad =
-        getOneRow( "SELECT MAX(" + databaseMeta.quoteField( val_key ) + ") FROM " + schemaTable );
+        getOneRow( "SELECT MAX(" + databaseMeta.quoteField( valKey ) + ") FROM " + schemaTable );
       if ( rmad != null ) {
         long previous;
         try {
@@ -3676,8 +3675,8 @@ public class Database implements IVariables, ILoggingObject {
     }
   }
 
-  public boolean isSystemTable( String table_name ) {
-    return databaseMeta.isSystemTable( table_name );
+  public boolean isSystemTable( String tableName ) {
+    return databaseMeta.isSystemTable( tableName );
   }
 
   /**
@@ -3720,13 +3719,13 @@ public class Database implements IVariables, ILoggingObject {
    * @return An ArrayList of rows.
    * @throws HopDatabaseException if something goes wrong.
    */
-  public List<Object[]> getRows( String sql, IRowMeta params, Object[] data, int fetch_mode,
+  public List<Object[]> getRows( String sql, IRowMeta params, Object[] data, int fetchMode,
                                  boolean lazyConversion, int limit, IProgressMonitor monitor )
     throws HopDatabaseException {
     if ( monitor != null ) {
       monitor.setTaskName( "Opening query..." );
     }
-    ResultSet rset = openQuery( sql, params, data, fetch_mode, lazyConversion );
+    ResultSet rset = openQuery( sql, params, data, fetchMode, lazyConversion );
 
     return getRows( rset, limit, monitor );
   }
@@ -3778,8 +3777,8 @@ public class Database implements IVariables, ILoggingObject {
     }
   }
 
-  public List<Object[]> getFirstRows( String table_name, int limit ) throws HopDatabaseException {
-    return getFirstRows( table_name, limit, null );
+  public List<Object[]> getFirstRows( String tableName, int limit ) throws HopDatabaseException {
+    return getFirstRows( tableName, limit, null );
   }
 
   /**
@@ -3791,7 +3790,7 @@ public class Database implements IVariables, ILoggingObject {
    * @return An ArrayList of rows.
    * @throws HopDatabaseException in case something goes wrong
    */
-  public List<Object[]> getFirstRows( String table_name, int limit, IProgressMonitor monitor )
+  public List<Object[]> getFirstRows( String tableName, int limit, IProgressMonitor monitor )
     throws HopDatabaseException {
     String sql = "SELECT";
     if ( databaseMeta.getIDatabase().isNeoviewVariant() ) {
@@ -3800,7 +3799,7 @@ public class Database implements IVariables, ILoggingObject {
       // improve support for Sybase IQ
       sql += " TOP " + limit + " ";
     }
-    sql += " * FROM " + table_name;
+    sql += " * FROM " + tableName;
 
     if ( limit > 0 ) {
       sql += databaseMeta.getLimitClause( limit );
@@ -4634,19 +4633,19 @@ public class Database implements IVariables, ILoggingObject {
    * Return SQL TRUNCATE statement for a Table
    *
    * @param schema    The schema
-   * @param tablename The table to create
+   * @param tableName The table to create
    * @throws HopDatabaseException
    */
-  public String getDDLTruncateTable( String schema, String tablename ) throws HopDatabaseException {
+  public String getDDLTruncateTable( String schema, String tableName ) throws HopDatabaseException {
     if ( Utils.isEmpty( connectionGroup ) ) {
-      String truncateStatement = databaseMeta.getTruncateTableStatement( schema, tablename );
+      String truncateStatement = databaseMeta.getTruncateTableStatement( schema, tableName );
       if ( truncateStatement == null ) {
         throw new HopDatabaseException( "Truncate table not supported by "
           + databaseMeta.getIDatabase().getPluginName() );
       }
       return truncateStatement;
     } else {
-      return ( "DELETE FROM " + databaseMeta.getQuotedSchemaTableCombination( schema, tablename ) );
+      return ( "DELETE FROM " + databaseMeta.getQuotedSchemaTableCombination( schema, tableName ) );
     }
   }
 
@@ -4787,26 +4786,26 @@ public class Database implements IVariables, ILoggingObject {
   /**
    * Return primary key column names ...
    *
-   * @param tablename
+   * @param tableName
    * @throws HopDatabaseException
    */
-  public String[] getPrimaryKeyColumnNames( String tablename ) throws HopDatabaseException {
+  public String[] getPrimaryKeyColumnNames( String tableName ) throws HopDatabaseException {
     List<String> names = new ArrayList<>();
     ResultSet allkeys = null;
     try {
-      allkeys = getDatabaseMetaData().getPrimaryKeys( null, null, tablename );
+      allkeys = getDatabaseMetaData().getPrimaryKeys( null, null, tableName );
       while ( allkeys.next() ) {
         String keyname = allkeys.getString( "PK_NAME" );
-        String col_name = allkeys.getString( "COLUMN_NAME" );
-        if ( !names.contains( col_name ) ) {
-          names.add( col_name );
+        String colName = allkeys.getString( "COLUMN_NAME" );
+        if ( !names.contains( colName ) ) {
+          names.add( colName );
         }
         if ( log.isRowLevel() ) {
-          log.logRowlevel( toString(), "getting key : " + keyname + " on column " + col_name );
+          log.logRowlevel( toString(), "getting key : " + keyname + " on column " + colName );
         }
       }
     } catch ( SQLException e ) {
-      log.logError( toString(), "Error getting primary keys columns from table [" + tablename + "]" );
+      log.logError( toString(), "Error getting primary keys columns from table [" + tableName + "]" );
     } finally {
       try {
         if ( allkeys != null ) {
@@ -4814,7 +4813,7 @@ public class Database implements IVariables, ILoggingObject {
         }
       } catch ( SQLException e ) {
         throw new HopDatabaseException( "Error closing connection while searching primary keys in table ["
-          + tablename + "]", e );
+          + tableName + "]", e );
       }
     }
     return names.toArray( new String[ names.size() ] );

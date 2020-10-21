@@ -360,8 +360,8 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMe
     for ( int i = 0; i < subjectField.length; i++ ) {
       IValueMeta subj = r.searchValueMeta( subjectField[ i ] );
       if ( subj != null || aggregateType[ i ] == TYPE_GROUP_COUNT_ANY ) {
-        String value_name = aggregateField[ i ];
-        int value_type = IValueMeta.TYPE_NONE;
+        String valueName = aggregateField[ i ];
+        int valueType = IValueMeta.TYPE_NONE;
         int length = -1;
         int precision = -1;
 
@@ -372,31 +372,31 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMe
           case TYPE_GROUP_LAST_INCL_NULL:
           case TYPE_GROUP_MIN:
           case TYPE_GROUP_MAX:
-            value_type = subj.getType();
+            valueType = subj.getType();
             break;
           case TYPE_GROUP_COUNT_DISTINCT:
           case TYPE_GROUP_COUNT_ALL:
           case TYPE_GROUP_COUNT_ANY:
-            value_type = IValueMeta.TYPE_INTEGER;
+            valueType = IValueMeta.TYPE_INTEGER;
             break;
           case TYPE_GROUP_CONCAT_COMMA:
-            value_type = IValueMeta.TYPE_STRING;
+            valueType = IValueMeta.TYPE_STRING;
             break;
           case TYPE_GROUP_SUM:
           case TYPE_GROUP_AVERAGE:
             if ( !compatibilityMode && subj.isNumeric() ) {
-              value_type = subj.getType();
+              valueType = subj.getType();
             } else {
-              value_type = IValueMeta.TYPE_NUMBER;
+              valueType = IValueMeta.TYPE_NUMBER;
             }
             break;
           case TYPE_GROUP_MEDIAN:
           case TYPE_GROUP_PERCENTILE:
           case TYPE_GROUP_STANDARD_DEVIATION:
-            value_type = IValueMeta.TYPE_NUMBER;
+            valueType = IValueMeta.TYPE_NUMBER;
             break;
           case TYPE_GROUP_CONCAT_STRING:
-            value_type = IValueMeta.TYPE_STRING;
+            valueType = IValueMeta.TYPE_STRING;
             break;
           default:
             break;
@@ -407,23 +407,23 @@ public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMe
           length = IValueMeta.DEFAULT_INTEGER_LENGTH;
           precision = 0;
         } else if ( aggregateType[ i ] == TYPE_GROUP_SUM
-          && value_type != IValueMeta.TYPE_INTEGER && value_type != IValueMeta.TYPE_NUMBER
-          && value_type != IValueMeta.TYPE_BIGNUMBER ) {
+          && valueType != IValueMeta.TYPE_INTEGER && valueType != IValueMeta.TYPE_NUMBER
+          && valueType != IValueMeta.TYPE_BIGNUMBER ) {
           // If it ain't numeric, we change it to Number
           //
-          value_type = IValueMeta.TYPE_NUMBER;
+          valueType = IValueMeta.TYPE_NUMBER;
           precision = -1;
           length = -1;
         }
 
-        if ( value_type != IValueMeta.TYPE_NONE ) {
+        if ( valueType != IValueMeta.TYPE_NONE ) {
           IValueMeta v;
           try {
-            v = ValueMetaFactory.createValueMeta( value_name, value_type );
+            v = ValueMetaFactory.createValueMeta( valueName, valueType );
           } catch ( HopPluginException e ) {
             log.logError(
-              BaseMessages.getString( PKG, "MemoryGroupByMeta.Exception.UnknownValueMetaType" ), value_type, e );
-            v = new ValueMetaNone( value_name );
+              BaseMessages.getString( PKG, "MemoryGroupByMeta.Exception.UnknownValueMetaType" ), valueType, e );
+            v = new ValueMetaNone( valueName );
           }
           v.setOrigin( origin );
           v.setLength( length, precision );

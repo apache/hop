@@ -272,7 +272,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
 
   @Override
   public Object convertDataFromString( String pol, IValueMeta convertMeta, String nullIf, String ifNull,
-                                       int trim_type ) throws HopValueException {
+                                       int trimType ) throws HopValueException {
     // null handling and conversion of value to null
     //
     String nullValue = nullIf;
@@ -347,7 +347,7 @@ public class ValueMetaTimestamp extends ValueMetaDate {
 
     // Trimming
     StringBuilder strpol;
-    switch ( trim_type ) {
+    switch ( trimType ) {
       case IValueMeta.TRIM_TYPE_LEFT:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( 0 ) == ' ' ) {

@@ -486,9 +486,9 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
     action.setargFromPrevious( wPrevious.getSelection() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -497,7 +497,7 @@ public class ActionCheckFilesLockedDialog extends ActionDialog implements IActio
     action.arguments = new String[ nr ];
     action.filemasks = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( arg != null && arg.length() != 0 ) {

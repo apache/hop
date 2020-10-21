@@ -62,12 +62,12 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/createfolder.html"
 )
 public class ActionCreateFolder extends ActionBase implements Cloneable, IAction {
-  private String foldername;
+  private String folderName;
   private boolean failOfFolderExists;
 
   public ActionCreateFolder( String n ) {
     super( n, "" );
-    foldername = null;
+    folderName = null;
     failOfFolderExists = true;
   }
 
@@ -84,7 +84,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
     StringBuilder retval = new StringBuilder( 50 );
 
     retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "foldername", foldername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "foldername", folderName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "fail_of_folder_exists", failOfFolderExists ) );
 
     return retval.toString();
@@ -94,19 +94,19 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
                        IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
-      foldername = XmlHandler.getTagValue( entrynode, "foldername" );
+      folderName = XmlHandler.getTagValue( entrynode, "foldername" );
       failOfFolderExists = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "fail_of_folder_exists" ) );
     } catch ( HopXmlException xe ) {
       throw new HopXmlException( "Unable to load action of type 'create folder' from XML node", xe );
     }
   }
 
-  public void setFoldername( String foldername ) {
-    this.foldername = foldername;
+  public void setFoldername( String folderName ) {
+    this.folderName = folderName;
   }
 
   public String getFoldername() {
-    return foldername;
+    return folderName;
   }
 
   public String getRealFoldername() {
@@ -117,7 +117,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
     Result result = previousResult;
     result.setResult( false );
 
-    if ( foldername != null ) {
+    if ( folderName != null ) {
       String realFoldername = getRealFoldername();
       FileObject folderObject = null;
       try {

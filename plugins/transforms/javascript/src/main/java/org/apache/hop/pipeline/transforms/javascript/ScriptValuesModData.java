@@ -39,7 +39,7 @@ public class ScriptValuesModData extends BaseTransformData implements ITransform
   public Scriptable scope;
   public Script script;
 
-  public int[] fields_used;
+  public int[] fieldsUsed;
 //  public Value[] values_used;
 
   public IRowMeta outputRowMeta;
@@ -48,7 +48,7 @@ public class ScriptValuesModData extends BaseTransformData implements ITransform
   public ScriptValuesModData() {
     super();
     cx = null;
-    fields_used = null;
+    fieldsUsed = null;
   }
 
   public void check( int i ) {

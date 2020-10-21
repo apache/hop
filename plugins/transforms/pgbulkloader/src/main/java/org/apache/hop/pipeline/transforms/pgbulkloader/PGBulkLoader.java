@@ -157,7 +157,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     }
   }
 
-  private void do_copy( PGBulkLoaderMeta meta, boolean wait ) throws HopException {
+  private void doCopy( PGBulkLoaderMeta meta, boolean wait ) throws HopException {
     data.db = getDatabase( this, meta );
     String copyCmd = getCopyCommand();
     try {
@@ -248,7 +248,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
         // execute the copy statement... pgCopyOut is setup there
         //
-        do_copy( meta, true );
+        doCopy( meta, true );
 
 
         // Write rows of data hereafter...

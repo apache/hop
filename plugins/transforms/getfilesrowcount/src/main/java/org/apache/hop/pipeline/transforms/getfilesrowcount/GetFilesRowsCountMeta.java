@@ -103,7 +103,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
   /**
    * The row separator type
    */
-  private String RowSeparator_format;
+  private String RowSeparatorFormat;
 
   /**
    * The row separator
@@ -156,7 +156,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
    * @return Returns the row separator format.
    */
   public String getRowSeparatorFormat() {
-    return RowSeparator_format;
+    return RowSeparatorFormat;
   }
 
   /**
@@ -250,8 +250,8 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
   /**
    * @param RowSeparator_formatin The RowSeparator_format to set.
    */
-  public void setRowSeparatorFormat( String RowSeparator_formatin ) {
-    this.RowSeparator_format = RowSeparator_formatin;
+  public void setRowSeparatorFormat( String RowSeparatorFormatin ) {
+    this.RowSeparatorFormat = RowSeparatorFormatin;
   }
 
   /**
@@ -391,7 +391,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
     retval.append( "    " ).append( XmlHandler.addTagValue( "files_count", includeFilesCount ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "files_count_fieldname", filesCountFieldName ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "rows_count_fieldname", rowsCountFieldName ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "rowseparator_format", RowSeparator_format ) );
+    retval.append( "    " ).append( XmlHandler.addTagValue( "rowseparator_format", RowSeparatorFormat ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "row_separator", RowSeparator ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "isaddresult", isaddresult ) );
     retval.append( "    " ).append( XmlHandler.addTagValue( "filefield", filefield ) );
@@ -436,7 +436,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
       filesCountFieldName = XmlHandler.getTagValue( transformNode, "files_count_fieldname" );
       rowsCountFieldName = XmlHandler.getTagValue( transformNode, "rows_count_fieldname" );
 
-      RowSeparator_format = scrubOldRowSeparator( XmlHandler.getTagValue( transformNode, "rowseparator_format" ) );
+      RowSeparatorFormat = scrubOldRowSeparator( XmlHandler.getTagValue( transformNode, "rowseparator_format" ) );
       RowSeparator = XmlHandler.getTagValue( transformNode, "row_separator" );
 
       smartCount = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "smartCount" ) );
@@ -489,7 +489,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
     includeFilesCount = false;
     filesCountFieldName = "";
     rowsCountFieldName = "rowscount";
-    RowSeparator_format = "CR";
+    RowSeparatorFormat = "CR";
     RowSeparator = "";
     int nrFiles = 0;
 
@@ -568,7 +568,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
       remarks.add( cr );
     }
 
-    if ( ( RowSeparator_format.equals( "CUSTOM" ) ) && ( RowSeparator == null ) ) {
+    if ( ( RowSeparatorFormat.equals( "CUSTOM" ) ) && ( RowSeparator == null ) ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
           PKG, "GetFilesRowsCountMeta.CheckResult.NoSeparator" ), transformMeta );

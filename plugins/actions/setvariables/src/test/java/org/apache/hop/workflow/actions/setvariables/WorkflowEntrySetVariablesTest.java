@@ -217,19 +217,19 @@ public class WorkflowEntrySetVariablesTest {
   }
 
   //prepare xml for use
-  public Node getEntryNode( String variable_name, String variable_value, String variable_type )
+  public Node getEntryNode( String variableName, String variableValue, String variableType )
     throws ParserConfigurationException, SAXException, IOException {
     StringBuilder sb = new StringBuilder();
     sb.append( XmlHandler.openTag( "workflow" ) );
     sb.append( "      " ).append( XmlHandler.openTag( "fields" ) );
     sb.append( "      " ).append( XmlHandler.openTag( "field" ) );
-    sb.append( "      " ).append( XmlHandler.addTagValue( "variable_name", variable_name ) );
-    if ( variable_value != null ) {
-      sb.append( "      " ).append( XmlHandler.addTagValue( "variable_value", variable_value ) );
+    sb.append( "      " ).append( XmlHandler.addTagValue( "variable_name", variableName ) );
+    if ( variableValue != null ) {
+      sb.append( "      " ).append( XmlHandler.addTagValue( "variable_value", variableValue ) );
     }
-    if ( variable_type != null ) {
+    if ( variableType != null ) {
       sb.append( "          " ).append(
-        XmlHandler.addTagValue( "variable_type", variable_type ) );
+        XmlHandler.addTagValue( "variable_type", variableType ) );
     }
     sb.append( "      " ).append( XmlHandler.closeTag( "field" ) );
     sb.append( "      " ).append( XmlHandler.closeTag( "fields" ) );

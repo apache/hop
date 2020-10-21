@@ -48,10 +48,10 @@ public final class WsdlTypes implements Serializable {
 
   private static final long serialVersionUID = 1L;
   private final String _targetNamespace;
-  private final Types _types;
+  private final Types Types;
   private HashSet<String> _elementFormQualifiedNamespaces;
   private Map<String, String> _prefixMappings;
-  private WsdlComplexTypes _namedComplexTypes;
+  private WsdlComplexTypes NamedComplexTypes;
 
   /**
    * Create a new for WsdlTypes instance for the specified WSDL definition.
@@ -61,11 +61,11 @@ public final class WsdlTypes implements Serializable {
   @SuppressWarnings( "unchecked" )
   protected WsdlTypes( Definition wsdlDefinition ) {
 
-    _types = wsdlDefinition.getTypes();
+    Types = wsdlDefinition.getTypes();
     _targetNamespace = wsdlDefinition.getTargetNamespace();
     _prefixMappings = wsdlDefinition.getNamespaces();
     _elementFormQualifiedNamespaces = new HashSet<String>( getElementFormQualifiedNamespaces() );
-    _namedComplexTypes = new WsdlComplexTypes( this );
+    NamedComplexTypes = new WsdlComplexTypes( this );
   }
 
   /**
@@ -139,7 +139,7 @@ public final class WsdlTypes implements Serializable {
    * @return Wsdl's named complex types.
    */
   protected WsdlComplexTypes getNamedComplexTypes() {
-    return _namedComplexTypes;
+    return NamedComplexTypes;
   }
 
   /**
@@ -175,10 +175,10 @@ public final class WsdlTypes implements Serializable {
    * @return A list of javax.wsdl.extension.schema.Schema elements.
    */
   protected List<ExtensibilityElement> getSchemas() {
-    if ( _types == null ) {
+    if ( Types == null ) {
       return Collections.emptyList();
     }
-    return WsdlUtils.findExtensibilityElements( (ElementExtensible) _types, WsdlUtils.SCHEMA_ELEMENT_NAME );
+    return WsdlUtils.findExtensibilityElements( (ElementExtensible) Types, WsdlUtils.SCHEMA_ELEMENT_NAME );
   }
 
   /**
@@ -222,11 +222,11 @@ public final class WsdlTypes implements Serializable {
    */
   private Schema getSchema( String targetNamespace ) {
 
-    if ( _types == null ) {
+    if ( Types == null ) {
       return null;
     }
 
-    List<ExtensibilityElement> schemas = WsdlUtils.findExtensibilityElements( (ElementExtensible) _types, "schema" );
+    List<ExtensibilityElement> schemas = WsdlUtils.findExtensibilityElements( (ElementExtensible) Types, "schema" );
 
     for ( ExtensibilityElement e : schemas ) {
       Element schemaRoot = ( (Schema) e ).getElement();

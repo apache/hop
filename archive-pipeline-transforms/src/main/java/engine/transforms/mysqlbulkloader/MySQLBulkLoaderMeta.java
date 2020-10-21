@@ -359,7 +359,7 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
                      String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -374,8 +374,8 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
           remarks.add( cr );
 
           boolean first = true;
-          boolean error_found = false;
-          error_message = "";
+          boolean errorFound = false;
+          errorMessage = "";
 
           // Check fields in table
           String schemaTable =
@@ -390,8 +390,8 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
 
             // How about the fields to insert/dateMask in the table?
             first = true;
-            error_found = false;
-            error_message = "";
+            errorFound = false;
+            errorMessage = "";
 
             for ( int i = 0; i < fieldTable.length; i++ ) {
               String field = fieldTable[ i ];
@@ -400,16 +400,16 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.MissingFieldsToLoadInTargetTable" )
                       + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + field + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + field + Const.CR;
               }
             }
-            if ( error_found ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            if ( errorFound ) {
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             } else {
               cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
@@ -417,8 +417,8 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
             }
             remarks.add( cr );
           } else {
-            error_message = BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            errorMessage = BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.CouldNotReadTableInfo" );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           }
         }
@@ -431,23 +431,23 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
           remarks.add( cr );
 
           boolean first = true;
-          error_message = "";
-          boolean error_found = false;
+          errorMessage = "";
+          boolean errorFound = false;
 
           for ( int i = 0; i < fieldStream.length; i++ ) {
             IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.MissingFieldsInInput" ) + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + fieldStream[ i ] + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + fieldStream[ i ] + Const.CR;
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          if ( errorFound ) {
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           } else {
             cr =
               new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
@@ -455,22 +455,22 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
           }
           remarks.add( cr );
         } else {
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.MissingFieldsInInput3" ) + Const.CR;
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.DatabaseErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "MySQLBulkLoaderMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 
@@ -518,9 +518,9 @@ public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform
             String schemaTable =
               databaseMeta.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
                 .environmentSubstitute( tableName ) );
-            String cr_table = db.getDDL( schemaTable, tableFields, null, false, null, true );
+            String crTable = db.getDDL( schemaTable, tableFields, null, false, null, true );
 
-            String sql = cr_table;
+            String sql = crTable;
             if ( sql.length() == 0 ) {
               retval.setSql( null );
             } else {

@@ -82,7 +82,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
 
   private DatabaseMeta connection;
 
-  public String tablename;
+  public String tableName;
 
   public String schemaname;
 
@@ -127,7 +127,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     isAddRowsResult = false;
     customSql = null;
     schemaname = null;
-    tablename = null;
+    tableName = null;
     connection = null;
     maximumTimeout = DEFAULT_MAXIMUM_TIMEOUT;
     checkCycleTime = DEFAULT_CHECK_CYCLE_TIME;
@@ -171,7 +171,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     retval.append( "      " ).append(
       XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
     retval.append( "      " ).append(
       XmlHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "rows_count_value", rowsCountValue ) );
@@ -250,7 +250,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
       successCondition =
         getSucessConditionByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), "" ) );
       rowsCountValue = Const.NVL( XmlHandler.getTagValue( entrynode, "rows_count_value" ), "0" );
@@ -321,7 +321,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     result.setResult( false );
     result.setNrErrors( 1 );
     String realCustomSql = null;
-    String realTablename = environmentSubstitute( tablename );
+    String realTablename = environmentSubstitute( tableName );
     String realSchemaname = environmentSubstitute( schemaname );
 
     if ( connection == null ) {

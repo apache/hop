@@ -51,8 +51,8 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
     }
   }
 
-  private QName _name;
-  private ParameterMode _mode;
+  private QName Name;
+  private ParameterMode Mode;
   private boolean _isHeader;
   private boolean _elementFormQualified;
 
@@ -68,11 +68,11 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
   WsdlOpParameter( String name, QName xmlType, Element schemaTypeElement, WsdlTypes wsdlTypes ) {
 
     setName( name, wsdlTypes );
-    _xmlType = xmlType;
-    _itemXmlType = getArrayItemType( schemaTypeElement, wsdlTypes );
-    _isArray = _itemXmlType != null;
+    this.xmlType = xmlType;
+    itemXmlType = getArrayItemType( schemaTypeElement, wsdlTypes );
+    isArray = itemXmlType != null;
     _isHeader = false;
-    _mode = ParameterMode.UNDEFINED;
+    Mode = ParameterMode.UNDEFINED;
   }
 
   /**
@@ -97,30 +97,30 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    */
   WsdlOpParameter( Element e, WsdlTypes wsdlTypes ) {
 
-    _mode = ParameterMode.UNDEFINED;
-    _isArray = isArray( e );
+    Mode = ParameterMode.UNDEFINED;
+    isArray = isArray( e );
     _isHeader = false;
 
     if ( e.hasAttribute( WsdlUtils.NAME_ATTR ) && e.hasAttribute( WsdlUtils.ELEMENT_TYPE_ATTR ) ) {
       setName( e.getAttribute( WsdlUtils.NAME_ATTR ), wsdlTypes );
-      _xmlType = wsdlTypes.getTypeQName( e.getAttribute( WsdlUtils.ELEMENT_TYPE_ATTR ) );
+      xmlType = wsdlTypes.getTypeQName( e.getAttribute( WsdlUtils.ELEMENT_TYPE_ATTR ) );
     } else if ( e.hasAttribute( WsdlUtils.ELEMENT_REF_ATTR ) ) {
-      _xmlType = wsdlTypes.getTypeQName( e.getAttribute( WsdlUtils.ELEMENT_REF_ATTR ) );
-      _name = new QName( "", _xmlType.getLocalPart() );
+      xmlType = wsdlTypes.getTypeQName( e.getAttribute( WsdlUtils.ELEMENT_REF_ATTR ) );
+      Name = new QName( "", xmlType.getLocalPart() );
     } else if ( e.hasAttribute( WsdlUtils.NAME_ATTR ) ) {
       setName( e.getAttribute( WsdlUtils.NAME_ATTR ), wsdlTypes );
-      _xmlType = getElementType( e, wsdlTypes );
+      xmlType = getElementType( e, wsdlTypes );
     } else {
       throw new RuntimeException( "invalid element: " + e.getNodeName() );
     }
 
     // check to see if the xml type of this element is an array type
-    Element t = wsdlTypes.findNamedType( _xmlType );
+    Element t = wsdlTypes.findNamedType( xmlType );
     if ( t != null && WsdlUtils.COMPLEX_TYPE_NAME.equals( t.getLocalName() ) ) {
-      _itemXmlType = getArrayItemType( t, wsdlTypes );
-      _isArray = _itemXmlType != null;
-      if ( _itemXmlType != null ) {
-        _itemComplexType = wsdlTypes.getNamedComplexTypes().getComplexType( _itemXmlType.getLocalPart() );
+      itemXmlType = getArrayItemType( t, wsdlTypes );
+      isArray = itemXmlType != null;
+      if ( itemXmlType != null ) {
+        itemComplexType = wsdlTypes.getNamedComplexTypes().getComplexType( itemXmlType.getLocalPart() );
       }
     }
   }
@@ -131,7 +131,7 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    * @return QName.
    */
   public QName getName() {
-    return _name;
+    return Name;
   }
 
   /**
@@ -140,7 +140,7 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    * @return ParameterMode
    */
   public ParameterMode getMode() {
-    return _mode;
+    return Mode;
   }
 
   /**
@@ -174,7 +174,7 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    * @param mode the mode to set.
    */
   protected void setMode( ParameterMode mode ) {
-    _mode = mode;
+    Mode = mode;
   }
 
   /**
@@ -184,8 +184,8 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    * @param wsdlTypes Wsdl types abstraction.
    */
   protected void setName( String name, WsdlTypes wsdlTypes ) {
-    _name = wsdlTypes.getTypeQName( name );
-    _elementFormQualified = wsdlTypes.isElementFormQualified( _name.getNamespaceURI() );
+    Name = wsdlTypes.getTypeQName( name );
+    _elementFormQualified = wsdlTypes.isElementFormQualified( Name.getNamespaceURI() );
   }
 
   /**
@@ -340,13 +340,13 @@ public final class WsdlOpParameter extends WsdlOpReturnType implements java.io.S
    */
   public boolean equals( Object o ) {
     if ( o instanceof WsdlOpParameter ) {
-      return _name.equals( ( (WsdlOpParameter) o ).getName() );
+      return Name.equals( ( (WsdlOpParameter) o ).getName() );
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode( _name );
+    return Objects.hashCode( Name );
   }
 }

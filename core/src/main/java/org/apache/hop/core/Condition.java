@@ -22,13 +22,6 @@
 
 package org.apache.hop.core;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -38,6 +31,14 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * This class describes a condition in a general meaning.
@@ -103,17 +104,17 @@ public class Condition implements Cloneable, IXml {
 
   private boolean negate;
   private int operator;
-  private String left_valuename;
+  private String leftValuename;
   private int function;
-  private String right_valuename;
-  private ValueMetaAndData right_exact;
+  private String rightValuename;
+  private ValueMetaAndData rightExact;
 
-  private int left_fieldnr;
-  private int right_fieldnr;
+  private int leftFieldnr;
+  private int rightFieldnr;
 
   private List<Condition> list;
 
-  private String right_string;
+  private String rightString;
 
   /**
    * Temporary variable, no need to persist this one. Contains the sorted array of strings in an IN LIST condition
@@ -125,16 +126,16 @@ public class Condition implements Cloneable, IXml {
     this.operator = OPERATOR_NONE;
     this.negate = false;
 
-    left_fieldnr = -2;
-    right_fieldnr = -2;
+    leftFieldnr = -2;
+    rightFieldnr = -2;
   }
 
   public Condition( String valuename, int function, String valuename2, ValueMetaAndData exact ) {
     this();
-    this.left_valuename = valuename;
+    this.leftValuename = valuename;
     this.function = function;
-    this.right_valuename = valuename2;
-    this.right_exact = exact;
+    this.rightValuename = valuename2;
+    this.rightExact = exact;
 
     clearFieldPositions();
   }
@@ -142,10 +143,10 @@ public class Condition implements Cloneable, IXml {
   public Condition( int operator, String valuename, int function, String valuename2, ValueMetaAndData exact ) {
     this();
     this.operator = operator;
-    this.left_valuename = valuename;
+    this.leftValuename = valuename;
     this.function = function;
-    this.right_valuename = valuename2;
-    this.right_exact = exact;
+    this.rightValuename = valuename2;
+    this.rightExact = exact;
 
     clearFieldPositions();
   }
@@ -171,14 +172,14 @@ public class Condition implements Cloneable, IXml {
       }
     } else {
       retval.negate = negate;
-      retval.left_valuename = left_valuename;
+      retval.leftValuename = leftValuename;
       retval.operator = operator;
-      retval.right_valuename = right_valuename;
+      retval.rightValuename = rightValuename;
       retval.function = function;
-      if ( right_exact != null ) {
-        retval.right_exact = (ValueMetaAndData) right_exact.clone();
+      if ( rightExact != null ) {
+        retval.rightExact = (ValueMetaAndData) rightExact.clone();
       } else {
-        retval.right_exact = null;
+        retval.rightExact = null;
       }
     }
 
@@ -222,12 +223,12 @@ public class Condition implements Cloneable, IXml {
     return new String[] { "OR", "AND", "OR NOT", "AND NOT", "XOR" };
   }
 
-  public void setLeftValuename( String left_valuename ) {
-    this.left_valuename = left_valuename;
+  public void setLeftValuename( String leftValuename ) {
+    this.leftValuename = leftValuename;
   }
 
   public String getLeftValuename() {
-    return left_valuename;
+    return leftValuename;
   }
 
   public int getFunction() {
@@ -251,27 +252,27 @@ public class Condition implements Cloneable, IXml {
     return FUNC_EQUAL;
   }
 
-  public void setRightValuename( String right_valuename ) {
-    this.right_valuename = right_valuename;
+  public void setRightValuename( String rightValuename ) {
+    this.rightValuename = rightValuename;
   }
 
   public String getRightValuename() {
-    return right_valuename;
+    return rightValuename;
   }
 
-  public void setRightExact( ValueMetaAndData right_exact ) {
-    this.right_exact = right_exact;
+  public void setRightExact( ValueMetaAndData rightExact ) {
+    this.rightExact = rightExact;
   }
 
   public ValueMetaAndData getRightExact() {
-    return right_exact;
+    return rightExact;
   }
 
   public String getRightExactString() {
-    if ( right_exact == null ) {
+    if ( rightExact == null ) {
       return null;
     }
-    return right_exact.toString();
+    return rightExact.toString();
   }
 
   public boolean isAtomic() {
@@ -298,7 +299,7 @@ public class Condition implements Cloneable, IXml {
    * A condition is empty when the condition is atomic and no left field is specified.
    */
   public boolean isEmpty() {
-    return ( isAtomic() && left_valuename == null );
+    return ( isAtomic() && leftValuename == null );
   }
 
   /**
@@ -306,8 +307,8 @@ public class Condition implements Cloneable, IXml {
    * field positions...
    */
   public void clearFieldPositions() {
-    left_fieldnr = -2;
-    right_fieldnr = -2;
+    leftFieldnr = -2;
+    rightFieldnr = -2;
   }
 
   /**
@@ -334,22 +335,22 @@ public class Condition implements Cloneable, IXml {
         // Get fieldnrs left value
         //
         // Check out the fieldnrs if we don't have them...
-        if ( left_valuename != null && left_valuename.length() > 0 ) {
-          left_fieldnr = rowMeta.indexOfValue( left_valuename );
+        if ( leftValuename != null && leftValuename.length() > 0 ) {
+          leftFieldnr = rowMeta.indexOfValue( leftValuename );
         }
 
         // Get fieldnrs right value
         //
-        if ( right_valuename != null && right_valuename.length() > 0 ) {
-          right_fieldnr = rowMeta.indexOfValue( right_valuename );
+        if ( rightValuename != null && rightValuename.length() > 0 ) {
+          rightFieldnr = rowMeta.indexOfValue( rightValuename );
         }
 
         // Get fieldnrs left field
         IValueMeta fieldMeta = null;
         Object field = null;
-        if ( left_fieldnr >= 0 ) {
-          fieldMeta = rowMeta.getValueMeta( left_fieldnr );
-          field = r[ left_fieldnr ];
+        if ( leftFieldnr >= 0 ) {
+          fieldMeta = rowMeta.getValueMeta( leftFieldnr );
+          field = r[ leftFieldnr ];
           // JIRA PDI-38
           // if (field==null)
           // {
@@ -361,11 +362,11 @@ public class Condition implements Cloneable, IXml {
         }
 
         // Get fieldnrs right exact
-        IValueMeta fieldMeta2 = right_exact != null ? right_exact.getValueMeta() : null;
-        Object field2 = right_exact != null ? right_exact.getValueData() : null;
-        if ( field2 == null && right_fieldnr >= 0 ) {
-          fieldMeta2 = rowMeta.getValueMeta( right_fieldnr );
-          field2 = r[ right_fieldnr ];
+        IValueMeta fieldMeta2 = rightExact != null ? rightExact.getValueMeta() : null;
+        Object field2 = rightExact != null ? rightExact.getValueData() : null;
+        if ( field2 == null && rightFieldnr >= 0 ) {
+          fieldMeta2 = rowMeta.getValueMeta( rightFieldnr );
+          field2 = r[ rightFieldnr ];
           // JIRA PDI-38
           // if (field2==null)
           // {
@@ -435,7 +436,7 @@ public class Condition implements Cloneable, IXml {
           case FUNC_IN_LIST:
             // performance reason: create the array first or again when it is against a field and not a constant
             //
-            if ( inList == null || right_fieldnr >= 0 ) {
+            if ( inList == null || rightFieldnr >= 0 ) {
               inList = Const.splitString( fieldMeta2.getString( field2 ), ';', true );
               for ( int i = 0; i < inList.length; i++ ) {
                 inList[ i ] = inList[ i ] == null ? null : inList[ i ].replace( "\\", "" );
@@ -462,10 +463,10 @@ public class Condition implements Cloneable, IXml {
           case FUNC_ENDS_WITH:
             String string = fieldMeta.getCompatibleString( field );
             if ( !Utils.isEmpty( string ) ) {
-              if ( right_string == null && field2 != null ) {
-                right_string = fieldMeta2.getCompatibleString( field2 );
+              if ( rightString == null && field2 != null ) {
+                rightString = fieldMeta2.getCompatibleString( field2 );
               }
-              if ( right_string != null ) {
+              if ( rightString != null ) {
                 retval = string.endsWith( fieldMeta2.getCompatibleString( field2 ) );
               } else {
                 retval = false;
@@ -663,7 +664,7 @@ public class Condition implements Cloneable, IXml {
     return toString( 0, true, true );
   }
 
-  public String toString( int level, boolean show_negate, boolean show_operator ) {
+  public String toString( int level, boolean showNegate, boolean showOperator ) {
     StringBuilder retval = new StringBuilder();
 
     if ( isAtomic() ) {
@@ -671,7 +672,7 @@ public class Condition implements Cloneable, IXml {
         retval.append("  ");
       }
 
-      if ( show_operator && getOperator() != OPERATOR_NONE ) {
+      if ( showOperator && getOperator() != OPERATOR_NONE ) {
         retval.append(getOperatorDesc());
         retval.append(" ");
       } else {
@@ -679,7 +680,7 @@ public class Condition implements Cloneable, IXml {
       }
 
       // Atomic is negated?
-      if ( isNegated() && ( show_negate || level > 0 ) ) {
+      if ( isNegated() && ( showNegate || level > 0 ) ) {
         retval.append("NOT ( ");
       } else {
         retval.append("      ");
@@ -688,18 +689,18 @@ public class Condition implements Cloneable, IXml {
       if ( function == FUNC_TRUE ) {
         retval.append(" TRUE");
       } else {
-        retval.append(left_valuename + " " + getFunctionDesc());
+        retval.append(leftValuename + " " + getFunctionDesc());
         if ( function != FUNC_NULL && function != FUNC_NOT_NULL ) {
-          if ( right_valuename != null ) {
+          if ( rightValuename != null ) {
             retval.append(" ");
-            retval.append(right_valuename);
+            retval.append(rightValuename);
           } else {
             retval.append(" [" + ( getRightExactString() == null ? "" : getRightExactString() ) + "]");
           }
         }
       }
 
-      if ( isNegated() && ( show_negate || level > 0 ) ) {
+      if ( isNegated() && ( showNegate || level > 0 ) ) {
         retval.append(" )");
       }
 
@@ -708,7 +709,7 @@ public class Condition implements Cloneable, IXml {
       // retval+="<COMP "+level+", "+show_negate+", "+show_operator+">";
 
       // Group is negated?
-      if ( isNegated() && ( show_negate || level > 0 ) ) {
+      if ( isNegated() && ( showNegate || level > 0 ) ) {
         for ( int i = 0; i < level; i++ ) {
           retval.append("  ");
         }
@@ -716,7 +717,7 @@ public class Condition implements Cloneable, IXml {
         retval.append(Const.CR);
       }
       // Group is preceded by an operator:
-      if ( getOperator() != OPERATOR_NONE && ( show_operator || level > 0 ) ) {
+      if ( getOperator() != OPERATOR_NONE && ( showOperator || level > 0 ) ) {
         for ( int i = 0; i < level; i++ ) {
           retval.append("  ");
         }
@@ -796,11 +797,11 @@ public class Condition implements Cloneable, IXml {
 
     list = new ArrayList<Condition>();
     try {
-      String str_negated = XmlHandler.getTagValue( condnode, "negated" );
-      setNegated( "Y".equalsIgnoreCase( str_negated ) );
+      String strNegated = XmlHandler.getTagValue( condnode, "negated" );
+      setNegated( "Y".equalsIgnoreCase( strNegated ) );
 
-      String str_operator = XmlHandler.getTagValue( condnode, "operator" );
-      setOperator( getOperator( str_operator ) );
+      String strOperator = XmlHandler.getTagValue( condnode, "operator" );
+      setOperator( getOperator( strOperator ) );
 
       Node conditions = XmlHandler.getSubNode( condnode, "conditions" );
       int nrconditions = XmlHandler.countNodes( conditions, "condition" );

@@ -436,21 +436,21 @@ public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNu
           PKG, "IfNullMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fields.length; i++ ) {
         int idx = prev.indexOfValue( fields[ i ].getFieldName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fields[ i ].getFieldName() + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + fields[ i ].getFieldName() + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message = BaseMessages.getString( PKG, "IfNullMeta.CheckResult.FieldsFound", error_message );
+      if ( errorFound ) {
+        errorMessage = BaseMessages.getString( PKG, "IfNullMeta.CheckResult.FieldsFound", errorMessage );
 
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         if ( fields.length > 0 ) {

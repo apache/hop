@@ -413,7 +413,7 @@ public class BeamPipelineMetaUtil {
     mergeJoin.allocate( 1, 1 );
     mergeJoin.getKeyFields1()[0] = "state";
     mergeJoin.getKeyFields2()[0] = "state";
-    mergeJoin.setJoinType(MergeJoinMeta.join_types[3] ); // FULL OUTER
+    mergeJoin.setJoinType(MergeJoinMeta.joinTypes[3] ); // FULL OUTER
     mergeJoin.getTransformIOMeta().getInfoStreams().get(0).setTransformMeta( leftInputTransformMeta );
     mergeJoin.getTransformIOMeta().getInfoStreams().get(1).setTransformMeta( rightInputTransformMeta );
     TransformMeta mergeJoinTransformMeta = new TransformMeta("Merge Join", mergeJoin);

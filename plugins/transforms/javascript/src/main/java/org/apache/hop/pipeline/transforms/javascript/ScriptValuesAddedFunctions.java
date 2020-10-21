@@ -1772,11 +1772,11 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   }
 
   // Evaluates the given ScriptFile
-  private static void checkAndLoadJSFile( Context actualContext, Scriptable eval_scope, String fileName ) {
+  private static void checkAndLoadJSFile( Context actualContext, Scriptable evalScope, String fileName ) {
     Reader inStream = null;
     try {
       inStream = new InputStreamReader( HopVfs.getInputStream( fileName ) );
-      actualContext.evaluateReader( eval_scope, inStream, fileName, 1, null );
+      actualContext.evaluateReader( evalScope, inStream, fileName, 1, null );
     } catch ( FileNotFoundException Signal ) {
       Context.reportError( "Unable to open file \"" + fileName + "\" (reason: \"" + Signal.getMessage() + "\")" );
     } catch ( WrappedException Signal ) {
@@ -2377,15 +2377,15 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         try {
           // Source file
           file = HopVfs.getFileObject( Context.toString( ArgList[ 0 ] ) );
-          String foldername = null;
+          String folderName = null;
           if ( file.exists() ) {
-            foldername = HopVfs.getFilename( file.getParent() );
+            folderName = HopVfs.getFilename( file.getParent() );
 
           } else {
             Context.reportRuntimeError( "file [" + Context.toString( ArgList[ 0 ] ) + "] can not be found!" );
           }
 
-          return foldername;
+          return folderName;
         } catch ( IOException e ) {
           throw Context.reportRuntimeError( "The function call getParentFoldername throw an error : "
             + e.toString() );

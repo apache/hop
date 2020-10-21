@@ -35,7 +35,7 @@ import java.util.List;
 public final class WsdlComplexTypes implements java.io.Serializable {
 
   private static final long serialVersionUID = 1L;
-  private HashMap<String, ComplexType> _complexTypes = new HashMap<String, ComplexType>();
+  private HashMap<String, ComplexType> complexTypes = new HashMap<String, ComplexType>();
 
   /**
    * Create a new instance, parse the WSDL file for named complex types.
@@ -51,7 +51,7 @@ public final class WsdlComplexTypes implements java.io.Serializable {
       List<Element> types = DomUtils.getChildElementsByName( schemaRoot, WsdlUtils.COMPLEX_TYPE_NAME );
       for ( Element t : types ) {
         String schemaTypeName = t.getAttribute( WsdlUtils.NAME_ATTR );
-        _complexTypes.put( schemaTypeName, new ComplexType( t, wsdlTypes ) );
+        complexTypes.put( schemaTypeName, new ComplexType( t, wsdlTypes ) );
       }
     }
   }
@@ -63,6 +63,6 @@ public final class WsdlComplexTypes implements java.io.Serializable {
    * @return ComplexType instance, null if complex type was not defined in the wsdl file.
    */
   public ComplexType getComplexType( String complexTypeName ) {
-    return _complexTypes.get( complexTypeName );
+    return complexTypes.get( complexTypeName );
   }
 }

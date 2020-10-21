@@ -273,11 +273,11 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
   private void putRowOut( Object[] r ) throws HopTransformException, HopValueException {
 
     data.rowNumber++;
-    if ( data.pos_xml_filename != -1 ) {
-      r[data.pos_xml_filename] = new String( data.filenames[( data.filenr - 1 )] );
+    if ( data.pos_xmlFilename != -1 ) {
+      r[data.pos_xmlFilename] = new String( data.filenames[( data.filenr - 1 )] );
     }
-    if ( data.pos_xml_row_number != -1 ) {
-      r[data.pos_xml_row_number] = new Long( data.rowNumber );
+    if ( data.pos_xmlRow_number != -1 ) {
+      r[data.pos_xmlRow_number] = new Long( data.rowNumber );
     }
     if ( data.pos_xml_element_id != -1 ) {
       r[data.pos_xml_element_id] = data.elementLevelID[data.elementLevel];
@@ -337,22 +337,22 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
     }
 
     int eventType = e.getEventType();
-    if ( data.pos_xml_data_type_numeric != -1 ) {
-      outputRowData[data.pos_xml_data_type_numeric] = new Long( eventType );
+    if ( data.pos_xml_dataType_numeric != -1 ) {
+      outputRowData[data.pos_xml_dataType_numeric] = new Long( eventType );
     }
-    if ( data.pos_xml_data_type_description != -1 ) {
+    if ( data.pos_xml_dataTypeDescription != -1 ) {
       if ( eventType == 0 || eventType > eventDescription.length ) {
         // unknown eventType
-        outputRowData[data.pos_xml_data_type_description] = eventDescription[0] + "(" + eventType + ")";
+        outputRowData[data.pos_xml_dataTypeDescription] = eventDescription[0] + "(" + eventType + ")";
       } else {
-        outputRowData[data.pos_xml_data_type_description] = eventDescription[eventType];
+        outputRowData[data.pos_xml_dataTypeDescription] = eventDescription[eventType];
       }
     }
     if ( data.pos_xml_location_line != -1 ) {
       outputRowData[data.pos_xml_location_line] = new Long( e.getLocation().getLineNumber() );
     }
-    if ( data.pos_xml_location_column != -1 ) {
-      outputRowData[data.pos_xml_location_column] = new Long( e.getLocation().getColumnNumber() );
+    if ( data.pos_xml_locationColumn != -1 ) {
+      outputRowData[data.pos_xml_locationColumn] = new Long( e.getLocation().getColumnNumber() );
     }
 
     switch ( eventType ) {
@@ -369,24 +369,24 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         data.elementID++;
         data.elementLevelID[data.elementLevel] = data.elementID;
 
-        String xml_data_name;
+        String xml_dataName;
         if ( meta.isEnableNamespaces() ) {
           String prefix = e.asStartElement().getName().getPrefix();
           if ( Utils.isEmpty( prefix ) ) {
-            xml_data_name = e.asStartElement().getName().getLocalPart();
+            xml_dataName = e.asStartElement().getName().getLocalPart();
           } else { // add namespace prefix:
-            xml_data_name = prefix + ":" + e.asStartElement().getName().getLocalPart();
+            xml_dataName = prefix + ":" + e.asStartElement().getName().getLocalPart();
           }
         } else {
-          xml_data_name = e.asStartElement().getName().getLocalPart();
+          xml_dataName = e.asStartElement().getName().getLocalPart();
         }
-        if ( data.pos_xml_data_name >= 0 ) {
-          outputRowData[data.pos_xml_data_name] = xml_data_name;
+        if ( data.pos_xml_dataName >= 0 ) {
+          outputRowData[data.pos_xml_dataName] = xml_dataName;
         }
         // store the name
-        data.elementName[data.elementLevel] = xml_data_name;
+        data.elementName[data.elementLevel] = xml_dataName;
         // store simple path
-        data.elementPath[data.elementLevel] = data.elementPath[data.elementLevel - 1] + "/" + xml_data_name;
+        data.elementPath[data.elementLevel] = data.elementPath[data.elementLevel - 1] + "/" + xml_dataName;
 
         // write Namespaces out
         if ( meta.isEnableNamespaces() ) {
@@ -412,19 +412,19 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
 
       case XMLStreamConstants.CHARACTERS:
       case XMLStreamConstants.CDATA:
-        if ( data.pos_xml_data_name >= 0 ) {
-          outputRowData[data.pos_xml_data_name] = data.elementName[data.elementLevel];
+        if ( data.pos_xml_dataName >= 0 ) {
+          outputRowData[data.pos_xml_dataName] = data.elementName[data.elementLevel];
         }
-        String xml_data_value = e.asCharacters().getData();
-        if ( data.pos_xml_data_value >= 0 ) {
+        String xml_dataValue = e.asCharacters().getData();
+        if ( data.pos_xml_dataValue >= 0 ) {
           if ( meta.isEnableTrim() ) {
             // optional trim is also eliminating white spaces, tab, cr, lf
-            xml_data_value = Const.trim( xml_data_value );
+            xml_dataValue = Const.trim( xml_dataValue );
           }
-          outputRowData[data.pos_xml_data_value] = xml_data_value;
+          outputRowData[data.pos_xml_dataValue] = xml_dataValue;
         }
 
-        if ( data.pos_xml_data_value < 0 || Utils.isEmpty( (String) outputRowData[data.pos_xml_data_value] ) ) {
+        if ( data.pos_xml_dataValue < 0 || Utils.isEmpty( (String) outputRowData[data.pos_xml_dataValue] ) ) {
           outputRowData = null; // ignore & continue
         }
         break;
@@ -461,8 +461,8 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
   }
 
   private void parseEndElement( Object[] outputRowData, EndElement el ) {
-    if ( data.pos_xml_data_name >= 0 ) {
-      outputRowData[data.pos_xml_data_name] = getEndElementName( el, meta.isEnableNamespaces() );
+    if ( data.pos_xml_dataName >= 0 ) {
+      outputRowData[data.pos_xml_dataName] = getEndElementName( el, meta.isEnableNamespaces() );
     }
   }
 
@@ -492,18 +492,18 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       Object[] outputRowDataNamespace = data.outputRowMeta.cloneRow( outputRowData );
       putRowOut( outputRowDataNamespace ); // first put the element name info out
       // change data_type to ATTRIBUTE
-      if ( data.pos_xml_data_type_numeric != -1 ) {
-        outputRowData[data.pos_xml_data_type_numeric] = new Long( XMLStreamConstants.NAMESPACE );
+      if ( data.pos_xml_dataType_numeric != -1 ) {
+        outputRowData[data.pos_xml_dataType_numeric] = new Long( XMLStreamConstants.NAMESPACE );
       }
-      if ( data.pos_xml_data_type_description != -1 ) {
-        outputRowData[data.pos_xml_data_type_description] = eventDescription[XMLStreamConstants.NAMESPACE];
+      if ( data.pos_xml_dataTypeDescription != -1 ) {
+        outputRowData[data.pos_xml_dataTypeDescription] = eventDescription[XMLStreamConstants.NAMESPACE];
       }
     }
     while ( iter.hasNext() ) {
       Object[] outputRowDataNamespace = data.outputRowMeta.cloneRow( outputRowData );
       Namespace n = iter.next();
-      outputRowDataNamespace[data.pos_xml_data_name] = n.getPrefix();
-      outputRowDataNamespace[data.pos_xml_data_value] = n.getNamespaceURI();
+      outputRowDataNamespace[data.pos_xml_dataName] = n.getPrefix();
+      outputRowDataNamespace[data.pos_xml_dataValue] = n.getNamespaceURI();
       if ( iter.hasNext() ) {
         // send out the Namespace row
         putRowOut( outputRowDataNamespace );
@@ -525,11 +525,11 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       Object[] outputRowDataAttribute = data.outputRowMeta.cloneRow( outputRowData );
       putRowOut( outputRowDataAttribute ); // first put the element name (or namespace) info out
       // change data_type to ATTRIBUTE
-      if ( data.pos_xml_data_type_numeric != -1 ) {
-        outputRowData[data.pos_xml_data_type_numeric] = new Long( XMLStreamConstants.ATTRIBUTE );
+      if ( data.pos_xml_dataType_numeric != -1 ) {
+        outputRowData[data.pos_xml_dataType_numeric] = new Long( XMLStreamConstants.ATTRIBUTE );
       }
-      if ( data.pos_xml_data_type_description != -1 ) {
-        outputRowData[data.pos_xml_data_type_description] = eventDescription[XMLStreamConstants.ATTRIBUTE];
+      if ( data.pos_xml_dataTypeDescription != -1 ) {
+        outputRowData[data.pos_xml_dataTypeDescription] = eventDescription[XMLStreamConstants.ATTRIBUTE];
       }
     }
     while ( iter.hasNext() ) {
@@ -549,11 +549,11 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
   }
 
   private void parseAttribute( Object[] outputRowDataAttribute, Attribute a, boolean enabledNamespaces ) {
-    if ( data.pos_xml_data_name != -1 ) {
-      outputRowDataAttribute[data.pos_xml_data_name] = getAttributeName( a, enabledNamespaces );
+    if ( data.pos_xml_dataName != -1 ) {
+      outputRowDataAttribute[data.pos_xml_dataName] = getAttributeName( a, enabledNamespaces );
     }
-    if ( data.pos_xml_data_value != -1 ) {
-      outputRowDataAttribute[data.pos_xml_data_value] = a.getValue();
+    if ( data.pos_xml_dataValue != -1 ) {
+      outputRowDataAttribute[data.pos_xml_dataValue] = a.getValue();
     }
   }
 
@@ -626,19 +626,19 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // get and save field positions
-      data.pos_xml_filename = data.outputRowMeta.indexOfValue( meta.getFilenameField() );
-      data.pos_xml_row_number = data.outputRowMeta.indexOfValue( meta.getRowNumberField() );
-      data.pos_xml_data_type_numeric = data.outputRowMeta.indexOfValue( meta.getXmlDataTypeNumericField() );
-      data.pos_xml_data_type_description = data.outputRowMeta.indexOfValue( meta.getXmlDataTypeDescriptionField() );
+      data.pos_xmlFilename = data.outputRowMeta.indexOfValue( meta.getFilenameField() );
+      data.pos_xmlRow_number = data.outputRowMeta.indexOfValue( meta.getRowNumberField() );
+      data.pos_xml_dataType_numeric = data.outputRowMeta.indexOfValue( meta.getXmlDataTypeNumericField() );
+      data.pos_xml_dataTypeDescription = data.outputRowMeta.indexOfValue( meta.getXmlDataTypeDescriptionField() );
       data.pos_xml_location_line = data.outputRowMeta.indexOfValue( meta.getXmlLocationLineField() );
-      data.pos_xml_location_column = data.outputRowMeta.indexOfValue( meta.getXmlLocationColumnField() );
+      data.pos_xml_locationColumn = data.outputRowMeta.indexOfValue( meta.getXmlLocationColumnField() );
       data.pos_xml_element_id = data.outputRowMeta.indexOfValue( meta.getXmlElementIDField() );
       data.pos_xml_parent_element_id = data.outputRowMeta.indexOfValue( meta.getXmlParentElementIDField() );
       data.pos_xml_element_level = data.outputRowMeta.indexOfValue( meta.getXmlElementLevelField() );
       data.pos_xml_path = data.outputRowMeta.indexOfValue( meta.getXmlPathField() );
       data.pos_xml_parent_path = data.outputRowMeta.indexOfValue( meta.getXmlParentPathField() );
-      data.pos_xml_data_name = data.outputRowMeta.indexOfValue( meta.getXmlDataNameField() );
-      data.pos_xml_data_value = data.outputRowMeta.indexOfValue( meta.getXmlDataValueField() );
+      data.pos_xml_dataName = data.outputRowMeta.indexOfValue( meta.getXmlDataNameField() );
+      data.pos_xml_dataValue = data.outputRowMeta.indexOfValue( meta.getXmlDataValueField() );
       return true;
     }
     return false;

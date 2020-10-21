@@ -144,19 +144,19 @@ public class BeamMergeJoinTransformHandler extends BeamBaseTransformHandler impl
     Object[] leftNull = RowDataUtil.allocateRowData( leftVRowMeta.size() );
     Object[] rightNull = RowDataUtil.allocateRowData( rightVRowMeta.size() );
 
-    if ( MergeJoinMeta.join_types[ 0 ].equals( joinType ) ) {
+    if ( MergeJoinMeta.joinTypes[ 0 ].equals( joinType ) ) {
       // Inner Join
       //
       kvpCollection = Join.innerJoin( leftKVPCollection, rightKVPCollection );
-    } else if ( MergeJoinMeta.join_types[ 1 ].equals( joinType ) ) {
+    } else if ( MergeJoinMeta.joinTypes[ 1 ].equals( joinType ) ) {
       // Left outer join
       //
       kvpCollection = Join.leftOuterJoin( leftKVPCollection, rightKVPCollection, new HopRow( rightNull ) );
-    } else if ( MergeJoinMeta.join_types[ 2 ].equals( joinType ) ) {
+    } else if ( MergeJoinMeta.joinTypes[ 2 ].equals( joinType ) ) {
       // Right outer join
       //
       kvpCollection = Join.rightOuterJoin( leftKVPCollection, rightKVPCollection, new HopRow( leftNull ) );
-    } else if ( MergeJoinMeta.join_types[ 3 ].equals( joinType ) ) {
+    } else if ( MergeJoinMeta.joinTypes[ 3 ].equals( joinType ) ) {
       // Full outer join
       //
       kvpCollection = Join.fullOuterJoin( leftKVPCollection, rightKVPCollection, new HopRow( leftNull ), new HopRow( rightNull ) );

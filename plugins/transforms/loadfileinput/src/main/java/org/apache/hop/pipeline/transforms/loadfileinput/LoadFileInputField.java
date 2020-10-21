@@ -281,8 +281,8 @@ public class LoadFileInputField implements Cloneable {
     this.trimtype = trimtype;
   }
 
-  public void setElementType( int element_type ) {
-    this.elementtype = element_type;
+  public void setElementType( int elementType ) {
+    this.elementtype = elementType;
   }
 
   public String getGroupSymbol() {

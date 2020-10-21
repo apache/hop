@@ -176,8 +176,8 @@ public class TextFileField implements Cloneable {
     return nullString;
   }
 
-  public void setNullString( String null_string ) {
-    this.nullString = null_string;
+  public void setNullString( String nullString ) {
+    this.nullString = nullString;
   }
 
   @Override

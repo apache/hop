@@ -184,16 +184,16 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
         resultRow = rows.get( iteration );
 
         // Get values from previous result
-        String filefolder_previous = resultRow.getString( 0, null );
-        String fmasks_previous = resultRow.getString( 1, null );
+        String fileFolderPrevious = resultRow.getString( 0, null );
+        String fileMasksPrevious = resultRow.getString( 1, null );
 
         // ok we can process this file/folder
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString(
-            PKG, "ActionAddResultFilenames.ProcessingRow", filefolder_previous, fmasks_previous ) );
+            PKG, "ActionAddResultFilenames.ProcessingRow", fileFolderPrevious, fileMasksPrevious ) );
         }
 
-        if ( !processFile( filefolder_previous, fmasks_previous, parentWorkflow, result ) ) {
+        if ( !processFile( fileFolderPrevious, fileMasksPrevious, parentWorkflow, result ) ) {
           nrErrFiles++;
         }
 
@@ -306,13 +306,13 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
       try {
         if ( !info.getFile().toString().equals( sourceFolder ) ) {
           // Pass over the Base folder itself
-          String short_filename = info.getFile().getName().getBaseName();
+          String shortFilename = info.getFile().getName().getBaseName();
 
           if ( info.getFile().getParent().equals( info.getBaseFolder() )
             || ( !info.getFile().getParent().equals( info.getBaseFolder() ) && includeSubfolders ) ) {
             if ( ( info.getFile().getType() == FileType.FILE && fileWildcard == null )
               || ( info.getFile().getType() == FileType.FILE && fileWildcard != null && GetFileWildcard(
-              short_filename, fileWildcard ) ) ) {
+              shortFilename, fileWildcard ) ) ) {
               returncode = true;
             }
           }

@@ -461,8 +461,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     this.receivedDate2 = inputDate;
   }
 
-  public void setMoveToIMAPFolder( String foldername ) {
-    this.moveToIMAPFolder = foldername;
+  public void setMoveToIMAPFolder( String folderName ) {
+    this.moveToIMAPFolder = folderName;
   }
 
   public String getMoveToIMAPFolder() {
@@ -599,8 +599,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
     return environmentSubstitute( getAttachmentFolder() );
   }
 
-  public void setAttachmentFolder( String foldername ) {
-    this.attachmentfolder = foldername;
+  public void setAttachmentFolder( String folderName ) {
+    this.attachmentfolder = folderName;
   }
 
   /**
@@ -1032,21 +1032,21 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
                 }
                 if ( isSaveMessage() ) {
                   // get local message filename
-                  String localfilename_message = replaceTokens( realFilenamePattern, i );
+                  String localfilenameMessage = replaceTokens( realFilenamePattern, i );
 
                   if ( isDebug() ) {
                     logDebug( BaseMessages.getString(
-                      PKG, "JobGetMailsFromPOP.LocalFilename.Label", localfilename_message ) );
+                      PKG, "JobGetMailsFromPOP.LocalFilename.Label", localfilenameMessage ) );
                   }
 
                   // save message content in the file
-                  mailConn.saveMessageContentToFile( localfilename_message, realOutputFolder );
+                  mailConn.saveMessageContentToFile( localfilenameMessage, realOutputFolder );
                   // PDI-10942 explicitly set message as read
                   mailConn.getMessage().setFlag( Flag.SEEN, true );
 
                   if ( isDetailed() ) {
                     logDetailed( BaseMessages.getString( PKG, "JobGetMailsFromPOP.MessageSaved.Label", ""
-                      + messagenumber, localfilename_message, realOutputFolder ) );
+                      + messagenumber, localfilenameMessage, realOutputFolder ) );
                   }
                 }
 
@@ -1101,11 +1101,11 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   private String replaceTokens( String aString, int idfile ) {
-    String localfilename_message = aString;
-    localfilename_message = localfilename_message.replaceAll( FILENAME_ID_PATTERN, "" + ( idfile + 1 ) );
-    localfilename_message =
-      substituteDate( localfilename_message, FILENAME_SYS_DATE_OPEN, FILENAME_SYS_DATE_CLOSE, new Date() );
-    return localfilename_message;
+    String localfilenameMessage = aString;
+    localfilenameMessage = localfilenameMessage.replaceAll( FILENAME_ID_PATTERN, "" + ( idfile + 1 ) );
+    localfilenameMessage =
+      substituteDate( localfilenameMessage, FILENAME_SYS_DATE_OPEN, FILENAME_SYS_DATE_CLOSE, new Date() );
+    return localfilenameMessage;
 
   }
 

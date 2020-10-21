@@ -88,7 +88,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
   /**
    * what's the lookup table?
    */
-  private String tablename;
+  private String tableName;
 
   /**
    * database connection
@@ -206,7 +206,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
   }
 
   @Override public String getTableName() {
-    return tablename;
+    return tableName;
   }
 
   /**
@@ -343,17 +343,10 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
   }
 
   /**
-   * @return Returns the tablename.
+   * @param tableName The table name to set.
    */
-  public String getTablename() {
-    return tablename;
-  }
-
-  /**
-   * @param tablename The tablename to set.
-   */
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTableName( String tableName ) {
+    this.tableName = tableName;
   }
 
   /**
@@ -423,7 +416,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
       csize = XmlHandler.getTagValue( transformNode, "cache_size" );
       cacheSize = Const.toInt( csize, 0 );
       schemaName = XmlHandler.getTagValue( transformNode, "lookup", "schema" );
-      tablename = XmlHandler.getTagValue( transformNode, "lookup", "table" );
+      tableName = XmlHandler.getTagValue( transformNode, "lookup", "table" );
 
       Node lookup = XmlHandler.getSubNode( transformNode, "lookup" );
 
@@ -477,7 +470,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
     cached = false;
     cacheSize = 0;
     schemaName = "";
-    tablename = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.TableName" );
+    tableName = BaseMessages.getString( PKG, "DatabaseLookupMeta.Default.TableName" );
 
     int nrkeys = 0;
     int nrvalues = 0;
@@ -543,7 +536,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
     retval.append( "    " ).append( XmlHandler.addTagValue( "cache_size", cacheSize ) );
     retval.append( "    <lookup>" ).append( Const.CR );
     retval.append( "      " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tableName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "orderby", orderByClause ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "fail_on_multiple", failingOnMultipleResults ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "eat_row_on_failure", eatingRowOnLookupFailure ) );
@@ -577,7 +570,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -587,14 +580,14 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
       try {
         db.connect();
 
-        if ( !Utils.isEmpty( tablename ) ) {
+        if ( !Utils.isEmpty( tableName ) ) {
           boolean first = true;
-          boolean error_found = false;
-          error_message = "";
+          boolean errorFound = false;
+          errorMessage = "";
 
           String schemaTable =
             databaseMeta.getQuotedSchemaTableCombination( db.environmentSubstitute( schemaName ), db
-              .environmentSubstitute( tablename ) );
+              .environmentSubstitute( tableName ) );
           IRowMeta r = db.getTableFields( schemaTable );
 
           if ( r != null ) {
@@ -607,16 +600,16 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.MissingCompareFieldsInLookupTable" )
                       + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + lufield + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + lufield + Const.CR;
               }
             }
-            if ( error_found ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            if ( errorFound ) {
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             } else {
               cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -633,16 +626,16 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.MissingReturnFieldsInLookupTable" )
                       + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + lufield + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + lufield + Const.CR;
               }
             }
-            if ( error_found ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            if ( errorFound ) {
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             } else {
               cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -651,8 +644,8 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
             remarks.add( cr );
 
           } else {
-            error_message = BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.CouldNotReadTableInfo" );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            errorMessage = BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.CouldNotReadTableInfo" );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           }
         }
@@ -660,24 +653,24 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
         // Look up fields in the input stream <prev>
         if ( prev != null && prev.size() > 0 ) {
           boolean first = true;
-          error_message = "";
-          boolean error_found = false;
+          errorMessage = "";
+          boolean errorFound = false;
 
           for ( int i = 0; i < streamKeyField1.length; i++ ) {
             IValueMeta v = prev.searchValueMeta( streamKeyField1[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.MissingFieldsNotFoundInInput" )
                     + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + streamKeyField1[ i ] + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + streamKeyField1[ i ] + Const.CR;
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          if ( errorFound ) {
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           } else {
             cr =
               new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -685,23 +678,23 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
           }
           remarks.add( cr );
         } else {
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.CouldNotReadFromPreviousTransforms" ) + Const.CR;
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopDatabaseException dbe ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.DatabaseErrorWhileChecking" )
             + dbe.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.MissingConnectionError" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "DatabaseLookupMeta.Check.MissingConnectionError" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 
@@ -728,8 +721,8 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
 
       try {
         db.connect();
-        String tableName = databaseMeta.environmentSubstitute( tablename );
-        String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+        String realTableName = databaseMeta.environmentSubstitute( tableName );
+        String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, realTableName );
         fields = db.getTableFields( schemaTable );
 
       } catch ( HopDatabaseException dbe ) {
@@ -763,7 +756,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
       DatabaseImpact ii =
         new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_READ, pipelineMeta.getName(), transforminfo.getName(), databaseMeta
-          .getDatabaseName(), tablename, tableKeyField[ i ], streamKeyField1[ i ], v != null
+          .getDatabaseName(), tableName, tableKeyField[ i ], streamKeyField1[ i ], v != null
           ? v.getOrigin() : "?", "", BaseMessages.getString( PKG, "DatabaseLookupMeta.Impact.Key" ) );
       impact.add( ii );
     }
@@ -773,7 +766,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
       DatabaseImpact ii =
         new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_READ, pipelineMeta.getName(), transforminfo.getName(),
-          databaseMeta.getDatabaseName(), tablename, returnValueField[ i ], "", "", "",
+          databaseMeta.getDatabaseName(), tableName, returnValueField[ i ], "", "", "",
           BaseMessages.getString( PKG, "DatabaseLookupMeta.Impact.ReturnValue" ) );
       impact.add( ii );
     }

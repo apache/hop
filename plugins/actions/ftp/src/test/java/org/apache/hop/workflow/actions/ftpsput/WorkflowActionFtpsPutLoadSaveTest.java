@@ -103,7 +103,7 @@ public class WorkflowActionFtpsPutLoadSaveTest extends WorkflowActionLoadSaveTes
   public class FtpsConnectionLoadSaveValidator implements IFieldLoadSaveValidator<Integer> {
     @Override
     public Integer getTestObject() {
-      return new Random().nextInt( FtpsConnection.connection_type_Code.length );
+      return new Random().nextInt( FtpsConnection.connectionTypeCode.length );
     }
 
     @Override

@@ -370,9 +370,9 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     action.setName( wName.getText() );
     action.setFilename( wFilename.getText() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -380,7 +380,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     }
     String[] arguments = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         arguments[ nr ] = arg;

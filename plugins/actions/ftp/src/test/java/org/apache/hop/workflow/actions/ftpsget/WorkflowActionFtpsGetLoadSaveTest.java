@@ -54,7 +54,7 @@ public class WorkflowActionFtpsGetLoadSaveTest extends WorkflowActionLoadSaveTes
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    validators.put( "connection_type", new IntLoadSaveValidator( FtpsConnection.connection_type_Code.length ) );
+    validators.put( "connection_type", new IntLoadSaveValidator( FtpsConnection.connectionTypeCode.length ) );
     validators.put( "ifFileExists", new IntLoadSaveValidator( ActionFtpsGet.FILE_EXISTS_ACTIONS.length ) );
 
     return validators;

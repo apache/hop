@@ -60,7 +60,7 @@ import java.util.List;
 public class MultiMergeJoinMeta extends BaseTransformMeta implements ITransformMeta<MultiMergeJoin,MultiMergeJoinData> {
   private static Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
-  public static final String[] join_types = { "INNER", "FULL OUTER" };
+  public static final String[] joinTypes = { "INNER", "FULL OUTER" };
   public static final boolean[] optionals = { false, true };
 
 
@@ -197,7 +197,7 @@ public class MultiMergeJoinMeta extends BaseTransformMeta implements ITransformM
 
   @Override
   public void setDefault() {
-    joinType = join_types[ 0 ];
+    joinType = joinTypes[ 0 ];
     allocateKeys( 0 );
     allocateInputTransforms( 0 );
   }

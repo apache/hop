@@ -61,7 +61,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetNativeData_emptyIsNotNull() throws Exception {
+  public void testGetNativeDataEmptyIsNotNull() throws Exception {
     meta.setNullsAndEmptyAreDifferent( true );
 
     assertEquals( BASE_VALUE, meta.getNativeDataType( BASE_VALUE ) );
@@ -102,7 +102,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetNativeData_emptyIsNull() throws Exception {
+  public void testGetNativeDataEmptyIsNull() throws Exception {
     meta.setNullsAndEmptyAreDifferent( false );
 
     assertEquals( BASE_VALUE, meta.getNativeDataType( BASE_VALUE ) );
@@ -150,7 +150,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testIsNull_emptyIsNotNull() throws HopValueException {
+  public void testIsNullEmptyIsNotNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent( true );
 
     assertEquals( true, meta.isNull( null ) );
@@ -176,7 +176,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testIsNull_emptyIsNull() throws HopValueException {
+  public void testIsNullEmptyIsNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent( false );
 
     assertEquals( true, meta.isNull( null ) );
@@ -217,7 +217,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetString_emptyIsNotNull() throws HopValueException {
+  public void testGetStringEmptyIsNotNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent( true );
 
     assertEquals( null, meta.getString( null ) );
@@ -241,7 +241,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testGetString_emptyIsNull() throws HopValueException {
+  public void testGetStringEmptyIsNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent( false );
 
     assertEquals( null, meta.getString( null ) );
@@ -269,7 +269,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testCompare_emptyIsNotNull() throws HopValueException {
+  public void testCompareEmptyIsNotNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent( true );
 
     meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
@@ -565,7 +565,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testCompare_emptyIsNull() throws HopValueException {
+  public void testCompareEmptyIsNull() throws HopValueException {
     meta.setNullsAndEmptyAreDifferent( false );
 
     meta.setTrimType( IValueMeta.TRIM_TYPE_NONE );
@@ -872,7 +872,7 @@ public class ValueMetaStringTest {
   }
 
   @Test
-  public void testCompare_collatorEnabled() throws HopValueException {
+  public void testCompareCollatorEnabled() throws HopValueException {
     ValueMetaString meta = new ValueMetaString( BASE_VALUE );
     meta.setCollatorDisabled( false );
     meta.setCollatorLocale( Locale.FRENCH );

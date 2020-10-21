@@ -472,8 +472,8 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
-    boolean error_found = false;
-    String error_message = "";
+    boolean errorFound = false;
+    String errorMessage = "";
     CheckResult cr;
 
     Context jscx;
@@ -485,10 +485,10 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     try {
       jscx.setOptimizationLevel( Integer.valueOf( pipelineMeta.environmentSubstitute( optimizationLevel ) ) );
     } catch ( NumberFormatException nfe ) {
-      error_message =
+      errorMessage =
         "Error with optimization level.  Could not convert the value of "
           + pipelineMeta.environmentSubstitute( optimizationLevel ) + " to an integer.";
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } catch ( IllegalArgumentException iae ) {
       cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, iae.getMessage(), transformMeta );
@@ -539,8 +539,8 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
           }
         }
       } catch ( Exception e ) {
-        error_message = ( "Couldn't add JavaClasses to Context! Error:" );
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = ( "Couldn't add JavaClasses to Context! Error:" );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
 
@@ -552,8 +552,8 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
             ScriptValuesAddedFunctions.jsFunctionList, ScriptValuesAddedFunctions.class,
             ScriptableObject.DONTENUM );
       } catch ( Exception ex ) {
-        error_message = "Couldn't add Default Functions! Error:" + Const.CR + ex.toString();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = "Couldn't add Default Functions! Error:" + Const.CR + ex.toString();
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
 
@@ -565,8 +565,8 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
         jsscope
           .put( "CONTINUE_PIPELINE", jsscope, Integer.valueOf( ScriptValuesMod.CONTINUE_PIPELINE ) );
       } catch ( Exception ex ) {
-        error_message = "Couldn't add Pipeline Constants! Error:" + Const.CR + ex.toString();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = "Couldn't add Pipeline Constants! Error:" + Const.CR + ex.toString();
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
 
@@ -615,8 +615,8 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
         Scriptable jsRow = Context.toObject( row, jsscope );
         jsscope.put( "row", jsscope, jsRow );
       } catch ( Exception ev ) {
-        error_message = "Couldn't add Input fields to Script! Error:" + Const.CR + ev.toString();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = "Couldn't add Input fields to Script! Error:" + Const.CR + ev.toString();
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
 
@@ -625,13 +625,13 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
         if ( strActiveStartScript != null && strActiveStartScript.length() > 0 ) {
           /* Object startScript = */
           jscx.evaluateString( jsscope, strActiveStartScript, "pipeline_Start", 1, null );
-          error_message = "Found Start Script. " + strActiveStartScriptName + " Processing OK";
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+          errorMessage = "Found Start Script. " + strActiveStartScriptName + " Processing OK";
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( Exception e ) {
-        error_message = "Couldn't process Start Script! Error:" + Const.CR + e.toString();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = "Couldn't process Start Script! Error:" + Const.CR + e.toString();
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
 
@@ -658,7 +658,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
                 PKG, "ScriptValuesMetaMod.CheckResult.FailedToGetValues", String.valueOf( fieldname.length ) )
                 + Const.CR + Const.CR );
 
-            if ( error_found ) {
+            if ( errorFound ) {
               cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, message.toString(), transformMeta );
             } else {
               cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, message.toString(), transformMeta );
@@ -667,17 +667,17 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
           }
         } catch ( JavaScriptException jse ) {
           Context.exit();
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "ScriptValuesMetaMod.CheckResult.CouldNotExecuteScript" )
               + Const.CR + jse.toString();
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         } catch ( Exception e ) {
           Context.exit();
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "ScriptValuesMetaMod.CheckResult.CouldNotExecuteScript2" )
               + Const.CR + e.toString();
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
 
@@ -686,28 +686,28 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
           if ( strActiveEndScript != null && strActiveEndScript.length() > 0 ) {
             /* Object endScript = */
             jscx.evaluateString( jsscope, strActiveEndScript, "pipeline_End", 1, null );
-            error_message = "Found End Script. " + strActiveEndScriptName + " Processing OK";
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+            errorMessage = "Found End Script. " + strActiveEndScriptName + " Processing OK";
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
             remarks.add( cr );
           }
         } catch ( Exception e ) {
-          error_message = "Couldn't process End Script! Error:" + Const.CR + e.toString();
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          errorMessage = "Couldn't process End Script! Error:" + Const.CR + e.toString();
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( Exception e ) {
         Context.exit();
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "ScriptValuesMetaMod.CheckResult.CouldNotCompileScript" )
             + Const.CR + e.toString();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
     } else {
       Context.exit();
-      error_message =
+      errorMessage =
         BaseMessages.getString( PKG, "ScriptValuesMetaMod.CheckResult.CouldNotGetFieldsFromPreviousTransform" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

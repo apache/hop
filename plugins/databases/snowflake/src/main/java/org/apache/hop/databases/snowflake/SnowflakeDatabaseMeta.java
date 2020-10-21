@@ -117,15 +117,15 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 	}
 
 	@Override
-	public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+	public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon) {
-		return "ALTER TABLE " + tablename + " ADD COLUMN " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+		return "ALTER TABLE " + tableName + " ADD COLUMN " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
 	}
 
 	@Override
-	public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+	public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon) {
-		return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
+		return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
 	}
 
 	@Override
@@ -267,13 +267,13 @@ public class SnowflakeDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 	}
 
 	@Override
-	public String getSqlTableExists(String tablename) {
-		return getSqlQueryFields(tablename);
+	public String getSqlTableExists(String tableName) {
+		return getSqlQueryFields(tableName);
 	}
 
 	@Override
-	public String getSqlColumnExists(String columnname, String tablename) {
-		return getSqlQueryColumnFields(columnname, tablename);
+	public String getSqlColumnExists(String columnname, String tableName) {
+		return getSqlQueryColumnFields(columnname, tableName);
 	}
 
 	public String getSqlQueryColumnFields(String columnname, String tableName) {

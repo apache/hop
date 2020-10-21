@@ -34,7 +34,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
  */
 public class GetSubFoldersData extends BaseTransformData implements ITransformData {
 
-  public Object[] previous_row;
+  public Object[] previousRow;
 
   public IRowMeta outputRowMeta;
 
@@ -62,7 +62,7 @@ public class GetSubFoldersData extends BaseTransformData implements ITransformDa
 
   public GetSubFoldersData() {
     super();
-    previous_row = null;
+    previousRow = null;
     filenr = 0;
     filessize = 0;
     file = null;

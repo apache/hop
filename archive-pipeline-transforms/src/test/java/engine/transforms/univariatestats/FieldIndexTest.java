@@ -33,7 +33,7 @@ public class FieldIndexTest {
   public void testCalculateDerived0Count() {
     FieldIndex fieldIndex = new FieldIndex();
     fieldIndex.m_sum = 250;
-    fieldIndex.m_count = 0;
+    fieldIndex.mCount = 0;
     fieldIndex.m_sumSq = 35000.3;
     fieldIndex.calculateDerived();
     assertEquals( Double.NaN, fieldIndex.m_mean, 0 );
@@ -44,10 +44,10 @@ public class FieldIndexTest {
   public void testCalculateDerived1Count() {
     FieldIndex fieldIndex = new FieldIndex();
     fieldIndex.m_sum = 250;
-    fieldIndex.m_count = 1;
+    fieldIndex.mCount = 1;
     fieldIndex.m_sumSq = 35000.3;
     fieldIndex.calculateDerived();
-    assertEquals( fieldIndex.m_sum / fieldIndex.m_count, fieldIndex.m_mean, 0 );
+    assertEquals( fieldIndex.m_sum / fieldIndex.mCount, fieldIndex.m_mean, 0 );
     assertEquals( Double.POSITIVE_INFINITY, fieldIndex.m_stdDev, 0 );
   }
 
@@ -55,22 +55,22 @@ public class FieldIndexTest {
   public void testCalculateDerived3CountPositiveStdDev() {
     FieldIndex fieldIndex = new FieldIndex();
     fieldIndex.m_sum = 250;
-    fieldIndex.m_count = 3;
+    fieldIndex.mCount = 3;
     fieldIndex.m_sumSq = 35000.3;
     fieldIndex.calculateDerived();
-    assertEquals( fieldIndex.m_sum / fieldIndex.m_count, fieldIndex.m_mean, 0 );
-    assertEquals( Math.sqrt( ( fieldIndex.m_sumSq - ( fieldIndex.m_sum * fieldIndex.m_sum ) / fieldIndex.m_count )
-      / ( fieldIndex.m_count - 1 ) ), fieldIndex.m_stdDev, 0 );
+    assertEquals( fieldIndex.m_sum / fieldIndex.mCount, fieldIndex.m_mean, 0 );
+    assertEquals( Math.sqrt( ( fieldIndex.m_sumSq - ( fieldIndex.m_sum * fieldIndex.m_sum ) / fieldIndex.mCount )
+      / ( fieldIndex.mCount - 1 ) ), fieldIndex.m_stdDev, 0 );
   }
 
   @Test
   public void testCalculateDerived3CountNegativeStdDev() {
     FieldIndex fieldIndex = new FieldIndex();
     fieldIndex.m_sum = 250;
-    fieldIndex.m_count = 3;
+    fieldIndex.mCount = 3;
     fieldIndex.m_sumSq = 350.3;
     fieldIndex.calculateDerived();
-    assertEquals( fieldIndex.m_sum / fieldIndex.m_count, fieldIndex.m_mean, 0 );
+    assertEquals( fieldIndex.m_sum / fieldIndex.mCount, fieldIndex.m_mean, 0 );
     assertEquals( 0.0, fieldIndex.m_stdDev, 0 );
   }
 
@@ -86,7 +86,7 @@ public class FieldIndexTest {
   @Test
   public void testGenerateOutputValuesNoCacheAllCalc() {
     FieldIndex fieldIndex = new FieldIndex();
-    fieldIndex.m_count = 1;
+    fieldIndex.mCount = 1;
     fieldIndex.m_mean = 2;
     fieldIndex.m_stdDev = 3;
     fieldIndex.m_min = 4;
@@ -97,7 +97,7 @@ public class FieldIndexTest {
       fieldIndex.generateOutputValues( new UnivariateStatsMetaFunction( null, true, true, true, true, true, true,
         .55, false ), null );
     int index = 0;
-    assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_count, 0 );
+    assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.mCount, 0 );
     assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_mean, 0 );
     assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_stdDev, 0 );
     assertEquals( ( (Double) outputValues[ index++ ] ).doubleValue(), fieldIndex.m_min, 0 );
@@ -109,7 +109,7 @@ public class FieldIndexTest {
   @Test
   public void testGenerateOutputValuesCacheInterpolateSpecialCasesMin() {
     FieldIndex fieldIndex = new FieldIndex();
-    fieldIndex.m_count = 10;
+    fieldIndex.mCount = 10;
     fieldIndex.m_min = -350;
     fieldIndex.m_max = 350;
 
@@ -128,7 +128,7 @@ public class FieldIndexTest {
   @Test
   public void testGenerateOutputValuesCacheInterpolateSpecialCasesMax() {
     FieldIndex fieldIndex = new FieldIndex();
-    fieldIndex.m_count = 10;
+    fieldIndex.mCount = 10;
     fieldIndex.m_min = -350;
     fieldIndex.m_max = 350;
 
@@ -147,7 +147,7 @@ public class FieldIndexTest {
   @Test
   public void testGenerateOutputValuesCacheInterpolate() {
     FieldIndex fieldIndex = new FieldIndex();
-    fieldIndex.m_count = 5;
+    fieldIndex.mCount = 5;
     fieldIndex.m_min = -350;
     fieldIndex.m_max = 350;
 
@@ -168,7 +168,7 @@ public class FieldIndexTest {
   @Test
   public void testGenerateOutputValuesCacheSimpleSpecialCasesMin() {
     FieldIndex fieldIndex = new FieldIndex();
-    fieldIndex.m_count = 10;
+    fieldIndex.mCount = 10;
     fieldIndex.m_min = -350;
     fieldIndex.m_max = 350;
 
@@ -187,7 +187,7 @@ public class FieldIndexTest {
   @Test
   public void testGenerateOutputValuesCacheSimpleSpecialCasesMax() {
     FieldIndex fieldIndex = new FieldIndex();
-    fieldIndex.m_count = 10;
+    fieldIndex.mCount = 10;
     fieldIndex.m_min = -350;
     fieldIndex.m_max = 350;
 
@@ -206,7 +206,7 @@ public class FieldIndexTest {
   @Test
   public void testGenerateOutputValuesCacheSimpleOdd() {
     FieldIndex fieldIndex = new FieldIndex();
-    fieldIndex.m_count = 5;
+    fieldIndex.mCount = 5;
     fieldIndex.m_min = -350;
     fieldIndex.m_max = 350;
 
@@ -227,7 +227,7 @@ public class FieldIndexTest {
   @Test
   public void testGenerateOutputValuesCacheSimpleEven() {
     FieldIndex fieldIndex = new FieldIndex();
-    fieldIndex.m_count = 6;
+    fieldIndex.mCount = 6;
     fieldIndex.m_min = -350;
     fieldIndex.m_max = 350;
 

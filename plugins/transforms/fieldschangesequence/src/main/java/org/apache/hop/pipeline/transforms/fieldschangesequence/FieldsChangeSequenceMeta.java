@@ -207,14 +207,14 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta implements ITran
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( Utils.isEmpty( resultfieldName ) ) {
-      error_message = BaseMessages.getString( PKG, "FieldsChangeSequenceMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "FieldsChangeSequenceMeta.CheckResult.ResultFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
     } else {
-      error_message = BaseMessages.getString( PKG, "FieldsChangeSequenceMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "FieldsChangeSequenceMeta.CheckResult.ResultFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
     }
     remarks.add( cr );
 
@@ -229,22 +229,22 @@ public class FieldsChangeSequenceMeta extends BaseTransformMeta implements ITran
           PKG, "FieldsChangeSequenceMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
       remarks.add( cr );
 
-      boolean error_found = false;
-      error_message = "";
+      boolean errorFound = false;
+      errorMessage = "";
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fieldName.length; i++ ) {
         int idx = prev.indexOfValue( fieldName[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fieldName[ i ] + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + fieldName[ i ] + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
-          BaseMessages.getString( PKG, "FieldsChangeSequenceMeta.CheckResult.FieldsFound", error_message );
+      if ( errorFound ) {
+        errorMessage =
+          BaseMessages.getString( PKG, "FieldsChangeSequenceMeta.CheckResult.FieldsFound", errorMessage );
 
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         if ( fieldName.length > 0 ) {

@@ -621,9 +621,9 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
 
     // The parameters...
     //
-    int nritems = wParameters.nrNonEmpty();
+    int nrItems = wParameters.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String param = wParameters.getNonEmpty( i ).getText( 1 );
       if ( !Utils.isEmpty( param ) ) {
         nr++;
@@ -633,7 +633,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
     meta.setParameterValues( new String[ nr ] );
     nr = 0;
     //CHECKSTYLE:Indentation:OFF
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String param = wParameters.getNonEmpty( i ).getText( 1 );
       String value = wParameters.getNonEmpty( i ).getText( 2 );
 

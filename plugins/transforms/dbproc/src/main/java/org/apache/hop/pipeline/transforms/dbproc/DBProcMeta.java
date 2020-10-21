@@ -362,7 +362,7 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( database != null ) {
       Database db = new Database( pipelineMeta, database );
@@ -372,25 +372,25 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
         // Look up fields in the input stream <prev>
         if ( prev != null && prev.size() > 0 ) {
           boolean first = true;
-          error_message = "";
-          boolean error_found = false;
+          errorMessage = "";
+          boolean errorFound = false;
 
           for ( int i = 0; i < argument.length; i++ ) {
             IValueMeta v = prev.searchValueMeta( argument[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "DBProcMeta.CheckResult.MissingArguments" ) + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + argument[ i ] + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + argument[ i ] + Const.CR;
             } else {
               // Argument exists in input stream: same type?
 
               if ( v.getType() != argumentType[ i ] && !( v.isNumeric() && ValueMetaBase.isNumeric( argumentType[ i ] ) ) ) {
-                error_found = true;
-                error_message +=
+                errorFound = true;
+                errorMessage +=
                   "\t\t"
                     + argument[ i ]
                     + BaseMessages.getString(
@@ -399,8 +399,8 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
               }
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          if ( errorFound ) {
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           } else {
             cr =
               new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -408,18 +408,18 @@ public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBPr
           }
           remarks.add( cr );
         } else {
-          error_message = BaseMessages.getString( PKG, "DBProcMeta.CheckResult.CouldNotReadFields" ) + Const.CR;
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          errorMessage = BaseMessages.getString( PKG, "DBProcMeta.CheckResult.CouldNotReadFields" ) + Const.CR;
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
-        error_message = BaseMessages.getString( PKG, "DBProcMeta.CheckResult.ErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = BaseMessages.getString( PKG, "DBProcMeta.CheckResult.ErrorOccurred" ) + e.getMessage();
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "DBProcMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "DBProcMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

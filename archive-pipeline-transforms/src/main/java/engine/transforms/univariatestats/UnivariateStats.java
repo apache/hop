@@ -143,7 +143,7 @@ public class UnivariateStats extends BaseTransform implements ITransform {
 
           FieldIndex tempData = m_data.getFieldIndexes()[ i ];
 
-          tempData.m_columnIndex = fieldIndex;
+          tempData.mColumnIndex = fieldIndex;
 
           IValueMeta inputFieldMeta = m_data.getInputRowMeta().getValueMeta( fieldIndex );
 
@@ -174,11 +174,11 @@ public class UnivariateStats extends BaseTransform implements ITransform {
       if ( !Utils.isEmpty( usmf.getSourceFieldName() ) ) {
         FieldIndex tempData = m_data.getFieldIndexes()[ i ];
 
-        IValueMeta metaI = getInputRowMeta().getValueMeta( tempData.m_columnIndex );
+        IValueMeta metaI = getInputRowMeta().getValueMeta( tempData.mColumnIndex );
 
         Number input = null;
         try {
-          input = metaI.getNumber( r[ tempData.m_columnIndex ] );
+          input = metaI.getNumber( r[ tempData.mColumnIndex ] );
         } catch ( Exception ex ) {
           // quietly ignore -- assume missing for anything not
           // parsable as a number
@@ -192,7 +192,7 @@ public class UnivariateStats extends BaseTransform implements ITransform {
 
           // update stats
           double val = input.doubleValue();
-          tempData.m_count++;
+          tempData.mCount++;
           tempData.m_sum += val;
           tempData.m_sumSq += ( val * val );
           if ( val < tempData.m_min ) {

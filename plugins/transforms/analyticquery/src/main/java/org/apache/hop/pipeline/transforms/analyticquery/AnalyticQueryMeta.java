@@ -83,7 +83,7 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
   @Injection( name = "GROUP_FIELDS" )
   private String[] groupField;
 
-  private int number_of_fields;
+  private int numberOfFields;
   /** BEGIN arrays (each of size number_of_fields) */
 
   /**
@@ -197,7 +197,7 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
     aggregateType = new int[ nrFields ];
     valueField = new int[ nrFields ];
 
-    number_of_fields = nrFields;
+    numberOfFields = nrFields;
   }
 
   public Object clone() {
@@ -282,14 +282,14 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
     fields.addRowMeta( r );
 
     // add analytic values
-    for ( int i = 0; i < number_of_fields; i++ ) {
+    for ( int i = 0; i < numberOfFields; i++ ) {
 
-      int index_of_subject = -1;
-      index_of_subject = r.indexOfValue( subjectField[ i ] );
+      int indexOf_subject = -1;
+      indexOf_subject = r.indexOfValue( subjectField[ i ] );
 
       // if we found the subjectField in the IRowMeta, and we should....
-      if ( index_of_subject > -1 ) {
-        IValueMeta vmi = r.getValueMeta( index_of_subject ).clone();
+      if ( indexOf_subject > -1 ) {
+        IValueMeta vmi = r.getValueMeta( indexOf_subject ).clone();
         vmi.setOrigin( origin );
         vmi.setName( aggregateField[ i ] );
         fields.addValueMeta( r.size() + i, vmi );
@@ -368,11 +368,11 @@ public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMe
   }
 
   public int getNumberOfFields() {
-    return number_of_fields;
+    return numberOfFields;
   }
 
-  public void setNumberOfFields( int number_of_fields ) {
-    this.number_of_fields = number_of_fields;
+  public void setNumberOfFields( int numberOfFields ) {
+    this.numberOfFields = numberOfFields;
   }
 
   @Override

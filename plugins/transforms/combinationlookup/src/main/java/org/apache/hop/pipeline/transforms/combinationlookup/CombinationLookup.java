@@ -43,8 +43,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.ResultSet;
@@ -214,7 +212,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
 
   @SuppressWarnings( "deprecation" )
   private Object[] lookupValues( IRowMeta rowMeta, Object[] row ) throws HopException {
-    Long val_key = null;
+    Long valKey = null;
     Long val_hash = null;
     Object[] hashRow = null;
 
@@ -254,8 +252,8 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     }
 
     // Before doing the actual lookup in the database, see if it's not in the cache...
-    val_key = lookupInCache( data.hashRowMeta, hashRow );
-    if ( val_key == null ) {
+    valKey = lookupInCache( data.hashRowMeta, hashRow );
+    if ( valKey == null ) {
       data.db.setValues( data.lookupRowMeta, lookupRow, data.prepStatementLookup );
       Object[] add = data.db.getLookup( data.prepStatementLookup );
       incrementLinesInput();
@@ -265,39 +263,39 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         switch ( getTechKeyCreation() ) {
           case CREATION_METHOD_TABLEMAX:
             // Use our own counter: what's the next value for the technical key?
-            val_key = data.db.getNextValue( Counters.getInstance().getCounterMap(), data.realSchemaName, data.realTableName,
+            valKey = data.db.getNextValue( Counters.getInstance().getCounterMap(), data.realSchemaName, data.realTableName,
               meta.getTechnicalKeyField() );
             break;
           case CREATION_METHOD_AUTOINC:
-            val_key = new Long( 0 ); // value to accept new key...
+            valKey = new Long( 0 ); // value to accept new key...
             break;
           case CREATION_METHOD_SEQUENCE:
-            val_key =
+            valKey =
               data.db.getNextSequenceValue( data.realSchemaName, meta.getSequenceFrom(), meta
                 .getTechnicalKeyField() );
-            if ( val_key != null && isRowLevel() ) {
+            if ( valKey != null && isRowLevel() ) {
               logRowlevel( BaseMessages.getString( PKG, "CombinationLookup.Log.FoundNextSequenceValue" )
-                + val_key.toString() );
+                + valKey.toString() );
             }
             break;
           default:
             break;
         }
 
-        val_key = combiInsert( rowMeta, row, val_key, val_hash );
+        valKey = combiInsert( rowMeta, row, valKey, val_hash );
         incrementLinesOutput();
 
         if ( isRowLevel() ) {
-          logRowlevel( BaseMessages.getString( PKG, "CombinationLookup.Log.AddedDimensionEntry" ) + val_key );
+          logRowlevel( BaseMessages.getString( PKG, "CombinationLookup.Log.AddedDimensionEntry" ) + valKey );
         }
 
         // Also store it in our Hashtable...
-        addToCache( data.hashRowMeta, hashRow, val_key );
+        addToCache( data.hashRowMeta, hashRow, valKey );
       } else {
         // Entry already exists...
         //
-        val_key = data.db.getReturnRowMeta().getInteger( add, 0 ); // Sometimes it's not an integer, believe it or not.
-        addToCache( data.hashRowMeta, hashRow, val_key );
+        valKey = data.db.getReturnRowMeta().getInteger( add, 0 ); // Sometimes it's not an integer, believe it or not.
+        addToCache( data.hashRowMeta, hashRow, valKey );
       }
     }
 
@@ -320,7 +318,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
     }
 
     // Add the technical key...
-    outputRow[ outputIndex ] = val_key;
+    outputRow[ outputIndex ] = valKey;
 
     return outputRow;
   }
@@ -481,7 +479,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
   /**
    * This inserts new record into a junk dimension
    */
-  public Long combiInsert( IRowMeta rowMeta, Object[] row, Long val_key, Long val_crc )
+  public Long combiInsert( IRowMeta rowMeta, Object[] row, Long valKey, Long valCrc )
     throws HopDatabaseException {
     String debug = "Combination insert";
     DatabaseMeta databaseMeta = meta.getDatabaseMeta();
@@ -601,11 +599,11 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       int insertIndex = 0;
 
       if ( !isAutoIncrement() ) {
-        insertRow[ insertIndex ] = val_key;
+        insertRow[ insertIndex ] = valKey;
         insertIndex++;
       }
       if ( meta.useHash() ) {
-        insertRow[ insertIndex ] = val_crc;
+        insertRow[ insertIndex ] = valCrc;
         insertIndex++;
       }
       if ( !Utils.isEmpty( meta.getLastUpdateField() ) ) {
@@ -634,7 +632,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         try {
           keys = data.prepStatementInsert.getGeneratedKeys(); // 1 key
           if ( keys.next() ) {
-            val_key = new Long( keys.getLong( 1 ) );
+            valKey = new Long( keys.getLong( 1 ) );
           } else {
             throw new HopDatabaseException( "Unable to retrieve auto-increment of combi insert key : "
               + meta.getTechnicalKeyField() + ", no fields in resultset" );
@@ -659,7 +657,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         + debug + "] : " + e.toString(), e );
     }
 
-    return val_key;
+    return valKey;
   }
 
   @Override

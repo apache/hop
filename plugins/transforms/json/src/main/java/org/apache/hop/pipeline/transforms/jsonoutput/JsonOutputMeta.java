@@ -410,20 +410,20 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
           "JsonOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < outputFields.length; i++ ) {
         int idx = prev.indexOfValue( outputFields[ i ].getFieldName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + outputFields[ i ].getFieldName() + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + outputFields[ i ].getFieldName() + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message = BaseMessages.getString( PKG, "JsonOutputMeta.CheckResult.FieldsNotFound", error_message );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      if ( errorFound ) {
+        errorMessage = BaseMessages.getString( PKG, "JsonOutputMeta.CheckResult.FieldsNotFound", errorMessage );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =

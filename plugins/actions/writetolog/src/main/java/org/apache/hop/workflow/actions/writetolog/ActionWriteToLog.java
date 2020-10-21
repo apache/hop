@@ -267,9 +267,9 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
    * @return The Result of the execution.
    */
   @Override
-  public Result execute( Result prev_result, int nr ) {
-    prev_result.setResult( evaluate( prev_result ) );
-    return prev_result;
+  public Result execute( Result prevResult, int nr ) {
+    prevResult.setResult( evaluate( prevResult ) );
+    return prevResult;
   }
 
   @Override

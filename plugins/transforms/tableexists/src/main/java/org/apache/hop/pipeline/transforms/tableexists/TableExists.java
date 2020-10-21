@@ -90,10 +90,10 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
       } // End If first
 
       // get tablename
-      String tablename = getInputRowMeta().getString( r, data.indexOfTablename );
+      String tableName = getInputRowMeta().getString( r, data.indexOfTablename );
 
       // Check if table exists on the specified connection
-      tablexists = data.db.checkTableExists( data.realSchemaname, tablename );
+      tablexists = data.db.checkTableExists( data.realSchemaname, tableName );
 
       Object[] outputRowData = RowDataUtil.addValueData( r, getInputRowMeta().size(), tablexists );
 

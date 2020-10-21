@@ -329,8 +329,8 @@ public class MailConnection {
    * @param write      open the folder in write mode
    * @throws HopException if something went wrong.
    */
-  public void openFolder( String foldername, boolean write ) throws HopException {
-    openFolder( foldername, false, write );
+  public void openFolder( String folderName, boolean write ) throws HopException {
+    openFolder( folderName, false, write );
   }
 
   /**
@@ -341,7 +341,7 @@ public class MailConnection {
    * @param write         open the folder in write mode
    * @throws HopException if something went wrong.
    */
-  public void openFolder( String foldername, boolean defaultFolder, boolean write ) throws HopException {
+  public void openFolder( String folderName, boolean defaultFolder, boolean write ) throws HopException {
     this.write = write;
     try {
       if ( getFolder() != null ) {
@@ -369,7 +369,7 @@ public class MailConnection {
         // Open specified Folder (for IMAP/MBOX)
         if ( this.protocol == MailConnectionMeta.PROTOCOL_IMAP
           || this.protocol == MailConnectionMeta.PROTOCOL_MBOX ) {
-          this.folder = getRecursiveFolder( foldername );
+          this.folder = getRecursiveFolder( folderName );
         }
         if ( this.folder == null || !this.folder.exists() ) {
           throw new HopException( BaseMessages.getString( PKG, "JobGetMailsFromPOP.InvalidFolder.Label" ) );
@@ -404,13 +404,13 @@ public class MailConnection {
     } catch ( Exception e ) {
       throw new HopException( defaultFolder
         ? BaseMessages.getString( PKG, "JobGetMailsFromPOP.Error.OpeningDefaultFolder" )
-        : BaseMessages.getString( PKG, "JobGetMailsFromPOP.Error.OpeningFolder", foldername ), e );
+        : BaseMessages.getString( PKG, "JobGetMailsFromPOP.Error.OpeningFolder", folderName ), e );
     }
   }
 
-  private Folder getRecursiveFolder( String foldername ) throws MessagingException {
+  private Folder getRecursiveFolder( String folderName ) throws MessagingException {
     Folder dfolder;
-    String[] folderparts = foldername.split( "/" );
+    String[] folderparts = folderName.split( "/" );
     dfolder = this.getStore().getDefaultFolder();
     // Open destination folder
     for ( int i = 0; i < folderparts.length; i++ ) {
@@ -695,15 +695,15 @@ public class MailConnection {
    * @throws HopException
    */
 
-  public void saveMessageContentToFile( String filename, String foldername ) throws HopException {
+  public void saveMessageContentToFile( String filename, String folderName ) throws HopException {
     OutputStream os = null;
     try {
-      os = HopVfs.getOutputStream( foldername + ( foldername.endsWith( "/" ) ? "" : "/" ) + filename, false );
+      os = HopVfs.getOutputStream( folderName + ( folderName.endsWith( "/" ) ? "" : "/" ) + filename, false );
       getMessage().writeTo( os );
       updateSavedMessagesCounter();
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.SavingMessageContent", ""
-        + this.message.getMessageNumber(), filename, foldername ), e );
+        + this.message.getMessageNumber(), filename, folderName ), e );
     } finally {
       if ( os != null ) {
         IOUtils.closeQuietly( os );
@@ -717,8 +717,8 @@ public class MailConnection {
    * @param foldername the target foldername
    * @throws HopException
    */
-  public void saveAttachedFiles( String foldername ) throws HopException {
-    saveAttachedFiles( foldername, null );
+  public void saveAttachedFiles( String folderName ) throws HopException {
+    saveAttachedFiles( folderName, null );
   }
 
   /**
@@ -728,16 +728,16 @@ public class MailConnection {
    * @param pattern    regular expression to filter on files
    * @throws HopException
    */
-  public void saveAttachedFiles( String foldername, Pattern pattern ) throws HopException {
+  public void saveAttachedFiles( String folderName, Pattern pattern ) throws HopException {
     Object content = null;
     try {
       content = getMessage().getContent();
       if ( content instanceof Multipart ) {
-        handleMultipart( foldername, (Multipart) content, pattern );
+        handleMultipart( folderName, (Multipart) content, pattern );
       }
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.SavingAttachedFiles", ""
-        + this.message.getMessageNumber(), foldername ), e );
+        + this.message.getMessageNumber(), folderName ), e );
     } finally {
       if ( content != null ) {
         content = null;
@@ -745,17 +745,17 @@ public class MailConnection {
     }
   }
 
-  private void handleMultipart( String foldername, Multipart multipart, Pattern pattern ) throws HopException {
+  private void handleMultipart( String folderName, Multipart multipart, Pattern pattern ) throws HopException {
     try {
       for ( int i = 0, n = multipart.getCount(); i < n; i++ ) {
-        handlePart( foldername, multipart.getBodyPart( i ), pattern );
+        handlePart( folderName, multipart.getBodyPart( i ), pattern );
       }
     } catch ( Exception e ) {
       throw new HopException( e );
     }
   }
 
-  private void handlePart( String foldername, Part part, Pattern pattern ) throws HopException {
+  private void handlePart( String folderName, Part part, Pattern pattern ) throws HopException {
     try {
       String disposition = part.getDisposition();
 
@@ -776,11 +776,11 @@ public class MailConnection {
           String filename = MimeUtility.decodeText( part.getFileName() );
           if ( isWildcardMatch( filename, pattern ) ) {
             // Save file
-            saveFile( foldername, filename, part.getInputStream() );
+            saveFile( folderName, filename, part.getInputStream() );
             updateSavedAttachedFilesCounter();
             if ( log.isDetailed() ) {
               log.logDetailed( BaseMessages.getString( PKG, "JobGetMailsFromPOP.AttachedFileSaved", filename, ""
-                + getMessage().getMessageNumber(), foldername ) );
+                + getMessage().getMessageNumber(), folderName ) );
             }
           }
         }
@@ -813,7 +813,7 @@ public class MailConnection {
     return rtn;
   }
 
-  private static void saveFile( String foldername, String filename, InputStream input ) throws HopException {
+  private static void saveFile( String folderName, String filename, InputStream input ) throws HopException {
     OutputStream fos = null;
     BufferedOutputStream bos = null;
     BufferedInputStream bis = null;
@@ -824,9 +824,9 @@ public class MailConnection {
         File f = File.createTempFile( "xx", ".out" );
         f.deleteOnExit(); // Clean up file
         filename = f.getName();
-        targetFileName = foldername + "/" + filename; // Note - createTempFile Used - so will be unique
+        targetFileName = folderName + "/" + filename; // Note - createTempFile Used - so will be unique
       } else {
-        targetFileName = findValidTarget( foldername, filename );
+        targetFileName = findValidTarget( folderName, filename );
       }
       fos = HopVfs.getOutputStream( targetFileName, false );
       bos = new BufferedOutputStream( fos );
@@ -879,9 +879,9 @@ public class MailConnection {
    * @param createFolder flag create folder if needed
    * @throws HopException
    */
-  public void setDestinationFolder( String foldername, boolean createFolder ) throws HopException {
+  public void setDestinationFolder( String folderName, boolean createFolder ) throws HopException {
     try {
-      String[] folderparts = foldername.split( "/" );
+      String[] folderparts = folderName.split( "/" );
       Folder f = this.getStore().getDefaultFolder();
       // Open destination folder
       for ( int i = 0; i < folderparts.length; i++ ) {
@@ -891,7 +891,7 @@ public class MailConnection {
             // Create folder
             f.create( Folder.HOLDS_MESSAGES );
           } else {
-            throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.FolderNotFound", foldername ) );
+            throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.FolderNotFound", folderName ) );
           }
         }
       }
@@ -1088,12 +1088,12 @@ public class MailConnection {
    * @param foldername the name of the folder
    * @return true is folder exists
    */
-  public boolean folderExists( String foldername ) {
+  public boolean folderExists( String folderName ) {
     boolean retval = false;
     Folder dfolder = null;
     try {
       // Open destination folder
-      dfolder = getRecursiveFolder( foldername );
+      dfolder = getRecursiveFolder( folderName );
       if ( dfolder.exists() ) {
         retval = true;
       }

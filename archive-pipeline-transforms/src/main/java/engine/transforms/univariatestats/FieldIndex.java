@@ -33,31 +33,31 @@ import java.util.Arrays;
  * The Engineering Statistics Handbook</a> for details.
  */
 public class FieldIndex {
-  public int m_columnIndex;
-  public double m_count;
-  public double m_mean;
-  public double m_stdDev;
-  public double m_max;
-  public double m_min;
-  public double m_median;
-  public double m_arbitraryPercentile;
-  public double m_sum;
-  public double m_sumSq;
+  public int mColumnIndex;
+  public double mCount;
+  public double mMean;
+  public double mStdDev;
+  public double mMax;
+  public double mMin;
+  public double mMedian;
+  public double mArbitraryPercentile;
+  public double mSum;
+  public double mSumSq;
 
   public void calculateDerived() {
-    m_mean = Double.NaN;
-    m_stdDev = Double.NaN;
-    if ( m_count > 0 ) {
-      m_mean = m_sum / m_count;
-      m_stdDev = Double.POSITIVE_INFINITY;
-      if ( m_count > 1 ) {
-        m_stdDev = m_sumSq - ( m_sum * m_sum ) / m_count;
-        m_stdDev /= ( m_count - 1 );
-        if ( m_stdDev < 0 ) {
+    mMean = Double.NaN;
+    mStdDev = Double.NaN;
+    if ( mCount > 0 ) {
+      mMean = mSum / mCount;
+      mStdDev = Double.POSITIVE_INFINITY;
+      if ( mCount > 1 ) {
+        mStdDev = mSumSq - ( mSum * mSum ) / mCount;
+        mStdDev /= ( mCount - 1 );
+        if ( mStdDev < 0 ) {
           // round to zero
-          m_stdDev = 0;
+          mStdDev = 0;
         }
-        m_stdDev = Math.sqrt( m_stdDev );
+        mStdDev = Math.sqrt( mStdDev );
       }
     }
   }
@@ -73,26 +73,26 @@ public class FieldIndex {
    * @return the percentile value
    */
   private double percentile( double p, double[] vals, boolean interpolate ) {
-    double n = m_count;
+    double n = mCount;
 
     // interpolation
     if ( interpolate ) {
       double i = p * ( n + 1 );
       // special cases
       if ( i <= 1 ) {
-        return m_min;
+        return mMin;
       }
       if ( i >= n ) {
-        return m_max;
+        return mMax;
       }
-      double low_obs = Math.floor( i );
-      double high_obs = low_obs + 1;
+      double lowObs = Math.floor( i );
+      double highObs = lowObs + 1;
 
-      double r1 = high_obs - i;
+      double r1 = highObs - i;
       double r2 = 1.0 - r1;
 
-      double x1 = vals[ (int) low_obs - 1 ];
-      double x2 = vals[ (int) high_obs - 1 ];
+      double x1 = vals[ (int) lowObs - 1 ];
+      double x2 = vals[ (int) highObs - 1 ];
 
       return ( r1 * x1 ) + ( r2 * x2 );
     }
@@ -101,10 +101,10 @@ public class FieldIndex {
     double i = p * n;
     double res = 0;
     if ( i == 0 ) {
-      return m_min;
+      return mMin;
     }
     if ( i == n ) {
-      return m_max;
+      return mMax;
     }
     if ( i - Math.floor( i ) > 0 ) {
       i = Math.floor( i );
@@ -128,18 +128,18 @@ public class FieldIndex {
 
     // process cache?
     if ( cache != null ) {
-      double[] result = new double[ (int) m_count ];
+      double[] result = new double[ (int) mCount ];
       for ( int i = 0; i < cache.size(); i++ ) {
         result[ i ] = cache.get( i ).doubleValue();
       }
       Arrays.sort( result );
 
       if ( usmf.getCalcMedian() ) {
-        m_median = percentile( 0.5, result, usmf.getInterpolatePercentile() );
+        mMedian = percentile( 0.5, result, usmf.getInterpolatePercentile() );
       }
 
       if ( usmf.getCalcPercentile() >= 0 ) {
-        m_arbitraryPercentile = percentile( usmf.getCalcPercentile(), result, usmf.getInterpolatePercentile() );
+        mArbitraryPercentile = percentile( usmf.getCalcPercentile(), result, usmf.getInterpolatePercentile() );
       }
     }
 
@@ -147,25 +147,25 @@ public class FieldIndex {
 
     int index = 0;
     if ( usmf.getCalcN() ) {
-      result[ index++ ] = new Double( m_count );
+      result[ index++ ] = new Double( mCount );
     }
     if ( usmf.getCalcMean() ) {
-      result[ index++ ] = new Double( m_mean );
+      result[ index++ ] = new Double( mMean );
     }
     if ( usmf.getCalcStdDev() ) {
-      result[ index++ ] = new Double( m_stdDev );
+      result[ index++ ] = new Double( mStdDev );
     }
     if ( usmf.getCalcMin() ) {
-      result[ index++ ] = new Double( m_min );
+      result[ index++ ] = new Double( mMin );
     }
     if ( usmf.getCalcMax() ) {
-      result[ index++ ] = new Double( m_max );
+      result[ index++ ] = new Double( mMax );
     }
     if ( usmf.getCalcMedian() ) {
-      result[ index++ ] = new Double( m_median );
+      result[ index++ ] = new Double( mMedian );
     }
     if ( usmf.getCalcPercentile() >= 0 ) {
-      result[ index++ ] = new Double( m_arbitraryPercentile );
+      result[ index++ ] = new Double( mArbitraryPercentile );
     }
     return result;
   }

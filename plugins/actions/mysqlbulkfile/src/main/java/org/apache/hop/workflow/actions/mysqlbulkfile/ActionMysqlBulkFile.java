@@ -73,7 +73,7 @@ import java.util.List;
 public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionMysqlBulkFile.class; // for i18n purposes, needed by Translator!!
 
-  private String tablename;
+  private String tableName;
   private String schemaname;
   private String filename;
   private String separator;
@@ -84,14 +84,14 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
   private boolean highpriority;
   private boolean optionenclosed;
   public int outdumpvalue;
-  public int iffileexists;
+  public int ifFileExists;
   private boolean addfiletoresult;
 
   private DatabaseMeta connection;
 
   public ActionMysqlBulkFile( String n ) {
     super( n, "" );
-    tablename = null;
+    tableName = null;
     schemaname = null;
     filename = null;
     separator = null;
@@ -101,7 +101,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     lineterminated = null;
     highpriority = true;
     optionenclosed = false;
-    iffileexists = 2;
+    ifFileExists = 2;
     connection = null;
     addfiletoresult = false;
   }
@@ -120,7 +120,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
     retval.append( super.getXml() );
     retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "separator", separator ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "enclosed", enclosed ) );
@@ -130,7 +130,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     retval.append( "      " ).append( XmlHandler.addTagValue( "listcolumn", listcolumn ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "highpriority", highpriority ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "outdumpvalue", outdumpvalue ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", iffileexists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", ifFileExists ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
     retval.append( "      " ).append(
       XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
@@ -143,7 +143,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     try {
       super.loadXml( entrynode );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
       filename = XmlHandler.getTagValue( entrynode, "filename" );
       separator = XmlHandler.getTagValue( entrynode, "separator" );
       enclosed = XmlHandler.getTagValue( entrynode, "enclosed" );
@@ -153,7 +153,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
       highpriority = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "highpriority" ) );
       optionenclosed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "optionenclosed" ) );
       outdumpvalue = Const.toInt( XmlHandler.getTagValue( entrynode, "outdumpvalue" ), -1 );
-      iffileexists = Const.toInt( XmlHandler.getTagValue( entrynode, "iffileexists" ), -1 );
+      ifFileExists = Const.toInt( XmlHandler.getTagValue( entrynode, "iffileexists" ), -1 );
       String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
       addfiletoresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
@@ -162,8 +162,8 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
     }
   }
 
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTablename( String tableName ) {
+    this.tableName = tableName;
   }
 
   public void setSchemaname( String schemaname ) {
@@ -171,7 +171,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
   }
 
   public String getTablename() {
-    return tablename;
+    return tableName;
   }
 
   public String getSchemaname() {
@@ -213,14 +213,14 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
       String realFilename = getRealFilename();
       File file = new File( realFilename );
 
-      if ( file.exists() && iffileexists == 2 ) {
+      if ( file.exists() && ifFileExists == 2 ) {
         // the file exists and user want to Fail
         result.setResult( false );
         result.setNrErrors( 1 );
         logError( BaseMessages.getString( PKG, "JobMysqlBulkFile.FileExists1.Label" )
           + realFilename + BaseMessages.getString( PKG, "JobMysqlBulkFile.FileExists2.Label" ) );
 
-      } else if ( file.exists() && iffileexists == 1 ) {
+      } else if ( file.exists() && ifFileExists == 1 ) {
         // the file exists and user want to do nothing
         result.setResult( true );
         if ( log.isDetailed() ) {
@@ -230,7 +230,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
 
       } else {
 
-        if ( file.exists() && iffileexists == 0 ) {
+        if ( file.exists() && ifFileExists == 0 ) {
           // File exists and user want to renamme it with unique name
 
           // Format Date
@@ -267,7 +267,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
             // Get schemaname
             String realSchemaname = environmentSubstitute( schemaname );
             // Get tablename
-            String realTablename = environmentSubstitute( tablename );
+            String realTablename = environmentSubstitute( tableName );
 
             if ( db.checkTableExists( realTablename ) ) {
               // The table existe, We can continue ...

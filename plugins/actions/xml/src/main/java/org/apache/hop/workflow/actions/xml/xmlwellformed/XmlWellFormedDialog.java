@@ -770,27 +770,27 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
       jobEntry.setResultFilenames( XmlWellFormed.ADD_ALL_FILENAMES );
     }
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
       }
     }
-    String[] source_filefolder = new String[nr];
+    String[] sourceFileFolder = new String[nr];
     String[] wildcard = new String[nr];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( source != null && source.length() != 0 ) {
-        source_filefolder[nr] = source;
+        sourceFileFolder[nr] = source;
         wildcard[nr] = wild;
         nr++;
       }
     }
-    jobEntry.setSourceFileFolders( source_filefolder );
+    jobEntry.setSourceFileFolders( sourceFileFolder );
     jobEntry.setSourceWildcards( wildcard );
     dispose();
   }

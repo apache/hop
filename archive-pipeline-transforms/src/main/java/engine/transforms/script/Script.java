@@ -106,8 +106,8 @@ public class Script extends BaseTransform implements ITransform {
     }
 
     // Allocate fields_used
-    data.fields_used = new int[ nr ];
-    data.values_used = new Value[ nr ];
+    data.fieldsUsed = new int[ nr ];
+    data.valuesUsed = new Value[ nr ];
 
     nr = 0;
     // Count the occurrences of the values.
@@ -121,14 +121,14 @@ public class Script extends BaseTransform implements ITransform {
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "Script.Log.UsedValueName", String.valueOf( i ), valname ) );
         }
-        data.fields_used[ nr ] = i;
+        data.fieldsUsed[ nr ] = i;
         nr++;
       }
     }
 
     if ( log.isDetailed() ) {
       logDetailed( BaseMessages.getString( PKG, "Script.Log.UsingValuesFromInputStream", String
-        .valueOf( data.fields_used.length ) ) );
+        .valueOf( data.fieldsUsed.length ) ) );
     }
   }
 
@@ -195,9 +195,9 @@ public class Script extends BaseTransform implements ITransform {
 
         // Add the used fields...
         //
-        for ( int i = 0; i < data.fields_used.length; i++ ) {
-          IValueMeta valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
-          Object valueData = row[ data.fields_used[ i ] ];
+        for ( int i = 0; i < data.fieldsUsed.length; i++ ) {
+          IValueMeta valueMeta = rowMeta.getValueMeta( data.fieldsUsed[ i ] );
+          Object valueData = row[ data.fieldsUsed[ i ] ];
 
           Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
           data.scope.put( valueMeta.getName(), normalStorageValueData );
@@ -292,9 +292,9 @@ public class Script extends BaseTransform implements ITransform {
       try {
         data.scope.put( "row", row );
 
-        for ( int i = 0; i < data.fields_used.length; i++ ) {
-          IValueMeta valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
-          Object valueData = row[ data.fields_used[ i ] ];
+        for ( int i = 0; i < data.fieldsUsed.length; i++ ) {
+          IValueMeta valueMeta = rowMeta.getValueMeta( data.fieldsUsed[ i ] );
+          Object valueData = row[ data.fieldsUsed[ i ] ];
 
           Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
           data.scope.put( valueMeta.getName(), normalStorageValueData );
@@ -312,8 +312,8 @@ public class Script extends BaseTransform implements ITransform {
       if ( bFirstRun ) {
         bFirstRun = false;
         // Check if we had a Pipeline Status
-        Object tran_stat = data.scope.get( "pipeline_Status" );
-        if ( tran_stat != null ) { // TODO AKRETION not sure: !=
+        Object pipelineStatus = data.scope.get( "pipeline_Status" );
+        if ( pipelineStatus != null ) { // TODO AKRETION not sure: !=
           // ScriptableObject.NOT_FOUND
           bWithPipelineStat = true;
           if ( log.isDetailed() ) {

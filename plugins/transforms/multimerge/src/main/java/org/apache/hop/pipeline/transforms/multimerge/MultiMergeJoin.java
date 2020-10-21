@@ -381,8 +381,8 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
         }
       }
       String joinType = meta.getJoinType();
-      for ( int i = 0; i < MultiMergeJoinMeta.join_types.length; ++i ) {
-        if ( joinType.equalsIgnoreCase( MultiMergeJoinMeta.join_types[ i ] ) ) {
+      for ( int i = 0; i < MultiMergeJoinMeta.joinTypes.length; ++i ) {
+        if ( joinType.equalsIgnoreCase( MultiMergeJoinMeta.joinTypes[ i ] ) ) {
           data.optional = MultiMergeJoinMeta.optionals[ i ];
           return true;
         }

@@ -98,11 +98,11 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
   // private boolean containsDot;
   // private boolean containsComma;
 
-  private static final String[] date_formats = new String[] {
+  private static final String[] dateFormats = new String[] {
     "yyyy/MM/dd HH:mm:ss.SSS", "yyyy/MM/dd HH:mm:ss", "dd/MM/yyyy", "dd-MM-yyyy", "yyyy/MM/dd", "yyyy-MM-dd",
     "yyyyMMdd", "ddMMyyyy", "d-M-yyyy", "d/M/yyyy", "d-M-yy", "d/M/yy", };
 
-  private static final String[] number_formats = new String[] {
+  private static final String[] numberFormats = new String[] {
     "", "#", Const.DEFAULT_NUMBER_FORMAT, "0.00", "0000000000000", "###,###,###.#######",
     "###############.###############", "#####.###############%", };
 
@@ -288,8 +288,8 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     return nullString;
   }
 
-  public void setNullString( String null_string ) {
-    this.nullString = null_string;
+  public void setNullString( String nullString ) {
+    this.nullString = nullString;
   }
 
   public String getIfNullValue() {
@@ -352,9 +352,9 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     // ////////////////////////////
 
     // See if all samples can be transformed into a date...
-    int datefmt_cnt = date_formats.length;
-    boolean[] datefmt = new boolean[ date_formats.length ];
-    for ( int i = 0; i < date_formats.length; i++ ) {
+    int datefmt_cnt = dateFormats.length;
+    boolean[] datefmt = new boolean[ dateFormats.length ];
+    for ( int i = 0; i < dateFormats.length; i++ ) {
       datefmt[ i ] = true;
     }
     int datenul = 0;
@@ -363,7 +363,7 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
       if ( samples[ i ].length() > 0 && samples[ i ].equalsIgnoreCase( nullString ) ) {
         datenul++;
       } else {
-        for ( int x = 0; x < date_formats.length; x++ ) {
+        for ( int x = 0; x < dateFormats.length; x++ ) {
           if ( samples[ i ] == null || Const.onlySpaces( samples[ i ] ) || samples[ i ].length() == 0 ) {
             datefmt[ x ] = false;
             datefmt_cnt--;
@@ -371,7 +371,7 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
 
           if ( datefmt[ x ] ) {
             try {
-              daf.applyPattern( date_formats[ x ] );
+              daf.applyPattern( dateFormats[ x ] );
               Date date = daf.parse( samples[ i ] );
 
               Calendar cal = Calendar.getInstance();
@@ -396,14 +396,14 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     // So we're certainly not going to take a date, just take a string in that case.
     if ( datefmt_cnt > 0 && datenul != samples.length ) {
       int first = -1;
-      for ( int i = 0; i < date_formats.length && first < 0; i++ ) {
+      for ( int i = 0; i < dateFormats.length && first < 0; i++ ) {
         if ( datefmt[ i ] ) {
           first = i;
         }
       }
 
       type = IValueMeta.TYPE_DATE;
-      format = date_formats[ first ];
+      format = dateFormats[ first ];
 
       return;
     }
@@ -418,18 +418,18 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     decimalSymbol = "" + dfs.getDecimalSeparator();
     groupSymbol = "" + dfs.getGroupingSeparator();
 
-    boolean[] numfmt = new boolean[ number_formats.length ];
-    int[] maxprecision = new int[ number_formats.length ];
+    boolean[] numfmt = new boolean[ numberFormats.length ];
+    int[] maxprecision = new int[ numberFormats.length ];
     for ( int i = 0; i < numfmt.length; i++ ) {
       numfmt[ i ] = true;
       maxprecision[ i ] = -1;
     }
-    int numfmt_cnt = number_formats.length;
+    int numfmt_cnt = numberFormats.length;
     int numnul = 0;
 
     for ( int i = 0; i < samples.length && isnumber; i++ ) {
       boolean contains_dot = false;
-      boolean contains_comma = false;
+      boolean containsComma = false;
 
       String field = samples[ i ];
 
@@ -449,31 +449,31 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
               // containsDot = true;
             }
             if ( ch == ',' ) {
-              contains_comma = true;
+              containsComma = true;
               // containsComma = true;
             }
           }
         }
         // If it's still a number, try to parse it as a double
         if ( isnumber ) {
-          if ( contains_dot && !contains_comma ) { // American style 174.5
+          if ( contains_dot && !containsComma ) { // American style 174.5
 
             dfs.setDecimalSeparator( '.' );
             decimalSymbol = ".";
             dfs.setGroupingSeparator( ',' );
             groupSymbol = ",";
-          } else if ( !contains_dot && contains_comma ) { // European style 174,5
+          } else if ( !contains_dot && containsComma ) { // European style 174,5
 
             dfs.setDecimalSeparator( ',' );
             decimalSymbol = ",";
             dfs.setGroupingSeparator( '.' );
             groupSymbol = ".";
-          } else if ( contains_dot && contains_comma ) { // Both appear!
+          } else if ( contains_dot && containsComma ) { // Both appear!
 
             // What's the last occurance: decimal point!
             int idx_dot = field.indexOf( '.' );
-            int idx_com = field.indexOf( ',' );
-            if ( idx_dot > idx_com ) {
+            int idxCom = field.indexOf( ',' );
+            if ( idx_dot > idxCom ) {
               dfs.setDecimalSeparator( '.' );
               decimalSymbol = ".";
               dfs.setGroupingSeparator( ',' );
@@ -487,14 +487,14 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
           }
 
           // Try the remaining possible number formats!
-          for ( int x = 0; x < number_formats.length; x++ ) {
+          for ( int x = 0; x < numberFormats.length; x++ ) {
             if ( numfmt[ x ] ) {
               boolean islong = true;
 
               try {
                 int prec = -1;
                 // Try long integers first....
-                if ( !contains_dot && !contains_comma ) {
+                if ( !contains_dot && !containsComma ) {
                   try {
                     Long.parseLong( field );
                     prec = 0;
@@ -506,7 +506,7 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
                 if ( !islong ) { // Try the double
 
                   df.setDecimalFormatSymbols( dfs );
-                  df.applyPattern( number_formats[ x ] );
+                  df.applyPattern( numberFormats[ x ] );
 
                   double d = df.parse( field ).doubleValue();
                   prec = guessPrecision( d );
@@ -528,14 +528,14 @@ public class TextFileInputField implements Cloneable, ITextFileInputField {
     // If all sample strings are empty or represent NULL values we can't take a number as type.
     if ( numfmt_cnt > 0 && numnul != samples.length ) {
       int first = -1;
-      for ( int i = 0; i < number_formats.length && first < 0; i++ ) {
+      for ( int i = 0; i < numberFormats.length && first < 0; i++ ) {
         if ( numfmt[ i ] ) {
           first = i;
         }
       }
 
       type = IValueMeta.TYPE_NUMBER;
-      format = number_formats[ first ];
+      format = numberFormats[ first ];
       precision = maxprecision[ first ];
 
       // Wait a minute!!! What about Integers?

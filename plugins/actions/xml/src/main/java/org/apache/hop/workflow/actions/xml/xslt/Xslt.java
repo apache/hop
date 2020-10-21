@@ -84,7 +84,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   private String xmlfilename;
   private String xslfilename;
   private String outputfilename;
-  public int iffileexists;
+  public int ifFileExists;
   private boolean addfiletoresult;
   private String xsltfactory;
   private boolean filenamesfromprevious;
@@ -114,7 +114,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     xmlfilename = null;
     xslfilename = null;
     outputfilename = null;
-    iffileexists = 1;
+    ifFileExists = 1;
     addfiletoresult = false;
     filenamesfromprevious = false;
     xsltfactory = FACTORY_JAXP;
@@ -169,7 +169,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     retval.append( "      " ).append( XmlHandler.addTagValue( "xmlfilename", xmlfilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "xslfilename", xslfilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "outputfilename", outputfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", iffileexists ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", ifFileExists ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "filenamesfromprevious", filenamesfromprevious ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "xsltfactory", xsltfactory ) );
@@ -203,7 +203,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
       xmlfilename = XmlHandler.getTagValue( entrynode, "xmlfilename" );
       xslfilename = XmlHandler.getTagValue( entrynode, "xslfilename" );
       outputfilename = XmlHandler.getTagValue( entrynode, "outputfilename" );
-      iffileexists = Const.toInt( XmlHandler.getTagValue( entrynode, "iffileexists" ), -1 );
+      ifFileExists = Const.toInt( XmlHandler.getTagValue( entrynode, "iffileexists" ), -1 );
       addfiletoresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
       filenamesfromprevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "filenamesfromprevious" ) );
       xsltfactory = XmlHandler.getTagValue( entrynode, "xsltfactory" );
@@ -263,8 +263,8 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
 
   public Result execute(Result previousResult, int nr ) throws HopException {
     Result result = previousResult;
-    int NrErrors = 0;
-    int NrSuccess = 0;
+    int nrErrors = 0;
+    int nrSuccess = 0;
 
     // Check output parameters
     int nrOutputProps = getOutputPropertyName() == null ? 0 : getOutputPropertyName().length;
@@ -309,21 +309,21 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
         resultRow = rows.get( iteration );
 
         // Get filenames (xml, xsl, output filename)
-        String xmlfilename_previous = resultRow.getString( 0, null );
-        String xslfilename_previous = resultRow.getString( 1, null );
-        String ouputfilename_previous = resultRow.getString( 2, null );
+        String xmlfilenamePrevious = resultRow.getString( 0, null );
+        String xslfilenamePrevious = resultRow.getString( 1, null );
+        String ouputfilenamePrevious = resultRow.getString( 2, null );
 
-        if ( !Utils.isEmpty( xmlfilename_previous ) && !Utils.isEmpty( xslfilename_previous )
-            && !Utils.isEmpty( ouputfilename_previous ) ) {
-          if ( processOneXMLFile( xmlfilename_previous, xslfilename_previous, ouputfilename_previous, result, parentWorkflow ) ) {
-            NrSuccess++;
+        if ( !Utils.isEmpty( xmlfilenamePrevious ) && !Utils.isEmpty( xslfilenamePrevious )
+            && !Utils.isEmpty( ouputfilenamePrevious ) ) {
+          if ( processOneXMLFile( xmlfilenamePrevious, xslfilenamePrevious, ouputfilenamePrevious, result, parentWorkflow ) ) {
+            nrSuccess++;
           } else {
-            NrErrors++;
+            nrErrors++;
           }
         } else {
           // We failed!
           logError( BaseMessages.getString( PKG, "JobEntryXSLT.AllFilesNotNull.Label" ) );
-          NrErrors++;
+          nrErrors++;
         }
 
       }
@@ -334,20 +334,20 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
       if ( !Utils.isEmpty( realxmlfilename ) && !Utils.isEmpty( realxslfilename )
           && !Utils.isEmpty( realoutputfilename ) ) {
         if ( processOneXMLFile( realxmlfilename, realxslfilename, realoutputfilename, result, parentWorkflow ) ) {
-          NrSuccess++;
+          nrSuccess++;
         } else {
-          NrErrors++;
+          nrErrors++;
         }
       } else {
         // We failed!
         logError( BaseMessages.getString( PKG, "JobEntryXSLT.AllFilesNotNull.Label" ) );
-        NrErrors++;
+        nrErrors++;
       }
     }
 
-    result.setResult( NrErrors == 0 );
-    result.setNrErrors( NrErrors );
-    result.setNrLinesWritten( NrSuccess );
+    result.setResult( nrErrors == 0 );
+    result.setNrErrors( nrErrors );
+    result.setNrLinesWritten( nrSuccess );
 
     return result;
   }
@@ -365,14 +365,14 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
       outputfile = HopVfs.getFileObject( outputfilename );
 
       if ( xmlfile.exists() && xslfile.exists() ) {
-        if ( outputfile.exists() && iffileexists == 2 ) {
+        if ( outputfile.exists() && ifFileExists == 2 ) {
           // Output file exists
           // User want to fail
           logError( BaseMessages.getString( PKG, "JobEntryXSLT.OuputFileExists1.Label" ) + outputfilename
               + BaseMessages.getString( PKG, "JobEntryXSLT.OuputFileExists2.Label" ) );
           return retval;
 
-        } else if ( outputfile.exists() && iffileexists == 1 ) {
+        } else if ( outputfile.exists() && ifFileExists == 1 ) {
           // Do nothing
           if ( log.isDebug() ) {
             logDebug( BaseMessages.getString( PKG, "JobEntryXSLT.OuputFileExists1.Label" ) + outputfilename
@@ -382,7 +382,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
           return retval;
 
         } else {
-          if ( outputfile.exists() && iffileexists == 0 ) {
+          if ( outputfile.exists() && ifFileExists == 0 ) {
             // the output file exists and user want to create new one with unique name
             // Format Date
 

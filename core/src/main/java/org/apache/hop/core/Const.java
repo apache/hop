@@ -2180,16 +2180,16 @@ public class Const {
     }
 
     int sepLen = separator.length();
-    int nr_separators = 1;
+    int nrSeparators = 1;
     int from = path.startsWith( separator ) ? sepLen : 0;
 
     for ( int i = from; i < path.length(); i += sepLen ) {
       if ( path.substring( i, i + sepLen ).equalsIgnoreCase( separator ) ) {
-        nr_separators++;
+        nrSeparators++;
       }
     }
 
-    String[] spath = new String[ nr_separators ];
+    String[] spath = new String[ nrSeparators ];
     int nr = 0;
     for ( int i = from; i < path.length(); i += sepLen ) {
       if ( path.substring( i, i + sepLen ).equalsIgnoreCase( separator ) ) {

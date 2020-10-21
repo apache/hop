@@ -73,7 +73,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
     // if first row we do some initializing and process the first row of the target XML Transform
     if ( first ) {
       first = false;
-      int target_field_id = -1;
+      int targetField_id = -1;
 
       // Get the two input row sets
       data.TargetRowSet = findInputRowSet( meta.getTargetXmlTransform() );
@@ -89,14 +89,14 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
       }
 
       // get target xml
-      String[] target_field_names = data.TargetRowSet.getRowMeta().getFieldNames();
-      for ( int i = 0; i < target_field_names.length; i++ ) {
-        if ( meta.getTargetXmlField().equals( target_field_names[i] ) ) {
-          target_field_id = i;
+      String[] targetFieldNames = data.TargetRowSet.getRowMeta().getFieldNames();
+      for ( int i = 0; i < targetFieldNames.length; i++ ) {
+        if ( meta.getTargetXmlField().equals( targetFieldNames[i] ) ) {
+          targetField_id = i;
         }
       }
       // Throw exception if target field has not been found
-      if ( target_field_id == -1 ) {
+      if ( targetField_id == -1 ) {
         throw new HopException( BaseMessages.getString( PKG, "XMLJoin.Exception.FieldNotFound", meta
             .getTargetXmlField() ) );
       }
@@ -107,7 +107,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
       data.outputRowData = rTarget.clone();
 
       // get the target xml structure and create a DOM
-      String strTarget = (String) rTarget[target_field_id];
+      String strTarget = (String) rTarget[targetField_id];
       // parse the XML as a W3C Document
 
       InputSource inputSource = new InputSource( new StringReader( strTarget ) );
@@ -157,9 +157,9 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
         // assume failure
         // get the column of the join xml set
         // get target xml
-        String[] source_field_names = data.SourceRowSet.getRowMeta().getFieldNames();
-        for ( int i = 0; i < source_field_names.length; i++ ) {
-          if ( meta.getSourceXmlField().equals( source_field_names[i] ) ) {
+        String[] sourceFieldNames = data.SourceRowSet.getRowMeta().getFieldNames();
+        for ( int i = 0; i < sourceFieldNames.length; i++ ) {
+          if ( meta.getSourceXmlField().equals( sourceFieldNames[i] ) ) {
             data.iSourceXMLField = i;
           }
         }
@@ -172,9 +172,9 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
 
       if ( meta.isComplexJoin() && data.iCompareFieldID == -1 ) {
         // get the column of the compare value
-        String[] source_field_names = data.SourceRowSet.getRowMeta().getFieldNames();
-        for ( int i = 0; i < source_field_names.length; i++ ) {
-          if ( meta.getJoinCompareField().equals( source_field_names[i] ) ) {
+        String[] sourceFieldNames = data.SourceRowSet.getRowMeta().getFieldNames();
+        for ( int i = 0; i < sourceFieldNames.length; i++ ) {
+          if ( meta.getJoinCompareField().equals( sourceFieldNames[i] ) ) {
             data.iCompareFieldID = i;
           }
         }

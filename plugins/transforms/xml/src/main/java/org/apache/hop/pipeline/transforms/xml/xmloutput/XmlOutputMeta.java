@@ -170,10 +170,10 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   private boolean omitNullValues;
 
   @Injection( name = "SPEFICY_FORMAT" )
-  private boolean SpecifyFormat;
+  private boolean specifyFormat;
 
   @Injection( name = "DATE_FORMAT" )
-  private String date_time_format;
+  private String dateTimeFormat;
 
   public XmlOutputMeta() {
     super(); // allocate BaseTransformMeta
@@ -292,19 +292,19 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
   }
 
   public boolean isSpecifyFormat() {
-    return SpecifyFormat;
+    return specifyFormat;
   }
 
-  public void setSpecifyFormat( boolean SpecifyFormat ) {
-    this.SpecifyFormat = SpecifyFormat;
+  public void setSpecifyFormat( boolean specifyFormat ) {
+    this.specifyFormat = specifyFormat;
   }
 
   public String getDateTimeFormat() {
-    return date_time_format;
+    return dateTimeFormat;
   }
 
-  public void setDateTimeFormat( String date_time_format ) {
-    this.date_time_format = date_time_format;
+  public void setDateTimeFormat( String dateTimeFormat ) {
+    this.dateTimeFormat = dateTimeFormat;
   }
 
   /**
@@ -443,8 +443,8 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     splitEvery = 0;
     encoding = Const.XML_ENCODING;
     nameSpace = "";
-    date_time_format = null;
-    SpecifyFormat = false;
+    dateTimeFormat = null;
+    specifyFormat = false;
     omitNullValues = false;
     mainElement = "Rows";
     repeatElement = "Row";
@@ -497,8 +497,8 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
 
     Date now = new Date();
 
-    if ( SpecifyFormat && !Utils.isEmpty( date_time_format ) ) {
-      daf.applyPattern( date_time_format );
+    if ( specifyFormat && !Utils.isEmpty( dateTimeFormat ) ) {
+      daf.applyPattern( dateTimeFormat );
       String dt = daf.format( now );
       retval += dt;
     } else {
@@ -580,9 +580,9 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     retval.append( "      " ).append( XmlHandler.addTagValue( "split", stepNrInFilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", dateInFilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", timeInFilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", specifyFormat ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "omit_null_values", omitNullValues ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", dateTimeFormat ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_to_result_filenames", addToResultFilenames ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "zipped", zipped ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "splitevery", splitEvery ) );
@@ -623,20 +623,20 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
           "XMLOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), stepinfo );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < outputFields.length; i++ ) {
         int idx = prev.indexOfValue( outputFields[ i ].getFieldName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + outputFields[ i ].getFieldName() + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + outputFields[ i ].getFieldName() + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message = BaseMessages.getString( PKG, "XMLOutputMeta.CheckResult.FieldsNotFound", error_message );
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, stepinfo );
+      if ( errorFound ) {
+        errorMessage = BaseMessages.getString( PKG, "XMLOutputMeta.CheckResult.FieldsNotFound", errorMessage );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, stepinfo );
         remarks.add( cr );
       } else {
         cr =

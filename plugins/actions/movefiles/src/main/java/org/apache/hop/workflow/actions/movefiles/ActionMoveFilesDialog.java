@@ -311,7 +311,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( action.arg_from_previous );
+    wPrevious.setSelection( action.argFromPrevious );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "JobMoveFiles.Previous.Tooltip" ) );
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -485,8 +485,8 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wlFields.setLayoutData(fdlFields);
 
     int rows =
-      action.source_filefolder == null ? 1 : ( action.source_filefolder.length == 0
-        ? 0 : action.source_filefolder.length );
+      action.sourceFileFolder == null ? 1 : ( action.sourceFileFolder.length == 0
+        ? 0 : action.sourceFileFolder.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -1420,16 +1420,16 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
    */
   public void getData() {
     wName.setText( Const.NVL( action.getName(), "" ) );
-    wMoveEmptyFolders.setSelection( action.move_empty_folders );
+    wMoveEmptyFolders.setSelection( action.moveEmptyFolders );
 
-    if ( action.source_filefolder != null ) {
-      for ( int i = 0; i < action.source_filefolder.length; i++ ) {
+    if ( action.sourceFileFolder != null ) {
+      for ( int i = 0; i < action.sourceFileFolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( action.source_filefolder[ i ] != null ) {
-          ti.setText( 1, action.source_filefolder[ i ] );
+        if ( action.sourceFileFolder[ i ] != null ) {
+          ti.setText( 1, action.sourceFileFolder[ i ] );
         }
-        if ( action.destination_filefolder[ i ] != null ) {
-          ti.setText( 2, action.destination_filefolder[ i ] );
+        if ( action.destinationFileFolder[ i ] != null ) {
+          ti.setText( 2, action.destinationFileFolder[ i ] );
         }
         if ( action.wildcard[ i ] != null ) {
           ti.setText( 3, action.wildcard[ i ] );
@@ -1438,14 +1438,14 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( action.arg_from_previous );
-    wIncludeSubfolders.setSelection( action.include_subfolders );
-    wDestinationIsAFile.setSelection( action.destination_is_a_file );
-    wCreateDestinationFolder.setSelection( action.create_destination_folder );
+    wPrevious.setSelection( action.argFromPrevious );
+    wIncludeSubfolders.setSelection( action.includeSubfolders );
+    wDestinationIsAFile.setSelection( action.destinationIsAFile );
+    wCreateDestinationFolder.setSelection( action.createDestinationFolder );
 
-    wAddFileToResult.setSelection( action.add_result_filesname );
+    wAddFileToResult.setSelection( action.addResultFilenames );
 
-    wCreateMoveToFolder.setSelection( action.create_move_to_folder );
+    wCreateMoveToFolder.setSelection( action.createMoveToFolder );
 
     if ( action.getNrErrorsLessThan() != null ) {
       wNrErrorsLessThan.setText( action.getNrErrorsLessThan() );
@@ -1599,25 +1599,25 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     action.setMovedDateTimeFormat( wMovedDateTimeFormat.getText() );
     action.setAddMovedDateBeforeExtension( wAddMovedDateBeforeExtension.getSelection() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
       }
     }
-    action.source_filefolder = new String[ nr ];
-    action.destination_filefolder = new String[ nr ];
+    action.sourceFileFolder = new String[ nr ];
+    action.destinationFileFolder = new String[ nr ];
     action.wildcard = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String dest = wFields.getNonEmpty( i ).getText( 2 );
       String wild = wFields.getNonEmpty( i ).getText( 3 );
       if ( source != null && source.length() != 0 ) {
-        action.source_filefolder[ nr ] = source;
-        action.destination_filefolder[ nr ] = dest;
+        action.sourceFileFolder[ nr ] = source;
+        action.destinationFileFolder[ nr ] = dest;
         action.wildcard[ nr ] = wild;
         nr++;
       }

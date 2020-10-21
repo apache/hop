@@ -152,7 +152,7 @@ public class MetaAnnotationInjectionTest {
   }
 
   @Test
-  public void testInjectionForArrayPropertyWithoutDefaultConstructor_interface_parameter() throws HopException {
+  public void testInjectionForArrayPropertyWithoutDefaultConstructorInterface_parameter() throws HopException {
     BeanInjector beanInjector = buildBeanInjectorFor( MetadataBeanImplementsInterface.class );
     MetadataBeanImplementsInterface targetBean = new MetadataBeanImplementsInterface();
     beanInjector.setProperty( targetBean, COMPLEX_NAME, createRowMetaAndData(), FIELD_ONE );

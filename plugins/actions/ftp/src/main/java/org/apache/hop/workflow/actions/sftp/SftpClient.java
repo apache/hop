@@ -359,10 +359,10 @@ public class SftpClient {
     }
   }
 
-  public boolean folderExists( String foldername ) {
+  public boolean folderExists( String folderName ) {
     boolean retval = false;
     try {
-      SftpATTRS attrs = c.stat( foldername );
+      SftpATTRS attrs = c.stat( folderName );
       if ( attrs == null ) {
         return false;
       }

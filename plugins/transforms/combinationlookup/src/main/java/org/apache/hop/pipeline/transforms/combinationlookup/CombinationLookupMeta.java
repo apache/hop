@@ -95,7 +95,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
    * what's the lookup table?
    */
   @Injection( name = "TABLE_NAME" )
-  private String tablename;
+  private String tableName;
 
   /**
    * database connection
@@ -338,14 +338,14 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
    */
   @Override
   public String getTableName() {
-    return tablename;
+    return tableName;
   }
 
   /**
-   * @param tablename The tablename to set.
+   * @param tableName The tablename to set.
    */
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTablename( String tableName ) {
+    this.tableName = tableName;
   }
 
   /**
@@ -419,7 +419,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
       String commit, csize;
 
       schemaName = XmlHandler.getTagValue( transformNode, "schema" );
-      tablename = XmlHandler.getTagValue( transformNode, "table" );
+      tableName = XmlHandler.getTagValue( transformNode, "table" );
       String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       commit = XmlHandler.getTagValue( transformNode, "commit" );
@@ -464,7 +464,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   @Override
   public void setDefault() {
     schemaName = "";
-    tablename = BaseMessages.getString( PKG, "CombinationLookupMeta.DimensionTableName.Label" );
+    tableName = BaseMessages.getString( PKG, "CombinationLookupMeta.DimensionTableName.Label" );
     databaseMeta = null;
     commitSize = 100;
     cacheSize = DEFAULT_CACHE_SIZE;
@@ -510,7 +510,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
     StringBuilder retval = new StringBuilder( 512 );
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "table", tableName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "connection",
       databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "commit", commitSize ) );
@@ -548,19 +548,19 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
       try {
         db.connect();
 
-        if ( !Utils.isEmpty( tablename ) ) {
+        if ( !Utils.isEmpty( tableName ) ) {
           boolean first = true;
-          boolean error_found = false;
-          error_message = "";
+          boolean errorFound = false;
+          errorMessage = "";
 
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tablename );
+          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
           IRowMeta r = db.getTableFields( schemaTable );
           if ( r != null ) {
             for ( int i = 0; i < keyLookup.length; i++ ) {
@@ -570,16 +570,16 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.MissingCompareFields" )
                       + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + lufield + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + lufield + Const.CR;
               }
             }
-            if ( error_found ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            if ( errorFound ) {
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             } else {
               cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -589,23 +589,23 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
 
             /* Also, check the fields: tk, version, from-to, ... */
             if ( r.indexOfValue( technicalKeyField ) < 0 ) {
-              error_message =
+              errorMessage =
                 BaseMessages.getString(
                   PKG, "CombinationLookupMeta.CheckResult.TechnicalKeyNotFound", technicalKeyField )
                   + Const.CR;
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             } else {
-              error_message =
+              errorMessage =
                 BaseMessages.getString(
                   PKG, "CombinationLookupMeta.CheckResult.TechnicalKeyFound", technicalKeyField )
                   + Const.CR;
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
             }
             remarks.add( cr );
           } else {
-            error_message =
+            errorMessage =
               BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           }
         }
@@ -613,23 +613,23 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
         // Look up fields in the input stream <prev>
         if ( prev != null && prev.size() > 0 ) {
           boolean first = true;
-          error_message = "";
-          boolean error_found = false;
+          errorMessage = "";
+          boolean errorFound = false;
 
           for ( int i = 0; i < keyField.length; i++ ) {
             IValueMeta v = prev.searchValueMeta( keyField[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.MissingFields" ) + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + keyField[ i ] + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + keyField[ i ] + Const.CR;
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          if ( errorFound ) {
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           } else {
             cr =
               new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -637,33 +637,33 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
           }
           remarks.add( cr );
         } else {
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.CouldNotReadFields" ) + Const.CR;
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
 
         // Check sequence
         if ( databaseMeta.supportsSequences() && CREATION_METHOD_SEQUENCE.equals( getTechKeyCreation() ) ) {
           if ( Utils.isEmpty( sequenceFrom ) ) {
-            error_message +=
+            errorMessage +=
               BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorNoSequenceName" ) + "!";
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           } else {
             // It doesn't make sense to check the sequence name
             // if it's not filled in.
             if ( db.checkSequenceExists( sequenceFrom ) ) {
-              error_message =
+              errorMessage =
                 BaseMessages
                   .getString( PKG, "CombinationLookupMeta.CheckResult.ReadingSequenceOK", sequenceFrom );
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
               remarks.add( cr );
             } else {
-              error_message +=
+              errorMessage +=
                 BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorReadingSequence" )
                   + sequenceFrom + "!";
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
               remarks.add( cr );
             }
           }
@@ -674,25 +674,25 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
           if ( !( CREATION_METHOD_AUTOINC.equals( techKeyCreation )
             || CREATION_METHOD_SEQUENCE.equals( techKeyCreation ) || CREATION_METHOD_TABLEMAX
             .equals( techKeyCreation ) ) ) {
-            error_message +=
+            errorMessage +=
               BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorTechKeyCreation" )
                 + ": " + techKeyCreation + "!";
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           }
 
         }
       } catch ( HopException e ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.ErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "CombinationLookupMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 
@@ -719,12 +719,12 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
-        if ( !Utils.isEmpty( tablename ) ) {
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tablename );
+        if ( !Utils.isEmpty( tableName ) ) {
+          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
           Database db = new Database( loggingObject, databaseMeta );
           try {
             boolean doHash = false;
-            String cr_table = null;
+            String crTable = null;
 
             db.connect();
 
@@ -759,7 +759,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
               if ( keyField != null && keyLookup != null ) {
                 int cnt = keyField.length;
                 for ( i = 0; i < cnt; i++ ) {
-                  String error_field = "";
+                  String errorField = "";
 
                   // Find the value in the stream
                   IValueMeta v = prev.searchValueMeta( keyField[ i ] );
@@ -770,11 +770,11 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
 
                     if ( name.equals( vkeyfield.getName() )
                       || ( doHash == true && name.equals( vhashfield.getName() ) ) ) {
-                      error_field += name;
+                      errorField += name;
                     }
-                    if ( error_field.length() > 0 ) {
+                    if ( errorField.length() > 0 ) {
                       retval.setError( BaseMessages.getString(
-                        PKG, "CombinationLookupMeta.ReturnValue.NameCollision", error_field ) );
+                        PKG, "CombinationLookupMeta.ReturnValue.NameCollision", errorField ) );
                     } else {
                       fields.addValueMeta( newValue );
                     }
@@ -841,7 +841,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
               }
             }
 
-            cr_table =
+            crTable =
               db.getDDL(
                 schemaTable, fields, ( CREATION_METHOD_SEQUENCE.equals( getTechKeyCreation() )
                   && sequenceFrom != null && sequenceFrom.length() != 0 ) ? null : technicalKeyField,
@@ -853,12 +853,12 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
 
             // What fields do we put int the index?
             // Only the hashcode or all fields?
-            String cr_index = "";
-            String cr_uniq_index = "";
-            String[] idx_fields = null;
+            String crIndex = "";
+            String cr_uniqIndex = "";
+            String[] idxFields = null;
             if ( useHash ) {
               if ( hashField != null && hashField.length() > 0 ) {
-                idx_fields = new String[] { hashField };
+                idxFields = new String[] { hashField };
               } else {
                 retval.setError( BaseMessages.getString(
                   PKG, "CombinationLookupMeta.ReturnValue.NotHashFieldSpecified" ) );
@@ -871,9 +871,9 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
                 if ( maxFields > 0 && nrFields > maxFields ) {
                   nrFields = maxFields; // For example, oracle indexes are limited to 32 fields...
                 }
-                idx_fields = new String[ nrFields ];
+                idxFields = new String[ nrFields ];
                 for ( i = 0; i < nrFields; i++ ) {
-                  idx_fields[ i ] = keyLookup[ i ];
+                  idxFields[ i ] = keyLookup[ i ];
                 }
               } else {
                 retval.setError( BaseMessages.getString(
@@ -886,34 +886,34 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
             if ( !Utils.isEmpty( technicalKeyField ) ) {
               String[] techKeyArr = new String[] { technicalKeyField };
               if ( !db.checkIndexExists( schemaTable, techKeyArr ) ) {
-                String indexname = "idx_" + tablename + "_pk";
-                cr_uniq_index =
+                String indexname = "idx_" + tableName + "_pk";
+                cr_uniqIndex =
                   db.getCreateIndexStatement(
                     schemaTable, indexname, techKeyArr, true, true, false, true );
-                cr_uniq_index += Const.CR;
+                cr_uniqIndex += Const.CR;
               }
             }
 
             // OK, now get the create lookup index statement...
-            if ( !Utils.isEmpty( idx_fields ) && !db.checkIndexExists( schemaTable, idx_fields ) ) {
-              String indexname = "idx_" + tablename + "_lookup";
-              cr_index =
+            if ( !Utils.isEmpty( idxFields ) && !db.checkIndexExists( schemaTable, idxFields ) ) {
+              String indexname = "idx_" + tableName + "_lookup";
+              crIndex =
                 db.getCreateIndexStatement(
-                  schemaTable, indexname, idx_fields, false, false, false, true );
-              cr_index += Const.CR;
+                  schemaTable, indexname, idxFields, false, false, false, true );
+              crIndex += Const.CR;
             }
 
             //
             // Don't forget the sequence (optional)
             //
-            String cr_seq = "";
+            String crSeq = "";
             if ( databaseMeta.supportsSequences() && !Utils.isEmpty( sequenceFrom ) ) {
               if ( !db.checkSequenceExists( schemaName, sequenceFrom ) ) {
-                cr_seq += db.getCreateSequenceStatement( schemaName, sequenceFrom, 1L, 1L, -1L, true );
-                cr_seq += Const.CR;
+                crSeq += db.getCreateSequenceStatement( schemaName, sequenceFrom, 1L, 1L, -1L, true );
+                crSeq += Const.CR;
               }
             }
-            retval.setSql( pipelineMeta.environmentSubstitute( cr_table + cr_uniq_index + cr_index + cr_seq ) );
+            retval.setSql( pipelineMeta.environmentSubstitute( crTable + cr_uniqIndex + crIndex + crSeq ) );
           } catch ( HopException e ) {
             retval.setError( BaseMessages.getString( PKG, "CombinationLookupMeta.ReturnValue.ErrorOccurred" )
               + Const.CR + e.getMessage() );
@@ -952,7 +952,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
       DatabaseImpact ii =
         new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
-          .getDatabaseName(), tablename, keyLookup[ i ], keyField[ i ], v != null ? v.getOrigin() : "?", "",
+          .getDatabaseName(), tableName, keyLookup[ i ], keyField[ i ], v != null ? v.getOrigin() : "?", "",
           useHash ? BaseMessages.getString( PKG, "CombinationLookupMeta.ReadAndInsert.Label" ) : BaseMessages
             .getString( PKG, "CombinationLookupMeta.LookupAndInsert.Label" ) );
       impact.add( ii );
@@ -963,7 +963,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
       DatabaseImpact ii =
         new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(),
-          databaseMeta.getDatabaseName(), tablename, hashField, "", "", "",
+          databaseMeta.getDatabaseName(), tableName, hashField, "", "", "",
           BaseMessages.getString( PKG, "CombinationLookupMeta.KeyLookup.Label" ) );
       impact.add( ii );
     }

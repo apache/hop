@@ -36,7 +36,7 @@ import java.util.Map;
 public class NormaliserData extends BaseTransformData implements ITransformData {
   public List<String> type_occ;
   public int maxlen;
-  public List<Integer> copy_fieldnrs;
+  public List<Integer> copyFieldnrs;
   Map<String, List<Integer>> typeToFieldIndex;
 
   public IRowMeta inputRowMeta;

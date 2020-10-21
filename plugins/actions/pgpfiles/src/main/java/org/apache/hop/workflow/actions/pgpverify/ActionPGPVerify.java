@@ -69,14 +69,14 @@ import org.w3c.dom.Node;
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionPGPVerify.class; // for i18n purposes, needed by Translator!!
 
-  private String gpglocation;
+  private String gpgLocation;
   private String filename;
   private String detachedfilename;
   private boolean useDetachedSignature;
 
   public ActionPGPVerify( String n ) {
     super( n, "" );
-    gpglocation = null;
+    gpgLocation = null;
     filename = null;
     detachedfilename = null;
     useDetachedSignature = false;
@@ -95,7 +95,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     StringBuilder retval = new StringBuilder( 100 );
 
     retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "gpglocation", gpglocation ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "gpglocation", gpgLocation ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "detachedfilename", detachedfilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "useDetachedSignature", useDetachedSignature ) );
@@ -106,7 +106,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
                        IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
-      gpglocation = XmlHandler.getTagValue( entrynode, "gpglocation" );
+      gpgLocation = XmlHandler.getTagValue( entrynode, "gpglocation" );
       filename = XmlHandler.getTagValue( entrynode, "filename" );
       detachedfilename = XmlHandler.getTagValue( entrynode, "detachedfilename" );
       useDetachedSignature = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "useDetachedSignature" ) );
@@ -117,12 +117,12 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public void setGPGLocation( String gpglocation ) {
-    this.gpglocation = gpglocation;
+  public void setGPGLocation( String gpgLocation ) {
+    this.gpgLocation = gpgLocation;
   }
 
   public String getGPGLocation() {
-    return gpglocation;
+    return gpgLocation;
   }
 
   public void setFilename( String filename ) {
@@ -207,8 +207,8 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
 
   public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
-    if ( !Utils.isEmpty( gpglocation ) ) {
-      String realFileName = workflowMeta.environmentSubstitute( gpglocation );
+    if ( !Utils.isEmpty( gpgLocation ) ) {
+      String realFileName = workflowMeta.environmentSubstitute( gpgLocation );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
       references.add( reference );
@@ -242,20 +242,20 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
       // So let's change the gpglocation from relative to absolute by grabbing the file object...
       // In case the name of the file comes from previous transforms, forget about this!
       //
-      if ( !Utils.isEmpty( gpglocation ) ) {
+      if ( !Utils.isEmpty( gpgLocation ) ) {
         // From : ${FOLDER}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( gpglocation ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( gpgLocation ) );
 
         // If the file doesn't exist, forget about this effort too!
         //
         if ( fileObject.exists() ) {
           // Convert to an absolute path...
           //
-          gpglocation = namingInterface.nameResource( fileObject, variables, true );
+          gpgLocation = namingInterface.nameResource( fileObject, variables, true );
 
-          return gpglocation;
+          return gpgLocation;
         }
       }
       return null;

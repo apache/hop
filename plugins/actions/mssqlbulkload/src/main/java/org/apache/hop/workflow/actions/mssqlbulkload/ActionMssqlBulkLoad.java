@@ -77,7 +77,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
   private static Class<?> PKG = ActionMssqlBulkLoad.class; // for i18n purposes, needed by Translator!!
 
   private String schemaname;
-  private String tablename;
+  private String tableName;
   private String filename;
   private String datafiletype;
   private String fieldterminator;
@@ -106,7 +106,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
   public ActionMssqlBulkLoad( String n ) {
     super( n, "" );
-    tablename = null;
+    tableName = null;
     schemaname = null;
     filename = null;
     datafiletype = "char";
@@ -150,7 +150,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
 
     retval.append( super.getXml() );
     retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "filename", filename ) );
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "datafiletype", datafiletype ) );
@@ -186,7 +186,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     try {
       super.loadXml( entrynode );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
       filename = XmlHandler.getTagValue( entrynode, "filename" );
       datafiletype = XmlHandler.getTagValue( entrynode, "datafiletype" );
       fieldterminator = XmlHandler.getTagValue( entrynode, "fieldterminator" );
@@ -225,8 +225,8 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     }
   }
 
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTablename( String tableName ) {
+    this.tableName = tableName;
   }
 
   public void setSchemaname( String schemaname ) {
@@ -238,7 +238,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getTablename() {
-    return tablename;
+    return tableName;
   }
 
   public void setMaxErrors( int maxerrors ) {
@@ -342,7 +342,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
               // Get schemaname
               String realSchemaname = environmentSubstitute( schemaname );
               // Get tablename
-              String realTablename = environmentSubstitute( tablename );
+              String realTablename = environmentSubstitute( tableName );
 
               // Add schemaname (Most the time Schemaname.Tablename)
               if ( schemaname != null ) {

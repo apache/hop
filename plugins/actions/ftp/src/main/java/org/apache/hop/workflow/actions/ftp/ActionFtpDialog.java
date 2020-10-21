@@ -1185,11 +1185,11 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private void checkRemoteFolder( boolean FtpFolfer, boolean checkMoveFolder, String foldername ) {
-    if ( !Utils.isEmpty( foldername ) ) {
+  private void checkRemoteFolder( boolean FtpFolfer, boolean checkMoveFolder, String folderName ) {
+    if ( !Utils.isEmpty( folderName ) ) {
       if ( connectToFtp( FtpFolfer, checkMoveFolder ) ) {
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-        mb.setMessage( BaseMessages.getString( PKG, "JobFTP.FolderExists.OK", foldername ) + Const.CR );
+        mb.setMessage( BaseMessages.getString( PKG, "JobFTP.FolderExists.OK", folderName ) + Const.CR );
         mb.setText( BaseMessages.getString( PKG, "JobFTP.FolderExists.Title.Ok" ) );
         mb.open();
       }
@@ -1209,8 +1209,8 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
         ftpclient.setRemotePort( realPort );
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
-          String realProxy_host = workflowMeta.environmentSubstitute( wProxyHost.getText() );
-          ftpclient.setRemoteAddr( InetAddress.getByName( realProxy_host ) );
+          String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
+          ftpclient.setRemoteAddr( InetAddress.getByName( realProxyHost ) );
 
           int port = Const.toInt( workflowMeta.environmentSubstitute( wProxyPort.getText() ), 21 );
           if ( port != 0 ) {

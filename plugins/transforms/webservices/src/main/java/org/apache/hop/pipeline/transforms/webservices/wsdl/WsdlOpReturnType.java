@@ -30,14 +30,14 @@ import javax.xml.namespace.QName;
 public class WsdlOpReturnType implements java.io.Serializable {
   private static final long serialVersionUID = 1L;
 
-  protected QName _xmlType;
+  protected QName xmlType;
 
-  protected boolean _isArray;
+  protected boolean isArray;
 
   // The xmlType of an array's items
-  protected QName _itemXmlType;
+  protected QName itemXmlType;
 
-  protected ComplexType _itemComplexType;
+  protected ComplexType itemComplexType;
 
   /**
    * Constructor.
@@ -51,7 +51,7 @@ public class WsdlOpReturnType implements java.io.Serializable {
    * @return QName for the XML type.
    */
   public QName getXmlType() {
-    return _xmlType;
+    return xmlType;
   }
 
   /**
@@ -60,7 +60,7 @@ public class WsdlOpReturnType implements java.io.Serializable {
    * @return QName for the item XML type, null if not an array.
    */
   public QName getItemXmlType() {
-    return _itemXmlType;
+    return itemXmlType;
   }
 
   /**
@@ -69,10 +69,10 @@ public class WsdlOpReturnType implements java.io.Serializable {
    * @return true if this is an array type.
    */
   public boolean isArray() {
-    return _isArray;
+    return isArray;
   }
 
   public ComplexType getItemComplexType() {
-    return _itemComplexType;
+    return itemComplexType;
   }
 }

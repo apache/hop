@@ -68,20 +68,20 @@ import java.util.regex.Pattern;
 public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionFolderIsEmpty.class; // for i18n purposes, needed by Translator!!
 
-  private String foldername;
+  private String folderName;
   private int filescount;
   private int folderscount;
   private boolean includeSubfolders;
-  private boolean specifywildcard;
+  private boolean specifyWildcard;
   private String wildcard;
   private Pattern pattern;
 
   public ActionFolderIsEmpty( String n ) {
     super( n, "" );
-    foldername = null;
+    folderName = null;
     wildcard = null;
     includeSubfolders = false;
-    specifywildcard = false;
+    specifyWildcard = false;
   }
 
   public ActionFolderIsEmpty() {
@@ -97,9 +97,9 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
     StringBuilder retval = new StringBuilder( 50 );
 
     retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "foldername", foldername ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "foldername", folderName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubfolders ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "specify_wildcard", specifywildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "specify_wildcard", specifyWildcard ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
 
     return retval.toString();
@@ -109,29 +109,29 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
                        IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
-      foldername = XmlHandler.getTagValue( entrynode, "foldername" );
+      folderName = XmlHandler.getTagValue( entrynode, "foldername" );
       includeSubfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
-      specifywildcard = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "specify_wildcard" ) );
+      specifyWildcard = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "specify_wildcard" ) );
       wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
     } catch ( HopXmlException xe ) {
       throw new HopXmlException( "Unable to load action of type 'create folder' from XML node", xe );
     }
   }
 
-  public void setSpecifyWildcard( boolean specifywildcard ) {
-    this.specifywildcard = specifywildcard;
+  public void setSpecifyWildcard( boolean specifyWildcard ) {
+    this.specifyWildcard = specifyWildcard;
   }
 
   public boolean isSpecifyWildcard() {
-    return specifywildcard;
+    return specifyWildcard;
   }
 
-  public void setFoldername( String foldername ) {
-    this.foldername = foldername;
+  public void setFoldername( String folderName ) {
+    this.folderName = folderName;
   }
 
   public String getFoldername() {
-    return foldername;
+    return folderName;
   }
 
   public String getRealFoldername() {
@@ -175,7 +175,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
       pattern = Pattern.compile( getRealWildcard() );
     }
 
-    if ( foldername != null ) {
+    if ( folderName != null ) {
       String realFoldername = getRealFoldername();
       FileObject folderObject = null;
       try {
@@ -236,20 +236,20 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   }
 
   private class TextFileSelector implements FileSelector {
-    String root_folder = null;
+    String rootFolder = null;
 
     public TextFileSelector( String rootfolder ) {
       if ( rootfolder != null ) {
-        root_folder = rootfolder;
+        rootFolder = rootfolder;
       }
     }
 
     public boolean includeFile( FileSelectInfo info ) throws ExpectedException {
       boolean returncode = false;
-      FileObject file_name = null;
+      FileObject filename = null;
       boolean rethrow = false;
       try {
-        if ( !info.getFile().toString().equals( root_folder ) ) {
+        if ( !info.getFile().toString().equals( rootFolder ) ) {
           // Pass over the Base folder itself
           if ( ( info.getFile().getType() == FileType.FILE ) ) {
             if ( info.getFile().getParent().equals( info.getBaseFolder() ) ) {
@@ -293,10 +293,10 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
           throw (ExpectedException) e;
         }
       } finally {
-        if ( file_name != null ) {
+        if ( filename != null ) {
           try {
-            file_name.close();
-            file_name = null;
+            filename.close();
+            filename = null;
           } catch ( IOException ex ) { /* Ignore */
           }
         }

@@ -49,7 +49,7 @@ public class XsltData extends BaseTransformData implements ITransformData {
   public int fielxslfiledposition;
   public String xslfilename;
 
-  public int[] fields_used;
+  public int[] fieldsUsed;
 
   public TransformerFactory factory;
   public HashMap<String, Transformer> transformers;

@@ -507,14 +507,14 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    * Uses a back-tracking algorithm.<br>
    *
    * @param nr
-   * @param prev_result
+   * @param previousResult
    * @param actionCopy
    * @param previous
    * @param reason
    * @return
    * @throws HopException
    */
-  private Result executeFromStart( final int nr, Result prev_result, final ActionCopy actionCopy, ActionCopy previous,
+  private Result executeFromStart( final int nr, Result previousResult, final ActionCopy actionCopy, ActionCopy previous,
                                    String reason ) throws HopException {
     Result res = null;
 
@@ -528,8 +528,8 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     //
     final Result newResult;
     Result prevResult = null;
-    if ( prev_result != null ) {
-      prevResult = prev_result.clone();
+    if ( previousResult != null ) {
+      prevResult = previousResult.clone();
     } else {
       prevResult = new Result();
     }
@@ -545,7 +545,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       newResult = prevResult;
     } else {
       if ( log.isDetailed() ) {
-        log.logDetailed( "exec(" + nr + ", " + ( prev_result != null ? prev_result.getNrErrors() : 0 ) + ", "
+        log.logDetailed( "exec(" + nr + ", " + ( prevResult != null ? prevResult.getNrErrors() : 0 ) + ", "
           + ( actionCopy != null ? actionCopy.toString() : "null" ) + ")" );
       }
 

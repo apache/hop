@@ -180,16 +180,16 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
           resultRow = rows.get( iteration );
 
           // Get values from previous result
-          String filefolder_previous = resultRow.getString( 0, "" );
-          String fmasks_previous = resultRow.getString( 1, "" );
+          String fileFolderPrevious = resultRow.getString( 0, "" );
+          String fileMasksPrevious = resultRow.getString( 1, "" );
 
           // ok we can process this file/folder
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString(
-              PKG, "ActionCheckFilesLocked.ProcessingRow", filefolder_previous, fmasks_previous ) );
+              PKG, "ActionCheckFilesLocked.ProcessingRow", fileFolderPrevious, fileMasksPrevious ) );
           }
 
-          ProcessFile( filefolder_previous, fmasks_previous );
+          ProcessFile( fileFolderPrevious, fileMasksPrevious );
         }
       } else if ( arguments != null ) {
 
@@ -300,19 +300,19 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
 
     public boolean includeFile( FileSelectInfo info ) {
       boolean returncode = false;
-      FileObject file_name = null;
+      FileObject filename = null;
       try {
 
         if ( !info.getFile().toString().equals( sourceFolder ) ) {
           // Pass over the Base folder itself
 
-          String short_filename = info.getFile().getName().getBaseName();
+          String shortFilename = info.getFile().getName().getBaseName();
 
           if ( !info.getFile().getParent().equals( info.getBaseFolder() ) ) {
 
             // Not in the Base Folder..Only if include sub folders
             if ( includeSubfolders
-              && ( info.getFile().getType() == FileType.FILE ) && GetFileWildcard( short_filename, fileWildcard ) ) {
+              && ( info.getFile().getType() == FileType.FILE ) && GetFileWildcard( shortFilename, fileWildcard ) ) {
               if ( isDetailed() ) {
                 logDetailed( BaseMessages.getString( PKG, "ActionCheckFilesLocked.CheckingFile", info
                   .getFile().toString() ) );
@@ -324,7 +324,7 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
           } else {
             // In the Base Folder...
 
-            if ( ( info.getFile().getType() == FileType.FILE ) && GetFileWildcard( short_filename, fileWildcard ) ) {
+            if ( ( info.getFile().getType() == FileType.FILE ) && GetFileWildcard( shortFilename, fileWildcard ) ) {
               if ( isDetailed() ) {
                 logDetailed( BaseMessages.getString( PKG, "ActionCheckFilesLocked.CheckingFile", info
                   .getFile().toString() ) );
@@ -342,9 +342,9 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
             .getMessage() ) );
         returncode = false;
       } finally {
-        if ( file_name != null ) {
+        if ( filename != null ) {
           try {
-            file_name.close();
+            filename.close();
 
           } catch ( IOException ex ) { /* Ignore */
           }
