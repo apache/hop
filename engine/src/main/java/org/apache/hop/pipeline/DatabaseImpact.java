@@ -27,7 +27,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 
 public class DatabaseImpact {
-  private static Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_IMPACT_NONE = 0;
   public static final int TYPE_IMPACT_READ = 1;

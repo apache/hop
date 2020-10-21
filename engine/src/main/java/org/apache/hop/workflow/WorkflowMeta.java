@@ -91,7 +91,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
   public static final String WORKFLOW_EXTENSION = ".hwf";
 
-  private static Class<?> PKG = WorkflowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WorkflowMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "workflow";
 

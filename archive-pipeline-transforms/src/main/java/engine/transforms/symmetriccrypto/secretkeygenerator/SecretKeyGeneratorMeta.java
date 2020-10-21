@@ -56,7 +56,7 @@ import java.util.List;
  */
 
 public class SecretKeyGeneratorMeta extends BaseTransformMeta implements ITransform {
-  private static Class<?> PKG = SecretKeyGeneratorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SecretKeyGeneratorMeta.class; // for i18n purposes, needed by Translator!!
 
   private String[] algorithm;
   private String[] scheme;

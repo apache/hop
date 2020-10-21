@@ -50,7 +50,7 @@ import java.io.OutputStreamWriter;
 
 public class ChangeFileEncoding extends BaseTransform<ChangeFileEncodingMeta, ChangeFileEncodingData> implements ITransform<ChangeFileEncodingMeta, ChangeFileEncodingData> {
 
-  private static Class<?> PKG = ChangeFileEncoding.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ChangeFileEncoding.class; // for i18n purposes, needed by Translator!!
 
   public ChangeFileEncoding( TransformMeta transformMeta, ChangeFileEncodingMeta meta, ChangeFileEncodingData data, int copyNr, PipelineMeta pipelineMeta,
                              Pipeline pipeline ) {

@@ -45,7 +45,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class HopGuiWorkflowClipboardDelegate {
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
   
   public static final String XML_TAG_WORKFLOW_ACTIONS = "workflow-actions";
   private static final String XML_TAG_ACTIONS = "actions";

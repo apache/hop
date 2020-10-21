@@ -26,7 +26,7 @@ import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.i18n.BaseMessages;
 
 public class FlattenerTargetField {
-  private static Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator!!
 
   private String fieldName;
   private String keyValue;

@@ -63,7 +63,7 @@ import java.util.List;
 )
 public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
 
-  private static Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * database connection

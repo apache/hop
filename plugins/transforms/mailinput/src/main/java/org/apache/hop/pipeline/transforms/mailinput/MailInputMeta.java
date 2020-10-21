@@ -59,7 +59,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/mailinput.html"
 )
 public class MailInputMeta extends BaseTransformMeta implements ITransformMeta<MailInput, MailInputData> {
-  private static Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
   public static int DEFAULT_BATCH_SIZE = 500;

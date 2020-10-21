@@ -59,7 +59,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/rest.html"
 )
 public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, RestData> {
-  private static Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] APPLICATION_TYPES = new String[] {
     "TEXT PLAIN", "XML", "JSON", "OCTET STREAM", "XHTML", "FORM URLENCODED", "ATOM XML", "SVG XML", "TEXT XML" };

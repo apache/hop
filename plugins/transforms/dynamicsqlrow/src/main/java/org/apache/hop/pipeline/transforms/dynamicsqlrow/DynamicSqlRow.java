@@ -46,7 +46,7 @@ import java.sql.ResultSet;
  */
 public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRowData> implements ITransform<DynamicSqlRowMeta, DynamicSqlRowData> {
 
-  private static Class<?> PKG = DynamicSqlRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DynamicSqlRowMeta.class; // for i18n purposes, needed by Translator!!
 
   public DynamicSqlRow( TransformMeta transformMeta, DynamicSqlRowMeta meta, DynamicSqlRowData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

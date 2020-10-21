@@ -69,7 +69,7 @@ import java.util.Map;
  */
 
 public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform, InputFileMetaInterface {
-  private static Class<?> PKG = ParGzipCsvInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ParGzipCsvInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
 

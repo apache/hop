@@ -75,7 +75,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/getpop.html"
 )
 public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
 
   static final int FOLDER_OUTPUT = 0;
   static final int FOLDER_ATTACHMENTS = 1;

@@ -38,7 +38,7 @@ import java.util.Map;
 @PluginMainClassType( IAction.class )
 @PluginAnnotationType( Action.class )
 public class ActionPluginType extends BasePluginType<Action> implements IPluginType<Action> {
-  private static Class<?> PKG = WorkflowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WorkflowMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String GENERAL_CATEGORY = BaseMessages.getString( PKG, "ActionCategory.Category.General" );
 

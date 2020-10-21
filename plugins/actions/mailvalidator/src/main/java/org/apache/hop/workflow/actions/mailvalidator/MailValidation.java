@@ -45,7 +45,7 @@ import java.util.Hashtable;
 
 public class MailValidation {
 
-  private static Class<?> PKG = ActionMailValidator.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = ActionMailValidator.class; // for i18n purposes, needed by Translator2!!
 
   public static boolean isRegExValid( String emailAdress ) {
     return GenericValidator.isEmail( emailAdress );

@@ -38,7 +38,7 @@ import java.lang.reflect.InvocationTargetException;
  * @since 10-mrt-2005
  */
 public class SearchFieldsProgressDialog implements IRunnableWithProgress {
-  private static Class<?> PKG = SearchFieldsProgressDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SearchFieldsProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private TransformMeta transformMeta;
   private boolean before;

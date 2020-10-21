@@ -44,7 +44,7 @@ import java.util.Map;
  */
 public final class WsdlTypes implements Serializable {
 
-  private static Class<?> PKG = WsdlTypes.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WsdlTypes.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 1L;
   private final String _targetNamespace;

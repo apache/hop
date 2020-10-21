@@ -44,7 +44,7 @@ public class TextFileInput
   extends BaseFileInputTransform<TextFileInputMeta, TextFileInputData>
   implements ITransform<TextFileInputMeta, TextFileInputData> {
 
-  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public TextFileInput( TransformMeta transformMeta, TextFileInputMeta meta, TextFileInputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

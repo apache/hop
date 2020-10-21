@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UserDefinedJavaClassCodeSnippits {
-  private static Class<?> PKG = UserDefinedJavaClass.class;
+  private static final Class<?> PKG = UserDefinedJavaClass.class;
   private static UserDefinedJavaClassCodeSnippits snippitsHelper = null;
 
   private final List<Snippit> snippits = new ArrayList<Snippit>();

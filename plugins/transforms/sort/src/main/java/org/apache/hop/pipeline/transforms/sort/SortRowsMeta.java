@@ -65,7 +65,7 @@ import java.util.Locale;
 )
 public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<SortRows, SortRowsData>, Serializable {
   private static final long serialVersionUID = -9075883720765645655L;
-  private static Class<?> PKG = SortRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SortRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * order by which fields?

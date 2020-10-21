@@ -64,7 +64,7 @@ import java.util.Map;
  * @since 26-02-2013
  */
 public class SubjectDataBrowserDialog {
-  private static Class<?> PKG = SubjectDataBrowserDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SubjectDataBrowserDialog.class; // for i18n purposes, needed by Translator!!
 
   public static final int MAX_BINARY_STRING_PREVIEW_SIZE = 1000000;
 

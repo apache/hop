@@ -33,7 +33,7 @@ import org.eclipse.swt.widgets.Shell;
  * A simple dialog with a message and button that closes the dialog.
  */
 public class BaseMessageDialog extends BaseDialog {
-  private static Class<?> PKG = BaseMessageDialog.class;
+  private static final Class<?> PKG = BaseMessageDialog.class;
 
   private String message;
 

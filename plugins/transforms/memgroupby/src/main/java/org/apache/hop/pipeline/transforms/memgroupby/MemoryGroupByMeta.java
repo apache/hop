@@ -66,7 +66,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/memgroupby.html"
 )
 public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMeta<MemoryGroupBy, MemoryGroupByData> {
-  private static Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_GROUP_NONE = 0;
 

@@ -74,7 +74,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/pgpencryptfiles.html"
 )
 public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionPGPEncryptFiles.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionPGPEncryptFiles.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] actionTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobPGPEncryptFiles.ActionsType.Encrypt.Label" ),

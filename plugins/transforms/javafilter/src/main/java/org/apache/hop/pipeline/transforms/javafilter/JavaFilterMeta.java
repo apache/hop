@@ -63,7 +63,7 @@ import java.util.Objects;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/javafilter.html"
 )
 public class JavaFilterMeta extends BaseTransformMeta implements ITransformMeta<JavaFilter, JavaFilterData> {
-  private static Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The formula calculations to be performed

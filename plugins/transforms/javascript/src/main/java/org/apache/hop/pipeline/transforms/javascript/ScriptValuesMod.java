@@ -53,7 +53,7 @@ import org.mozilla.javascript.ScriptableObject;
  * @since 5-April-2003
  */
 public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptValuesModData> implements ITransform<ScriptValuesMetaMod, ScriptValuesModData> {
-  private static Class<?> PKG = ScriptValuesMetaMod.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ScriptValuesMetaMod.class; // for i18n purposes, needed by Translator!!
 
   public static final int SKIP_PIPELINE = 1;
 

@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SocketWriterDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SocketWriterMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SocketWriterMeta.class; // for i18n purposes, needed by Translator!!
 
   private SocketWriterMeta input;
   private TextVar wPort;

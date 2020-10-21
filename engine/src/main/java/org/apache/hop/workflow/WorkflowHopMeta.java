@@ -39,7 +39,7 @@ import java.util.List;
  * @since 19-06-2003
  */
 public class WorkflowHopMeta extends BaseHopMeta<ActionMeta> implements Cloneable {
-  private static Class<?> PKG = WorkflowHopMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WorkflowHopMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_FROM_TAG = "from";
   public static final String XML_TO_TAG = "to";

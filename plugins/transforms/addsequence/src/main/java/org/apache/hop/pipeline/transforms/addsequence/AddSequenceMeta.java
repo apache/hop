@@ -63,7 +63,7 @@ import java.util.List;
 )
 public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta<AddSequence, AddSequenceData> {
 
-  private static Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private String valuename;
 

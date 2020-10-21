@@ -55,7 +55,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/delay.html"
 )
 public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay, DelayData> {
-  private static Class<?> PKG = DelayMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DelayMeta.class; // for i18n purposes, needed by Translator!!
 
   private String timeout;
   private String scaletime;

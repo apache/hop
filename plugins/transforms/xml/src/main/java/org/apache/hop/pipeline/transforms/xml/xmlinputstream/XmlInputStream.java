@@ -62,7 +62,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 // TODO black box testing
 public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputStreamData> implements ITransform<XmlInputStreamMeta, XmlInputStreamData> {
-  private static Class<?> PKG = XmlInputStream.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlInputStream.class; // for i18n purposes, needed by Translator2!!
 
   private static int PARENT_ID_ALLOCATE_SIZE = 1000; // max. number of nested elements, we may let the user configure
                                                      // this

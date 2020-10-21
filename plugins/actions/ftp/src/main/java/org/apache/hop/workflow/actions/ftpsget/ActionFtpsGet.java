@@ -73,7 +73,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpsget.html"
 )
 public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionFtpsGet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpsGet.class; // for i18n purposes, needed by Translator!!
 
   private String serverName;
   private String userName;

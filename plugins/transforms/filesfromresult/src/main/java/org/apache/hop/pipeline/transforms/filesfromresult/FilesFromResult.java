@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.ITransformMeta;
  */
 public class FilesFromResult extends BaseTransform<FilesFromResultMeta, FilesFromResultData> implements ITransform<FilesFromResultMeta, FilesFromResultData> {
 
-  private static Class<?> PKG = FilesFromResult.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FilesFromResult.class; // for i18n purposes, needed by Translator!!
 
   public FilesFromResult( TransformMeta transformMeta, FilesFromResultMeta meta, FilesFromResultData data, int copyNr, PipelineMeta pipelineMeta,
                           Pipeline pipeline ) {

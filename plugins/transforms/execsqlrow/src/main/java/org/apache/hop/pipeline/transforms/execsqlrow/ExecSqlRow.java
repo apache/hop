@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class ExecSqlRow extends BaseTransform<ExecSqlRowMeta, ExecSqlRowData> implements ITransform<ExecSqlRowMeta, ExecSqlRowData> {
 
-  private static Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!
 
   public ExecSqlRow( TransformMeta transformMeta, ExecSqlRowMeta meta, ExecSqlRowData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

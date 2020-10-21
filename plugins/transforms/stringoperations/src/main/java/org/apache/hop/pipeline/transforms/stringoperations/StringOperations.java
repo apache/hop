@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 02 April 2009
  */
 public class StringOperations extends BaseTransform<StringOperationsMeta, StringOperationsData> implements ITransform<StringOperationsMeta, StringOperationsData> {
-  private static Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
 
 
   public StringOperations( TransformMeta transformMeta, StringOperationsMeta meta, StringOperationsData data, int copyNr, PipelineMeta pipelineMeta,

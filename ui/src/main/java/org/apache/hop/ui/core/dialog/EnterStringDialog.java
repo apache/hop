@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 21-11-2004
  */
 public class EnterStringDialog extends Dialog {
-  private static Class<?> PKG = EnterStringDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = EnterStringDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlString;
 

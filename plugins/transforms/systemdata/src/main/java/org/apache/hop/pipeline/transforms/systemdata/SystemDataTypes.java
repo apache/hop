@@ -130,7 +130,7 @@ public enum SystemDataTypes {
 
   private String code;
   private String description;
-  private static Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!
 
   public String getCode() {
     return code;

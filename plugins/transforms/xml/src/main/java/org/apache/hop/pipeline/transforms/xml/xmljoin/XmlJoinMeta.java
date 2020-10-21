@@ -65,7 +65,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "XmlJoin.Injection." )
 public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {
-  private static Class<?> PKG = XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!
 
   /** The base name of the output file */
 

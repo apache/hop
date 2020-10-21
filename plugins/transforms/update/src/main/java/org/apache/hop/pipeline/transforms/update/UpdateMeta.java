@@ -68,7 +68,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/update.html"
 )
 public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Update, UpdateData> {
-  private static Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UpdateMeta.class; // for i18n purposes, needed by Translator!!
 
   private IHopMetadataProvider metadataProvider;
 

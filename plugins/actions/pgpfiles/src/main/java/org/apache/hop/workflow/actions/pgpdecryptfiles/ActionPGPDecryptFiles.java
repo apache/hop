@@ -76,7 +76,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/pgpdecryptfiles.html"
 )
 public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionPGPDecryptFiles.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionPGPDecryptFiles.class; // for i18n purposes, needed by Translator!!
 
   private SimpleDateFormat daf;
   private GPG gpg;

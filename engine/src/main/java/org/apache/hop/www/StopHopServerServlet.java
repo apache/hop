@@ -36,7 +36,7 @@ import java.io.PrintStream;
 @HopServerServlet( id = "StopHopServerServlet", name = "StopHopServerServlet" )
 public class StopHopServerServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static Class<?> PKG = StopHopServerServlet.class;
+  private static final Class<?> PKG = StopHopServerServlet.class;
 
   private static final long serialVersionUID = -5459379367791045161L;
   public static final String CONTEXT_PATH = "/hop/stopHopServer";

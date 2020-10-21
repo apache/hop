@@ -97,7 +97,7 @@ public class Translator {
   /**
    * for i18n purposes, needed by Translator!
    */
-  private static Class<?> PKG = Translator.class;
+  private static final Class<?> PKG = Translator.class;
 
   public static final String APP_NAME = BaseMessages.getString( PKG, "i18nDialog.ApplicationName" );
 

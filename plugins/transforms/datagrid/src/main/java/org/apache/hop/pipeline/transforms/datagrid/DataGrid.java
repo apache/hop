@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class DataGrid extends BaseTransform<DataGridMeta, DataGridData> implements ITransform<DataGridMeta, DataGridData> {
 
-  private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
 
   public DataGrid( TransformMeta transformMeta, DataGridMeta meta, DataGridData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {

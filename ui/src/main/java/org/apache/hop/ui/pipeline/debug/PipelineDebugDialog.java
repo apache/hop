@@ -69,7 +69,7 @@ import java.util.Map;
  * @since version 3.0 RC1
  */
 public class PipelineDebugDialog extends Dialog {
-  private static Class<?> PKG = PipelineDebugDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PipelineDebugDialog.class; // for i18n purposes, needed by Translator!!
 
   public static final int DEBUG_CANCEL = 0;
   public static final int DEBUG_LAUNCH = 1;

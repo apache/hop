@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetServerSequenceData> implements ITransform<GetServerSequenceMeta, GetServerSequenceData> {
 
-  private static Class<?> PKG = GetServerSequence.class; // i18n
+  private static final Class<?> PKG = GetServerSequence.class; // i18n
 
   public GetServerSequence( TransformMeta transformMeta, GetServerSequenceMeta meta, GetServerSequenceData data, int copyNr,
                             PipelineMeta pipelineMeta, Pipeline pipeline ) {

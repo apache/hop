@@ -54,7 +54,7 @@ import java.util.Properties;
  * @since 24-03-2008
  */
 public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInputData> implements ITransform<PropertyInputMeta, PropertyInputData> {
-  private static Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public PropertyInput( TransformMeta transformMeta, PropertyInputMeta meta, PropertyInputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

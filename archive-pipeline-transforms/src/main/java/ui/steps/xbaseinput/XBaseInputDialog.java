@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
 import java.util.List;
 
 public class XBaseInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = XBaseInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = XBaseInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFilename;
   private Button wbFilename;

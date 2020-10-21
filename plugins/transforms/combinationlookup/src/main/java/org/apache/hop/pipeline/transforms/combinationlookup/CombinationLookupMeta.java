@@ -78,7 +78,7 @@ import java.util.Objects;
 @InjectionSupported( localizationPrefix = "CombinationLookup.Injection." )
 public class CombinationLookupMeta extends BaseTransformMeta implements ITransformMeta<CombinationLookup, CombinationLookupData>, IProvidesModelerMeta {
 
-  private static Class<?> PKG = CombinationLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CombinationLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Default cache size: 0 will cache everything

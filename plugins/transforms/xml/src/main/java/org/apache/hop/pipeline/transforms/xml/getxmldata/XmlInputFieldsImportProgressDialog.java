@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.Shell;
  * @since 07-apr-2010
  */
 public class XmlInputFieldsImportProgressDialog {
-  private static Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
 
   private static String VALUE_NAME = "Name";
   private static String VALUE_PATH = "Path";

@@ -72,7 +72,7 @@ import java.util.Map;
 )
 @InjectionSupported( localizationPrefix = "ExcelInput.Injection.", groups = { "FIELDS", "SHEETS", "FILENAME_LINES" } )
 public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<ExcelInput, ExcelInputData> {
-  private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

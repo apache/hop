@@ -66,7 +66,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   extends BaseTransform<Meta, Data>
   implements ITransform<Meta, Data> {
 
-  private static Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String FILE_COMPRESSION_TYPE_NONE =
     TextFileOutputMeta.fileCompressionTypeCodes[ TextFileOutputMeta.FILE_COMPRESSION_TYPE_NONE ];

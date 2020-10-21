@@ -53,7 +53,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/success.html"
 )	 
 public class ActionSuccess extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionSuccess.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSuccess.class; // for i18n purposes, needed by Translator!!
 
   public ActionSuccess( String n, String scr ) {
     super( n, "" );

@@ -66,7 +66,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/createfile.html"
 )
 public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionCreateFile.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionCreateFile.class; // for i18n purposes, needed by Translator!!
   private String filename;
 
   private boolean failIfFileExists;

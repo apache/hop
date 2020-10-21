@@ -54,7 +54,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class PrioritizeStreamsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = PrioritizeStreamsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PrioritizeStreamsMeta.class; // for i18n purposes, needed by Translator!!
 
   private String[] previousTransforms;
   private PrioritizeStreamsMeta input;

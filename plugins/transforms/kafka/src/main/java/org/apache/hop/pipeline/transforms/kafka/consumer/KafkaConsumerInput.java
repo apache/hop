@@ -61,7 +61,7 @@ import java.util.stream.Collectors;
 public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, KafkaConsumerInputData>
                                 implements ITransform<KafkaConsumerInputMeta, KafkaConsumerInputData> {
 
-  private static Class<?> PKG = KafkaConsumerInputMeta.class;
+  private static final Class<?> PKG = KafkaConsumerInputMeta.class;
   // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
 
   public KafkaConsumerInput( TransformMeta transformMeta, KafkaConsumerInputMeta meta, KafkaConsumerInputData data, int copyNr, PipelineMeta pipelineMeta,

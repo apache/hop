@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.Sym
  * @since 5-apr-2003
  */
 public class SymmetricCrypto extends BaseTransform implements ITransform {
-  private static Class<?> PKG = SymmetricCryptoPipelineMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SymmetricCryptoPipelineMeta.class; // for i18n purposes, needed by Translator!!
 
   private SymmetricCryptoMeta meta;
   private SymmetricCryptoData data;

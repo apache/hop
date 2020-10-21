@@ -48,7 +48,7 @@ import java.util.UUID;
 
 public class StartPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static Class<?> PKG = StartPipelineServlet.class;
+  private static final Class<?> PKG = StartPipelineServlet.class;
 
   private static final long serialVersionUID = -5879200987669847357L;
 

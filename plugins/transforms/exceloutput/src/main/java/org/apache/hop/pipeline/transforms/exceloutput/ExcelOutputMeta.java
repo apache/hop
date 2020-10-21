@@ -64,7 +64,7 @@ import java.util.Map;
 )
 @InjectionSupported( localizationPrefix = "ExcelOutput.Injection.", groups = { "FIELDS", "CUSTOM", "CONTENT" } )
 public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta<ExcelOutput, ExcelOutputData> {
-  private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int FONT_NAME_ARIAL = 0;
   public static final int FONT_NAME_COURIER = 1;

@@ -77,7 +77,7 @@ import org.eclipse.swt.widgets.Text;
 import java.util.List;
 
 public class TableInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

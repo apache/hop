@@ -39,7 +39,7 @@ import java.net.URLEncoder;
 
 
 public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static Class<?> PKG = StopPipelineServlet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StopPipelineServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/hop/stopPipeline";

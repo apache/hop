@@ -55,7 +55,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * 
  */
 public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransform<XsltMeta, XsltData> {
-  private static Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
 
   static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
   static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";

@@ -59,7 +59,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/execprocess.html"
 )
 public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta<ExecProcess, ExecProcessData> {
-  private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * dynamic process field name

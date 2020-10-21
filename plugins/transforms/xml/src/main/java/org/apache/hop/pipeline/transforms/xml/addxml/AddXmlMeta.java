@@ -66,7 +66,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "AddXMLMeta.Injection.", groups = { "OUTPUT_FIELDS" } )
 public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddXml, AddXmlData> {
-  private static Class<?> PKG = AddXmlMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = AddXmlMeta.class; // for i18n purposes, needed by Translator2!!
 
   /** The base name of the output file */
 

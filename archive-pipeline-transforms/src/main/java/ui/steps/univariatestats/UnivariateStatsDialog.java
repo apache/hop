@@ -71,7 +71,7 @@ import java.util.Set;
  */
 public class UnivariateStatsDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = UnivariateStatsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UnivariateStatsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * various UI bits and pieces for the dialog

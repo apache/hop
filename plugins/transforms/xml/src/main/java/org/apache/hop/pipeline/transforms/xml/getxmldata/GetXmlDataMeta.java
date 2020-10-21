@@ -70,7 +70,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getxmldata.html"
 )
 public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<GetXmlData, GetXmlDataData> {
-  private static Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
 
   private static final String YES = "Y";
 

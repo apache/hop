@@ -81,7 +81,7 @@ import java.util.Map;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/shell.html"
 )
 public class ActionShell extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionShell.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionShell.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
 

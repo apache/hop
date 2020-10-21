@@ -45,7 +45,7 @@ import java.util.Hashtable;
  * @since 3-apr-2006
  */
 public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData> implements ITransform<ValueMapperMeta, ValueMapperData> {
-  private static Class<?> PKG = ValueMapperMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ValueMapperMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean nonMatchActivated = false;
 

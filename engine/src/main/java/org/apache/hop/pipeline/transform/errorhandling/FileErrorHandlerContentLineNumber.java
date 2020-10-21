@@ -31,7 +31,7 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import java.util.Date;
 
 public class FileErrorHandlerContentLineNumber extends AbstractFileErrorHandler {
-  private static Class<?> PKG = FileErrorHandlerContentLineNumber.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FileErrorHandlerContentLineNumber.class; // for i18n purposes, needed by Translator!!
 
   public FileErrorHandlerContentLineNumber( Date date, String destinationDirectory, String fileExtension,
                                             String encoding, BaseTransform baseTransform ) {

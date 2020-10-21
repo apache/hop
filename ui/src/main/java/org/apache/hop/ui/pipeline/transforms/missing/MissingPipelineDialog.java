@@ -47,7 +47,7 @@ import java.util.List;
 
 public class MissingPipelineDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = MissingPipelineDialog.class;
+  private static final Class<?> PKG = MissingPipelineDialog.class;
 
   private Shell shell;
   private Shell shellParent;

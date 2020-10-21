@@ -54,7 +54,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/writetolog.html"
 )
 public class WriteToLogMeta extends BaseTransformMeta implements ITransformMeta<WriteToLog, WriteToLogData> {
-  private static Class<?> PKG = WriteToLogMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WriteToLogMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * by which fields to display?

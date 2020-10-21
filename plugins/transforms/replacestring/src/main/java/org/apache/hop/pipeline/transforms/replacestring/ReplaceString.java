@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
  */
 public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStringData> implements ITransform<ReplaceStringMeta, ReplaceStringData> {
 
-  private static Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
 
   public ReplaceString( TransformMeta transformMeta, ReplaceStringMeta meta, ReplaceStringData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

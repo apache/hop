@@ -57,7 +57,7 @@ import java.io.StringWriter;
  * @since 14-jan-2006
  */
 public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements ITransform<XmlJoinMeta, XmlJoinData> {
-  private static Class<?> PKG = XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlJoinMeta.class; // for i18n purposes, needed by Translator2!!
 
   private Transformer transformer;
 
