@@ -66,16 +66,16 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
   private TextVar wxsdFilename;
 
-  private XsdValidator jobEntry;
+  private XsdValidator action;
   private Shell shell;
 
   private boolean changed;
 
-  public XsdValidatorDialog(Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (XsdValidator) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryXSDValidator.Name.Default" ) );
+  public XsdValidatorDialog(Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, workflowMeta );
+    action = (XsdValidator) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobEntryXSDValidator.Name.Default" ) );
     }
   }
 
@@ -85,10 +85,12 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE  );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = e -> jobEntry.setChanged();
-    changed = jobEntry.hasChanged();
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
+    ModifyListener lsMod = e -> action.setChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -137,7 +139,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
 
     wAllowExternalEntities.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -267,7 +269,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -280,18 +282,18 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
-    wAllowExternalEntities.setSelection( jobEntry.isAllowExternalEntities() );
-    wxmlFilename.setText( Const.nullToEmpty( jobEntry.getxmlFilename() ) );
-    wxsdFilename.setText( Const.nullToEmpty( jobEntry.getxsdFilename() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
+    wAllowExternalEntities.setSelection( action.isAllowExternalEntities() );
+    wxmlFilename.setText( Const.nullToEmpty( action.getxmlFilename() ) );
+    wxsdFilename.setText( Const.nullToEmpty( action.getxsdFilename() ) );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -303,10 +305,10 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setAllowExternalEntities( wAllowExternalEntities.getSelection() );
-    jobEntry.setxmlFilename( wxmlFilename.getText() );
-    jobEntry.setxsdFilename( wxsdFilename.getText() );
+    action.setName( wName.getText() );
+    action.setAllowExternalEntities( wAllowExternalEntities.getSelection() );
+    action.setxmlFilename( wxmlFilename.getText() );
+    action.setxsdFilename( wxsdFilename.getText() );
 
     dispose();
   }

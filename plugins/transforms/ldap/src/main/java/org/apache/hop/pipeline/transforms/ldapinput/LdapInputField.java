@@ -19,15 +19,13 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import java.util.HashSet;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-
-import java.util.HashSet;
 
 /**
  * Describes an LDAP Input
@@ -43,24 +41,26 @@ public class LdapInputField implements Cloneable {
   public static final int FETCH_ATTRIBUTE_AS_STRING = 0;
   public static final int FETCH_ATTRIBUTE_AS_BINARY = 1;
 
-  public static final String[] FetchAttributeAsCode = { "string", "binary" };
+  public static final String[] FetchAttributeAsCode = {"string", "binary"};
 
   public static final String[] FetchAttributeAsDesc = {
-    BaseMessages.getString( PKG, "LdapInputField.FetchAttributeAs.String" ),
-    BaseMessages.getString( PKG, "LdapInputField.FetchAttributeAs.Binary" ) };
+    BaseMessages.getString(PKG, "LdapInputField.FetchAttributeAs.String"),
+    BaseMessages.getString(PKG, "LdapInputField.FetchAttributeAs.Binary")
+  };
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
 
-  public static final String[] trimTypeCode = { "none", "left", "right", "both" };
+  public static final String[] trimTypeCode = {"none", "left", "right", "both"};
 
   public static final String[] trimTypeDesc = {
-    BaseMessages.getString( PKG, "LdapInputField.TrimType.None" ),
-    BaseMessages.getString( PKG, "LdapInputField.TrimType.Left" ),
-    BaseMessages.getString( PKG, "LdapInputField.TrimType.Right" ),
-    BaseMessages.getString( PKG, "LdapInputField.TrimType.Both" ) };
+    BaseMessages.getString(PKG, "LdapInputField.TrimType.None"),
+    BaseMessages.getString(PKG, "LdapInputField.TrimType.Left"),
+    BaseMessages.getString(PKG, "LdapInputField.TrimType.Right"),
+    BaseMessages.getString(PKG, "LdapInputField.TrimType.Both")
+  };
 
   private String name;
   private String attribute;
@@ -83,7 +83,7 @@ public class LdapInputField implements Cloneable {
 
   public static HashSet<String> binaryAttributes;
 
-  public LdapInputField( String fieldname ) {
+  public LdapInputField(String fieldname) {
     this.name = fieldname;
     this.attribute = "";
     this.length = -1;
@@ -101,87 +101,87 @@ public class LdapInputField implements Cloneable {
   }
 
   public LdapInputField() {
-    this( null );
+    this(null);
   }
 
-  public static final int getTrimTypeByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeCode.length; i++ ) {
-      if ( trimTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeCode.length; i++) {
+      if (trimTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getFetchAttributeAsByCode( String tt ) {
-    if ( tt == null ) {
+  public static final int getFetchAttributeAsByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < FetchAttributeAsCode.length; i++ ) {
-      if ( FetchAttributeAsCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < FetchAttributeAsCode.length; i++) {
+      if (FetchAttributeAsCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getTrimTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getTrimTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < trimTypeDesc.length; i++ ) {
-      if ( trimTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < trimTypeDesc.length; i++) {
+      if (trimTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final int getFetchAttributeAsByDesc( String tt ) {
-    if ( tt == null ) {
+  public static final int getFetchAttributeAsByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < FetchAttributeAsDesc.length; i++ ) {
-      if ( FetchAttributeAsDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < FetchAttributeAsDesc.length; i++) {
+      if (FetchAttributeAsDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public static final String getTrimTypeCode( int i ) {
-    if ( i < 0 || i >= trimTypeCode.length ) {
-      return trimTypeCode[ 0 ];
+  public static final String getTrimTypeCode(int i) {
+    if (i < 0 || i >= trimTypeCode.length) {
+      return trimTypeCode[0];
     }
-    return trimTypeCode[ i ];
+    return trimTypeCode[i];
   }
 
-  public static final String getFetchAttributeAsCode( int i ) {
-    if ( i < 0 || i >= FetchAttributeAsCode.length ) {
-      return FetchAttributeAsCode[ 0 ];
+  public static final String getFetchAttributeAsCode(int i) {
+    if (i < 0 || i >= FetchAttributeAsCode.length) {
+      return FetchAttributeAsCode[0];
     }
-    return FetchAttributeAsCode[ i ];
+    return FetchAttributeAsCode[i];
   }
 
-  public static final String getTrimTypeDesc( int i ) {
-    if ( i < 0 || i >= trimTypeDesc.length ) {
-      return trimTypeDesc[ 0 ];
+  public static final String getTrimTypeDesc(int i) {
+    if (i < 0 || i >= trimTypeDesc.length) {
+      return trimTypeDesc[0];
     }
-    return trimTypeDesc[ i ];
+    return trimTypeDesc[i];
   }
 
-  public static final String getFetchAttributeAsDesc( int i ) {
-    if ( i < 0 || i >= FetchAttributeAsDesc.length ) {
-      return FetchAttributeAsDesc[ 0 ];
+  public static final String getFetchAttributeAsDesc(int i) {
+    if (i < 0 || i >= FetchAttributeAsDesc.length) {
+      return FetchAttributeAsDesc[0];
     }
-    return FetchAttributeAsDesc[ i ];
+    return FetchAttributeAsDesc[i];
   }
 
   @Override
@@ -190,7 +190,7 @@ public class LdapInputField implements Cloneable {
       LdapInputField retval = (LdapInputField) super.clone();
 
       return retval;
-    } catch ( CloneNotSupportedException e ) {
+    } catch (CloneNotSupportedException e) {
       return null;
     }
   }
@@ -199,7 +199,7 @@ public class LdapInputField implements Cloneable {
     return length;
   }
 
-  public void setLength( int length ) {
+  public void setLength(int length) {
     this.length = length;
   }
 
@@ -211,11 +211,11 @@ public class LdapInputField implements Cloneable {
     return attribute;
   }
 
-  public void setAttribute( String fieldattribute ) {
+  public void setAttribute(String fieldattribute) {
     this.attribute = fieldattribute;
   }
 
-  public void setName( String fieldname ) {
+  public void setName(String fieldname) {
     this.name = fieldname;
   }
 
@@ -228,10 +228,10 @@ public class LdapInputField implements Cloneable {
   }
 
   public String getTypeDesc() {
-    return ValueMetaFactory.getValueMetaName( type );
+    return ValueMetaFactory.getValueMetaName(type);
   }
 
-  public void setType( int type ) {
+  public void setType(int type) {
     this.type = type;
   }
 
@@ -239,11 +239,11 @@ public class LdapInputField implements Cloneable {
     return format;
   }
 
-  public void setFormat( String format ) {
+  public void setFormat(String format) {
     this.format = format;
   }
 
-  public void setSamples( String[] samples ) {
+  public void setSamples(String[] samples) {
     this.samples = samples;
   }
 
@@ -256,22 +256,22 @@ public class LdapInputField implements Cloneable {
   }
 
   public String getTrimTypeCode() {
-    return getTrimTypeCode( trimtype );
+    return getTrimTypeCode(trimtype);
   }
 
   public String getFetchAttributeAsCode() {
-    return getFetchAttributeAsCode( fetchAttributeAs );
+    return getFetchAttributeAsCode(fetchAttributeAs);
   }
 
   public String getTrimTypeDesc() {
-    return getTrimTypeDesc( trimtype );
+    return getTrimTypeDesc(trimtype);
   }
 
   public String getFetchAttributeAsDesc() {
-    return getFetchAttributeAsDesc( fetchAttributeAs );
+    return getFetchAttributeAsDesc(fetchAttributeAs);
   }
 
-  public void setTrimType( int trimtype ) {
+  public void setTrimType(int trimtype) {
     this.trimtype = trimtype;
   }
 
@@ -279,11 +279,11 @@ public class LdapInputField implements Cloneable {
     return sortedKey;
   }
 
-  public void setSortedKey( boolean value ) {
+  public void setSortedKey(boolean value) {
     this.sortedKey = value;
   }
 
-  public void setFetchAttributeAs( int fetchAttributeAs ) {
+  public void setFetchAttributeAs(int fetchAttributeAs) {
     this.fetchAttributeAs = fetchAttributeAs;
   }
 
@@ -291,7 +291,7 @@ public class LdapInputField implements Cloneable {
     return groupSymbol;
   }
 
-  public void setGroupSymbol( String group_symbol ) {
+  public void setGroupSymbol(String group_symbol) {
     this.groupSymbol = group_symbol;
   }
 
@@ -299,7 +299,7 @@ public class LdapInputField implements Cloneable {
     return decimalSymbol;
   }
 
-  public void setDecimalSymbol( String decimal_symbol ) {
+  public void setDecimalSymbol(String decimal_symbol) {
     this.decimalSymbol = decimal_symbol;
   }
 
@@ -307,7 +307,7 @@ public class LdapInputField implements Cloneable {
     return currencySymbol;
   }
 
-  public void setCurrencySymbol( String currency_symbol ) {
+  public void setCurrencySymbol(String currency_symbol) {
     this.currencySymbol = currency_symbol;
   }
 
@@ -315,7 +315,7 @@ public class LdapInputField implements Cloneable {
     return precision;
   }
 
-  public void setPrecision( int precision ) {
+  public void setPrecision(int precision) {
     this.precision = precision;
   }
 
@@ -323,7 +323,7 @@ public class LdapInputField implements Cloneable {
     return repeat;
   }
 
-  public void setRepeated( boolean repeat ) {
+  public void setRepeated(boolean repeat) {
     this.repeat = repeat;
   }
 
@@ -335,10 +335,10 @@ public class LdapInputField implements Cloneable {
     return this.realAttribute;
   }
 
-  public void setRealAttribute( String realfieldattribute ) {
+  public void setRealAttribute(String realfieldattribute) {
     this.realAttribute = realfieldattribute;
-    if ( !Utils.isEmpty( realfieldattribute ) &&  realfieldattribute.equals( ATTRIBUTE_OBJECT_SID ) ) {
-        this.objectSid = true;
+    if (!Utils.isEmpty(realfieldattribute) && realfieldattribute.equals(ATTRIBUTE_OBJECT_SID)) {
+      this.objectSid = true;
     }
   }
 
@@ -348,23 +348,22 @@ public class LdapInputField implements Cloneable {
 
   static {
     binaryAttributes = new HashSet<String>();
-    binaryAttributes.add( "photo" );
-    binaryAttributes.add( "personalSignature" );
-    binaryAttributes.add( "audio" );
-    binaryAttributes.add( "jpegPhoto" );
-    binaryAttributes.add( "javaSerializedData" );
-    binaryAttributes.add( "thumbnailPhoto" );
-    binaryAttributes.add( "thumbnailLogo" );
-    binaryAttributes.add( "userPassword" );
-    binaryAttributes.add( "userCertificate" );
-    binaryAttributes.add( "cACertificate" );
-    binaryAttributes.add( "authorityRevocationList" );
-    binaryAttributes.add( "certificateRevocationList" );
-    binaryAttributes.add( "crossCertificatePair" );
-    binaryAttributes.add( "x500UniqueIdentifier" );
-    binaryAttributes.add( "objectSid" );
-    binaryAttributes.add( "objectGUID" );
-    binaryAttributes.add( "GUID" );
+    binaryAttributes.add("photo");
+    binaryAttributes.add("personalSignature");
+    binaryAttributes.add("audio");
+    binaryAttributes.add("jpegPhoto");
+    binaryAttributes.add("javaSerializedData");
+    binaryAttributes.add("thumbnailPhoto");
+    binaryAttributes.add("thumbnailLogo");
+    binaryAttributes.add("userPassword");
+    binaryAttributes.add("userCertificate");
+    binaryAttributes.add("cACertificate");
+    binaryAttributes.add("authorityRevocationList");
+    binaryAttributes.add("certificateRevocationList");
+    binaryAttributes.add("crossCertificatePair");
+    binaryAttributes.add("x500UniqueIdentifier");
+    binaryAttributes.add("objectSid");
+    binaryAttributes.add("objectGUID");
+    binaryAttributes.add("GUID");
   }
-
 }

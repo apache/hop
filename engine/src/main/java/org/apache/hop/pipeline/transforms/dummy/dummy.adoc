@@ -1,0 +1,16 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/dummy/src/main/doc/dummy.adoc
+= Dummy (do nothing)
+
+== Description
+
+This transform type does not do anything. It functions as a placeholder for testing purposes or a way to combine multiple streams with the same structure.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|===

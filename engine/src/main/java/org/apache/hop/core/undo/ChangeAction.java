@@ -26,7 +26,7 @@ import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowHopMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.pipeline.PipelineHopMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -140,7 +140,7 @@ public class ChangeAction {
     if ( prev[ 0 ] instanceof NotePadMeta ) {
       type = ActionType.DeleteNote;
     }
-    if ( prev[ 0 ] instanceof ActionCopy ) {
+    if ( prev[ 0 ] instanceof ActionMeta ) {
       type = ActionType.DeleteAction;
     }
     if ( prev[ 0 ] instanceof WorkflowHopMeta ) {
@@ -166,7 +166,7 @@ public class ChangeAction {
     if ( prev[ 0 ] instanceof NotePadMeta ) {
       type = ActionType.ChangeNote;
     }
-    if ( prev[ 0 ] instanceof ActionCopy ) {
+    if ( prev[ 0 ] instanceof ActionMeta ) {
       type = ActionType.ChangeAction;
     }
     if ( prev[ 0 ] instanceof WorkflowHopMeta ) {
@@ -195,7 +195,7 @@ public class ChangeAction {
     if ( prev[ 0 ] instanceof NotePadMeta ) {
       type = ActionType.NewNote;
     }
-    if ( prev[ 0 ] instanceof ActionCopy ) {
+    if ( prev[ 0 ] instanceof ActionMeta ) {
       type = ActionType.NewAction;
     }
     if ( prev[ 0 ] instanceof WorkflowHopMeta ) {
@@ -228,7 +228,7 @@ public class ChangeAction {
     if ( fobj instanceof NotePadMeta ) {
       type = ActionType.PositionNote;
     }
-    if ( fobj instanceof ActionCopy ) {
+    if ( fobj instanceof ActionMeta ) {
       type = ActionType.PositionAction;
     }
   }

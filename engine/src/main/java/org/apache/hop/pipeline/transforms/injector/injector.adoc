@@ -1,0 +1,20 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/injector/src/main/doc/injector.adoc
+= Injector
+
+== Description
+
+Injector was created for those people that are developing special purpose pipelines and want to 'inject' rows into the pipeline using the Hop API and Java. Among other things you can build 'headless' pipelines with it: pipelines that have no input at design time: do not read from file or database.
+
+== Options
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Fieldname|Specify the field name of the rows to inject.
+|Type|Specify the type of data.
+|Length|For Number: Total number of significant figures in a number; For String: total length of string; For Date: length of printed output of the string.
+|Precision|For Number: Number of floating point digits; For String, Date, Boolean: unused. 
+|===

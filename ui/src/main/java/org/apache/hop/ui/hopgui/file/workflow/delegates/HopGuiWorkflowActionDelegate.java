@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
@@ -30,7 +29,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.special.ActionSpecial;
 import org.apache.hop.workflow.action.IAction;
@@ -57,7 +56,7 @@ public class HopGuiWorkflowActionDelegate {
     this.workflowGraph = workflowGraph;
   }
 
-  public ActionCopy newJobEntry( WorkflowMeta workflowMeta, String pluginId, String pluginName, boolean openIt, Point location ) {
+  public ActionMeta newAction( WorkflowMeta workflowMeta, String pluginId, String pluginName, boolean openIt, Point location ) {
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin actionPlugin;
 
@@ -81,7 +80,7 @@ public class HopGuiWorkflowActionDelegate {
         //
         String actionName = pluginName;
         int nr = 2;
-        ActionCopy check = workflowMeta.findAction( actionName, 0 );
+        ActionMeta check = workflowMeta.findAction( actionName, 0 );
         while ( check != null ) {
           actionName = pluginName + " " + nr++;
           check = workflowMeta.findAction( actionName, 0 );
@@ -109,7 +108,7 @@ public class HopGuiWorkflowActionDelegate {
         if ( openIt ) {
           IActionDialog d = getActionDialog( action, workflowMeta );
           if ( d != null && d.open() != null ) {
-            ActionCopy jge = new ActionCopy();
+            ActionMeta jge = new ActionMeta();
             jge.setAction( action );
             if ( location != null ) {
               jge.setLocation( location.x, location.y );
@@ -123,14 +122,14 @@ public class HopGuiWorkflowActionDelegate {
             //
             workflowMeta.renameActionIfNameCollides( jge );
 
-            hopGui.undoDelegate.addUndoNew( workflowMeta, new ActionCopy[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
+            hopGui.undoDelegate.addUndoNew( workflowMeta, new ActionMeta[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
             workflowGraph.updateGui();
             return jge;
           } else {
             return null;
           }
         } else {
-          ActionCopy jge = new ActionCopy();
+          ActionMeta jge = new ActionMeta();
           jge.setAction( action );
           if ( location != null ) {
             jge.setLocation( location.x, location.y );
@@ -139,7 +138,7 @@ public class HopGuiWorkflowActionDelegate {
           }
           jge.setNr( 0 );
           workflowMeta.addAction( jge );
-          hopGui.undoDelegate.addUndoNew( workflowMeta, new ActionCopy[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
+          hopGui.undoDelegate.addUndoNew( workflowMeta, new ActionMeta[] { jge }, new int[] { workflowMeta.indexOfAction( jge ) } );
           workflowGraph.updateGui();
           return jge;
         }
@@ -186,11 +185,11 @@ public class HopGuiWorkflowActionDelegate {
     }
   }
 
-  public void editAction( WorkflowMeta workflowMeta, ActionCopy action ) {
+  public void editAction( WorkflowMeta workflowMeta, ActionMeta action ) {
     try {
       hopGui.getLog().logBasic( BaseMessages.getString( PKG, "HopGui.Log.EditAction", action.getName() ) );
 
-      ActionCopy before = (ActionCopy) action.cloneDeep();
+      ActionMeta before = (ActionMeta) action.cloneDeep();
 
       IAction jei = action.getAction();
 
@@ -202,8 +201,8 @@ public class HopGuiWorkflowActionDelegate {
           //
           workflowMeta.renameActionIfNameCollides( action );
 
-          ActionCopy after = (ActionCopy) action.clone();
-          hopGui.undoDelegate.addUndoChange( workflowMeta, new ActionCopy[] { before }, new ActionCopy[] { after }, new int[] { workflowMeta.indexOfAction( action ) } );
+          ActionMeta after = (ActionMeta) action.clone();
+          hopGui.undoDelegate.addUndoChange( workflowMeta, new ActionMeta[] { before }, new ActionMeta[] { after }, new int[] { workflowMeta.indexOfAction( action ) } );
           workflowGraph.updateGui();
         }
       } else {
@@ -222,7 +221,7 @@ public class HopGuiWorkflowActionDelegate {
     }
   }
 
-  public void deleteJobEntryCopies( WorkflowMeta workflow, List<ActionCopy> actions ) {
+  public void deleteActionCopies( WorkflowMeta workflow, List<ActionMeta> actions ) {
 
     // Hops belonging to the deleting actions are placed in a single transaction and removed.
     List<WorkflowHopMeta> jobHops = new ArrayList<>();
@@ -253,12 +252,12 @@ public class HopGuiWorkflowActionDelegate {
       workflow.removeAction( pos );
       positions[ i ] = pos;
     }
-    hopGui.undoDelegate.addUndoDelete( workflow, actions.toArray( new ActionCopy[ 0 ] ), positions );
+    hopGui.undoDelegate.addUndoDelete( workflow, actions.toArray( new ActionMeta[ 0 ] ), positions );
 
     workflowGraph.updateGui();
   }
 
-  public void deleteJobEntryCopies( WorkflowMeta workflowMeta, ActionCopy action ) {
+  public void deleteActionCopies( WorkflowMeta workflowMeta, ActionMeta action ) {
     for ( int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i-- ) {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop( i );
       if ( hi.getFromAction().equals( action ) || hi.getToAction().equals( action ) ) {
@@ -270,12 +269,12 @@ public class HopGuiWorkflowActionDelegate {
 
     int pos = workflowMeta.indexOfAction( action );
     workflowMeta.removeAction( pos );
-    hopGui.undoDelegate.addUndoDelete( workflowMeta, new ActionCopy[] { action }, new int[] { pos } );
+    hopGui.undoDelegate.addUndoDelete( workflowMeta, new ActionMeta[] { action }, new int[] { pos } );
 
     workflowGraph.updateGui();
   }
 
-  public void dupeJobEntry( WorkflowMeta workflowMeta, ActionCopy action ) {
+  public void dupeAction( WorkflowMeta workflowMeta, ActionMeta action ) {
     if ( action == null ) {
       return;
     }
@@ -288,7 +287,7 @@ public class HopGuiWorkflowActionDelegate {
       return;
     }
 
-    ActionCopy copyOfAction = action.clone();
+    ActionMeta copyOfAction = action.clone();
     copyOfAction.setNr( workflowMeta.findUnusedNr( copyOfAction.getName() ) );
 
     Point p = action.getLocation();

@@ -46,28 +46,31 @@ import org.eclipse.swt.widgets.Shell;
 import java.util.List;
 
 public class MissingActionDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = MissingActionDialog.class;
+  private static final Class<?> PKG = MissingActionDialog.class;
 
   private Shell shell;
-  private Shell shellParent;
   private List<MissingAction> missingActions;
   private int mode;
   private PropsUi props;
-  private IAction action;
 
+  /**
+   * A reference to the action interface
+   */
+  protected IAction action;
+  
   public static final int MISSING_ACTIONS = 1;
   public static final int MISSING_ACTION_ID = 2;
 
   public MissingActionDialog( Shell parent, List<MissingAction> missingActions ) {
-    super( parent, null, null );
-    this.shellParent = parent;
+    super( parent, null );
+   
     this.missingActions = missingActions;
     this.mode = MISSING_ACTIONS;
   }
 
   public MissingActionDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
-    this.shellParent = parent;
+    super( parent, workflowMeta );
+    this.action = action;
     this.mode = MISSING_ACTION_ID;
   }
 
@@ -87,8 +90,8 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
 
     if ( mode == MISSING_ACTION_ID ) {
       message =
-        BaseMessages.getString( PKG, "MissingActionDialog.MissingActionId", iAction.getName() + " - "
-          + ( (MissingAction) iAction ).getMissingPluginId() );
+        BaseMessages.getString( PKG, "MissingActionDialog.MissingActionId", action.getName() + " - "
+          + ( (MissingAction) action ).getMissingPluginId() );
     }
     return message;
   }
@@ -96,11 +99,13 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
   public IAction open() {
 
     this.props = PropsUi.getInstance();
-    Display display = shellParent.getDisplay();
+    
+    Shell parent = this.getParent();
+    Display display = parent.getDisplay();
     int margin = props.getMargin();
 
     shell =
-      new Shell( shellParent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON
+      new Shell( parent, SWT.DIALOG_TRIM | SWT.CLOSE | SWT.ICON
         | SWT.APPLICATION_MODAL );
 
     props.setLook( shell );

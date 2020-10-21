@@ -215,8 +215,12 @@ public abstract class ConfigurationDialog extends Dialog {
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX );
     props.setLook( shell );
     shell.setImage( img );
-    shell.setLayout( new FormLayout() );
     shell.setText( shellTitle );
+    
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginWidth = Const.FORM_MARGIN*2;
+    formLayout.marginHeight = Const.FORM_MARGIN*2;
+    shell.setLayout( formLayout );
   }
 
   protected void optionsSectionLayout( Class<?> PKG, String prefix ) {
@@ -225,11 +229,14 @@ public abstract class ConfigurationDialog extends Dialog {
     props.setLook( gDetails );
 
     // The layout
-    gDetails.setLayout( new FormLayout() );
+    FormLayout formLayout = new FormLayout();
+    formLayout.marginWidth = Const.FORM_MARGIN*2;
+    formLayout.marginHeight = Const.FORM_MARGIN*2;    
+    gDetails.setLayout( formLayout );
     fdDetails = new FormData();
     fdDetails.top = new FormAttachment( wRunConfigurationControl, 15 );
-    fdDetails.right = new FormAttachment( 100, -15 );
-    fdDetails.left = new FormAttachment( 0, 15 );
+    fdDetails.right = new FormAttachment( 100, 0 );
+    fdDetails.left = new FormAttachment( 0, 0 );
     gDetails.setBackground( shell.getBackground() ); // the default looks ugly
     gDetails.setLayoutData( fdDetails );
 
@@ -241,8 +248,8 @@ public abstract class ConfigurationDialog extends Dialog {
     tabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( tabFolder, Props.WIDGET_STYLE_TAB );
     fdTabFolder = new FormData();
-    fdTabFolder.right = new FormAttachment( 100, -15 );
-    fdTabFolder.left = new FormAttachment( 0, 15 );
+    fdTabFolder.right = new FormAttachment( 100, 0 );
+    fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( gDetails, 15 );
     fdTabFolder.bottom = new FormAttachment( alwaysShowOption, -15 );
     tabFolder.setLayoutData( fdTabFolder );
@@ -269,13 +276,13 @@ public abstract class ConfigurationDialog extends Dialog {
 
     String[] namedParams = abstractMeta.listParameters();
     int nrParams = namedParams.length;
-    wParams = new TableView( abstractMeta, parametersComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cParams,
+    wParams = new TableView( abstractMeta, parametersComposite, SWT.FULL_SELECTION | SWT.MULTI, cParams,
         nrParams, false, null, props, false );
     FormData fdParams = new FormData();
-    fdParams.top = new FormAttachment( 0, 10 );
-    fdParams.right = new FormAttachment( 100, -10 );
-    fdParams.bottom = new FormAttachment( 100, -45 );
-    fdParams.left = new FormAttachment( 0, 10 );
+    fdParams.top = new FormAttachment( 0, 0 );
+    fdParams.right = new FormAttachment( 100, 0 );
+    fdParams.bottom = new FormAttachment( 100, 0 );
+    fdParams.left = new FormAttachment( 0, 0 );
     wParams.setLayoutData( fdParams );
 
     tabFolder.setSelection( 0 );
@@ -297,14 +304,14 @@ public abstract class ConfigurationDialog extends Dialog {
     };
 
     int nrVariables = configuration.getVariablesMap() != null ? configuration.getVariablesMap().size() : 0;
-    wVariables = new TableView( abstractMeta, variablesComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, cVariables,
+    wVariables = new TableView( abstractMeta, variablesComposite, SWT.FULL_SELECTION | SWT.MULTI, cVariables,
         nrVariables, false, null, props, false );
 
     FormData fdVariables = new FormData();
-    fdVariables.top = new FormAttachment( 0, 10 );
-    fdVariables.right = new FormAttachment( 100, -10 );
-    fdVariables.bottom = new FormAttachment( 100, -10 );
-    fdVariables.left = new FormAttachment( 0, 10 );
+    fdVariables.top = new FormAttachment( 0, 0 );
+    fdVariables.right = new FormAttachment( 100, 0 );
+    fdVariables.bottom = new FormAttachment( 100, 0 );
+    fdVariables.left = new FormAttachment( 0, 0 );
 
     wVariables.setLayoutData( fdVariables );
   }
@@ -329,8 +336,8 @@ public abstract class ConfigurationDialog extends Dialog {
     wbHelp.setText( BaseMessages.getString( "System.Button.Help" ) );
     wbHelp.setToolTipText( BaseMessages.getString( "System.Tooltip.Help" ) );
     FormData fdbHelp = new FormData();
-    fdbHelp.bottom = new FormAttachment( 100, -15 );
-    fdbHelp.left = new FormAttachment( 0, 15 );
+    fdbHelp.bottom = new FormAttachment( 100, 0 );
+    fdbHelp.left = new FormAttachment( 0, 0 );
     wbHelp.setLayoutData( fdbHelp );
     wbHelp.addSelectionListener( new SelectionAdapter() {
       @Override
@@ -341,8 +348,8 @@ public abstract class ConfigurationDialog extends Dialog {
 
     Label separator = new Label( shell, SWT.SEPARATOR | SWT.HORIZONTAL );
     FormData fdSeparator = new FormData();
-    fdSeparator.right = new FormAttachment( 100, -15 );
-    fdSeparator.left = new FormAttachment( 0, 15 );
+    fdSeparator.right = new FormAttachment( 100, 0 );
+    fdSeparator.left = new FormAttachment( 0, 0 );
     fdSeparator.bottom = new FormAttachment( wOk, -2*margin );
     separator.setLayoutData( fdSeparator );
 
@@ -353,7 +360,7 @@ public abstract class ConfigurationDialog extends Dialog {
     alwaysShowOption.setSelection( abstractMeta.isAlwaysShowRunOptions() );
 
     FormData fdAlwaysShowOption = new FormData();
-    fdAlwaysShowOption.left = new FormAttachment( 0, 15 );
+    fdAlwaysShowOption.left = new FormAttachment( 0, 0 );
     fdAlwaysShowOption.bottom = new FormAttachment( separator, -15 );
     alwaysShowOption.setLayoutData( fdAlwaysShowOption );
   }

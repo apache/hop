@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.workflow.actions.pipeline;
 
+import java.util.List;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -60,8 +62,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
-
-import java.util.List;
 
 /**
  * This dialog allows you to edit the pipeline action (ActionPipeline)
@@ -125,8 +125,8 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     protected void createElements() {
         super.createElements();
         shell.setText(BaseMessages.getString(PKG, "ActionPipeline.Header"));
-
-        wlPath.setText(BaseMessages.getString(PKG, "ActionPipeline.Filename.Label"));
+        
+        wlPath.setText(BaseMessages.getString(PKG, "ActionPipeline.PipelineFile.Label"));
         wPassParams.setText(BaseMessages.getString(PKG, "ActionPipeline.PassAllParameters.Label"));
 
         wClearRows = new Button(gExecution, SWT.CHECK);
@@ -198,7 +198,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
             if (inputPipelineMeta == null) {
                 ActionPipeline jet = new ActionPipeline();
                 getInfo(jet);
-                inputPipelineMeta = jet.getPipelineMeta(metadataProvider, workflowMeta);
+                inputPipelineMeta = jet.getPipelineMeta(this.getMetadataProvider(), this.getWorkflowMeta());
             }
             String[] parameters = inputPipelineMeta.listParameters();
 
@@ -224,7 +224,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     protected void pickFileVFS() {
 
         HopPipelineFileType<PipelineMeta> pipelineFileType = new HopPipelineFileType<>();
-        String filename = BaseDialog.presentFileDialog(shell, wPath, workflowMeta, pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true);
+        String filename = BaseDialog.presentFileDialog(shell, wPath, this.getWorkflowMeta(), pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true);
         if (filename != null) {
             wPath.setText(filename);
         }
@@ -287,7 +287,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
         }
 
         try {
-            List<String> runConfigurations = metadataProvider.getSerializer( PipelineRunConfiguration.class).listObjectNames();
+            List<String> runConfigurations = this.getMetadataProvider().getSerializer( PipelineRunConfiguration.class).listObjectNames();
 
             try {
                 ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[]{runConfigurations, PipelineMeta.XML_TAG});

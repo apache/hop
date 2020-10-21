@@ -68,7 +68,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
   private Button wIncludeSubfolders;
 
-  private XmlWellFormed jobEntry;
+  private XmlWellFormed action;
   private Shell shell;
 
   private boolean changed;
@@ -93,12 +93,12 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
   private Label wlNrErrorsLessThan;
   private TextVar wNrErrorsLessThan;
 
-  public XmlWellFormedDialog(Shell parent, IAction jobEntryInt, WorkflowMeta workflowMeta ) {
-    super( parent, jobEntryInt, workflowMeta );
-    jobEntry = (XmlWellFormed) jobEntryInt;
+  public XmlWellFormedDialog(Shell parent, IAction action, WorkflowMeta workflowMeta ) {
+    super( parent, workflowMeta );
+    action = (XmlWellFormed) action;
 
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobXMLWellFormed.Name.Default" ) );
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobXMLWellFormed.Name.Default" ) );
     }
   }
 
@@ -108,10 +108,12 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = e -> jobEntry.setChanged();
-    changed = jobEntry.hasChanged();
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
+    ModifyListener lsMod = e -> action.setChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -191,7 +193,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wIncludeSubfolders.setLayoutData(fdIncludeSubfolders);
     wIncludeSubfolders.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -206,7 +208,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( jobEntry.isArgFromPrevious() );
+    wPrevious.setSelection( action.isArgFromPrevious() );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "JobXMLWellFormed.Previous.Tooltip" ) );
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -364,7 +366,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wlFields.setLayoutData(fdlFields);
 
     int rows =
-        jobEntry.getSourceFileFolders() == null ? 1 : ( jobEntry.getSourceFileFolders().length == 0 ? 0 : jobEntry
+        action.getSourceFileFolders() == null ? 1 : ( action.getSourceFileFolders().length == 0 ? 0 : action
             .getSourceFileFolders().length );
     final int FieldsRows = rows;
 
@@ -650,7 +652,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   private void activeSuccessCondition() {
@@ -684,31 +686,31 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    wName.setText( Const.nullToEmpty( jobEntry.getName() ) );
+    wName.setText( Const.nullToEmpty( action.getName() ) );
 
-    if ( jobEntry.getSourceFileFolders() != null ) {
-      for ( int i = 0; i < jobEntry.getSourceFileFolders().length; i++ ) {
+    if ( action.getSourceFileFolders() != null ) {
+      for ( int i = 0; i < action.getSourceFileFolders().length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( jobEntry.getSourceFileFolders()[i] != null ) {
-          ti.setText( 1, jobEntry.getSourceFileFolders()[i] );
+        if ( action.getSourceFileFolders()[i] != null ) {
+          ti.setText( 1, action.getSourceFileFolders()[i] );
         }
 
-        if ( jobEntry.getSourceWildcards()[i] != null ) {
-          ti.setText( 2, jobEntry.getSourceWildcards()[i] );
+        if ( action.getSourceWildcards()[i] != null ) {
+          ti.setText( 2, action.getSourceWildcards()[i] );
         }
       }
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( jobEntry.isArgFromPrevious() );
-    wIncludeSubfolders.setSelection( jobEntry.isIncludeSubfolders() );
+    wPrevious.setSelection( action.isArgFromPrevious() );
+    wIncludeSubfolders.setSelection( action.isIncludeSubfolders() );
 
-    wNrErrorsLessThan.setText( Const.NVL( jobEntry.getNrErrorsLessThan(), "10" ) );
+    wNrErrorsLessThan.setText( Const.NVL( action.getNrErrorsLessThan(), "10" ) );
 
-    if ( jobEntry.getSuccessCondition() != null ) {
-      if ( jobEntry.getSuccessCondition().equals( XmlWellFormed.SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED ) ) {
+    if ( action.getSuccessCondition() != null ) {
+      if ( action.getSuccessCondition().equals( XmlWellFormed.SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED ) ) {
         wSuccessCondition.select( 1 );
-      } else if ( jobEntry.getSuccessCondition().equals( XmlWellFormed.SUCCESS_IF_BAD_FORMED_FILES_LESS ) ) {
+      } else if ( action.getSuccessCondition().equals( XmlWellFormed.SUCCESS_IF_BAD_FORMED_FILES_LESS ) ) {
         wSuccessCondition.select( 2 );
       } else {
         wSuccessCondition.select( 0 );
@@ -717,10 +719,10 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
       wSuccessCondition.select( 0 );
     }
 
-    if ( jobEntry.getResultFilenames() != null ) {
-      if ( jobEntry.getResultFilenames().equals( XmlWellFormed.ADD_WELL_FORMED_FILES_ONLY ) ) {
+    if ( action.getResultFilenames() != null ) {
+      if ( action.getResultFilenames().equals( XmlWellFormed.ADD_WELL_FORMED_FILES_ONLY ) ) {
         wAddFilenameToResult.select( 1 );
-      } else if ( jobEntry.getResultFilenames().equals( XmlWellFormed.ADD_BAD_FORMED_FILES_ONLY ) ) {
+      } else if ( action.getResultFilenames().equals( XmlWellFormed.ADD_BAD_FORMED_FILES_ONLY ) ) {
         wAddFilenameToResult.select( 2 );
       } else {
         wAddFilenameToResult.select( 0 );
@@ -734,8 +736,8 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -747,51 +749,51 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
+    action.setName( wName.getText() );
 
-    jobEntry.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
-    jobEntry.setArgFromPrevious( wPrevious.getSelection() );
+    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setArgFromPrevious( wPrevious.getSelection() );
 
-    jobEntry.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
+    action.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
 
     if ( wSuccessCondition.getSelectionIndex() == 1 ) {
-      jobEntry.setSuccessCondition( XmlWellFormed.SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED );
+      action.setSuccessCondition( XmlWellFormed.SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED );
     } else if ( wSuccessCondition.getSelectionIndex() == 2 ) {
-      jobEntry.setSuccessCondition( XmlWellFormed.SUCCESS_IF_BAD_FORMED_FILES_LESS );
+      action.setSuccessCondition( XmlWellFormed.SUCCESS_IF_BAD_FORMED_FILES_LESS );
     } else {
-      jobEntry.setSuccessCondition( XmlWellFormed.SUCCESS_IF_NO_ERRORS );
+      action.setSuccessCondition( XmlWellFormed.SUCCESS_IF_NO_ERRORS );
     }
 
     if ( wAddFilenameToResult.getSelectionIndex() == 1 ) {
-      jobEntry.setResultFilenames( XmlWellFormed.ADD_WELL_FORMED_FILES_ONLY );
+      action.setResultFilenames( XmlWellFormed.ADD_WELL_FORMED_FILES_ONLY );
     } else if ( wAddFilenameToResult.getSelectionIndex() == 2 ) {
-      jobEntry.setResultFilenames( XmlWellFormed.ADD_BAD_FORMED_FILES_ONLY );
+      action.setResultFilenames( XmlWellFormed.ADD_BAD_FORMED_FILES_ONLY );
     } else {
-      jobEntry.setResultFilenames( XmlWellFormed.ADD_ALL_FILENAMES );
+      action.setResultFilenames( XmlWellFormed.ADD_ALL_FILENAMES );
     }
 
-    int nrItems = wFields.nrNonEmpty();
+    int nritems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nrItems; i++ ) {
+    for ( int i = 0; i < nritems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
       }
     }
-    String[] sourceFileFolder = new String[nr];
+    String[] source_filefolder = new String[nr];
     String[] wildcard = new String[nr];
     nr = 0;
-    for ( int i = 0; i < nrItems; i++ ) {
+    for ( int i = 0; i < nritems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( source != null && source.length() != 0 ) {
-        sourceFileFolder[nr] = source;
+        source_filefolder[nr] = source;
         wildcard[nr] = wild;
         nr++;
       }
     }
-    jobEntry.setSourceFileFolders( sourceFileFolder );
-    jobEntry.setSourceWildcards( wildcard );
+    action.setSourceFileFolders( source_filefolder );
+    action.setSourceWildcards( wildcard );
     dispose();
   }
 

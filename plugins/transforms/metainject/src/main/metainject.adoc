@@ -1,0 +1,84 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/metainject/src/main/doc/metainject.adoc
+= Metadata Injection
+
+== Description
+
+Metadata injection inserts data from various sources into a pipeline at runtime. This insertion reduces repetitive ETL tasks.
+
+For example, you might have a simple pipeline to load transaction data values from a supplier, filter specific values, and output them to a file. If you have more than one supplier, you would need to run this simple pipeline for each supplier. Yet, with metadata injection, you can expand this simple repetitive pipeline by inserting metadata from another pipeline that contains the ETL Metadata Injection transform. This transform coordinates the data values from the various inputs through the metadata you define. This process reduces the need for you to adjust and run the repetitive pipeline for each specific input.
+
+The repetitive pipeline is known as the template pipeline. The template pipeline is called by the ETL Metadata Injection transform. You will create a pipeline to prepare what common values you want to use as metadata and inject these specific values through the ETL Metadata Injection transform.
+
+We recommend the following basic procedure for using this transform to inject metadata:
+
+1. Optimize your data for injection, such as preparing folder structures and inputs.
+
+2. Develop pipelines for the repetitive process (the template pipeline), for metadata injection through the ETL Metadata Injection transform, and for handling multiple inputs.
+
+
+The metadata is injected into the template pipeline through any transform that supports metadata injection.
+
+== Options
+
+=== General
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Pipeline|Specify your template pipeline by entering in its path. Click Browse to display and enter the path details using the Virtual File System Browser.
+
+If you select a pipeline that has the same root path as the current pipeline, the variable ${Internal.Transform.Current.Directory} will automatically be inserted in place of the common root path. For example, if the current pipeline's path is /home/admin/pipeline.hpl and you select a pipeline in the folder /home/admin/path/sub.hpl then the path will automatically be converted to ${Internal.Transform.Current.Directory}/path/sub.hpl.
+|===
+
+The ETL Metadata Injection transform features the two tabs with fields. Each tab is described below.
+
+=== Inject Metadata Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Target injection transform key| Lists the available fields in each transform of the template pipeline that can be injected with metadata.
+|Target description|Describes how the target fields relate to their target transforms.
+|Source transform|Lists the transform associated with the fields to be injected into the target fields as metadata.
+|Source field|Lists the fields to be injected into the target fields as metadata.
+|===
+
+To specify the source field as metadata to be injected, perform the following transforms:
+
+1. In the Target injection transform key column, double-click the field for which you want to specify a source field. The Source field dialog box opens.
+
+2. Select a source field and click OK.
+
+3. Optionally, select Use constant value to specify a constant value for the injected metadata through one of the following actions:
+  - Manually entering a value.
+  - Using an internal variable to set the value (${Internal.transform.Unique.Count} for example).
+  - Using a combination of manually specified values and parameter values (${FILE_PREFIX}_${FILE_DATE}.txt for example).
+
+==== Injecting Metadata into the ETL Metadata Injection transform
+
+For injecting metadata into the ETL Metadata Injection transform itself, the following exceptions apply:
+
+
+- To inject a method for how to specify a field (such as by FILENAME), set a PIPELINE_SPECIFICATION_METHOD constant to the field of an input transform. You can then map the field as a source to the PIPELINE_SPECIFICATION_METHOD constant in the ETL Metadata Injection transform.
+
+- The target field for the ETL Metadata Injection transform inserting the metadata into the original injection is defined by [GROUP NAME].[FIELD NAME]. For example, if the GROUP NAME is 'OUTPUT_FIELDS' and the FIELD NAME is 'OUTPUT_FIELDNAME', you would set the target field to 'OUTPUT_FIELDS.OUTPUT_FIELDNAME'.
+
+=== Options Tab
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|transform to read from (optional)|Optionally, select a transform in your template pipeline to pass data directly to a transform following the ETL Metadata Injection transform in your current pipeline.
+|Field name|If transform to read from is selected, enter the name of the field passed directly from the transform in the template pipeline.
+|Type|If transform to read from is selected, select the type of the field passed directly from the transform in the template pipeline.
+|Length|If transform to read from is selected, enter the length of the field passed directly from the transform in the template pipeline.
+|Precision|If transform to read from is selected, enter the precision of the field passed directly from the transform in the template pipeline.
+|Optional target file (hpl after injection)|For initial pipeline development or debugging, specify an optional file for creating and saving a pipeline of your template after metadata injection occurs. The resulting pipeline will be your template pipeline with the metadata already injected as constant values.
+|Streaming source transform|Select a source transform in your current pipeline to directly pass data to the Streaming target transform in the template pipeline.
+|Streaming target transform|Select the target transform in your template pipeline to receive data directly from the Streaming source transform.
+|Run resulting pipeline|Select to inject metadata and run the template pipeline. If this option is not selected, metadata injection occurs, but the template pipeline does not run.
+|===
+

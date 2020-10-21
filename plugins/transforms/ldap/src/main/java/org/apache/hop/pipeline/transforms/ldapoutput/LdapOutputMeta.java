@@ -19,13 +19,13 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
-import org.apache.hop.core.ICheckResult;
-import org.apache.hop.core.annotations.Transform;
+import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
@@ -43,76 +43,54 @@ import org.apache.hop.pipeline.transforms.ldapinput.ILdapMeta;
 import org.apache.hop.pipeline.transforms.ldapinput.LdapProtocolFactory;
 import org.w3c.dom.Node;
 
-import java.util.List;
-
 @Transform(
-		id = "LDAPOutput",
-		name = "LdapOutput.Name",
-		description = "LdapOutput.Description",
-		image = "ldapoutput.svg",
-		i18nPackageName = "org.apache.hop.pipeline.transforms.ldapoutput",
-		categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-		keywords = {"ldap","output"},
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ldapoutput.html"
-)
-public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
-  private static Class<?> classFromResourcesPackage = LdapOutputMeta.class; // for i18n purposes, needed by Translator!!
+    id = "LDAPOutput",
+    name = "LdapOutput.Name",
+    description = "LdapOutput.Description",
+    image = "ldapoutput.svg",
+    i18nPackageName = "org.apache.hop.pipeline.transforms.ldapoutput",
+    categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
+    keywords = {"ldap", "output"},
+    documentationUrl =
+        "https://www.project-hop.org/manual/latest/plugins/transforms/ldapoutput.html")
+public class LdapOutputMeta extends BaseTransformMeta
+    implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
+  private static Class<?> classFromResourcesPackage =
+      LdapOutputMeta.class; // for i18n purposes, needed by Translator!!
 
-  /**
-   * Flag indicating that we use authentication for connection
-   */
+  /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;
 
-  /**
-   * The Host name
-   */
+  /** The Host name */
   private String host;
 
-  /**
-   * The User name
-   */
+  /** The User name */
   private String userName;
 
-  /**
-   * The Password to use in LDAP authentication
-   */
+  /** The Password to use in LDAP authentication */
   private String password;
 
-  /**
-   * The Port
-   */
+  /** The Port */
   private String port;
 
-  /**
-   * The name of DN field
-   */
+  /** The name of DN field */
   private String dnFieldName;
 
   private boolean failIfNotExist;
 
-  /**
-   * Field value to update
-   */
+  /** Field value to update */
   private String[] updateLookup;
 
-  /**
-   * Stream name to update value with
-   */
+  /** Stream name to update value with */
   private String[] updateStream;
 
-  /**
-   * boolean indicating if field needs to be updated
-   */
+  /** boolean indicating if field needs to be updated */
   private Boolean[] update;
 
-  /**
-   * Operations type
-   */
+  /** Operations type */
   private String searchBase;
 
-  /**
-   * Multi valued separator
-   **/
+  /** Multi valued separator */
   private String multiValuedSeparator;
 
   private int operationType;
@@ -121,21 +99,20 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
   private String newDnFieldName;
   private boolean deleteRDN;
 
-  /**
-   * The operations description
-   */
+  /** The operations description */
   static final String[] operationTypeDesc = {
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Insert" ),
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Upsert" ),
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Update" ),
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Add" ),
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Delete" ),
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.operationType.Rename" ) };
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.operationType.Insert"),
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.operationType.Upsert"),
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.operationType.Update"),
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.operationType.Add"),
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.operationType.Delete"),
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.operationType.Rename")
+  };
 
-  /**
-   * The operations type codes
-   */
-  static final String[] operationTypeCode = { "insert", "upsert", "update", "add", "delete", "rename" };
+  /** The operations type codes */
+  static final String[] operationTypeCode = {
+    "insert", "upsert", "update", "add", "delete", "rename"
+  };
 
   public static final int OPERATION_TYPE_INSERT = 0;
 
@@ -151,17 +128,14 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
 
   private int referralType;
 
-  /**
-   * The referrals description
-   */
+  /** The referrals description */
   public static final String[] referralTypeDesc = {
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.referralType.Follow" ),
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.referralType.Ignore" ) };
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.referralType.Follow"),
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.referralType.Ignore")
+  };
 
-  /**
-   * The referrals type codes
-   */
-  static final String[] referralTypeCode = { "follow", "ignore" };
+  /** The referrals type codes */
+  static final String[] referralTypeCode = {"follow", "ignore"};
 
   public static final int REFERRAL_TYPE_FOLLOW = 0;
 
@@ -169,19 +143,16 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
 
   private int derefAliasesType;
 
-  /**
-   * The derefAliasess description
-   */
+  /** The derefAliasess description */
   static final String[] derefAliasesTypeDesc = {
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Always" ),
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Never" ),
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Searching" ),
-    BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Finding" ) };
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Always"),
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Never"),
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Searching"),
+    BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.derefAliasesType.Finding")
+  };
 
-  /**
-   * The derefAliasess type codes
-   */
-  static final String[] derefAliasesTypeCode = { "always", "never", "searching", "finding" };
+  /** The derefAliasess type codes */
+  static final String[] derefAliasesTypeCode = {"always", "never", "searching", "finding"};
 
   public static final int DEREFALIASES_TYPE_ALWAYS = 0;
 
@@ -191,15 +162,12 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
 
   public static final int DEREFALIASES_TYPE_FINDING = 3;
 
-  /**
-   * Protocol
-   **/
+  /** Protocol */
   private String protocol;
 
-  /**
-   * Trust store
-   **/
+  /** Trust store */
   private boolean useCertificate;
+
   private String trustStorePath;
   private String trustStorePassword;
   private boolean trustAllCertificates;
@@ -208,73 +176,53 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     super(); // allocate BaseTransformMeta
   }
 
-  /**
-   * @return Returns the input useCertificate.
-   */
+  /** @return Returns the input useCertificate. */
   public boolean isUseCertificate() {
     return useCertificate;
   }
 
-  /**
-   * @return Returns the useCertificate.
-   */
-  public void setUseCertificate( boolean value ) {
+  /** @return Returns the useCertificate. */
+  public void setUseCertificate(boolean value) {
     this.useCertificate = value;
   }
 
-  /**
-   * @return Returns the input trustAllCertificates.
-   */
+  /** @return Returns the input trustAllCertificates. */
   public boolean isTrustAllCertificates() {
     return trustAllCertificates;
   }
 
-  /**
-   * @return Returns the input trustAllCertificates.
-   */
-  public void setTrustAllCertificates( boolean value ) {
+  /** @return Returns the input trustAllCertificates. */
+  public void setTrustAllCertificates(boolean value) {
     this.trustAllCertificates = value;
   }
 
-  /**
-   * @return Returns the trustStorePath.
-   */
+  /** @return Returns the trustStorePath. */
   public String getTrustStorePassword() {
     return trustStorePassword;
   }
 
-  /**
-   * @param value the trustStorePassword to set.
-   */
-  public void setTrustStorePassword( String value ) {
+  /** @param value the trustStorePassword to set. */
+  public void setTrustStorePassword(String value) {
     this.trustStorePassword = value;
   }
 
-  /**
-   * @return Returns the trustStorePath.
-   */
+  /** @return Returns the trustStorePath. */
   public String getTrustStorePath() {
     return trustStorePath;
   }
 
-  /**
-   * @param value the trustStorePath to set.
-   */
-  public void setTrustStorePath( String value ) {
+  /** @param value the trustStorePath to set. */
+  public void setTrustStorePath(String value) {
     this.trustStorePath = value;
   }
 
-  /**
-   * @return Returns the protocol.
-   */
+  /** @return Returns the protocol. */
   public String getProtocol() {
     return protocol;
   }
 
-  /**
-   * @param value the protocol to set.
-   */
-  public void setProtocol( String value ) {
+  /** @param value the protocol to set. */
+  public void setProtocol(String value) {
     this.protocol = value;
   }
 
@@ -282,7 +230,7 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     return update;
   }
 
-  public void setUpdate( Boolean[] update ) {
+  public void setUpdate(Boolean[] update) {
     this.update = update;
   }
 
@@ -298,205 +246,181 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     return derefAliasesType;
   }
 
-  public static int getOperationTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getOperationTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < operationTypeDesc.length; i++ ) {
-      if ( operationTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < operationTypeDesc.length; i++) {
+      if (operationTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     // If this fails, try to match using the code.
-    return getOperationTypeByCode( tt );
+    return getOperationTypeByCode(tt);
   }
 
-  public static int getReferralTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getReferralTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < referralTypeDesc.length; i++ ) {
-      if ( referralTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < referralTypeDesc.length; i++) {
+      if (referralTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     // If this fails, try to match using the code.
-    return getReferralTypeByCode( tt );
+    return getReferralTypeByCode(tt);
   }
 
-  public static int getDerefAliasesTypeByDesc( String tt ) {
-    if ( tt == null ) {
+  public static int getDerefAliasesTypeByDesc(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < derefAliasesTypeDesc.length; i++ ) {
-      if ( derefAliasesTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < derefAliasesTypeDesc.length; i++) {
+      if (derefAliasesTypeDesc[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     // If this fails, try to match using the code.
-    return getReferralTypeByCode( tt );
+    return getReferralTypeByCode(tt);
   }
 
-  private static int getOperationTypeByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getOperationTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < operationTypeCode.length; i++ ) {
-      if ( operationTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < operationTypeCode.length; i++) {
+      if (operationTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  private static int getReferralTypeByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getReferralTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < referralTypeCode.length; i++ ) {
-      if ( referralTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < referralTypeCode.length; i++) {
+      if (referralTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  private static int getDerefAliasesTypeByCode( String tt ) {
-    if ( tt == null ) {
+  private static int getDerefAliasesTypeByCode(String tt) {
+    if (tt == null) {
       return 0;
     }
 
-    for ( int i = 0; i < derefAliasesTypeCode.length; i++ ) {
-      if ( derefAliasesTypeCode[ i ].equalsIgnoreCase( tt ) ) {
+    for (int i = 0; i < derefAliasesTypeCode.length; i++) {
+      if (derefAliasesTypeCode[i].equalsIgnoreCase(tt)) {
         return i;
       }
     }
     return 0;
   }
 
-  public void setOperationType( int operationType ) {
+  public void setOperationType(int operationType) {
     this.operationType = operationType;
   }
 
-  public void setReferralType( int value ) {
+  public void setReferralType(int value) {
     this.referralType = value;
   }
 
-  public void setDerefAliasesType( int value ) {
+  public void setDerefAliasesType(int value) {
     this.derefAliasesType = value;
   }
 
-  public static String getOperationTypeDesc( int i ) {
-    if ( i < 0 || i >= operationTypeDesc.length ) {
-      return operationTypeDesc[ 0 ];
+  public static String getOperationTypeDesc(int i) {
+    if (i < 0 || i >= operationTypeDesc.length) {
+      return operationTypeDesc[0];
     }
-    return operationTypeDesc[ i ];
+    return operationTypeDesc[i];
   }
 
-  public static String getReferralTypeDesc( int i ) {
-    if ( i < 0 || i >= referralTypeDesc.length ) {
-      return referralTypeDesc[ 0 ];
+  public static String getReferralTypeDesc(int i) {
+    if (i < 0 || i >= referralTypeDesc.length) {
+      return referralTypeDesc[0];
     }
-    return referralTypeDesc[ i ];
+    return referralTypeDesc[i];
   }
 
-  public static String getDerefAliasesTypeDesc( int i ) {
-    if ( i < 0 || i >= derefAliasesTypeDesc.length ) {
-      return derefAliasesTypeDesc[ 0 ];
+  public static String getDerefAliasesTypeDesc(int i) {
+    if (i < 0 || i >= derefAliasesTypeDesc.length) {
+      return derefAliasesTypeDesc[0];
     }
-    return derefAliasesTypeDesc[ i ];
+    return derefAliasesTypeDesc[i];
   }
 
-  /**
-   * @return Returns the updateStream.
-   */
+  /** @return Returns the updateStream. */
   public String[] getUpdateStream() {
     return updateStream;
   }
 
-  /**
-   * @param updateStream The updateStream to set.
-   */
-  public void setUpdateStream( String[] updateStream ) {
+  /** @param updateStream The updateStream to set. */
+  public void setUpdateStream(String[] updateStream) {
     this.updateStream = updateStream;
   }
 
-  /**
-   * @return Returns the updateLookup.
-   */
+  /** @return Returns the updateLookup. */
   public String[] getUpdateLookup() {
     return updateLookup;
   }
 
-  /**
-   * @param updateLookup The updateLookup to set.
-   */
-  public void setUpdateLookup( String[] updateLookup ) {
+  /** @param updateLookup The updateLookup to set. */
+  public void setUpdateLookup(String[] updateLookup) {
     this.updateLookup = updateLookup;
   }
 
-  /**
-   * @return Returns the input useAuthentication.
-   */
+  /** @return Returns the input useAuthentication. */
   public boolean isUseAuthentication() {
     return useAuthentication;
   }
 
-  /**
-   * @param useAuthentication The useAuthentication to set.
-   */
-  public void setUseAuthentication( boolean useAuthentication ) {
+  /** @param useAuthentication The useAuthentication to set. */
+  public void setUseAuthentication(boolean useAuthentication) {
     this.useAuthentication = useAuthentication;
   }
 
-  /**
-   * @return Returns the host name.
-   */
+  /** @return Returns the host name. */
   public String getHost() {
     return host;
   }
 
-  /**
-   * @param host The host to set.
-   */
-  public void setHost( String host ) {
+  /** @param host The host to set. */
+  public void setHost(String host) {
     this.host = host;
   }
 
-  /**
-   * @return Returns the user name.
-   */
+  /** @return Returns the user name. */
   public String getUserName() {
     return userName;
   }
 
-  /**
-   * @param userName The username to set.
-   */
-  public void setUserName( String userName ) {
+  /** @param userName The username to set. */
+  public void setUserName(String userName) {
     this.userName = userName;
   }
 
-  /**
-   * @param password The password to set.
-   */
-  public void setPassword( String password ) {
+  /** @param password The password to set. */
+  public void setPassword(String password) {
     this.password = password;
   }
 
-  /**
-   * @return Returns the password.
-   */
+  /** @return Returns the password. */
   public String getPassword() {
     return password;
   }
 
-  public void setDnField( String value ) {
+  public void setDnField(String value) {
     this.dnFieldName = value;
   }
 
@@ -504,250 +428,248 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     return this.dnFieldName;
   }
 
-  /**
-   * @return Returns the Port.
-   */
+  /** @return Returns the Port. */
   public String getPort() {
     return port;
   }
 
-  /**
-   * @param port The port to set.
-   */
-  public void setPort( String port ) {
+  /** @param port The port to set. */
+  public void setPort(String port) {
     this.port = port;
   }
 
-  /**
-   * @return Returns the failIfNotExist.
-   */
+  /** @return Returns the failIfNotExist. */
   public boolean isFailIfNotExist() {
     return failIfNotExist;
   }
 
-  /**
-   * @param failIfNotExist The failIfNotExist to set.
-   */
-  public void setFailIfNotExist( boolean failIfNotExist ) {
+  /** @param failIfNotExist The failIfNotExist to set. */
+  public void setFailIfNotExist(boolean failIfNotExist) {
     this.failIfNotExist = failIfNotExist;
   }
 
-  public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+      throws HopXmlException {
+    readData(transformNode);
   }
 
   public Object clone() {
     LdapOutputMeta retval = (LdapOutputMeta) super.clone();
     int nrvalues = updateLookup.length;
 
-    retval.allocate( nrvalues );
-    System.arraycopy( updateLookup, 0, retval.updateLookup, 0, nrvalues );
-    System.arraycopy( updateStream, 0, retval.updateStream, 0, nrvalues );
-    System.arraycopy( update, 0, retval.update, 0, nrvalues );
+    retval.allocate(nrvalues);
+    System.arraycopy(updateLookup, 0, retval.updateLookup, 0, nrvalues);
+    System.arraycopy(updateStream, 0, retval.updateStream, 0, nrvalues);
+    System.arraycopy(update, 0, retval.update, 0, nrvalues);
 
     return retval;
   }
 
-  /**
-   * @param value The deleteRDN filed.
-   */
-  public void setDeleteRDN( boolean value ) {
+  /** @param value The deleteRDN filed. */
+  public void setDeleteRDN(boolean value) {
     this.deleteRDN = value;
   }
 
-  /**
-   * @return Returns the deleteRDN.
-   */
+  /** @return Returns the deleteRDN. */
   public boolean isDeleteRDN() {
     return deleteRDN;
   }
 
-  /**
-   * @param value The newDnFieldName filed.
-   */
-  public void setNewDnFieldName( String value ) {
+  /** @param value The newDnFieldName filed. */
+  public void setNewDnFieldName(String value) {
     this.newDnFieldName = value;
   }
 
-  /**
-   * @return Returns the newDnFieldName.
-   */
+  /** @return Returns the newDnFieldName. */
   public String getNewDnFieldName() {
     return newDnFieldName;
   }
 
-  /**
-   * @param value The oldDnFieldName filed.
-   */
-  public void setOldDnFieldName( String value ) {
+  /** @param value The oldDnFieldName filed. */
+  public void setOldDnFieldName(String value) {
     this.oldDnFieldName = value;
   }
 
-  /**
-   * @return Returns the oldDnFieldName.
-   */
+  /** @return Returns the oldDnFieldName. */
   public String getOldDnFieldName() {
     return oldDnFieldName;
   }
 
-  /**
-   * @param searchBase The searchBase filed.
-   */
-  public void setSearchBaseDN( String searchBase ) {
+  /** @param searchBase The searchBase filed. */
+  public void setSearchBaseDN(String searchBase) {
     this.searchBase = searchBase;
   }
 
-  /**
-   * @return Returns the searchBase.
-   */
+  /** @return Returns the searchBase. */
   public String getSearchBaseDN() {
     return searchBase;
   }
 
-  /**
-   * @param multiValuedSeparator The multi-valued separator filed.
-   */
-  public void setMultiValuedSeparator( String multiValuedSeparator ) {
+  /** @param multiValuedSeparator The multi-valued separator filed. */
+  public void setMultiValuedSeparator(String multiValuedSeparator) {
     this.multiValuedSeparator = multiValuedSeparator;
   }
 
-  /**
-   * @return Returns the multi valued separator.
-   */
+  /** @return Returns the multi valued separator. */
   public String getMultiValuedSeparator() {
     return multiValuedSeparator;
   }
 
-  public void allocate( int nrvalues ) {
-    updateLookup = new String[ nrvalues ];
-    updateStream = new String[ nrvalues ];
-    update = new Boolean[ nrvalues ];
+  public void allocate(int nrvalues) {
+    updateLookup = new String[nrvalues];
+    updateStream = new String[nrvalues];
+    update = new Boolean[nrvalues];
   }
 
-  private static String getOperationTypeCode( int i ) {
-    if ( i < 0 || i >= operationTypeCode.length ) {
-      return operationTypeCode[ 0 ];
+  private static String getOperationTypeCode(int i) {
+    if (i < 0 || i >= operationTypeCode.length) {
+      return operationTypeCode[0];
     }
-    return operationTypeCode[ i ];
+    return operationTypeCode[i];
   }
 
-  public static String getReferralTypeCode( int i ) {
-    if ( i < 0 || i >= referralTypeCode.length ) {
-      return referralTypeCode[ 0 ];
+  public static String getReferralTypeCode(int i) {
+    if (i < 0 || i >= referralTypeCode.length) {
+      return referralTypeCode[0];
     }
-    return referralTypeCode[ i ];
+    return referralTypeCode[i];
   }
 
-  public static String getDerefAliasesCode( int i ) {
-    if ( i < 0 || i >= derefAliasesTypeCode.length ) {
-      return derefAliasesTypeCode[ 0 ];
+  public static String getDerefAliasesCode(int i) {
+    if (i < 0 || i >= derefAliasesTypeCode.length) {
+      return derefAliasesTypeCode[0];
     }
-    return derefAliasesTypeCode[ i ];
+    return derefAliasesTypeCode[i];
   }
 
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 500 );
+    StringBuilder retval = new StringBuilder(500);
 
-    retval.append( "    " ).append( XmlHandler.addTagValue( "useauthentication", useAuthentication ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "host", host ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "username", userName ) );
-    retval.append( "    " ).append(
-      XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( password ) ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "port", port ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "dnFieldName", dnFieldName ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "failIfNotExist", failIfNotExist ) );
-    retval.append( "    " ).append(
-      XmlHandler.addTagValue( "operationType", getOperationTypeCode( operationType ) ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "multivaluedseparator", multiValuedSeparator ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "searchBase", searchBase ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "referralType", getReferralTypeCode( referralType ) ) );
-    retval.append( "    " ).append(
-      XmlHandler.addTagValue( "derefAliasesType", getDerefAliasesCode( derefAliasesType ) ) );
+    retval.append("    ").append(XmlHandler.addTagValue("useauthentication", useAuthentication));
+    retval.append("    ").append(XmlHandler.addTagValue("host", host));
+    retval.append("    ").append(XmlHandler.addTagValue("username", userName));
+    retval
+        .append("    ")
+        .append(
+            XmlHandler.addTagValue("password", Encr.encryptPasswordIfNotUsingVariables(password)));
+    retval.append("    ").append(XmlHandler.addTagValue("port", port));
+    retval.append("    ").append(XmlHandler.addTagValue("dnFieldName", dnFieldName));
+    retval.append("    ").append(XmlHandler.addTagValue("failIfNotExist", failIfNotExist));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("operationType", getOperationTypeCode(operationType)));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("multivaluedseparator", multiValuedSeparator));
+    retval.append("    ").append(XmlHandler.addTagValue("searchBase", searchBase));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("referralType", getReferralTypeCode(referralType)));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("derefAliasesType", getDerefAliasesCode(derefAliasesType)));
 
-    retval.append( "    " ).append( XmlHandler.addTagValue( "oldDnFieldName", oldDnFieldName ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "newDnFieldName", newDnFieldName ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "deleteRDN", deleteRDN ) );
+    retval.append("    ").append(XmlHandler.addTagValue("oldDnFieldName", oldDnFieldName));
+    retval.append("    ").append(XmlHandler.addTagValue("newDnFieldName", newDnFieldName));
+    retval.append("    ").append(XmlHandler.addTagValue("deleteRDN", deleteRDN));
 
-    retval.append( "    <fields>" + Const.CR );
+    retval.append("    <fields>" + Const.CR);
 
-    for ( int i = 0; i < updateLookup.length; i++ ) {
-      retval.append( "      <field>" ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "name", updateLookup[ i ] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "field", updateStream[ i ] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "update", update[ i ].booleanValue() ) );
-      retval.append( "      </field>" ).append( Const.CR );
+    for (int i = 0; i < updateLookup.length; i++) {
+      retval.append("      <field>").append(Const.CR);
+      retval.append("        ").append(XmlHandler.addTagValue("name", updateLookup[i]));
+      retval.append("        ").append(XmlHandler.addTagValue("field", updateStream[i]));
+      retval.append("        ").append(XmlHandler.addTagValue("update", update[i].booleanValue()));
+      retval.append("      </field>").append(Const.CR);
     }
 
-    retval.append( "      </fields>" + Const.CR );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "protocol", protocol ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "trustStorePath", trustStorePath ) );
-    retval.append( "    " ).append(
-      XmlHandler
-        .addTagValue( "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables( trustStorePassword ) ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "trustAllCertificates", trustAllCertificates ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "useCertificate", useCertificate ) );
+    retval.append("      </fields>" + Const.CR);
+    retval.append("    ").append(XmlHandler.addTagValue("protocol", protocol));
+    retval.append("    ").append(XmlHandler.addTagValue("trustStorePath", trustStorePath));
+    retval
+        .append("    ")
+        .append(
+            XmlHandler.addTagValue(
+                "trustStorePassword", Encr.encryptPasswordIfNotUsingVariables(trustStorePassword)));
+    retval
+        .append("    ")
+        .append(XmlHandler.addTagValue("trustAllCertificates", trustAllCertificates));
+    retval.append("    ").append(XmlHandler.addTagValue("useCertificate", useCertificate));
 
     return retval.toString();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  private void readData(Node transformNode) throws HopXmlException {
     try {
 
-      useAuthentication = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useauthentication" ) );
-      host = XmlHandler.getTagValue( transformNode, "host" );
-      userName = XmlHandler.getTagValue( transformNode, "username" );
-      setPassword( Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "password" ) ) );
+      useAuthentication =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "useauthentication"));
+      host = XmlHandler.getTagValue(transformNode, "host");
+      userName = XmlHandler.getTagValue(transformNode, "username");
+      setPassword(
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(transformNode, "password")));
 
-      port = XmlHandler.getTagValue( transformNode, "port" );
-      dnFieldName = XmlHandler.getTagValue( transformNode, "dnFieldName" );
-      failIfNotExist = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "failIfNotExist" ) );
+      port = XmlHandler.getTagValue(transformNode, "port");
+      dnFieldName = XmlHandler.getTagValue(transformNode, "dnFieldName");
+      failIfNotExist =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "failIfNotExist"));
       operationType =
-        getOperationTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "operationType" ), "" ) );
-      multiValuedSeparator = XmlHandler.getTagValue( transformNode, "multivaluedseparator" );
-      searchBase = XmlHandler.getTagValue( transformNode, "searchBase" );
-      referralType = getReferralTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "referralType" ), "" ) );
+          getOperationTypeByCode(
+              Const.NVL(XmlHandler.getTagValue(transformNode, "operationType"), ""));
+      multiValuedSeparator = XmlHandler.getTagValue(transformNode, "multivaluedseparator");
+      searchBase = XmlHandler.getTagValue(transformNode, "searchBase");
+      referralType =
+          getReferralTypeByCode(
+              Const.NVL(XmlHandler.getTagValue(transformNode, "referralType"), ""));
       derefAliasesType =
-        getDerefAliasesTypeByCode( Const.NVL( XmlHandler.getTagValue( transformNode, "derefAliasesType" ), "" ) );
+          getDerefAliasesTypeByCode(
+              Const.NVL(XmlHandler.getTagValue(transformNode, "derefAliasesType"), ""));
 
-      oldDnFieldName = XmlHandler.getTagValue( transformNode, "oldDnFieldName" );
-      newDnFieldName = XmlHandler.getTagValue( transformNode, "newDnFieldName" );
-      deleteRDN = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "deleteRDN" ) );
+      oldDnFieldName = XmlHandler.getTagValue(transformNode, "oldDnFieldName");
+      newDnFieldName = XmlHandler.getTagValue(transformNode, "newDnFieldName");
+      deleteRDN = "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "deleteRDN"));
 
-      Node fields = XmlHandler.getSubNode( transformNode, "fields" );
-      int nrFields = XmlHandler.countNodes( fields, "field" );
+      Node fields = XmlHandler.getSubNode(transformNode, "fields");
+      int nrFields = XmlHandler.countNodes(fields, "field");
 
-      allocate( nrFields );
+      allocate(nrFields);
 
-      for ( int i = 0; i < nrFields; i++ ) {
-        Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
+      for (int i = 0; i < nrFields; i++) {
+        Node fnode = XmlHandler.getSubNodeByNr(fields, "field", i);
 
-        updateLookup[ i ] = XmlHandler.getTagValue( fnode, "name" );
-        updateStream[ i ] = XmlHandler.getTagValue( fnode, "field" );
-        if ( updateStream[ i ] == null ) {
-          updateStream[ i ] = updateLookup[ i ]; // default: the same name!
+        updateLookup[i] = XmlHandler.getTagValue(fnode, "name");
+        updateStream[i] = XmlHandler.getTagValue(fnode, "field");
+        if (updateStream[i] == null) {
+          updateStream[i] = updateLookup[i]; // default: the same name!
         }
-        String updateValue = XmlHandler.getTagValue( fnode, "update" );
-        if ( updateValue == null ) {
+        String updateValue = XmlHandler.getTagValue(fnode, "update");
+        if (updateValue == null) {
           // default TRUE
-          update[ i ] = Boolean.TRUE;
+          update[i] = Boolean.TRUE;
         } else {
-          if ( updateValue.equalsIgnoreCase( "Y" ) ) {
-            update[ i ] = Boolean.TRUE;
+          if (updateValue.equalsIgnoreCase("Y")) {
+            update[i] = Boolean.TRUE;
           } else {
-            update[ i ] = Boolean.FALSE;
+            update[i] = Boolean.FALSE;
           }
         }
       }
 
-      protocol = XmlHandler.getTagValue( transformNode, "protocol" );
-      trustStorePath = XmlHandler.getTagValue( transformNode, "trustStorePath" );
+      protocol = XmlHandler.getTagValue(transformNode, "protocol");
+      trustStorePath = XmlHandler.getTagValue(transformNode, "trustStorePath");
       trustStorePassword =
-        Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "trustStorePassword" ) );
-      trustAllCertificates = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "trustAllCertificates" ) );
-      useCertificate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "useCertificate" ) );
+          Encr.decryptPasswordOptionallyEncrypted(
+              XmlHandler.getTagValue(transformNode, "trustStorePassword"));
+      trustAllCertificates =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "trustAllCertificates"));
+      useCertificate =
+          "Y".equalsIgnoreCase(XmlHandler.getTagValue(transformNode, "useCertificate"));
 
-    } catch ( Exception e ) {
-      throw new HopXmlException( BaseMessages.getString( classFromResourcesPackage, "LdapOutputMeta.UnableToLoadFromXML" ), e );
+    } catch (Exception e) {
+      throw new HopXmlException(
+          BaseMessages.getString(classFromResourcesPackage, "LdapOutputMeta.UnableToLoadFromXML"),
+          e);
     }
   }
 
@@ -766,12 +688,12 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     deleteRDN = true;
 
     int nrFields = 0;
-    allocate( nrFields );
+    allocate(nrFields);
 
-    for ( int i = 0; i < nrFields; i++ ) {
-      updateLookup[ i ] = "name" + ( i + 1 );
-      updateStream[ i ] = "field" + ( i + 1 );
-      update[ i ] = Boolean.TRUE;
+    for (int i = 0; i < nrFields; i++) {
+      updateLookup[i] = "name" + (i + 1);
+      updateStream[i] = "field" + (i + 1);
+      update[i] = Boolean.TRUE;
     }
     operationType = OPERATION_TYPE_INSERT;
     referralType = REFERRAL_TYPE_FOLLOW;
@@ -779,56 +701,84 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
     this.trustStorePath = null;
     this.trustStorePassword = null;
     this.trustAllCertificates = false;
-    this.protocol = LdapProtocolFactory.getConnectionTypes( log ).get( 0 );
+    this.protocol = LdapProtocolFactory.getConnectionTypes(log).get(0);
     this.useCertificate = false;
   }
-  
-  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
-                     IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
-                     IHopMetadataProvider metadataProvider ) {
+
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info,
+      IVariables variables,
+      IHopMetadataProvider metadataProvider) {
 
     CheckResult cr;
- 
+
     // See if we get input...
-    if ( input.length > 0 ) {
+    if (input.length > 0) {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          classFromResourcesPackage, "LdapOutputMeta.CheckResult.NoInputExpected" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  classFromResourcesPackage, "LdapOutputMeta.CheckResult.NoInputExpected"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          classFromResourcesPackage, "LdapOutputMeta.CheckResult.NoInput" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  classFromResourcesPackage, "LdapOutputMeta.CheckResult.NoInput"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // Check hostname
-    if ( Utils.isEmpty( host ) ) {
+    if (Utils.isEmpty(host)) {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          classFromResourcesPackage, "LdapOutputMeta.CheckResult.HostnameMissing" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  classFromResourcesPackage, "LdapOutputMeta.CheckResult.HostnameMissing"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          classFromResourcesPackage, "LdapOutputMeta.CheckResult.HostnameOk" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  classFromResourcesPackage, "LdapOutputMeta.CheckResult.HostnameOk"),
+              transformMeta);
     }
-    remarks.add( cr );
+    remarks.add(cr);
 
     // check return fields
-    if ( updateLookup.length == 0 ) {
+    if (updateLookup.length == 0) {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-          classFromResourcesPackage, "LdapOutputUpdateMeta.CheckResult.NoFields" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_ERROR,
+              BaseMessages.getString(
+                  classFromResourcesPackage, "LdapOutputUpdateMeta.CheckResult.NoFields"),
+              transformMeta);
     } else {
       cr =
-        new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
-          classFromResourcesPackage, "LdapOutputUpdateMeta.CheckResult.FieldsOk" ), transformMeta );
+          new CheckResult(
+              ICheckResult.TYPE_RESULT_OK,
+              BaseMessages.getString(
+                  classFromResourcesPackage, "LdapOutputUpdateMeta.CheckResult.FieldsOk"),
+              transformMeta);
     }
-
   }
 
-  public LdapOutput createTransform( TransformMeta transformMeta, LdapOutputData data, int cnr, PipelineMeta tr,
-                                Pipeline pipeline ) {
-    return new LdapOutput( transformMeta, this, data, cnr, tr, pipeline );
+  public LdapOutput createTransform(
+      TransformMeta transformMeta,
+      LdapOutputData data,
+      int cnr,
+      PipelineMeta tr,
+      Pipeline pipeline) {
+    return new LdapOutput(transformMeta, this, data, cnr, tr, pipeline);
   }
 
   public LdapOutputData getTransformData() {
@@ -845,11 +795,11 @@ public class LdapOutputMeta extends BaseTransformMeta implements ILdapMeta, ITra
 
   @Override
   public String getDerefAliases() {
-    return LdapOutputMeta.getDerefAliasesCode( getDerefAliasesType() );
+    return LdapOutputMeta.getDerefAliasesCode(getDerefAliasesType());
   }
 
   @Override
   public String getReferrals() {
-    return getReferralTypeCode( getReferralType() );
+    return getReferralTypeCode(getReferralType());
   }
 }

@@ -66,6 +66,8 @@ import org.eclipse.swt.widgets.Text;
 public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionDeleteFolders.class; // for i18n purposes, needed by Translator!!
 
+  private Shell shell;
+  
   private Text wName;
 
   private Label wlFilename;
@@ -91,7 +93,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
   private TextVar wLimitFolders;
 
   public ActionDeleteFoldersDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionDeleteFolders) action;
 
     if ( this.action.getName() == null ) {
@@ -239,7 +241,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     wlNrErrorsLessThan.setLayoutData( fdlNrErrorsLessThan );
 
     wLimitFolders =
-      new TextVar( workflowMeta, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobDeleteFolders.LimitFolders.Tooltip" ) );
     props.setLook( wLimitFolders );
     wLimitFolders.addModifyListener( lsMod );
@@ -277,7 +279,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     fdbDirectory.top = new FormAttachment( wSuccessOn, margin );
     wbDirectory.setLayoutData( fdbDirectory );
 
-    wbDirectory.addListener( SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wFilename, workflowMeta ));
+    wbDirectory.addListener( SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wFilename, getWorkflowMeta() ));
     
     // Button Add or change
     wbaFilename = new Button( shell, SWT.PUSH | SWT.CENTER );
@@ -288,7 +290,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     fdbaFilename.top = new FormAttachment( wSuccessOn, margin );
     wbaFilename.setLayoutData( fdbaFilename );
 
-    wFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -298,7 +300,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     wFilename.setLayoutData( fdFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ) );
 
     // Button Delete
     wbdFilename = new Button( shell, SWT.PUSH | SWT.CENTER );
@@ -343,7 +345,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
 
     wFields =
       new TableView(
-        workflowMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

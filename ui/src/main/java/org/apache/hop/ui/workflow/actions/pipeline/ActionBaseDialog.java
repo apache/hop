@@ -22,6 +22,8 @@
 
 package org.apache.hop.ui.workflow.actions.pipeline;
 
+import java.io.IOException;
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -31,20 +33,19 @@ import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
-import org.apache.hop.ui.workflow.action.ActionDialog;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionBase;
-import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.workflow.action.ActionDialog;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionBase;
+import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -55,21 +56,18 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-import java.io.IOException;
-
 /**
  * Created by bmorrise on 1/6/17.
  */
 public abstract class ActionBaseDialog extends ActionDialog {
 
-  public static Class<?> PKG = ActionBaseDialog.class;
+  public static final Class<?> PKG = ActionBaseDialog.class;
 
   protected Label wlPath;
   protected TextVar wPath;
@@ -150,7 +148,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
   public ActionBaseDialog( Shell parent,
                            IAction action,
                            WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     log = new LogChannel( workflowMeta );
   }
 
@@ -174,7 +172,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
     wlName = new Label( shell, SWT.LEFT );
     props.setLook( wlName );
-    wlName.setText( BaseMessages.getString( PKG, "ActionPipeline.JobTransform.Label" ) );
+    wlName.setText( BaseMessages.getString( PKG, "ActionPipeline.ActionName.Label" ) );
     fdlName = new FormData();
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.top = new FormAttachment( 0, 0 );
@@ -183,7 +181,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     fdName = new FormData();
-    fdName.right = new FormAttachment(100, 0);
+    fdName.right = new FormAttachment(wicon, -5);
     fdName.top = new FormAttachment( wlName, 5 );
     fdName.left = new FormAttachment( 0, 0 );
     wName.setLayoutData( fdName );
@@ -211,7 +209,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
     wbBrowse.setLayoutData( fdBrowse );
 
-    wPath = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPath = new TextVar( this.getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
     FormData fdPath = new FormData();
     fdPath.left = new FormAttachment( 0, 0 );
@@ -219,22 +217,20 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdPath.right = new FormAttachment( wbBrowse, -5 );
     wPath.setLayoutData( fdPath );
 
-
-
     wlRunConfiguration = new Label( shell, SWT.LEFT );
     wlRunConfiguration.setText( "Run configuration" ); // TODO i18n
     props.setLook( wlRunConfiguration );
     FormData fdlRunConfiguration = new FormData();
     fdlRunConfiguration.left = new FormAttachment( 0, 0 );
-    fdlRunConfiguration.top = new FormAttachment( wPath, PropsUi.getInstance().getMargin() );
+    fdlRunConfiguration.top = new FormAttachment( wPath, Const.isOSX() ? 0 : 5 );
     fdlRunConfiguration.right = new FormAttachment( 50, 0 );
     wlRunConfiguration.setLayoutData( fdlRunConfiguration );
 
-    wRunConfiguration = new ComboVar( workflowMeta, shell, SWT.LEFT | SWT.BORDER );
-    props.setLook( wlRunConfiguration );
+    wRunConfiguration = new ComboVar( this.getWorkflowMeta(), shell, SWT.LEFT | SWT.BORDER );
+    props.setLook( wRunConfiguration );
     FormData fdRunConfiguration = new FormData();
-    fdRunConfiguration.left = new FormAttachment( wlRunConfiguration, 10 );
-    fdRunConfiguration.top = new FormAttachment( wlRunConfiguration, 0, SWT.CENTER );
+    fdRunConfiguration.left = new FormAttachment( 0, 0 );
+    fdRunConfiguration.top = new FormAttachment( wlRunConfiguration, Const.isOSX() ? 0 : 5 );
     fdRunConfiguration.right = new FormAttachment( 100, 0 );
     wRunConfiguration.setLayoutData( fdRunConfiguration );
 
@@ -327,7 +323,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdlName.top = new FormAttachment( 0, 0 );
     wlLogfile.setLayoutData( fdlName );
 
-    wLogfile = new TextVar( workflowMeta, gLogFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogfile = new TextVar( this.getWorkflowMeta(), gLogFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLogfile );
     FormData fdName = new FormData();
     fdName.width = 250;
@@ -351,7 +347,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     fdlExtension.top = new FormAttachment( wLogfile, 10 );
     wlLogext.setLayoutData( fdlExtension );
 
-    wLogext = new TextVar( workflowMeta, gLogFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogext = new TextVar( this.getWorkflowMeta(), gLogFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLogext );
     FormData fdExtension = new FormData();
     fdExtension.width = 250;
@@ -478,7 +474,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     colinf[ 2 ].setUsingVariables( true );
 
     wParameters =
-      new TableView( workflowMeta, wParameterComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, parameterRows, false,
+      new TableView( this.getWorkflowMeta(), wParameterComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, parameterRows, false,
         lsMod, props, false );
     props.setLook( wParameters );
     FormData fdParameters = new FormData();
@@ -547,7 +543,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
 
   protected void selectLogFile( String[] filters ) {
 
-    String filename = BaseDialog.presentFileDialog(shell, wLogfile, workflowMeta,
+    String filename = BaseDialog.presentFileDialog(shell, wLogfile, this.getWorkflowMeta(),
       new String[] { "*.txt", "*.log", "*" },
       filters,
       true

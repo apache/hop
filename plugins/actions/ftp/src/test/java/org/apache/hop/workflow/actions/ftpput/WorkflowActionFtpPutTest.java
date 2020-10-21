@@ -42,7 +42,7 @@ import static org.mockito.Mockito.verify;
 /**
  * @author Andrey Khayrutdinov
  */
-public class WorkflowEntryFtpPutTest {
+public class WorkflowActionFtpPutTest {
 
   private ActionFtpPut entry;
   private FTPClient ftpClient;

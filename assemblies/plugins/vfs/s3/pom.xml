@@ -24,7 +24,6 @@
         <guava.version>19.0</guava.version>
 
         <!-- Test dependencies -->
-        <junit.version>4.12</junit.version>
         <mockito.version>1.10.19</mockito.version>
         <powermock.version>1.7.4</powermock.version>
         <aws-java-sdk-s3.version>1.11.516</aws-java-sdk-s3.version>

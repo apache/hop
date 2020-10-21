@@ -23,21 +23,21 @@
 package org.apache.hop.workflow;
 
 import org.apache.hop.core.Result;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
 public class WorkflowExecutionExtension {
 
   public IWorkflowEngine<WorkflowMeta> workflow;
   public Result result;
-  public ActionCopy actionCopy;
-  public boolean executeEntry;
+  public ActionMeta actionMeta;
+  public boolean executeAction;
 
-  public WorkflowExecutionExtension( IWorkflowEngine<WorkflowMeta> workflow, Result result, ActionCopy actionCopy, boolean executeEntry ) {
+  public WorkflowExecutionExtension( IWorkflowEngine<WorkflowMeta> workflow, Result result, ActionMeta actionMeta, boolean executeAction ) {
     super();
     this.workflow = workflow;
     this.result = result;
-    this.actionCopy = actionCopy;
-    this.executeEntry = executeEntry;
+    this.actionMeta = actionMeta;
+    this.executeAction = executeAction;
   }
 }

@@ -110,7 +110,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   private Button wClearResultList;
 
   public ActionWaitForSqlDialog(Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionWaitForSql) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionWaitForSQL.Name.Default" ) );
@@ -187,7 +187,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     fdlSchemaname.top = new FormAttachment( wConnection, margin );
     wlSchemaname.setLayoutData(fdlSchemaname);
 
-    wSchemaname = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "ActionWaitForSQL.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
@@ -220,7 +220,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
       }
     } );
 
-    wTablename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTablename );
     wTablename.setToolTipText( BaseMessages.getString( PKG, "ActionWaitForSQL.Tablename.Tooltip" ) );
     wTablename.addModifyListener( lsMod );
@@ -279,7 +279,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     wlRowsCountValue.setLayoutData(fdlRowsCountValue);
 
     wRowsCountValue =
-      new TextVar( workflowMeta, wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( getWorkflowMeta(), wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "ActionWaitForSQL.RowsCountValue.Tooltip" ) );
     props.setLook( wRowsCountValue );
     wRowsCountValue.addModifyListener( lsMod );
@@ -298,7 +298,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     fdlMaximumTimeout.top = new FormAttachment( wRowsCountValue, margin );
     fdlMaximumTimeout.right = new FormAttachment( middle, -2 * margin );
     wlMaximumTimeout.setLayoutData(fdlMaximumTimeout);
-    wMaximumTimeout = new TextVar( workflowMeta, wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaximumTimeout = new TextVar( getWorkflowMeta(), wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMaximumTimeout );
     wMaximumTimeout.setToolTipText( BaseMessages.getString( PKG, "ActionWaitForSQL.MaximumTimeout.Tooltip" ) );
     wMaximumTimeout.addModifyListener( lsMod );
@@ -317,7 +317,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     fdlCheckCycleTime.top = new FormAttachment( wMaximumTimeout, margin );
     fdlCheckCycleTime.right = new FormAttachment( middle, -2 * margin );
     wlCheckCycleTime.setLayoutData(fdlCheckCycleTime);
-    wCheckCycleTime = new TextVar( workflowMeta, wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCheckCycleTime = new TextVar( getWorkflowMeta(), wSuccessGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCheckCycleTime );
     wCheckCycleTime.setToolTipText( BaseMessages.getString( PKG, "ActionWaitForSQL.CheckCycleTime.Tooltip" ) );
     wCheckCycleTime.addModifyListener( lsMod );
@@ -588,9 +588,9 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   }
 
   private void getSql() {
-    DatabaseMeta inf = workflowMeta.findDatabase( wConnection.getText() );
+    DatabaseMeta inf = getWorkflowMeta().findDatabase( wConnection.getText() );
     if ( inf != null ) {
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, workflowMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, getWorkflowMeta().getDatabases() );
       if ( std.open() ) {
         String sql =
           "SELECT *"
@@ -742,7 +742,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
       return;
     }
     action.setName( wName.getText() );
-    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
 
     action.schemaname = wSchemaname.getText();
     action.tableName = wTablename.getText();
@@ -763,9 +763,9 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
   private void getTableName() {
     String databaseName = wConnection.getText();
     if ( StringUtils.isNotEmpty( databaseName ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( databaseName );
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( databaseName );
       if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, workflowMeta.getDatabases() );
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
         std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
         if ( std.open() ) {
           wTablename.setText( Const.NVL( std.getTableName(), "" ) );

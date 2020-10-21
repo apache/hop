@@ -71,7 +71,7 @@ public class HopGuiWorkflowRunDelegate {
     jobMap = new ArrayList<>();
   }
 
-  public void executeWorkflow( WorkflowMeta workflowMeta, boolean local, boolean remote, boolean safe, String startCopyName, int startCopyNr ) throws HopException {
+  public void executeWorkflow( WorkflowMeta workflowMeta, boolean local, boolean remote, boolean safe, String startActionName, int startActionNr ) throws HopException {
 
     if ( workflowMeta == null ) {
       return;
@@ -85,8 +85,8 @@ public class HopGuiWorkflowRunDelegate {
     variableMap.putAll( executionConfiguration.getVariablesMap() ); // the default
     executionConfiguration.setVariablesMap( variableMap );
     executionConfiguration.getUsedVariables( workflowMeta );
-    executionConfiguration.setStartCopyName( startCopyName );
-    executionConfiguration.setStartCopyNr( startCopyNr );
+    executionConfiguration.setStartActionName( startActionName );
+    executionConfiguration.setStartActionNr( startActionNr );
     executionConfiguration.setLogLevel( DefaultLogLevel.getLogLevel() );
 
     WorkflowExecutionConfigurationDialog dialog = newWorkflowExecutionConfigurationDialog( executionConfiguration, workflowMeta );
@@ -118,8 +118,8 @@ public class HopGuiWorkflowRunDelegate {
 
       // Set the start transform name
       //
-      if ( executionConfiguration.getStartCopyName() != null ) {
-        workflowMeta.setStartCopyName( executionConfiguration.getStartCopyName() );
+      if ( executionConfiguration.getStartActionName() != null ) {
+        workflowMeta.setStartActionName( executionConfiguration.getStartActionName() );
       }
 
       // Set the run options

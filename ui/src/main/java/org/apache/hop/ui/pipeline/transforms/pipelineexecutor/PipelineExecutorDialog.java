@@ -28,6 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
@@ -36,6 +37,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorMeta;
 import org.apache.hop.pipeline.transforms.pipelineexecutor.PipelineExecutorParameters;
 import org.apache.hop.ui.core.ConstUi;
@@ -1082,4 +1084,11 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     }
 
   }
+
+  @Override
+  protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
+    plugin.setDocumentationUrl("https://www.project-hop.org/manual/latest/plugins/transforms/pipelineexcecutor.html");
+    return super.createHelpButton(shell, stepMeta, plugin);
+  }
+
 }

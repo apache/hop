@@ -60,6 +60,8 @@ import org.eclipse.swt.widgets.Text;
 public class ActionAbortDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = ActionAbortDialog.class; // for i18n purposes, needed by Translator!!
 
+  private Shell shell;
+  
   private ActionAbort action;
 
   private boolean changed;
@@ -69,7 +71,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
   private TextVar wMessageAbort;
 
   public ActionAbortDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionAbort) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionAbortDialog.Jobname.Label" ) );
@@ -126,7 +128,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     fdlMessageAbort.top = new FormAttachment( wName, margin );
     wlMessageAbort.setLayoutData( fdlMessageAbort );
 
-    wMessageAbort = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMessageAbort = new TextVar( this.getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMessageAbort );
     wMessageAbort.setToolTipText( BaseMessages.getString( PKG, "ActionAbortDialog.MessageAbort.Tooltip" ) );
     wMessageAbort.addModifyListener( lsMod );

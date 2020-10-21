@@ -26,7 +26,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.actions.special.ActionSpecial;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
@@ -47,7 +47,7 @@ public class WorkflowTest {
   private IVariables mockedVariableSpace;
   private IHopMetadataProvider mockedMetadataProvider;
   private WorkflowMeta mockedWorkflowMeta;
-  private ActionCopy mockedActionCopy;
+  private ActionMeta mockedActionMeta;
   private ActionSpecial mockedJobEntrySpecial;
   private LogChannel mockedLogChannel;
 
@@ -59,7 +59,7 @@ public class WorkflowTest {
     mockedVariableSpace = mock( IVariables.class );
     mockedMetadataProvider = mock( IHopMetadataProvider.class );
     mockedWorkflowMeta = mock( WorkflowMeta.class );
-    mockedActionCopy = mock( ActionCopy.class );
+    mockedActionMeta = mock( ActionMeta.class );
     mockedJobEntrySpecial = mock( ActionSpecial.class );
     mockedLogChannel = mock( LogChannel.class );
   }

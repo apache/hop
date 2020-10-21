@@ -89,7 +89,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   private TextVar wSchemaname;
 
   public ActionColumnsExistDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionColumnsExist) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionColumnsExist.Name.Default" ) );
@@ -163,7 +163,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
       }
     } );
 
-    wSchemaname = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( this.getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "ActionColumnsExist.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
@@ -197,7 +197,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     } );
 
     // Table name
-    wTablename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablename = new TextVar( this.getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTablename );
     wTablename.addModifyListener( lsMod );
     FormData fdTablename = new FormData();
@@ -249,8 +249,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     colinf[ 0 ].setToolTip( BaseMessages.getString( PKG, "ActionColumnsExist.Fields.Column" ) );
 
     wFields =
-      new TableView(
-        workflowMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+      new TableView(getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -335,9 +334,9 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
   private void getTableName() {
     String databaseName = wConnection.getText();
     if ( StringUtils.isNotEmpty( databaseName ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( databaseName );
+      DatabaseMeta databaseMeta = this.getWorkflowMeta().findDatabase( databaseName );
       if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, workflowMeta.getDatabases() );
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, this.getWorkflowMeta().getDatabases() );
         std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
         if ( std.open() ) {
           wSchemaname.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -401,7 +400,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
       return;
     }
     action.setName( wName.getText() );
-    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
     action.setTablename( wTablename.getText() );
     action.setSchemaname( wSchemaname.getText() );
 
@@ -432,16 +431,16 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
    */
   private void getListColumns() {
     if ( !Utils.isEmpty( wTablename.getText() ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( wConnection.getText() );
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
         Database database = new Database( loggingObject, databaseMeta );
-        database.shareVariablesWith( workflowMeta );
+        database.shareVariablesWith( getWorkflowMeta() );
         try {
           database.connect();
           IRowMeta row =
             database.getTableFieldsMeta(
-              workflowMeta.environmentSubstitute( wSchemaname.getText() ),
-              workflowMeta.environmentSubstitute( wTablename.getText() ) );
+            		getWorkflowMeta().environmentSubstitute( wSchemaname.getText() ),
+              getWorkflowMeta().environmentSubstitute( wTablename.getText() ) );
           if ( row != null ) {
             String[] available = row.getFieldNames();
 
@@ -471,10 +470,10 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     if ( wSchemaname.isDisposed() ) {
       return;
     }
-    DatabaseMeta databaseMeta = workflowMeta.findDatabase( wConnection.getText() );
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
       Database database = new Database( loggingObject, databaseMeta );
-      database.shareVariablesWith( workflowMeta );
+      database.shareVariablesWith( getWorkflowMeta() );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

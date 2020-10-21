@@ -146,7 +146,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
   private TableView wFields;
 
   public ActionMailDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionMail) action;
   }
 
@@ -158,6 +158,8 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+       
     ModifyListener lsMod = e -> action.setChanged();
     backupChanged = action.hasChanged();
     backupDate = action.getIncludeDate();

@@ -110,7 +110,7 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
   private String pwdFolder = null;
 
   public ActionFtpPutDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionFtpPut) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobFTPPUT.Name.Default" ) );
@@ -125,6 +125,8 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> {
       ftpclient = null;
       pwdFolder = null;
@@ -826,6 +828,8 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
     boolean retval = false;
     String realServername = null;
     try {
+      WorkflowMeta workflowMeta = getWorkflowMeta();
+    	
       if ( ftpclient == null || !ftpclient.connected() ) {
         // Create ftp client to host:port ...
         ftpclient = new FTPClient();

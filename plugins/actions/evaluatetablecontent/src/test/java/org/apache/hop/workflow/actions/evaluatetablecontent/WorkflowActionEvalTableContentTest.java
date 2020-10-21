@@ -36,7 +36,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
@@ -64,7 +64,7 @@ import static org.mockito.Mockito.when;
  */
 public class WorkflowActionEvalTableContentTest {
   private static final Map<Class<?>, String> dbMap = new HashMap<Class<?>, String>();
-  private ActionEvalTableContent entry;
+  private ActionEvalTableContent action;
   private static IPlugin mockDbPlugin;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -147,18 +147,18 @@ public class WorkflowActionEvalTableContentTest {
   public void setUp() throws Exception {
     MockDriver.registerInstance();
     IWorkflowEngine<WorkflowMeta> workflow = new LocalWorkflowEngine( new WorkflowMeta() );
-    entry = new ActionEvalTableContent();
+    action = new ActionEvalTableContent();
 
-    workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );
-    entry.setParentWorkflow( workflow );
+    workflow.getWorkflowMeta().addAction( new ActionMeta( action ) );
+    action.setParentWorkflow( workflow );
 
     workflow.setStopped( false );
 
     DatabaseMeta dbMeta = new DatabaseMeta();
     dbMeta.setDatabaseType( "mock-db" );
 
-    entry.setDatabase( dbMeta );
-    entry.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" );
+    action.setDatabase( dbMeta );
+    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "N" );
   }
 
   @After
@@ -168,11 +168,11 @@ public class WorkflowActionEvalTableContentTest {
 
   @Test
   public void testNrErrorsFailureNewBehavior() throws Exception {
-    entry.setLimit( "1" );
-    entry.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
-    entry.setTablename( "table" );
+    action.setLimit( "1" );
+    action.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
+    action.setTablename( "table" );
 
-    Result res = entry.execute( new Result(), 0 );
+    Result res = action.execute( new Result(), 0 );
 
     assertFalse( "Eval number of rows should fail", res.getResult() );
     assertEquals(
@@ -181,13 +181,13 @@ public class WorkflowActionEvalTableContentTest {
 
   @Test
   public void testNrErrorsFailureOldBehavior() throws Exception {
-    entry.setLimit( "1" );
-    entry.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
-    entry.setTablename( "table" );
+    action.setLimit( "1" );
+    action.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
+    action.setTablename( "table" );
 
-    entry.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
+    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
 
-    Result res = entry.execute( new Result(), 0 );
+    Result res = action.execute( new Result(), 0 );
 
     assertFalse( "Eval number of rows should fail", res.getResult() );
     assertEquals(
@@ -196,19 +196,19 @@ public class WorkflowActionEvalTableContentTest {
 
   @Test
   public void testNrErrorsSuccess() throws Exception {
-    entry.setLimit( "5" );
-    entry.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
-    entry.setTablename( "table" );
+    action.setLimit( "5" );
+    action.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
+    action.setTablename( "table" );
 
-    Result res = entry.execute( new Result(), 0 );
+    Result res = action.execute( new Result(), 0 );
 
     assertTrue( "Eval number of rows should be suceeded", res.getResult() );
     assertEquals( "Apparently there should no error", res.getNrErrors(), 0 );
 
     // that should work regardless of old/new behavior flag
-    entry.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
+    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
 
-    res = entry.execute( new Result(), 0 );
+    res = action.execute( new Result(), 0 );
 
     assertTrue( "Eval number of rows should be suceeded", res.getResult() );
     assertEquals( "Apparently there should no error", res.getNrErrors(), 0 );
@@ -216,20 +216,20 @@ public class WorkflowActionEvalTableContentTest {
 
   @Test
   public void testNrErrorsNoCustomSql() throws Exception {
-    entry.setLimit( "5" );
-    entry.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
-    entry.setUseCustomSql( true );
-    entry.setCustomSql( null );
+    action.setLimit( "5" );
+    action.setSuccessCondition( ActionEvalTableContent.SUCCESS_CONDITION_ROWS_COUNT_EQUAL );
+    action.setUseCustomSql( true );
+    action.setCustomSql( null );
 
-    Result res = entry.execute( new Result(), 0 );
+    Result res = action.execute( new Result(), 0 );
 
     assertFalse( "Eval number of rows should fail", res.getResult() );
     assertEquals( "Apparently there should be an error", res.getNrErrors(), 1 );
 
     // that should work regardless of old/new behavior flag
-    entry.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
+    action.setVariable( Const.HOP_COMPATIBILITY_SET_ERROR_ON_SPECIFIC_WORKFLOW_ACTIONS, "Y" );
 
-    res = entry.execute( new Result(), 0 );
+    res = action.execute( new Result(), 0 );
 
     assertFalse( "Eval number of rows should fail", res.getResult() );
     assertEquals( "Apparently there should be an error", res.getNrErrors(), 1 );

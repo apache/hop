@@ -123,7 +123,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
   private Text wScript;
 
   public ActionShellDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionShell) action;
   }
 
@@ -232,7 +232,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdbFilename.right = new FormAttachment( 100, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( getWorkflowMeta(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -253,7 +253,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdlWorkDirectory.right = new FormAttachment( middle, 0 );
     wlWorkDirectory.setLayoutData(fdlWorkDirectory);
 
-    wWorkDirectory = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWorkDirectory = new TextVar( getWorkflowMeta(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWorkDirectory );
     wWorkDirectory.addModifyListener( lsMod );
     FormData fdWorkDirectory = new FormData();
@@ -329,7 +329,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdlLogfile.top = new FormAttachment( wAppendLogfile, margin );
     fdlLogfile.right = new FormAttachment( middle, 0 );
     wlLogfile.setLayoutData(fdlLogfile);
-    wLogfile = new TextVar( workflowMeta, wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogfile = new TextVar( getWorkflowMeta(), wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLogfile.setText( "" );
     props.setLook( wLogfile );
     FormData fdLogfile = new FormData();
@@ -347,7 +347,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     fdlLogext.top = new FormAttachment( wLogfile, margin );
     fdlLogext.right = new FormAttachment( middle, 0 );
     wlLogext.setLayoutData(fdlLogext);
-    wLogext = new TextVar( workflowMeta, wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogext = new TextVar( getWorkflowMeta(), wLogging, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLogext.setText( "" );
     props.setLook( wLogext );
     FormData fdLogext = new FormData();
@@ -499,7 +499,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
 
     wFields =
       new TableView(
-        workflowMeta, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  getWorkflowMeta(), wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -597,7 +597,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     wName.addSelectionListener(lsDef);
     wFilename.addSelectionListener(lsDef);
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
       new String[] { "*.sh;*.bat;*.BAT", "*;*.*" }, FILEFORMATS, true ));
 
 

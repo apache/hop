@@ -22,14 +22,23 @@
 
 package org.apache.hop.workflow.actions.ftp;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.regex.Pattern;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.Result;
-import org.apache.hop.workflow.Workflow;
-import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.utils.TestUtils;
+import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.After;
@@ -40,19 +49,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.regex.Pattern;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-public class WorkflowEntryFtpTest {
+public class WorkflowActionFtpTest {
   private IWorkflowEngine<WorkflowMeta> workflow;
-  private ActionFtp entry;
+  private ActionFtp action;
   private String existingDir;
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
@@ -67,19 +66,19 @@ public class WorkflowEntryFtpTest {
   @Before
   public void setUp() throws Exception {
     workflow = new LocalWorkflowEngine( new WorkflowMeta() );
-    entry = new MockedActionFtp();
+    action = new MockedActionFtp();
 
-    workflow.getWorkflowMeta().addAction( new ActionCopy( entry ) );
-    entry.setParentWorkflow( workflow );
+    workflow.getWorkflowMeta().addAction( new ActionMeta( action ) );
+    action.setParentWorkflow( workflow );
 
     workflow.setStopped( false );
 
-    entry.setServerName( "some.server" );
-    entry.setUserName( "anonymous" );
-    entry.setFtpDirectory( "." );
-    entry.setWildcard( "robots.txt" );
-    entry.setBinaryMode( false );
-    entry.setSuccessCondition( "success_if_no_errors" );
+    action.setServerName( "some.server" );
+    action.setUserName( "anonymous" );
+    action.setFtpDirectory( "." );
+    action.setWildcard( "robots.txt" );
+    action.setBinaryMode( false );
+    action.setSuccessCondition( "success_if_no_errors" );
 
     existingDir = TestUtils.createTempDir();
   }
@@ -100,9 +99,9 @@ public class WorkflowEntryFtpTest {
 
   @Test
   public void testFixedExistingTargetDir() throws Exception {
-    entry.setTargetDirectory( existingDir );
+    action.setTargetDirectory( existingDir );
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = action.execute( new Result(), 0 );
 
     assertTrue( "For existing folder should be true", result.getResult() );
     assertEquals( "There should be no errors", 0, result.getNrErrors() );
@@ -110,9 +109,9 @@ public class WorkflowEntryFtpTest {
 
   @Test
   public void testFixedNonExistingTargetDir() throws Exception {
-    entry.setTargetDirectory( existingDir + File.separator + "sub" );
+    action.setTargetDirectory( existingDir + File.separator + "sub" );
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = action.execute( new Result(), 0 );
 
     assertFalse( "For non existing folder should be false", result.getResult() );
     assertTrue( "There should be errors", 0 != result.getNrErrors() );
@@ -120,10 +119,10 @@ public class WorkflowEntryFtpTest {
 
   @Test
   public void testVariableExistingTargetDir() throws Exception {
-    entry.setTargetDirectory( "${Internal.Workflow.Filename.Directory}" );
-    entry.setVariable( "Internal.Workflow.Filename.Directory", existingDir );
+    action.setTargetDirectory( "${Internal.Workflow.Filename.Directory}" );
+    action.setVariable( "Internal.Workflow.Filename.Directory", existingDir );
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = action.execute( new Result(), 0 );
 
     assertTrue( "For existing folder should be true", result.getResult() );
     assertEquals( "There should be no errors", 0, result.getNrErrors() );
@@ -131,10 +130,10 @@ public class WorkflowEntryFtpTest {
 
   @Test
   public void testVariableNonExistingTargetDir() throws Exception {
-    entry.setTargetDirectory( "${Internal.Workflow.Filename.Directory}/Worg" );
-    entry.setVariable( "Internal.Workflow.Filename.Directory", existingDir + File.separator + "sub" );
+    action.setTargetDirectory( "${Internal.Workflow.Filename.Directory}/Worg" );
+    action.setVariable( "Internal.Workflow.Filename.Directory", existingDir + File.separator + "sub" );
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = action.execute( new Result(), 0 );
 
     assertFalse( "For non existing folder should be false", result.getResult() );
     assertTrue( "There should be errors", 0 != result.getNrErrors() );
@@ -142,10 +141,10 @@ public class WorkflowEntryFtpTest {
 
   @Test
   public void testProtocolVariableExistingTargetDir() throws Exception {
-    entry.setTargetDirectory( "${Internal.Workflow.Filename.Directory}" );
-    entry.setVariable( "Internal.Workflow.Filename.Directory", "file://" + existingDir );
+    action.setTargetDirectory( "${Internal.Workflow.Filename.Directory}" );
+    action.setVariable( "Internal.Workflow.Filename.Directory", "file://" + existingDir );
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = action.execute( new Result(), 0 );
 
     assertTrue( "For existing folder should be true", result.getResult() );
     assertEquals( "There should be no errors", 0, result.getNrErrors() );
@@ -153,10 +152,10 @@ public class WorkflowEntryFtpTest {
 
   @Test
   public void testPtotocolVariableNonExistingTargetDir() throws Exception {
-    entry.setTargetDirectory( "${Internal.Workflow.Filename.Directory}/Worg" );
-    entry.setVariable( "Internal.Workflow.Filename.Directory", "file://" + existingDir + File.separator + "sub" );
+    action.setTargetDirectory( "${Internal.Workflow.Filename.Directory}/Worg" );
+    action.setVariable( "Internal.Workflow.Filename.Directory", "file://" + existingDir + File.separator + "sub" );
 
-    Result result = entry.execute( new Result(), 0 );
+    Result result = action.execute( new Result(), 0 );
 
     assertFalse( "For non existing folder should be false", result.getResult() );
     assertTrue( "There should be errors", 0 != result.getNrErrors() );

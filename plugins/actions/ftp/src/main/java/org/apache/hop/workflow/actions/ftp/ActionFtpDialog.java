@@ -156,7 +156,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
   // }
 
   public ActionFtpDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionFtp) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobFTP.Name.Default" ) );
@@ -171,6 +171,8 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> {
       pwdFolder = null;
       ftpclient = null;
@@ -1185,11 +1187,11 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     }
   }
 
-  private void checkRemoteFolder( boolean FtpFolfer, boolean checkMoveFolder, String folderName ) {
-    if ( !Utils.isEmpty( folderName ) ) {
+  private void checkRemoteFolder( boolean FtpFolfer, boolean checkMoveFolder, String foldername ) {
+    if ( !Utils.isEmpty( foldername ) ) {
       if ( connectToFtp( FtpFolfer, checkMoveFolder ) ) {
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-        mb.setMessage( BaseMessages.getString( PKG, "JobFTP.FolderExists.OK", folderName ) + Const.CR );
+        mb.setMessage( BaseMessages.getString( PKG, "JobFTP.FolderExists.OK", foldername ) + Const.CR );
         mb.setText( BaseMessages.getString( PKG, "JobFTP.FolderExists.Title.Ok" ) );
         mb.open();
       }
@@ -1203,16 +1205,16 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
       if ( ftpclient == null || !ftpclient.connected() ) {
         // Create ftp client to host:port ...
         ftpclient = new FTPClient();
-        realServername = workflowMeta.environmentSubstitute( wServerName.getText() );
-        int realPort = Const.toInt( workflowMeta.environmentSubstitute( wPort.getText() ), 21 );
+        realServername = getWorkflowMeta().environmentSubstitute( wServerName.getText() );
+        int realPort = Const.toInt( getWorkflowMeta().environmentSubstitute( wPort.getText() ), 21 );
         ftpclient.setRemoteAddr( InetAddress.getByName( realServername ) );
         ftpclient.setRemotePort( realPort );
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
-          String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
-          ftpclient.setRemoteAddr( InetAddress.getByName( realProxyHost ) );
+          String realProxy_host = getWorkflowMeta().environmentSubstitute( wProxyHost.getText() );
+          ftpclient.setRemoteAddr( InetAddress.getByName( realProxy_host ) );
 
-          int port = Const.toInt( workflowMeta.environmentSubstitute( wProxyPort.getText() ), 21 );
+          int port = Const.toInt( getWorkflowMeta().environmentSubstitute( wProxyPort.getText() ), 21 );
           if ( port != 0 ) {
             ftpclient.setRemotePort( port );
           }
@@ -1221,15 +1223,15 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
         // login to ftp host ...
         ftpclient.connect();
         String realUsername =
-          workflowMeta.environmentSubstitute( wUserName.getText() )
+        		getWorkflowMeta().environmentSubstitute( wUserName.getText() )
             + ( !Utils.isEmpty( wProxyHost.getText() ) ? "@" + realServername : "" )
             + ( !Utils.isEmpty( wProxyUsername.getText() ) ? " "
-            + workflowMeta.environmentSubstitute( wProxyUsername.getText() ) : "" );
+            + getWorkflowMeta().environmentSubstitute( wProxyUsername.getText() ) : "" );
 
         String realPassword =
-          Utils.resolvePassword( workflowMeta, wPassword.getText() )
+          Utils.resolvePassword( getWorkflowMeta(), wPassword.getText() )
             + ( !Utils.isEmpty( wProxyPassword.getText() ) ? " "
-            + Utils.resolvePassword( workflowMeta, wProxyPassword.getText() ) : "" );
+            + Utils.resolvePassword( getWorkflowMeta(), wProxyPassword.getText() ) : "" );
         // login now ...
         ftpclient.login( realUsername, realPassword );
         pwdFolder = ftpclient.pwd();
@@ -1237,7 +1239,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
 
       String realFtpDirectory = "";
       if ( !Utils.isEmpty( wFtpDirectory.getText() ) ) {
-        realFtpDirectory = workflowMeta.environmentSubstitute( wFtpDirectory.getText() );
+        realFtpDirectory = getWorkflowMeta().environmentSubstitute( wFtpDirectory.getText() );
       }
 
       if ( checkfolder ) {
@@ -1257,7 +1259,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
         // move to folder ...
 
         if ( !Utils.isEmpty( wMoveToDirectory.getText() ) ) {
-          String realMoveDirectory = workflowMeta.environmentSubstitute( wMoveToDirectory.getText() );
+          String realMoveDirectory = getWorkflowMeta().environmentSubstitute( wMoveToDirectory.getText() );
           realMoveDirectory = realFtpDirectory + "/" + realMoveDirectory;
           ftpclient.chdir( realMoveDirectory );
         }

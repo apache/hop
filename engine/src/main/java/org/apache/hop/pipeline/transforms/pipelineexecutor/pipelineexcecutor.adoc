@@ -1,0 +1,71 @@
+:documentationPath: /plugins/transforms/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/pipelineexecutor/src/main/doc/pipelineexecutor.adoc
+= Pipeline Executor
+
+== Description
+
+The Pipeline Executor transform allows you to execute a Hop pipeline. It is similar to the Workflow Executor transform, but works with pipelines.
+
+Depending on your data transformation needs, the Pipeline Executor transform can be set up to function in any of the following ways:
+
+- By default, the specified pipeline will be executed once for each input row. You can use the input row to set parameters and variables. The executor transform then passes this row to the pipeline in the form of a result row.
+- You can also pass a group of records based on the value in a field, so that when the field value changes dynamically, the specified pipeline is executed. In these cases, the first row in the group of rows is used to set parameters or variables in the pipeline.
+- You can launch multiple copies of this transform to assist in parallel pipeline processing.
+
+== Options
+
+=== General
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Transform name|Name of the transform.
+|Pipeline a|Use this section to specify the pipeline to execute.  You have the following options to specify the pipeline:
+
+- Use a file for the pipeline: when this option is enabled, you can enter the the .hpl file that is to be used as pipeline. The filename may contain variables (for example, you can use the built-in Internal.Pipeline.Filename.Directory variable to construct a filename relative to the current pipeline), or you can use the "Browse" button to select a file using a file browser.
+|===
+
+=== Parameter Tab
+
+In this tab you can specify which field to use to set a certain parameter or variable value. If multiple rows are passed to the workflow, the first row is taken to set the parameters or variables.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|Variable / Parameter name|The Parameters tab allows you to define or pass Hop variables down to the pipeline.
+|Field to use|Specify which field to use to set a certain parameter or variable value. If you specify an input field to use, the static input value is not used.
+|Static input value|Instead of a field to use you can specify a static value here.
+|===
+
+If you enable the "Inherit all variables from the pipeline" option, all the variables defined in the parent pipeline are passed to the pipeline.
+
+There is a button in the lower right corner of the tab that will insert all the defined parameters of the specified pipeline. For information the description of the parameter is inserted into the static input value field.
+
+=== Row Grouping Tab
+
+On this tab you can specify the amount of input rows that are passed to the pipeline in the form of result rows. You can use the result rows in a Get rows from result transform in a pipeline.
+
+[width="90%", options="header"]
+|===
+|Option|Description
+|The number of rows to send to the pipeline|after every X rows the pipeline will be executed and these X rows will be passed to the pipeline
+|Field to group rows on|Rows will be accumulated in a group as long as the field value stays the same. If the value
+changes the pipeline will be executed and the accumulated rows will be passed to the pipeline.
+|The time to wait collecting rows before execution|This is time in Milliseconds the transform will spend accumulating rows prior to the execution of the pipeline.
+|===
+
+
+=== Execution Results Tab
+
+You can specify result fields and to which transform to send them.  If you don't need a certain result simply leave a blank input field.
+
+=== Result Rows Tab
+
+In the "Result rows" tab you can specify the layout of the expected result rows of this pipeline and to which transform to send them after execution.
+
+Please note that this transform will verify that the data type of the result row fields are identical to what is specified.  If there is a difference an error will be thrown.
+
+=== Result Files Tab
+
+Here you can specify where to send the result files from the pipeline execution.

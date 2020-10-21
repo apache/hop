@@ -69,17 +69,17 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
 
   private Button wDTDIntern;
 
-  private DtdValidator jobEntry;
+  private DtdValidator action;
 
   private Shell shell;
 
   private boolean changed;
 
-  public DtdValidatorDialog(Shell parent, IAction jobEntryInt, WorkflowMeta jobMeta ) {
-    super( parent, jobEntryInt, jobMeta );
-    jobEntry = (DtdValidator) jobEntryInt;
-    if ( this.jobEntry.getName() == null ) {
-      this.jobEntry.setName( BaseMessages.getString( PKG, "JobEntryDTDValidator.Name.Default" ) );
+  public DtdValidatorDialog(Shell parent, IAction action, WorkflowMeta jobMeta ) {
+    super( parent, jobMeta );
+    action = (DtdValidator) action;
+    if ( this.action.getName() == null ) {
+      this.action.setName( BaseMessages.getString( PKG, "JobEntryDTDValidator.Name.Default" ) );
     }
   }
 
@@ -89,10 +89,12 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
-    WorkflowDialog.setShellImage( shell, jobEntry );
+    WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = e -> jobEntry.setChanged();
-    changed = jobEntry.hasChanged();
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
+    ModifyListener lsMod = e -> action.setChanged();
+    changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -185,7 +187,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     wDTDIntern.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         ActiveDTDFilename();
-        jobEntry.setChanged();
+        action.setChanged();
       }
     } );
 
@@ -273,7 +275,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
         display.sleep();
       }
     }
-    return jobEntry;
+    return action;
   }
 
   public void dispose() {
@@ -292,24 +294,24 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
    * Copy information from the meta-data input to the dialog fields.
    */
   public void getData() {
-    if ( jobEntry.getName() != null ) {
-      wName.setText( jobEntry.getName() );
+    if ( action.getName() != null ) {
+      wName.setText( action.getName() );
     }
-    if ( jobEntry.getxmlFilename() != null ) {
-      wxmlFilename.setText( jobEntry.getxmlFilename() );
+    if ( action.getxmlFilename() != null ) {
+      wxmlFilename.setText( action.getxmlFilename() );
     }
-    if ( jobEntry.getdtdFilename() != null ) {
-      wdtdFilename.setText( jobEntry.getdtdFilename() );
+    if ( action.getdtdFilename() != null ) {
+      wdtdFilename.setText( action.getdtdFilename() );
     }
-    wDTDIntern.setSelection( jobEntry.getDTDIntern() );
+    wDTDIntern.setSelection( action.getDTDIntern() );
 
     wName.selectAll();
     wName.setFocus();
   }
 
   private void cancel() {
-    jobEntry.setChanged( changed );
-    jobEntry = null;
+    action.setChanged( changed );
+    action = null;
     dispose();
   }
 
@@ -321,11 +323,11 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
       mb.open();
       return;
     }
-    jobEntry.setName( wName.getText() );
-    jobEntry.setxmlFilename( wxmlFilename.getText() );
-    jobEntry.setdtdFilename( wdtdFilename.getText() );
+    action.setName( wName.getText() );
+    action.setxmlFilename( wxmlFilename.getText() );
+    action.setdtdFilename( wdtdFilename.getText() );
 
-    jobEntry.setDTDIntern( wDTDIntern.getSelection() );
+    action.setDTDIntern( wDTDIntern.getSelection() );
 
     dispose();
   }

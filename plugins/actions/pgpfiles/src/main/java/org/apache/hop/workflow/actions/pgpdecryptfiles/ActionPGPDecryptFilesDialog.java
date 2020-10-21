@@ -150,7 +150,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
 
   public ActionPGPDecryptFilesDialog( Shell parent, IAction action,
                                       WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionPGPDecryptFiles) action;
 
     if ( this.action.getName() == null ) {
@@ -166,6 +166,8 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 

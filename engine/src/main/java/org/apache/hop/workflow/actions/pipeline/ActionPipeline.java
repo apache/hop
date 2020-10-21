@@ -76,12 +76,13 @@ import java.util.Map;
  * @since 1-Oct-2003, rewritten on 18-June-2004
  */
 @Action(
-        id = "PIPELINE",
-        image = "PPL.svg",
+        id = "WORKFLOW",
+        image = "workflow3.svg",
         i18nPackageName = "org.apache.hop.workflow.actions.pipeline",
         name = "Action.Pipeline.TypeDesc",
         description = "Action.Pipeline.Tooltip",
-        categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement"
+        categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
+        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/pipeline.html"
 )
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   private static Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!

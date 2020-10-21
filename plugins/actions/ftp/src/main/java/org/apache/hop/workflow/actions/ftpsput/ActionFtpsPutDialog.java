@@ -102,7 +102,7 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
   private FtpsConnection connection = null;
 
   public ActionFtpsPutDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionFtpsPut) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobFTPSPUT.Name.Default" ) );
@@ -117,6 +117,8 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> {
       connection = null;
       action.setChanged();
@@ -720,6 +722,8 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
   private boolean connectToFtp(boolean checkfolder, String remoteFoldername ) {
     String realServername = null;
     try {
+      WorkflowMeta workflowMeta = getWorkflowMeta();
+    	
       realServername = workflowMeta.environmentSubstitute( wServerName.getText() );
       int realPort = Const.toInt( workflowMeta.environmentSubstitute( wServerPort.getText() ), 0 );
       String realUsername = workflowMeta.environmentSubstitute( wUserName.getText() );

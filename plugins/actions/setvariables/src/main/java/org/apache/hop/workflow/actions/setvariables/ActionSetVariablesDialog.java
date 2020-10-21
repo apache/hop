@@ -68,7 +68,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
   private boolean changed;
 
   public ActionSetVariablesDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionSetVariables) action;
 
     if ( this.action.getName() == null ) {
@@ -133,7 +133,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
     fdlFilename.right = new FormAttachment( middle, -margin );
     fdlFilename.top = new FormAttachment( 0, margin );
     wlFilename.setLayoutData(fdlFilename);
-    wFilename = new TextVar( workflowMeta, gFilename, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( getWorkflowMeta(), gFilename, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -240,7 +240,7 @@ public class ActionSetVariablesDialog extends ActionDialog implements IActionDia
 
     wFields =
       new TableView(
-        workflowMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

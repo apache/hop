@@ -33,7 +33,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -88,21 +88,21 @@ public class HopGuiWorkflowClipboardDelegate {
       // De-select all, re-select pasted transforms...
       workflowMeta.unselectAll();
 
-      Node entriesNode = XmlHandler.getSubNode( workflowNode, XML_TAG_ACTIONS );
-      int nr = XmlHandler.countNodes( entriesNode, ActionCopy.XML_TAG );
-      ActionCopy[] entries = new ActionCopy[ nr ];
-      ArrayList<String> entriesOldNames = new ArrayList<>( nr );
+      Node actionsNode = XmlHandler.getSubNode( workflowNode, XML_TAG_ACTIONS );
+      int nr = XmlHandler.countNodes( actionsNode, ActionMeta.XML_TAG );
+      ActionMeta[] actions = new ActionMeta[ nr ];
+      ArrayList<String> actionsOldNames = new ArrayList<>( nr );
 
       // Point min = new Point(loc.x, loc.y);
       Point min = new Point( 99999999, 99999999 );
 
       // Load the entries...
       for ( int i = 0; i < nr; i++ ) {
-        Node entryNode = XmlHandler.getSubNodeByNr( entriesNode, ActionCopy.XML_TAG, i );
-        entries[ i ] = new ActionCopy( entryNode, hopGui.getMetadataProvider() );
+        Node actionNode = XmlHandler.getSubNodeByNr( actionsNode, ActionMeta.XML_TAG, i );
+        actions[ i ] = new ActionMeta( actionNode, hopGui.getMetadataProvider() );
 
         if ( loc != null ) {
-          Point p = entries[ i ].getLocation();
+          Point p = actions[ i ].getLocation();
 
           if ( min.x > p.x ) {
             min.x = p.x;
@@ -120,26 +120,26 @@ public class HopGuiWorkflowClipboardDelegate {
 
       for ( int i = 0; i < nr; i++ ) {
         Node hopNode = XmlHandler.getSubNodeByNr( hopsNode, "hop", i );
-        hops[ i ] = new WorkflowHopMeta( hopNode, Arrays.asList( entries ) );
+        hops[ i ] = new WorkflowHopMeta( hopNode, Arrays.asList( actions ) );
       }
 
       // This is the offset:
       Point offset = new Point( loc.x - min.x, loc.y - min.y );
 
       // Undo/redo object positions...
-      int[] position = new int[ entries.length ];
+      int[] position = new int[ actions.length ];
 
-      for ( int i = 0; i < entries.length; i++ ) {
-        Point p = entries[ i ].getLocation();
-        String name = entries[ i ].getName();
-        entries[ i ].setLocation( p.x + offset.x, p.y + offset.y );
+      for ( int i = 0; i < actions.length; i++ ) {
+        Point p = actions[ i ].getLocation();
+        String name = actions[ i ].getName();
+        actions[ i ].setLocation( p.x + offset.x, p.y + offset.y );
 
         // Check the name, find alternative...
-        entriesOldNames.add( name );
-        entries[ i ].setName( workflowMeta.getAlternativeJobentryName( name ) );
-        workflowMeta.addAction( entries[ i ] );
-        position[ i ] = workflowMeta.indexOfAction( entries[ i ] );
-        entries[ i ].setSelected( true );
+        actionsOldNames.add( name );
+        actions[ i ].setName( workflowMeta.getAlternativeActionName( name ) );
+        workflowMeta.addAction( actions[ i ] );
+        position[ i ] = workflowMeta.indexOfAction( actions[ i ] );
+        actions[ i ].setSelected( true );
       }
 
       // Add the hops too...
@@ -167,7 +167,7 @@ public class HopGuiWorkflowClipboardDelegate {
       }
 
       // Save undo information too...
-      hopGui.undoDelegate.addUndoNew( workflowMeta, entries, position, false );
+      hopGui.undoDelegate.addUndoNew( workflowMeta, actions, position, false );
 
       int[] hopPos = new int[ hops.length ];
       for ( int i = 0; i < hops.length; i++ ) {
@@ -191,7 +191,7 @@ public class HopGuiWorkflowClipboardDelegate {
     workflowGraph.redraw();
   }
 
-  public void copySelected( WorkflowMeta workflowMeta, List<ActionCopy> actions, List<NotePadMeta> notes ) {
+  public void copySelected( WorkflowMeta workflowMeta, List<ActionMeta> actions, List<NotePadMeta> notes ) {
     if ( actions == null || actions.size() == 0 ) {
       return;
     }
@@ -201,15 +201,15 @@ public class HopGuiWorkflowClipboardDelegate {
       xml.append( XmlHandler.openTag( XML_TAG_WORKFLOW_ACTIONS ) ).append( Const.CR );
 
       xml.append( XmlHandler.openTag( XML_TAG_ACTIONS ) ).append( Const.CR );
-      for ( ActionCopy action : actions ) {
+      for ( ActionMeta action : actions ) {
         xml.append( action.getXml() );
       }
       xml.append( XmlHandler.closeTag( XML_TAG_ACTIONS ) ).append( Const.CR );
 
       // Also check for the hops in between the selected transforms...
       xml.append( XmlHandler.openTag( PipelineMeta.XML_TAG_ORDER ) ).append( Const.CR );
-      for ( ActionCopy transform1 : actions ) {
-        for ( ActionCopy transform2 : actions ) {
+      for ( ActionMeta transform1 : actions ) {
+        for ( ActionMeta transform2 : actions ) {
           if ( !transform1.equals( transform2 ) ) {
             WorkflowHopMeta hop = workflowMeta.findWorkflowHop( transform1, transform2, true );
             if ( hop != null ) {

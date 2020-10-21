@@ -28,9 +28,10 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
+import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.action.ActionCopy;
+import org.apache.hop.workflow.action.ActionMeta;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 import org.junit.AfterClass;
@@ -59,7 +60,7 @@ import static org.mockito.Mockito.when;
  * @since 21-03-2017
  */
 
-public class WorkflowEntryColumnsExistTest {
+public class WorkflowActionColumnsExistTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   private static final String TABLENAME = "TABLE";
@@ -83,7 +84,7 @@ public class WorkflowEntryColumnsExistTest {
   public void setUp() {
     IWorkflowEngine<WorkflowMeta> parentWorkflow = new LocalWorkflowEngine( new WorkflowMeta() );
     action = spy( new ActionColumnsExist( "" ) );
-    parentWorkflow.getWorkflowMeta().addAction( new ActionCopy( action ) );
+    parentWorkflow.getWorkflowMeta().addAction( new ActionMeta( action ) );
     parentWorkflow.setStopped( false );
     action.setParentWorkflow( parentWorkflow );
     parentWorkflow.setLogLevel( LogLevel.NOTHING );
@@ -97,7 +98,7 @@ public class WorkflowEntryColumnsExistTest {
   }
 
   @Test
-  public void pipelineFailTableNameIsEmpty() throws HopException {
+  public void jobFail_tableNameIsEmpty() throws HopException {
     action.setTablename( null );
     final Result result = action.execute( new Result(), 0 );
     assertEquals( "Should be error", 1, result.getNrErrors() );
@@ -105,7 +106,7 @@ public class WorkflowEntryColumnsExistTest {
   }
 
   @Test
-  public void pipelineFailColumnsArrayIsEmpty() throws HopException {
+  public void jobFail_columnsArrayIsEmpty() throws HopException {
     action.setArguments( null );
     final Result result = action.execute( new Result(), 0 );
     assertEquals( "Should be error", 1, result.getNrErrors() );
@@ -113,7 +114,7 @@ public class WorkflowEntryColumnsExistTest {
   }
 
   @Test
-  public void pipelineFailConnectionIsNull() throws HopException {
+  public void jobFail_connectionIsNull() throws HopException {
     action.setDatabase( null );
     final Result result = action.execute( new Result(), 0 );
     assertEquals( "Should be error", 1, result.getNrErrors() );
@@ -121,7 +122,7 @@ public class WorkflowEntryColumnsExistTest {
   }
 
   @Test
-  public void pipelineFailTableNotExist() throws HopException {
+  public void jobFail_tableNotExist() throws HopException {
     when( action.getNewDatabaseFromMeta() ).thenReturn( db );
     doNothing().when( db ).connect( anyString(), any() );
     doReturn( false ).when( db ).checkTableExists( anyString(), anyString() );
@@ -133,7 +134,7 @@ public class WorkflowEntryColumnsExistTest {
   }
 
   @Test
-  public void pipelineFailColumnNotExist() throws HopException {
+  public void jobFail_columnNotExist() throws HopException {
     doReturn( db ).when( action ).getNewDatabaseFromMeta();
     doNothing().when( db ).connect( anyString(), anyString() );
     doReturn( true ).when( db ).checkTableExists( anyString(), anyString() );

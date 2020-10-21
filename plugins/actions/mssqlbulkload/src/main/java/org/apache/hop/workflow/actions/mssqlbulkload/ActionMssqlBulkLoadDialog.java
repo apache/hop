@@ -133,7 +133,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
   private TextVar wRowsPerBatch;
 
   public ActionMssqlBulkLoadDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionMssqlBulkLoad) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Name.Default" ) );
@@ -147,7 +147,9 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE );
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
-
+    
+    WorkflowMeta workflowMeta = getWorkflowMeta();
+    
     ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
@@ -1112,7 +1114,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       return;
     }
     action.setName( wName.getText() );
-    action.setDatabase( workflowMeta.findDatabase( wConnection.getText() ) );
+    action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
     action.setSchemaname( wSchemaname.getText() );
     action.setTablename( wTablename.getText() );
     action.setFilename( wFilename.getText() );
@@ -1156,9 +1158,10 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     if ( StringUtils.isEmpty( connectionName ) ) {
       return;
     }
-    DatabaseMeta databaseMeta = workflowMeta.findDatabase( connectionName );
+        
+    DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( connectionName );
     if ( databaseMeta != null ) {
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, workflowMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
       std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
       if ( std.open() ) {
         wTablename.setText( Const.NVL( std.getTableName(), "" ) );
@@ -1176,10 +1179,10 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
    */
   private void getListColumns() {
     if ( !Utils.isEmpty( wTablename.getText() ) ) {
-      DatabaseMeta databaseMeta = workflowMeta.findDatabase( wConnection.getText() );
+      DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
         Database database = new Database( loggingObject, databaseMeta );
-        database.shareVariablesWith( workflowMeta );
+        database.shareVariablesWith( getWorkflowMeta() );
         try {
           database.connect();
           IRowMeta row =

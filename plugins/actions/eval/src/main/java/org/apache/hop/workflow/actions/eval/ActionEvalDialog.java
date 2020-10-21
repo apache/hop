@@ -63,7 +63,7 @@ public class ActionEvalDialog extends ActionDialog implements IActionDialog {
   private boolean changed;
 
   public ActionEvalDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionEval) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "ActionEval.Name.Default" ) );

@@ -70,7 +70,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
   private TableView wFields;
 
   public ActionFilesExistDialog( Shell parent, IAction action, WorkflowMeta workflowMeta ) {
-    super( parent, action, workflowMeta );
+    super( parent, workflowMeta );
     this.action = (ActionFilesExist) action;
     if ( this.action.getName() == null ) {
       this.action.setName( BaseMessages.getString( PKG, "JobFilesExist.Name.Default" ) );
@@ -136,7 +136,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     fdbDirectory.top = new FormAttachment( wName, margin );
     wbDirectory.setLayoutData(fdbDirectory);
 
-    wbDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFilename, workflowMeta ));
+    wbDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFilename, getWorkflowMeta() ));
 
     Button wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbFilename);
@@ -156,7 +156,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     fdbaFilename.top = new FormAttachment( wName, margin );
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -167,9 +167,9 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -219,7 +219,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     wFields =
       new TableView(
-        workflowMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
