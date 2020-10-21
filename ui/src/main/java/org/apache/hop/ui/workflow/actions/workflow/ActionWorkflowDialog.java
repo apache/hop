@@ -72,7 +72,7 @@ import java.util.List;
  * @since 19-06-2003
  */
 public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDialog {
-  private static Class<?> PKG = ActionWorkflow.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionWorkflow.class; // for i18n purposes, needed by Translator!!
 
   protected ActionWorkflow action;
 
@@ -131,12 +131,12 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
     super.createElements();
     shell.setText( BaseMessages.getString( PKG, "ActionWorkflow.Header" ) );
 
-    wlPath.setText( BaseMessages.getString( PKG, "ActionWorkflow.Filename.Label" ) );
+    wlPath.setText( BaseMessages.getString( PKG, "ActionWorkflow.WorkflowFile.Label" ) );
     wPassParams.setText( BaseMessages.getString( PKG, "ActionWorkflow.PassAllParameters.Label" ) );
 
     // Start Server Section
     wPassExport = new Button( gExecution, SWT.CHECK );
-    wPassExport.setText( BaseMessages.getString( PKG, "ActionWorkflow.PassExportToServer.Label" ) );
+    wPassExport.setText( BaseMessages.getString( PKG, "ActionWorkflowDialog.PassExportToServer.Label" ) );
     props.setLook( wPassExport );
     FormData fdPassExport = new FormData();
     fdPassExport.left = new FormAttachment( 0, 0 );
