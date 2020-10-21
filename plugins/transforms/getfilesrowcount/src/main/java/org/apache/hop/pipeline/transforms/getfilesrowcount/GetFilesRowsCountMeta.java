@@ -60,7 +60,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getfilesrowcount.html"
 )
 public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
-  private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

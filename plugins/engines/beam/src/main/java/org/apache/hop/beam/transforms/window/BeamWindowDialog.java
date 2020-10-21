@@ -40,7 +40,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class BeamWindowDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = BeamWindowDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = BeamWindowDialog.class; // for i18n purposes, needed by Translator2!!
   private final BeamWindowMeta input;
 
   int middle;

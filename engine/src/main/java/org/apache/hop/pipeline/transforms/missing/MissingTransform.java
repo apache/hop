@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 public class MissingTransform extends Dummy {
-  private static Class<?> PKG = MissingTransform.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MissingTransform.class; // for i18n purposes, needed by Translator!!
 
   public MissingTransform( TransformMeta transformMeta, DummyMeta meta, DummyData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {

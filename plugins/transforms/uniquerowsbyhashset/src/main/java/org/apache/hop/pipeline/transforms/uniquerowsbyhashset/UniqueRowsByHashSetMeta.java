@@ -50,7 +50,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/uniquerowsbyhashset.html"
 )
 public class UniqueRowsByHashSetMeta extends BaseTransformMeta implements ITransformMeta<UniqueRowsByHashSet, UniqueRowsByHashSetData> {
-  private static Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Whether to compare strictly by hash value or to store the row values for strict equality checking

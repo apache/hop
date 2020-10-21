@@ -57,7 +57,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/pgpdecryptstream.html"
 )
 public class PGPEncryptStreamMeta extends BaseTransformMeta implements ITransformMeta<PGPDecryptStream, PGPEncryptStreamData> {
-  private static Class<?> PKG = PGPEncryptStreamMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PGPEncryptStreamMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * GPG location

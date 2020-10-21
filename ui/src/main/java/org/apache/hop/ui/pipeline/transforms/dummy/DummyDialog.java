@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class DummyDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = DummyMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DummyMeta.class; // for i18n purposes, needed by Translator!!
 
   private DummyMeta input;
 

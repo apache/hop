@@ -38,7 +38,7 @@ import org.w3c.dom.Node;
  * @since 20-06-2007
  */
 public class GetXmlDataField implements Cloneable {
-  private static Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final int RESULT_TYPE_VALUE_OF = 0;
   public static final int RESULT_TYPE_TYPE_SINGLE_NODE = 1;

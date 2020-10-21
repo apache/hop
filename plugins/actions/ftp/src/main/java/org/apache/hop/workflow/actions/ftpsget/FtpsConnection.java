@@ -53,7 +53,7 @@ import com.google.common.annotations.VisibleForTesting;
 
 public class FtpsConnection implements FTPListener {
 
-  private static Class<?> PKG = ActionFtpsGet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpsGet.class; // for i18n purposes, needed by Translator!!
   private ILogChannel logger;
 
   public static final String HOME_FOLDER = "/";

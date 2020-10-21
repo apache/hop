@@ -52,7 +52,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class GetFilesRowsCountDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetFilesRowsCountMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;

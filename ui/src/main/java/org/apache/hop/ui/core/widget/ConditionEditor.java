@@ -76,7 +76,7 @@ import java.util.ArrayList;
  */
 
 public class ConditionEditor extends Composite {
-  private static Class<?> PKG = ConditionEditor.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ConditionEditor.class; // for i18n purposes, needed by Translator!!
 
   private static final int X_PADDING = 18;
   private static final String STRING_NOT = BaseMessages.getString( PKG, "ConditionEditor.StringNot" );

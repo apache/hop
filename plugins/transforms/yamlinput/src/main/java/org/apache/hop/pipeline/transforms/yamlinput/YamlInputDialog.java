@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.ArrayList;
 
 public class YamlInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private CTabFolder wTabFolder;
   private FormData fdTabFolder;

@@ -49,7 +49,7 @@ import java.util.List;
  */
 public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData> implements ITransform<SimpleMappingMeta, SimpleMappingData> {
 
-  private static Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
 
   public SimpleMapping( TransformMeta transformMeta, SimpleMappingMeta meta, SimpleMappingData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

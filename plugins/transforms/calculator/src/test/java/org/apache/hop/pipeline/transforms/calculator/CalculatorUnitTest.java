@@ -73,7 +73,7 @@ import static org.mockito.Mockito.when;
  * @see Calculator
  */
 public class CalculatorUnitTest {
-  private static Class<?> PKG = CalculatorUnitTest.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CalculatorUnitTest.class; // for i18n purposes, needed by Translator!!
   private TransformMockHelper<CalculatorMeta, CalculatorData> smh;
 
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();

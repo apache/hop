@@ -46,7 +46,7 @@ import java.util.Properties;
  */
 
 public class PropertyOutput extends BaseTransform implements ITransform {
-  private static Class<?> PKG = PropertyOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PropertyOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private PropertyOutputMeta meta;
   private PropertyOutputData data;

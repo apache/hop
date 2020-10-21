@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifa
 
 public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> implements ITransform<Edi2XmlMeta, Edi2XmlData> {
 
-  private static Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
+  private static final Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
 
   private FastSimpleGenericEdifactDirectXMLLexer lexer;
   private CommonTokenStream tokens;

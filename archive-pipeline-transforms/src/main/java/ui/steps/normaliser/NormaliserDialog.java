@@ -62,7 +62,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class NormaliserDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = NormaliserMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = NormaliserMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final int NAME_INDEX = 1;
 

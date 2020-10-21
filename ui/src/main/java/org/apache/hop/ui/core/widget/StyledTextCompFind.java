@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class StyledTextCompFind extends org.eclipse.swt.widgets.Dialog {
-  private static Class<?> PKG = StyledTextCompFind.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StyledTextCompFind.class; // for i18n purposes, needed by Translator!!
 
   private Shell sShell = null;
   private Text searchText;

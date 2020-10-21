@@ -88,7 +88,7 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
 
   private static final int SHELL_WIDTH = 610;
 
-  private static Class<?> PKG = ITransform.class;
+  private static final Class<?> PKG = ITransform.class;
 
   protected final TransformMetaType meta;
 

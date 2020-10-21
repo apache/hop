@@ -47,7 +47,7 @@ import java.util.List;
 
 public class TransformMetastructureMeta extends BaseTransformMeta implements ITransform {
 
-  private static Class<?> PKG = TransformMetastructureMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TransformMetastructureMeta.class; // for i18n purposes, needed by Translator!!
 
   private String fieldName;
   private String comments;

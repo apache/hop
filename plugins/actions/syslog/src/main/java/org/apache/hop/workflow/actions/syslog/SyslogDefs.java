@@ -40,7 +40,7 @@ import java.util.TimeZone;
  */
 public class SyslogDefs {
 
-  private static Class<?> PKG = ActionSyslog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSyslog.class; // for i18n purposes, needed by Translator!!
 
   public static final String DEFAULT_PROTOCOL_UDP = "udp";
 

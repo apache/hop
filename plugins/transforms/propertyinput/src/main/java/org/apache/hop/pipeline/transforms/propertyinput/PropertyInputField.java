@@ -33,7 +33,7 @@ import org.apache.hop.i18n.BaseMessages;
  * @since 24-03-2008
  */
 public class PropertyInputField implements Cloneable {
-  private static Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;

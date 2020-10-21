@@ -76,7 +76,7 @@ import java.util.List;
 import java.util.*;
 
 public class UserDefinedJavaClassDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = UserDefinedJavaClassMeta.class;
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class;
 
   private ModifyListener lsMod;
   private SashForm wSash;

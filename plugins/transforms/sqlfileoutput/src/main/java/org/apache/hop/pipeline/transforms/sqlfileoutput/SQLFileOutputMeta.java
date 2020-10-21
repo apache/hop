@@ -68,7 +68,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/sqlfileoutput.html"
 )
 public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMeta<SQLFileOutput, SQLFileOutputData> {
-  private static Class<?> PKG = SQLFileOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SQLFileOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta databaseMeta;
   private String schemaName;

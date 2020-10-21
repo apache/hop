@@ -68,7 +68,7 @@ import org.w3c.dom.Node;
 )
 public class ConcatFieldsMeta extends BaseTransformMeta  implements ITransformMeta<ConcatFields, ConcatFieldsData> {
 
-  private static Class<?> PKG = ConcatFieldsMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = ConcatFieldsMeta.class; // for i18n purposes, needed by Translator2!!
 
   /**
    * The separator to choose for the CSV file

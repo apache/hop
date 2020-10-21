@@ -36,7 +36,7 @@ public abstract class BaseTransformData implements ITransformData {
   /**
    * The pkg used for i18n
    */
-  private static Class<?> PKG = BaseTransform.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BaseTransform.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The status.

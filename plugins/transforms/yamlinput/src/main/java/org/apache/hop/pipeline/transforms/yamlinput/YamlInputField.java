@@ -37,7 +37,7 @@ import org.w3c.dom.Node;
  * @since 20-06-2007
  */
 public class YamlInputField implements Cloneable {
-  private static Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;

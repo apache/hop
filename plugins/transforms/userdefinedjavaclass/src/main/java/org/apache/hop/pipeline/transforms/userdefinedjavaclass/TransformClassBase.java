@@ -57,7 +57,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class TransformClassBase {
-  private static Class<?> PKG = UserDefinedJavaClassMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // for i18n purposes, needed by Translator!!
 
   protected boolean first = true;
   protected boolean updateRowMeta = true;

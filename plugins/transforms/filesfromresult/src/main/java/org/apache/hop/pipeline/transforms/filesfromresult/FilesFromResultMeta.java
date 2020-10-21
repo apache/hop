@@ -57,7 +57,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/filesfromresult.html"
 )
 public class FilesFromResultMeta extends BaseTransformMeta implements ITransformMeta<FilesFromResult, FilesFromResultData> {
-  private static Class<?> PKG = FilesFromResult.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FilesFromResult.class; // for i18n purposes, needed by Translator!!
 
   public FilesFromResultMeta() {
     super(); // allocate BaseTransformMeta

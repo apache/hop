@@ -70,7 +70,7 @@ import java.util.Locale;
  */
 public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData> implements ITransform<ExcelOutputMeta, ExcelOutputData> {
 
-  private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   public ExcelOutput( TransformMeta transformMeta, ExcelOutputMeta meta, ExcelOutputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

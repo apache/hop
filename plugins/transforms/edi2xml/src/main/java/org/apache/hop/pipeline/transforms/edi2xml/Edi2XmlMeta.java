@@ -52,7 +52,7 @@ import java.util.List;
 )
 public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi2Xml, Edi2XmlData> {
 
-  private static Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
+  private static final Class<?> PKG = Edi2XmlMeta.class; // for i18n purposes
 
   private String outputField;
   private String inputField;

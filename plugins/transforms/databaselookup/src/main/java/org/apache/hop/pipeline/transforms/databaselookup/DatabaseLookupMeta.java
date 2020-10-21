@@ -64,7 +64,7 @@ import java.util.List;
 )
 public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformMeta<DatabaseLookup, DatabaseLookupData>, IProvidesModelerMeta {
 
-  private static Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] conditionStrings = new String[] {
     "=", "<>", "<", "<=", ">", ">=", "LIKE", "BETWEEN", "IS NULL", "IS NOT NULL", };

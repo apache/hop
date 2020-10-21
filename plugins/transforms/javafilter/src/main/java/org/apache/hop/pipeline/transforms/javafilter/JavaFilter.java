@@ -48,7 +48,7 @@ import java.util.List;
  * @since 8-sep-2005
  */
 public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> implements ITransform<JavaFilterMeta, JavaFilterData> {
-  private static Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
 
   public JavaFilter(TransformMeta transformMeta, JavaFilterMeta meta, JavaFilterData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {

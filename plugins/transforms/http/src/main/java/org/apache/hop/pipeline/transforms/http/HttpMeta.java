@@ -61,7 +61,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getvariable.html"
 )
 public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, HttpData> {
-  private static Class<?> PKG = HttpMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HttpMeta.class; // for i18n purposes, needed by Translator!!
 
   // the timeout for waiting for data (milliseconds)
   public static final int DEFAULT_SOCKET_TIMEOUT = 10000;

@@ -49,7 +49,7 @@ import java.util.List;
  *
  */
 public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateData> implements ITransform<InsertUpdateMeta, InsertUpdateData> {
-  private static Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!
 
   public InsertUpdate( TransformMeta transformMeta, InsertUpdateMeta meta, InsertUpdateData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

@@ -54,7 +54,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class HopServer {
-  private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator!!
 
   private WebServer webServer;
   private HopServerConfig config;

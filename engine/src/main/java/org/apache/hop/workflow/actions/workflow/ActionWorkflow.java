@@ -83,7 +83,7 @@ import java.util.UUID;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/workflow.html"
 )
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionWorkflow.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionWorkflow.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
 

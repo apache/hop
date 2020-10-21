@@ -55,7 +55,7 @@ import java.util.PriorityQueue;
  */
 
 public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJoinData> implements ITransform<MultiMergeJoinMeta,MultiMergeJoinData> {
-  private static Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public MultiMergeJoin(TransformMeta transformMeta, MultiMergeJoinMeta meta, MultiMergeJoinData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {

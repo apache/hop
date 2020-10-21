@@ -39,7 +39,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 
 public class ProcessFiles extends BaseTransform<ProcessFilesMeta, ProcessFilesData> implements ITransform<ProcessFilesMeta, ProcessFilesData> {
-  private static Class<?> PKG = ProcessFilesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ProcessFilesMeta.class; // for i18n purposes, needed by Translator!!
 
 
   public ProcessFiles( TransformMeta transformMeta,ProcessFilesMeta meta, ProcessFilesData data, int copyNr, PipelineMeta pipelineMeta,

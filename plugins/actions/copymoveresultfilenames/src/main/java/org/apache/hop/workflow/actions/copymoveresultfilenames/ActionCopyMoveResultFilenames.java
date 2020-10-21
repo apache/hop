@@ -71,7 +71,7 @@ import java.util.regex.Pattern;
 		documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/copymoveresultfilenames.html"
 )
 public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionCopyMoveResultFilenames.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionCopyMoveResultFilenames.class; // for i18n purposes, needed by Translator!!
 
   private String foldername;
   private boolean specifywildcard;

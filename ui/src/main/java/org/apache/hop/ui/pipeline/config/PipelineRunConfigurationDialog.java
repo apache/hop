@@ -84,7 +84,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class PipelineRunConfigurationDialog extends Dialog implements IMetadataDialog {
 
-  private static Class<?> PKG = PipelineRunConfigurationDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PipelineRunConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell parent;
   private Shell shell;

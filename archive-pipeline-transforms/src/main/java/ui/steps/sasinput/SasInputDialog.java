@@ -66,7 +66,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SasInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SasInputMeta.class; // for i18n purposes, needed
+  private static final Class<?> PKG = SasInputMeta.class; // for i18n purposes, needed
   // by Translator!!
 
   private CCombo wAccField;

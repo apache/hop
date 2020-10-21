@@ -69,7 +69,7 @@ import java.util.List;
 )
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData> implements ITransformMeta<SimpleMapping, SimpleMappingData>, ISubPipelineAwareMeta {
 
-  private static Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
 
   private MappingIODefinition inputMapping;
   private MappingIODefinition outputMapping;

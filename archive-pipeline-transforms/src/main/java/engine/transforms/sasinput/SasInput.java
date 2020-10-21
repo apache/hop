@@ -53,7 +53,7 @@ import java.util.ArrayList;
  * @since 9-OCT-2011
  */
 public class SasInput extends BaseTransform implements ITransform {
-  private static Class<?> PKG = SasInputMeta.class; // for i18n purposes, needed
+  private static final Class<?> PKG = SasInputMeta.class; // for i18n purposes, needed
   // by Translator!!
 
   private SasInputMeta meta;

@@ -44,7 +44,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
  * @since 27-apr-2006
  */
 public class SetVariable extends BaseTransform<SetVariableMeta,SetVariableData> implements ITransform<SetVariableMeta,SetVariableData> {
-  private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   public SetVariable( TransformMeta transformMeta, SetVariableMeta meta, SetVariableData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {

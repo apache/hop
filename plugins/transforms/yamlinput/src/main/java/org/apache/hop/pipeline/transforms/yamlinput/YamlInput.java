@@ -51,7 +51,7 @@ import java.util.List;
  * @since 20-06-2007
  */
 public class YamlInput extends BaseTransform<YamlInputMeta,YamlInputData> implements ITransform<YamlInputMeta,YamlInputData> {
-  private static Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public YamlInput(TransformMeta transformMeta, YamlInputMeta meta, YamlInputData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {

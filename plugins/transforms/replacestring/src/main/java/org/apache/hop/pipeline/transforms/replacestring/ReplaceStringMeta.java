@@ -60,7 +60,7 @@ import java.util.List;
 )
 public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMeta<ReplaceString, ReplaceStringData> {
 
-  private static Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
 
   @Injection( name = "FIELD_IN_STREAM", group = "FIELDS" )
   private String[] fieldInStream;

@@ -69,7 +69,7 @@ import java.util.Map.Entry;
   "MAPPING_FIELDS" } )
 public class MetaInjectMeta extends BaseTransformMeta implements ITransformMeta<MetaInject, MetaInjectData>, ITransformMetaChangeListener, ISubPipelineAwareMeta {
 
-  private static Class<?> PKG = MetaInjectMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = MetaInjectMeta.class; // for i18n purposes, needed by Translator2!!
 
   private static final String MAPPINGS = "mappings";
   private static final String MAPPING = "mapping";

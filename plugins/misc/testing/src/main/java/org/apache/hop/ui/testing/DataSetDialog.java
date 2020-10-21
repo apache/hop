@@ -67,7 +67,7 @@ import java.io.File;
 import java.util.List;
 
 public class DataSetDialog extends Dialog implements IMetadataDialog {
-  private static Class<?> PKG = DataSetDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = DataSetDialog.class; // for i18n purposes, needed by Translator2!!
 
   private DataSet dataSet;
 

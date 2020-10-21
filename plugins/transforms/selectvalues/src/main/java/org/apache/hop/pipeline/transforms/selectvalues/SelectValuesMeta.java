@@ -66,7 +66,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
 public class SelectValuesMeta extends BaseTransformMeta implements ITransformMeta<SelectValues, SelectValuesData> {
-  private static Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int UNDEFINED = -2;
 

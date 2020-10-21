@@ -48,7 +48,7 @@ import java.util.List;
  */
 public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData> implements ITransform<RandomValueMeta, RandomValueData> {
 
-  private static Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
   public RandomValue( TransformMeta transformMeta, RandomValueMeta meta, RandomValueData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {

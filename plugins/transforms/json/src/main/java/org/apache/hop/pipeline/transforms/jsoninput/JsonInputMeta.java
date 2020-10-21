@@ -80,7 +80,7 @@ import java.util.Map;
 public class JsonInputMeta
   extends BaseFileInputMeta<JsonInputMeta.AdditionalFileOutputFields, JsonInputMeta.InputFiles, JsonInputField, JsonInput, JsonInputData>
   implements ITransformMeta<JsonInput, JsonInputData> {
-  private static Class<?> PKG = JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String[] RequiredFilesDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

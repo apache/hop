@@ -60,7 +60,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/jsonoutput.html"
   )
 public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta<JsonOutput, JsonOutputData> {
-  private static Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
   /**
    * Operations type

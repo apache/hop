@@ -51,7 +51,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mailvalidator.html"
 )
 public class ActionMailValidator extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionMailValidator.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionMailValidator.class; // for i18n purposes, needed by Translator!!
 
   private boolean smtpCheck;
   private String timeout;

@@ -37,7 +37,7 @@ import java.util.List;
  * @author David Kincade
  */
 public class DeleteMessageBox extends MessageBox {
-  private static Class<?> PKG = DeleteMessageBox.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DeleteMessageBox.class; // for i18n purposes, needed by Translator!!
 
   // The title for the message box
   private static final String title = BaseMessages.getString( PKG, "DeleteMessageBox.Title" );

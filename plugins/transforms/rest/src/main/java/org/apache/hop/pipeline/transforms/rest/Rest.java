@@ -71,7 +71,7 @@ import java.util.List;
 
 
 public class Rest extends BaseTransform<RestMeta, RestData> implements ITransform<RestMeta, RestData> {
-  private static Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
+  private static final Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
 
   public Rest( TransformMeta transformMeta, RestMeta meta, RestData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
