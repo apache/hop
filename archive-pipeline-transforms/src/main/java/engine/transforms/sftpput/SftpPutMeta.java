@@ -52,7 +52,7 @@ import java.util.List;
  */
 
 public class SftpPutMeta extends BaseTransformMeta implements ITransform {
-  private static Class<?> PKG = SFTPPutMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SFTPPutMeta.class; // for i18n purposes, needed by Translator!!
 
   private String serverName;
   private String serverPort;

@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class OpenMappingExtension implements IExtensionPoint {
 
   //spoon class without import of swt libraries, big-data pmr run doesn't have ui library and shouldn't
-  private static Class<?> PKG = ILifecycleListener.class;
+  private static final Class<?> PKG = ILifecycleListener.class;
 
   @Override public void callExtensionPoint(ILogChannel log, Object object ) throws HopException {
     TransformMeta transformMeta = (TransformMeta) ( (Object[]) object )[ 0 ];

@@ -132,7 +132,7 @@ import java.util.Locale;
   description = "The main hop graphical user interface"
 )
 public class HopGui implements IActionContextHandlersProvider, ISearchableProvider, IHasHopMetadataProvider {
-  private static Class<?> PKG = HopGui.class;
+  private static final Class<?> PKG = HopGui.class;
 
   // The main Menu IDs
   public static final String ID_MAIN_MENU = "HopGui-Menu";

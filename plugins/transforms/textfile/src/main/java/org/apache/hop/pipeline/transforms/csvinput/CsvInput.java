@@ -62,7 +62,7 @@ public class CsvInput
   extends BaseTransform<CsvInputMeta, CsvInputData>
   implements ITransform<CsvInputMeta, CsvInputData> {
 
-  private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
   public CsvInput( TransformMeta transformMeta, CsvInputMeta meta, CsvInputData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {

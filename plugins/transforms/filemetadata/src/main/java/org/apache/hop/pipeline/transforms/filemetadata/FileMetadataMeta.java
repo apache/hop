@@ -65,7 +65,7 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
    * The properties file with localized keys is expected to reside in
    * {the package of the class specified}/messages/messages_{locale}.properties
    */
-  private static Class<?> PKG = FileMetadataMeta.class; // for i18n purposes
+  private static final Class<?> PKG = FileMetadataMeta.class; // for i18n purposes
 
 
   /**

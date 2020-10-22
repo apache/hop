@@ -57,7 +57,7 @@ import java.util.List;
 
 public class FileDefinitionDialog implements IMetadataDialog {
 
-  private static Class<?> PKG = FileDefinitionDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = FileDefinitionDialog.class; // for i18n purposes, needed by Translator2!!
 
   private FileDefinition fileDefinition;
 

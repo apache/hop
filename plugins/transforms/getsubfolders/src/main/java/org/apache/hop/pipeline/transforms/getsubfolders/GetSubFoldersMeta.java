@@ -67,7 +67,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getsubfolders.html"
 )
 public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMeta<GetSubFolders, GetSubFoldersData> {
-  private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFoldersDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

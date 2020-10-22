@@ -58,7 +58,7 @@ public class HopClientEnvironment {
   /**
    * For i18n purposes, needed by Translator!!
    */
-  private static Class<?> PKG = Const.class;
+  private static final Class<?> PKG = Const.class;
 
   private static HopClientEnvironment instance = null;
 

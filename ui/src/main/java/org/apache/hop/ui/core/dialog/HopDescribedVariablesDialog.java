@@ -53,7 +53,7 @@ import java.util.List;
  * @author Matt
  */
 public class HopDescribedVariablesDialog extends Dialog {
-  private static Class<?> PKG = HopDescribedVariablesDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopDescribedVariablesDialog.class; // for i18n purposes, needed by Translator!!
 
   private TableView wFields;
 

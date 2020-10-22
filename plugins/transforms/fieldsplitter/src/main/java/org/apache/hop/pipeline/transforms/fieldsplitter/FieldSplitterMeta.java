@@ -109,7 +109,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/fieldsplitter.html"
 )
 public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMeta<FieldSplitter, FieldSplitterData> {
-  private static Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FieldSplitterMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Field to split

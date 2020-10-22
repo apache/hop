@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SymmetricCryptoDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SymmetricCryptoPipelineMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SymmetricCryptoPipelineMeta.class; // for i18n purposes, needed by Translator!!
 
   private Group wCryptoSettings;
   private FormData fdCryptoSettings;

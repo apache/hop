@@ -56,7 +56,7 @@ import java.util.List;
  */
 
 public class MailInput extends BaseTransform<MailInputMeta, MailInputData> implements ITransform<MailInputMeta, MailInputData> {
-  private static Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private MessageParser instance = new MessageParser();
 

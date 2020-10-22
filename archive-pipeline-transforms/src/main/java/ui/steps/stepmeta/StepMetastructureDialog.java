@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class TransformMetastructureDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = TransformMetastructureMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TransformMetastructureMeta.class; // for i18n purposes, needed by Translator!!
 
   private TransformMetastructureMeta input;
 

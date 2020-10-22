@@ -30,7 +30,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 public class WebResult {
-  private static Class<?> PKG = WebResult.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WebResult.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "webresult";
 

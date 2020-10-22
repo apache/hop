@@ -55,7 +55,7 @@ import java.util.List;
  * @since 29-apr-2003
  */
 public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> implements ITransform<JoinRowsMeta, JoinRowsData> {
-  private static Class<?> PKG = JoinRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = JoinRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   public JoinRows(TransformMeta transformMeta, JoinRowsMeta meta, JoinRowsData data, int copyNr, PipelineMeta pipelineMeta,
                   Pipeline pipeline ) {

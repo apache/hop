@@ -42,7 +42,7 @@ import java.io.PrintWriter;
 
 public class RemoveWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static Class<?> PKG = RemoveWorkflowServlet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RemoveWorkflowServlet.class; // for i18n purposes, needed by Translator!!
   private static final long serialVersionUID = -2051906998698124039L;
 
   public static final String CONTEXT_PATH = "/hop/removeWorkflow";

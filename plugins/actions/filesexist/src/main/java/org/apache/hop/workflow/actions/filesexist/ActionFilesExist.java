@@ -58,7 +58,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/filesexist.html"
 )
 public class ActionFilesExist extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionFilesExist.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFilesExist.class; // for i18n purposes, needed by Translator!!
 
   private String filename; // TODO: looks like it is not used: consider deleting
 

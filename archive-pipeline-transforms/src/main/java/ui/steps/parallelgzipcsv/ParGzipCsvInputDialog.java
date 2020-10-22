@@ -91,7 +91,7 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = ParGzipCsvInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ParGzipCsvInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private ParGzipCsvInputMeta inputMeta;
 

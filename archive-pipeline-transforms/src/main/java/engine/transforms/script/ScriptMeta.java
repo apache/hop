@@ -67,7 +67,7 @@ import java.util.Properties;
  *
  */
 public class ScriptMeta extends BaseTransformMeta implements ITransform {
-  private static Class<?> PKG = ScriptMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ScriptMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String JSSCRIPT_TAG_TYPE = "jsScript_type";
   private static final String JSSCRIPT_TAG_NAME = "jsScript_name";

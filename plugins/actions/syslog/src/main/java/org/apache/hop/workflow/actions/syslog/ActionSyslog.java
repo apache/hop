@@ -59,7 +59,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/syslog.html"
 )
 public class ActionSyslog extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionSyslog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSyslog.class; // for i18n purposes, needed by Translator!!
 
   private String serverName;
   private String port;

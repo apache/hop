@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapInputMeta;
  */
 public class HopTrustManager implements X509TrustManager {
 
-  private static Class<?> PKG = LdapInputMeta.class; // i18n purposes
+  private static final Class<?> PKG = LdapInputMeta.class; // i18n purposes
 
   /** The trust manager around which we wrap ourselves in this class. */
   private X509TrustManager tm;

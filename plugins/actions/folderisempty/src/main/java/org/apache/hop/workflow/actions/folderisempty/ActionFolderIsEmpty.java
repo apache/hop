@@ -66,7 +66,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/folderisempty.html"
 )
 public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionFolderIsEmpty.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFolderIsEmpty.class; // for i18n purposes, needed by Translator!!
 
   private String foldername;
   private int filescount;

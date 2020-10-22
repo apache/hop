@@ -61,7 +61,7 @@ import java.util.List;
 )
 public class RandomValueMeta extends BaseTransformMeta implements ITransformMeta<RandomValue, RandomValueData> {
 
-  private static Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_RANDOM_NONE = 0;
 

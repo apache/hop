@@ -66,7 +66,7 @@ import java.util.Map;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/fileexists.html"
 )
 public class ActionFileExists extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionFileExists.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFileExists.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
 

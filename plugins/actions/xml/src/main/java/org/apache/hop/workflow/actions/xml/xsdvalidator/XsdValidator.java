@@ -73,7 +73,7 @@ import static org.apache.hop.workflow.action.validator.AndValidator.putValidator
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xsdvalidator.html"
 )
 public class XsdValidator extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = XsdValidator.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsdValidator.class; // for i18n purposes, needed by Translator2!!
 
   public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION = "ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION";
   public static final String ALLOW_EXTERNAL_ENTITIES_FOR_XSD_VALIDATION_DEFAULT = "true";

@@ -42,7 +42,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class GitRepositoryDialog implements IMetadataDialog {
 
-  private static Class<?> PKG = GitRepositoryDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = GitRepositoryDialog.class; // for i18n purposes, needed by Translator2!!
 
   private final Shell parentShell;
   private Text nameText;

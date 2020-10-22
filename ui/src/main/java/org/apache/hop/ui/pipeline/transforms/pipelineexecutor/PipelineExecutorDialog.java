@@ -81,7 +81,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class PipelineExecutorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = PipelineExecutorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PipelineExecutorMeta.class; // for i18n purposes, needed by Translator!!
 
   private static int FIELD_DESCRIPTION = 1;
   private static int FIELD_NAME = 2;

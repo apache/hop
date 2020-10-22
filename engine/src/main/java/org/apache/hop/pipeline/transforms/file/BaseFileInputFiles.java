@@ -39,7 +39,7 @@ import java.util.List;
  * Input files settings.
  */
 public class BaseFileInputFiles implements Cloneable {
-  private static Class<?> PKG = BaseFileInputFiles.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BaseFileInputFiles.class; // for i18n purposes, needed by Translator!!
 
   public static final String NO = "N";
 

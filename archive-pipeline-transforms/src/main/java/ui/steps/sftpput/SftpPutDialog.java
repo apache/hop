@@ -79,7 +79,7 @@ import java.net.UnknownHostException;
  */
 public class SftpPutDialog extends BaseTransformDialog implements ITransformDialog {
   //for i18n purposes, needed by Translator!!
-  private static Class<?> PKG = org.apache.hop.pipeline.transforms.sftpput.SFTPPutMeta.class;
+  private static final Class<?> PKG = org.apache.hop.pipeline.transforms.sftpput.SFTPPutMeta.class;
 
   private boolean gotPreviousFields = false;
 

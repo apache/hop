@@ -23,11 +23,14 @@
 package org.apache.hop.pipeline.transforms.systemdata;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 
 public class SystemDataMetaInjectionTest extends BaseMetadataInjectionTest<SystemDataMeta> {
-
+  @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
+	
   @Before
   public void setup() throws Exception {
     setup( new SystemDataMeta() );

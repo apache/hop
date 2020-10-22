@@ -57,7 +57,7 @@ import org.xml.sax.SAXException;
  * 
  */
 public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorData> implements ITransform<XsdValidatorMeta, XsdValidatorData> {
-  private static Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 
   static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
 

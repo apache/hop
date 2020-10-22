@@ -54,7 +54,7 @@ import java.util.zip.ZipOutputStream;
  */
 
 public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements ITransform<ZipFileMeta, ZipFileData> {
-  private static Class<?> PKG = ZipFileMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ZipFileMeta.class; // for i18n purposes, needed by Translator!!
 
   public ZipFile(TransformMeta transformMeta, ZipFileMeta meta, ZipFileData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {

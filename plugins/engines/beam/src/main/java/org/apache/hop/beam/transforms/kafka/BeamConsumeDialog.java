@@ -41,7 +41,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class BeamConsumeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = BeamConsume.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = BeamConsume.class; // for i18n purposes, needed by Translator2!!
   private final BeamConsumeMeta input;
 
   int middle;

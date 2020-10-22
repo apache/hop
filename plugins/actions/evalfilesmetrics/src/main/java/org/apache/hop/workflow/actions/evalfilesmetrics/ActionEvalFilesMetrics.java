@@ -74,7 +74,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/evalfilesmetrics.html"
 )
 public class ActionEvalFilesMetrics extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionEvalFilesMetrics.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionEvalFilesMetrics.class; // for i18n purposes, needed by Translator!!
 
   
   public static final int SUCCESS_NUMBER_CONDITION_EQUAL = 0;

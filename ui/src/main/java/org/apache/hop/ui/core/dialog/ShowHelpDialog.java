@@ -56,7 +56,7 @@ import java.net.URL;
 
 public class ShowHelpDialog extends Dialog {
 
-  private static Class<?> PKG = HopGui.class;
+  private static final Class<?> PKG = HopGui.class;
 
   private static final String DOC_URL = Const.getDocUrl( BasePropertyHandler.getProperty( "documentationUrl" ) );
   private static final String PREFIX = "https://help";

@@ -102,7 +102,7 @@ import java.util.List;
 
 
 public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> implements ITransform<WebServiceMeta, WebServiceData> {
-  private static Class<?> PKG = WebServiceMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WebServiceMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String NS_PREFIX = "ns";
 

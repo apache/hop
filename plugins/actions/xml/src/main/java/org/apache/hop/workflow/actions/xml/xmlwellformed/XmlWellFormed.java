@@ -73,7 +73,7 @@ import java.util.regex.Pattern;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/xmlwellformed.html"
 )
 public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = XmlWellFormed.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlWellFormed.class; // for i18n purposes, needed by Translator2!!
 
   public static String SUCCESS_IF_AT_LEAST_X_FILES_WELL_FORMED = "success_when_at_least";
   public static String SUCCESS_IF_BAD_FORMED_FILES_LESS = "success_if_bad_formed_files_less";

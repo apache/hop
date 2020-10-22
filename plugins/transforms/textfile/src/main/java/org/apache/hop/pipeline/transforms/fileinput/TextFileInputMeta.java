@@ -79,7 +79,7 @@ public class TextFileInputMeta
   implements ITransformMeta<TextFileInput, TextFileInputData>,
   IInputFileMeta<TextFileInput, TextFileInputData> {
 
-  private static Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

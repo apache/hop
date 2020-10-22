@@ -65,7 +65,7 @@ import java.util.List;
  * @since 19-06-2003
  */
 public class PreviewRowsDialog {
-  private static Class<?> PKG = PreviewRowsDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PreviewRowsDialog.class; // for i18n purposes, needed by Translator!!
 
   public static final int MAX_BINARY_STRING_PREVIEW_SIZE = 1000000;
 

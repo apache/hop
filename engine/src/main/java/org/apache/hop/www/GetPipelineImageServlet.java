@@ -44,7 +44,7 @@ public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServ
   private static final long serialVersionUID = -4365372274638005929L;
   public static final float ZOOM_FACTOR = 1.0f;
 
-  private static Class<?> PKG = GetPipelineImageServlet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetPipelineImageServlet.class; // for i18n purposes, needed by Translator!!
 
   public static final String CONTEXT_PATH = "/hop/pipelineImage";
 

@@ -37,7 +37,7 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapInputMeta;
 
 public class CustomSocketFactory extends SSLSocketFactory {
 
-  private static Class<?> PKG = LdapInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LdapInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private static boolean configured;
 

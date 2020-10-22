@@ -44,7 +44,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class FlattenerDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableView wFields;
 

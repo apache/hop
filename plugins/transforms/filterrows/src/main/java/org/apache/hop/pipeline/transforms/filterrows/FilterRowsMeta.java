@@ -70,7 +70,7 @@ import java.util.Optional;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/filterrows.html"
 )
 public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<FilterRows, FilterRowsData> {
-  private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * This is the main condition for the complete filter.

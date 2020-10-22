@@ -71,7 +71,7 @@ import java.util.stream.IntStream;
 public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsumerInput, KafkaConsumerInputData>
                                     implements ITransformMeta<KafkaConsumerInput, KafkaConsumerInputData>, Cloneable {
 
-  private static Class<?> PKG = KafkaConsumerInputMeta.class; // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
+  private static final Class<?> PKG = KafkaConsumerInputMeta.class; // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
 
   public static final String NUM_MESSAGES = "numMessages";
   public static final String DURATION = "duration";

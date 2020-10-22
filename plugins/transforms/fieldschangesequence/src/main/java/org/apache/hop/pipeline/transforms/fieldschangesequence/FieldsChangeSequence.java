@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class FieldsChangeSequence extends BaseTransform<FieldsChangeSequenceMeta, FieldsChangeSequenceData> implements ITransform<FieldsChangeSequenceMeta, FieldsChangeSequenceData> {
 
-  private static Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   public FieldsChangeSequence( TransformMeta transformMeta, FieldsChangeSequenceMeta meta, FieldsChangeSequenceData data, int copyNr,
                                PipelineMeta pipelineMeta, Pipeline pipeline ) {

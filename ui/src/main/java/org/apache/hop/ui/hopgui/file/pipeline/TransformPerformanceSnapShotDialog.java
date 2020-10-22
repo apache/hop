@@ -70,7 +70,7 @@ import java.util.TimerTask;
 
 public class TransformPerformanceSnapShotDialog extends Dialog {
 
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
   private static final int DATA_CHOICE_WRITTEN = 0;
   private static final int DATA_CHOICE_READ = 1;

@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class Injector extends BaseTransform<InjectorMeta, InjectorData> implements ITransform<InjectorMeta, InjectorData> {
 
-  private static Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator!!
 
   public Injector( TransformMeta transformMeta, InjectorMeta meta, InjectorData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {

@@ -39,7 +39,7 @@ import java.util.regex.Pattern;
 
 
 public class RegexEval extends BaseTransform<RegexEvalMeta,RegexEvalData> implements ITransform<RegexEvalMeta,RegexEvalData> {
-  private static Class<?> PKG = RegexEvalMeta.class; // for i18n purposes,
+  private static final Class<?> PKG = RegexEvalMeta.class; // for i18n purposes,
   // needed by
   // Translator!!
 

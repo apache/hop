@@ -81,7 +81,7 @@ import com.trilead.ssh2.SFTPv3DirectoryEntry;
 )
 
 public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!
 
   private String serverName;
 

@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
 public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
-  private static Class<?> PKG = ActionSpecial.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSpecial.class; // for i18n purposes, needed by Translator!!
 
   private static final String NOSCHEDULING = BaseMessages.getString( PKG, "JobSpecial.Type.NoScheduling" );
 

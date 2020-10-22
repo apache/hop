@@ -56,7 +56,7 @@ import java.util.List;
 )
 public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<StringCut, StringCutData> {
 
-  private static Class<?> PKG = StringCutMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StringCutMeta.class; // for i18n purposes, needed by Translator!!
 
   private String[] fieldInStream;
 
