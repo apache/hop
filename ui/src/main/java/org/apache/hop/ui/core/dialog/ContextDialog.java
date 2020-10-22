@@ -280,19 +280,19 @@ public class ContextDialog extends Dialog {
 		} );
 		wCanvas.addKeyListener( keyAdapter );
 
-		// Filter all actions by default
-		//
-		this.filter( null );
-
-		// Force focus on the search bar
-		//
-		wSearch.setFocus();
-
 		// Show the dialog now
 		//
 		shell.layout();
 		shell.open();
 
+		// Filter all actions by default
+		//
+		this.filter( null );
+				
+		// Force focus on the search bar
+		//
+		wSearch.setFocus();
+		
 		// Wait until the dialog is closed
 		//
 		while ( !shell.isDisposed() ) {
