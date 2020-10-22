@@ -334,7 +334,7 @@ public class ContextDialog extends Dialog {
 		// Do double buffering to prevent flickering on Windows
 		//
 		boolean needsDoubleBuffering = Const.isWindows() && "GUI".equalsIgnoreCase( Const.getHopPlatformRuntime() );
-
+		
 		Image image = null;
 		GC gc = event.gc;
 
@@ -454,8 +454,8 @@ public class ContextDialog extends Dialog {
 
 	private int calculateNrRows() {
 		int nrColumns = calculateNrColumns();
-		if ( nrColumns == 0 ) {
-			return 0;
+		if ( nrColumns == 0  || filteredItems.isEmpty() ) {
+			return 1;
 		}
 
 		return (int) Math.ceil( (double) filteredItems.size() / (double) nrColumns );
@@ -463,36 +463,32 @@ public class ContextDialog extends Dialog {
 
 	private void selectItem( Item item ) {
 
-		if ( this.selectedItem == item ) {
-			return;
-		}
-
-		this.selectedItem = item;
-
-		int nrColumns = calculateNrColumns();
-		int index = filteredItems.indexOf( item );
-
 		if ( item == null ) {
 			wlTooltip.setText( "" );
 		} else {
+			this.selectedItem = item;			
 			wlTooltip.setText( Const.NVL( item.getAction().getTooltip(), "" ) );
+		}
 
-			ScrollBar bar = wCanvas.getVerticalBar();
+		int nrColumns = calculateNrColumns();
+		int index = filteredItems.indexOf( item );
+			
+		int row = Math.floorDiv( index, nrColumns );
 
-			int row = Math.floorDiv( index, nrColumns );
-
-
+		ScrollBar bar = wCanvas.getVerticalBar();
+		
 			//	        if ( row >= bar.getSelection()+bar.getPageIncrement() ) {
 			//	          // We scrolled down and need to scroll the scrollbar
 			//	          //
 			//	          bar.setSelection( Math.min(row, bar.getMaximum() ) );
 			//	        }
-			if ( row < bar.getSelection() ) {
-				// We scrolled up and need to scroll the scrollbar up
-				//
-				bar.setSelection( Math.max( row, bar.getMinimum() ) );
-			}
+
+		if ( row < bar.getSelection() ) {
+			// We scrolled up and need to scroll the scrollbar up
+			//
+			bar.setSelection( Math.max( row, bar.getMinimum() ) );
 		}
+		
 
 		wCanvas.redraw();
 	}
@@ -517,14 +513,17 @@ public class ContextDialog extends Dialog {
 			}
 		}
 
-		// if selected item is exclude, change to a new default selection: first in the list
-		//
 		if ( paintInitialized ) {
-			if ( !filteredItems.contains( selectedItem ) ) {
-				Item item = ( filteredItems.isEmpty() ) ? null : filteredItems.get( 0 );
-				selectItem( item );
+			
+			if ( filteredItems.isEmpty() ) {
+				selectItem( null );
 			}
 
+			// if selected item is exclude, change to a new default selection: first in the list
+			//
+			else if ( !filteredItems.contains( selectedItem ) ) {
+				selectItem( filteredItems.get( 0 ) );
+			}
 			// Update vertical bar
 			//
 			this.updateVerticalBar();
