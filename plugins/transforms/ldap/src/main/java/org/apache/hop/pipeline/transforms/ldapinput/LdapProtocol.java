@@ -35,6 +35,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.transforms.ldapinput.store.CustomSocketFactory;
 
 /** Class encapsulating Ldap protocol configuration */
 public class LdapProtocol {
@@ -121,7 +122,19 @@ public class LdapProtocol {
 
   protected InitialLdapContext createLdapContext(Hashtable<String, String> env)
       throws NamingException {
-    return new InitialLdapContext(env, null);
+    System.out.println("LdapProtocol.createLdapContext()");
+    CustomSocketFactory.printClasspath();
+    ClassLoader originalClassLoader = Thread.currentThread().getContextClassLoader();
+    InitialLdapContext context = null;
+    try {
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+        CustomSocketFactory.printClasspath();
+        new InitialLdapContext(env, null);
+    } finally {
+        Thread.currentThread().setContextClassLoader(originalClassLoader);
+    }
+    
+    return context;
   }
 
   protected void doConnect(String username, String password) throws HopException {
@@ -158,6 +171,7 @@ public class LdapProtocol {
       }
 
     } catch (Exception e) {
+      e.printStackTrace();
       throw new HopException(
           BaseMessages.getString(
               classFromResourcesPackage, "LDAPinput.Exception.ErrorConnecting", e.getMessage()),

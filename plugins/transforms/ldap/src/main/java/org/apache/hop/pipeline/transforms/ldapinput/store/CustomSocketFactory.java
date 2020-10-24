@@ -24,9 +24,12 @@ package org.apache.hop.pipeline.transforms.ldapinput.store;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collections;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -59,8 +62,11 @@ public class CustomSocketFactory extends SSLSocketFactory {
   }
 
   public static synchronized CustomSocketFactory getDefault() {
+    System.out.println("CustomSocketFactory.getDefault()" + trustManagers);
     if (!configured) {
       throw new IllegalStateException();
+    }else {
+      configure();
     }
 
     SSLContext ctx;
@@ -89,18 +95,31 @@ public class CustomSocketFactory extends SSLSocketFactory {
         keyStore = KeyStore.getInstance("JKS");
       }
     } catch (Exception e) {
+      e.printStackTrace();
       throw new HopException(
           BaseMessages.getString(PKG, "HopTrustManager.Exception.CouldNotCreateCertStore"), e);
     }
 
     trustManagers = new HopTrustManager[] {new HopTrustManager(keyStore, path, password)};
     configured = true;
+    System.out.println("CustomSocketFactory configured to trust given signer" + trustManagers);
+  }
+
+  public static void printClasspath() {
+    System.out.println(String.join("", Collections.nCopies(80, "*")));
+    System.out.println("Classpath for this thread: ");
+    URL[] urls = ((URLClassLoader) (Thread.currentThread().getContextClassLoader())).getURLs();
+    for (URL url: urls) {
+      System.out.println(url.getFile());
+    }
+    System.out.println(String.join("", Collections.nCopies(80, "*")));
   }
 
   /** Configures this SSLSocketFactory so that it trusts any signer. */
   public static synchronized void configure() {
     trustManagers = ALWAYS_TRUST_MANAGER;
     configured = true;
+    System.out.println("CustomSocketFactory configured to trust any signer"  + trustManagers);
   }
 
   @Override
