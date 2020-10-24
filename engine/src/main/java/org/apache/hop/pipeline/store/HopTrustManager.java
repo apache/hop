@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.pipeline.transforms.ldapinput.store;
+package org.apache.hop.pipeline.store;
 
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -32,7 +32,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transforms.ldapinput.LdapInputMeta;
 
 /**
  * This is a wrapper around a standard X509TrustManager. It's just initialized in a specific way for
@@ -40,7 +39,7 @@ import org.apache.hop.pipeline.transforms.ldapinput.LdapInputMeta;
  */
 public class HopTrustManager implements X509TrustManager {
 
-  private static final Class<?> PKG = LdapInputMeta.class; // i18n purposes
+  private static final Class<?> PKG = HopTrustManager.class; // i18n purposes
 
   /** The trust manager around which we wrap ourselves in this class. */
   private X509TrustManager tm;

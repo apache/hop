@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.pipeline.transforms.ldapinput.store;
+package org.apache.hop.pipeline.store;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -33,11 +33,10 @@ import javax.net.ssl.TrustManager;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transforms.ldapinput.LdapInputMeta;
 
 public class CustomSocketFactory extends SSLSocketFactory {
 
-  private static final Class<?> PKG = LdapInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CustomSocketFactory.class; // for i18n purposes, needed by Translator!!
 
   private static boolean configured;
 

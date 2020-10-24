@@ -19,7 +19,7 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.pipeline.transforms.ldapinput.store;
+package org.apache.hop.pipeline.store;
 
 import java.security.cert.X509Certificate;
 import javax.net.ssl.X509TrustManager;
