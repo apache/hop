@@ -120,6 +120,25 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
+    // THE BUTTONS at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e->ok() );
+    wGet = new Button( shell, SWT.PUSH );
+    wGet.setText( BaseMessages.getString( PKG, "StreamLookupDialog.GetFields.Button" ) );
+    wGet.addListener( SWT.Selection, e->get() );
+    wGetLU = new Button( shell, SWT.PUSH );
+    wGetLU.setText( BaseMessages.getString( PKG, "StreamLookupDialog.GetLookupFields.Button" ) );
+    wGetLU.addListener( SWT.Selection, e->getlookup() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e->cancel() );
+
+    setButtonPositions( new Button[] { wOk, wCancel, wGet, wGetLU }, margin, null );
+
+
+
     // TransformName line
     wlTransformName = new Label( shell, SWT.RIGHT );
     wlTransformName.setText( BaseMessages.getString( PKG, "StreamLookupDialog.TransformName.Label" ) );
@@ -187,17 +206,90 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
         BaseMessages.getString( PKG, "StreamLookupDialog.ColumnInfo.LookupField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
 
-    wKey =
-      new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
+    wKey = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrKeyRows, lsMod, props );
 
     fdKey = new FormData();
     fdKey.left = new FormAttachment( 0, 0 );
     fdKey.top = new FormAttachment( wlKey, margin );
     fdKey.right = new FormAttachment( 100, 0 );
-    fdKey.bottom = new FormAttachment( wlKey, 180 );
+    fdKey.bottom = new FormAttachment( wlKey, (int)(props.getZoomFactor()*120) );
     wKey.setLayoutData( fdKey );
+
+
+
+    wlSortedList = new Label( shell, SWT.RIGHT );
+    wlSortedList.setText( BaseMessages.getString( PKG, "StreamLookupDialog.SortedList.Label" ) );
+    props.setLook( wlSortedList );
+    fdlSortedList = new FormData();
+    fdlSortedList.left = new FormAttachment( 0, 0 );
+    fdlSortedList.bottom = new FormAttachment( wOk, -2*margin );
+    fdlSortedList.right = new FormAttachment( middle, -margin );
+    wlSortedList.setLayoutData( fdlSortedList );
+    wSortedList = new Button( shell, SWT.RADIO );
+    wSortedList.setEnabled( false );
+    props.setLook( wSortedList );
+    fdSortedList = new FormData();
+    fdSortedList.left = new FormAttachment( middle, 0 );
+    fdSortedList.top = new FormAttachment( wlSortedList, 0, SWT.CENTER );
+    fdSortedList.right = new FormAttachment( 100, 0 );
+    wSortedList.setLayoutData( fdSortedList );
+    wSortedList.addSelectionListener( new SelectionAdapter() {
+      public void widgetSelected( SelectionEvent e ) {
+        input.setChanged();
+      }
+    } );
+
+
+
+    wlIntegerPair = new Label( shell, SWT.RIGHT );
+    wlIntegerPair.setText( BaseMessages.getString( PKG, "StreamLookupDialog.IntegerPair.Label" ) );
+    props.setLook( wlIntegerPair );
+    fdlIntegerPair = new FormData();
+    fdlIntegerPair.left = new FormAttachment( 0, 0 );
+    fdlIntegerPair.bottom = new FormAttachment( wSortedList, -margin );
+    fdlIntegerPair.right = new FormAttachment( middle, -margin );
+    wlIntegerPair.setLayoutData( fdlIntegerPair );
+    wIntegerPair = new Button( shell, SWT.RADIO );
+    wIntegerPair.setEnabled( false );
+    props.setLook( wIntegerPair );
+    fdIntegerPair = new FormData();
+    fdIntegerPair.left = new FormAttachment( middle, 0 );
+    fdIntegerPair.top = new FormAttachment( wlIntegerPair, 0, SWT.CENTER );
+    fdIntegerPair.right = new FormAttachment( 100, 0 );
+    wIntegerPair.setLayoutData( fdIntegerPair );
+    wIntegerPair.addSelectionListener( new SelectionAdapter() {
+      public void widgetSelected( SelectionEvent e ) {
+        input.setChanged();
+      }
+    } );
+
+    wlPreserveMemory = new Label( shell, SWT.RIGHT );
+    wlPreserveMemory.setText( BaseMessages.getString( PKG, "StreamLookupDialog.PreserveMemory.Label" ) );
+    props.setLook( wlPreserveMemory );
+    fdlPreserveMemory = new FormData();
+    fdlPreserveMemory.left = new FormAttachment( 0, 0 );
+    fdlPreserveMemory.bottom = new FormAttachment( wlIntegerPair, -margin );
+    fdlPreserveMemory.right = new FormAttachment( middle, -margin );
+    wlPreserveMemory.setLayoutData( fdlPreserveMemory );
+    wPreserveMemory = new Button( shell, SWT.CHECK );
+    props.setLook( wPreserveMemory );
+    fdPreserveMemory = new FormData();
+    fdPreserveMemory.left = new FormAttachment( middle, 0 );
+    fdPreserveMemory.top = new FormAttachment( wlPreserveMemory, 0, SWT.CENTER );
+    fdPreserveMemory.right = new FormAttachment( 100, 0 );
+    wPreserveMemory.setLayoutData( fdPreserveMemory );
+    wPreserveMemory.addSelectionListener( new SelectionAdapter() {
+      public void widgetSelected( SelectionEvent e ) {
+        input.setChanged();
+      }
+    } );
+    // PDI-2107 preserve memory should be enabled to have this options on.
+    wPreserveMemory.addListener( SWT.Selection, event -> {
+      boolean selection = wPreserveMemory.getSelection();
+      wSortedList.setEnabled( selection );
+      wIntegerPair.setEnabled( selection );
+    } );
 
     // THE UPDATE/INSERT TABLE
     wlReturn = new Label( shell, SWT.NONE );
@@ -234,129 +326,14 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
         pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
-    // START MEMORY PRESERVE GROUP
-
     fdReturn = new FormData();
     fdReturn.left = new FormAttachment( 0, 0 );
     fdReturn.top = new FormAttachment( wlReturn, margin );
     fdReturn.right = new FormAttachment( 100, 0 );
-    fdReturn.bottom = new FormAttachment( 100, -125 );
+    fdReturn.bottom = new FormAttachment( wlPreserveMemory, -2*margin );
     wReturn.setLayoutData( fdReturn );
 
-    wlPreserveMemory = new Label( shell, SWT.RIGHT );
-    wlPreserveMemory.setText( BaseMessages.getString( PKG, "StreamLookupDialog.PreserveMemory.Label" ) );
-    props.setLook( wlPreserveMemory );
-    fdlPreserveMemory = new FormData();
-    fdlPreserveMemory.left = new FormAttachment( 0, 0 );
-    fdlPreserveMemory.top = new FormAttachment( wReturn, margin );
-    fdlPreserveMemory.right = new FormAttachment( middle, -margin );
-    wlPreserveMemory.setLayoutData( fdlPreserveMemory );
-    wPreserveMemory = new Button( shell, SWT.CHECK );
-    props.setLook( wPreserveMemory );
-    fdPreserveMemory = new FormData();
-    fdPreserveMemory.left = new FormAttachment( middle, 0 );
-    fdPreserveMemory.top = new FormAttachment( wReturn, margin );
-    fdPreserveMemory.right = new FormAttachment( 100, 0 );
-    wPreserveMemory.setLayoutData( fdPreserveMemory );
-    wPreserveMemory.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-      }
-    } );
 
-    wlIntegerPair = new Label( shell, SWT.RIGHT );
-    wlIntegerPair.setText( BaseMessages.getString( PKG, "StreamLookupDialog.IntegerPair.Label" ) );
-    props.setLook( wlIntegerPair );
-    fdlIntegerPair = new FormData();
-    fdlIntegerPair.left = new FormAttachment( 0, 0 );
-    fdlIntegerPair.top = new FormAttachment( wPreserveMemory, margin );
-    fdlIntegerPair.right = new FormAttachment( middle, -margin );
-    wlIntegerPair.setLayoutData( fdlIntegerPair );
-    wIntegerPair = new Button( shell, SWT.RADIO );
-    wIntegerPair.setEnabled( false );
-    props.setLook( wIntegerPair );
-    fdIntegerPair = new FormData();
-    fdIntegerPair.left = new FormAttachment( middle, 0 );
-    fdIntegerPair.top = new FormAttachment( wPreserveMemory, margin );
-    fdIntegerPair.right = new FormAttachment( 100, 0 );
-    wIntegerPair.setLayoutData( fdIntegerPair );
-    wIntegerPair.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-      }
-    } );
-
-    wlSortedList = new Label( shell, SWT.RIGHT );
-    wlSortedList.setText( BaseMessages.getString( PKG, "StreamLookupDialog.SortedList.Label" ) );
-    props.setLook( wlSortedList );
-    fdlSortedList = new FormData();
-    fdlSortedList.left = new FormAttachment( 0, 0 );
-    fdlSortedList.top = new FormAttachment( wIntegerPair, margin );
-    fdlSortedList.right = new FormAttachment( middle, -margin );
-    wlSortedList.setLayoutData( fdlSortedList );
-    wSortedList = new Button( shell, SWT.RADIO );
-    wSortedList.setEnabled( false );
-    props.setLook( wSortedList );
-    fdSortedList = new FormData();
-    fdSortedList.left = new FormAttachment( middle, 0 );
-    fdSortedList.top = new FormAttachment( wIntegerPair, margin );
-    fdSortedList.right = new FormAttachment( 100, 0 );
-    wSortedList.setLayoutData( fdSortedList );
-    wSortedList.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        input.setChanged();
-      }
-    } );
-    // PDI-2107 preserve memory should be enabled to have this options on.
-    wPreserveMemory.addListener( SWT.Selection, new Listener() {
-      @Override
-      public void handleEvent( Event event ) {
-        boolean selection = wPreserveMemory.getSelection();
-        wSortedList.setEnabled( selection );
-        wIntegerPair.setEnabled( selection );
-      }
-    } );
-
-    // END MEMORY PRESERVE
-
-    // THE BUTTONS
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wGet = new Button( shell, SWT.PUSH );
-    wGet.setText( BaseMessages.getString( PKG, "StreamLookupDialog.GetFields.Button" ) );
-    wGetLU = new Button( shell, SWT.PUSH );
-    wGetLU.setText( BaseMessages.getString( PKG, "StreamLookupDialog.GetLookupFields.Button" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel, wGet, wGetLU }, margin, null );
-
-    // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsGetLU = new Listener() {
-      public void handleEvent( Event e ) {
-        getlookup();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-
-    wOk.addListener( SWT.Selection, lsOk );
-    wGet.addListener( SWT.Selection, lsGet );
-    wGetLU.addListener( SWT.Selection, lsGetLU );
-    wCancel.addListener( SWT.Selection, lsCancel );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

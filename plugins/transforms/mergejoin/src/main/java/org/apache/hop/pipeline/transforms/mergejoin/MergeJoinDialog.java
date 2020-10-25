@@ -197,6 +197,47 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     fdType.right = new FormAttachment( 100, 0 );
     wType.setLayoutData( fdType );
 
+    // Some buttons at the bottom
+    //
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
+    wOk.addListener( SWT.Selection, e->ok() );
+    wCancel = new Button( shell, SWT.PUSH );
+    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
+    wCancel.addListener( SWT.Selection, e->cancel() );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, null );
+
+    wbKeys1 = new Button( shell, SWT.PUSH );
+    wbKeys1.setText( BaseMessages.getString( PKG, "MergeJoinDialog.KeyFields1.Button" ) );
+    fdbKeys1 = new FormData();
+    fdbKeys1.bottom = new FormAttachment( wOk, -2*margin );
+    fdbKeys1.left = new FormAttachment( 0, 0 );
+    fdbKeys1.right = new FormAttachment( 50, -margin );
+    wbKeys1.setLayoutData( fdbKeys1 );
+    wbKeys1.addSelectionListener( new SelectionAdapter() {
+
+      public void widgetSelected( SelectionEvent e ) {
+        getKeys1();
+      }
+    } );
+
+    wbKeys2 = new Button( shell, SWT.PUSH );
+    wbKeys2.setText( BaseMessages.getString( PKG, "MergeJoinDialog.KeyFields2.Button" ) );
+    fdbKeys2 = new FormData();
+    fdbKeys2.bottom = new FormAttachment( wOk, -2*margin );
+    fdbKeys2.left = new FormAttachment( 50, 0 );
+    fdbKeys2.right = new FormAttachment( 100, 0 );
+    wbKeys2.setLayoutData( fdbKeys2 );
+    wbKeys2.addSelectionListener( new SelectionAdapter() {
+
+      public void widgetSelected( SelectionEvent e ) {
+        getKeys2();
+      }
+    } );
+
+    // Now the lists of keys between the label and the lower buttons
+    //
+
     // THE KEYS TO MATCH for first transform...
     wlKeys1 = new Label( shell, SWT.NONE );
     wlKeys1.setText( BaseMessages.getString( PKG, "MergeJoinDialog.Keys1.Label" ) );
@@ -213,31 +254,15 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
         BaseMessages.getString( PKG, "MergeJoinDialog.ColumnInfo.KeyField1" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false ), };
 
-    wKeys1 =
-      new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKeys1,
-        nrKeyRows1, lsMod, props );
-
+    wKeys1 = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+      ciKeys1, nrKeyRows1, lsMod, props );
     fdKeys1 = new FormData();
     fdKeys1.top = new FormAttachment( wlKeys1, margin );
     fdKeys1.left = new FormAttachment( 0, 0 );
-    fdKeys1.bottom = new FormAttachment( 100, -70 );
+    fdKeys1.bottom = new FormAttachment( wbKeys1, -2*margin );
     fdKeys1.right = new FormAttachment( 50, -margin );
     wKeys1.setLayoutData( fdKeys1 );
 
-    wbKeys1 = new Button( shell, SWT.PUSH );
-    wbKeys1.setText( BaseMessages.getString( PKG, "MergeJoinDialog.KeyFields1.Button" ) );
-    fdbKeys1 = new FormData();
-    fdbKeys1.top = new FormAttachment( wKeys1, margin );
-    fdbKeys1.left = new FormAttachment( 0, 0 );
-    fdbKeys1.right = new FormAttachment( 50, -margin );
-    wbKeys1.setLayoutData( fdbKeys1 );
-    wbKeys1.addSelectionListener( new SelectionAdapter() {
-
-      public void widgetSelected( SelectionEvent e ) {
-        getKeys1();
-      }
-    } );
 
     // THE KEYS TO MATCH for second transform
     wlKeys2 = new Label( shell, SWT.NONE );
@@ -255,54 +280,17 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
         BaseMessages.getString( PKG, "MergeJoinDialog.ColumnInfo.KeyField2" ), ColumnInfo.COLUMN_TYPE_TEXT,
         false ), };
 
-    wKeys2 =
-      new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKeys2,
-        nrKeyRows2, lsMod, props );
-
+    wKeys2 = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+      ciKeys2, nrKeyRows2, lsMod, props );
     fdKeys2 = new FormData();
     fdKeys2.top = new FormAttachment( wlKeys2, margin );
     fdKeys2.left = new FormAttachment( 50, 0 );
-    fdKeys2.bottom = new FormAttachment( 100, -70 );
+    fdKeys2.bottom = new FormAttachment( wbKeys2, -2*margin );
     fdKeys2.right = new FormAttachment( 100, 0 );
     wKeys2.setLayoutData( fdKeys2 );
 
-    wbKeys2 = new Button( shell, SWT.PUSH );
-    wbKeys2.setText( BaseMessages.getString( PKG, "MergeJoinDialog.KeyFields2.Button" ) );
-    fdbKeys2 = new FormData();
-    fdbKeys2.top = new FormAttachment( wKeys2, margin );
-    fdbKeys2.left = new FormAttachment( 50, 0 );
-    fdbKeys2.right = new FormAttachment( 100, 0 );
-    wbKeys2.setLayoutData( fdbKeys2 );
-    wbKeys2.addSelectionListener( new SelectionAdapter() {
 
-      public void widgetSelected( SelectionEvent e ) {
-        getKeys2();
-      }
-    } );
 
-    // Some buttons
-    wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    setButtonPositions( new Button[] { wOk, wCancel }, margin, wbKeys1 );
-
-    // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-
-    wCancel.addListener( SWT.Selection, lsCancel );
-    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

@@ -34,7 +34,6 @@ import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.graphics.Color;
@@ -101,7 +100,7 @@ public class PropsUi extends Props {
   public void setDefault() {
 
     super.setDefault();
-    Display display = HopGui.getInstance().getDisplay();
+    Display display = Display.getCurrent();
 
     if ( display != null ) {
       FontData fontData = getFixedFont();
@@ -337,7 +336,7 @@ public class PropsUi extends Props {
   }
 
   public FontData getDefaultFontData() {
-    return HopGui.getInstance().getDisplay().getSystemFont().getFontData()[ 0 ];
+    return Display.getCurrent().getSystemFont().getFontData()[ 0 ];
   }
 
   public void setMaxUndo( int max ) {
@@ -555,7 +554,7 @@ public class PropsUi extends Props {
    * @return Returns the display.
    */
   public static Display getDisplay() {
-    return HopGui.getInstance().getDisplay();
+    return Display.getCurrent();
   }
 
   public void setDefaultPreviewSize( int size ) {

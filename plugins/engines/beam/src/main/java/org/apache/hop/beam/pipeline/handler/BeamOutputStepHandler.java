@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 import java.util.Map;
 
-public class BeamOutputStepHandler extends BeamBaseStepHandler implements BeamStepHandler {
+public class BeamOutputStepHandler extends BeamBaseStepHandler implements IBeamStepHandler {
 
   public BeamOutputStepHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
     super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );

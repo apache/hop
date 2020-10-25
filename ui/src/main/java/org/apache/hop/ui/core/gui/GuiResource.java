@@ -25,7 +25,6 @@ package org.apache.hop.ui.core.gui;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SwtUniversalImage;
-import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.ActionPluginType;
@@ -57,8 +56,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.Collection;
@@ -410,11 +407,7 @@ public class GuiResource {
 
     getResources();
 
-    display.addListener( SWT.Dispose, new Listener() {
-      public void handleEvent( Event event ) {
-        dispose( false );
-      }
-    } );
+    display.addListener( SWT.Dispose, event -> dispose( false ) );
 
     clipboard = null;
 
@@ -460,24 +453,6 @@ public class GuiResource {
   public static final GuiResource getInstance() {
     return (GuiResource) PROVIDER.getInstanceInternal();
   }
-
-  public static void registerGuiPlugin( Object guiPluginObject, String instanceId ) {
-    GuiRegistry.getInstance().registerGuiPluginObject(
-      HopGui.getId(),
-      guiPluginObject.getClass().getName(),
-      instanceId,
-      guiPluginObject
-    );
-  }
-
-  public static void deRegisterGuiPlugin( Object guiPluginObject, String instanceId ) {
-    GuiRegistry.getInstance().removeGuiPluginObject(
-      HopGui.getId(),
-      guiPluginObject.getClass().getName(),
-      instanceId
-    );
-  }
-
 
   /**
    * reloads all colors, fonts and images.

@@ -86,12 +86,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     SelectionListener lsSel = new SelectionAdapter() {
       @Override
       public void widgetSelected( SelectionEvent arg0 ) {
@@ -133,8 +128,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     //
     wlAlwaysAddResult = new Label( shell, SWT.RIGHT );
     wlAlwaysAddResult.setText( BaseMessages.getString( PKG, "MemoryGroupByDialog.AlwaysAddResult.Label" ) );
-    wlAlwaysAddResult
-      .setToolTipText( BaseMessages.getString( PKG, "MemoryGroupByDialog.AlwaysAddResult.ToolTip" ) );
+    wlAlwaysAddResult.setToolTipText( BaseMessages.getString( PKG, "MemoryGroupByDialog.AlwaysAddResult.ToolTip" ) );
     props.setLook( wlAlwaysAddResult );
     fdlAlwaysAddResult = new FormData();
     fdlAlwaysAddResult.left = new FormAttachment( 0, 0 );
@@ -146,7 +140,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wAlwaysAddResult );
     fdAlwaysAddResult = new FormData();
     fdAlwaysAddResult.left = new FormAttachment( middle, 0 );
-    fdAlwaysAddResult.top = new FormAttachment( wTransformName, margin );
+    fdAlwaysAddResult.top = new FormAttachment( wlAlwaysAddResult, 0, SWT.CENTER );
     fdAlwaysAddResult.right = new FormAttachment( 100, 0 );
     wAlwaysAddResult.setLayoutData( fdAlwaysAddResult );
     wAlwaysAddResult.addSelectionListener( lsSel );
@@ -156,7 +150,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
     props.setLook( wlGroup );
     fdlGroup = new FormData();
     fdlGroup.left = new FormAttachment( 0, 0 );
-    fdlGroup.top = new FormAttachment( wAlwaysAddResult, margin );
+    fdlGroup.top = new FormAttachment( wlAlwaysAddResult, 2*margin );
     wlGroup.setLayoutData( fdlGroup );
 
     int nrKeyCols = 1;
