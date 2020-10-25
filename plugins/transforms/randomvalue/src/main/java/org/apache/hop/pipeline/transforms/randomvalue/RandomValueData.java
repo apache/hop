@@ -19,16 +19,14 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.randomvalue;
 
+import java.util.Random;
+import javax.crypto.KeyGenerator;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Uuid4Util;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
-
-import javax.crypto.KeyGenerator;
-import java.util.Random;
 
 /**
  * @author Samatar Hassan
