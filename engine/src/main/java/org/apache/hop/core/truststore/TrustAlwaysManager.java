@@ -19,10 +19,10 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.pipeline.transforms.ldapinput.store;
+package org.apache.hop.core.truststore;
 
-import java.security.cert.X509Certificate;
 import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
 
 public class TrustAlwaysManager implements X509TrustManager {
   public void checkClientTrusted(X509Certificate[] cert, String authType) {
