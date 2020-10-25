@@ -28,23 +28,32 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
-import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.server.HopServer;
+import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.*;
+import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.*;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 
 public class GetServerSequenceDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = GetServerSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private Text wValuename;
 
-  private ComboVar wHopServer;
-
+  private MetaSelectionLine<HopServer> wHopServer;
+  
   private TextVar wSeqname;
 
   private TextVar wIncrement;
@@ -115,25 +124,21 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     fdValuename.right = new FormAttachment( 100, 0 );
     wValuename.setLayoutData( fdValuename );
 
-    // Connection line
-    //
-    Label wlHopServer = new Label(shell, SWT.RIGHT);
-    wlHopServer.setText( BaseMessages.getString( PKG, "GetSequenceDialog.HopServer.Label" ) );
-    props.setLook(wlHopServer);
-    FormData fdlHopServer = new FormData();
-    fdlHopServer.left = new FormAttachment( 0, 0 );
-    fdlHopServer.top = new FormAttachment( wValuename, margin );
-    fdlHopServer.right = new FormAttachment( middle, -margin );
-    wlHopServer.setLayoutData( fdlHopServer );
-    wHopServer = new ComboVar( pipelineMeta, shell, SWT.LEFT | SWT.SINGLE | SWT.BORDER );
-    wHopServer.setItems( pipelineMeta.getHopServerNames() );
+    // Hop server line
+    wHopServer = new MetaSelectionLine<>( pipelineMeta, pipelineMeta.getMetadataProvider(), HopServer.class,
+    	      shell, SWT.BORDER, 
+    	      BaseMessages.getString( PKG, "GetSequenceDialog.HopServer.Label" ), 
+    	      "Select the server to use" // TODO : i18n
+    	      , false );    
     FormData fdHopServer = new FormData();
-    fdHopServer.left = new FormAttachment( middle, 0 );
+    fdHopServer.left = new FormAttachment( 0, 0 );
     fdHopServer.top = new FormAttachment( wValuename, margin );
     fdHopServer.right = new FormAttachment( 100, 0 );
     wHopServer.setLayoutData( fdHopServer );
-
-    // Seqname line
+    wHopServer.addToConnectionLine( shell, wValuename, null, lsMod );    
+    props.setLook( wHopServer );
+    
+    // Sequence name line
     Label wlSeqname = new Label(shell, SWT.RIGHT);
     wlSeqname.setText( BaseMessages.getString( PKG, "GetSequenceDialog.Seqname.Label" ) );
     props.setLook(wlSeqname);
