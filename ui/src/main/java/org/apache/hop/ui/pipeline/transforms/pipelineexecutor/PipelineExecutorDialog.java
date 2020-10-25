@@ -212,7 +212,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     props.setLook( wTransformName );
     wTransformName.addModifyListener( lsMod );
     fdTransformName = new FormData();
-    fdTransformName.right = new FormAttachment( 90, 0);
+    fdTransformName.right = new FormAttachment( wicon, -5 );
     fdTransformName.left = new FormAttachment( 0, 0 );
     fdTransformName.top = new FormAttachment( wlTransformName, 5 );
     wTransformName.setLayoutData( fdTransformName );
@@ -240,11 +240,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdBrowse.right = new FormAttachment( 100, 0 );
     fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
     wbBrowse.setLayoutData( fdBrowse );
-    wbBrowse.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        selectFilePipeline();
-      }
-    } );
+    wbBrowse.addListener( SWT.Selection, e -> selectPipelineFile() );    
 
     wPath = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
@@ -270,7 +266,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdRunConfiguration.top = new FormAttachment( wlRunConfiguration, props.getMargin() );
     fdRunConfiguration.right = new FormAttachment( 100, 0 );
     wRunConfiguration.setLayoutData( fdRunConfiguration );
-
+    props.setLook( wRunConfiguration );
+    
     //
     // Add a tab folder for the parameters and various input and output
     // streams
@@ -344,7 +341,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
       .getImage( shell.getDisplay(), getClass().getClassLoader(), "TRNEx.svg", ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE );
   }
 
-  private void selectFilePipeline() {
+  private void selectPipelineFile() {
     String curFile = pipelineMeta.environmentSubstitute( wPath.getText() );
 
 
