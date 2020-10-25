@@ -406,11 +406,9 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        closeMailConnection();
-        action.setChanged();
-      }
+    ModifyListener lsMod = e -> {
+      closeMailConnection();
+      action.setChanged();
     };
 
     SelectionListener lsSelection = new SelectionAdapter() {
@@ -745,11 +743,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wFilenamePattern.setLayoutData( fdFilenamePattern );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilenamePattern.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilenamePattern.setToolTipText( workflowMeta.environmentSubstitute( wFilenamePattern.getText() ) );
-      }
-    } );
+    wFilenamePattern.addModifyListener( e -> wFilenamePattern.setToolTipText( workflowMeta.environmentSubstitute( wFilenamePattern.getText() ) ) );
 
     // Get message?
     wlGetMessage = new Label( wTargetFolder, SWT.RIGHT );
@@ -877,11 +871,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wAttachmentWildcard.setLayoutData( fdAttachmentWildcard );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wAttachmentWildcard.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wAttachmentWildcard.setToolTipText( workflowMeta.environmentSubstitute( wAttachmentWildcard.getText() ) );
-      }
-    } );
+    wAttachmentWildcard.addModifyListener( e -> wAttachmentWildcard.setToolTipText( workflowMeta.environmentSubstitute( wAttachmentWildcard.getText() ) ) );
 
     fdTargetFolder = new FormData();
     fdTargetFolder.left = new FormAttachment( 0, margin );
@@ -1641,16 +1631,8 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -1660,39 +1642,19 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
         ok();
       }
     };
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
+    lsTest = e -> test();
     wTest.addListener( SWT.Selection, lsTest );
 
-    lsTestIMAPFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        checkFolder( workflowMeta.environmentSubstitute( wIMAPFolder.getText() ) );
-      }
-    };
+    lsTestIMAPFolder = e -> checkFolder( workflowMeta.environmentSubstitute( wIMAPFolder.getText() ) );
     wTestIMAPFolder.addListener( SWT.Selection, lsTestIMAPFolder );
 
-    lsTestMoveToFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        checkFolder( workflowMeta.environmentSubstitute( wMoveToFolder.getText() ) );
-      }
-    };
+    lsTestMoveToFolder = e -> checkFolder( workflowMeta.environmentSubstitute( wMoveToFolder.getText() ) );
     wTestMoveToFolder.addListener( SWT.Selection, lsTestMoveToFolder );
 
-    lsSelectFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        selectFolder( wIMAPFolder );
-      }
-    };
+    lsSelectFolder = e -> selectFolder( wIMAPFolder );
     wSelectFolder.addListener( SWT.Selection, lsSelectFolder );
 
-    lsSelectMoveToFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        selectFolder( wMoveToFolder );
-      }
-    };
+    lsSelectMoveToFolder = e -> selectFolder( wMoveToFolder );
     wSelectMoveToFolder.addListener( SWT.Selection, lsSelectMoveToFolder );
 
     wName.addSelectionListener( lsDef );

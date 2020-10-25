@@ -420,13 +420,10 @@ public class HopVfs {
   }
 
   public static Comparator<FileObject> getComparator() {
-    return new Comparator<FileObject>() {
-      @Override
-      public int compare( FileObject o1, FileObject o2 ) {
-        String filename1 = getFilename( o1 );
-        String filename2 = getFilename( o2 );
-        return filename1.compareTo( filename2 );
-      }
+    return ( o1, o2 ) -> {
+      String filename1 = getFilename( o1 );
+      String filename2 = getFilename( o2 );
+      return filename1.compareTo( filename2 );
     };
   }
 

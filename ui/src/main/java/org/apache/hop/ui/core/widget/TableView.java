@@ -569,21 +569,18 @@ public class TableView extends Composite {
 
         final String value = getTextWidgetValue( colnr );
 
-        final Runnable worker = new Runnable() {
-          @Override
-          public void run() {
-            try {
-              if ( row.isDisposed() ) {
-                return;
-              }
-              row.setText( colnr, value );
-              ftext.dispose();
-
-              String[] afterEdit = getItemText( row );
-              checkChanged( new String[][] { fBeforeEdit }, new String[][] { afterEdit }, new int[] { rownr } );
-            } catch ( Exception ignored ) {
-              // widget is disposed, ignore
+        final Runnable worker = () -> {
+          try {
+            if ( row.isDisposed() ) {
+              return;
             }
+            row.setText( colnr, value );
+            ftext.dispose();
+
+            String[] afterEdit = getItemText( row );
+            checkChanged( new String[][] { fBeforeEdit }, new String[][] { afterEdit }, new int[] { rownr } );
+          } catch ( Exception ignored ) {
+            // widget is disposed, ignore
           }
         };
 
@@ -598,12 +595,7 @@ public class TableView extends Composite {
           } catch ( InterruptedException ignored ) {
             // ignored
           }
-          Runnable r = new Runnable() {
-            @Override
-            public void run() {
-              d.asyncExec( worker );
-            }
-          };
+          Runnable r = () -> d.asyncExec( worker );
           Thread t = new Thread( r );
           t.start();
         } else {
@@ -654,24 +646,21 @@ public class TableView extends Composite {
         tableViewModifyListener.cellFocusLost( rownr );
       }
     };
-    lsModCombo = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        TableItem row = activeTableItem;
-        if ( row == null ) {
-          return;
-        }
-        int colnr = activeTableColumn;
-        int rownr = table.indexOf( row );
-        if ( combo instanceof ComboVar ) {
-          row.setText( colnr, ( (ComboVar) combo ).getText() );
-        } else {
-          row.setText( colnr, ( (CCombo) combo ).getText() );
-        }
-
-        String[] afterEdit = getItemText( row );
-        checkChanged( new String[][] { beforeEdit }, new String[][] { afterEdit }, new int[] { rownr } );
+    lsModCombo = e -> {
+      TableItem row = activeTableItem;
+      if ( row == null ) {
+        return;
       }
+      int colnr = activeTableColumn;
+      int rownr = table.indexOf( row );
+      if ( combo instanceof ComboVar ) {
+        row.setText( colnr, ( (ComboVar) combo ).getText() );
+      } else {
+        row.setText( colnr, ( (CCombo) combo ).getText() );
+      }
+
+      String[] afterEdit = getItemText( row );
+      checkChanged( new String[][] { beforeEdit }, new String[][] { afterEdit }, new int[] { rownr } );
     };
 
     // Catch the keys pressed when editing a Text-field...
@@ -1412,15 +1401,12 @@ public class TableView extends Composite {
       final int[] sortIndex = new int[] { sortField + 2 };
 
       // Sort the vector!
-      Collections.sort( v, new Comparator<Object[]>() {
-        @Override
-        public int compare( Object[] r1, Object[] r2 ) {
+      Collections.sort( v, ( r1, r2 ) -> {
 
-          try {
-            return conversionRowMeta.compare( r1, r2, sortIndex );
-          } catch ( HopValueException e ) {
-            throw new RuntimeException( "Error comparing rows", e );
-          }
+        try {
+          return conversionRowMeta.compare( r1, r2, sortIndex );
+        } catch ( HopValueException e ) {
+          throw new RuntimeException( "Error comparing rows", e );
         }
       } );
 
@@ -1642,12 +1628,7 @@ public class TableView extends Composite {
       table.removeAll();
       new TableItem( table, SWT.NONE );
       if ( !readonly ) {
-        parent.getDisplay().asyncExec( new Runnable() {
-          @Override
-          public void run() {
-            edit( 0, 1 );
-          }
-        } );
+        parent.getDisplay().asyncExec( () -> edit( 0, 1 ) );
       }
       this.setModified(); // timh
     }
@@ -2147,36 +2128,23 @@ public class TableView extends Composite {
     final boolean useVariables = columns[ colnr - 1 ].isUsingVariables();
     final boolean passwordField = columns[ colnr - 1 ].isPasswordField();
 
-    final ModifyListener modifyListener = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent me ) {
-        setColumnWidthBasedOnTextField( colnr, useVariables );
-      }
-    };
+    final ModifyListener modifyListener = me -> setColumnWidthBasedOnTextField( colnr, useVariables );
 
     if ( useVariables ) {
-      IGetCaretPosition getCaretPositionInterface = new IGetCaretPosition() {
-        @Override
-        public int getCaretPosition() {
-          return ( (TextVar) text ).getTextWidget().getCaretPosition();
-        }
-      };
+      IGetCaretPosition getCaretPositionInterface = () -> ( (TextVar) text ).getTextWidget().getCaretPosition();
 
       // The text widget will be disposed when we get here
       // So we need to write to the table row
       //
-      IInsertText insertTextInterface = new IInsertText() {
-        @Override
-        public void insertText( String string, int position ) {
-          StringBuilder buffer = new StringBuilder( table.getItem( rownr ).getText( colnr ) );
-          buffer.insert( position, string );
-          table.getItem( rownr ).setText( colnr, buffer.toString() );
-          int newPosition = position + string.length();
-          edit( rownr, colnr );
-          ( (TextVar) text ).setSelection( newPosition );
-          ( (TextVar) text ).showSelection();
-          setColumnWidthBasedOnTextField( colnr, useVariables );
-        }
+      IInsertText insertTextInterface = ( string, position ) -> {
+        StringBuilder buffer = new StringBuilder( table.getItem( rownr ).getText( colnr ) );
+        buffer.insert( position, string );
+        table.getItem( rownr ).setText( colnr, buffer.toString() );
+        int newPosition = position + string.length();
+        edit( rownr, colnr );
+        ( (TextVar) text ).setSelection( newPosition );
+        ( (TextVar) text ).showSelection();
+        setColumnWidthBasedOnTextField( colnr, useVariables );
       };
 
       final TextVar textWidget;
@@ -2330,25 +2298,17 @@ public class TableView extends Composite {
 
     final boolean useVariables = colinfo.isUsingVariables();
     if ( useVariables ) {
-      IGetCaretPosition getCaretPositionInterface = new IGetCaretPosition() {
-        @Override
-        public int getCaretPosition() {
-          return 0;
-        }
-      };
+      IGetCaretPosition getCaretPositionInterface = () -> 0;
 
       // Widget will be disposed when we get here
       // So we need to write to the table row
       //
-      IInsertText insertTextInterface = new IInsertText() {
-        @Override
-        public void insertText( String string, int position ) {
-          StringBuilder buffer = new StringBuilder( table.getItem( rownr ).getText( colnr ) );
-          buffer.insert( position, string );
-          table.getItem( rownr ).setText( colnr, buffer.toString() );
-          edit( rownr, colnr );
-          setModified();
-        }
+      IInsertText insertTextInterface = ( string, position ) -> {
+        StringBuilder buffer = new StringBuilder( table.getItem( rownr ).getText( colnr ) );
+        buffer.insert( position, string );
+        table.getItem( rownr ).setText( colnr, buffer.toString() );
+        edit( rownr, colnr );
+        setModified();
       };
 
       combo = new ComboVar( variables, table, SWT.SINGLE | SWT.LEFT, getCaretPositionInterface, insertTextInterface );
@@ -2460,12 +2420,7 @@ public class TableView extends Composite {
     }
     button.addTraverseListener( lsTraverse ); // hop to next field
     button.setData( CANCEL_KEYS, new String[] { "TAB", "SHIFT+TAB" } );
-    button.addTraverseListener( new TraverseListener() {
-      @Override
-      public void keyTraversed( TraverseEvent arg0 ) {
-        closeActiveButton();
-      }
-    } );
+    button.addTraverseListener( arg0 -> closeActiveButton() );
 
     editor.horizontalAlignment = SWT.LEFT;
     editor.verticalAlignment = SWT.TOP;

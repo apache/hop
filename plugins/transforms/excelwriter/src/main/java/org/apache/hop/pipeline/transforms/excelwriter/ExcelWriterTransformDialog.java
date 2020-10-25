@@ -243,12 +243,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
         input.setChanged();
       }
     };
-    ModifyListener lsMod = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -1288,22 +1283,19 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     // Search the fields in the background
 
-    final Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -1355,30 +1347,10 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     setButtonPositions( new Button[] { wOk, wCancel }, margin, sc );
 
     // Add listeners
-    lsOk = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsMinWidth = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        setMinimalWidth();
-      }
-    };
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsMinWidth = e -> setMinimalWidth();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -1397,49 +1369,19 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wTemplateFilename.addSelectionListener( lsDef );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() )
-          + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.Filename.Tooltip" ) );
-      }
-    } );
-    wTemplateFilename.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wTemplateFilename.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateFilename.getText() ) );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() )
+      + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.Filename.Tooltip" ) ) );
+    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateFilename.getText() ) ) );
 
-    wSheetname.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wSheetname.setToolTipText( pipelineMeta.environmentSubstitute( wSheetname.getText() )
-          + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.Sheetname.Tooltip" ) );
-      }
-    } );
+    wSheetname.addModifyListener( e -> wSheetname.setToolTipText( pipelineMeta.environmentSubstitute( wSheetname.getText() )
+      + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.Sheetname.Tooltip" ) ) );
 
-    wTemplateSheetname.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wTemplateSheetname.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateSheetname.getText() ) );
-      }
-    } );
+    wTemplateSheetname.addModifyListener( e -> wTemplateSheetname.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateSheetname.getText() ) ) );
 
-    wStartingCell.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wStartingCell.setToolTipText( pipelineMeta.environmentSubstitute( wStartingCell.getText() )
-          + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.StartingCell.Tooltip" ) );
-      }
-    } );
+    wStartingCell.addModifyListener( e -> wStartingCell.setToolTipText( pipelineMeta.environmentSubstitute( wStartingCell.getText() )
+      + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.StartingCell.Tooltip" ) ) );
 
-    wPassword.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        wPassword.setToolTipText( BaseMessages.getString( PKG, "ExcelWriterDialog.Password.Tooltip" ) );
-      }
-    } );
+    wPassword.addModifyListener( e -> wPassword.setToolTipText( BaseMessages.getString( PKG, "ExcelWriterDialog.Password.Tooltip" ) ) );
 
     wProtectedBy.addModifyListener( e -> wProtectedBy.setToolTipText( pipelineMeta.environmentSubstitute( wProtectedBy.getText() )
       + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.ProtectedBy.Tooltip" ) ) );
@@ -1797,33 +1739,30 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          @Override
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            if ( v.isNumber() ) {
-              if ( v.getLength() > 0 ) {
-                int le = v.getLength();
-                int pr = v.getPrecision();
+        ITableItemInsertListener listener = ( tableItem, v ) -> {
+          if ( v.isNumber() ) {
+            if ( v.getLength() > 0 ) {
+              int le = v.getLength();
+              int pr = v.getPrecision();
 
-                if ( v.getPrecision() <= 0 ) {
-                  pr = 0;
-                }
-
-                String mask = "";
-                for ( int m = 0; m < le - pr; m++ ) {
-                  mask += "0";
-                }
-                if ( pr > 0 ) {
-                  mask += ".";
-                }
-                for ( int m = 0; m < pr; m++ ) {
-                  mask += "0";
-                }
-                tableItem.setText( 3, mask );
+              if ( v.getPrecision() <= 0 ) {
+                pr = 0;
               }
+
+              String mask = "";
+              for ( int m = 0; m < le - pr; m++ ) {
+                mask += "0";
+              }
+              if ( pr > 0 ) {
+                mask += ".";
+              }
+              for ( int m = 0; m < pr; m++ ) {
+                mask += "0";
+              }
+              tableItem.setText( 3, mask );
             }
-            return true;
           }
+          return true;
         };
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1, 5 }, new int[] { 2 }, 0, 0, listener );
       }

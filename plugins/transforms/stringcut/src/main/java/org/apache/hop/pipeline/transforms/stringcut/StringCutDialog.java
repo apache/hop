@@ -77,11 +77,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -160,22 +156,20 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     //
     // Search the fields in the background
     //
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
-            }
-
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( "It was not possible to get the fields from the previous transform(s)." );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
           }
+
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( "It was not possible to get the fields from the previous transform(s)." );
         }
       }
     };
@@ -197,21 +191,9 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     setButtonPositions( new Button[] { wOk, wGet, wCancel }, margin, null );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -333,14 +315,12 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            if ( v.getType() == IValueMeta.TYPE_STRING ) {
-              // Only process strings
-              return true;
-            } else {
-              return false;
-            }
+        ITableItemInsertListener listener = ( tableItem, v ) -> {
+          if ( v.getType() == IValueMeta.TYPE_STRING ) {
+            // Only process strings
+            return true;
+          } else {
+            return false;
           }
         };
 

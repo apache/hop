@@ -114,11 +114,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -450,17 +446,9 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     setButtonPositions( new Button[] { wOk, wCancel }, margin, gResult );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
     // lsMinWidth = new Listener() { public void handleEvent(Event e) { setMinimalWidth(); } };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     // wGet.addListener (SWT.Selection, lsGet );
@@ -481,10 +469,8 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
       }
     } );
 
-    lsResize = new Listener() {
-      public void handleEvent( Event event ) {
-        // TODO - implement if necessary
-      }
+    lsResize = event -> {
+      // TODO - implement if necessary
     };
     shell.addListener( SWT.Resize, lsResize );
 

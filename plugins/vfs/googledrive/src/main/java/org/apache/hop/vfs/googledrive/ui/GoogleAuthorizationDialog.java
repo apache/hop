@@ -152,12 +152,10 @@ public class GoogleAuthorizationDialog extends Dialog {
       cancelButtonFormData.bottom = new FormAttachment( 100, -15 );
       cancelButton.setLayoutData( cancelButtonFormData );
 
-      cancelButton.addListener( SWT.MouseUp, new Listener() {
-        public void handleEvent( Event event ) {
-          browser.dispose();
-          dialog.close();
-          dialog.dispose();
-        }
+      cancelButton.addListener( SWT.MouseUp, event -> {
+        browser.dispose();
+        dialog.close();
+        dialog.dispose();
       } );
 
       cancelButton.addListener( SWT.MouseEnter, new Listener() {
@@ -170,12 +168,8 @@ public class GoogleAuthorizationDialog extends Dialog {
         }
       } );
 
-      cancelButton.addListener( SWT.MouseExit, new Listener() {
-        public void handleEvent( Event event ) {
-          cancelButton.setImage(
-              new Image( display, GoogleAuthorizationDialog.class.getResourceAsStream( "/images/close-button.png" ) ) );
-        }
-      } );
+      cancelButton.addListener( SWT.MouseExit, event -> cancelButton.setImage(
+          new Image( display, GoogleAuthorizationDialog.class.getResourceAsStream( "/images/close-button.png" ) ) ) );
 
       Label separator = new Label( dialog, SWT.HORIZONTAL | SWT.SEPARATOR );
       FormData separatorFormData = new FormData();
@@ -194,12 +188,10 @@ public class GoogleAuthorizationDialog extends Dialog {
       browserFormData.right = new FormAttachment( 100, -5 );
       browser.setLayoutData( browserFormData );
 
-      browser.addCloseWindowListener( new CloseWindowListener() {
-        @Override public void close( WindowEvent event ) {
-          Browser browser = (Browser) event.widget;
-          Shell shell = browser.getShell();
-          shell.close();
-        }
+      browser.addCloseWindowListener( event -> {
+        Browser browser = (Browser) event.widget;
+        Shell shell = browser.getShell();
+        shell.close();
       } );
     } catch ( Exception e ) {
       MessageBox messageBox = new MessageBox( dialog, SWT.ICON_ERROR | SWT.OK );

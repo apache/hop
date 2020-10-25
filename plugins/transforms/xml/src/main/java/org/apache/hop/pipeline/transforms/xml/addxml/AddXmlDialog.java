@@ -112,11 +112,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -364,21 +360,19 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     //
     // Search the fields in the background
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta stepMeta = pipelineMeta.findTransform( transformName );
-        if ( stepMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( stepMeta );
+    final Runnable runnable = () -> {
+      TransformMeta stepMeta = pipelineMeta.findTransform( transformName );
+      if ( stepMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( stepMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -410,26 +404,10 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsMinWidth = new Listener() {
-      public void handleEvent( Event e ) {
-        setMinimalWidth();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsMinWidth = e -> setMinimalWidth();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -450,13 +428,11 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
       }
     } );
 
-    lsResize = new Listener() {
-      public void handleEvent( Event event ) {
-        Point size = shell.getSize();
-        wFields.setSize( size.x - 10, size.y - 50 );
-        wFields.table.setSize( size.x - 10, size.y - 50 );
-        wFields.redraw();
-      }
+    lsResize = event -> {
+      Point size = shell.getSize();
+      wFields.setSize( size.x - 10, size.y - 50 );
+      wFields.table.setSize( size.x - 10, size.y - 50 );
+      wFields.redraw();
     };
     shell.addListener( SWT.Resize, lsResize );
 
@@ -647,33 +623,31 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1, 2 }, new int[] { 3 }, 5, 6,
-            new ITableItemInsertListener() {
-              public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-                if ( v.isNumber() ) {
-                  if ( v.getLength() > 0 ) {
-                    int le = v.getLength();
-                    int pr = v.getPrecision();
+          ( tableItem, v ) -> {
+            if ( v.isNumber() ) {
+              if ( v.getLength() > 0 ) {
+                int le = v.getLength();
+                int pr = v.getPrecision();
 
-                    if ( v.getPrecision() <= 0 ) {
-                      pr = 0;
-                    }
-
-                    String mask = " ";
-                    for ( int m = 0; m < le - pr; m++ ) {
-                      mask += "0";
-                    }
-                    if ( pr > 0 ) {
-                      mask += ".";
-                    }
-                    for ( int m = 0; m < pr; m++ ) {
-                      mask += "0";
-                    }
-                    tableItem.setText( 4, mask );
-                  }
+                if ( v.getPrecision() <= 0 ) {
+                  pr = 0;
                 }
-                return true;
+
+                String mask = " ";
+                for ( int m = 0; m < le - pr; m++ ) {
+                  mask += "0";
+                }
+                if ( pr > 0 ) {
+                  mask += ".";
+                }
+                for ( int m = 0; m < pr; m++ ) {
+                  mask += "0";
+                }
+                tableItem.setText( 4, mask );
               }
-            } );
+            }
+            return true;
+          } );
       }
     } catch ( HopException ke ) {
       new ErrorDialog( shell, BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Title" ), BaseMessages

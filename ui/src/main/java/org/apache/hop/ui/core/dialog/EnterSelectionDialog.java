@@ -280,11 +280,7 @@ public class EnterSelectionDialog extends Dialog {
     } else {
       wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     }
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
     wOk.addListener( SWT.Selection, lsOk );
 
     Button[] buttons = new Button[] { wOk };
@@ -292,11 +288,7 @@ public class EnterSelectionDialog extends Dialog {
     if ( !viewOnly ) {
       wCancel = new Button( shell, SWT.PUSH );
       wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-      lsCancel = new Listener() {
-        public void handleEvent( Event e ) {
-          cancel();
-        }
-      };
+      lsCancel = e -> cancel();
       wCancel.addListener( SWT.Selection, lsCancel );
 
       buttons = new Button[] { wOk, wCancel };
@@ -473,11 +465,7 @@ public class EnterSelectionDialog extends Dialog {
     wCancel.setLayoutData( fd_wCancel );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ).trim() );
 
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
     wCancel.addListener( SWT.Selection, lsCancel );
 
     wOk = new Button( shell, SWT.PUSH );
@@ -489,11 +477,7 @@ public class EnterSelectionDialog extends Dialog {
     fd_wOk.width = width;
     wOk.setLayoutData( fd_wOk );
 
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
     wOk.addListener( SWT.Selection, lsOk );
 
     fdSelection = new FormData();

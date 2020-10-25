@@ -162,11 +162,7 @@ public class HopGuiWorkflowRunDelegate {
     // There is a workflow running in the background. When it finishes log the result on the console.
     // Launch in a separate thread to prevent GUI blocking...
     //
-    Thread thread = new Thread( new Runnable() {
-      public void run() {
-        remoteHopServer.monitorRemoteJob( hopGui.getLog(), serverObjectId, workflowMeta.toString() );
-      }
-    } );
+    Thread thread = new Thread( () -> remoteHopServer.monitorRemoteJob( hopGui.getLog(), serverObjectId, workflowMeta.toString() ) );
 
     thread.setName( "Monitor remote workflow '" + workflowMeta.getName() + "', carte object id=" + serverObjectId
       + ", hop server: " + remoteHopServer.getName() );

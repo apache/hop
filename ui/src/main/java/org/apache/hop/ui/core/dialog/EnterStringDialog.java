@@ -169,18 +169,10 @@ public class EnterStringDialog extends Dialog {
 
     if ( allowVariables ) {
       wStringVar.setLayoutData( fdString );
-      wStringVar.addModifyListener( new ModifyListener() {
-        public void modifyText( ModifyEvent arg0 ) {
-          setFlags();
-        }
-      } );
+      wStringVar.addModifyListener( arg0 -> setFlags() );
     } else {
       wString.setLayoutData( fdString );
-      wString.addModifyListener( new ModifyListener() {
-        public void modifyText( ModifyEvent arg0 ) {
-          setFlags();
-        }
-      } );
+      wString.addModifyListener( arg0 -> setFlags() );
     }
 
     // Some buttons
@@ -192,16 +184,8 @@ public class EnterStringDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, lastControl );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

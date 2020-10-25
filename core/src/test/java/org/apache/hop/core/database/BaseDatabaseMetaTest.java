@@ -273,24 +273,19 @@ public class BaseDatabaseMetaTest {
     DatabaseMetaData dmd = Mockito.mock( DatabaseMetaData.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
     Mockito.when( dm.getQuotedSchemaTableCombination( "", "FOO" ) ).thenReturn( "FOO" );
-    Mockito.when( rs.next() ).thenAnswer( new Answer<Boolean>() {
-      public Boolean answer( InvocationOnMock invocation ) throws Throwable {
-        rowCnt++;
-        return new Boolean( rowCnt < 3 );
-      }
+    Mockito.when( rs.next() ).thenAnswer( (Answer<Boolean>) invocation -> {
+      rowCnt++;
+      return new Boolean( rowCnt < 3 );
     } );
     Mockito.when( db.getDatabaseMetaData() ).thenReturn( dmd );
     Mockito.when( dmd.getIndexInfo( null, null, "FOO", false, true ) ).thenReturn( rs );
-    Mockito.when( rs.getString( "COLUMN_NAME" ) ).thenAnswer( new Answer<String>() {
-      @Override
-      public String answer( InvocationOnMock invocation ) throws Throwable {
-        if ( rowCnt == 1 ) {
-          return "ROW1COL2";
-        } else if ( rowCnt == 2 ) {
-          return "ROW2COL2";
-        } else {
-          return null;
-        }
+    Mockito.when( rs.getString( "COLUMN_NAME" ) ).thenAnswer( (Answer<String>) invocation -> {
+      if ( rowCnt == 1 ) {
+        return "ROW1COL2";
+      } else if ( rowCnt == 2 ) {
+        return "ROW2COL2";
+      } else {
+        return null;
       }
     } );
     Mockito.when( db.getDatabaseMeta() ).thenReturn( dm );

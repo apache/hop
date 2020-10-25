@@ -371,12 +371,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     toolTip.setShift( new org.eclipse.swt.graphics.Point( ConstUi.TOOLTIP_OFFSET, ConstUi.TOOLTIP_OFFSET ) );
 
     helpTip = new CheckBoxToolTip( canvas );
-    helpTip.addCheckBoxToolTipListener( new ICheckBoxToolTipListener() {
-
-      public void checkBoxSelected( boolean enabled ) {
-        hopGui.getProps().setShowingHelpToolTips( enabled );
-      }
-    } );
+    helpTip.addCheckBoxToolTipListener( enabled -> hopGui.getProps().setShowingHelpToolTips( enabled ) );
 
     newProps();
 
@@ -1242,11 +1237,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   protected void asyncRedraw() {
-    hopGui.getDisplay().asyncExec( new Runnable() {
-      public void run() {
-        if ( !isDisposed() ) {
-          redraw();
-        }
+    hopGui.getDisplay().asyncExec( () -> {
+      if ( !isDisposed() ) {
+        redraw();
       }
     } );
   }
@@ -2784,37 +2777,35 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       return;
     }
 
-    hopDisplay().asyncExec( new Runnable() {
-      @Override public void run() {
-        setZoomLabel();
+    hopDisplay().asyncExec( () -> {
+      setZoomLabel();
 
-        // Enable/disable the undo/redo toolbar buttons...
-        //
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_UNDO_ID, workflowMeta.viewThisUndo() != null );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_REDO_ID, workflowMeta.viewNextUndo() != null );
+      // Enable/disable the undo/redo toolbar buttons...
+      //
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_UNDO_ID, workflowMeta.viewThisUndo() != null );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_REDO_ID, workflowMeta.viewNextUndo() != null );
 
-        // Enable/disable the align/distribute toolbar buttons
-        //
-        boolean selectedTransform = !workflowMeta.getSelectedEntries().isEmpty();
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedTransform );
+      // Enable/disable the align/distribute toolbar buttons
+      //
+      boolean selectedTransform = !workflowMeta.getSelectedEntries().isEmpty();
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedTransform );
 
-        boolean selectedEntries = !workflowMeta.getSelectedEntries().isEmpty();
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedEntries );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_LEFT, selectedEntries );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_RIGHT, selectedEntries );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_TOP, selectedEntries );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedEntries );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedEntries );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedEntries );
+      boolean selectedEntries = !workflowMeta.getSelectedEntries().isEmpty();
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_SNAP_TO_GRID, selectedEntries );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_LEFT, selectedEntries );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_RIGHT, selectedEntries );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_TOP, selectedEntries );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_ALIGN_BOTTOM, selectedEntries );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_HORIZONTALLY, selectedEntries );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_DISTRIBUTE_VERTICALLY, selectedEntries );
 
-        boolean running = isRunning() && !workflow.isStopped();
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_START, !running );
-        toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_STOP, running );
+      boolean running = isRunning() && !workflow.isStopped();
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_START, !running );
+      toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_STOP, running );
 
-        hopGui.setUndoMenu( workflowMeta );
-        hopGui.handleFileCapabilities( fileType, running, false );
-        HopGuiWorkflowGraph.super.redraw();
-      }
+      hopGui.setUndoMenu( workflowMeta );
+      hopGui.handleFileCapabilities( fileType, running, false );
+      HopGuiWorkflowGraph.super.redraw();
     } );
   }
 
@@ -3210,11 +3201,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             workflow.getWorkflowMeta().activateParameters();
 
             log.logMinimal( BaseMessages.getString( PKG, "WorkflowLog.Log.StartingWorkflow" ) );
-            workflowThread = new Thread( new Runnable() {
-              @Override public void run() {
-                workflow.startExecution();
-              }
-            } );
+            workflowThread = new Thread( () -> workflow.startExecution() );
             workflowThread.start();
             workflowGridDelegate.previousNrItems = -1;
             // Link to the new workflowTracker!
@@ -3281,12 +3268,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   public IHasLogChannel getLogChannelProvider() {
-    return new IHasLogChannel() {
-      @Override
-      public ILogChannel getLogChannel() {
-        return getWorkflow() != null ? getWorkflow().getLogChannel() : getWorkflowMeta().getLogChannel();
-      }
-    };
+    return () -> getWorkflow() != null ? getWorkflow().getLogChannel() : getWorkflowMeta().getLogChannel();
   }
 
   // Change of transform, connection, hop or note...

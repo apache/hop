@@ -288,11 +288,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -1557,11 +1553,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wSourceFileFoldername.setLayoutData( fdSourceFileFoldername );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFoldername.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wSourceFileFoldername.setToolTipText( pipelineMeta.environmentSubstitute( wSourceFileFoldername.getText() ) );
-      }
-    } );
+    wSourceFileFoldername.addModifyListener( e -> wSourceFileFoldername.setToolTipText( pipelineMeta.environmentSubstitute( wSourceFileFoldername.getText() ) ) );
 
     wbFileFoldername.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -1620,11 +1612,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wWildcard.setLayoutData( fdWildcard );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wWildcard.setToolTipText( pipelineMeta.environmentSubstitute( wWildcard.getText() ) );
-      }
-    } );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( pipelineMeta.environmentSubstitute( wWildcard.getText() ) ) );
     FormData fdOriginFiles = new FormData();
     fdOriginFiles.left = new FormAttachment( 0, margin );
     fdOriginFiles.top = new FormAttachment( wAttachedContent, 2 * margin );
@@ -1828,11 +1816,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wImageFilename.setLayoutData( fdImageFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wImageFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wImageFilename.setToolTipText( pipelineMeta.environmentSubstitute( wImageFilename.getText() ) );
-      }
-    } );
+    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( pipelineMeta.environmentSubstitute( wImageFilename.getText() ) ) );
 
     wbImageFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -1998,16 +1982,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

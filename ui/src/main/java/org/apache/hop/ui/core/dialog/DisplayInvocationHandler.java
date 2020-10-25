@@ -67,34 +67,26 @@ public class DisplayInvocationHandler<T> implements InvocationHandler {
       }
     }
     if ( asyncForVoid && method.getReturnType().equals( Void.TYPE ) ) {
-      display.asyncExec( new Runnable() {
-
-        @Override
-        public void run() {
-          try {
-            method.invoke( delegate, args );
-          } catch ( Throwable e ) {
-            if ( e instanceof InvocationTargetException ) {
-              e = e.getCause();
-            }
-            log.logError( e.getMessage(), e );
+      display.asyncExec( () -> {
+        try {
+          method.invoke( delegate, args );
+        } catch ( Throwable e ) {
+          if ( e instanceof InvocationTargetException ) {
+            e = e.getCause();
           }
+          log.logError( e.getMessage(), e );
         }
       } );
       return null;
     }
     final ResultHolder resultHolder = new ResultHolder();
-    display.syncExec( new Runnable() {
-
-      @Override
-      public void run() {
-        try {
-          resultHolder.result = method.invoke( delegate, args );
-        } catch ( InvocationTargetException e ) {
-          resultHolder.throwable = e.getCause();
-        } catch ( Exception e ) {
-          resultHolder.throwable = e;
-        }
+    display.syncExec( () -> {
+      try {
+        resultHolder.result = method.invoke( delegate, args );
+      } catch ( InvocationTargetException e ) {
+        resultHolder.throwable = e.getCause();
+      } catch ( Exception e ) {
+        resultHolder.throwable = e;
       }
     } );
     if ( resultHolder.result != null ) {

@@ -52,12 +52,9 @@ public class ValueMetaTimestampTest {
   public void testSetPreparedStatementValue() throws Exception {
     ValueMetaTimestamp vm = new ValueMetaTimestamp();
     PreparedStatement ps = mock( PreparedStatement.class );
-    doAnswer( new Answer<Object>() {
-      @Override
-      public Object answer( InvocationOnMock invocationOnMock ) throws Throwable {
-        Object ts = invocationOnMock.getArguments()[ 1 ];
-        return ts.toString();
-      }
+    doAnswer( (Answer<Object>) invocationOnMock -> {
+      Object ts = invocationOnMock.getArguments()[ 1 ];
+      return ts.toString();
     } ).when( ps ).setTimestamp( anyInt(), (Timestamp) anyObject() );
 
     try {

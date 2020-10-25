@@ -136,13 +136,11 @@ public class PipelineMetaTest {
     ITransformMeta smi = mock( ITransformMeta.class );
     TransformIOMeta ioMeta = mock( TransformIOMeta.class );
     when( smi.getTransformIOMeta() ).thenReturn( ioMeta );
-    doAnswer( new Answer<Object>() {
-      @Override public Object answer( InvocationOnMock invocation ) throws Throwable {
-        IRowMeta rmi = (IRowMeta) invocation.getArguments()[ 0 ];
-        rmi.clear();
-        rmi.addValueMeta( new ValueMetaString( overriddenValue ) );
-        return null;
-      }
+    doAnswer( (Answer<Object>) invocation -> {
+      IRowMeta rmi = (IRowMeta) invocation.getArguments()[ 0 ];
+      rmi.clear();
+      rmi.addValueMeta( new ValueMetaString( overriddenValue ) );
+      return null;
     } ).when( smi ).getFields(
       any( IRowMeta.class ), anyString(), any( IRowMeta[].class ), eq( nextTransform ),
       any( IVariables.class ), any( IHopMetadataProvider.class ) );

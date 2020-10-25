@@ -92,11 +92,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -218,21 +214,9 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     wFields.setLayoutData( fdFields );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsGet = e -> get();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -262,41 +246,37 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     // Search the fields in the background
     //
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
-            if ( row != null ) {
-              // Remember these fields...
-              for ( int i = 0; i < row.size(); i++ ) {
-                inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
-              }
-
-              setComboBoxes();
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          if ( row != null ) {
+            // Remember these fields...
+            for ( int i = 0; i < row.size(); i++ ) {
+              inputFields.put( row.getValueMeta( i ).getName(), new Integer( i ) );
             }
 
-            // Dislay in red missing field names
-            display.asyncExec( new Runnable() {
-              public void run() {
-                if ( !wFields.isDisposed() ) {
-                  for ( int i = 0; i < wFields.table.getItemCount(); i++ ) {
-                    TableItem it = wFields.table.getItem( i );
-                    if ( !Utils.isEmpty( it.getText( 1 ) ) ) {
-                      if ( !inputFields.containsKey( it.getText( 1 ) ) ) {
-                        it.setBackground( GuiResource.getInstance().getColorRed() );
-                      }
-                    }
+            setComboBoxes();
+          }
+
+          // Dislay in red missing field names
+          display.asyncExec( () -> {
+            if ( !wFields.isDisposed() ) {
+              for ( int i = 0; i < wFields.table.getItemCount(); i++ ) {
+                TableItem it = wFields.table.getItem( i );
+                if ( !Utils.isEmpty( it.getText( 1 ) ) ) {
+                  if ( !inputFields.containsKey( it.getText( 1 ) ) ) {
+                    it.setBackground( GuiResource.getInstance().getColorRed() );
                   }
                 }
               }
-            } );
+            }
+          } );
 
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "FieldsChangeSequenceDialog.ErrorGettingPreviousFields", e
-              .getMessage() ) );
-          }
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "FieldsChangeSequenceDialog.ErrorGettingPreviousFields", e
+            .getMessage() ) );
         }
       }
     };
@@ -334,11 +314,9 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener insertListener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            tableItem.setText( 2, BaseMessages.getString( PKG, "System.Combo.Yes" ) );
-            return true;
-          }
+        ITableItemInsertListener insertListener = ( tableItem, v ) -> {
+          tableItem.setText( 2, BaseMessages.getString( PKG, "System.Combo.Yes" ) );
+          return true;
         };
         BaseTransformDialog
           .getFieldsFromPrevious( r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, insertListener );

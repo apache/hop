@@ -53,36 +53,12 @@ public class ScriptValuesMetaModInjectionTest extends BaseMetadataInjectionTest<
       }
     } );
 */
-    check( "OPTIMIZATION_LEVEL", new IStringGetter() {
-      public String get() {
-        return meta.getOptimizationLevel();
-      }
-    } );
-    check( "FIELD_NAME", new IStringGetter() {
-      public String get() {
-        return meta.getFieldname()[ 0 ];
-      }
-    } );
-    check( "FIELD_RENAME_TO", new IStringGetter() {
-      public String get() {
-        return meta.getRename()[ 0 ];
-      }
-    } );
-    check( "FIELD_REPLACE", new IBooleanGetter() {
-      public boolean get() {
-        return meta.getReplace()[ 0 ];
-      }
-    } );
-    check( "SCRIPT_NAME", new IStringGetter() {
-      public String get() {
-        return meta.getJSScripts()[ 0 ].getScriptName();
-      }
-    } );
-    check( "SCRIPT", new IStringGetter() {
-      public String get() {
-        return meta.getJSScripts()[ 0 ].getScript();
-      }
-    } );
+    check( "OPTIMIZATION_LEVEL", () -> meta.getOptimizationLevel() );
+    check( "FIELD_NAME", () -> meta.getFieldname()[ 0 ] );
+    check( "FIELD_RENAME_TO", () -> meta.getRename()[ 0 ] );
+    check( "FIELD_REPLACE", () -> meta.getReplace()[ 0 ] );
+    check( "SCRIPT_NAME", () -> meta.getJSScripts()[ 0 ].getScriptName() );
+    check( "SCRIPT", () -> meta.getJSScripts()[ 0 ].getScript() );
 
     // field type requires special handling, since it's stored as an array of ints, but injected as strings
     skipPropertyTest( "FIELD_TYPE" );

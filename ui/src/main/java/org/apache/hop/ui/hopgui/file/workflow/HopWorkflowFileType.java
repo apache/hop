@@ -180,23 +180,21 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     HopGui hopGui = HopGui.getInstance();
 
     List<IGuiContextHandler> handlers = new ArrayList<>();
-    handlers.add( new IGuiContextHandler() {
-      @Override public List<GuiAction> getSupportedActions() {
-        List<GuiAction> actions = new ArrayList<>();
+    handlers.add( () -> {
+      List<GuiAction> actions = new ArrayList<>();
 
-        GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "Workflow", "Creates a workflow: a sequential set of actions where a path is followed based on the outcome of executions and conditions.",
-          BasePropertyHandler.getProperty( "Workflow_image" ),
-          ( shiftClicked, controlClicked, parameters ) -> {
-            try {
-              HopWorkflowFileType.this.newFile( hopGui, hopGui.getVariables() );
-            } catch ( Exception e ) {
-              new ErrorDialog( hopGui.getShell(), "Error", "Error creating new workflow", e );
-            }
-          } );
-        actions.add( newAction );
+      GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "Workflow", "Creates a workflow: a sequential set of actions where a path is followed based on the outcome of executions and conditions.",
+        BasePropertyHandler.getProperty( "Workflow_image" ),
+        ( shiftClicked, controlClicked, parameters ) -> {
+          try {
+            HopWorkflowFileType.this.newFile( hopGui, hopGui.getVariables() );
+          } catch ( Exception e ) {
+            new ErrorDialog( hopGui.getShell(), "Error", "Error creating new workflow", e );
+          }
+        } );
+      actions.add( newAction );
 
-        return actions;
-      }
+      return actions;
     } );
     return handlers;
   }

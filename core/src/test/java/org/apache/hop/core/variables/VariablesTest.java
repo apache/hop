@@ -93,12 +93,7 @@ public class VariablesTest {
     final String keyStub = "key";
     final String valueStub = "value";
 
-    Thread thread = new Thread( new Runnable() {
-      @Override
-      public void run() {
-        System.setProperty( keyStub, valueStub );
-      }
-    } );
+    Thread thread = new Thread( () -> System.setProperty( keyStub, valueStub ) );
     thread.start();
   }
 
@@ -124,16 +119,13 @@ public class VariablesTest {
 
   // Note:  Not using lambda so this can be ported to older version compatible with 1.7
   private Callable<Boolean> newCallable() {
-    return new Callable<Boolean>() {
-      @Override
-      public Boolean call() throws Exception {
-        for ( int i = 0; i < 300; i++ ) {
-          String key = "key" + i;
-          variables.setVariable( key, "value" );
-          assertEquals( variables.environmentSubstitute( "${" + key + "}" ), "value" );
-        }
-        return true;
+    return () -> {
+      for ( int i = 0; i < 300; i++ ) {
+        String key = "key" + i;
+        variables.setVariable( key, "value" );
+        assertEquals( variables.environmentSubstitute( "${" + key + "}" ), "value" );
       }
+      return true;
     };
   }
 

@@ -106,20 +106,10 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
 
   private void initListeners() {
     // define the listener for the ok button
-    lsOk = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
 
     // define the listener for the cancel button
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsCancel = e -> cancel();
 
     // define the listener adapter for default widget selection
     lsDef = new SelectionAdapter() {
@@ -130,18 +120,10 @@ public abstract class CommonTransformDialog<TransformMetaType extends CommonTran
     };
 
     // define the listener for the meta changes
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        meta.setChanged();
-      }
-    };
+    lsMod = e -> meta.setChanged();
 
     // define a listener for the "preview" action
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
+    lsPreview = e -> preview();
 
     initListenersImpl();
   }

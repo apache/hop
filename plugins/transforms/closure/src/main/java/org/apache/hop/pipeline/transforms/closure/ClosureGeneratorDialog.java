@@ -78,11 +78,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -197,16 +193,14 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
 
     // Search the fields in the background
     //
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            inputFields = pipelineMeta.getPrevTransformFields( transformMeta );
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "ClosureGeneratorDialog.Log.UnableToFindInput" ) );
-          }
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          inputFields = pipelineMeta.getPrevTransformFields( transformMeta );
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "ClosureGeneratorDialog.Log.UnableToFindInput" ) );
         }
       }
     };
@@ -221,16 +215,8 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
     setButtonPositions( new Button[] { wOk, wCancel, }, margin, null );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -267,13 +253,11 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
   }
 
   protected void setComboBoxes() {
-    shell.getDisplay().syncExec( new Runnable() {
-      public void run() {
-        if ( inputFields != null ) {
-          String[] fieldNames = inputFields.getFieldNames();
-          wParent.setItems( fieldNames );
-          wChild.setItems( fieldNames );
-        }
+    shell.getDisplay().syncExec( () -> {
+      if ( inputFields != null ) {
+        String[] fieldNames = inputFields.getFieldNames();
+        wParent.setItems( fieldNames );
+        wChild.setItems( fieldNames );
       }
     } );
   }

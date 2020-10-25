@@ -117,11 +117,7 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
     WorkflowDialog.setShellImage( shell, action );
     shell.setImage( GuiResource.getInstance().getImageStart() );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     backupChanged = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -154,20 +150,12 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
     if ( !this.action.isDummy() ) {
       shell.setText( BaseMessages.getString( PKG, "JobSpecial.Scheduling.Label" ) );
       wRepeat = new Button( shell, SWT.CHECK );
-      wRepeat.addListener( SWT.Selection, new Listener() {
-        public void handleEvent( Event arg0 ) {
-          enableDisableControls();
-        }
-      } );
+      wRepeat.addListener( SWT.Selection, arg0 -> enableDisableControls() );
       placeControl( shell, BaseMessages.getString( PKG, "JobSpecial.Repeat.Label" ), wRepeat, wName );
 
       wType = new CCombo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
       wType.addModifyListener( lsMod );
-      wType.addListener( SWT.Selection, new Listener() {
-        public void handleEvent( Event arg0 ) {
-          enableDisableControls();
-        }
-      } );
+      wType.addListener( SWT.Selection, arg0 -> enableDisableControls() );
       wType.add( NOSCHEDULING );
       wType.add( INTERVAL );
       wType.add( DAILY );
@@ -236,16 +224,8 @@ public class ActionSpecialDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wDayOfMonth );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wOk.addListener( SWT.Selection, lsOk );
     wCancel.addListener( SWT.Selection, lsCancel );

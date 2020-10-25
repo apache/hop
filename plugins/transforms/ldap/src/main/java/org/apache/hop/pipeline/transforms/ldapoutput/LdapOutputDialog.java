@@ -224,11 +224,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -941,15 +937,13 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdBaseDN.top = new FormAttachment( wSettings, margin );
     fdBaseDN.right = new FormAttachment( 100, 0 );
     wBaseDN.setLayoutData( fdBaseDN );
-    wBaseDN.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-        if ( Utils.isEmpty( wBaseDN.getText() ) ) {
-          wDoMapping.setEnabled( false );
-        } else {
-          setFieldsCombo();
-          wDoMapping.setEnabled( true );
-        }
+    wBaseDN.addModifyListener( e -> {
+      input.setChanged();
+      if ( Utils.isEmpty( wBaseDN.getText() ) ) {
+        wDoMapping.setEnabled( false );
+      } else {
+        setFieldsCombo();
+        wDoMapping.setEnabled( true );
       }
     } );
     // THE UPDATE/INSERT TABLE
@@ -997,11 +991,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     fdDoMapping.right = new FormAttachment( 100, 0 );
     wDoMapping.setLayoutData( fdDoMapping );
 
-    wDoMapping.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event arg0 ) {
-        generateMappings();
-      }
-    } );
+    wDoMapping.addListener( SWT.Selection, arg0 -> generateMappings() );
 
     fdReturn = new FormData();
     fdReturn.left = new FormAttachment( 0, 0 );
@@ -1014,22 +1004,20 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     // Search the fields in the background
     //
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
@@ -1076,27 +1064,11 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsTest = e -> test();
+    lsCancel = e -> cancel();
 
-    lsGetLU = new Listener() {
-      public void handleEvent( Event e ) {
-        getUpdate();
-      }
-    };
+    lsGetLU = e -> getUpdate();
     wOk.addListener( SWT.Selection, lsOk );
     wTest.addListener( SWT.Selection, lsTest );
     wCancel.addListener( SWT.Selection, lsCancel );
@@ -1375,11 +1347,9 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            tableItem.setText( 3, "Y" );
-            return true;
-          }
+        ITableItemInsertListener listener = ( tableItem, v ) -> {
+          tableItem.setText( 3, "Y" );
+          return true;
         };
         BaseTransformDialog.getFieldsFromPrevious( r, wReturn, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, listener );
       }
@@ -1581,43 +1551,41 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
   public void setFieldsCombo() {
     Display display = shell.getDisplay();
     if ( !( display == null || display.isDisposed() ) ) {
-      display.asyncExec( new Runnable() {
-        public void run() {
-          // clear
-          for ( int i = 0; i < tableFieldColumns.size(); i++ ) {
-            ColumnInfo colInfo = tableFieldColumns.get( i );
-            colInfo.setComboValues( new String[] {} );
-          }
-          if ( wBaseDN.isDisposed() ) {
-            return;
-          }
-          String baseDn = pipelineMeta.environmentSubstitute( wBaseDN.getText() );
-          if ( !Utils.isEmpty( baseDn ) ) {
-            try {
-              IRowMeta fields = getLDAPFields();
-              // loop through the objects and find build the list of fields
-              String[] fieldsName = new String[ fields.size() ];
-              for ( int i = 0; i < fields.size(); i++ ) {
-                fieldsName[ i ] = fields.getValueMeta( i ).getName();
-              }
+      display.asyncExec( () -> {
+        // clear
+        for ( int i = 0; i < tableFieldColumns.size(); i++ ) {
+          ColumnInfo colInfo = tableFieldColumns.get( i );
+          colInfo.setComboValues( new String[] {} );
+        }
+        if ( wBaseDN.isDisposed() ) {
+          return;
+        }
+        String baseDn = pipelineMeta.environmentSubstitute( wBaseDN.getText() );
+        if ( !Utils.isEmpty( baseDn ) ) {
+          try {
+            IRowMeta fields = getLDAPFields();
+            // loop through the objects and find build the list of fields
+            String[] fieldsName = new String[ fields.size() ];
+            for ( int i = 0; i < fields.size(); i++ ) {
+              fieldsName[ i ] = fields.getValueMeta( i ).getName();
+            }
 
-              if ( fieldsName != null ) {
-                for ( int i = 0; i < tableFieldColumns.size(); i++ ) {
-                  ColumnInfo colInfo = tableFieldColumns.get( i );
-                  colInfo.setComboValues( fieldsName );
-                }
-              }
-            } catch ( Exception e ) {
+            if ( fieldsName != null ) {
               for ( int i = 0; i < tableFieldColumns.size(); i++ ) {
                 ColumnInfo colInfo = tableFieldColumns.get( i );
-                colInfo.setComboValues( new String[] {} );
+                colInfo.setComboValues( fieldsName );
               }
-              // ignore any errors here. drop downs will not be
-              // filled, but no problem for the user
             }
+          } catch ( Exception e ) {
+            for ( int i = 0; i < tableFieldColumns.size(); i++ ) {
+              ColumnInfo colInfo = tableFieldColumns.get( i );
+              colInfo.setComboValues( new String[] {} );
+            }
+            // ignore any errors here. drop downs will not be
+            // filled, but no problem for the user
           }
-
         }
+
       } );
     }
   }

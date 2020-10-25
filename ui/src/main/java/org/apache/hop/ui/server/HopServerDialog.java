@@ -121,11 +121,7 @@ public class HopServerDialog extends Dialog implements IMetadataDialog {
     props.setLook( shell );
     shell.setImage( GuiResource.getInstance().getImageServer() );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        hopServer.setChanged();
-      }
-    };
+    lsMod = e -> hopServer.setChanged();
 
     middle = props.getMiddlePct();
     margin = props.getMargin();
@@ -165,16 +161,8 @@ public class HopServerDialog extends Dialog implements IMetadataDialog {
     wTabFolder.setLayoutData( fdTabFolder );
 
     // Add listeners
-    wOk.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    } );
-    wCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    } );
+    wOk.addListener( SWT.Selection, e -> ok() );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
 
     SelectionAdapter selAdapter = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {

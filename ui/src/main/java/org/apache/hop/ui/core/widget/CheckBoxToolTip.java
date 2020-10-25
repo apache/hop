@@ -143,13 +143,7 @@ public class CheckBoxToolTip extends ToolTip {
       }
 
     } );
-    disable.addPaintListener( new PaintListener() {
-
-      public void paintControl( PaintEvent arg0 ) {
-        checkBoxBounds = disable.getBounds();
-      }
-
-    } );
+    disable.addPaintListener( arg0 -> checkBoxBounds = disable.getBounds() );
 
     composite.layout();
     checkBoxBounds = disable.getBounds();

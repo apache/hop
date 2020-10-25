@@ -135,23 +135,20 @@ public class ActionHttp_PDI208_Test {
 
   private static void startHttpServer() throws IOException {
     httpServer = HttpServer.create( new InetSocketAddress( ActionHttp_PDI208_Test.HTTP_HOST, ActionHttp_PDI208_Test.HTTP_PORT ), 10 );
-    httpServer.createContext( "/uploadFile", new HttpHandler() {
-      @Override
-      public void handle( HttpExchange httpExchange ) throws IOException {
-        Headers h = httpExchange.getResponseHeaders();
-        h.add( "Content-Type", "application/octet-stream" );
-        httpExchange.sendResponseHeaders( 200, 0 );
-        InputStream is = httpExchange.getRequestBody();
-        OutputStream os = httpExchange.getResponseBody();
-        int inputChar = -1;
-        while ( ( inputChar = is.read() ) >= 0 ) {
-          os.write( inputChar );
-        }
-        is.close();
-        os.flush();
-        os.close();
-        httpExchange.close();
+    httpServer.createContext( "/uploadFile", httpExchange -> {
+      Headers h = httpExchange.getResponseHeaders();
+      h.add( "Content-Type", "application/octet-stream" );
+      httpExchange.sendResponseHeaders( 200, 0 );
+      InputStream is = httpExchange.getRequestBody();
+      OutputStream os = httpExchange.getResponseBody();
+      int inputChar = -1;
+      while ( ( inputChar = is.read() ) >= 0 ) {
+        os.write( inputChar );
       }
+      is.close();
+      os.flush();
+      os.close();
+      httpExchange.close();
     } );
     httpServer.start();
   }

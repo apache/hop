@@ -61,21 +61,17 @@ public class LoginContextInvocationHandler<T> implements InvocationHandler {
   @Override
   public Object invoke( Object proxy, final Method method, final Object[] args ) throws Throwable {
     try {
-      return Subject.doAs( loginContext.getSubject(), new PrivilegedExceptionAction<Object>() {
-
-        @Override
-        public Object run() throws Exception {
-          Object result = method.invoke( delegate, args );
-          if ( result != null ) {
-            for ( Class<?> iface : result.getClass().getInterfaces() ) {
-              if ( interfacesToDelegate.contains( iface ) ) {
-                result = forObject( result, loginContext, interfacesToDelegate );
-                break;
-              }
+      return Subject.doAs( loginContext.getSubject(), (PrivilegedExceptionAction<Object>) () -> {
+        Object result = method.invoke( delegate, args );
+        if ( result != null ) {
+          for ( Class<?> iface : result.getClass().getInterfaces() ) {
+            if ( interfacesToDelegate.contains( iface ) ) {
+              result = forObject( result, loginContext, interfacesToDelegate );
+              break;
             }
           }
-          return result;
         }
+        return result;
       } );
     } catch ( PrivilegedActionException e ) {
       if ( e.getCause() instanceof InvocationTargetException ) {

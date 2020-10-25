@@ -160,12 +160,7 @@ public class SqlEditor {
     fdScript.bottom = new FormAttachment( 100, -70 );
     wScript.setLayoutData( fdScript );
 
-    wScript.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        setPosition();
-      }
-
-    } );
+    wScript.addModifyListener( arg0 -> setPosition() );
 
     wScript.addKeyListener( new KeyAdapter() {
       public void keyPressed( KeyEvent e ) {
@@ -225,23 +220,13 @@ public class SqlEditor {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wExec, wClear, wCancel }, margin, null );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsClear = new Listener() {
-      public void handleEvent( Event e ) {
-        clearCache();
-      }
-    };
-    lsExec = new Listener() {
-      public void handleEvent( Event e ) {
-        try {
-          exec();
-        } catch ( Exception ge ) {
-          // Ignore errors
-        }
+    lsCancel = e -> cancel();
+    lsClear = e -> clearCache();
+    lsExec = e -> {
+      try {
+        exec();
+      } catch ( Exception ge ) {
+        // Ignore errors
       }
     };
 

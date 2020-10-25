@@ -55,11 +55,7 @@ public class TreeItemAccelerator {
       tree.addSelectionListener( selectionAdapter );
 
       // Clean up when we do a refresh too.
-      treeItem.addDisposeListener( new DisposeListener() {
-        public void widgetDisposed( DisposeEvent disposeEvent ) {
-          tree.removeSelectionListener( selectionAdapter );
-        }
-      } );
+      treeItem.addDisposeListener( disposeEvent -> tree.removeSelectionListener( selectionAdapter ) );
     }
   }
 

@@ -308,13 +308,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> implements ITransfor
           SSLContext ctx = SSLContext.getInstance( "SSL" );
           ctx.init( null, tmf.getTrustManagers(), null );
 
-          HostnameVerifier hv = new HostnameVerifier() {
-            public boolean verify( String hostname, SSLSession session ) {
-              if ( isDebug() ) {
-                logDebug( "Warning: URL Host: " + hostname + " vs. " + session.getPeerHost() );
-              }
-              return true;
+          HostnameVerifier hv = ( hostname, session ) -> {
+            if ( isDebug() ) {
+              logDebug( "Warning: URL Host: " + hostname + " vs. " + session.getPeerHost() );
             }
+            return true;
           };
           data.config.getProperties().put( HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, new HTTPSProperties( hv, ctx ) );
         } catch ( NoSuchAlgorithmException e ) {

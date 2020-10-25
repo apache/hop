@@ -49,70 +49,26 @@ public class XMLJoinMetaInjectionTest extends BaseMetadataInjectionTest<XmlJoinM
   @Ignore
   public void test() throws Exception {
 
-    check( "COMPLEX_JOIN", new IBooleanGetter() {
-      public boolean get() {
-        return meta.isComplexJoin();
-      }
-    } );
+    check( "COMPLEX_JOIN", () -> meta.isComplexJoin() );
 
-    check( "TARGET_XML_STEP", new IStringGetter() {
-      public String get() {
-        return meta.getTargetXmlField();
-      }
-    } );
+    check( "TARGET_XML_STEP", () -> meta.getTargetXmlField() );
 
-    check( "TARGET_XML_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getTargetXmlField();
-      }
-    } );
+    check( "TARGET_XML_FIELD", () -> meta.getTargetXmlField() );
 
-    check( "SOURCE_XML_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getSourceXmlField();
-      }
-    } );
+    check( "SOURCE_XML_FIELD", () -> meta.getSourceXmlField() );
 
-    check( "VALUE_XML_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getValueXmlField();
-      }
-    } );
+    check( "VALUE_XML_FIELD", () -> meta.getValueXmlField() );
 
-    check( "TARGET_XPATH", new IStringGetter() {
-      public String get() {
-        return meta.getTargetXPath();
-      }
-    } );
+    check( "TARGET_XPATH", () -> meta.getTargetXPath() );
 
-    check( "SOURCE_XML_STEP", new IStringGetter() {
-      public String get() {
-        return meta.getSourceXmlStep();
-      }
-    } );
+    check( "SOURCE_XML_STEP", () -> meta.getSourceXmlStep() );
 
-    check( "JOIN_COMPARE_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getJoinCompareField();
-      }
-    } );
+    check( "JOIN_COMPARE_FIELD", () -> meta.getJoinCompareField() );
 
-    check( "ENCODING", new IStringGetter() {
-      public String get() {
-        return meta.getEncoding();
-      }
-    } );
+    check( "ENCODING", () -> meta.getEncoding() );
 
-    check( "OMIT_XML_HEADER", new IBooleanGetter() {
-      public boolean get() {
-        return meta.isOmitXmlHeader();
-      }
-    } );
+    check( "OMIT_XML_HEADER", () -> meta.isOmitXmlHeader() );
 
-    check( "OMIT_NULL_VALUES", new IBooleanGetter() {
-      public boolean get() {
-        return meta.isOmitNullValues();
-      }
-    } );
+    check( "OMIT_NULL_VALUES", () -> meta.isOmitNullValues() );
   }
 }

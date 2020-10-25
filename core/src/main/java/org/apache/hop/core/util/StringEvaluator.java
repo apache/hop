@@ -345,31 +345,25 @@ public class StringEvaluator {
       Comparator<StringEvaluationResult> compare = null;
       if ( containsDate() ) {
         // want the longest format for dates
-        compare = new Comparator<StringEvaluationResult>() {
-          @Override
-          public int compare( StringEvaluationResult r1, StringEvaluationResult r2 ) {
-            Integer length1 =
-              r1.getConversionMeta().getConversionMask() == null ? 0 : r1
-                .getConversionMeta().getConversionMask().length();
-            Integer length2 =
-              r2.getConversionMeta().getConversionMask() == null ? 0 : r2
-                .getConversionMeta().getConversionMask().length();
-            return length2.compareTo( length1 );
-          }
+        compare = ( r1, r2 ) -> {
+          Integer length1 =
+            r1.getConversionMeta().getConversionMask() == null ? 0 : r1
+              .getConversionMeta().getConversionMask().length();
+          Integer length2 =
+            r2.getConversionMeta().getConversionMask() == null ? 0 : r2
+              .getConversionMeta().getConversionMask().length();
+          return length2.compareTo( length1 );
         };
       } else {
         // want the shortest format mask for numerics & integers
-        compare = new Comparator<StringEvaluationResult>() {
-          @Override
-          public int compare( StringEvaluationResult r1, StringEvaluationResult r2 ) {
-            Integer length1 =
-              r1.getConversionMeta().getConversionMask() == null ? 0 : r1
-                .getConversionMeta().getConversionMask().length();
-            Integer length2 =
-              r2.getConversionMeta().getConversionMask() == null ? 0 : r2
-                .getConversionMeta().getConversionMask().length();
-            return length1.compareTo( length2 );
-          }
+        compare = ( r1, r2 ) -> {
+          Integer length1 =
+            r1.getConversionMeta().getConversionMask() == null ? 0 : r1
+              .getConversionMeta().getConversionMask().length();
+          Integer length2 =
+            r2.getConversionMeta().getConversionMask() == null ? 0 : r2
+              .getConversionMeta().getConversionMask().length();
+          return length1.compareTo( length2 );
         };
       }
 

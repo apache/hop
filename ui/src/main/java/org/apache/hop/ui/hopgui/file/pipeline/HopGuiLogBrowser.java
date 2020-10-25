@@ -218,11 +218,7 @@ public class HopGuiLogBrowser {
 
     // Make sure the timer goes down when the widget is disposed
     //
-    text.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent event ) {
-        logRefreshTimer.cancel();
-      }
-    } );
+    text.addDisposeListener( event -> logRefreshTimer.cancel() );
 
     // Make sure the timer goes down when the Display is disposed
     text.getDisplay().disposeExec( new Runnable() {

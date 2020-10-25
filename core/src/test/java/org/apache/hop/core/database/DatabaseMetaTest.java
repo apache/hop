@@ -89,28 +89,20 @@ public class DatabaseMetaTest {
     throws InterruptedException, ExecutionException {
     final AtomicBoolean done = new AtomicBoolean( false );
     ExecutorService executorService = Executors.newCachedThreadPool();
-    executorService.submit( new Runnable() {
-
-      @Override
-      public void run() {
-        while ( !done.get() ) {
-          DatabaseMeta.clearDatabaseInterfacesMap();
-        }
+    executorService.submit( () -> {
+      while ( !done.get() ) {
+        DatabaseMeta.clearDatabaseInterfacesMap();
       }
     } );
-    Future<Exception> getFuture = executorService.submit( new Callable<Exception>() {
-
-      @Override
-      public Exception call() throws Exception {
-        int i = 0;
-        while ( !done.get() ) {
-          assertNotNull( "Got null on try: " + i++, DatabaseMeta.getIDatabaseMap() );
-          if ( i > 30000 ) {
-            done.set( true );
-          }
+    Future<Exception> getFuture = executorService.submit( () -> {
+      int i = 0;
+      while ( !done.get() ) {
+        assertNotNull( "Got null on try: " + i++, DatabaseMeta.getIDatabaseMap() );
+        if ( i > 30000 ) {
+          done.set( true );
         }
-        return null;
       }
+      return null;
     } );
     getFuture.get();
   }

@@ -36,13 +36,11 @@ public class ExecutorUtil {
   }
 
   private static ExecutorService init() {
-    ExecutorService executorService = Executors.newCachedThreadPool( new ThreadFactory() {
-      @Override public Thread newThread( Runnable r ) {
-        Thread thread = Executors.defaultThreadFactory().newThread( r );
-        thread.setDaemon( true );
-        thread.setName( SIMPLE_NAME + " thread " + threadNum.getAndIncrement() );
-        return thread;
-      }
+    ExecutorService executorService = Executors.newCachedThreadPool( r -> {
+      Thread thread = Executors.defaultThreadFactory().newThread( r );
+      thread.setDaemon( true );
+      thread.setName( SIMPLE_NAME + " thread " + threadNum.getAndIncrement() );
+      return thread;
     } );
     return executorService;
   }

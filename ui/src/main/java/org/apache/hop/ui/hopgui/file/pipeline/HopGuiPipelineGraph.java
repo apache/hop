@@ -498,13 +498,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     toolTip.setShift( new org.eclipse.swt.graphics.Point( ConstUi.TOOLTIP_OFFSET, ConstUi.TOOLTIP_OFFSET ) );
 
     helpTip = new CheckBoxToolTip( canvas );
-    helpTip.addCheckBoxToolTipListener( new ICheckBoxToolTipListener() {
-
-      @Override
-      public void checkBoxSelected( boolean enabled ) {
-        hopGui.getProps().setShowingHelpToolTips( enabled );
-      }
-    } );
+    helpTip.addCheckBoxToolTipListener( enabled -> hopGui.getProps().setShowingHelpToolTips( enabled ) );
 
     iconsize = hopGui.getProps().getIconSize();
 
@@ -1550,12 +1544,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
 
   protected void asyncRedraw() {
-    hopDisplay().asyncExec( new Runnable() {
-      @Override
-      public void run() {
-        if ( !HopGuiPipelineGraph.this.isDisposed() ) {
-          HopGuiPipelineGraph.this.redraw();
-        }
+    hopDisplay().asyncExec( () -> {
+      if ( !HopGuiPipelineGraph.this.isDisposed() ) {
+        HopGuiPipelineGraph.this.redraw();
       }
     } );
   }
@@ -2676,25 +2667,22 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog( hopShell() );
 
       // Run something in the background to cancel active database queries, forecably if needed!
-      Runnable run = new Runnable() {
-        @Override
-        public void run() {
-          IProgressMonitor monitor = pmd.getProgressMonitor();
-          while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
-            try {
-              Thread.sleep( 250 );
-            } catch ( InterruptedException e ) {
-              // Ignore
-            }
+      Runnable run = () -> {
+        IProgressMonitor monitor = pmd.getProgressMonitor();
+        while ( pmd.getShell() == null || ( !pmd.getShell().isDisposed() && !monitor.isCanceled() ) ) {
+          try {
+            Thread.sleep( 250 );
+          } catch ( InterruptedException e ) {
+            // Ignore
           }
+        }
 
-          if ( monitor.isCanceled() ) { // Disconnect and see what happens!
+        if ( monitor.isCanceled() ) { // Disconnect and see what happens!
 
-            try {
-              pipelineMeta.cancelQueries();
-            } catch ( Exception e ) {
-              // Ignore
-            }
+          try {
+            pipelineMeta.cancelQueries();
+          } catch ( Exception e ) {
+            // Ignore
           }
         }
       };
@@ -3785,12 +3773,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         // Show the execution results view...
         //
-        hopDisplay().asyncExec( new Runnable() {
-          @Override
-          public void run() {
-            addAllTabs();
-          }
-        } );
+        hopDisplay().asyncExec( () -> addAllTabs() );
       } catch ( Exception e ) {
         new ErrorDialog( hopShell(), BaseMessages.getString( PKG, "PipelineLog.Dialog.UnexpectedErrorDuringPreview.Title" ),
           BaseMessages.getString( PKG, "PipelineLog.Dialog.UnexpectedErrorDuringPreview.Message" ), e );
@@ -3804,42 +3787,38 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public synchronized void showPreview( final PipelineDebugMeta pipelineDebugMeta, final TransformDebugMeta transformDebugMeta,
                                         final IRowMeta rowBufferMeta, final List<Object[]> rowBuffer ) {
-    hopDisplay().asyncExec( new Runnable() {
+    hopDisplay().asyncExec( () -> {
 
-      @Override
-      public void run() {
+      if ( isDisposed() ) {
+        return;
+      }
 
-        if ( isDisposed() ) {
-          return;
-        }
+      updateGui();
+      checkErrorVisuals();
 
-        updateGui();
-        checkErrorVisuals();
+      PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( hopShell(), pipelineMeta,
+        SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET,
+        transformDebugMeta.getTransformMeta().getName(), rowBufferMeta, rowBuffer
+      );
+      previewRowsDialog.setProposingToGetMoreRows( true );
+      previewRowsDialog.setProposingToStop( true );
+      previewRowsDialog.open();
 
-        PreviewRowsDialog previewRowsDialog = new PreviewRowsDialog( hopShell(), pipelineMeta,
-          SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET,
-          transformDebugMeta.getTransformMeta().getName(), rowBufferMeta, rowBuffer
-        );
-        previewRowsDialog.setProposingToGetMoreRows( true );
-        previewRowsDialog.setProposingToStop( true );
-        previewRowsDialog.open();
+      if ( previewRowsDialog.isAskingForMoreRows() ) {
+        // clear the row buffer.
+        // That way if you click resume, you get the next N rows for the transform :-)
+        //
+        rowBuffer.clear();
 
-        if ( previewRowsDialog.isAskingForMoreRows() ) {
-          // clear the row buffer.
-          // That way if you click resume, you get the next N rows for the transform :-)
-          //
-          rowBuffer.clear();
+        // Resume running: find more rows...
+        //
+        pauseResume();
+      }
 
-          // Resume running: find more rows...
-          //
-          pauseResume();
-        }
-
-        if ( previewRowsDialog.isAskingToStop() ) {
-          // Stop running
-          //
-          stop();
-        }
+      if ( previewRowsDialog.isAskingToStop() ) {
+        // Stop running
+        //
+        stop();
       }
     } );
   }
@@ -4013,12 +3992,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
         checkErrorVisuals();
 
-        hopDisplay().asyncExec( new Runnable() {
-          @Override
-          public void run() {
-            // hopGui.fireMenuControlers();
-            updateGui();
-          }
+        hopDisplay().asyncExec( () -> {
+          // hopGui.fireMenuControlers();
+          updateGui();
         } );
       }
     }
@@ -4029,15 +4005,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Get the logging text and filter it out. Store it in the transformLogMap...
       //
       transformLogMap = new HashMap<>();
-      hopDisplay().syncExec( new Runnable() {
-
-        @Override
-        public void run() {
-          for ( IEngineComponent component : pipeline.getComponents() ) {
-            if ( component.getErrors() > 0 ) {
-              String logText = component.getLogText();
-              transformLogMap.put( component.getName(), logText );
-            }
+      hopDisplay().syncExec( () -> {
+        for ( IEngineComponent component : pipeline.getComponents() ) {
+          if ( component.getErrors() > 0 ) {
+            String logText = component.getLogText();
+            transformLogMap.put( component.getName(), logText );
           }
         }
       } );
@@ -4047,12 +4019,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
     // Redraw the canvas to show the error icons etc.
     //
-    hopDisplay().asyncExec( new Runnable() {
-      @Override
-      public void run() {
-        redraw();
-      }
-    } );
+    hopDisplay().asyncExec( () -> redraw() );
   }
 
   public synchronized void showLastPreviewResults() {
@@ -4133,12 +4100,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   @Override
   public IHasLogChannel getLogChannelProvider() {
-    return new IHasLogChannel() {
-      @Override
-      public ILogChannel getLogChannel() {
-        return getPipeline() != null ? getPipeline().getLogChannel() : getPipelineMeta().getLogChannel();
-      }
-    };
+    return () -> getPipeline() != null ? getPipeline().getLogChannel() : getPipelineMeta().getLogChannel();
   }
 
   @GuiContextAction(

@@ -131,11 +131,9 @@ public class HopGuiPipelineLogDelegate {
     // If the pipeline is closed, we should dispose of all the logging information in the buffer and registry for
     // this pipeline
     //
-    pipelineGraph.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent event ) {
-        if ( pipelineGraph.pipeline != null ) {
-          HopLogStore.discardLines( pipelineGraph.pipeline.getLogChannelId(), true );
-        }
+    pipelineGraph.addDisposeListener( event -> {
+      if ( pipelineGraph.pipeline != null ) {
+        HopLogStore.discardLines( pipelineGraph.pipeline.getLogChannelId(), true );
       }
     } );
 
@@ -200,11 +198,7 @@ public class HopGuiPipelineLogDelegate {
     Map<String, String> transformLogMap = pipelineGraph.getTransformLogMap();
     if ( transformLogMap != null ) {
       transformLogMap.clear();
-      pipelineGraph.getDisplay().asyncExec( new Runnable() {
-        public void run() {
-          pipelineGraph.redraw();
-        }
-      } );
+      pipelineGraph.getDisplay().asyncExec( () -> pipelineGraph.redraw() );
     }
   }
 

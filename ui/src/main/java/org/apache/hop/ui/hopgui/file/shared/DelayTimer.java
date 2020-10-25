@@ -40,12 +40,7 @@ public class DelayTimer implements Runnable {
   /**
    * Default prolonger should not prolong  delay.
    */
-  private Callable<Boolean> prolonger = new Callable<Boolean>() {
-    @Override
-    public Boolean call() throws Exception {
-      return false;
-    }
-  };
+  private Callable<Boolean> prolonger = () -> false;
 
   private long start;
 

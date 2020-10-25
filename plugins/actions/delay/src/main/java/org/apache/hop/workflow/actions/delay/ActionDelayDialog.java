@@ -98,11 +98,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -147,11 +143,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
     wMaximumTimeout.setLayoutData( fdMaximumTimeout );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wMaximumTimeout.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wMaximumTimeout.setToolTipText( workflowMeta.environmentSubstitute( wMaximumTimeout.getText() ) );
-      }
-    } );
+    wMaximumTimeout.addModifyListener( e -> wMaximumTimeout.setToolTipText( workflowMeta.environmentSubstitute( wMaximumTimeout.getText() ) ) );
 
     // Scale time
 
@@ -176,16 +168,8 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wScaleTime );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

@@ -100,15 +100,13 @@ public class LoopNodesImportProgressDialog {
   }
 
   public String[] open() {
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        try {
-          Xpaths = doScan( monitor );
-        } catch ( Exception e ) {
-          e.printStackTrace();
-          throw new InvocationTargetException( e, BaseMessages.getString( PKG,
-              "GetXMLDateLoopNodesImportProgressDialog.Exception.ErrorScanningFile", filename, e.toString() ) );
-        }
+    IRunnableWithProgress op = monitor -> {
+      try {
+        Xpaths = doScan( monitor );
+      } catch ( Exception e ) {
+        e.printStackTrace();
+        throw new InvocationTargetException( e, BaseMessages.getString( PKG,
+            "GetXMLDateLoopNodesImportProgressDialog.Exception.ErrorScanningFile", filename, e.toString() ) );
       }
     };
 

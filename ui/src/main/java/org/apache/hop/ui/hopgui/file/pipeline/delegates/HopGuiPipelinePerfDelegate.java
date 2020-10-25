@@ -150,12 +150,7 @@ public class HopGuiPipelinePerfDelegate {
 
     hopGui.getProps().setLook( perfComposite );
 
-    pipelineGraph.getDisplay().asyncExec( new Runnable() {
-
-      public void run() {
-        setupContent();
-      }
-    } );
+    pipelineGraph.getDisplay().asyncExec( () -> setupContent() );
 
     pipelinePerfTab.setControl( perfComposite );
 
@@ -314,20 +309,15 @@ public class HopGuiPipelinePerfDelegate {
       }
     } );
 
-    perfComposite.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent event ) {
-        if ( image != null ) {
-          image.dispose();
-        }
+    perfComposite.addDisposeListener( event -> {
+      if ( image != null ) {
+        image.dispose();
       }
     } );
 
-    canvas.addPaintListener( new PaintListener() {
-
-      public void paintControl( PaintEvent event ) {
-        if ( image != null && !image.isDisposed() ) {
-          event.gc.drawImage( image, 0, 0 );
-        }
+    canvas.addPaintListener( event -> {
+      if ( image != null && !image.isDisposed() ) {
+        event.gc.drawImage( image, 0, 0 );
       }
     } );
 
@@ -342,11 +332,7 @@ public class HopGuiPipelinePerfDelegate {
 
     // When the tab is closed, we remove the update timer
     //
-    pipelinePerfTab.addDisposeListener( new DisposeListener() {
-      public void widgetDisposed( DisposeEvent arg0 ) {
-        timer.cancel();
-      }
-    } );
+    pipelinePerfTab.addDisposeListener( arg0 -> timer.cancel() );
   }
 
   /**
@@ -403,18 +389,14 @@ public class HopGuiPipelinePerfDelegate {
 
   private void updateGraph() {
 
-    pipelineGraph.getDisplay().asyncExec( new Runnable() {
-
-      public void run() {
-        if ( perfComposite != null
-          && !perfComposite.isDisposed() && canvas != null && !canvas.isDisposed() && pipelinePerfTab != null
-          && !pipelinePerfTab.isDisposed() ) {
-          if ( pipelinePerfTab.isShowing() ) {
-            updateCanvas();
-          }
+    pipelineGraph.getDisplay().asyncExec( () -> {
+      if ( perfComposite != null
+        && !perfComposite.isDisposed() && canvas != null && !canvas.isDisposed() && pipelinePerfTab != null
+        && !pipelinePerfTab.isDisposed() ) {
+        if ( pipelinePerfTab.isShowing() ) {
+          updateCanvas();
         }
       }
-
     } );
   }
 

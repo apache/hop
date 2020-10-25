@@ -176,26 +176,10 @@ public class SqlStatementsDialog extends Dialog {
     wEdit.setLayoutData( fdEdit );
 
     // Add listeners
-    lsClose = new Listener() {
-      public void handleEvent( Event e ) {
-        close();
-      }
-    };
-    lsView = new Listener() {
-      public void handleEvent( Event e ) {
-        view();
-      }
-    };
-    lsExec = new Listener() {
-      public void handleEvent( Event e ) {
-        exec();
-      }
-    };
-    lsEdit = new Listener() {
-      public void handleEvent( Event e ) {
-        edit();
-      }
-    };
+    lsClose = e -> close();
+    lsView = e -> view();
+    lsExec = e -> exec();
+    lsEdit = e -> edit();
 
     wClose.addListener( SWT.Selection, lsClose );
     wView.addListener( SWT.Selection, lsView );

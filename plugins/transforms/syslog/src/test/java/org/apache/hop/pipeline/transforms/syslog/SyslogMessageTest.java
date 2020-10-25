@@ -70,21 +70,17 @@ public class SyslogMessageTest {
     SyslogConfigIF syslogConfigIF = mock( SyslogConfigIF.class, RETURNS_MOCKS );
     when( syslog.getConfig() ).thenReturn( syslogConfigIF );
     final Boolean[] initialized = new Boolean[] { Boolean.FALSE };
-    doAnswer( new Answer<Object>() {
-      public Object answer( InvocationOnMock invocation ) {
-        initialized[ 0 ] = true;
-        return initialized;
-      }
+    doAnswer( (Answer<Object>) invocation -> {
+      initialized[ 0 ] = true;
+      return initialized;
     } ).when( syslog ).initialize( anyString(), (SyslogConfigIF) anyObject() );
-    doAnswer( new Answer<Object>() {
-      public Object answer( InvocationOnMock invocation ) {
-        if ( !initialized[ 0 ] ) {
-          throw new NullPointerException( "this.socket is null" );
-        } else {
-          initialized[ 0 ] = false;
-        }
-        return initialized;
+    doAnswer( (Answer<Object>) invocation -> {
+      if ( !initialized[ 0 ] ) {
+        throw new NullPointerException( "this.socket is null" );
+      } else {
+        initialized[ 0 ] = false;
       }
+      return initialized;
     } ).when( syslog ).shutdown();
     SyslogMessageMeta meta = new SyslogMessageMeta();
     SyslogMessage syslogMessage =

@@ -38,30 +38,10 @@ public class ValueMapperMetaInjectionTest extends BaseMetadataInjectionTest<Valu
 
   @Test
   public void test() throws Exception {
-    check( "FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.getFieldToUse();
-      }
-    } );
-    check( "TARGET_FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.getTargetField();
-      }
-    } );
-    check( "NON_MATCH_DEFAULT", new IStringGetter() {
-      public String get() {
-        return meta.getNonMatchDefault();
-      }
-    } );
-    check( "SOURCE", new IStringGetter() {
-      public String get() {
-        return meta.getSourceValue()[ 0 ];
-      }
-    } );
-    check( "TARGET", new IStringGetter() {
-      public String get() {
-        return meta.getTargetValue()[ 0 ];
-      }
-    } );
+    check( "FIELDNAME", () -> meta.getFieldToUse() );
+    check( "TARGET_FIELDNAME", () -> meta.getTargetField() );
+    check( "NON_MATCH_DEFAULT", () -> meta.getNonMatchDefault() );
+    check( "SOURCE", () -> meta.getSourceValue()[ 0 ] );
+    check( "TARGET", () -> meta.getTargetValue()[ 0 ] );
   }
 }

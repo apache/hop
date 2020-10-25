@@ -38,15 +38,7 @@ public class NullIfMetaInjectionTest extends BaseMetadataInjectionTest<NullIfMet
 
   @Test
   public void test() throws Exception {
-    check( "FIELDNAME", new IStringGetter() {
-      public String get() {
-        return meta.getFields()[ 0 ].getFieldName();
-      }
-    } );
-    check( "FIELDVALUE", new IStringGetter() {
-      public String get() {
-        return meta.getFields()[ 0 ].getFieldValue();
-      }
-    } );
+    check( "FIELDNAME", () -> meta.getFields()[ 0 ].getFieldName() );
+    check( "FIELDVALUE", () -> meta.getFields()[ 0 ].getFieldValue() );
   }
 }

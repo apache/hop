@@ -176,20 +176,18 @@ public class TextVar extends Composite {
   }
 
   protected ModifyListener getModifyListenerTooltipText( final Text textField ) {
-    return new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        if ( textField.getEchoChar() == '\0' ) { // Can't show passwords ;-)
+    return e -> {
+      if ( textField.getEchoChar() == '\0' ) { // Can't show passwords ;-)
 
-          String tip = textField.getText();
-          if ( !Utils.isEmpty( tip ) && !Utils.isEmpty( toolTipText ) ) {
-            tip += Const.CR + Const.CR + toolTipText;
-          }
-
-          if ( Utils.isEmpty( tip ) ) {
-            tip = toolTipText;
-          }
-          textField.setToolTipText( variables.environmentSubstitute( tip ) );
+        String tip = textField.getText();
+        if ( !Utils.isEmpty( tip ) && !Utils.isEmpty( toolTipText ) ) {
+          tip += Const.CR + Const.CR + toolTipText;
         }
+
+        if ( Utils.isEmpty( tip ) ) {
+          tip = toolTipText;
+        }
+        textField.setToolTipText( variables.environmentSubstitute( tip ) );
       }
     };
   }

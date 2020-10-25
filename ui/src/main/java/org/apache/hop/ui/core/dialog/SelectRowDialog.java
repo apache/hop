@@ -152,18 +152,10 @@ public class SelectRowDialog extends Dialog {
     wFields.setLayoutData( fdFields );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
     wOk.addListener( SWT.Selection, lsOk );
 
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        close();
-      }
-    };
+    lsCancel = e -> close();
     wCancel.addListener( SWT.Selection, lsCancel );
 
     wFields.table.addListener( SWT.DefaultSelection, e->ok() );

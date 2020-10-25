@@ -122,16 +122,14 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
    */
   @Override
   public String open( final boolean failOnParseError ) {
-    IRunnableWithProgress op = new IRunnableWithProgress() {
-      public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException {
-        try {
-          message = doScan( monitor, failOnParseError );
-        } catch ( Exception e ) {
-          e.printStackTrace();
-          throw new InvocationTargetException( e,
-            BaseMessages.getString( PKG, "TextFileCSVImportProgressDialog.Exception.ErrorScanningFile",
-              "" + rownumber, debug, e.toString() ) );
-        }
+    IRunnableWithProgress op = monitor -> {
+      try {
+        message = doScan( monitor, failOnParseError );
+      } catch ( Exception e ) {
+        e.printStackTrace();
+        throw new InvocationTargetException( e,
+          BaseMessages.getString( PKG, "TextFileCSVImportProgressDialog.Exception.ErrorScanningFile",
+            "" + rownumber, debug, e.toString() ) );
       }
     };
 

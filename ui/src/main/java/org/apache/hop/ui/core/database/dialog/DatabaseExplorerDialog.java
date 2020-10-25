@@ -216,30 +216,20 @@ public class DatabaseExplorerDialog extends Dialog {
       BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel, wRefresh }, margin, null );
 
       // Add listeners
-      wCancel.addListener( SWT.Selection, new Listener() {
-          public void handleEvent( Event e ) {
-            log.logBasic( "SelectTableDialog", "CANCEL SelectTableDialog", null );
-            dbMeta = null;
-            dispose();
-          }
-        }
+      wCancel.addListener( SWT.Selection, e -> {
+        log.logBasic( "SelectTableDialog", "CANCEL SelectTableDialog", null );
+        dbMeta = null;
+        dispose();
+      }
       );
     } else {
       BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wRefresh }, margin, null );
     }
 
     // Add listeners
-    wOk.addListener( SWT.Selection, new Listener() {
-        public void handleEvent( Event e ) {
-          handleOK();
-        }
-      }
+    wOk.addListener( SWT.Selection, e -> handleOK()
     );
-    wRefresh.addListener( SWT.Selection, new Listener() {
-        public void handleEvent( Event e ) {
-          getData();
-        }
-      }
+    wRefresh.addListener( SWT.Selection, e -> getData()
     );
     SelectionAdapter selAdapter = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {

@@ -250,11 +250,9 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        sftpclient = null;
-        action.setChanged();
-      }
+    ModifyListener lsMod = e -> {
+      sftpclient = null;
+      action.setChanged();
     };
     changed = action.hasChanged();
 
@@ -801,11 +799,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wDestinationFolder.setLayoutData( fdDestinationFolder );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wDestinationFolder.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wDestinationFolder.setToolTipText( workflowMeta.environmentSubstitute( wDestinationFolder.getText() ) );
-      }
-    } );
+    wDestinationFolder.addModifyListener( e -> wDestinationFolder.setToolTipText( workflowMeta.environmentSubstitute( wDestinationFolder.getText() ) ) );
 
     // Create destination folder if necessary ...
     wlCreateDestinationFolder = new Label( wSourceFiles, SWT.RIGHT );
@@ -957,26 +951,10 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsTest = new Listener() {
-      public void handleEvent( Event e ) {
-        test();
-      }
-    };
-    lsCheckChangeFolder = new Listener() {
-      public void handleEvent( Event e ) {
-        checkRemoteFolder();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsTest = e -> test();
+    lsCheckChangeFolder = e -> checkRemoteFolder();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

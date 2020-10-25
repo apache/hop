@@ -155,18 +155,16 @@ public class ComboVar extends Composite {
   }
 
   private ModifyListener getModifyListenerTooltipText( final CCombo comboField ) {
-    return new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        String tip = comboField.getText();
-        if ( !Utils.isEmpty( tip ) && !Utils.isEmpty( toolTipText ) ) {
-          tip += Const.CR + Const.CR + toolTipText;
-        }
-
-        if ( Utils.isEmpty( tip ) ) {
-          tip = toolTipText;
-        }
-        comboField.setToolTipText( variables.environmentSubstitute( tip ) );
+    return e -> {
+      String tip = comboField.getText();
+      if ( !Utils.isEmpty( tip ) && !Utils.isEmpty( toolTipText ) ) {
+        tip += Const.CR + Const.CR + toolTipText;
       }
+
+      if ( Utils.isEmpty( tip ) ) {
+        tip = toolTipText;
+      }
+      comboField.setToolTipText( variables.environmentSubstitute( tip ) );
     };
   }
 

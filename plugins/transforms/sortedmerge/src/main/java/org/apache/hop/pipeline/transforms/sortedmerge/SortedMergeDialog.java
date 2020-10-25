@@ -79,11 +79,7 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -162,42 +158,28 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
     //
     // Search the fields in the background
 
-    final Runnable runnable = new Runnable() {
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "System.Dialog.GetFieldsFailed.Message" ) );
         }
       }
     };
     new Thread( runnable ).start();
 
     // Add listeners
-    wCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    } );
-    wGet.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    } );
-    wOk.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    } );
+    wCancel.addListener( SWT.Selection, e -> cancel() );
+    wGet.addListener( SWT.Selection, e -> get() );
+    wOk.addListener( SWT.Selection, e -> ok() );
 
     lsDef = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -320,11 +302,9 @@ public class SortedMergeDialog extends BaseTransformDialog implements ITransform
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
-          r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, new ITableItemInsertListener() {
-            public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-              tableItem.setText( 2, "Y" );
-              return true;
-            }
+          r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, ( tableItem, v ) -> {
+            tableItem.setText( 2, "Y" );
+            return true;
           } );
       }
     } catch ( HopException ke ) {

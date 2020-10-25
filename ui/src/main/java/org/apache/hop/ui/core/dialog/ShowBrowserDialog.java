@@ -115,11 +115,7 @@ public class ShowBrowserDialog extends Dialog {
     wOk.setLayoutData( fdOk );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsOk = e -> ok();
 
     wOk.addListener( SWT.Selection, lsOk );
 

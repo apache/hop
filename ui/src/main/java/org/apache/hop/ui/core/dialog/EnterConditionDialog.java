@@ -111,18 +111,12 @@ public class EnterConditionDialog extends Dialog {
     BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOk, wCancel }, margin, null );
 
     // Add listeners
-    wCancel.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        condition = null;
-        dispose();
-      }
+    wCancel.addListener( SWT.Selection, e -> {
+      condition = null;
+      dispose();
     } );
 
-    wOk.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        handleOK();
-      }
-    } );
+    wOk.addListener( SWT.Selection, e -> handleOK() );
 
     BaseTransformDialog.setSize( shell );
 

@@ -185,11 +185,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     props.setLook( shell );
     WorkflowDialog.setShellImage( shell, action );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        action.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> action.setChanged();
     changed = action.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -565,12 +561,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     fdSql.bottom = new FormAttachment( wlPosition, -margin );
     wSql.setLayoutData(fdSql);
 
-    wSql.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        setPosition();
-      }
-
-    } );
+    wSql.addModifyListener( arg0 -> setPosition() );
 
     wSql.addKeyListener( new KeyAdapter() {
       public void keyPressed( KeyEvent e ) {
@@ -619,21 +610,9 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     // ///////////////////////////////////////////////////////////
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsbSqlTable = new Listener() {
-      public void handleEvent( Event e ) {
-        getSql();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsbSqlTable = e -> getSql();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

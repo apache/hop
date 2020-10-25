@@ -89,12 +89,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     props.setLook( shell );
     setShellImage( shell, currentMeta );
 
-    ModifyListener lsMod = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        currentMeta.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> currentMeta.setChanged();
     changed = currentMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -270,56 +265,34 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     //
     // Search the fields in the background
     //
-    final Runnable runnable = new Runnable() {
-      @Override
-      public void run() {
-        TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
-        if ( transformMeta != null ) {
-          try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+    final Runnable runnable = () -> {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
+        try {
+          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
 
-            // Remember these fields...
-            for ( int i = 0; i < row.size(); i++ ) {
-              inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
-            }
-
-            setComboBoxes();
-          } catch ( HopException e ) {
-            logError( BaseMessages.getString( PKG, "CalculatorDialog.Log.UnableToFindInput" ) );
+          // Remember these fields...
+          for ( int i = 0; i < row.size(); i++ ) {
+            inputFields.put( row.getValueMeta( i ).getName(), Integer.valueOf( i ) );
           }
+
+          setComboBoxes();
+        } catch ( HopException e ) {
+          logError( BaseMessages.getString( PKG, "CalculatorDialog.Log.UnableToFindInput" ) );
         }
       }
     };
     new Thread( runnable ).start();
 
-    wFields.addModifyListener( new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent arg0 ) {
-        // Now set the combo's
-        shell.getDisplay().asyncExec( new Runnable() {
-          @Override
-          public void run() {
-            setComboBoxes();
-          }
+    wFields.addModifyListener( arg0 -> {
+      // Now set the combo's
+      shell.getDisplay().asyncExec( () -> setComboBoxes() );
 
-        } );
-
-      }
     } );
 
     // Add listeners
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
@@ -364,17 +337,14 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
     // Add the currentMeta fields...
     fields.putAll( inputFields );
 
-    shell.getDisplay().syncExec( new Runnable() {
-      @Override
-      public void run() {
-        // Add the newly create fields.
-        //
-        int nrNonEmptyFields = wFields.nrNonEmpty();
-        for ( int i = 0; i < nrNonEmptyFields; i++ ) {
-          TableItem item = wFields.getNonEmpty( i );
-          fields.put( item.getText( 1 ), Integer.valueOf( 1000000 + i ) ); // The number is just to debug the origin of
-          // the fieldname
-        }
+    shell.getDisplay().syncExec( () -> {
+      // Add the newly create fields.
+      //
+      int nrNonEmptyFields = wFields.nrNonEmpty();
+      for ( int i = 0; i < nrNonEmptyFields; i++ ) {
+        TableItem item = wFields.getNonEmpty( i );
+        fields.put( item.getText( 1 ), Integer.valueOf( 1000000 + i ) ); // The number is just to debug the origin of
+        // the fieldname
       }
     } );
 

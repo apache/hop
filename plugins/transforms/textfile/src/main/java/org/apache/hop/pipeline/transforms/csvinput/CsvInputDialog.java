@@ -129,18 +129,11 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     props.setLook( shell );
     setShellImage( shell, inputMeta );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        inputMeta.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> inputMeta.setChanged();
     changed = inputMeta.hasChanged();
 
-    ModifyListener lsContent = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent arg0 ) {
-        // asyncUpdatePreview();
-      }
+    ModifyListener lsContent = arg0 -> {
+      // asyncUpdatePreview();
     };
     initializing = true;
     previewBusy = new AtomicBoolean( false );

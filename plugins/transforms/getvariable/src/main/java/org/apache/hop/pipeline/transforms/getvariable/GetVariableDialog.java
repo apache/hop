@@ -76,11 +76,7 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -181,26 +177,10 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     setButtonPositions( new Button[] { wOk, wPreview, wGet, wCancel }, margin, wFields );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        getVariables();
-      }
-    };
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsGet = e -> getVariables();
+    lsPreview = e -> preview();
     wGet.addListener( 13, this.lsGet );
     wPreview.addListener( 13, this.lsPreview );
     wCancel.addListener( SWT.Selection, lsCancel );

@@ -61,11 +61,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -111,11 +107,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     wTimeout.setLayoutData( fdTimeout );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wTimeout.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wTimeout.setToolTipText( pipelineMeta.environmentSubstitute( wTimeout.getText() ) );
-      }
-    } );
+    wTimeout.addModifyListener( e -> wTimeout.setToolTipText( pipelineMeta.environmentSubstitute( wTimeout.getText() ) ) );
 
     wScaleTime = new CCombo( shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wScaleTime.add( BaseMessages.getString( PKG, "DelayDialog.MSScaleTime.Label" ) );
@@ -140,16 +132,8 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     setButtonPositions( new Button[] { wOk, wCancel }, margin, wScaleTime );
 
     // Add listeners
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

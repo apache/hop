@@ -143,12 +143,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     props.setLook( shell );
     setShellImage( shell, inputMeta );
 
-    ModifyListener lsMod = new ModifyListener() {
-      @Override
-      public void modifyText( ModifyEvent e ) {
-        inputMeta.setChanged();
-      }
-    };
+    ModifyListener lsMod = e -> inputMeta.setChanged();
     changed = inputMeta.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -962,24 +957,9 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
     setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, lastControl );
 
     // Add listeners
-    lsCancel = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
-    lsOk = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsPreview = new Listener() {
-      @Override
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
+    lsCancel = e -> cancel();
+    lsOk = e -> ok();
+    lsPreview = e -> preview();
 
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );

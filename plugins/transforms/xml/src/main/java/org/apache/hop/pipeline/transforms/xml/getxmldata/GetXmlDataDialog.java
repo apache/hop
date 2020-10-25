@@ -240,11 +240,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     props.setLook( shell );
     setShellImage( shell, input );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -1064,26 +1060,10 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsPreview = e -> preview();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -1185,11 +1165,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Whenever something changes, set the tooltip to the expanded version of the filename:
-    wFilename.addModifyListener( new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        wFilename.setToolTipText( wFilename.getText() );
-      }
-    } );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( wFilename.getText() ) );
 
 //    wbbFilename.addSelectionListener( new SelectionAdapterFileDialogTextVar( log, wFilename, pipelineMeta,
 //      new SelectionAdapterOptions( SelectionOperation.FILE_OR_FOLDER,

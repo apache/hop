@@ -137,24 +137,16 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     props.setLook( shell );
     setShellImage( shell, input );
 
-    ModifyListener lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
+    ModifyListener lsMod = e -> input.setChanged();
+
+    ModifyListener lsConnectionMod = e -> {
+      input.setChanged();
+      setTableFieldCombo();
     };
 
-    ModifyListener lsConnectionMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-        setTableFieldCombo();
-      }
-    };
-
-    ModifyListener lsTableMod = new ModifyListener() {
-      public void modifyText( ModifyEvent arg0 ) {
-        input.setChanged();
-        setTableFieldCombo();
-      }
+    ModifyListener lsTableMod = arg0 -> {
+      input.setChanged();
+      setTableFieldCombo();
     };
     SelectionListener lsSelection = new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
@@ -476,26 +468,10 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     setButtonPositions( new Button[] { wOk, wCancel, wGet, wGetLU }, margin, wOrderBy );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsGetLU = new Listener() {
-      public void handleEvent( Event e ) {
-        getlookup();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsGet = e -> get();
+    lsGetLU = e -> getlookup();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wGet.addListener( SWT.Selection, lsGet );
@@ -548,66 +524,62 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
   }
 
   private void setComboValues() {
-    Runnable fieldLoader = new Runnable() {
-      public void run() {
-        try {
-          prevFields = pipelineMeta.getPrevTransformFields( transformName );
-        } catch ( HopException e ) {
-          prevFields = new RowMeta();
-          String msg = BaseMessages.getString( PKG, "DatabaseLookupDialog.DoMapping.UnableToFindInput" );
-          logError( msg );
-        }
-        String[] prevTransformFieldNames = prevFields.getFieldNames();
-        Arrays.sort( prevTransformFieldNames );
-        for ( ColumnInfo colInfo : fieldColumns ) {
-          colInfo.setComboValues( prevTransformFieldNames );
-        }
+    Runnable fieldLoader = () -> {
+      try {
+        prevFields = pipelineMeta.getPrevTransformFields( transformName );
+      } catch ( HopException e ) {
+        prevFields = new RowMeta();
+        String msg = BaseMessages.getString( PKG, "DatabaseLookupDialog.DoMapping.UnableToFindInput" );
+        logError( msg );
+      }
+      String[] prevTransformFieldNames = prevFields.getFieldNames();
+      Arrays.sort( prevTransformFieldNames );
+      for ( ColumnInfo colInfo : fieldColumns ) {
+        colInfo.setComboValues( prevTransformFieldNames );
       }
     };
     new Thread( fieldLoader ).start();
   }
 
   private void setTableFieldCombo() {
-    Runnable fieldLoader = new Runnable() {
-      public void run() {
-        if ( !wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed() ) {
-          final String tableName = wTable.getText(), connectionName = wConnection.getText(), schemaName =
-            wSchema.getText();
-          if ( !Utils.isEmpty( tableName ) ) {
-            DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
-            if ( ci != null ) {
-              Database db = new Database( loggingObject, ci );
-              db.shareVariablesWith( pipelineMeta );
+    Runnable fieldLoader = () -> {
+      if ( !wTable.isDisposed() && !wConnection.isDisposed() && !wSchema.isDisposed() ) {
+        final String tableName = wTable.getText(), connectionName = wConnection.getText(), schemaName =
+          wSchema.getText();
+        if ( !Utils.isEmpty( tableName ) ) {
+          DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
+          if ( ci != null ) {
+            Database db = new Database( loggingObject, ci );
+            db.shareVariablesWith( pipelineMeta );
+            try {
+              db.connect();
+
+              //IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
+              String schemaTable = ci.getQuotedSchemaTableCombination( schemaName, tableName );
+              IRowMeta r = db.getTableFields( schemaTable );
+
+              if ( null != r ) {
+                String[] fieldNames = r.getFieldNames();
+                if ( null != fieldNames ) {
+                  for ( ColumnInfo colInfo : tableFieldColumns ) {
+                    colInfo.setComboValues( fieldNames );
+                  }
+                }
+              }
+            } catch ( Exception e ) {
+              for ( ColumnInfo colInfo : tableFieldColumns ) {
+                colInfo.setComboValues( new String[] {} );
+              }
+              // ignore any errors here. drop downs will not be
+              // filled, but no problem for the user
+            } finally {
               try {
-                db.connect();
-
-                //IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
-                String schemaTable = ci.getQuotedSchemaTableCombination( schemaName, tableName );
-                IRowMeta r = db.getTableFields( schemaTable );
-
-                if ( null != r ) {
-                  String[] fieldNames = r.getFieldNames();
-                  if ( null != fieldNames ) {
-                    for ( ColumnInfo colInfo : tableFieldColumns ) {
-                      colInfo.setComboValues( fieldNames );
-                    }
-                  }
+                if ( db != null ) {
+                  db.disconnect();
                 }
-              } catch ( Exception e ) {
-                for ( ColumnInfo colInfo : tableFieldColumns ) {
-                  colInfo.setComboValues( new String[] {} );
-                }
-                // ignore any errors here. drop downs will not be
-                // filled, but no problem for the user
-              } finally {
-                try {
-                  if ( db != null ) {
-                    db.disconnect();
-                  }
-                } catch ( Exception ignored ) {
-                  // ignore any errors here.
-                  db = null;
-                }
+              } catch ( Exception ignored ) {
+                // ignore any errors here.
+                db = null;
               }
             }
           }
@@ -798,11 +770,9 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     try {
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null && !r.isEmpty() ) {
-        ITableItemInsertListener listener = new ITableItemInsertListener() {
-          public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
-            tableItem.setText( 2, "=" );
-            return true;
-          }
+        ITableItemInsertListener listener = ( tableItem, v ) -> {
+          tableItem.setText( 2, "=" );
+          return true;
         };
         BaseTransformDialog.getFieldsFromPrevious( r, wKey, 1, new int[] { 1, 3 }, new int[] {}, -1, -1, listener );
       }

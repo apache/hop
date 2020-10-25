@@ -200,11 +200,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     wOperation.removeAll();
     if ( wsdl != null ) {
       List<WsdlOperation> listeOperations = wsdl.getOperations();
-      Collections.sort( listeOperations, new Comparator<WsdlOperation>() {
-        public int compare( WsdlOperation op1, WsdlOperation op2 ) {
-          return op1.getOperationQName().getLocalPart().compareTo( op2.getOperationQName().getLocalPart() );
-        }
-      } );
+      Collections.sort( listeOperations, ( op1, op2 ) -> op1.getOperationQName().getLocalPart().compareTo( op2.getOperationQName().getLocalPart() ) );
       for ( Iterator<WsdlOperation> itr = listeOperations.iterator(); itr.hasNext(); ) {
         WsdlOperation op = itr.next();
         wOperation.add( op.getOperationQName().getLocalPart() );
@@ -1165,11 +1161,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     compositeTabWebService.layout();
     tabItemWebService.setControl( compositeTabWebService );
 
-    wURL.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        getData();
-      }
-    } );
+    wURL.addListener( SWT.Selection, e -> getData() );
 
     SelectionAdapter selAdapter = new SelectionAdapter() {
       public void widgetDefaultSelected( SelectionEvent e ) {
@@ -1295,22 +1287,20 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
    */
 
   private void setComboValues() {
-    Runnable fieldLoader = new Runnable() {
-      public void run() {
-        try {
-          prevFields = pipelineMeta.getPrevTransformFields( transformName );
-        } catch ( HopException e ) {
-          prevFields = new RowMeta();
-          String msg = BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.UnableToFindInput" );
-          logError( msg );
-        }
-        String[] prevTransformFieldNames = prevFields.getFieldNames();
-        Arrays.sort( prevTransformFieldNames );
-        // bPreviousFieldsLoaded = true;
-        for ( int i = 0; i < fieldColumns.size(); i++ ) {
-          ColumnInfo colInfo = fieldColumns.get( i );
-          colInfo.setComboValues( prevTransformFieldNames );
-        }
+    Runnable fieldLoader = () -> {
+      try {
+        prevFields = pipelineMeta.getPrevTransformFields( transformName );
+      } catch ( HopException e ) {
+        prevFields = new RowMeta();
+        String msg = BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.UnableToFindInput" );
+        logError( msg );
+      }
+      String[] prevTransformFieldNames = prevFields.getFieldNames();
+      Arrays.sort( prevTransformFieldNames );
+      // bPreviousFieldsLoaded = true;
+      for ( int i = 0; i < fieldColumns.size(); i++ ) {
+        ColumnInfo colInfo = fieldColumns.get( i );
+        colInfo.setComboValues( prevTransformFieldNames );
       }
     };
     shell.getDisplay().asyncExec( fieldLoader );

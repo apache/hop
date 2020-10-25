@@ -430,11 +430,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     props.setLook( shell );
     setShellImage( shell, input );
 
-    lsMod = new ModifyListener() {
-      public void modifyText( ModifyEvent e ) {
-        input.setChanged();
-      }
-    };
+    lsMod = e -> input.setChanged();
     changed = input.hasChanged();
 
     FormLayout formLayout = new FormLayout();
@@ -496,41 +492,13 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     setButtonPositions( new Button[] { wOk, wPreview, wCancel }, margin, wTabFolder );
 
     // Add listeners
-    lsOk = new Listener() {
-      public void handleEvent( Event e ) {
-        ok();
-      }
-    };
-    lsFirst = new Listener() {
-      public void handleEvent( Event e ) {
-        first( false );
-      }
-    };
-    lsFirstHeader = new Listener() {
-      public void handleEvent( Event e ) {
-        first( true );
-      }
-    };
-    lsGet = new Listener() {
-      public void handleEvent( Event e ) {
-        get();
-      }
-    };
-    lsPreview = new Listener() {
-      public void handleEvent( Event e ) {
-        preview();
-      }
-    };
-    lsMinWidth = new Listener() {
-      public void handleEvent( Event e ) {
-        setMinimalWidth();
-      }
-    };
-    lsCancel = new Listener() {
-      public void handleEvent( Event e ) {
-        cancel();
-      }
-    };
+    lsOk = e -> ok();
+    lsFirst = e -> first( false );
+    lsFirstHeader = e -> first( true );
+    lsGet = e -> get();
+    lsPreview = e -> preview();
+    lsMinWidth = e -> setMinimalWidth();
+    lsCancel = e -> cancel();
 
     wOk.addListener( SWT.Selection, lsOk );
     wFirst.addListener( SWT.Selection, lsFirst );
