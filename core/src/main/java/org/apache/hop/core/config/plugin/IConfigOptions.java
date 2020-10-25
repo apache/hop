@@ -1,4 +1,3 @@
-package org.apache.hop.core.config.plugin;
 /*! ******************************************************************************
  *
  * Hop : The Hop Orchestration Platform
@@ -20,6 +19,8 @@ package org.apache.hop.core.config.plugin;
  * limitations under the License.
  *
  ******************************************************************************/
+
+package org.apache.hop.core.config.plugin;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;

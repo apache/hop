@@ -1,6 +1,7 @@
 /*!
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright 2019 Hitachi Vantara.  All rights reserved.
  * http://www.project-hop.org
  *
  * Licensed under the Apache License, Version 2.0 (the "License");

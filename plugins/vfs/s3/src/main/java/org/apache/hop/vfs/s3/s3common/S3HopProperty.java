@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright 2020 Hitachi Vantara.  All rights reserved.
  * http://www.project-hop.org
  *
  *******************************************************************************
