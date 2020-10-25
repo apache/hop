@@ -22,32 +22,43 @@
 
 package org.apache.hop.ui.core.widget;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.metadata.util.HopMetadataUtil;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metastore.MetadataManager;
+import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
-
-import java.util.Collections;
-import java.util.List;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 /**
  * The goal of this composite is to add a line on a dialog which contains:
@@ -60,21 +71,16 @@ import java.util.List;
  */
 public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   private static final Class<?> PKG = MetaSelectionLine.class; // i18n
-  private final Button wManage;
-  private final Button wNew;
-  private final Button wEdit;
 
   private IHopMetadataProvider metadataProvider;
   private IVariables variables;
-  private ClassLoader classLoader;
   private MetadataManager<T> manager;
 
   private Class<T> managedClass;
-  private Composite parentComposite;
   private PropsUi props;
   private final Label wLabel;
   private final ComboVar wCombo;
-  private final boolean leftAlignedLabel;
+  private final ToolBar wToolBar;
 
   public MetaSelectionLine( IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText ) {
     this(variables, metadataProvider, managedClass, parentComposite, flags, labelText, toolTipText, false);
@@ -83,12 +89,10 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   public MetaSelectionLine( IVariables variables, IHopMetadataProvider metadataProvider, Class<T> managedClass, Composite parentComposite, int flags, String labelText, String toolTipText, boolean leftAlignedLabel ) {
     super( parentComposite, SWT.NONE );
     this.variables = variables;
-    this.classLoader = managedClass.getClassLoader();
+   // this.classLoader = managedClass.getClassLoader();
     this.metadataProvider = metadataProvider;
     this.managedClass = managedClass;
-    this.parentComposite = parentComposite;
-    this.props = PropsUi.getInstance();
-    this.leftAlignedLabel = leftAlignedLabel;
+    this.props = PropsUi.getInstance();  
 
     this.manager = new MetadataManager<>( variables, metadataProvider, managedClass );
 
@@ -104,7 +108,6 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     formLayout.marginRight = 0;
     formLayout.marginTop = 0;
     formLayout.marginBottom = 0;
-
     this.setLayout( formLayout );
 
     int labelFlags;
@@ -126,30 +129,31 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     wLabel.setToolTipText( toolTipText );
     wLabel.requestLayout(); // Avoid GTK error in log
 
-    wManage = new Button( this, SWT.PUSH );
-    wManage.setText( BaseMessages.getString( PKG, "System.Button.Manage" ) );
-    FormData fdManage = new FormData();
-    fdManage.right = new FormAttachment( 100, 0 );
-    fdManage.top = new FormAttachment( wLabel, 0, SWT.CENTER );
-    wManage.setLayoutData( fdManage );
-    wManage.addListener( SWT.Selection, e -> manageMetadata() );
-
-    wNew = new Button( this, SWT.PUSH );
-    wNew.setText( BaseMessages.getString( PKG, "System.Button.New" ) );
-    FormData fdNew = new FormData();
-    fdNew.right = new FormAttachment( wManage, -margin );
-    fdNew.top = new FormAttachment( wLabel, 0, SWT.CENTER );
-    wNew.setLayoutData( fdNew );
-    wNew.addListener( SWT.Selection, e -> newMetadata() );
-
-    wEdit = new Button( this, SWT.PUSH );
-    wEdit.setText( BaseMessages.getString( PKG, "System.Button.Edit" ) );
-    FormData fdEdit = new FormData();
-    fdEdit.right = new FormAttachment( wNew, -margin );
-    fdEdit.top = new FormAttachment( wLabel, 0, SWT.CENTER );
-    wEdit.setLayoutData( fdEdit );
-    wEdit.addListener( SWT.Selection, e -> editMetadata() );
-
+    HopMetadata hopMetadata = HopMetadataUtil.getHopMetadataAnnotation( managedClass );
+    Image image = SwtSvgImageUtil.getImage( getDisplay(), managedClass.getClassLoader(), hopMetadata.iconImage(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE );
+    
+    final Menu menu = new Menu (getShell(), SWT.POP_UP);
+    
+    MenuItem itemNew = new MenuItem (menu, SWT.PUSH);
+    itemNew.setText( BaseMessages.getString( PKG, "System.Button.New" ) );
+    itemNew.addListener( SWT.Selection, e -> newMetadata() );    
+    MenuItem itemEdit = new MenuItem (menu, SWT.PUSH);
+    itemEdit.setText( BaseMessages.getString( PKG, "System.Button.Edit" ) );
+    itemEdit.addListener( SWT.Selection, e -> editMetadata() );
+    MenuItem itemManage = new MenuItem (menu, SWT.PUSH);
+    itemManage.setText( BaseMessages.getString( PKG, "System.Button.Manage" ) );
+    itemManage.addListener( SWT.Selection, e -> manageMetadata() );
+        
+    wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL );    
+    FormData fdToolBar = new FormData();
+    fdToolBar.right = new FormAttachment( 100, 0 );
+    fdToolBar.top = new FormAttachment( 0, 0 );
+    wToolBar.setLayoutData( fdToolBar );
+    props.setLook( wToolBar );
+    
+    ToolItem item = new ToolItem(wToolBar, SWT.DROP_DOWN);
+    item.setImage(image);
+    
     int textFlags = SWT.SINGLE | SWT.LEFT | SWT.BORDER;
     if ( flags != SWT.NONE ) {
       textFlags = flags;
@@ -161,11 +165,28 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     } else {
       fdCombo.left = new FormAttachment( middle, 0 );
     }
-    fdCombo.right = new FormAttachment( wEdit, -margin );
+    fdCombo.right = new FormAttachment( wToolBar, -margin );
     fdCombo.top = new FormAttachment( wLabel, 0, SWT.CENTER );
     wCombo.setLayoutData( fdCombo );
-    wCombo.getCComboWidget().setToolTipText( toolTipText );
+    wCombo.setToolTipText( toolTipText );
 
+    props.setLook( wCombo );
+
+    
+    item.addListener(SWT.Selection,(event) -> {
+        if (event.detail == SWT.ARROW) {
+           Rectangle rect = item.getBounds ();
+           Point pt = new Point (rect.x, rect.y + rect.height);
+           pt = wToolBar.toDisplay (pt);
+           menu.setLocation (pt.x, pt.y);
+           menu.setVisible (true);
+        }
+        else {
+     	   if ( Utils.isEmpty(wCombo.getText()) ) this.newMetadata();
+     	   else this.editMetadata();
+        }
+     });
+    
     layout( true, true );
   }
 
@@ -327,11 +348,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   }
 
   public void setEnabled( boolean flag ) {
+	wLabel.setEnabled( flag );
     wCombo.setEnabled( flag );
-    wLabel.setEnabled( flag );
-    wManage.setEnabled( flag );
-    wNew.setEnabled( flag );
-    wEdit.setEnabled( flag );
+    wToolBar.setEnabled( flag );
   }
 
   public boolean setFocus() {
@@ -360,99 +379,12 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   }
 
   /**
-   * @param metadataProvider The metadataProvider to set
-   */
-  public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
-    this.metadataProvider = metadataProvider;
-  }
-
-  /**
    * Gets space
    *
    * @return value of space
    */
   public IVariables getSpace() {
     return variables;
-  }
-
-  /**
-   * @param variables The space to set
-   */
-  public void setSpace( IVariables variables ) {
-    this.variables = variables;
-  }
-
-  /**
-   * Gets classLoader
-   *
-   * @return value of classLoader
-   */
-  public ClassLoader getClassLoader() {
-    return classLoader;
-  }
-
-  /**
-   * @param classLoader The classLoader to set
-   */
-  public void setClassLoader( ClassLoader classLoader ) {
-    this.classLoader = classLoader;
-  }
-
-  /**
-   * Gets managedClass
-   *
-   * @return value of managedClass
-   */
-  public Class<T> getManagedClass() {
-    return managedClass;
-  }
-
-  /**
-   * @param managedClass The managedClass to set
-   */
-  public void setManagedClass( Class<T> managedClass ) {
-    this.managedClass = managedClass;
-  }
-
-  /**
-   * Gets parentComposite
-   *
-   * @return value of parentComposite
-   */
-  public Composite getParentComposite() {
-    return parentComposite;
-  }
-
-  /**
-   * @param parentComposite The parentComposite to set
-   */
-  public void setParentComposite( Composite parentComposite ) {
-    this.parentComposite = parentComposite;
-  }
-
-  /**
-   * Gets props
-   *
-   * @return value of props
-   */
-  public PropsUi getProps() {
-    return props;
-  }
-
-  /**
-   * @param props The props to set
-   */
-  public void setProps( PropsUi props ) {
-    this.props = props;
-  }
-
-  /**
-   * Gets leftAlignedLabel
-   *
-   * @return value of leftAlignedLabel
-   */
-  public boolean isLeftAlignedLabel() {
-    return leftAlignedLabel;
   }
 
 }

@@ -84,7 +84,7 @@ public class GetServerSequenceMeta extends BaseTransformMeta implements ITransfo
   @Override
   public void setDefault() {
     valuename = "id";
-    hopServerName = "hop server name";
+    hopServerName = "";
     sequenceName = "Server Sequence Name -- To be configured";
     increment = "10000";
   }
