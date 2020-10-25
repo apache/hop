@@ -19,19 +19,20 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.pipeline.store;
+package org.apache.hop.core.truststore;
 
-import java.io.InputStream;
-import java.security.KeyStore;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-import javax.net.ssl.X509TrustManager;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 /**
  * This is a wrapper around a standard X509TrustManager. It's just initialized in a specific way for
@@ -39,13 +40,14 @@ import org.apache.hop.i18n.BaseMessages;
  */
 public class HopTrustManager implements X509TrustManager {
 
-  private static final Class<?> PKG = HopTrustManager.class; // i18n purposes
+  private static final Class<?> classFromPackage = HopTrustManager.class; // i18n purposes
 
   /** The trust manager around which we wrap ourselves in this class. */
   private X509TrustManager tm;
 
   /**
-   * @param certStorePath
+   * @param keyStore
+   * @param certFilename
    * @param certPassword
    * @throws HopException
    */
@@ -61,14 +63,18 @@ public class HopTrustManager implements X509TrustManager {
         keyStore.load(inputStream, Const.NVL(certPassword, "").toCharArray());
       } catch (Exception e) {
         throw new HopException(
-            BaseMessages.getString(PKG, "HopTrustManager.Exception.CouldNotOpenCertStore"), e);
+            BaseMessages.getString(
+                classFromPackage, "HopTrustManager.Exception.CouldNotOpenCertStore"),
+            e);
       } finally {
         if (inputStream != null) {
           try {
             inputStream.close();
           } catch (Exception e) {
             throw new HopException(
-                BaseMessages.getString(PKG, "HopTrustManager.Exception.CouldNotOpenCertStore"), e);
+                BaseMessages.getString(
+                    classFromPackage, "HopTrustManager.Exception.CouldNotOpenCertStore"),
+                e);
           }
         }
       }
@@ -83,13 +89,14 @@ public class HopTrustManager implements X509TrustManager {
         tm = (X509TrustManager) tms[0];
       } catch (Exception e) {
         throw new HopException(
-            BaseMessages.getString(PKG, "HopTrustManager.Exception.CouldNotInitializeTrustManager"),
+            BaseMessages.getString(
+                classFromPackage, "HopTrustManager.Exception.CouldNotInitializeTrustManager"),
             e);
       }
     } catch (Exception e) {
       throw new HopException(
           BaseMessages.getString(
-              PKG, "HopTrustManager.Exception.CouldNotInitializeHopTrustManager"),
+              classFromPackage, "HopTrustManager.Exception.CouldNotInitializeHopTrustManager"),
           e);
     }
   }

@@ -28,7 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.store.CustomSocketFactory;
+import org.apache.hop.core.truststore.CustomSocketFactory;
 
 public class LdapSslProtocol extends LdapProtocol {
 

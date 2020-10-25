@@ -30,7 +30,7 @@ import javax.naming.ldap.StartTlsResponse;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.store.CustomSocketFactory;
+import org.apache.hop.core.truststore.CustomSocketFactory;
 
 public class LdapTlsProtocol extends LdapSslProtocol {
   private StartTlsResponse startTlsResponse;
