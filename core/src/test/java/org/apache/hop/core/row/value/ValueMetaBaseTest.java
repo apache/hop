@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Hop : The Hop Orchestration Platform
+ * Pentaho Data Integration
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -943,35 +943,35 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlCharToHopString() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlCharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.CHAR ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
-  public void testMetdataPreviewSqlVarcharToHopString() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlVarcharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.VARCHAR ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
-  public void testMetdataPreviewSqlNVarcharToHopString() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlNVarcharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.NVARCHAR ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
-  public void testMetdataPreviewSqlLongVarcharToHopString() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlLongVarcharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.LONGVARCHAR ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
-  public void testMetdataPreviewSqlClobToHopString() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlClobToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.CLOB ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
@@ -980,7 +980,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlNClobToHopString() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlNClobToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.NCLOB ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
@@ -989,7 +989,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlBigIntToHopInteger() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlBigIntToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.BIGINT ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
@@ -998,7 +998,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlIntegerToHopInteger() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlIntegerToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.INTEGER ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
@@ -1007,7 +1007,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlSmallIntToHopInteger() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlSmallIntToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.SMALLINT ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
@@ -1016,7 +1016,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlTinyIntToHopInteger() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlTinyIntToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.TINYINT ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
@@ -1025,7 +1025,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlDecimalToHopBigNumber() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlDecimalToPentahoBigNumber() throws SQLException, HopDatabaseException {
     doReturn( Types.DECIMAL ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
@@ -1046,7 +1046,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlDecimalToHopInteger() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlDecimalToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.DECIMAL ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( 2 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
@@ -1058,7 +1058,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlDoubleToHopNumber() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlDoubleToPentahoNumber() throws SQLException, HopDatabaseException {
     doReturn( Types.DOUBLE ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
@@ -1096,7 +1096,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlDoubleToHopBigNumber() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlDoubleToPentahoBigNumber() throws SQLException, HopDatabaseException {
     doReturn( Types.DOUBLE ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
@@ -1108,7 +1108,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlFloatToHopNumber() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlFloatToPentahoNumber() throws SQLException, HopDatabaseException {
     doReturn( Types.FLOAT ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
@@ -1120,7 +1120,7 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlRealToHopNumber() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlRealToPentahoNumber() throws SQLException, HopDatabaseException {
     doReturn( Types.REAL ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
@@ -1142,21 +1142,21 @@ public class ValueMetaBaseTest  {
   }
 
   @Test
-  public void testMetdataPreviewSqlTimeToHopDate() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlTimeToPentahoDate() throws SQLException, HopDatabaseException {
     doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isDate() );
   }
 
   @Test
-  public void testMetdataPreviewSqlBooleanToHopBoolean() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlBooleanToPentahoBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BOOLEAN ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
 
   @Test
-  public void testMetdataPreviewSqlBitToHopBoolean() throws SQLException, HopDatabaseException {
+  public void testMetdataPreviewSqlBitToPentahoBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BIT ).when( resultSet ).getInt( "DATA_TYPE" );
     IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );

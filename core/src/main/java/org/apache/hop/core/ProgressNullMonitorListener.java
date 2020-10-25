@@ -1,9 +1,9 @@
 //CHECKSTYLE:EmptyBlock:OFF
 /*! ******************************************************************************
  *
- * Hop : The Hop Orchestration Platform
+ * Pentaho Data Integration
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *

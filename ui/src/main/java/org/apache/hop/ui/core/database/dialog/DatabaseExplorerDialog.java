@@ -1,8 +1,8 @@
 /*******************************************************************************
  *
- * Hop : The Hop Orchestration Platform
+ * Pentaho Data Integration
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2012 by Pentaho : http://www.pentaho.com
  *
  *******************************************************************************
  *

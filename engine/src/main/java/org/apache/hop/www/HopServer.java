@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Hop : The Hop Orchestration Platform
+ * Pentaho Data Integration
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -118,13 +118,13 @@ public class HopServer {
   private static void parseAndRunCommand( String[] args ) throws Exception {
     options = new Options();
     options.addOption( OptionBuilder.withLongOpt( "stop" ).withDescription( BaseMessages.getString( PKG,
-      "HopServer.ParamDescription.stop" ) ).hasArg( false ).isRequired( false ).create( 's' ) );
+      "Carte.ParamDescription.stop" ) ).hasArg( false ).isRequired( false ).create( 's' ) );
     options.addOption( OptionBuilder.withLongOpt( "userName" ).withDescription( BaseMessages.getString( PKG,
-      "HopServer.ParamDescription.userName" ) ).hasArg( true ).isRequired( false ).create( 'u' ) );
+      "Carte.ParamDescription.userName" ) ).hasArg( true ).isRequired( false ).create( 'u' ) );
     options.addOption( OptionBuilder.withLongOpt( "password" ).withDescription( BaseMessages.getString( PKG,
-      "HopServer.ParamDescription.password" ) ).hasArg( true ).isRequired( false ).create( 'p' ) );
+      "Carte.ParamDescription.password" ) ).hasArg( true ).isRequired( false ).create( 'p' ) );
     options.addOption( OptionBuilder.withLongOpt( "help" ).withDescription( BaseMessages.getString( PKG,
-      "HopServer.ParamDescription.help" ) ).create( 'h' ) );
+      "Carte.ParamDescription.help" ) ).create( 'h' ) );
 
     CommandLineParser parser = new BasicParser();
     CommandLine cmd = parser.parse( options, args );
@@ -141,7 +141,7 @@ public class HopServer {
     HopServerConfig config = null;
     if ( arguments.length == 1 && !Utils.isEmpty( arguments[ 0 ] ) ) {
       if ( cmd.hasOption( 's' ) ) {
-        throw new HopServerCommandException( BaseMessages.getString( PKG, "HopServer.Error.illegalStop" ) );
+        throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.illegalStop" ) );
       }
       usingConfigFile = true;
       FileObject file = HopVfs.getFileObject( arguments[ 0 ] );
@@ -231,8 +231,8 @@ public class HopServer {
     HelpFormatter formatter = new HelpFormatter();
     String optionsHelp = getOptionsHelpForUsage();
     String header =
-      BaseMessages.getString( PKG, "HopServer.Usage.Text" ) + optionsHelp + "\nor\n" + BaseMessages.getString( PKG,
-        "HopServer.Usage.Text2" ) + "\n\n" + BaseMessages.getString( PKG, "HopServer.MainDescription" );
+      BaseMessages.getString( PKG, "Carte.Usage.Text" ) + optionsHelp + "\nor\n" + BaseMessages.getString( PKG,
+        "Carte.Usage.Text2" ) + "\n\n" + BaseMessages.getString( PKG, "Carte.MainDescription" );
 
     StringWriter stringWriter = new StringWriter();
     PrintWriter printWriter = new PrintWriter( stringWriter );
@@ -300,7 +300,7 @@ public class HopServer {
       WebResource resource = client.resource( contextURL + "/status/?xml=Y" );
       String response = resource.get( String.class );
       if ( response == null || !response.contains( "<serverstatus>" ) ) {
-        throw new HopServerCommandException( BaseMessages.getString( PKG, "HopServer.Error.NoServerFound", hostname, ""
+        throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.NoServerFound", hostname, ""
           + port ) );
       }
 
@@ -308,11 +308,11 @@ public class HopServer {
       resource = client.resource( contextURL + "/stopHopServer" );
       response = resource.get( String.class );
       if ( response == null || !response.contains( "Shutting Down" ) ) {
-        throw new HopServerCommandException( BaseMessages.getString( PKG, "HopServer.Error.NoShutdown", hostname, ""
+        throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.NoShutdown", hostname, ""
           + port ) );
       }
     } catch ( Exception e ) {
-      throw new HopServerCommandException( BaseMessages.getString( PKG, "HopServer.Error.NoServerFound", hostname, ""
+      throw new HopServerCommandException( BaseMessages.getString( PKG, "Carte.Error.NoServerFound", hostname, ""
         + port ), e );
     }
   }
