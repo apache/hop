@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *

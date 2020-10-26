@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -602,7 +602,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
       if ( meta.isAddToResultFiles() ) {
         // Add this to the result file names...
         ResultFile resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getPipelineMeta().getName(), getTransformName() );
-        resultFile.setComment( "This file was created with an Excel writer transform by Hop" );
+        resultFile.setComment( "This file was created with an Excel writer transform by Hop : The Hop Orchestration Platform" );
         addResultFile( resultFile );
       }
       boolean appendingToSheet = true;
