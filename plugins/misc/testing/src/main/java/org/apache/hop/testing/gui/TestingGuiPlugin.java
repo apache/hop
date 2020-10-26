@@ -816,7 +816,7 @@ public class TestingGuiPlugin {
     root = HopGuiPipelineGraph.GUI_PLUGIN_TOOLBAR_PARENT_ID,
     id = ID_TOOLBAR_UNIT_TESTS_LABEL,
     type = GuiToolbarElementType.LABEL,
-    label = "  Unit test :",
+    label = "Unit test:",
     toolTip = "Click here to edit the active unit test",
     separator = true
   )

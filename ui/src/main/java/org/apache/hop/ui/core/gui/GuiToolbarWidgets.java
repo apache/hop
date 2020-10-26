@@ -22,6 +22,11 @@
 
 package org.apache.hop.ui.core.gui;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
@@ -33,6 +38,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Combo;
@@ -40,14 +46,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This class contains the widgets for the GUI elements of a GUI Plugin
@@ -112,7 +112,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     // We want to add a separator if the annotation asked for it
     // We also want to add a separator in case the toolbar element type isn't a button
     //
-    if ( toolbarItem.isAddingSeparator() || toolbarItem.getType() != GuiToolbarElementType.TOOLBAR_BUTTON ) {
+    if ( toolbarItem.isAddingSeparator() || toolbarItem.getType() != GuiToolbarElementType.BUTTON ) {
       new ToolItem( toolBar, SWT.SEPARATOR );
     }
 
@@ -120,7 +120,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     //
     if ( toolbarItem.getType() != GuiToolbarElementType.LABEL && StringUtils.isNotEmpty( toolbarItem.getLabel() ) ) {
       ToolItem labelSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-      Label label = new Label( parent, SWT.BORDER | SWT.SINGLE | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
+      CLabel label = new CLabel( parent, SWT.CENTER | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
       label.setText( Const.NVL( toolbarItem.getLabel(), "" ) );
       label.setToolTipText( Const.NVL( toolbarItem.getToolTip(), "" ) );
       label.setBackground( toolBar.getBackground() );
@@ -134,7 +134,8 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
     switch ( toolbarItem.getType() ) {
       case LABEL:
         ToolItem labelSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
-        Label label = new Label( parent, SWT.SINGLE | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
+        
+        CLabel label = new CLabel( parent, SWT.CENTER | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
         label.setText( Const.NVL( toolbarItem.getLabel(), "" ) );
         label.setToolTipText( Const.NVL( toolbarItem.getToolTip(), "" ) );
         label.setBackground( toolBar.getBackground() );
@@ -147,7 +148,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         label.addListener( SWT.MouseUp, listener );
         break;
 
-      case TOOLBAR_BUTTON:
+      case BUTTON:
         ToolItem item = new ToolItem( toolBar, SWT.NONE );
         if ( StringUtils.isNotEmpty( toolbarItem.getImage() ) ) {
           item.setImage( GuiResource.getInstance().getImage( toolbarItem.getImage(), toolbarItem.getClassLoader(), ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE ) );
