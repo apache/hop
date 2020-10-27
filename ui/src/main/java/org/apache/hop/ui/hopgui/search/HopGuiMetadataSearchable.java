@@ -27,7 +27,7 @@ import org.apache.hop.core.search.ISearchableCallback;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
-import org.apache.hop.ui.core.metastore.MetadataManager;
+import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 
 public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {

@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.core.metastore;
+package org.apache.hop.ui.core.metadata;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
