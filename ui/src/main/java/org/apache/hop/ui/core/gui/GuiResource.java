@@ -785,6 +785,7 @@ public class GuiResource {
   }
 
   // load image from svg
+  //
   public Image loadAsResource( Display display, String location, int size ) {
     SwtUniversalImage img = SwtSvgImageUtil.getImageAsResource( display, location );
     Image image;
