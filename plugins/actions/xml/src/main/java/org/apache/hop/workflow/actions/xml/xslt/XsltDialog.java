@@ -651,8 +651,8 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wxslFilename.setText( Const.nullToEmpty( action.getxslFilename() ) );
     wOutputFilename.setText( Const.nullToEmpty( action.getoutputFilename() ) );
 
-    if ( action.iffileexists >= 0 ) {
-      wIfFileExists.select( action.iffileexists );
+    if ( action.ifFileExists >= 0 ) {
+      wIfFileExists.select( action.ifFileExists );
     } else {
       wIfFileExists.select( 2 ); // NOTHING
     }
@@ -701,7 +701,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     action.setxmlFilename( wxmlFilename.getText() );
     action.setxslFilename( wxslFilename.getText() );
     action.setoutputFilename( wOutputFilename.getText() );
-    action.iffileexists = wIfFileExists.getSelectionIndex();
+    action.ifFileExists = wIfFileExists.getSelectionIndex();
     action.setFilenamesFromPrevious( wPrevious.getSelection() );
     action.setAddFileToResult( wAddFileToResult.getSelection() );
     action.setXSLTFactory( wXSLTFactory.getText() );
