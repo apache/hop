@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -78,7 +79,7 @@ import com.enterprisedt.net.ftp.FTPTransferType;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpput.html"
 )
 public class ActionFtpPut extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionFtpPut.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpPut.class; // for i18n purposes, needed by Translator!!
 
   public static final int FTP_DEFAULT_PORT = 21;
 

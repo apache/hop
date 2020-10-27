@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.ITransform;
  */
 
 public class PrioritizeStreams extends BaseTransform implements ITransform {
-  private static Class<?> PKG = PrioritizeStreamsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PrioritizeStreamsMeta.class; // for i18n purposes, needed by Translator!!
 
   private PrioritizeStreamsMeta meta;
   private PrioritizeStreamsData data;

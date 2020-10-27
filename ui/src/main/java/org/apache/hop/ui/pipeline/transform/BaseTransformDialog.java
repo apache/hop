@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -93,7 +93,7 @@ public class BaseTransformDialog extends Dialog {
   /**
    * The package name used for internationalization
    */
-  private static Class<?> PKG = ITransform.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ITransform.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The logging object interface for this dialog.

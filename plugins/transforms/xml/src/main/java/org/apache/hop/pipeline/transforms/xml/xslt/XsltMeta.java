@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -61,7 +62,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xslt.html"
 )
 public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, XsltData> {
-  private static Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String[] outputProperties = new String[] { "method", "version", "encoding", "standalone",
     "indent", "omit-xml-declaration", "doctype-public", "doctype-system", "media-type" };

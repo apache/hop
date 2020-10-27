@@ -3,7 +3,7 @@
  *
  *  Hop : The Hop Orchestration Platform
  *
- *  http://www.project-hop.org
+ *  Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *  *******************************************************************************
  *  Licensed under the Apache License, Version 2.0 (the "License"); you may not use

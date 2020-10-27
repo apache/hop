@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -63,7 +63,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getvariable.html"
 )
 public class GetVariableMeta extends BaseTransformMeta implements ITransformMeta<GetVariable, GetVariableData> {
-  private static Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   @InjectionDeep
   private FieldDefinition[] fieldDefinitions;

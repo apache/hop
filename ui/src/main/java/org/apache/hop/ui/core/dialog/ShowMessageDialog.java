@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -57,7 +57,7 @@ import java.util.Map;
  * @since 19-06-2003
  */
 public class ShowMessageDialog extends Dialog {
-  private static Class<?> PKG = ShowMessageDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ShowMessageDialog.class; // for i18n purposes, needed by Translator!!
 
   private static final Map<Integer, String> buttonTextByFlagDefaults = new LinkedHashMap<>();
 

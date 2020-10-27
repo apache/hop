@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -37,7 +38,7 @@ import org.w3c.dom.Node;
  * @since 24-05-2007
  */
 public class LDIFInputField implements Cloneable {
-  private static Class<?> PKG = LDIFInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LDIFInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;

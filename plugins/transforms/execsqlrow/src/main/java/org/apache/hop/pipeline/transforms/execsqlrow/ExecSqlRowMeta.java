@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -57,7 +58,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "ExecSqlRowMeta.Injection.", groups = "OUTPUT_FIELDS" )
 public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<ExecSqlRow, ExecSqlRowData> {
-  private static Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private IHopMetadataProvider metadataProvider;
 

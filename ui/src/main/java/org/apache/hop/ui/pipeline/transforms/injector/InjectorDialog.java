@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -43,7 +44,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class InjectorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = InjectorMeta.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFields;
   private TableView wFields;

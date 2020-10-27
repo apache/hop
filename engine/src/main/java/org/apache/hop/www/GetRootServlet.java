@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -31,7 +31,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class GetRootServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static Class<?> PKG = GetRootServlet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetRootServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
   public static final String CONTEXT_PATH = "/";

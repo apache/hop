@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -71,7 +72,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/sql.html"
 )
 public class ActionSql extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionSql.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSql.class; // for i18n purposes, needed by Translator!!
 
   private String sql;
   private DatabaseMeta connection;

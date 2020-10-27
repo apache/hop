@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -39,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class MappingOutput
   extends BaseTransform<MappingOutputMeta, MappingOutputData>
   implements ITransform<MappingOutputMeta, MappingOutputData> {
-  private static Class<?> PKG = MappingOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MappingOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   public MappingOutput( TransformMeta transformMeta, MappingOutputMeta meta, MappingOutputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

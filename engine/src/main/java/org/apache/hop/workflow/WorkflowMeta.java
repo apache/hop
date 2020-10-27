@@ -3,6 +3,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -91,7 +92,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
   public static final String WORKFLOW_EXTENSION = ".hwf";
 
-  private static Class<?> PKG = WorkflowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WorkflowMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "workflow";
 

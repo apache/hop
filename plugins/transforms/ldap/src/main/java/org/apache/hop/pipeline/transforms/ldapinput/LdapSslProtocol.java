@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -21,13 +22,14 @@
  ******************************************************************************/
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+
 import java.util.Collection;
 import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.transforms.ldapinput.store.CustomSocketFactory;
+import org.apache.hop.core.truststore.CustomSocketFactory;
 
 public class LdapSslProtocol extends LdapProtocol {
 
@@ -60,7 +62,6 @@ public class LdapSslProtocol extends LdapProtocol {
   public static String getName() {
     return "LDAP SSL";
   }
-
   protected void configureSslEnvironment(Map<String, String> env) {
     env.put(javax.naming.Context.SECURITY_PROTOCOL, "ssl");
     env.put("java.naming.ldap.factory.socket", CustomSocketFactory.class.getCanonicalName());

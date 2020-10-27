@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -71,7 +71,7 @@ import java.io.UnsupportedEncodingException;
  * @since 20-feb-2007
  */
 public class OraBulkLoader extends BaseTransform implements ITransform {
-  private static Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int EX_SUCC = 0;
 

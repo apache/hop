@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -48,7 +49,7 @@ import java.nio.charset.Charset;
 
 
 public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static Class<?> PKG = GetWorkflowStatusServlet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetWorkflowStatusServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
 

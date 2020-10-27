@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -68,7 +68,7 @@ public class TableInputMeta
   extends BaseTransformMeta
   implements ITransformMeta<TableInput, TableInputData> {
 
-  private static Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private IHopMetadataProvider metadataProvider;
 

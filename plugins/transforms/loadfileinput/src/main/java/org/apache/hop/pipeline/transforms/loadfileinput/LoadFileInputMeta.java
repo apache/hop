@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -93,7 +93,7 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
   private static final String FILE = "file";
   private static final String FIELDS = "fields";
 
-  private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesDesc = new String[] { BaseMessages.getString( PKG, "System.Combo.No" ),
     BaseMessages.getString( PKG, "System.Combo.Yes" ) };

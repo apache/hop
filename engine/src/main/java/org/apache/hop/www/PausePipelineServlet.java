@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -38,7 +38,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 
 public class PausePipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
-  private static Class<?> PKG = PausePipelineServlet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PausePipelineServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = -2598233582435767691L;
   public static final String CONTEXT_PATH = "/hop/pausePipeline";

@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -52,7 +52,7 @@ import java.util.zip.GZIPOutputStream;
  */
 public class BlockingTransform extends BaseTransform<BlockingTransformMeta, BlockingTransformData> implements ITransform<BlockingTransformMeta, BlockingTransformData> {
 
-  private static Class<?> PKG = BlockingTransformMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BlockingTransformMeta.class; // for i18n purposes, needed by Translator!!
 
   private Object[] lastRow;
 

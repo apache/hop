@@ -1,7 +1,7 @@
 /*
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  * **************************************************************************
  *
@@ -56,7 +56,7 @@ import java.net.URL;
 
 public class ShowHelpDialog extends Dialog {
 
-  private static Class<?> PKG = HopGui.class;
+  private static final Class<?> PKG = HopGui.class;
 
   private static final String DOC_URL = Const.getDocUrl( BasePropertyHandler.getProperty( "documentationUrl" ) );
   private static final String PREFIX = "https://help";

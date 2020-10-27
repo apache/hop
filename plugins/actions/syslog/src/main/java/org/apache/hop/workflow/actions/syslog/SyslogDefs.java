@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -40,7 +41,7 @@ import java.util.TimeZone;
  */
 public class SyslogDefs {
 
-  private static Class<?> PKG = ActionSyslog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSyslog.class; // for i18n purposes, needed by Translator!!
 
   public static final String DEFAULT_PROTOCOL_UDP = "udp";
 

@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -60,7 +60,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/tableoutput.html"
 )
 public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
-  private static Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   private DatabaseMeta databaseMeta;
   private String schemaName;

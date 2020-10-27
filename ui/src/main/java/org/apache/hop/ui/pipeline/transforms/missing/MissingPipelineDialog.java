@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -47,7 +47,7 @@ import java.util.List;
 
 public class MissingPipelineDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = MissingPipelineDialog.class;
+  private static final Class<?> PKG = MissingPipelineDialog.class;
 
   private Shell shell;
   private Shell shellParent;

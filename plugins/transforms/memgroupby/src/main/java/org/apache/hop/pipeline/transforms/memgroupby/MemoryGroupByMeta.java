@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -66,7 +67,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/memgroupby.html"
 )
 public class MemoryGroupByMeta extends BaseTransformMeta implements ITransformMeta<MemoryGroupBy, MemoryGroupByData> {
-  private static Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_GROUP_NONE = 0;
 

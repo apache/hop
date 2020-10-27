@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -47,7 +48,7 @@ import java.net.URLConnection;
  */
 
 public class WebServiceAvailable extends BaseTransform<WebServiceAvailableMeta, WebServiceAvailableData> implements ITransform<WebServiceAvailableMeta, WebServiceAvailableData> {
-  private static Class<?> PKG = WebServiceAvailableMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WebServiceAvailableMeta.class; // for i18n purposes, needed by Translator!!
 
   public WebServiceAvailable( TransformMeta transformMeta, WebServiceAvailableMeta meta, WebServiceAvailableData data, int copyNr,
                               PipelineMeta pipelineMeta, Pipeline pipeline ) {

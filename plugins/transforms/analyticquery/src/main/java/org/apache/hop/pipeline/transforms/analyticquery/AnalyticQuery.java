@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -43,7 +43,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQueryData> implements ITransform<AnalyticQueryMeta, AnalyticQueryData> {
 
-  private static Class<?> PKG = AnalyticQuery.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = AnalyticQuery.class; // for i18n purposes, needed by Translator!!
 
   public AnalyticQuery( TransformMeta transformMeta, AnalyticQueryMeta meta, AnalyticQueryData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

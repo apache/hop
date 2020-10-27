@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -37,7 +37,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class HopCellValueException extends HopException {
 
-  private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 1L;
 

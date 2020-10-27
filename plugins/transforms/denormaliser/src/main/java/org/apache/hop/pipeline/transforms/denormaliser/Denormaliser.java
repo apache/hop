@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -60,7 +60,7 @@ import java.util.Set;
  */
 public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserData> implements ITransform<DenormaliserMeta, DenormaliserData> {
 
-  private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

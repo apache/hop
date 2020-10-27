@@ -74,7 +74,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class WorkflowRunConfigurationDialog extends Dialog implements IMetadataDialog {
 
-  private static Class<?> PKG = WorkflowRunConfigurationDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WorkflowRunConfigurationDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell parent;
   private Shell shell;

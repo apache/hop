@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -84,7 +84,7 @@ import java.util.Set;
  * Dialog class for the MySQL bulk loader transform.
  */
 public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = MySQLBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MySQLBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

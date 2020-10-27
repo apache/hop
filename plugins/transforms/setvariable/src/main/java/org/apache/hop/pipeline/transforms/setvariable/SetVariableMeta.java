@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -56,7 +57,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/setvariable.html"
 )
 public class SetVariableMeta extends BaseTransformMeta implements ITransformMeta<SetVariable,SetVariableData> {
-  private static Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int VARIABLE_TYPE_JVM = 0;
   public static final int VARIABLE_TYPE_PARENT_WORKFLOW = 1;

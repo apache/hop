@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -44,7 +44,7 @@ import java.util.Arrays;
  *
  * @since 1.0
  */
-public class HopJaroWinklerDistance {
+public class PentahoJaroWinklerDistance {
 
   /**
    * Represents a failed index search.

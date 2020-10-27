@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -47,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     implements ITransform<LdapInputMeta, LdapInputData> {
-  private static Class<?> PKG = LdapInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LdapInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public LdapInput(
       TransformMeta transformMeta,

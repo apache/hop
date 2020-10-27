@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -50,7 +51,7 @@ import java.util.List;
 
 public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMeta, SynchronizeAfterMergeData> implements ITransform<SynchronizeAfterMergeMeta, SynchronizeAfterMergeData> {
 
-  private static Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
 
   public SynchronizeAfterMerge( TransformMeta transformMeta, SynchronizeAfterMergeMeta meta, SynchronizeAfterMergeData data, int copyNr, PipelineMeta pipelineMeta,
                                 Pipeline pipeline ) {

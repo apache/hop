@@ -79,7 +79,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<WorkflowMeta> {
 
-  private static Class<?> PKG = Workflow.class; // for i18n purposes, needed by Translator
+  private static final Class<?> PKG = Workflow.class; // for i18n purposes, needed by Translator
 
   /**
    * Constant specifying a filename containing XML to inject into a ZIP file created during resource export.

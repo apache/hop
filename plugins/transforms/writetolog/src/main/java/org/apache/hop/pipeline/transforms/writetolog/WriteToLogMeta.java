@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -54,7 +55,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/writetolog.html"
 )
 public class WriteToLogMeta extends BaseTransformMeta implements ITransformMeta<WriteToLog, WriteToLogData> {
-  private static Class<?> PKG = WriteToLogMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WriteToLogMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * by which fields to display?

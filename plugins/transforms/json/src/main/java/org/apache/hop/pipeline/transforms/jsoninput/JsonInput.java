@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2016-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -62,7 +63,7 @@ import java.util.BitSet;
  * @since 20-06-2010
  */
 public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputData> implements ITransform<JsonInputMeta, JsonInputData> {
-  private static Class<?> PKG = JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   private RowOutputConverter rowOutputConverter;
 

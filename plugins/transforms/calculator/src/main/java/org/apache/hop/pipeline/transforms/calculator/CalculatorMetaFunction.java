@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -31,7 +31,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
 public class CalculatorMetaFunction implements Cloneable {
-  private static Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String XML_TAG = "calculation";
 

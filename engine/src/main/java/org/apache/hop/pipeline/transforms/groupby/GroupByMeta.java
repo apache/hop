@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -54,7 +54,7 @@ import java.util.List;
 
 public class GroupByMeta extends BaseTransformMeta implements ITransformMeta<GroupBy, GroupByData> {
 
-  private static Class<?> PKG = GroupByMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GroupByMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_GROUP_NONE = 0;
 

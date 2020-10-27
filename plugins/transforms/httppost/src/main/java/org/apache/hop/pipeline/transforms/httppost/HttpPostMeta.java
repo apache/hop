@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -62,7 +63,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/httppost.html"
 )
 public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<HttpPost, HttpPostData> {
-  private static Class<?> PKG = HttpPostMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HttpPostMeta.class; // for i18n purposes, needed by Translator!!
 
   // the timeout for waiting for data (milliseconds)
   public static final int DEFAULT_SOCKET_TIMEOUT = 10000;

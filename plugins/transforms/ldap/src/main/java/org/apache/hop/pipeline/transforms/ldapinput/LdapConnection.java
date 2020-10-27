@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -21,11 +22,9 @@
  ******************************************************************************/
 package org.apache.hop.pipeline.transforms.ldapinput;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
 import javax.naming.NameClassPair;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -751,8 +750,7 @@ public class LdapConnection {
             String attributeValue = attr.get().toString();
             int valueType;
 
-            // TODO: Find alternative for StingUtil or refactor with junit test cases.
-            if (StringUtil.IsDate(attributeValue)) {
+            if (StringUtil.IsDate(attributeValue, "yy-mm-dd")) {
               valueType = IValueMeta.TYPE_DATE;
             } else if (StringUtil.IsInteger(attributeValue)) {
               valueType = IValueMeta.TYPE_INTEGER;

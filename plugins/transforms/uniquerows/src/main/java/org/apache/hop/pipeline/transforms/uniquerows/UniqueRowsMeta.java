@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -56,7 +57,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/uniquerows.html"
 )
 public class UniqueRowsMeta extends BaseTransformMeta implements ITransformMeta<UniqueRows, UniqueRowsData> {
-  private static Class<?> PKG = UniqueRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UniqueRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Indicate that we want to count the number of doubles

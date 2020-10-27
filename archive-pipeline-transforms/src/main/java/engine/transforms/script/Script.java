@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -54,7 +54,7 @@ import javax.script.ScriptException;
  * @since 5-April-2003
  */
 public class Script extends BaseTransform implements ITransform {
-  private static Class<?> PKG = ScriptMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ScriptMeta.class; // for i18n purposes, needed by Translator!!
 
   private ScriptMeta meta;
 

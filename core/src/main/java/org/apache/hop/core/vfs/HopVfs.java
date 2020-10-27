@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -55,7 +56,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class HopVfs {
-  private static Class<?> PKG = HopVfs.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopVfs.class; // for i18n purposes, needed by Translator!!
 
   public static final String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
 

@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -52,7 +52,7 @@ import java.util.List;
  */
 
 public class SasInputMeta extends BaseTransformMeta implements ITransform {
-  private static Class<?> PKG = SasInputMeta.class; // for i18n purposes,
+  private static final Class<?> PKG = SasInputMeta.class; // for i18n purposes,
 
   public static final String XML_TAG_FIELD = "field";
 

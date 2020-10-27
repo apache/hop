@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -75,7 +76,7 @@ import java.util.regex.Pattern;
  */
 
 public class MailConnection {
-  private static Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Target mail server.

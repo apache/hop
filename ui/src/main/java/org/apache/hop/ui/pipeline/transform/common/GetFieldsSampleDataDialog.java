@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Shell;
  */
 public class GetFieldsSampleDataDialog extends EnterNumberDialog {
 
-  private static Class<?> PKG = GetFieldsSampleDataDialog.class;
+  private static final Class<?> PKG = GetFieldsSampleDataDialog.class;
 
   private static final int SAMPLE_SIZE = 100;
 

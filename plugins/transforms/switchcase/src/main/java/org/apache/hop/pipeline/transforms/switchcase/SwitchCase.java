@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -48,7 +49,7 @@ import java.util.Set;
  *
  */
 public class SwitchCase extends BaseTransform<SwitchCaseMeta, SwitchCaseData> implements ITransform<SwitchCaseMeta, SwitchCaseData> {
-  private static Class<?> PKG = SwitchCaseMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SwitchCaseMeta.class; // for i18n purposes, needed by Translator!!
 
   public SwitchCase( TransformMeta transformMeta, SwitchCaseMeta meta, SwitchCaseData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -58,7 +59,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/multimerge.html"
 )
 public class MultiMergeJoinMeta extends BaseTransformMeta implements ITransformMeta<MultiMergeJoin,MultiMergeJoinData> {
-  private static Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] joinTypes = { "INNER", "FULL OUTER" };
   public static final boolean[] optionals = { false, true };

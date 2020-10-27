@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -46,7 +46,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> implements ITransform<CubeOutputMeta, CubeOutputData> {
 
-  private static Class<?> PKG = CubeOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CubeOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   public CubeOutput( TransformMeta transformMeta, CubeOutputMeta meta, CubeOutputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

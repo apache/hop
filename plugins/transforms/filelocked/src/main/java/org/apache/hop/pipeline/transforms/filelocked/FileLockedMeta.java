@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -59,7 +59,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/filelocked.html"
 )
 public class FileLockedMeta extends BaseTransformMeta implements ITransformMeta<FileLocked, FileLockedData> {
-  private static Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean addresultfilenames;
 

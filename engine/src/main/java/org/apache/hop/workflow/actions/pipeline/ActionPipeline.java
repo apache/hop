@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -85,7 +86,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/pipeline.html"
 )
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
 

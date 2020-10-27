@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -71,7 +71,7 @@ import java.util.Set;
  */
 public class UnivariateStatsDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static Class<?> PKG = UnivariateStatsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UnivariateStatsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * various UI bits and pieces for the dialog

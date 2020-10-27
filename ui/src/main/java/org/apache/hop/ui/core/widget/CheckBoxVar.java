@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Composite;
  * @since 9-august-2006
  */
 public class CheckBoxVar extends Composite {
-  private static Class<?> PKG = CheckBoxVar.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CheckBoxVar.class; // for i18n purposes, needed by Translator!!
 
   private static final PropsUi props = PropsUi.getInstance();
 

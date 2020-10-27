@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -41,7 +41,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class SymmetricCrypto {
 
-  private static Class<?> PKG = SymmetricCrypto.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SymmetricCrypto.class; // for i18n purposes, needed by Translator!!
 
   private SymmetricCryptoMeta meta;
 

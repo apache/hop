@@ -64,7 +64,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PipelineUnitTestSetLocationDialog extends Dialog {
-  private static Class<?> PKG = PipelineUnitTestSetLocationDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = PipelineUnitTestSetLocationDialog.class; // for i18n purposes, needed by Translator2!!
 
   private PipelineUnitTestSetLocation location;
   private final List<DataSet> dataSets;

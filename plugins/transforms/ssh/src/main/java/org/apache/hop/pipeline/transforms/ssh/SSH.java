@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -45,7 +46,7 @@ import org.apache.hop.pipeline.transform.ITransform;
  */
 
 public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<SSHMeta, SSHData> {
-  private static Class<?> PKG = SSHMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SSHMeta.class; // for i18n purposes, needed by Translator!!
 
   private SSHMeta meta;
   private SSHData data;

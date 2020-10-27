@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -38,7 +38,7 @@ import java.util.Vector;
 import java.util.jar.JarFile;
 
 public class HopURLClassLoader extends URLClassLoader {
-  private static Class<?> PKG = HopURLClassLoader.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopURLClassLoader.class; // for i18n purposes, needed by Translator!!
 
   private String name;
 

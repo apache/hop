@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 public class TransformsMetrics extends BaseTransform implements ITransform {
-  private static Class<?> PKG = TransformsMetrics.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TransformsMetrics.class; // for i18n purposes, needed by Translator!!
 
   private TransformsMetricsMeta meta;
   private TransformsMetricsData data;

@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -54,7 +54,7 @@ import java.net.URI;
  */
 public class BrowserEnvironmentWarningDialog extends Dialog {
 
-  private static Class<?> PKG = BrowserEnvironmentWarningDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BrowserEnvironmentWarningDialog.class; // for i18n purposes, needed by Translator!!
   private Shell shell;
   private PropsUi props;
   private Label warningIcon;

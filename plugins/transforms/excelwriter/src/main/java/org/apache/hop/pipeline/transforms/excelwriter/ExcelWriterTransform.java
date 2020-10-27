@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -68,7 +68,7 @@ import java.io.IOException;
 
 public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta, ExcelWriterTransformData> implements ITransform<ExcelWriterTransformMeta, ExcelWriterTransformData> {
 
-  private static Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n
+  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n
 
   public static final String STREAMER_FORCE_RECALC_PROP_NAME = "HOP_EXCEL_WRITER_STREAMER_FORCE_RECALCULATE";
 
@@ -602,7 +602,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
       if ( meta.isAddToResultFiles() ) {
         // Add this to the result file names...
         ResultFile resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getPipelineMeta().getName(), getTransformName() );
-        resultFile.setComment( "This file was created with an Excel writer transform by Hop" );
+        resultFile.setComment( "This file was created with an Excel writer transform by Hop : The Hop Orchestration Platform" );
         addResultFile( resultFile );
       }
       boolean appendingToSheet = true;

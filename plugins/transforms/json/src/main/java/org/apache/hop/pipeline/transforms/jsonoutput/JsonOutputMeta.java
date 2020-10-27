@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -60,7 +61,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/jsonoutput.html"
   )
 public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta<JsonOutput, JsonOutputData> {
-  private static Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = JsonOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
   /**
    * Operations type

@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -31,7 +32,7 @@ import org.apache.hop.i18n.BaseMessages;
  * @since 24-03-2009
  */
 public class MailInputField implements Cloneable {
-  private static Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int COLUMN_MESSAGE_NR = 0;
   public static final int COLUMN_SUBJECT = 1;

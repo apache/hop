@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.TableItem;
  * @author Matt
  */
 public class EnterStringsDialog extends Dialog {
-  private static Class<?> PKG = EnterStringsDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = EnterStringsDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlFields;
   private TableView wFields;

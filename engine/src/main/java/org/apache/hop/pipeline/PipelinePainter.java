@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -62,7 +62,7 @@ import static org.apache.hop.core.gui.IGc.ELineStyle;
 
 public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta> {
 
-  private static Class<?> PKG = PipelinePainter.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PipelinePainter.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_PARTITIONING_CURRENT_TRANSFORM = "PartitioningCurrentTransform";
   public static final String STRING_TRANSFORM_ERROR_LOG = "TransformErrorLog";

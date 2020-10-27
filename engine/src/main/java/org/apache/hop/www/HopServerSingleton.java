@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HopServerSingleton {
 
-  private static Class<?> PKG = org.apache.hop.www.HopServer.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = org.apache.hop.www.HopServer.class; // for i18n purposes, needed by Translator!!
 
   private static HopServerConfig hopServerConfig;
   private static HopServerSingleton hopServerSingleton;

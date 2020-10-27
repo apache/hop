@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -65,7 +65,7 @@ import java.util.TimeZone;
  */
 public class ExcelInput extends BaseTransform<ExcelInputMeta, ExcelInputData> implements ITransform<ExcelInputMeta, ExcelInputData> {
 
-  private static Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public ExcelInput( TransformMeta transformMeta, ExcelInputMeta meta, ExcelInputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -70,7 +70,7 @@ import java.util.Locale;
  */
 public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData> implements ITransform<ExcelOutputMeta, ExcelOutputData> {
 
-  private static Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExcelOutputMeta.class; // for i18n purposes, needed by Translator!!
 
   public ExcelOutput( TransformMeta transformMeta, ExcelOutputMeta meta, ExcelOutputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
@@ -725,7 +725,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
       if ( meta.isAddToResultFiles() ) {
         // Add this to the result file names...
         ResultFile resultFile = new ResultFile( ResultFile.FILE_TYPE_GENERAL, data.file, getPipelineMeta().getName(), getTransformName() );
-        resultFile.setComment( "This file was created with an Excel output transform by Hop" );
+        resultFile.setComment( "This file was created with an Excel output transform by Hop : The Hop Orchestration Platform" );
         addResultFile( resultFile );
       }
     } catch ( Exception e ) {

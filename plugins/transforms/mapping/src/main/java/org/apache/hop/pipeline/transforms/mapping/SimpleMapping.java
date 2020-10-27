@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -49,7 +50,7 @@ import java.util.List;
  */
 public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappingData> implements ITransform<SimpleMappingMeta, SimpleMappingData> {
 
-  private static Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
 
   public SimpleMapping( TransformMeta transformMeta, SimpleMappingMeta meta, SimpleMappingData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

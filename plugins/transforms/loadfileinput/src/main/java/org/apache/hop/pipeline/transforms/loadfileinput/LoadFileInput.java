@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -54,7 +54,7 @@ import java.util.List;
  */
 public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInputData> implements ITransform<LoadFileInputMeta, LoadFileInputData> {
 
-  private static Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public LoadFileInput( TransformMeta transformMeta, LoadFileInputMeta meta, LoadFileInputData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

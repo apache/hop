@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -58,7 +59,7 @@ import java.util.Date;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/writetolog.html"
 )
 public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionWriteToLog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionWriteToLog.class; // for i18n purposes, needed by Translator!!
 
   /**
    * The log level with which the message should be logged.

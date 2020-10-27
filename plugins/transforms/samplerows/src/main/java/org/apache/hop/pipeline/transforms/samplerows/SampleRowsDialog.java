@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -47,7 +48,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SampleRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SampleRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SampleRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private LabelTextVar wLinesRange;
   private FormData fdLinesRange, fdLineNumberField;

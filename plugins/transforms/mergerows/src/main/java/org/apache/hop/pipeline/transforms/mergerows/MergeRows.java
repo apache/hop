@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -49,7 +50,7 @@ import java.util.List;
  * @since 19-dec-2005
  */
 public class MergeRows extends BaseTransform<MergeRowsMeta, MergeRowsData> implements ITransform<MergeRowsMeta, MergeRowsData> {
-  private static Class<?> PKG = MergeRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MergeRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String VALUE_IDENTICAL = "identical";
   private static final String VALUE_CHANGED = "changed";

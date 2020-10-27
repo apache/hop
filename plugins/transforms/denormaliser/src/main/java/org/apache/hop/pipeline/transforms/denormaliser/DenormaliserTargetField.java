@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -32,7 +32,7 @@ import org.apache.hop.i18n.BaseMessages;
  * @since 17-jan-2006
  */
 public class DenormaliserTargetField {
-  private static Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
 
   private String fieldName;
   private String keyValue;

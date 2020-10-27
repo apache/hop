@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -29,7 +30,7 @@ import org.safehaus.uuid.UUID;
 import org.safehaus.uuid.UUIDGenerator;
 
 public class UuidUtil {
-  private static Class<?> PKG = UuidUtil.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UuidUtil.class; // for i18n purposes, needed by Translator!!
 
   private static Log log = LogFactory.getLog( UuidUtil.class );
 

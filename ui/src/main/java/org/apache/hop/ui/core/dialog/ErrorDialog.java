@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -61,7 +61,7 @@ import java.util.function.Function;
  * @since 19-06-2003
  */
 public class ErrorDialog extends Dialog {
-  private static Class<?> PKG = ErrorDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ErrorDialog.class; // for i18n purposes, needed by Translator!!
 
   private Label wlDesc;
   private Text wDesc;

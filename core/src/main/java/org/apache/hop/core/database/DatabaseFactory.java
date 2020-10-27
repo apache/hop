@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -35,7 +35,7 @@ import org.apache.hop.i18n.BaseMessages;
  */
 public class DatabaseFactory implements IDatabaseFactory {
 
-  private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
   private boolean success;
 
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(

@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -63,7 +64,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @since 2007-07-05
  */
 public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> implements ITransform<MetaInjectMeta, MetaInjectData> {
-  private static Class<?> PKG = MetaInject.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = MetaInject.class; // for i18n purposes, needed by Translator2!!
 
   //Added for PDI-17530
   private static final Lock repoSaveLock = new ReentrantLock();

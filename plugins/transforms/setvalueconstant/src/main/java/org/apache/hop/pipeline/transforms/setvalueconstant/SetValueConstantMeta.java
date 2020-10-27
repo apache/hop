@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -56,7 +57,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/setvalueconstant.html"
 )
 public class SetValueConstantMeta extends BaseTransformMeta implements ITransformMeta<SetValueConstant, SetValueConstantData> {
-  private static Class<?> PKG = SetValueConstantMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetValueConstantMeta.class; // for i18n purposes, needed by Translator!!
 
   @InjectionDeep
   private List<Field> fields = new ArrayList<>();

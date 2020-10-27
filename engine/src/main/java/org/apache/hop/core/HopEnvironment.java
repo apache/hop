@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class HopEnvironment {
 
-  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Indicates whether the Hop environment has been initialized.

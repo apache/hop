@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -39,7 +39,7 @@ import java.util.Date;
  * @author matt
  */
 public class ResultFile implements Cloneable {
-  private static Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
 
   public static final int FILE_TYPE_GENERAL = 0;
   public static final int FILE_TYPE_LOG = 1;

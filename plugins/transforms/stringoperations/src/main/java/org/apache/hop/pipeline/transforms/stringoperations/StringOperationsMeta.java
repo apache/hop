@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -56,7 +57,7 @@ import java.util.List;
 )
 public class StringOperationsMeta extends BaseTransformMeta implements ITransformMeta<StringOperations,StringOperationsData> {
 
-  private static Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * which field in input stream to compare with?

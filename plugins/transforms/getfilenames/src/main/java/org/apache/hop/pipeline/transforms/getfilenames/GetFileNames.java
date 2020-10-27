@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -52,7 +52,7 @@ import java.util.List;
  */
 public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesData> implements ITransform<GetFileNamesMeta, GetFileNamesData> {
 
-  private static Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!
 
   public GetFileNames( TransformMeta transformMeta, GetFileNamesMeta meta, GetFileNamesData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

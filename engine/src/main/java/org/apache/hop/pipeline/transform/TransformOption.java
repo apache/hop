@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -32,7 +32,7 @@ import org.apache.hop.i18n.BaseMessages;
 import java.util.List;
 
 public class TransformOption {
-  private static Class<?> PKG = TransformOption.class;
+  private static final Class<?> PKG = TransformOption.class;
 
   private final String key;
   private final String text;

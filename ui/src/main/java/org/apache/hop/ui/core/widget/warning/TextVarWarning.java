@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -52,7 +52,7 @@ import java.util.List;
  * @since 15-MAR-2009
  */
 public class TextVarWarning extends Composite implements ISupportsWarning {
-  private static Class<?> PKG = CheckBoxVar.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CheckBoxVar.class; // for i18n purposes, needed by Translator!!
 
   private ControlDecoration warningControlDecoration;
 

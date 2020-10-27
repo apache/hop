@@ -3,7 +3,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -124,7 +124,7 @@ import java.util.List;
 import java.util.Vector;
 
 public class ScriptDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = ScriptMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ScriptMeta.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] YES_NO_COMBO = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

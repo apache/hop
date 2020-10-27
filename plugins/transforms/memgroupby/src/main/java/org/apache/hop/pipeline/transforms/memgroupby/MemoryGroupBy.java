@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -57,7 +58,7 @@ import java.util.TreeSet;
  * @since 2-jun-2003
  */
 public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData> implements ITransform<MemoryGroupByMeta, MemoryGroupByData> {
-  private static Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

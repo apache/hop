@@ -1,6 +1,6 @@
 /*! ******************************************************************************
 *
-* Pentaho Data Integration
+* Hop : The Hop Orchestration Platform
 *
 * Copyright (C) 2002-2013 by Pentaho : http://www.pentaho.com
 *
@@ -62,7 +62,7 @@ import java.util.List;
 
 public class StreamSchemaDialog extends BaseTransformDialog implements ITransformDialog {
 
-	private static Class<?> PKG = StreamSchemaMeta.class; // for i18n purposes
+	private static final Class<?> PKG = StreamSchemaMeta.class; // for i18n purposes
 
 	// this is the object the stores the transform's settings
 	// the dialog reads the settings from it when opening

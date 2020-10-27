@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -43,7 +43,7 @@ import java.lang.reflect.InvocationTargetException;
  * @since 07-apr-2005
  */
 public class GetDatabaseInfoProgressDialog {
-  private static Class<?> PKG = GetDatabaseInfoProgressDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetDatabaseInfoProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
   private DatabaseMeta dbInfo;

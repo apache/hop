@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -107,7 +108,7 @@ import java.util.Random;
   iconImage = "ui/images/server.svg"
 )
 public class HopServer extends ChangedFlag implements Cloneable, IVariables, IXml, IHopMetadata {
-  private static Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopServer.class; // for i18n purposes, needed by Translator!!
 
   public static final String STRING_HOP_SERVER = "Hop Server";
 

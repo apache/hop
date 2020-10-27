@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -57,7 +58,7 @@ import org.xml.sax.SAXException;
  * 
  */
 public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorData> implements ITransform<XsdValidatorMeta, XsdValidatorData> {
-  private static Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XsdValidatorMeta.class; // for i18n purposes, needed by Translator2!!
 
   static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
 

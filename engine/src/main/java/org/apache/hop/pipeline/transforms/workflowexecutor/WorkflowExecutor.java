@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -65,7 +66,7 @@ import java.util.ArrayList;
  */
 public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, WorkflowExecutorData> implements ITransform<WorkflowExecutorMeta, WorkflowExecutorData> {
 
-  private static Class<?> PKG = WorkflowExecutorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WorkflowExecutorMeta.class; // for i18n purposes, needed by Translator!!
 
   public WorkflowExecutor( TransformMeta transformMeta, WorkflowExecutorMeta meta, WorkflowExecutorData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {

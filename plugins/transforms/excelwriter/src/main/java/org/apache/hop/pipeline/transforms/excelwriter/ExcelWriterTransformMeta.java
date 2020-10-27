@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -60,7 +60,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/excelwriter.html"
 )
 public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
-  private static Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
   public static final String IF_FILE_EXISTS_CREATE_NEW = "new";

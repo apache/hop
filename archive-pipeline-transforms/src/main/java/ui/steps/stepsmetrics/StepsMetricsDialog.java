@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -63,7 +63,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TransformsMetricsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = TransformsMetrics.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TransformsMetrics.class; // for i18n purposes, needed by Translator!!
 
   private static final String[] YES_NO_COMBO = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

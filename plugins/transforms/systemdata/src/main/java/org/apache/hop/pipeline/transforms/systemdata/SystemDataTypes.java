@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -130,8 +131,7 @@ public enum SystemDataTypes {
 
   private String code;
   private String description;
-  private static Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!
-
+ 
   public String getCode() {
     return code;
   }
@@ -157,15 +157,8 @@ public enum SystemDataTypes {
     return TYPE_SYSTEM_INFO_NONE;
   }
 
-  private static String getDescription( String name ) {
-    if ( PKG == null ) {
-      PKG = SystemDataMeta.class;
-    }
-    return BaseMessages.getString( PKG, "SystemDataMeta.TypeDesc." + name );
-  }
-
   SystemDataTypes( String code, String descriptionName ) {
     this.code = code;
-    this.description = getDescription( descriptionName );
+    this.description = BaseMessages.getString( SystemDataTypes.class, "SystemDataMeta.TypeDesc." + descriptionName );
   }
 }

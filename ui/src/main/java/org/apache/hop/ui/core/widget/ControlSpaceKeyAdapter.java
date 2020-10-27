@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -51,7 +51,7 @@ import java.util.Comparator;
 
 public class ControlSpaceKeyAdapter extends KeyAdapter {
 
-  private static Class<?> PKG = ControlSpaceKeyAdapter.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ControlSpaceKeyAdapter.class; // for i18n purposes, needed by Translator!!
 
   private static final PropsUi props = PropsUi.getInstance();
 

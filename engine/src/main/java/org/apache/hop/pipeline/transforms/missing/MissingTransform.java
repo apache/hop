@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transforms.dummy.DummyData;
 import org.apache.hop.pipeline.transforms.dummy.DummyMeta;
 
 public class MissingTransform extends Dummy {
-  private static Class<?> PKG = MissingTransform.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MissingTransform.class; // for i18n purposes, needed by Translator!!
 
   public MissingTransform( TransformMeta transformMeta, DummyMeta meta, DummyData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {

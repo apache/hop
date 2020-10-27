@@ -54,7 +54,7 @@ import java.net.UnknownHostException;
  * @since 30-April-2012
  */
 public class SftpPut extends BaseTransform implements ITransform {
-  private static Class<?> PKG = SFTPPutMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SFTPPutMeta.class; // for i18n purposes, needed by Translator!!
 
   private SFTPPutMeta meta;
   private SFTPPutData data;

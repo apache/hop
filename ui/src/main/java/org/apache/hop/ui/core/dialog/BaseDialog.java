@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -65,7 +65,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public abstract class BaseDialog extends Dialog {
 
-  private static Class<?> PKG = BaseDialog.class;
+  private static final Class<?> PKG = BaseDialog.class;
 
   public static final int MARGIN_SIZE = 15;
   public static final int LABEL_SPACING = 5;

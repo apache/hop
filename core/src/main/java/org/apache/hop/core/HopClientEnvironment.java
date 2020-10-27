@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -58,7 +58,7 @@ public class HopClientEnvironment {
   /**
    * For i18n purposes, needed by Translator!!
    */
-  private static Class<?> PKG = Const.class;
+  private static final Class<?> PKG = Const.class;
 
   private static HopClientEnvironment instance = null;
 

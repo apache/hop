@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -45,7 +45,7 @@ import java.util.List;
 public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, I extends BaseFileInputFiles, F extends BaseFileField, Main extends ITransform, Data extends ITransformData>
   extends BaseTransformMeta implements
   ITransformMeta<Main, Data> {
-  private static Class<?> PKG = BaseFileInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BaseFileInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
 

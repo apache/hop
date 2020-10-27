@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -36,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UserDefinedJavaClassCodeSnippits {
-  private static Class<?> PKG = UserDefinedJavaClass.class;
+  private static final Class<?> PKG = UserDefinedJavaClass.class;
   private static UserDefinedJavaClassCodeSnippits snippitsHelper = null;
 
   private final List<Snippit> snippits = new ArrayList<Snippit>();

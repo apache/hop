@@ -54,7 +54,7 @@ import java.io.File;
 import java.util.Collections;
 
 public class ProjectDialog extends Dialog {
-  private static Class<?> PKG = ProjectDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = ProjectDialog.class; // for i18n purposes, needed by Translator2!!
 
   private final Project project;
   private final ProjectConfig projectConfig;

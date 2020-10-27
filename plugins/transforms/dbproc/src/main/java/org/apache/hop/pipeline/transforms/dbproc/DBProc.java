@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -51,7 +51,7 @@ import java.util.List;
  */
 public class DBProc extends BaseTransform<DBProcMeta, DBProcData> implements ITransform<DBProcMeta, DBProcData> {
 
-  private static Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator!!
 
   public DBProc( TransformMeta transformMeta, DBProcMeta meta, DBProcData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {

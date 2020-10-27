@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -53,7 +53,7 @@ import java.util.Date;
 
 public class GetPipelineStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
 
-  private static Class<?> PKG = GetPipelineStatusServlet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetPipelineStatusServlet.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 3634806745372015720L;
 

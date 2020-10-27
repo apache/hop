@@ -1,6 +1,6 @@
 /*! ******************************************************************************
 *
-* Pentaho Data Integration
+* Hop : The Hop Orchestration Platform
 *
 * Copyright (C) 2002-2013 by Pentaho : http://www.pentaho.com
 *
@@ -65,7 +65,7 @@ import java.util.List;
 )
 public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMeta<StreamSchema, StreamSchemaData> {
 
-	private static Class<?> PKG = org.apache.hop.pipeline.transforms.streamschemamerge.StreamSchemaMeta.class; // for i18n purposes
+	private static final Class<?> PKG = org.apache.hop.pipeline.transforms.streamschemamerge.StreamSchemaMeta.class; // for i18n purposes
 
     /**
      * Stores the names of the transforms to merge into the output

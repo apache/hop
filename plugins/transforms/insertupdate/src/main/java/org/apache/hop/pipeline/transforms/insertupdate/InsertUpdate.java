@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -49,7 +50,7 @@ import java.util.List;
  *
  */
 public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateData> implements ITransform<InsertUpdateMeta, InsertUpdateData> {
-  private static Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!
 
   public InsertUpdate( TransformMeta transformMeta, InsertUpdateMeta meta, InsertUpdateData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

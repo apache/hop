@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -69,7 +69,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class StyledTextComp extends Composite {
-  private static Class<?> PKG = StyledTextComp.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StyledTextComp.class; // for i18n purposes, needed by Translator!!
 
   // Modification for Undo/Redo on Styled Text
   private static final int MAX_STACK_SIZE = 25;

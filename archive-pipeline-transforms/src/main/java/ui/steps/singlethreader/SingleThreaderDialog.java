@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -71,7 +71,7 @@ import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import java.io.IOException;
 
 public class SingleThreaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private SingleThreaderMeta singleThreaderMeta;
 

@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -45,7 +46,7 @@ import org.productivity.java.syslog4j.impl.net.udp.UDPNetSyslogConfig;
  */
 
 public class SyslogMessage extends BaseTransform<SyslogMessageMeta, SyslogMessageData> implements ITransform<SyslogMessageMeta, SyslogMessageData> {
-  private static Class<?> PKG = SyslogMessageMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SyslogMessageMeta.class; // for i18n purposes, needed by Translator!!
 
   public SyslogMessage(TransformMeta transformMeta, SyslogMessageMeta meta, SyslogMessageData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

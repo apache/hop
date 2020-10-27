@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -42,7 +43,7 @@ public class FieldHelper {
   private int index = -1;
   private IValueMeta meta;
 
-  private static Class<?> PKG = FieldHelper.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FieldHelper.class; // for i18n purposes, needed by Translator!!
 
   public FieldHelper( IRowMeta rowMeta, String fieldName ) {
     this.meta = rowMeta.searchValueMeta( fieldName );

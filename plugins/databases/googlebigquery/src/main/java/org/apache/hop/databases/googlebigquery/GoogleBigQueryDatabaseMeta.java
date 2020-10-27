@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2018-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -38,7 +38,7 @@ import org.apache.hop.i18n.BaseMessages;
 @GuiPlugin( id = "GUI-GoogleBigQueryDatabaseMeta" )
 public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
-  private static Class<?> PKG = GoogleBigQueryDatabaseMeta.class; // for i18n purposes
+  private static final Class<?> PKG = GoogleBigQueryDatabaseMeta.class; // for i18n purposes
 
   @Override public int[] getAccessTypeList() {
     return new int[] { DatabaseMeta.TYPE_ACCESS_NATIVE };

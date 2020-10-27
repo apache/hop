@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableNamesData> implements ITransform<GetTableNamesMeta, GetTableNamesData> {
 
-  private static Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator!!
 
   public GetTableNames( TransformMeta transformMeta, GetTableNamesMeta meta, GetTableNamesData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

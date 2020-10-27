@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -58,7 +59,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/samplerows.html"
 )
 public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<SampleRows, SampleRowsData> {
-  private static Class<?> PKG = SampleRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SampleRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   private String linesrange;
   private String linenumfield;

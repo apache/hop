@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -59,7 +60,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/tableexists.html"
 )
 public class TableExistsMeta extends BaseTransformMeta implements ITransformMeta<TableExists, TableExistsData> {
-  private static Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableExistsMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * database connection

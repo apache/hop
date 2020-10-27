@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -80,7 +81,7 @@ import java.util.stream.Collectors;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/userdefinedjavaclass.html"
 )
 public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
-  private static Class<?> PKG = UserDefinedJavaClassMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // for i18n purposes, needed by Translator!!
 
   public enum ElementNames {
     classType, className, class_source, definitions, definition, fields, field, fieldName, fieldType,

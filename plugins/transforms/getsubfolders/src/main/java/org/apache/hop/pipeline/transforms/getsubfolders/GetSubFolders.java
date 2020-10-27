@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -50,7 +50,7 @@ import java.util.List;
  */
 public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFoldersData> implements ITransform<GetSubFoldersMeta, GetSubFoldersData> {
 
-  private static Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
 
   public GetSubFolders( TransformMeta transformMeta, GetSubFoldersMeta meta, GetSubFoldersData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -55,7 +56,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/setvaluefield.html"
 )
 public class SetValueFieldMeta extends BaseTransformMeta implements ITransformMeta<SetValueField, SetValueFieldData> {
-  private static Class<?> PKG = SetValueFieldMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetValueFieldMeta.class; // for i18n purposes, needed by Translator!!
 
   @Injection( name = "FIELD_NAME", group = "FIELDS" )
   private String[] fieldName;

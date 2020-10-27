@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -82,7 +83,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class WorkflowExecutorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = WorkflowExecutorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WorkflowExecutorMeta.class; // for i18n purposes, needed by Translator!!
 
   private static int FIELD_DESCRIPTION = 1;
   private static int FIELD_NAME = 2;
@@ -212,7 +213,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     props.setLook( wTransformName );
     wTransformName.addModifyListener( lsMod );
     fdTransformName = new FormData();
-    fdTransformName.right = new FormAttachment( 90, 0 );
+    fdTransformName.right = new FormAttachment( wicon, -5 );
     fdTransformName.left = new FormAttachment( 0, 0 );
     fdTransformName.top = new FormAttachment( wlTransformName, 5 );
     wTransformName.setLayoutData( fdTransformName );
@@ -240,11 +241,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdBrowse.right = new FormAttachment( 100, 0 );
     fdBrowse.top = new FormAttachment( wlPath, Const.isOSX() ? 0 : 5 );
     wbBrowse.setLayoutData( fdBrowse );
-    wbBrowse.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        selectWorkflowFile();
-      }
-    } );
+    wbBrowse.addListener( SWT.Selection, e -> selectWorkflowFile() );
 
     wPath = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
@@ -262,14 +259,16 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlRunConfiguration.top = new FormAttachment( wPath, PropsUi.getInstance().getMargin() );
     fdlRunConfiguration.right = new FormAttachment( 50, 0 );
     wlRunConfiguration.setLayoutData( fdlRunConfiguration );
+
     wRunConfiguration = new ComboVar( pipelineMeta, shell, SWT.LEFT | SWT.BORDER );
     props.setLook( wlRunConfiguration );
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment( 0, 0 );
-    fdRunConfiguration.top = new FormAttachment( wPath, PropsUi.getInstance().getMargin() );
+    fdRunConfiguration.top = new FormAttachment( wlRunConfiguration, PropsUi.getInstance().getMargin() );
     fdRunConfiguration.right = new FormAttachment( 100, 0 );
     wRunConfiguration.setLayoutData( fdRunConfiguration );
-
+    props.setLook( wRunConfiguration );
+    
     //
     // Add a tab folder for the parameters and various input and output
     // streams

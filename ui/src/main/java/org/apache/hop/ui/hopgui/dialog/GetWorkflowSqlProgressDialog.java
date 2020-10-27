@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -43,7 +44,7 @@ import java.util.List;
  * @since 29-mrt-2006
  */
 public class GetWorkflowSqlProgressDialog {
-  private static Class<?> PKG = GetWorkflowSqlProgressDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetWorkflowSqlProgressDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell shell;
   private WorkflowMeta workflowMeta;

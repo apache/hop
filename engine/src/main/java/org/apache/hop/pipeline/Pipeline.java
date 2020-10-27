@@ -3,7 +3,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -151,7 +151,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
   /**
    * The package name, used for internationalization of messages.
    */
-  private static Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
 
   protected String pluginId;
   protected PipelineRunConfiguration pipelineRunConfiguration;

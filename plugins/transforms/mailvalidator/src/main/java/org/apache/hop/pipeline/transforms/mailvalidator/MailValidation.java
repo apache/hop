@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -44,7 +45,7 @@ import java.util.Hashtable;
 
 public class MailValidation {
 
-  private static Class<?> PKG = MailValidatorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailValidatorMeta.class; // for i18n purposes, needed by Translator!!
 
   public static boolean isRegExValid( String emailAdress ) {
     return GenericValidator.isEmail( emailAdress );

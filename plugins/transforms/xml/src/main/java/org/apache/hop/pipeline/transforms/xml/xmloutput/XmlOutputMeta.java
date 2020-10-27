@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -69,7 +70,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmloutput.html" )
 @InjectionSupported( localizationPrefix = "XMLOutput.Injection.", groups = "OUTPUT_FIELDS" )
 public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<XmlOutput, XmlOutputData> {
-  private static Class<?> PKG = XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = XmlOutputMeta.class; // for i18n purposes, needed by Translator2!!
 
   /**
    * The base name of the output file

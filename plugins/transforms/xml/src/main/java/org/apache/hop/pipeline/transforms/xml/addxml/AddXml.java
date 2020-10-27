@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -61,7 +62,7 @@ import java.io.UnsupportedEncodingException;
  * @since 14-jan-2006
  */
 public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> implements ITransform<AddXmlMeta, AddXmlData> {
-  private static Class<?> PKG = AddXml.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = AddXml.class; // for i18n purposes, needed by Translator2!!
 
   private DOMImplementation domImplentation;
   private Transformer serializer;

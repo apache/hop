@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -58,7 +58,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/fileexists.html"
 )
 public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<FileExists, FileExistsData> {
-  private static Class<?> PKG = FileExistsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FileExistsMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean addresultfilenames;
 

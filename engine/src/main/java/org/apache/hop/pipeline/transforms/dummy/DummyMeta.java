@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 
-  private static Class<?> PKG = DummyMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DummyMeta.class; // for i18n purposes, needed by Translator!!
 
   public DummyMeta() {
     super(); // allocate BaseTransformMeta

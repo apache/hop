@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -85,7 +85,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  */
 public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
-  private static Class<?> PKG = DatabaseMetaDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseMetaDialog.class; // for i18n purposes, needed by Translator!!
 
   private Shell parent;
   private Shell shell;

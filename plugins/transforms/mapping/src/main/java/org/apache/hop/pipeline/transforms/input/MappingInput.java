@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -39,7 +40,7 @@ public class MappingInput
   extends BaseTransform<MappingInputMeta, MappingInputData>
   implements ITransform<MappingInputMeta, MappingInputData> {
 
-  private static Class<?> PKG = MappingInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MappingInputMeta.class; // for i18n purposes, needed by Translator!!
 
   public MappingInput( TransformMeta transformMeta, MappingInputMeta meta, MappingInputData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -44,7 +44,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 
 public class FileExists extends BaseTransform<FileExistsMeta, FileExistsData> implements ITransform<FileExistsMeta, FileExistsData> {
 
-  private static Class<?> PKG = FileExistsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FileExistsMeta.class; // for i18n purposes, needed by Translator!!
 
   public FileExists( TransformMeta transformMeta, FileExistsMeta meta, FileExistsData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

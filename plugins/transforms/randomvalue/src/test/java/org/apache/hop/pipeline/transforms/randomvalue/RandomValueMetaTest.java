@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -19,9 +20,12 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.randomvalue;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.LoadSaveTester;
@@ -33,35 +37,38 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValid
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class RandomValueMetaTest {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Test
   public void testTransformMeta() throws HopException {
-    List<String> attributes = Arrays.asList( "name", "type" );
+    List<String> attributes = Arrays.asList("name", "type");
 
     Map<String, String> getterMap = new HashMap<>();
-    getterMap.put( "name", "getFieldName" );
-    getterMap.put( "type", "getFieldType" );
+    getterMap.put("name", "getFieldName");
+    getterMap.put("type", "getFieldType");
 
     Map<String, String> setterMap = new HashMap<>();
-    setterMap.put( "name", "setFieldName" );
-    setterMap.put( "type", "setFieldType" );
+    setterMap.put("name", "setFieldName");
+    setterMap.put("type", "setFieldType");
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
-    fieldLoadSaveValidatorAttributeMap.put( "name",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 ) );
-    fieldLoadSaveValidatorAttributeMap.put( "type",
-      new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( RandomValueMeta.functions.length ), 25 ) );
+        new HashMap<String, IFieldLoadSaveValidator<?>>();
+    fieldLoadSaveValidatorAttributeMap.put(
+        "name", new ArrayLoadSaveValidator<String>(new StringLoadSaveValidator(), 25));
+    fieldLoadSaveValidatorAttributeMap.put(
+        "type",
+        new PrimitiveIntArrayLoadSaveValidator(
+            new IntLoadSaveValidator(RandomValueMeta.functions.length), 25));
 
-    LoadSaveTester loadSaveTester = new LoadSaveTester( RandomValueMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+    LoadSaveTester loadSaveTester =
+        new LoadSaveTester(
+            RandomValueMeta.class,
+            attributes,
+            getterMap,
+            setterMap,
+            fieldLoadSaveValidatorAttributeMap,
+            new HashMap<String, IFieldLoadSaveValidator<?>>());
     loadSaveTester.testSerialization();
   }
 }

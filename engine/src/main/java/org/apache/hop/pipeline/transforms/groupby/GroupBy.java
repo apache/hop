@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -70,7 +70,7 @@ import java.util.TreeSet;
  */
 public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements ITransform<GroupByMeta, GroupByData> {
 
-  private static Class<?> PKG = GroupByMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GroupByMeta.class; // for i18n purposes, needed by Translator!!
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

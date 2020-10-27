@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -61,7 +61,7 @@ import java.util.Map;
  */
 @InjectionSupported( localizationPrefix = "SystemDataMeta.Injection." )
 public class SystemDataMeta extends BaseTransformMeta implements ITransform {
-  private static Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!
 
   @Injection( name = "FIELD_NAME" )
   private String[] fieldName;

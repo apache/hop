@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -38,7 +38,7 @@ import org.eclipse.swt.widgets.Shell;
  * dialog is opened to load fields.
  */
 public class FieldSelectionDialog extends BaseDialog {
-  private static Class<?> PKG = FieldSelectionDialog.class;
+  private static final Class<?> PKG = FieldSelectionDialog.class;
 
   private int numFields;
   protected boolean reloadAllFields;

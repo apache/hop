@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class DataGrid extends BaseTransform<DataGridMeta, DataGridData> implements ITransform<DataGridMeta, DataGridData> {
 
-  private static Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DataGridMeta.class; // for i18n purposes, needed by Translator!!
 
   public DataGrid( TransformMeta transformMeta, DataGridMeta meta, DataGridData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {

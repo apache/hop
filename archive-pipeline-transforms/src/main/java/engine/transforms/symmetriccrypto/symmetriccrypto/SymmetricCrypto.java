@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -48,7 +48,7 @@ import org.apache.hop.pipeline.transforms.symmetriccrypto.symmetricalgorithm.Sym
  * @since 5-apr-2003
  */
 public class SymmetricCrypto extends BaseTransform implements ITransform {
-  private static Class<?> PKG = SymmetricCryptoPipelineMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SymmetricCryptoPipelineMeta.class; // for i18n purposes, needed by Translator!!
 
   private SymmetricCryptoMeta meta;
   private SymmetricCryptoData data;

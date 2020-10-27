@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -59,7 +59,7 @@ import java.util.Map;
 public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Data extends BaseFileInputTransformData> extends
   BaseTransform<Meta, Data> implements IBaseFileInputTransformControl {
 
-  private static Class<?> PKG = BaseFileInputTransform.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BaseFileInputTransform.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Create reader for specific file.

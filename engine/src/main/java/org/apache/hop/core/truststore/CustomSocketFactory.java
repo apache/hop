@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -19,25 +20,26 @@
  * limitations under the License.
  *
  ******************************************************************************/
-package org.apache.hop.pipeline.transforms.ldapinput.store;
+package org.apache.hop.core.truststore;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.i18n.BaseMessages;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.util.Utils;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.pipeline.transforms.ldapinput.LdapInputMeta;
 
 public class CustomSocketFactory extends SSLSocketFactory {
 
-  private static Class<?> PKG = LdapInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> classFromPackage =
+      CustomSocketFactory.class; // for i18n purposes, needed by Translator!!
 
   private static boolean configured;
 
@@ -90,7 +92,9 @@ public class CustomSocketFactory extends SSLSocketFactory {
       }
     } catch (Exception e) {
       throw new HopException(
-          BaseMessages.getString(PKG, "HopTrustManager.Exception.CouldNotCreateCertStore"), e);
+          BaseMessages.getString(
+              classFromPackage, "HopTrustManager.Exception.CouldNotCreateCertStore"),
+          e);
     }
 
     trustManagers = new HopTrustManager[] {new HopTrustManager(keyStore, path, password)};

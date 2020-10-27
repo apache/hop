@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -41,7 +42,7 @@ import org.apache.hop.pipeline.transform.ITransform;
  * @since 4-aug-2003
  */
 public class NullIf extends BaseTransform<NullIfMeta,NullIfData> implements ITransform<NullIfMeta,NullIfData> {
-  private static Class<?> PKG = NullIfMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = NullIfMeta.class; // for i18n purposes, needed by Translator!!
 
 
   public NullIf( TransformMeta transformMeta,NullIfMeta meta, NullIfData data, int copyNr, PipelineMeta pipelineMeta,

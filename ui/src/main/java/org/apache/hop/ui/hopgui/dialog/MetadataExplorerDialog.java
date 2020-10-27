@@ -67,7 +67,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class MetadataExplorerDialog {
-  private static Class<?> PKG = MetadataExplorerDialog.class; // for i18n purposes, needed by Translator
+  private static final Class<?> PKG = MetadataExplorerDialog.class; // for i18n purposes, needed by Translator
 
   private static final String METADATA_EXPLORER_DIALOG_TREE = "Metadata explorer dialog tree";
 

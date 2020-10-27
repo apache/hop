@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -63,7 +64,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/valuemapper.html"
 )
 public class ValueMapperMeta extends BaseTransformMeta implements ITransformMeta<ValueMapper, ValueMapperData> {
-  private static Class<?> PKG = ValueMapperMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ValueMapperMeta.class; // for i18n purposes, needed by Translator!!
 
   @Injection( name = "FIELDNAME" )
   private String fieldToUse;

@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -67,7 +68,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/synchronizeaftermerge.html"
 )
 public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITransformMeta<SynchronizeAfterMerge,SynchronizeAfterMergeData> {
-  private static Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * what's the lookup schema?

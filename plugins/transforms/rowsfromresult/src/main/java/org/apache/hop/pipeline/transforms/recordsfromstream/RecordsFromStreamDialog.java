@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -27,7 +28,7 @@ import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultDialog;
 import org.eclipse.swt.widgets.Shell;
 
 public class RecordsFromStreamDialog extends RowsFromResultDialog {
-  private static Class<?> PKG = RecordsFromStreamMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RecordsFromStreamMeta.class; // for i18n purposes, needed by Translator!!
 
   @Override public String getTitle() {
     return BaseMessages.getString( PKG, "RecordsFromStreamDialog.Shell.Title" );

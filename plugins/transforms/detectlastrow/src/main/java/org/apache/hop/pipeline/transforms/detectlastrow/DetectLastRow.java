@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -41,7 +41,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class DetectLastRow extends BaseTransform<DetectLastRowMeta, DetectLastRowData> implements ITransform<DetectLastRowMeta, DetectLastRowData> {
 
-  private static Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
 
   private Object[] previousRow;
 

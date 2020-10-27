@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SocketReaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = SocketReaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SocketReaderMeta.class; // for i18n purposes, needed by Translator!!
 
   private SocketReaderMeta input;
   private TextVar wHostname;

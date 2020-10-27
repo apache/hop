@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -41,7 +42,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 
 public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> implements ITransform<WriteToLogMeta, WriteToLogData> {
-  private static Class<?> PKG = WriteToLogMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WriteToLogMeta.class; // for i18n purposes, needed by Translator!!
 
   private int rowCounter = 0;
   private boolean rowCounterLimitHit = false;

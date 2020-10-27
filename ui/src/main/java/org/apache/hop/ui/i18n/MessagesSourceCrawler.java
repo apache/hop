@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -290,7 +290,7 @@ public class MessagesSourceCrawler {
 
       // Look for the value of the PKG value as a fully qualified class...
       //
-      // private static Class<?> PKG = Abort.class;
+      // private static final Class<?> PKG = Abort.class;
       //
       if ( classPackage != null ) {
         for (Pattern classPkgPattern : classPkgPatterns) {

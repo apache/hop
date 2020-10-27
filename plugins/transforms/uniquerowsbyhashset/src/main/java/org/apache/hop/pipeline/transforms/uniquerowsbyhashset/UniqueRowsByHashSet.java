@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -34,7 +35,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 
 public class UniqueRowsByHashSet extends BaseTransform<UniqueRowsByHashSetMeta, UniqueRowsByHashSetData> implements ITransform<UniqueRowsByHashSetMeta, UniqueRowsByHashSetData> {
-  private static Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!
 
   public UniqueRowsByHashSet( TransformMeta transformMeta, UniqueRowsByHashSetMeta meta, UniqueRowsByHashSetData data, int copyNr,
                               PipelineMeta pipelineMeta, Pipeline pipeline ) {

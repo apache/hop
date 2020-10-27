@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -77,7 +77,7 @@ public class CsvInputMeta
   implements ITransformMeta<CsvInput, CsvInputData>,
   IInputFileMeta<CsvInput, CsvInputData>, ICsvInputAwareMeta {
 
-  private static Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
 
   private String filename;
 

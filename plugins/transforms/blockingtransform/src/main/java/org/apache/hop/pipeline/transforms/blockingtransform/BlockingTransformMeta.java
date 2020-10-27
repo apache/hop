@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -55,7 +55,7 @@ import java.util.List;
 )
 public class BlockingTransformMeta extends BaseTransformMeta implements ITransformMeta<BlockingTransform, BlockingTransformData> {
 
-  private static Class<?> PKG = BlockingTransformMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BlockingTransformMeta.class; // for i18n purposes, needed by Translator!!
 
   /**
    * Directory to store the temp files

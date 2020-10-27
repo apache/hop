@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -42,7 +42,7 @@ import org.apache.hop.pipeline.transform.*;
 
 public class FileLocked extends BaseTransform<FileLockedMeta, FileLockedData> implements ITransform<FileLockedMeta, FileLockedData> {
 
-  private static Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FileLockedMeta.class; // for i18n purposes, needed by Translator!!
 
   public FileLocked( TransformMeta transformMeta, FileLockedMeta meta, FileLockedData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

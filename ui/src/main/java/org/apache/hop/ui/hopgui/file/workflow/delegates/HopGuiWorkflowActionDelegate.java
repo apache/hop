@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HopGuiWorkflowActionDelegate {
-  private static Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
 
 
   private HopGui hopGui;

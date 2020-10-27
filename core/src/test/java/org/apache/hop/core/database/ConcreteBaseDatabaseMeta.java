@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -28,8 +29,8 @@ import org.apache.hop.core.row.IValueMeta;
 public class ConcreteBaseDatabaseMeta extends BaseDatabaseMeta {
 
   @Override
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoInc,
-                                    boolean addFieldname, boolean addCr ) {
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc,
+                                    boolean add_fieldname, boolean add_cr ) {
     return null;
   }
 
@@ -44,13 +45,13 @@ public class ConcreteBaseDatabaseMeta extends BaseDatabaseMeta {
   }
 
   @Override
-  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                        String pk, boolean semicolon ) {
     return null;
   }
 
   @Override
-  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
                                           String pk, boolean semicolon ) {
     return null;
   }

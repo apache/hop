@@ -1,7 +1,8 @@
-/*******************************************************************************
+/*! ******************************************************************************
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -39,7 +40,7 @@ import java.util.regex.Pattern;
 
 
 public class RegexEval extends BaseTransform<RegexEvalMeta,RegexEvalData> implements ITransform<RegexEvalMeta,RegexEvalData> {
-  private static Class<?> PKG = RegexEvalMeta.class; // for i18n purposes,
+  private static final Class<?> PKG = RegexEvalMeta.class; // for i18n purposes,
   // needed by
   // Translator!!
 

@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -76,7 +77,7 @@ import java.util.List;
 import java.util.*;
 
 public class UserDefinedJavaClassDialog extends BaseTransformDialog implements ITransformDialog {
-  private static Class<?> PKG = UserDefinedJavaClassMeta.class;
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class;
 
   private ModifyListener lsMod;
   private SashForm wSash;

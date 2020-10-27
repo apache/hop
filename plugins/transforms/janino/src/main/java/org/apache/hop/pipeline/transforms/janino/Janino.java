@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -48,7 +49,7 @@ import java.util.List;
  * @since 8-sep-2005
  */
 public class Janino extends BaseTransform<JaninoMeta, JaninoData> implements ITransform<JaninoMeta, JaninoData> {
-  private static Class<?> PKG = JaninoMeta.class;
+  private static final Class<?> PKG = JaninoMeta.class;
 
   public Janino(TransformMeta transformMeta, JaninoMeta meta, JaninoData data, int copyNr, PipelineMeta pipelineMeta,
                 Pipeline pipeline ) {

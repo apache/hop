@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -51,7 +51,7 @@ import java.util.List;
 
 public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData> implements ITransform<ExecProcessMeta, ExecProcessData> {
 
-  private static Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
 
   public ExecProcess( TransformMeta transformMeta, ExecProcessMeta meta, ExecProcessData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {

@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -48,7 +48,7 @@ import java.util.Map;
  */
 public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData> implements ITransform<AddSequenceMeta, AddSequenceData> {
 
-  private static Class<?> PKG = AddSequence.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = AddSequence.class; // for i18n purposes, needed by Translator!!
 
   public AddSequence( TransformMeta transformMeta, AddSequenceMeta meta, AddSequenceData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {

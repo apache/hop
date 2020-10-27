@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -51,7 +52,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getserversequence.html"
 )
 public class GetServerSequenceMeta extends BaseTransformMeta implements ITransformMeta<GetServerSequence, GetServerSequenceData> {
-  private static Class<?> PKG = GetServerSequenceMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetServerSequenceMeta.class; // for i18n purposes, needed by Translator!!
 
   private String valuename;
   private String hopServerName;
@@ -84,7 +85,7 @@ public class GetServerSequenceMeta extends BaseTransformMeta implements ITransfo
   @Override
   public void setDefault() {
     valuename = "id";
-    hopServerName = "hop server name";
+    hopServerName = "";
     sequenceName = "Server Sequence Name -- To be configured";
     increment = "10000";
   }

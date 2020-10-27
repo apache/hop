@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -70,7 +71,7 @@ import org.eclipse.swt.widgets.Text;
  */
 
 public class HopServerDialog extends Dialog implements IMetadataDialog {
-  private static Class<?> PKG = HopServerDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopServerDialog.class; // for i18n purposes, needed by Translator!!
   private final IHopMetadataProvider metadataProvider;
 
   private HopServer hopServer;

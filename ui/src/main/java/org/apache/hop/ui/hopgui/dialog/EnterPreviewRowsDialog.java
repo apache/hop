@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
  * @author Matt
  */
 public class EnterPreviewRowsDialog extends Dialog {
-  private static Class<?> PKG = EnterPreviewRowsDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = EnterPreviewRowsDialog.class; // for i18n purposes, needed by Translator!!
 
   private String transformName;
 

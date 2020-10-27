@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -45,7 +46,7 @@ import java.util.List;
  * @since 2-jun-2003
  */
 public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData> implements ITransform<SortedMergeMeta, SortedMergeData> {
-  private static Class<?> PKG = SortedMergeMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SortedMergeMeta.class; // for i18n purposes, needed by Translator!!
 
   public SortedMerge(TransformMeta transformMeta, SortedMergeMeta meta, SortedMergeData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

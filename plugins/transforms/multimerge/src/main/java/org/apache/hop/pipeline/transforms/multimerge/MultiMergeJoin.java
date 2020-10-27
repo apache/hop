@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -55,7 +56,7 @@ import java.util.PriorityQueue;
  */
 
 public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJoinData> implements ITransform<MultiMergeJoinMeta,MultiMergeJoinData> {
-  private static Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
 
   public MultiMergeJoin(TransformMeta transformMeta, MultiMergeJoinMeta meta, MultiMergeJoinData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {

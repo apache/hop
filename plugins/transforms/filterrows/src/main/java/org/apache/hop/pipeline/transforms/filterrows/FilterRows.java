@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class FilterRows extends BaseTransform<FilterRowsMeta, FilterRowsData> implements ITransform<FilterRowsMeta, FilterRowsData> {
 
-  private static Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
 
   public FilterRows( TransformMeta transformMeta, FilterRowsMeta meta, FilterRowsData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

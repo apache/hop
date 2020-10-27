@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -59,7 +59,7 @@ import java.util.List;
 )
 public class ConstantMeta extends BaseTransformMeta implements ITransformMeta<Constant, ConstantData> {
 
-  private static Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
 
   private String[] currency;
   private String[] decimal;

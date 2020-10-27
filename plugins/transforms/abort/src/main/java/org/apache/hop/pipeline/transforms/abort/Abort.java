@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -40,7 +40,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class Abort extends BaseTransform<AbortMeta, AbortData> implements ITransform<AbortMeta, AbortData> {
 
-  private static Class<?> PKG = Abort.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Abort.class; // for i18n purposes, needed by Translator!!
 
   private int nrInputRows;
   private int nrThresholdRows;

@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -76,7 +77,7 @@ import java.util.ArrayList;
  * @since 02-jul-2003
  */
 public class WorkflowDialog extends Dialog {
-  private static Class<?> PKG = WorkflowDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WorkflowDialog.class; // for i18n purposes, needed by Translator!!
   private static Class<?> PKGBASE = WorkflowMeta.class;
 
   private CTabFolder wTabFolder;

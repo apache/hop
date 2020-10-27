@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -64,7 +65,7 @@ import com.enterprisedt.net.ftp.FTPFileParser;
 
 public class MVSFileParser extends FTPFileParser {
 
-  private static Class<?> PKG = MVSFileParser.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MVSFileParser.class; // for i18n purposes, needed by Translator!!
 
   /*** DO NOT TRANSLATE THESE ***/
   private static final String PARSER_KEY = "MVS";

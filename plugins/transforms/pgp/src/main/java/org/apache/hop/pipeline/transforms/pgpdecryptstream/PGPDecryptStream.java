@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -36,7 +37,7 @@ import org.apache.hop.workflow.actions.pgpencryptfiles.GPG;
 
 
 public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDecryptStreamData> implements ITransform<PGPDecryptStreamMeta, PGPDecryptStreamData> {
-  private static Class<?> PKG = PGPDecryptStreamMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PGPDecryptStreamMeta.class; // for i18n purposes, needed by Translator!!
 
   public PGPDecryptStream( TransformMeta transformMeta,PGPDecryptStreamMeta meta, PGPDecryptStreamData data, int copyNr,
                            PipelineMeta pipelineMeta, Pipeline pipeline ) {

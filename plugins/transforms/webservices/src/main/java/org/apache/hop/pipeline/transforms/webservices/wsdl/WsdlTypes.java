@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -44,7 +45,7 @@ import java.util.Map;
  */
 public final class WsdlTypes implements Serializable {
 
-  private static Class<?> PKG = WsdlTypes.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WsdlTypes.class; // for i18n purposes, needed by Translator!!
 
   private static final long serialVersionUID = 1L;
   private final String _targetNamespace;

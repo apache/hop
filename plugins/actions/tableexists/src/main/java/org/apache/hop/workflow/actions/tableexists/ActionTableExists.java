@@ -2,6 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
+ * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
  * http://www.project-hop.org
  *
  *******************************************************************************
@@ -63,7 +64,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/tableexists.html"
 )
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
-  private static Class<?> PKG = ActionTableExists.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionTableExists.class; // for i18n purposes, needed by Translator!!
 
   private String tableName;
   private String schemaname;

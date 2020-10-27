@@ -2,7 +2,7 @@
  *
  * Hop : The Hop Orchestration Platform
  *
- * http://www.project-hop.org
+ * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
  *
  *******************************************************************************
  *
@@ -43,7 +43,7 @@ import java.util.Map;
  * @since 7-apr-2005
  */
 public class DatabaseMetaInformation {
-  private static Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
 
   private String[] tables;
   private Map<String, Collection<String>> tableMap;
