@@ -41,6 +41,6 @@ public class HopGuiSearchLocation implements ISearchablesLocation {
   }
 
   @Override public Iterator<ISearchable> getSearchables() throws HopException {
-    return new HopGUiSearchLocationIterator( hopGui, this );
+    return new HopGuiSearchLocationIterator( hopGui, this );
   }
 }
