@@ -31,8 +31,6 @@ github:
     issues: false
     # Enable projects for project management boards
     projects: false
-  protected_branches:
-    - master
 
   enabled_merge_buttons:
     squash: true
