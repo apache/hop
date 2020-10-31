@@ -24,6 +24,8 @@ github:
     - java
     - streaming
     - pipelines
+  protected_branches:
+    master
 
   enabled_merge_buttons:
     squash: true
@@ -32,6 +34,4 @@ github:
 
 notifications:
   commits: commits@hop.apache.org
-  issues: github@hop.apache.org
-  pullrequests: github@hop.apache.org
   jira_options: link label worklog
