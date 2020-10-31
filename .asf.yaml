@@ -20,7 +20,7 @@ github:
   description: "Hop Orchestration Platform"
   homepage: https://hop.apache.org/
   labels:
-    - Hop
+    - hop
     - java
     - streaming
     - pipelines
