@@ -33,15 +33,15 @@ import org.apache.hop.pipeline.transform.ITransformData;
  * @since 24-jan-2005
  */
 public class RandomValueData extends BaseTransformData implements ITransformData {
-  public boolean readsRows;
+  boolean readsRows;
 
-  public IRowMeta outputRowMeta;
+  IRowMeta outputRowMeta;
 
-  public Uuid4Util u4;
+  Uuid4Util u4;
   /* Generating a random Message Authentication Code (MAC MD5) */
-  public KeyGenerator keyGenHmacMD5;
+  KeyGenerator keyGenHmacMD5;
   /* Generating a random Message Authentication Code (MAC SHA1) */
-  public KeyGenerator keyGenHmacSHA1;
+  KeyGenerator keyGenHmacSHA1;
 
   public final Random randomgen = new Random();
 
