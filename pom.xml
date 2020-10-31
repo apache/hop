@@ -1177,17 +1177,6 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        <repository>
-            <id>pentaho</id>
-            <url>https://nexus.pentaho.org/content/groups/omni/</url>
-            <name>Pentaho</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
     </repositories>
     <pluginRepositories>
         <pluginRepository>
