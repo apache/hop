@@ -40,7 +40,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class RandomValueDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> classFromResourcesPackage =
+  private static final Class<?> PKG =
       RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
   private TableView wFields;
@@ -68,14 +68,14 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout(formLayout);
-    shell.setText(BaseMessages.getString(classFromResourcesPackage, "RandomValueDialog.DialogTitle"));
+    shell.setText(BaseMessages.getString(PKG, "RandomValueDialog.DialogTitle"));
 
     int middle = props.getMiddlePct();
     int margin = props.getMargin();
 
     // TransformName line
     Label wlTransformName = new Label(shell, SWT.RIGHT);
-    wlTransformName.setText(BaseMessages.getString(classFromResourcesPackage, "System.Label.TransformName"));
+    wlTransformName.setText(BaseMessages.getString(PKG, "System.Label.TransformName"));
     props.setLook(wlTransformName);
     FormData fdlTransformName = new FormData();
     fdlTransformName.left = new FormAttachment(0, 0);
@@ -94,16 +94,16 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
 
     // Some buttons
     wOk = new Button(shell, SWT.PUSH);
-    wOk.setText(BaseMessages.getString(classFromResourcesPackage, "System.Button.OK"));
+    wOk.setText(BaseMessages.getString(PKG, "System.Button.OK"));
     wOk.addListener(SWT.Selection, e -> ok());
     wCancel = new Button(shell, SWT.PUSH);
-    wCancel.setText(BaseMessages.getString(classFromResourcesPackage, "System.Button.Cancel"));
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
     wCancel.addListener(SWT.Selection, e -> cancel());
 
     setButtonPositions(new Button[] {wOk, wCancel}, margin, null);
 
     Label wlFields = new Label(shell, SWT.NONE);
-    wlFields.setText(BaseMessages.getString(classFromResourcesPackage, "RandomValueDialog.Fields.Label"));
+    wlFields.setText(BaseMessages.getString(PKG, "RandomValueDialog.Fields.Label"));
     props.setLook(wlFields);
     FormData fdlFields = new FormData();
     fdlFields.left = new FormAttachment(0, 0);
@@ -121,12 +121,12 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     ColumnInfo[] colinf = new ColumnInfo[FieldsCols];
     colinf[0] =
         new ColumnInfo(
-            BaseMessages.getString(classFromResourcesPackage, "RandomValueDialog.NameColumn.Column"),
+            BaseMessages.getString(PKG, "RandomValueDialog.NameColumn.Column"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
     colinf[1] =
         new ColumnInfo(
-            BaseMessages.getString(classFromResourcesPackage, "RandomValueDialog.TypeColumn.Column"),
+            BaseMessages.getString(PKG, "RandomValueDialog.TypeColumn.Column"),
             ColumnInfo.COLUMN_TYPE_TEXT,
             false);
     colinf[1].setSelectionAdapter(
@@ -137,8 +137,8 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
                 new EnterSelectionDialog(
                     shell,
                     functionDesc,
-                    BaseMessages.getString(classFromResourcesPackage, "RandomValueDialog.SelectInfoType.DialogTitle"),
-                    BaseMessages.getString(classFromResourcesPackage, "RandomValueDialog.SelectInfoType.DialogMessage"));
+                    BaseMessages.getString(PKG, "RandomValueDialog.SelectInfoType.DialogTitle"),
+                    BaseMessages.getString(PKG, "RandomValueDialog.SelectInfoType.DialogMessage"));
             String string = esd.open();
             if (string != null) {
               TableView tv = (TableView) e.widget;

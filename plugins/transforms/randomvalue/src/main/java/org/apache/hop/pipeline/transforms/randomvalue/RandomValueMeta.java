@@ -57,7 +57,7 @@ import org.w3c.dom.Node;
 public class RandomValueMeta extends BaseTransformMeta
     implements ITransformMeta<RandomValue, RandomValueData> {
 
-  private static final Class<?> classFromResourcesPackage =
+  private static final Class<?> PKG =
       RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
   public static final int TYPE_RANDOM_NONE = 0;
@@ -82,31 +82,31 @@ public class RandomValueMeta extends BaseTransformMeta
         new RandomValueMetaFunction(
             TYPE_RANDOM_NUMBER,
             "random number",
-            BaseMessages.getString(classFromResourcesPackage, "RandomValueMeta.TypeDesc.RandomNumber")),
+            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomNumber")),
         new RandomValueMetaFunction(
             TYPE_RANDOM_INTEGER,
             "random integer",
-            BaseMessages.getString(classFromResourcesPackage, "RandomValueMeta.TypeDesc.RandomInteger")),
+            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomInteger")),
         new RandomValueMetaFunction(
             TYPE_RANDOM_STRING,
             "random string",
-            BaseMessages.getString(classFromResourcesPackage, "RandomValueMeta.TypeDesc.RandomString")),
+            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomString")),
         new RandomValueMetaFunction(
             TYPE_RANDOM_UUID,
             "random uuid",
-            BaseMessages.getString(classFromResourcesPackage, "RandomValueMeta.TypeDesc.RandomUUID")),
+            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomUUID")),
         new RandomValueMetaFunction(
             TYPE_RANDOM_UUID4,
             "random uuid4",
-            BaseMessages.getString(classFromResourcesPackage, "RandomValueMeta.TypeDesc.RandomUUID4")),
+            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomUUID4")),
         new RandomValueMetaFunction(
             TYPE_RANDOM_MAC_HMACMD5,
             "random machmacmd5",
-            BaseMessages.getString(classFromResourcesPackage, "RandomValueMeta.TypeDesc.RandomHMACMD5")),
+            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACMD5")),
         new RandomValueMetaFunction(
             TYPE_RANDOM_MAC_HMACSHA1,
             "random machmacsha1",
-            BaseMessages.getString(classFromResourcesPackage, "RandomValueMeta.TypeDesc.RandomHMACSHA1"))
+            BaseMessages.getString(PKG, "RandomValueMeta.TypeDesc.RandomHMACSHA1"))
       };
 
   private String[] fieldName;
@@ -296,7 +296,7 @@ public class RandomValueMeta extends BaseTransformMeta
             new CheckResult(
                 ICheckResult.TYPE_RESULT_ERROR,
                 BaseMessages.getString(
-                    classFromResourcesPackage, "RandomValueMeta.CheckResult.FieldHasNoType", fieldName[i]),
+                    PKG, "RandomValueMeta.CheckResult.FieldHasNoType", fieldName[i]),
                 transformMeta);
         remarks.add(cr);
       }
@@ -305,7 +305,7 @@ public class RandomValueMeta extends BaseTransformMeta
       CheckResult cr =
           new CheckResult(
               ICheckResult.TYPE_RESULT_OK,
-              BaseMessages.getString(classFromResourcesPackage, "RandomValueMeta.CheckResult.AllTypesSpecified"),
+              BaseMessages.getString(PKG, "RandomValueMeta.CheckResult.AllTypesSpecified"),
               transformMeta);
       remarks.add(cr);
     }

@@ -47,7 +47,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     implements ITransform<RandomValueMeta, RandomValueData> {
 
-  private static final Class<?> classFromResourcesPackage =
+  private static final Class<?> PKG =
       RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
   public RandomValue(
@@ -73,11 +73,11 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           row[index] = data.randomgen.nextDouble();
           break;
         case RandomValueMeta.TYPE_RANDOM_INTEGER:
-          row[index] =
-              data.randomgen.nextInt(); 
+          row[index] = data.randomgen.nextInt();
           break;
         case RandomValueMeta.TYPE_RANDOM_STRING:
-          //TODO Math.abs(Long.MIN_VALUE) == Long.MIN_VALUE --> Don't expect Math.abs always return positive.
+          // TODO Math.abs(Long.MIN_VALUE) == Long.MIN_VALUE --> Don't expect Math.abs always return
+          // positive.
           row[index] = Long.toString(Math.abs(data.randomgen.nextLong()), 32);
           break;
         case RandomValueMeta.TYPE_RANDOM_UUID:
@@ -92,7 +92,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           } catch (Exception e) {
             logError(
                 BaseMessages.getString(
-                    classFromResourcesPackage, "RandomValue.Log.ErrorGettingRandomHMACMD5", e.getMessage()));
+                    PKG, "RandomValue.Log.ErrorGettingRandomHMACMD5", e.getMessage()));
             setErrors(1);
             stopAll();
           }
@@ -103,7 +103,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           } catch (Exception e) {
             logError(
                 BaseMessages.getString(
-                    classFromResourcesPackage, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage()));
+                    PKG, "RandomValue.Log.ErrorGettingRandomHMACSHA1", e.getMessage()));
             setErrors(1);
             stopAll();
           }
@@ -131,7 +131,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     }
 
     if (sk == null) {
-      throw new HopException(BaseMessages.getString(classFromResourcesPackage, "RandomValue.Log.SecretKeyNull"));
+      throw new HopException(BaseMessages.getString(PKG, "RandomValue.Log.SecretKeyNull"));
     }
 
     // Create a MAC object using HMAC and initialize with key
@@ -187,7 +187,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     if (log.isRowLevel()) {
       logRowlevel(
           BaseMessages.getString(
-              classFromResourcesPackage, "RandomValue.Log.ValueReturned", data.outputRowMeta.getString(row)));
+              PKG, "RandomValue.Log.ValueReturned", data.outputRowMeta.getString(row)));
     }
 
     putRow(data.outputRowMeta, row);
@@ -205,7 +205,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
 
     if (super.init()) {
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-     
+
       if (previous != null && !previous.isEmpty()) {
         data.readsRows = true;
       }
@@ -234,7 +234,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
         } catch (NoSuchAlgorithmException s) {
           logError(
               BaseMessages.getString(
-                  classFromResourcesPackage, "RandomValue.Log.HmacMD5AlgorithmException", s.getMessage()));
+                  PKG, "RandomValue.Log.HmacMD5AlgorithmException", s.getMessage()));
           return false;
         }
       }
@@ -244,7 +244,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
         } catch (NoSuchAlgorithmException s) {
           logError(
               BaseMessages.getString(
-                  classFromResourcesPackage, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
+                  PKG, "RandomValue.Log.HmacSHA1AlgorithmException", s.getMessage()));
           return false;
         }
       }
