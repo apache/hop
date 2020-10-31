@@ -20,11 +20,10 @@ github:
   description: "Hop Orchestration Platform"
   homepage: https://hop.apache.org/
   labels:
+    - Hop
     - java
     - streaming
     - pipelines
-  protected_branches:
-    master
 
   enabled_merge_buttons:
     squash: true
