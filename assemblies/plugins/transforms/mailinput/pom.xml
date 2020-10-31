@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.40-SNAPSHOT</version>
+        <version>0.50-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-mailinput</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Mail Input</name>
@@ -20,14 +20,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.hop</groupId>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-mailinput</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.hop</groupId>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-getpop</artifactId>
-            <version>0.40-SNAPSHOT</version>
+            <version>0.50-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

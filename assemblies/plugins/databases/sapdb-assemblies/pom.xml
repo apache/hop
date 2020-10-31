@@ -6,13 +6,13 @@
 
     <parent>
         <artifactId>hop-assemblies-plugins-databases</artifactId>
-        <groupId>org.hop</groupId>
-        <version>0.40-SNAPSHOT</version>
+        <groupId>org.apache.hop</groupId>
+        <version>0.50-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-databases-sapdb</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Databases SAP MaxDB</name>
@@ -20,7 +20,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.hop</groupId>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-databases-sapdb</artifactId>
             <version>${project.version}</version>
         </dependency>

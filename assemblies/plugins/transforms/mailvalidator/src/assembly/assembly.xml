@@ -32,7 +32,7 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>javax.mail:mail:jar</include>
+                <include>javax.mail:mail-api:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

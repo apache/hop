@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.40-SNAPSHOT</version>
+        <version>0.50-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-syslog</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Syslog Message</name>
@@ -20,19 +20,19 @@
 
     <properties>
         <syslog4j.version>0.9.46</syslog4j.version>
-        <snmp4j.version>1.9.3d</snmp4j.version>
+        <snmp4j.version>1.9.1f</snmp4j.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>org.hop</groupId>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-syslog</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.hop</groupId>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-syslog</artifactId>
-            <version>0.40-SNAPSHOT</version>
+            <version>0.50-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.syslog4j</groupId>

@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-vfs</artifactId>
-        <version>0.40-SNAPSHOT</version>
+        <version>0.50-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-assemblies-plugins-vfs-googledrive</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Hop Assemblies Plugins VFS Google Drive</name>
     <description></description>

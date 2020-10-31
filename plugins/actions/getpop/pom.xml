@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-actions</artifactId>
-        <version>0.40-SNAPSHOT</version>
+        <version>0.50-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-action-getpop</artifactId>
@@ -16,7 +16,7 @@
     <name>Hop Plugins Actions Get mails (POP3/IMAP)</name>
 
     <properties>
-      <mail.version>1.3.2</mail.version>
+      <mail.version>1.4.7</mail.version>
     </properties>
   
     <dependencies>

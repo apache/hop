@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-transforms</artifactId>
-        <version>0.40-SNAPSHOT</version>
+        <version>0.50-SNAPSHOT</version>
     </parent>
 
 
     <artifactId>hop-assemblies-plugins-transforms-webservices</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Assemblies Plugins Transforms Web Services</name>
@@ -20,14 +20,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.hop</groupId>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-transform-webservices</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.wsdl</groupId>
-            <artifactId>javax.wsdl</artifactId>
-            <version>1.4.0.v200706111329</version>
+            <artifactId>com.springsource.javax.wsdl</artifactId>
+            <version>1.6.1</version>
         </dependency>
         <dependency>
             <groupId>wsdl4j</groupId>
