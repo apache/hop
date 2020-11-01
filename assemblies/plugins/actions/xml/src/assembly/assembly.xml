@@ -30,14 +30,14 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-action-xml:jar</include>
+                <include>org.apache.hop:hop-action-xml:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.hop:hop-transforms-xml:jar</include>
+                <include>org.apache.hop:hop-transforms-xml:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

@@ -25,7 +25,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-fieldsplitter:jar</include>
+                <include>org.apache.hop:hop-transform-fieldsplitter:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

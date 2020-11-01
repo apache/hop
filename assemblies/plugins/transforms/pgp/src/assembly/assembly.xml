@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-pgp:jar</include>
+                <include>org.apache.hop:hop-transform-pgp:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

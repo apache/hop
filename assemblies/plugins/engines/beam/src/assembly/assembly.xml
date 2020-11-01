@@ -30,7 +30,7 @@
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
       <includes>
-        <include>org.hop:hop-plugins-engines-beam:jar</include>
+        <include>org.apache.hop:hop-plugins-engines-beam:jar</include>
       </includes>
     </dependencySet>
     <dependencySet>

@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-userdefinedjavaclass:jar</include>
+                <include>org.apache.hop:hop-transform-userdefinedjavaclass:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

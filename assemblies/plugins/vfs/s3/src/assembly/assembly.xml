@@ -26,7 +26,7 @@
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
       <includes>
-        <include>org.hop:hop-plugins-vfs-s3:jar</include>
+        <include>org.apache.hop:hop-plugins-vfs-s3:jar</include>
       </includes>
     </dependencySet>
     <dependencySet>

@@ -25,7 +25,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-mail:jar</include>
+                <include>org.apache.hop:hop-transform-mail:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
