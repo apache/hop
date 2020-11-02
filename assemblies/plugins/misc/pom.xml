@@ -21,6 +21,7 @@
         <module>projects</module>
         <module>testing</module>
         <module>git</module>
+        <module>audit</module>
     </modules>
 
 </project>

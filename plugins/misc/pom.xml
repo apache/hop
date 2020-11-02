@@ -3,9 +3,7 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.hop</groupId>
   <artifactId>hop-plugins-misc</artifactId>
-  <version>0.40-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>Hop Plugins Miscellaneous</name>
@@ -15,6 +13,85 @@
     <artifactId>hop-plugins</artifactId>
     <version>0.40-SNAPSHOT</version>
   </parent>
+  
+  <dependencies>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${mockito-all.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-ui-swt</artifactId>
+      <version>0.40-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-engine</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hop</groupId>
+      <artifactId>hop-core</artifactId>
+      <version>${project.version}</version>
+      <type>test-jar</type>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+
+      <!-- test dependencies -->
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <classifier>test</classifier>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-engine</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.hop</groupId>
+        <artifactId>hop-core</artifactId>
+        <version>${project.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+  
 
   <profiles>
   <profile>
@@ -29,6 +106,7 @@
       <module>debug</module>
       <module>testing</module>
       <module>git</module>
+      <module>audit</module>
     </modules>
   </profile>
   </profiles>

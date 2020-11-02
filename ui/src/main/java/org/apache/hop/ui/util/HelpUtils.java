@@ -20,6 +20,9 @@
 
 package org.apache.hop.ui.util;
 
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
@@ -99,6 +102,11 @@ public class HelpUtils {
   public static ShowHelpDialog openHelpDialog( Shell shell, IPlugin plugin ) {
     if ( shell == null || plugin == null ) {
       return null;
+    }
+    try {
+      ExtensionPointHandler.callExtensionPoint(LogChannel.GENERAL, "AuditPluginHelpOpened", plugin);
+    } catch (HopException e) {
+      e.printStackTrace();
     }
     if ( isPluginDocumented( plugin ) ) {
       return openHelpDialog( shell, getHelpDialogTitle( plugin ), plugin.getDocumentationUrl(),
