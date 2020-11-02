@@ -20,15 +20,15 @@
   </repositories>
 
   <artifactId>hop-plugins-engines-beam</artifactId>
-  <version>0.40-SNAPSHOT</version>
+  <version>0.50-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Plugins Engines Beam</name>
 
   <parent>
-    <groupId>org.hop</groupId>
+    <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-engines</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -40,9 +40,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
@@ -51,38 +51,38 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-sort</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-uniquerows</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-rowgenerator</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
 
     <!-- The Apache Beam dependencies -->
@@ -257,39 +257,39 @@
     </dependency>
 
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-memgroupby</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-constant</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-filterrows</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-streamlookup</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-mergejoin</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-rowgenerator</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-transform-switchcase</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
     </dependency>
 
   </dependencies>

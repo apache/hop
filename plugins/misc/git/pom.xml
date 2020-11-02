@@ -4,15 +4,15 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>hop-plugins-misc-git</artifactId>
-  <version>0.40-SNAPSHOT</version>
+  <version>0.50-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Plugins Miscellaneous Git</name>
 
   <parent>
-    <groupId>org.hop</groupId>
+    <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-misc</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -21,7 +21,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>
       <scope>compile</scope>
     </dependency>
@@ -32,20 +32,20 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
@@ -93,7 +93,7 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-core</artifactId>
         <version>${project.version}</version>
         <scope>provided</scope>
@@ -108,7 +108,7 @@
       </dependency>
 
       <dependency>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-core</artifactId>
         <version>${project.version}</version>
         <classifier>test</classifier>
@@ -116,7 +116,7 @@
       </dependency>
 
       <dependency>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-engine</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
@@ -124,7 +124,7 @@
       </dependency>
 
       <dependency>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-core</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>

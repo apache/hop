@@ -25,7 +25,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-exceloutput:jar</include>
+                <include>org.apache.hop:hop-transform-exceloutput:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

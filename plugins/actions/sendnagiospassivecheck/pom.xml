@@ -6,9 +6,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.hop</groupId>
+		<groupId>org.apache.hop</groupId>
 		<artifactId>hop-plugins-actions</artifactId>
-		<version>0.40-SNAPSHOT</version>
+		<version>0.50-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>hop-action-sendnagiospassivecheck</artifactId>
@@ -17,7 +17,7 @@
 	<name>Hop Plugins Actions Send Nagios passive check</name>
 
 	<properties>
-		<jsendnsca.version>2.0.1</jsendnsca.version>
+		<jsendnsca.version>2.1</jsendnsca.version>
 	</properties>
 	
 	<dependencies>

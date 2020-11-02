@@ -30,7 +30,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-databases-mssqlnative:jar</include>
+                <include>org.apache.hop:hop-databases-mssqlnative:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

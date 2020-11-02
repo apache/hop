@@ -9,9 +9,9 @@
   <name>Hop Assemblies Client</name>
 
   <parent>
-    <groupId>org.hop</groupId>
+    <groupId>org.apache.hop</groupId>
     <artifactId>hop-assemblies</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -24,7 +24,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-libs</artifactId>
       <version>${project.version}</version>
       <type>zip</type>
@@ -36,7 +36,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-plugins-dist</artifactId>
       <version>${project.version}</version>
       <type>zip</type>
@@ -48,7 +48,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-static</artifactId>
       <version>${project.version}</version>
       <type>zip</type>
@@ -60,7 +60,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-assemblies-demo</artifactId>
       <version>${project.version}</version>
       <type>zip</type>

@@ -4,17 +4,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.hop</groupId>
+  <groupId>org.apache.hop</groupId>
   <artifactId>hop-core</artifactId>
-  <version>0.40-SNAPSHOT</version>
+  <version>0.50-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Core</name>
 
   <parent>
-    <groupId>org.hop</groupId>
+    <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -33,7 +33,7 @@
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <commons-pool.version>1.5.7</commons-pool.version>
     <jetty-util.version>9.4.22.v20191022</jetty-util.version>
-    <jug-lgpl.version>2.0.0</jug-lgpl.version>
+    <jug.version>2.0.0</jug.version>
     <jsch.version>0.1.54</jsch.version>
     <jzlib.version>1.0.7</jzlib.version>
     <ognl.version>2.6.9</ognl.version>
@@ -377,9 +377,10 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>jug-lgpl</groupId>
-      <artifactId>jug-lgpl</artifactId>
-      <version>${jug-lgpl.version}</version>
+      <groupId>org.safehaus.jug</groupId>
+      <artifactId>jug</artifactId>
+      <classifier>asl</classifier>
+      <version>${jug.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>

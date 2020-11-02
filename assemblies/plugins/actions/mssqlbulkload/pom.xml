@@ -5,20 +5,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-assemblies-plugins-actions</artifactId>
-        <version>0.40-SNAPSHOT</version>
+        <version>0.50-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-assemblies-plugins-action-mssqlbulkload</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Hop Assemblies Plugins Actions Bulk load into MSSQL</name>
     <description></description>
 
     <dependencies>
         <dependency>
-            <groupId>org.hop</groupId>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-mssqlbulkload</artifactId>
             <version>${project.version}</version>
         </dependency>

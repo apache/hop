@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>0.40-SNAPSHOT</version>
+        <version>0.50-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transform-webservices</artifactId>
@@ -18,8 +18,8 @@
     <dependencies>
         <dependency>
             <groupId>javax.wsdl</groupId>
-            <artifactId>javax.wsdl</artifactId>
-            <version>1.4.0.v200706111329</version>
+            <artifactId>com.springsource.javax.wsdl</artifactId>
+            <version>1.6.1</version>
         </dependency>
         <dependency>
             <groupId>wsdl4j</groupId>

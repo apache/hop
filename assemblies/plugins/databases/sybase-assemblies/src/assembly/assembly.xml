@@ -25,7 +25,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-databases-sybase:jar</include>
+                <include>org.apache.hop:hop-databases-sybase:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

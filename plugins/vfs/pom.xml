@@ -3,9 +3,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.hop</groupId>
+  <groupId>org.apache.hop</groupId>
   <artifactId>hop-plugins-vfs</artifactId>
-  <version>0.40-SNAPSHOT</version>
+  <version>0.50-SNAPSHOT</version>
     <modules>
     </modules>
     <packaging>pom</packaging>
@@ -13,9 +13,9 @@
   <name>Hop Plugins VFS</name>
 
   <parent>
-    <groupId>org.hop</groupId>
+    <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -66,20 +66,20 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
-      <version>0.40-SNAPSHOT</version>
+      <version>0.50-SNAPSHOT</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
@@ -97,7 +97,7 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-core</artifactId>
         <version>${project.version}</version>
         <scope>provided</scope>
@@ -112,7 +112,7 @@
       </dependency>
 
       <dependency>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-core</artifactId>
         <version>${project.version}</version>
         <classifier>test</classifier>
@@ -120,7 +120,7 @@
       </dependency>
 
       <dependency>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-engine</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
@@ -128,7 +128,7 @@
       </dependency>
 
       <dependency>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-core</artifactId>
         <version>${project.version}</version>
         <type>test-jar</type>
