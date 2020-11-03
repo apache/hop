@@ -74,10 +74,11 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           row[index] = data.randomgen.nextDouble();
           break;
         case RandomValueMeta.TYPE_RANDOM_INTEGER:
-          row[index] =
-              new Long(data.randomgen.nextInt()); // nextInt() already returns all 2^32 numbers.
+          row[index] = data.randomgen.nextInt();
           break;
         case RandomValueMeta.TYPE_RANDOM_STRING:
+          // TODO Math.abs(Long.MIN_VALUE) == Long.MIN_VALUE --> Don't expect Math.abs always return
+          // positive.
           row[index] = Long.toString(Math.abs(data.randomgen.nextLong()), 32);
           break;
         case RandomValueMeta.TYPE_RANDOM_UUID:
@@ -141,11 +142,11 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     byte[] hashCode = mac.doFinal();
     StringBuilder encoded = new StringBuilder();
     for (int i = 0; i < hashCode.length; i++) {
-      String _b = Integer.toHexString(hashCode[i]);
-      if (_b.length() == 1) {
-        _b = "0" + _b;
+      String b = Integer.toHexString(hashCode[i]);
+      if (b.length() == 1) {
+        b = "0" + b;
       }
-      encoded.append(_b.substring(_b.length() - 2));
+      encoded.append(b.substring(b.length() - 2));
     }
 
     return encoded.toString();
@@ -205,7 +206,8 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
 
     if (super.init()) {
       List<TransformMeta> previous = getPipelineMeta().findPreviousTransforms(getTransformMeta());
-      if (previous != null && previous.size() > 0) {
+
+      if (previous != null && !previous.isEmpty()) {
         data.readsRows = true;
       }
       boolean genHmacMD5 = false;
@@ -253,9 +255,5 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
       return true;
     }
     return false;
-  }
-
-  public void dispose() {
-    super.dispose();
   }
 }
