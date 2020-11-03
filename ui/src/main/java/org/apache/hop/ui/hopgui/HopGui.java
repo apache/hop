@@ -1067,10 +1067,10 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
 			
     activePerspective = perspective;
     
-    // Move perspective composite on top 
+    // Move perspective control on top 
     //
     StackLayout layout = (StackLayout) mainPerspectivesComposite.getLayout();
-    layout.topControl = perspective.getComposite();
+    layout.topControl = perspective.getControl();
     mainPerspectivesComposite.layout();
     
     // Select toolbar item 

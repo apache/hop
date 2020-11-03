@@ -862,7 +862,7 @@ public class HopGitPerspective implements IHopPerspective {
     return false;
   }
 
-  @Override public Composite getComposite() {
+  @Override public Control getControl() {
     return perspectiveComposite;
   }
 
@@ -994,7 +994,7 @@ public class HopGitPerspective implements IHopPerspective {
             //
             PipelineMeta pipelineMeta = new PipelineMeta( xmlStream, hopGui.getMetadataProvider(), true, hopGui.getVariables() );
             meta = pipelineMeta;
-            IHopFileTypeHandler typeHandler = doPerspective.addPipeline( doPerspective.getComposite(), hopGui, pipelineMeta, pipelineFileType );
+            IHopFileTypeHandler typeHandler = doPerspective.addPipeline( hopGui, pipelineMeta, pipelineFileType );
             typeHandlers.add( typeHandler );
           }
           if ( workflowFileType.isHandledBy( filePath, false ) ) {
@@ -1003,7 +1003,7 @@ public class HopGitPerspective implements IHopPerspective {
             WorkflowMeta workflowMeta = new WorkflowMeta( xmlStream, hopGui.getMetadataProvider() );
             meta = workflowMeta;
             workflowMeta.initializeVariablesFrom( hopGui.getVariables() );
-            IHopFileTypeHandler typeHandler = doPerspective.addWorkflow( doPerspective.getComposite(), hopGui, workflowMeta, workflowFileType );
+            IHopFileTypeHandler typeHandler = doPerspective.addWorkflow( hopGui, workflowMeta, workflowFileType );
             typeHandlers.add( typeHandler );
           }
           if ( meta != null && !isOnlyWIP() ) {

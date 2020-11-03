@@ -80,7 +80,7 @@ public class HopGuiPipelineSearchable implements ISearchable<PipelineMeta> {
         perspective.switchToTab( tabItemHandlerWithFilename );
         pipelineGraph = (HopGuiPipelineGraph) tabItemHandlerWithFilename.getTypeHandler();
       } else {
-        pipelineGraph = (HopGuiPipelineGraph) perspective.addPipeline( perspective.getComposite(), HopGui.getInstance(), pipelineMeta, perspective.getPipelineFileType() );
+        pipelineGraph = (HopGuiPipelineGraph) perspective.addPipeline( HopGui.getInstance(), pipelineMeta, perspective.getPipelineFileType() );
       }
 
       // Optionally select and open the matching transform component
