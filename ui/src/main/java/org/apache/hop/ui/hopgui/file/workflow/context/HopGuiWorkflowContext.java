@@ -147,14 +147,14 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
    *
    * @return value of workflowGraph
    */
-  public HopGuiWorkflowGraph getJobGraph() {
+  public HopGuiWorkflowGraph getWorkflowGraph() {
     return workflowGraph;
   }
 
   /**
    * @param workflowGraph The workflowGraph to set
    */
-  public void setJobGraph( HopGuiWorkflowGraph workflowGraph ) {
+  public void setWorkflowGraph( HopGuiWorkflowGraph workflowGraph ) {
     this.workflowGraph = workflowGraph;
   }
 

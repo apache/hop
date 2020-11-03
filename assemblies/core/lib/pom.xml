@@ -10,9 +10,9 @@
   <name>Hop Assemblies Core Libraries</name>
 
   <parent>
-    <groupId>org.hop</groupId>
+    <groupId>org.apache.hop</groupId>
     <artifactId>hop-assemblies-core</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -48,12 +48,12 @@
   <dependencies>
     <!-- hop -->
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
       <exclusions>
@@ -64,7 +64,7 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
       <version>${project.version}</version>
       <exclusions>

@@ -9,9 +9,9 @@
   <name>Hop Assemblies Debug</name>
 
   <parent>
-    <groupId>org.hop</groupId>
+    <groupId>org.apache.hop</groupId>
     <artifactId>hop-assemblies</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -26,19 +26,19 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-engine</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-ui-swt</artifactId>
       <version>${project.version}</version>
       <scope>compile</scope>

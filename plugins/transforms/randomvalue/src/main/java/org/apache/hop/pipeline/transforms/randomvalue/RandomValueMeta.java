@@ -77,7 +77,7 @@ public class RandomValueMeta extends BaseTransformMeta
 
   public static final int TYPE_RANDOM_MAC_HMACSHA1 = 7;
 
-  public static final RandomValueMetaFunction[] functions =
+  protected static final RandomValueMetaFunction[] functions =
       new RandomValueMetaFunction[] {
         null,
         new RandomValueMetaFunction(
@@ -195,9 +195,6 @@ public class RandomValueMeta extends BaseTransformMeta
   }
 
   public static final String getTypeDesc(int t) {
-    if (functions == null || functions.length == 0) {
-      return null;
-    }
     if (t < 0 || t >= functions.length || functions[t] == null) {
       return null;
     }

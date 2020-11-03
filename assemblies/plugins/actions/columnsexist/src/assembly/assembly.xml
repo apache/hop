@@ -25,7 +25,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-action-columnsexist:jar</include>
+                <include>org.apache.hop:hop-action-columnsexist:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

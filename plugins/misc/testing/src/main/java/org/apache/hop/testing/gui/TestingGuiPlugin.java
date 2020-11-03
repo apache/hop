@@ -85,7 +85,7 @@ import org.apache.hop.ui.core.dialog.EnterMappingDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.SelectRowDialog;
-import org.apache.hop.ui.core.metastore.MetadataManager;
+import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;

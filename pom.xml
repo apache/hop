@@ -1,56 +1,91 @@
 <?xml version="1.0"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+         http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
 <project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.hop</groupId>
-    <artifactId>hop</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <parent>
+        <groupId>org.apache</groupId>
+        <artifactId>apache</artifactId>
+        <version>23</version>
+    </parent>
 
+    <groupId>org.apache.hop</groupId>
+    <artifactId>hop</artifactId>
+    <version>0.50-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Hop Orchestration Platform</name>
     <description>Maven POM for the Hop Orchestration Platform</description>
-    <url>http://www.project-hop.org</url>
-
-    <organization>
-        <name>Project Hop</name>
-        <url>http://www.project-hop.org</url>
-    </organization>
+    <url>https://hop.apache.org</url>
+    <inceptionYear>2020</inceptionYear>
 
     <developers>
         <developer>
-            <name>Project Hop Team</name>
-            <email>matt.casters@neo4j.com</email>
-            <roles>
-                <role>creator</role>
-                <role>maintainer</role>
-            </roles>
+            <name>The Apache Hop Team</name>
+            <email>dev@hop.apache.org</email>
+            <url>https://hop.apache.org</url>
+            <organization>Apache Software Foundation</organization>
+            <organizationUrl>http://apache.org/</organizationUrl>
         </developer>
     </developers>
 
+    <mailingLists>
+        <mailingList>
+            <name>Development List</name>
+            <subscribe>dev-subscribe@hop.apache.org</subscribe>
+            <unsubscribe>dev-unsubscribe@hop.apache.org</unsubscribe>
+            <post>dev@hop.apache.org</post>
+        </mailingList>
+        <mailingList>
+            <name>User List</name>
+            <subscribe>users-subscribe@hop.apache.org</subscribe>
+            <unsubscribe>users-unsubscribe@hop.apache.org</unsubscribe>
+            <post>users@hop.apache.org</post>
+        </mailingList>
+        <mailingList>
+            <name>Commits List</name>
+            <subscribe>commits-subscribe@hop.apache.org</subscribe>
+            <unsubscribe>commits-unsubscribe@hop.apache.org</unsubscribe>
+            <post>commits@hop.apache.org</post>
+        </mailingList>
+    </mailingLists>
+
     <issueManagement>
         <system>JIRA</system>
-        <url>http://jira.project-hop.org</url>
+        <url>https://issues.apache.org/jira/browse/HOP</url>
     </issueManagement>
-
     <ciManagement>
         <system>Jenkins</system>
-        <url>http://jenkins.project-hop.org</url>
+        <url>https://builds.apache.org/job/Hop/</url>
     </ciManagement>
-
 
     <distributionManagement>
         <site>
-            <id>javadoc.project-hop.org</id>
-            <url>file:/var/www/</url>
+            <id>apache.website</id>
+            <url>${site-repo-url}</url>
         </site>
     </distributionManagement>
 
 
     <scm>
-        <developerConnection>scm:git:git@github.com:project-hop/hop.git</developerConnection>
+        <connection>scm:git:http://gitbox.apache.org/repos/asf/incubator-hop.git</connection>
+        <developerConnection>scm:git:http://gitbox.apache.org/repos/asf/incubator-hop.git</developerConnection>
+        <url>https://gitbox.apache.org/repos/asf?p=incubator-hop.git;a=summary</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -74,6 +109,7 @@
     </licenses>
 
     <properties>
+        <site-repo-url>scpexe://people.apache.org/www/hop.apache.org/maven/</site-repo-url>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.build.timestamp.format>yyyy-MM-dd hh.mm.ss</maven.build.timestamp.format>
@@ -1061,24 +1097,98 @@
         </plugins>
     </reporting>
 
+
     <repositories>
         <repository>
-            <id>hop</id>
-            <name>Hop Repository</name>
-            <url>https://artifactory.project-hop.org/artifactory/hop-releases/</url>
+            <id>central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+            <name>Maven Central</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
             <releases>
                 <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
             </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>interval:15</updatePolicy>
-            </snapshots>
         </repository>
+        <!-- External Dependencies -->
         <repository>
             <id>confluent</id>
-            <url>http://packages.confluent.io/maven/</url>
+            <url>https://packages.confluent.io/maven/</url>
+            <name>Confluent</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>exasol</id>
+            <url>https://maven.exasol.com/artifactory/exasol-releases/</url>
+            <name>Exasol</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>greenplum</id>
+            <url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
+            <name>Greenplum</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>mulesoft</id>
+            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
+            <name>Mulesoft</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>geomajas</id>
+            <url>http://maven.geomajas.org/</url>
+            <name>Geomajas</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>clojars</id>
+            <url>https://clojars.org/repo/</url>
+            <name>Clojars</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
         </repository>
     </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>apache.snapshots</id>
+            <url>https://repository.apache.org/snapshots/</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

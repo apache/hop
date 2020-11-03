@@ -3,9 +3,9 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.hop</groupId>
+  <groupId>org.apache.hop</groupId>
   <artifactId>hop-databases-postgresql</artifactId>
-  <version>0.40-SNAPSHOT</version>
+  <version>0.50-SNAPSHOT</version>
 
   <dependencies>
      <dependency>
@@ -20,9 +20,9 @@
   <name>Hop Plugins Databases PostgreSQL</name>
 
   <parent>
-    <groupId>org.hop</groupId>
+    <groupId>org.apache.hop</groupId>
     <artifactId>hop-plugins-databases</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
   </parent>
 
   <properties>

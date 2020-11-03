@@ -44,8 +44,6 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
   private static final Class<?> PKG =
       RandomValueMeta.class; // for i18n purposes, needed by Translator!!
 
-  private Text wTransformName;
-
   private TableView wFields;
 
   private final RandomValueMeta input;
@@ -134,6 +132,7 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
             false);
     colinf[1].setSelectionAdapter(
         new SelectionAdapter() {
+          @Override
           public void widgetSelected(SelectionEvent e) {
             EnterSelectionDialog esd =
                 new EnterSelectionDialog(
@@ -169,6 +168,7 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
 
     lsDef =
         new SelectionAdapter() {
+          @Override
           public void widgetDefaultSelected(SelectionEvent e) {
             ok();
           }
@@ -179,6 +179,7 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener(
         new ShellAdapter() {
+          @Override
           public void shellClosed(ShellEvent e) {
             cancel();
           }

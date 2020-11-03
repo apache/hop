@@ -25,7 +25,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-terafast:jar</include>
+                <include>org.apache.hop:hop-transform-terafast:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

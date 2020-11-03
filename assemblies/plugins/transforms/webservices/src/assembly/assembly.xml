@@ -25,14 +25,14 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-webservices:jar</include>
+                <include>org.apache.hop:hop-transform-webservices:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>javax.wsdl:javax.wsdl:jar</include>
+                <include>javax.wsdl:com.springsource.javax.wsdl:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>

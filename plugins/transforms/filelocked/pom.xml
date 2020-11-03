@@ -5,17 +5,17 @@
     <modelVersion>4.0.0</modelVersion>
     <dependencies>
         <dependency>
-            <groupId>org.hop</groupId>
+            <groupId>org.apache.hop</groupId>
             <artifactId>hop-action-checkfilelocked</artifactId>
-            <version>0.40-SNAPSHOT</version>
+            <version>0.50-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
 
     <parent>
-        <groupId>org.hop</groupId>
+        <groupId>org.apache.hop</groupId>
         <artifactId>hop-plugins-transforms</artifactId>
-        <version>0.40-SNAPSHOT</version>
+        <version>0.50-SNAPSHOT</version>
     </parent>
 
     <artifactId>hop-transform-filelocked</artifactId>

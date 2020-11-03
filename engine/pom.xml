@@ -4,17 +4,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.hop</groupId>
+  <groupId>org.apache.hop</groupId>
   <artifactId>hop-engine</artifactId>
-  <version>0.40-SNAPSHOT</version>
+  <version>0.50-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>Hop Engine</name>
 
   <parent>
-    <groupId>org.hop</groupId>
+    <groupId>org.apache.hop</groupId>
     <artifactId>hop</artifactId>
-    <version>0.40-SNAPSHOT</version>
+    <version>0.50-SNAPSHOT</version>
   </parent>
 
   <properties>
@@ -51,7 +51,7 @@
   <dependencies>
     <!-- Hop dependencies -->
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -516,7 +516,7 @@
 
     <!-- Test dependencies -->
     <dependency>
-      <groupId>org.hop</groupId>
+      <groupId>org.apache.hop</groupId>
       <artifactId>hop-core</artifactId>
       <version>${project.version}</version>
       <classifier>tests</classifier>

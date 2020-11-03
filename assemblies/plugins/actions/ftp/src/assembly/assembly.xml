@@ -27,7 +27,7 @@
 		<dependencySet>
 			<useProjectArtifact>false</useProjectArtifact>
 			<includes>
-				<include>org.hop:hop-action-ftp:jar</include>
+				<include>org.apache.hop:hop-action-ftp:jar</include>
 			</includes>
 		</dependencySet>
 		<dependencySet>

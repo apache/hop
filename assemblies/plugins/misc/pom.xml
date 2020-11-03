@@ -6,8 +6,8 @@
 
     <parent>
         <artifactId>hop-assemblies-plugins</artifactId>
-        <groupId>org.hop</groupId>
-        <version>0.40-SNAPSHOT</version>
+        <groupId>org.apache.hop</groupId>
+        <version>0.50-SNAPSHOT</version>
     </parent>
     <packaging>pom</packaging>
 

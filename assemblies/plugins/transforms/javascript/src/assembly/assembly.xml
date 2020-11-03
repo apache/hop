@@ -25,41 +25,41 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-javascript:jar</include>
+                <include>org.apache.hop:hop-transform-javascript:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.hop:hop-transform-fieldsplitter:jar</include>
+                <include>org.apache.hop:hop-transform-fieldsplitter:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.hop:hop-transform-rowgenerator:jar</include>
+                <include>org.apache.hop:hop-transform-rowgenerator:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.hop:hop-transform-loadfileinput:jar</include>
+                <include>org.apache.hop:hop-transform-loadfileinput:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-javascript:jar</include>
+                <include>org.apache.hop:hop-transform-javascript:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>javax.mail:mail:jar</include>
+                <include>javax.mail:mail-api:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

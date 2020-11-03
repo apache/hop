@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.ui.core.metastore;
+package org.apache.hop.ui.core.metadata;
 
 /**
  * This interface indicates that the class can be used to edit metadata.

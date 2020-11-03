@@ -35,7 +35,7 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-databases-infinidb:jar</include>
+                <include>org.apache.hop:hop-databases-infinidb:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

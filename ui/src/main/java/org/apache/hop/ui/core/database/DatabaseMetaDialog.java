@@ -43,7 +43,7 @@ import org.apache.hop.ui.core.dialog.ShowMessageDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.metastore.IMetadataDialog;
+import org.apache.hop.ui.core.metadata.IMetadataDialog;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;

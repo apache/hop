@@ -71,7 +71,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.metastore.MetadataManager;
+import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.OsHelper;
 import org.apache.hop.ui.hopgui.context.IActionContextHandlersProvider;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;

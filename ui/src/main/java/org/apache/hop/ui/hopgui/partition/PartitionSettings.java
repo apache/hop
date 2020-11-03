@@ -30,7 +30,7 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
-import org.apache.hop.ui.core.metastore.MetadataManager;
+import org.apache.hop.ui.core.metadata.MetadataManager;
 
 import java.util.Collections;
 import java.util.List;

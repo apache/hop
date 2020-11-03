@@ -38,14 +38,14 @@ import java.util.List;
 /**
  * Lazily load the searchables during next()
  */
-public class HopGUiSearchLocationIterator implements Iterator<ISearchable> {
+public class HopGuiSearchLocationIterator implements Iterator<ISearchable> {
 
   private HopGui hopGui;
   private HopGuiSearchLocation location;
   private List<ISearchable> searchables;
   private Iterator<ISearchable> searchableIterator;
 
-  public HopGUiSearchLocationIterator( HopGui hopGui, HopGuiSearchLocation location ) throws HopException {
+  public HopGuiSearchLocationIterator( HopGui hopGui, HopGuiSearchLocation location ) throws HopException {
     this.hopGui = hopGui;
     this.location = location;
 

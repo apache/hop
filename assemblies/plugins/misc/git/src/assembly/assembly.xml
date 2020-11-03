@@ -25,7 +25,7 @@
     <dependencySet>
       <useProjectArtifact>false</useProjectArtifact>
       <includes>
-        <include>org.hop:hop-plugins-misc-git:jar</include>
+        <include>org.apache.hop:hop-plugins-misc-git:jar</include>
       </includes>
     </dependencySet>
     <dependencySet>

@@ -25,21 +25,21 @@
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <includes>
-                <include>org.hop:hop-transform-mailinput:jar</include>
+                <include>org.apache.hop:hop-transform-mailinput:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>javax.mail:mail:jar</include>
+                <include>javax.mail:mail-api:jar</include>
             </includes>
         </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <includes>
-                <include>org.hop:hop-action-getpop:jar</include>
+                <include>org.apache.hop:hop-action-getpop:jar</include>
             </includes>
         </dependencySet>
     </dependencySets>

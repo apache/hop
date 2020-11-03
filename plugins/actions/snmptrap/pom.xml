@@ -6,9 +6,9 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.hop</groupId>
+		<groupId>org.apache.hop</groupId>
 		<artifactId>hop-plugins-actions</artifactId>
-		<version>0.40-SNAPSHOT</version>
+		<version>0.50-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>hop-action-snmptrap</artifactId>
@@ -17,7 +17,7 @@
 	<name>Hop Plugins Actions Send SNMP trap</name>
 
 	<properties>
-		<snmp4j.version>1.9.3d</snmp4j.version>
+		<snmp4j.version>1.9.1f</snmp4j.version>
 	</properties>
 
 	<dependencies>
