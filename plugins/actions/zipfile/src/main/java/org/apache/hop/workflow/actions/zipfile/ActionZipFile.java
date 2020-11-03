@@ -899,8 +899,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     return result;
   }
 
-  public String getFullFilename( String filename, boolean add_date, boolean add_time, boolean specify_format,
-                                 String datetime_folder ) {
+  public String getFullFilename( String filename, boolean addDate, boolean addTime, boolean specifyFormat,
+                                 String datetimeFolder ) {
     String retval;
     if ( Utils.isEmpty( filename ) ) {
       return null;
@@ -919,17 +919,17 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     final SimpleDateFormat daf = new SimpleDateFormat();
     Date now = new Date();
 
-    if ( specify_format && !Utils.isEmpty( datetime_folder ) ) {
-      daf.applyPattern( datetime_folder );
+    if ( specifyFormat && !Utils.isEmpty( datetimeFolder ) ) {
+      daf.applyPattern( datetimeFolder );
       String dt = daf.format( now );
       retval += dt;
     } else {
-      if ( add_date ) {
+      if ( addDate ) {
         daf.applyPattern( "yyyyMMdd" );
         String d = daf.format( now );
         retval += "_" + d;
       }
-      if ( add_time ) {
+      if ( addTime ) {
         daf.applyPattern( "HHmmssSSS" );
         String t = daf.format( now );
         retval += "_" + t;
@@ -952,8 +952,8 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     this.wildCard = wildcard;
   }
 
-  public void setWildcardExclude( String wildcardexclude ) {
-    this.excludeWildCard = wildcardexclude;
+  public void setWildcardExclude( String wildcardExclude ) {
+    this.excludeWildCard = wildcardExclude;
   }
 
   public void setSourceDirectory( String sourcedirectory ) {
@@ -1024,16 +1024,16 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     return specifyFormat;
   }
 
-  public void setSpecifyFormat( boolean SpecifyFormat ) {
-    this.specifyFormat = SpecifyFormat;
+  public void setSpecifyFormat( boolean specifyFormat ) {
+    this.specifyFormat = specifyFormat;
   }
 
   public String getDateTimeFormat() {
     return dateTimeFormat;
   }
 
-  public void setDateTimeFormat( String date_time_format ) {
-    this.dateTimeFormat = date_time_format;
+  public void setDateTimeFormat( String dateTimeFormat ) {
+    this.dateTimeFormat = dateTimeFormat;
   }
 
   public boolean getcreateparentfolder() {

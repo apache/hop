@@ -211,15 +211,15 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
    * @see org.apache.hop.core.RowSetInterface#setThreadNameFromToCopy(java.lang.String, int, java.lang.String, int)
    */
   @Override
-  public void setThreadNameFromToCopy( String from, int from_copy, String to, int to_copy ) {
+  public void setThreadNameFromToCopy( String from, int fromCopy, String to, int toCopy ) {
 
     lock.writeLock().lock();
     try {
       originTransformName = from;
-      originTransformCopy.set( from_copy );
+      originTransformCopy.set( fromCopy );
 
       destinationTransformName = to;
-      destinationTransformCopy.set( to_copy );
+      destinationTransformCopy.set( toCopy );
     } finally {
       lock.writeLock().unlock();
     }

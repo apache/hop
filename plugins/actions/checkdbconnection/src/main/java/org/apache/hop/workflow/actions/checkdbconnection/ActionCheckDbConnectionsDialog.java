@@ -317,13 +317,13 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
     }
     action.setName( wName.getText() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
 
-    DatabaseMeta[] connections = new DatabaseMeta[ nritems ];
-    String[] waitfors = new String[ nritems ];
-    int[] waittimes = new int[ nritems ];
+    DatabaseMeta[] connections = new DatabaseMeta[ nrItems ];
+    String[] waitfors = new String[ nrItems ];
+    int[] waittimes = new int[ nrItems ];
 
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       DatabaseMeta dbMeta = this.getWorkflowMeta().findDatabase( arg );
       if ( dbMeta != null ) {

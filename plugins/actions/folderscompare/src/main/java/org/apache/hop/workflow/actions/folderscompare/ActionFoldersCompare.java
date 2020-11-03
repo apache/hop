@@ -472,11 +472,11 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
   }
 
   private class TextFileSelector implements FileSelector {
-    String source_folder = null;
+    String sourceFolder = null;
 
     public TextFileSelector( String sourcefolderin ) {
       if ( !Utils.isEmpty( sourcefolderin ) ) {
-        source_folder = sourcefolderin;
+        sourceFolder = sourcefolderin;
       }
 
     }
@@ -484,15 +484,15 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
     public boolean includeFile( FileSelectInfo info ) {
       boolean returncode = false;
       try {
-        if ( !info.getFile().toString().equals( source_folder ) ) {
+        if ( !info.getFile().toString().equals( sourceFolder ) ) {
           // Pass over the Base folder itself
-          String short_filename = info.getFile().getName().getBaseName();
+          String shortFilename = info.getFile().getName().getBaseName();
 
           if ( info.getFile().getParent().equals( info.getBaseFolder() ) ) {
             // In the Base Folder...
             if ( ( info.getFile().getType() == FileType.FILE && compareonly.equals( "only_files" ) )
               || ( info.getFile().getType() == FileType.FOLDER && compareonly.equals( "only_folders" ) )
-              || ( GetFileWildcard( short_filename ) && compareonly.equals( "specify" ) )
+              || ( GetFileWildcard( shortFilename ) && compareonly.equals( "specify" ) )
               || ( compareonly.equals( "all" ) ) ) {
               returncode = true;
             }
@@ -501,7 +501,7 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
             if ( includesubfolders ) {
               if ( ( info.getFile().getType() == FileType.FILE && compareonly.equals( "only_files" ) )
                 || ( info.getFile().getType() == FileType.FOLDER && compareonly.equals( "only_folders" ) )
-                || ( GetFileWildcard( short_filename ) && compareonly.equals( "specify" ) )
+                || ( GetFileWildcard( shortFilename ) && compareonly.equals( "specify" ) )
                 || ( compareonly.equals( "all" ) ) ) {
                 returncode = true;
               }

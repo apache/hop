@@ -50,7 +50,7 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
 
   public List<TextFileLine> lineBuffer;
 
-  public Object[] previous_row;
+  public Object[] previousRow;
 
   public int nr_repeats;
 
@@ -144,7 +144,7 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
     lineBuffer = new LinkedList<TextFileLine>();
 
     nr_repeats = 0;
-    previous_row = null;
+    previousRow = null;
     filenr = 0;
 
     nrLinesOnPage = 0;

@@ -27,7 +27,7 @@
   <hop-variable>
     <description>The maximum number of log lines that are kept internally by Hop. Set to 0 to keep all rows (default)</description>
     <variable>HOP_MAX_LOG_SIZE_IN_LINES</variable>
-    <default-value>5000</default-value>
+    <default-value>0</default-value>
   </hop-variable>
 
   <hop-variable>

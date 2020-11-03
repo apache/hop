@@ -474,10 +474,10 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   }
 
   protected void drawArrow( EImage arrow, int[] line, Hop hop, Object startObject, Object endObject ) throws HopException {
-    Point screen_from = real2screen( line[ 0 ], line[ 1 ] );
-    Point screen_to = real2screen( line[ 2 ], line[ 3 ] );
+    Point screenFrom = real2screen( line[ 0 ], line[ 1 ] );
+    Point screenTo = real2screen( line[ 2 ], line[ 3 ] );
 
-    drawArrow( arrow, screen_from.x, screen_from.y, screen_to.x, screen_to.y, theta, calcArrowLength(), -1, hop,
+    drawArrow( arrow, screenFrom.x, screenFrom.y, screenTo.x, screenTo.y, theta, calcArrowLength(), -1, hop,
       startObject, endObject );
   }
 

@@ -23,8 +23,6 @@
 
 package org.apache.hop.workflow.actions.eval;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -44,6 +42,8 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /**
  * Action type to evaluate the result of a previous action. It uses a piece of javascript to do this.
@@ -115,7 +115,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
    * @param parentWorkflow   the parent workflow
    * @return The boolean result of the evaluation script.
    */
-  public boolean evaluate( Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result prev_result ) {
+  public boolean evaluate( Result result, IWorkflowEngine<WorkflowMeta> parentWorkflow, Result prevResult ) {
     Context cx;
     Scriptable scope;
 
@@ -125,25 +125,25 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
       scope = cx.initStandardObjects( null );
 
       Long errors = new Long( result.getNrErrors() );
-      Long lines_input = new Long( result.getNrLinesInput() );
-      Long lines_output = new Long( result.getNrLinesOutput() );
-      Long lines_updated = new Long( result.getNrLinesUpdated() );
-      Long lines_rejected = new Long( result.getNrLinesRejected() );
-      Long lines_read = new Long( result.getNrLinesRead() );
-      Long lines_written = new Long( result.getNrLinesWritten() );
-      Long exit_status = new Long( result.getExitStatus() );
-      Long files_retrieved = new Long( result.getNrFilesRetrieved() );
+      Long linesInput = new Long( result.getNrLinesInput() );
+      Long linesOutput = new Long( result.getNrLinesOutput() );
+      Long linesUpdated = new Long( result.getNrLinesUpdated() );
+      Long linesRejected = new Long( result.getNrLinesRejected() );
+      Long linesRead = new Long( result.getNrLinesRead() );
+      Long linesWritten = new Long( result.getNrLinesWritten() );
+      Long exitStatus = new Long( result.getExitStatus() );
+      Long filesRetrieved = new Long( result.getNrFilesRetrieved() );
       Long nr = new Long( result.getEntryNr() );
 
       scope.put( "errors", scope, errors );
-      scope.put( "lines_input", scope, lines_input );
-      scope.put( "lines_output", scope, lines_output );
-      scope.put( "lines_updated", scope, lines_updated );
-      scope.put( "lines_rejected", scope, lines_rejected );
-      scope.put( "lines_read", scope, lines_read );
-      scope.put( "lines_written", scope, lines_written );
-      scope.put( "files_retrieved", scope, files_retrieved );
-      scope.put( "exit_status", scope, exit_status );
+      scope.put( "lines_input", scope, linesInput );
+      scope.put( "lines_output", scope, linesOutput );
+      scope.put( "lines_updated", scope, linesUpdated );
+      scope.put( "lines_rejected", scope, linesRejected );
+      scope.put( "lines_read", scope, linesRead );
+      scope.put( "lines_written", scope, linesWritten );
+      scope.put( "files_retrieved", scope, filesRetrieved );
+      scope.put( "exit_status", scope, exitStatus );
       scope.put( "nr", scope, nr );
       scope.put( "is_windows", scope, Boolean.valueOf( Const.isWindows() ) );
       scope.put( "_entry_", scope, this );
@@ -155,7 +155,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
 
       scope.put( "rows", scope, array );
       scope.put( "parent_job", scope, parentWorkflow );
-      scope.put( "previous_result", scope, prev_result );
+      scope.put( "previous_result", scope, prevResult );
 
       try {
         Object res = cx.evaluateString( scope, this.script, "<cmd>", 1, null );
@@ -184,9 +184,9 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
    * @param prev_result The result of the previous execution
    * @return The Result of the execution.
    */
-  public Result execute( Result prev_result, int nr ) {
-    prev_result.setResult( evaluate( prev_result, parentWorkflow, prev_result ) );
-    return prev_result;
+  public Result execute( Result prevResult, int nr ) {
+    prevResult.setResult( evaluate( prevResult, parentWorkflow, prevResult ) );
+    return prevResult;
   }
 
   public boolean resetErrorsBeforeExecution() {

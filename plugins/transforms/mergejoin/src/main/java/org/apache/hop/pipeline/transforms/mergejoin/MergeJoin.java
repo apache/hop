@@ -409,8 +409,8 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
         return false;
       }
       String joinType = meta.getJoinType();
-      for ( int i = 0; i < MergeJoinMeta.join_types.length; ++i ) {
-        if ( joinType.equalsIgnoreCase( MergeJoinMeta.join_types[ i ] ) ) {
+      for ( int i = 0; i < MergeJoinMeta.joinTypes.length; ++i ) {
+        if ( joinType.equalsIgnoreCase( MergeJoinMeta.joinTypes[ i ] ) ) {
           data.one_optional = MergeJoinMeta.one_optionals[ i ];
           data.two_optional = MergeJoinMeta.two_optionals[ i ];
           return true;

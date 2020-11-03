@@ -1490,9 +1490,9 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
 
     action.setReplyToAddresses( wReplyToAddress.getText() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -1501,7 +1501,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     action.embeddedimages = new String[ nr ];
     action.contentids = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( arg != null && arg.length() != 0 ) {

@@ -68,14 +68,14 @@ import java.util.List;
 public class ActionColumnsExist extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionColumnsExist.class; // for i18n purposes, needed by Translator!!
   private String schemaname;
-  private String tablename;
+  private String tableName;
   private DatabaseMeta connection;
   private String[] arguments;
 
   public ActionColumnsExist( String n ) {
     super( n, "" );
     schemaname = null;
-    tablename = null;
+    tableName = null;
     connection = null;
   }
 
@@ -103,7 +103,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
 
     retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
     retval.append( "      " ).append(
       XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
@@ -124,7 +124,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
-      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
 
       String dbname = XmlHandler.getTagValue( entrynode, "connection" );
@@ -147,12 +147,12 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     }
   }
 
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTablename( String tableName ) {
+    this.tableName = tableName;
   }
 
   public String getTablename() {
-    return tablename;
+    return tableName;
   }
 
   public void setSchemaname( String schemaname ) {
@@ -198,7 +198,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     int nrexistcolums = 0;
     int nrnotexistcolums = 0;
 
-    if ( Utils.isEmpty( tablename ) ) {
+    if ( Utils.isEmpty( tableName ) ) {
       logError( BaseMessages.getString( PKG, "ActionColumnsExist.Error.TablenameEmpty" ) );
       return result;
     }
@@ -211,7 +211,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
       db.shareVariablesWith( this );
       try {
         String realSchemaname = environmentSubstitute( schemaname );
-        String realTablename = environmentSubstitute( tablename );
+        String realTablename = environmentSubstitute( tableName );
 
         db.connect();
 

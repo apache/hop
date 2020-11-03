@@ -531,7 +531,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -546,8 +546,8 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
           remarks.add( cr );
 
           boolean first = true;
-          boolean error_found = false;
-          error_message = "";
+          boolean errorFound = false;
+          errorMessage = "";
 
           // Check fields in table
           IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
@@ -564,16 +564,16 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingCompareFieldsInTargetTable" )
                       + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + lufield + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + lufield + Const.CR;
               }
             }
-            if ( error_found ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            if ( errorFound ) {
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             } else {
               cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -583,8 +583,8 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
 
             // How about the fields to insert/update in the table?
             first = true;
-            error_found = false;
-            error_message = "";
+            errorFound = false;
+            errorMessage = "";
 
             for ( int i = 0; i < updateLookup.length; i++ ) {
               String lufield = updateLookup[ i ];
@@ -593,16 +593,16 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingFieldsToUpdateInTargetTable" )
                       + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + lufield + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + lufield + Const.CR;
               }
             }
-            if ( error_found ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            if ( errorFound ) {
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             } else {
               cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -610,8 +610,8 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
             }
             remarks.add( cr );
           } else {
-            error_message = BaseMessages.getString( PKG, "UpdateMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            errorMessage = BaseMessages.getString( PKG, "UpdateMeta.CheckResult.CouldNotReadTableInfo" );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           }
         }
@@ -624,19 +624,19 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
           remarks.add( cr );
 
           boolean first = true;
-          error_message = "";
-          boolean error_found = false;
+          errorMessage = "";
+          boolean errorFound = false;
 
           for ( int i = 0; i < keyStream.length; i++ ) {
             IValueMeta v = prev.searchValueMeta( keyStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingFieldsInInput" ) + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + keyStream[ i ] + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + keyStream[ i ] + Const.CR;
             }
           }
           for ( int i = 0; i < keyStream2.length; i++ ) {
@@ -645,16 +645,16 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingFieldsInInput2" ) + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + keyStream[ i ] + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + keyStream[ i ] + Const.CR;
               }
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          if ( errorFound ) {
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           } else {
             cr =
               new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -664,8 +664,8 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
 
           // How about the fields to insert/update the table with?
           first = true;
-          error_found = false;
-          error_message = "";
+          errorFound = false;
+          errorMessage = "";
 
           for ( int i = 0; i < updateStream.length; i++ ) {
             String lufield = updateStream[ i ];
@@ -674,15 +674,15 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
             if ( v == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingInputStreamFields" ) + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + lufield + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + lufield + Const.CR;
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          if ( errorFound ) {
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           } else {
             cr =
               new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -690,21 +690,21 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
           }
           remarks.add( cr );
         } else {
-          error_message = BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingFieldsInInput3" ) + Const.CR;
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          errorMessage = BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingFieldsInInput3" ) + Const.CR;
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "UpdateMeta.CheckResult.DatabaseErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "UpdateMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "UpdateMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 
@@ -744,30 +744,30 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
               prev.addValueMeta( new ValueMetaBoolean( getIgnoreFlagField() ) );
             }
 
-            String cr_table = db.getDDL( schemaTable, tableFields, null, false, null, true );
+            String crTable = db.getDDL( schemaTable, tableFields, null, false, null, true );
 
-            String cr_index = "";
-            String[] idx_fields = null;
+            String crIndex = "";
+            String[] idxFields = null;
 
             if ( keyLookup != null && keyLookup.length > 0 ) {
-              idx_fields = new String[ keyLookup.length ];
+              idxFields = new String[ keyLookup.length ];
               for ( int i = 0; i < keyLookup.length; i++ ) {
-                idx_fields[ i ] = keyLookup[ i ];
+                idxFields[ i ] = keyLookup[ i ];
               }
             } else {
               retval.setError( BaseMessages.getString( PKG, "UpdateMeta.CheckResult.MissingKeyFields" ) );
             }
 
             // Key lookup dimensions...
-            if ( idx_fields != null
-              && idx_fields.length > 0 && !db.checkIndexExists( schemaTable, idx_fields ) ) {
+            if ( idxFields != null
+              && idxFields.length > 0 && !db.checkIndexExists( schemaTable, idxFields ) ) {
               String indexname = "idx_" + tableName + "_lookup";
-              cr_index =
+              crIndex =
                 db.getCreateIndexStatement(
-                  schemaTable, indexname, idx_fields, false, false, false, true );
+                  schemaTable, indexname, idxFields, false, false, false, true );
             }
 
-            String sql = cr_table + cr_index;
+            String sql = crTable + crIndex;
             if ( sql.length() == 0 ) {
               retval.setSql( null );
             } else {

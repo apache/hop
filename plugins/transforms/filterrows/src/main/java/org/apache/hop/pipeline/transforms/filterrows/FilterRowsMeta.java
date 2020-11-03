@@ -226,7 +226,7 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     checkTarget( transformMeta, "true", getTrueTransformName(), output ).ifPresent( remarks::add );
     checkTarget( transformMeta, "false", getFalseTransformName(), output ).ifPresent( remarks::add );
@@ -251,12 +251,12 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
 
       List<String> orphanFields = getOrphanFields( condition, prev );
       if ( orphanFields.size() > 0 ) {
-        error_message = BaseMessages.getString( PKG, "FilterRowsMeta.CheckResult.FieldsNotFoundFromPreviousTransform" )
+        errorMessage = BaseMessages.getString( PKG, "FilterRowsMeta.CheckResult.FieldsNotFoundFromPreviousTransform" )
           + Const.CR;
         for ( String field : orphanFields ) {
-          error_message += "\t\t" + field + Const.CR;
+          errorMessage += "\t\t" + field + Const.CR;
         }
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       } else {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
@@ -264,10 +264,10 @@ public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<
       }
       remarks.add( cr );
     } else {
-      error_message =
+      errorMessage =
         BaseMessages.getString( PKG, "FilterRowsMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform" )
           + Const.CR;
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

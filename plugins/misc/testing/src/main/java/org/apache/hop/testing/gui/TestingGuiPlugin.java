@@ -155,7 +155,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Modify,
     name = "Set input data set",
     tooltip = "For the active unit test it defines which data to use instead of the output of the transform",
-    image = "set-input-dataset.svg"
+    image = "set-input-dataset.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void setInputDataSet( HopGuiPipelineTransformContext context ) {
     HopGui hopGui = HopGui.getInstance();
@@ -282,7 +284,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Delete,
     name = "Clear input data set",
     tooltip = "Remove a defined input data set from this transform unit test",
-    image = "clear-input-dataset.svg"
+    image = "clear-input-dataset.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void clearInputDataSet( HopGuiPipelineTransformContext context ) {
     HopGui hopGui = ( (HopGui) HopGui.getInstance() );
@@ -336,7 +340,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Modify,
     name = "Set golden data set",
     tooltip = "The input to this transform is taken and compared to the golden data set you are selecting.\nThe transform itself is not executed during testing.",
-    image = "set-golden-dataset.svg"
+    image = "set-golden-dataset.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void setGoldenDataSet( HopGuiPipelineTransformContext context ) {
     PipelineMeta sourcePipelineMeta = context.getPipelineMeta();
@@ -462,7 +468,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Delete,
     name = "Clear golden data set",
     tooltip = "Remove a defined input data set from this transform unit test",
-    image = "clear-golden-dataset.svg"
+    image = "clear-golden-dataset.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void clearGoldenDataSet( HopGuiPipelineTransformContext context ) {
     HopGui hopGui = HopGui.getInstance();
@@ -499,7 +507,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Delete,
     name = "Create data set",
     tooltip = "Create an empty dataset with the output fields of this transform ",
-    image = "dataset.svg"
+    image = "dataset.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void createDataSetFromTransform( HopGuiPipelineTransformContext context ) {
     HopGui hopGui = HopGui.getInstance();
@@ -567,7 +577,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Create,
     name = "Write rows to data set",
     tooltip = "Run the current pipeline and write the data to a data set",
-    image = "dataset.svg"
+    image = "dataset.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void writeTransformDataToDataSet( HopGuiPipelineTransformContext context ) {
     HopGui hopGui = HopGui.getInstance();
@@ -951,7 +963,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Modify,
     name = "Remove from test",
     tooltip = "When this unit test is run, do not include this transform",
-    image = "Test_tube_icon.svg"
+    image = "Test_tube_icon.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void enableTweakRemoveTransformInUnitTest( HopGuiPipelineTransformContext context ) {
     tweakRemoveTransformInUnitTest( context.getPipelineMeta(), context.getTransformMeta(), true );
@@ -963,7 +977,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Modify,
     name = "Include in test",
     tooltip = "Run the current pipeline and write the data to a data set",
-    image = "Test_tube_icon.svg"
+    image = "Test_tube_icon.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void disableTweakRemoveTransformInUnitTest( HopGuiPipelineTransformContext context ) {
     tweakRemoveTransformInUnitTest( context.getPipelineMeta(), context.getTransformMeta(), false );
@@ -979,7 +995,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Modify,
     name = "Bypass in test",
     tooltip = "When this unit test is run, bypass this transform (replace with a dummy)",
-    image = "Test_tube_icon.svg"
+    image = "Test_tube_icon.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void enableTweakBypassTransformInUnitTest( HopGuiPipelineTransformContext context ) {
     tweakBypassTransformInUnitTest( context.getPipelineMeta(), context.getTransformMeta(), true );
@@ -991,7 +1009,9 @@ public class TestingGuiPlugin {
     type = GuiActionType.Modify,
     name = "Remove bypass in test",
     tooltip = "Do not bypass this transform in the current pipeline during testing",
-    image = "Test_tube_icon.svg"
+    image = "Test_tube_icon.svg",
+    category = "Unit testing",
+    categoryOrder = "8"
   )
   public void disableTweakBypassTransformInUnitTest( HopGuiPipelineTransformContext context ) {
     tweakBypassTransformInUnitTest( context.getPipelineMeta(), context.getTransformMeta(), false );

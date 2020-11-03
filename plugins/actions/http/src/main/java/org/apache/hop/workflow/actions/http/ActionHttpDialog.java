@@ -827,9 +827,9 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     action.setTargetFilenameExtension( wRunEveryRow.getSelection() ? "" : wTargetExt.getText() );
     action.setAddFilenameToResult( wAddFilenameToResult.getSelection() );
 
-    int nritems = wHeaders.nrNonEmpty();
+    int nrItems = wHeaders.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wHeaders.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -839,7 +839,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     String[] headerValues = new String[ nr ];
 
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String varname = wHeaders.getNonEmpty( i ).getText( 1 );
       String varvalue = wHeaders.getNonEmpty( i ).getText( 2 );
 

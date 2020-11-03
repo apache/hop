@@ -107,7 +107,7 @@ public class TableOutputTest {
   }
 
   @Test
-  public void testTruncateTable_off() throws Exception {
+  public void testTruncateTableOff() throws Exception {
     tableOutputSpy.truncateTable();
     verify( db, never() ).truncateTable( anyString(), anyString() );
   }

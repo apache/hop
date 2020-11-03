@@ -42,7 +42,7 @@ import java.util.List;
 public final class ControlWsdlLocator implements WSDLLocator {
   private final String _wsdlName;
   private final BeanContext _beanContext;
-  private List<InputStream> _openStreams = new ArrayList<InputStream>();
+  private List<InputStream> OpenStreams = new ArrayList<InputStream>();
 
   /**
    * Create a new wsdl locator for the wsdl file with the specified name.
@@ -65,7 +65,7 @@ public final class ControlWsdlLocator implements WSDLLocator {
    */
   public void cleanup() {
 
-    for ( InputStream inputStream : _openStreams ) {
+    for ( InputStream inputStream : OpenStreams ) {
       try {
         inputStream.close();
       } catch ( IOException ioe ) {
@@ -111,7 +111,7 @@ public final class ControlWsdlLocator implements WSDLLocator {
       throw new RuntimeException( "Cannot find WSDL file: " + _wsdlName, null );
     }
 
-    _openStreams.add( wsdlStream );
+    OpenStreams.add( wsdlStream );
     return new InputSource( wsdlStream );
   }
 

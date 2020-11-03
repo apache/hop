@@ -23,15 +23,7 @@
 
 package org.apache.hop.workflow.actions.ftpsget;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Properties;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.exception.HopException;
@@ -50,7 +42,14 @@ import org.ftp4che.event.FTPListener;
 import org.ftp4che.exception.ConfigurationException;
 import org.ftp4che.util.ftpfile.FTPFile;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
 
 public class FtpsConnection implements FTPListener {
 
@@ -68,7 +67,7 @@ public class FtpsConnection implements FTPListener {
   public static final int CONNECTION_TYPE_FTP_IMPLICIT_TLS = 5;
   public static final int CONNECTION_TYPE_FTP_IMPLICIT_TLS_WITH_CRYPTED = 6;
 
-  public static final String[] connection_type_Desc = new String[] {
+  public static final String[] connectionTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobFTPS.ConnectionType.FTP" ),
     BaseMessages.getString( PKG, "JobFTPS.ConnectionType.ImplicitSSL" ),
     BaseMessages.getString( PKG, "JobFTPS.ConnectionType.AuthSSL" ),
@@ -77,7 +76,7 @@ public class FtpsConnection implements FTPListener {
     BaseMessages.getString( PKG, "JobFTPS.ConnectionType.ImplicitTLS" ),
     BaseMessages.getString( PKG, "JobFTPS.ConnectionType.ImplicitTLSCrypted" ) };
 
-  public static final String[] connection_type_Code = new String[] {
+  public static final String[] connectionTypeCode = new String[] {
     "FTP_CONNECTION", "IMPLICIT_SSL_FTP_CONNECTION", "AUTH_SSL_FTP_CONNECTION",
     "IMPLICIT_SSL_WITH_CRYPTED_DATA_FTP_CONNECTION", "AUTH_TLS_FTP_CONNECTION", "IMPLICIT_TLS_FTP_CONNECTION",
     "IMPLICIT_TLS_WITH_CRYPTED_DATA_FTP_CONNECTION" };
@@ -213,35 +212,35 @@ public class FtpsConnection implements FTPListener {
 
   public static String getConnectionTypeDesc( String tt ) {
     if ( Utils.isEmpty( tt ) ) {
-      return connection_type_Desc[ 0 ];
+      return connectionTypeDesc[ 0 ];
     }
-    if ( tt.equalsIgnoreCase( connection_type_Code[ 1 ] ) ) {
-      return connection_type_Desc[ 1 ];
+    if ( tt.equalsIgnoreCase( connectionTypeCode[ 1 ] ) ) {
+      return connectionTypeDesc[ 1 ];
     } else {
-      return connection_type_Desc[ 0 ];
+      return connectionTypeDesc[ 0 ];
     }
   }
 
   public static String getConnectionTypeCode( String tt ) {
     if ( tt == null ) {
-      return connection_type_Code[ 0 ];
+      return connectionTypeCode[ 0 ];
     }
-    if ( tt.equals( connection_type_Desc[ 1 ] ) ) {
-      return connection_type_Code[ 1 ];
+    if ( tt.equals( connectionTypeDesc[ 1 ] ) ) {
+      return connectionTypeCode[ 1 ];
     } else {
-      return connection_type_Code[ 0 ];
+      return connectionTypeCode[ 0 ];
     }
   }
 
   public static String getConnectionTypeDesc( int i ) {
-    if ( i < 0 || i >= connection_type_Desc.length ) {
-      return connection_type_Desc[ 0 ];
+    if ( i < 0 || i >= connectionTypeDesc.length ) {
+      return connectionTypeDesc[ 0 ];
     }
-    return connection_type_Desc[ i ];
+    return connectionTypeDesc[ i ];
   }
 
   public static String getConnectionType( int i ) {
-    return connection_type_Code[ i ];
+    return connectionTypeCode[ i ];
   }
 
   public static int getConnectionTypeByDesc( String tt ) {
@@ -249,8 +248,8 @@ public class FtpsConnection implements FTPListener {
       return 0;
     }
 
-    for ( int i = 0; i < connection_type_Desc.length; i++ ) {
-      if ( connection_type_Desc[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < connectionTypeDesc.length; i++ ) {
+      if ( connectionTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -263,8 +262,8 @@ public class FtpsConnection implements FTPListener {
       return 0;
     }
 
-    for ( int i = 0; i < connection_type_Code.length; i++ ) {
-      if ( connection_type_Code[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < connectionTypeCode.length; i++ ) {
+      if ( connectionTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -272,10 +271,10 @@ public class FtpsConnection implements FTPListener {
   }
 
   public static String getConnectionTypeCode( int i ) {
-    if ( i < 0 || i >= connection_type_Code.length ) {
-      return connection_type_Code[ 0 ];
+    if ( i < 0 || i >= connectionTypeCode.length ) {
+      return connectionTypeCode[ 0 ];
     }
-    return connection_type_Code[ i ];
+    return connectionTypeCode[ i ];
   }
 
   /**

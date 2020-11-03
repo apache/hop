@@ -840,8 +840,8 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         ftpclient.setRemotePort( realPort );
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
-          String realProxy_host = workflowMeta.environmentSubstitute( wProxyHost.getText() );
-          ftpclient.setRemoteAddr( InetAddress.getByName( realProxy_host ) );
+          String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
+          ftpclient.setRemoteAddr( InetAddress.getByName( realProxyHost ) );
 
           int port = Const.toInt( workflowMeta.environmentSubstitute( wProxyPort.getText() ), 21 );
           if ( port != 0 ) {

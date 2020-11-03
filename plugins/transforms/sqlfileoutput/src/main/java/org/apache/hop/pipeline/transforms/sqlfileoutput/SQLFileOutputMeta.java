@@ -73,7 +73,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
 
   private DatabaseMeta databaseMeta;
   private String schemaName;
-  private String tablename;
+  private String tableName;
   private boolean truncateTable;
 
   private boolean AddToResult;
@@ -297,14 +297,14 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
    * @return Returns the table name.
    */
   public String getTablename() {
-    return tablename;
+    return tableName;
   }
 
   /**
-   * @param tablename The table name to set.
+   * @param tableName The table name to set.
    */
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTablename( String tableName ) {
+    this.tableName = tableName;
   }
 
   /**
@@ -464,7 +464,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
       String con = XmlHandler.getTagValue( transformNode, "connection" );
       databaseMeta = DatabaseMeta.loadDatabase( metadataProvider, con );
       schemaName = XmlHandler.getTagValue( transformNode, "schema" );
-      tablename = XmlHandler.getTagValue( transformNode, "table" );
+      tableName = XmlHandler.getTagValue( transformNode, "table" );
       truncateTable = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "truncate" ) );
       createTable = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "create" ) );
       encoding = XmlHandler.getTagValue( transformNode, "encoding" );
@@ -493,7 +493,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
 
   public void setDefault() {
     databaseMeta = null;
-    tablename = "";
+    tableName = "";
     createparentfolder = false;
     DoNotOpenNewFileInit = false;
 
@@ -505,7 +505,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
     retval.append( "    "
       + XmlHandler.addTagValue( "connection", databaseMeta == null ? "" : databaseMeta.getName() ) );
     retval.append( "    " + XmlHandler.addTagValue( "schema", schemaName ) );
-    retval.append( "    " + XmlHandler.addTagValue( "table", tablename ) );
+    retval.append( "    " + XmlHandler.addTagValue( "table", tableName ) );
     retval.append( "    " + XmlHandler.addTagValue( "truncate", truncateTable ) );
     retval.append( "    " + XmlHandler.addTagValue( "create", createTable ) );
     retval.append( "    " + XmlHandler.addTagValue( "encoding", encoding ) );
@@ -549,24 +549,24 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
             PKG, "SQLFileOutputMeta.CheckResult.ConnectionOk" ), transformMeta );
         remarks.add( cr );
 
-        if ( !Utils.isEmpty( tablename ) ) {
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tablename );
+        if ( !Utils.isEmpty( tableName ) ) {
+          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
           // Check if this table exists...
-          if ( db.checkTableExists( schemaName, tablename ) ) {
+          if ( db.checkTableExists( schemaName, tableName ) ) {
             cr =
               new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                 PKG, "SQLFileOutputMeta.CheckResult.TableAccessible", schemaTable ), transformMeta );
             remarks.add( cr );
 
-            IRowMeta r = db.getTableFieldsMeta( schemaName, tablename );
+            IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
             if ( r != null ) {
               cr =
                 new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
                   PKG, "SQLFileOutputMeta.CheckResult.TableOk", schemaTable ), transformMeta );
               remarks.add( cr );
 
-              String error_message = "";
-              boolean error_found = false;
+              String errorMessage = "";
+              boolean errorFound = false;
               // OK, we have the table fields.
               // Now see what we can find as previous transform...
               if ( prev != null && prev.size() > 0 ) {
@@ -580,16 +580,16 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
                   IValueMeta pv = prev.getValueMeta( i );
                   int idx = r.indexOfValue( pv.getName() );
                   if ( idx < 0 ) {
-                    error_message += "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
-                    error_found = true;
+                    errorMessage += "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
+                    errorFound = true;
                   }
                 }
-                if ( error_found ) {
-                  error_message =
+                if ( errorFound ) {
+                  errorMessage =
                     BaseMessages.getString(
-                      PKG, "SQLFileOutputMeta.CheckResult.FieldsNotFoundInOutput", error_message );
+                      PKG, "SQLFileOutputMeta.CheckResult.FieldsNotFoundInOutput", errorMessage );
 
-                  cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+                  cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
                   remarks.add( cr );
                 } else {
                   cr =
@@ -603,15 +603,15 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
                   IValueMeta rv = r.getValueMeta( i );
                   int idx = prev.indexOfValue( rv.getName() );
                   if ( idx < 0 ) {
-                    error_message += "\t\t" + rv.getName() + " (" + rv.getTypeDesc() + ")" + Const.CR;
-                    error_found = true;
+                    errorMessage += "\t\t" + rv.getName() + " (" + rv.getTypeDesc() + ")" + Const.CR;
+                    errorFound = true;
                   }
                 }
-                if ( error_found ) {
-                  error_message =
-                    BaseMessages.getString( PKG, "SQLFileOutputMeta.CheckResult.FieldsNotFound", error_message );
+                if ( errorFound ) {
+                  errorMessage =
+                    BaseMessages.getString( PKG, "SQLFileOutputMeta.CheckResult.FieldsNotFound", errorMessage );
 
-                  cr = new CheckResult( CheckResult.TYPE_RESULT_WARNING, error_message, transformMeta );
+                  cr = new CheckResult( CheckResult.TYPE_RESULT_WARNING, errorMessage, transformMeta );
                   remarks.add( cr );
                 } else {
                   cr =
@@ -688,7 +688,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
       DatabaseImpact ii =
         new DatabaseImpact(
           DatabaseImpact.TYPE_IMPACT_TRUNCATE, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
-          .getDatabaseName(), tablename, "", "", "", "", "Truncate of table" );
+          .getDatabaseName(), tableName, "", "", "", "", "Truncate of table" );
       impact.add( ii );
 
     }
@@ -699,7 +699,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_WRITE, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
-            .getDatabaseName(), tablename, v.getName(), v.getName(), v != null ? v.getOrigin() : "?", "",
+            .getDatabaseName(), tableName, v.getName(), v.getName(), v != null ? v.getOrigin() : "?", "",
             "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
@@ -712,21 +712,21 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
-        if ( !Utils.isEmpty( tablename ) ) {
+        if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
           db.shareVariablesWith( pipelineMeta );
           try {
             db.connect();
 
-            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tablename );
-            String cr_table = db.getDDL( schemaTable, prev );
+            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+            String crTable = db.getDDL( schemaTable, prev );
 
             // Empty string means: nothing to do: set it to null...
-            if ( cr_table == null || cr_table.length() == 0 ) {
-              cr_table = null;
+            if ( crTable == null || crTable.length() == 0 ) {
+              crTable = null;
             }
 
-            retval.setSql( cr_table );
+            retval.setSql( crTable );
           } catch ( HopDatabaseException dbe ) {
             retval.setError( BaseMessages.getString( PKG, "SQLFileOutputMeta.Error.ErrorConnecting", dbe
               .getMessage() ) );
@@ -747,7 +747,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
   }
 
   public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
-    String realTableName = variables.environmentSubstitute( tablename );
+    String realTableName = variables.environmentSubstitute( tableName );
     String realSchemaName = variables.environmentSubstitute( schemaName );
 
     if ( databaseMeta != null ) {

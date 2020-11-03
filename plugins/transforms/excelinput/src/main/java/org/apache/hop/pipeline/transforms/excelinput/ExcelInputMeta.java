@@ -86,9 +86,9 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
   public static final int TYPE_TRIM_RIGHT = 2;
   public static final int TYPE_TRIM_BOTH = 3;
 
-  public static final String[] type_trim_code = { "none", "left", "right", "both" };
+  public static final String[] type_trimCode = { "none", "left", "right", "both" };
 
-  public static final String[] type_trim_desc = {
+  public static final String[] type_trimDesc = {
     BaseMessages.getString( PKG, "ExcelInputMeta.TrimType.None" ),
     BaseMessages.getString( PKG, "ExcelInputMeta.TrimType.Left" ),
     BaseMessages.getString( PKG, "ExcelInputMeta.TrimType.Right" ),
@@ -1111,8 +1111,8 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
 
   public static final int getTrimTypeByCode( String tt ) {
     if ( tt != null ) {
-      for ( int i = 0; i < type_trim_code.length; i++ ) {
-        if ( type_trim_code[ i ].equalsIgnoreCase( tt ) ) {
+      for ( int i = 0; i < type_trimCode.length; i++ ) {
+        if ( type_trimCode[ i ].equalsIgnoreCase( tt ) ) {
           return i;
         }
       }
@@ -1122,8 +1122,8 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
 
   public static final int getTrimTypeByDesc( String tt ) {
     if ( tt != null ) {
-      for ( int i = 0; i < type_trim_desc.length; i++ ) {
-        if ( type_trim_desc[ i ].equalsIgnoreCase( tt ) ) {
+      for ( int i = 0; i < type_trimDesc.length; i++ ) {
+        if ( type_trimDesc[ i ].equalsIgnoreCase( tt ) ) {
           return i;
         }
       }
@@ -1132,17 +1132,17 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   public static final String getTrimTypeCode( int i ) {
-    if ( i < 0 || i >= type_trim_code.length ) {
-      return type_trim_code[ 0 ];
+    if ( i < 0 || i >= type_trimCode.length ) {
+      return type_trimCode[ 0 ];
     }
-    return type_trim_code[ i ];
+    return type_trimCode[ i ];
   }
 
   public static final String getTrimTypeDesc( int i ) {
-    if ( i < 0 || i >= type_trim_desc.length ) {
-      return type_trim_desc[ 0 ];
+    if ( i < 0 || i >= type_trimDesc.length ) {
+      return type_trimDesc[ 0 ];
     }
-    return type_trim_desc[ i ];
+    return type_trimDesc[ i ];
   }
 
   public String[] getFilePaths( IVariables variables ) {

@@ -207,44 +207,44 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta implements ITransf
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                      String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( Utils.isEmpty( filenamefield ) ) {
-      error_message = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.FileFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.FileFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.FileFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.FileFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     if ( Utils.isEmpty( targetfilenamefield ) ) {
-      error_message = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.TargetFileFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.TargetFileFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.TargetFileFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.TargetFileFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     String realSourceEncoding = pipelineMeta.environmentSubstitute( getSourceEncoding() );
     if ( Utils.isEmpty( realSourceEncoding ) ) {
-      error_message = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.SourceEncodingMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.SourceEncodingMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.SourceEncodingOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.SourceEncodingOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     String realTargetEncoding = pipelineMeta.environmentSubstitute( getTargetEncoding() );
     if ( Utils.isEmpty( realTargetEncoding ) ) {
-      error_message = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.TargetEncodingMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.TargetEncodingMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.TargetEncodingOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.TargetEncodingOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

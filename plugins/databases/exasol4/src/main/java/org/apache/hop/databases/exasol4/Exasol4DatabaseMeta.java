@@ -87,13 +87,13 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getSqlTableExists( String tablename ) {
-    return getSqlQueryFields( tablename );
+  public String getSqlTableExists( String tableName ) {
+    return getSqlQueryFields( tableName );
   }
 
   @Override
-  public String getSqlColumnExists( String columnname, String tablename ) {
-    return getSqlQueryColumnFields( columnname, tablename );
+  public String getSqlColumnExists( String columnname, String tableName ) {
+    return getSqlQueryColumnFields( columnname, tableName );
   }
 
   public String getSqlQueryColumnFields( String columnname, String tableName ) {
@@ -145,7 +145,7 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
@@ -154,16 +154,16 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE "
-      + tablename + " ADD ( " + getFieldDefinition( v, tk, pk, useAutoinc, true, false ) + " ) ";
+      + tableName + " ADD ( " + getFieldDefinition( v, tk, pk, useAutoinc, true, false ) + " ) ";
   }
 
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
@@ -172,15 +172,15 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
+    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
@@ -189,11 +189,11 @@ public class Exasol4DatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
 
     return "ALTER TABLE "
-      + tablename + " MODIFY COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+      + tableName + " MODIFY COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
 
   }
 

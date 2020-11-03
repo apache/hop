@@ -71,9 +71,9 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   public static final int FONT_NAME_TAHOMA = 2;
   public static final int FONT_NAME_TIMES = 3;
 
-  public static final String[] font_name_code = { "arial", "courier", "tahoma", "times" };
+  public static final String[] fontNameCode = { "arial", "courier", "tahoma", "times" };
 
-  public static final String[] font_name_desc = {
+  public static final String[] fontNameDesc = {
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_name.Arial" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_name.Courier" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_name.Tahoma" ),
@@ -85,10 +85,10 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   public static final int FONT_UNDERLINE_DOUBLE = 3;
   public static final int FONT_UNDERLINE_DOUBLE_ACCOUNTING = 4;
 
-  public static final String[] font_underline_code = {
+  public static final String[] font_underlineCode = {
     "no", "single", "single_accounting", "double", "double_accounting" };
 
-  public static final String[] font_underline_desc = {
+  public static final String[] font_underlineDesc = {
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_underline.No" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_underline.Single" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_underline.SingleAccounting" ),
@@ -103,10 +103,10 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   public static final int FONT_ORIENTATION_STACKED = 5;
   public static final int FONT_ORIENTATION_VERTICAL = 6;
 
-  public static final String[] font_orientation_code = {
+  public static final String[] font_orientationCode = {
     "horizontal", "minus_45", "minus_90", "plus_45", "plus_90", "stacked", "vertical" };
 
-  public static final String[] font_orientation_desc = {
+  public static final String[] font_orientationDesc = {
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_orientation.Horizontal" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_orientation.Minus_45" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_orientation.Minus_90" ),
@@ -163,7 +163,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   public static final int FONT_COLOR_BROWN = 45;
   public static final int FONT_COLOR_GREY_80pct = 46;
 
-  public static final String[] font_color_code = {
+  public static final String[] fontColorCode = {
     "none", "black", "white", "red", "bright_green", "blue", "yellow", "pink", "turquoise", "dark_red", "green",
     "dark_blue", "dark_yellow", "violet", "teal", "grey_25pct", "grey_50pct", "periwinklepct", "plum", "ivory",
     "light_turquoise", "dark_purple", "coral", "ocean_blue", "ice_blue", "turqoise", "sky_blue", "light_green",
@@ -171,7 +171,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
     "light_orange", "orange", "blue_grey", "grey_40pct", "dark_teal", "sea_green", "dark_green", "olive_green",
     "brown", "grey_80pct" };
 
-  public static final String[] font_color_desc = {
+  public static final String[] fontColorDesc = {
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_color.None" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_color.BLACK" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_color.WHITE" ),
@@ -227,9 +227,9 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   public static final int FONT_ALIGNMENT_GENERAL = 4;
   public static final int FONT_ALIGNMENT_JUSTIFY = 5;
 
-  public static final String[] font_alignment_code = { "left", "right", "center", "fill", "general", "justify" };
+  public static final String[] font_alignmentCode = { "left", "right", "center", "fill", "general", "justify" };
 
-  public static final String[] font_alignment_desc = {
+  public static final String[] font_alignmentDesc = {
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_alignment.Left" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_alignment.Right" ),
     BaseMessages.getString( PKG, "ExcelOutputMeta.font_alignment.Center" ),
@@ -241,7 +241,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   public static final int DEFAULT_ROW_HEIGHT = 255;
   public static final int DEFAULT_ROW_WIDTH = 255;
 
-  private int header_font_name;
+  private int header_fontName;
   @Injection( name = "HEADER_FONT_SIZE", group = "CUSTOM" )
   private String header_font_size;
   @Injection( name = "HEADER_FONT_BOLD", group = "CUSTOM" )
@@ -251,22 +251,22 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   private int header_font_underline;
   private int header_font_orientation;
   @Injection( name = "HEADER_FONT_COLOR", group = "CUSTOM" )
-  private int header_font_color;
+  private int header_fontColor;
   @Injection( name = "HEADER_BACKGROUND_COLOR", group = "CUSTOM" )
-  private int header_background_color;
+  private int header_backgroundColor;
   @Injection( name = "HEADER_ROW_HEIGHT", group = "CUSTOM" )
-  private String header_row_height;
+  private String headerRow_height;
   private int header_alignment;
   @Injection( name = "HEADER_IMAGE", group = "CUSTOM" )
   private String header_image;
   // Row font
-  private int row_font_name;
+  private int row_fontName;
   @Injection( name = "ROW_FONT_SIZE", group = "CUSTOM" )
   private String row_font_size;
   @Injection( name = "ROW_FONT_COLOR", group = "CUSTOM" )
-  private int row_font_color;
+  private int row_fontColor;
   @Injection( name = "ROW_BACKGROUND_COLOR", group = "CUSTOM" )
-  private int row_background_color;
+  private int row_backgroundColor;
 
   /**
    * The base name of the output file
@@ -409,10 +409,10 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   private boolean createparentfolder;
 
   @Injection( name = "DATE_FORMAT_SPECIFIED" )
-  private boolean SpecifyFormat;
+  private boolean specifyFormat;
 
   @Injection( name = "DATE_FORMAT" )
-  private String date_time_format;
+  private String dateTimeFormat;
 
   /**
    * Flag : auto size columns?
@@ -597,19 +597,19 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public boolean isSpecifyFormat() {
-    return SpecifyFormat;
+    return specifyFormat;
   }
 
-  public void setSpecifyFormat( boolean SpecifyFormat ) {
-    this.SpecifyFormat = SpecifyFormat;
+  public void setSpecifyFormat( boolean specifyFormat ) {
+    this.specifyFormat = specifyFormat;
   }
 
   public String getDateTimeFormat() {
-    return date_time_format;
+    return dateTimeFormat;
   }
 
-  public void setDateTimeFormat( String date_time_format ) {
-    this.date_time_format = date_time_format;
+  public void setDateTimeFormat( String dateTimeFormat ) {
+    this.dateTimeFormat = dateTimeFormat;
   }
 
   /**
@@ -856,8 +856,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       transformNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) );
       dateInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_date" ) );
       timeInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_time" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) );
-      date_time_format = XmlHandler.getTagValue( transformNode, "file", "date_time_format" );
+      specifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) );
+      dateTimeFormat = XmlHandler.getTagValue( transformNode, "file", "date_time_format" );
       usetempfiles = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "usetempfiles" ) );
 
       tempdirectory = XmlHandler.getTagValue( transformNode, "file", "tempdirectory" );
@@ -885,7 +885,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
         outputFields[ i ].setFormat( XmlHandler.getTagValue( fnode, "format" ) );
       }
       Node customnode = XmlHandler.getSubNode( transformNode, "custom" );
-      header_font_name =
+      header_fontName =
         getFontNameByCode( Const.NVL( XmlHandler.getTagValue( customnode, "header_font_name" ), "" ) );
       header_font_size =
         Const.NVL( XmlHandler.getTagValue( customnode, "header_font_size" ), "" + DEFAULT_FONT_SIZE );
@@ -896,23 +896,23 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       header_font_orientation =
         getFontOrientationByCode( Const
           .NVL( XmlHandler.getTagValue( customnode, "header_font_orientation" ), "" ) );
-      header_font_color =
+      header_fontColor =
         getFontColorByCode( Const.NVL( XmlHandler.getTagValue( customnode, "header_font_color" ), ""
           + FONT_COLOR_BLACK ) );
-      header_background_color =
+      header_backgroundColor =
         getFontColorByCode( Const.NVL( XmlHandler.getTagValue( customnode, "header_background_color" ), ""
           + FONT_COLOR_NONE ) );
-      header_row_height = XmlHandler.getTagValue( customnode, "header_row_height" );
+      headerRow_height = XmlHandler.getTagValue( customnode, "header_row_height" );
       header_alignment =
         getFontAlignmentByCode( Const.NVL( XmlHandler.getTagValue( customnode, "header_alignment" ), "" ) );
       header_image = XmlHandler.getTagValue( customnode, "header_image" );
       // Row font
-      row_font_name = getFontNameByCode( Const.NVL( XmlHandler.getTagValue( customnode, "row_font_name" ), "" ) );
+      row_fontName = getFontNameByCode( Const.NVL( XmlHandler.getTagValue( customnode, "row_font_name" ), "" ) );
       row_font_size = Const.NVL( XmlHandler.getTagValue( customnode, "row_font_size" ), "" + DEFAULT_FONT_SIZE );
-      row_font_color =
+      row_fontColor =
         getFontColorByCode( Const.NVL( XmlHandler.getTagValue( customnode, "row_font_color" ), ""
           + FONT_COLOR_BLACK ) );
-      row_background_color =
+      row_backgroundColor =
         getFontColorByCode( Const.NVL( XmlHandler.getTagValue( customnode, "row_background_color" ), ""
           + FONT_COLOR_NONE ) );
 
@@ -939,22 +939,22 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   public void setDefault() {
     usetempfiles = false;
     tempdirectory = null;
-    header_font_name = FONT_NAME_ARIAL;
+    header_fontName = FONT_NAME_ARIAL;
     header_font_size = "" + DEFAULT_FONT_SIZE;
     header_font_bold = false;
     header_font_italic = false;
     header_font_underline = FONT_UNDERLINE_NO;
     header_font_orientation = FONT_ORIENTATION_HORIZONTAL;
-    header_font_color = FONT_COLOR_BLACK;
-    header_background_color = FONT_COLOR_NONE;
-    header_row_height = "" + DEFAULT_ROW_HEIGHT;
+    header_fontColor = FONT_COLOR_BLACK;
+    header_backgroundColor = FONT_COLOR_NONE;
+    headerRow_height = "" + DEFAULT_ROW_HEIGHT;
     header_alignment = FONT_ALIGNMENT_LEFT;
     header_image = null;
 
-    row_font_name = FONT_NAME_ARIAL;
+    row_fontName = FONT_NAME_ARIAL;
     row_font_size = "" + DEFAULT_FONT_SIZE;
-    row_font_color = FONT_COLOR_BLACK;
-    row_background_color = FONT_COLOR_NONE;
+    row_fontColor = FONT_COLOR_BLACK;
+    row_backgroundColor = FONT_COLOR_NONE;
 
     autoSizeColumns = false;
     headerEnabled = true;
@@ -966,8 +966,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
     transformNrInFilename = false;
     dateInFilename = false;
     timeInFilename = false;
-    date_time_format = null;
-    SpecifyFormat = false;
+    dateTimeFormat = null;
+    specifyFormat = false;
     addToResultFilenames = true;
     protectsheet = false;
     splitEvery = 0;
@@ -1031,8 +1031,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
 
     Date now = new Date();
 
-    if ( SpecifyFormat && !Utils.isEmpty( date_time_format ) ) {
-      daf.applyPattern( date_time_format );
+    if ( specifyFormat && !Utils.isEmpty( dateTimeFormat ) ) {
+      daf.applyPattern( dateTimeFormat );
       String dt = daf.format( now );
       retval += dt;
     } else {
@@ -1089,8 +1089,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
     retval.append( "      " ).append( XmlHandler.addTagValue( "split", transformNrInFilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", dateInFilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", timeInFilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", specifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", dateTimeFormat ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "sheetname", sheetname ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "autosizecolums", autoSizeColumns ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "nullisblank", nullIsBlank ) );
@@ -1123,7 +1123,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
     retval.append( "    </fields>" ).append( Const.CR );
 
     retval.append( "    <custom>" + Const.CR );
-    retval.append( "    " + XmlHandler.addTagValue( "header_font_name", getFontNameCode( header_font_name ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_font_name", getFontNameCode( header_fontName ) ) );
     retval.append( "    " + XmlHandler.addTagValue( "header_font_size", header_font_size ) );
     retval.append( "    " + XmlHandler.addTagValue( "header_font_bold", header_font_bold ) );
     retval.append( "    " + XmlHandler.addTagValue( "header_font_italic", header_font_italic ) );
@@ -1131,56 +1131,56 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       + XmlHandler.addTagValue( "header_font_underline", getFontUnderlineCode( header_font_underline ) ) );
     retval.append( "    "
       + XmlHandler.addTagValue( "header_font_orientation", getFontOrientationCode( header_font_orientation ) ) );
-    retval.append( "    " + XmlHandler.addTagValue( "header_font_color", getFontColorCode( header_font_color ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_font_color", getFontColorCode( header_fontColor ) ) );
     retval.append( "    "
-      + XmlHandler.addTagValue( "header_background_color", getFontColorCode( header_background_color ) ) );
-    retval.append( "    " + XmlHandler.addTagValue( "header_row_height", header_row_height ) );
+      + XmlHandler.addTagValue( "header_background_color", getFontColorCode( header_backgroundColor ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "header_row_height", headerRow_height ) );
     retval
       .append( "    " + XmlHandler.addTagValue( "header_alignment", getFontAlignmentCode( header_alignment ) ) );
     retval.append( "    " + XmlHandler.addTagValue( "header_image", header_image ) );
     // row font
-    retval.append( "    " + XmlHandler.addTagValue( "row_font_name", getFontNameCode( row_font_name ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "row_font_name", getFontNameCode( row_fontName ) ) );
     retval.append( "    " + XmlHandler.addTagValue( "row_font_size", row_font_size ) );
-    retval.append( "    " + XmlHandler.addTagValue( "row_font_color", getFontColorCode( row_font_color ) ) );
+    retval.append( "    " + XmlHandler.addTagValue( "row_font_color", getFontColorCode( row_fontColor ) ) );
     retval.append( "    "
-      + XmlHandler.addTagValue( "row_background_color", getFontColorCode( row_background_color ) ) );
+      + XmlHandler.addTagValue( "row_background_color", getFontColorCode( row_backgroundColor ) ) );
     retval.append( "      </custom>" + Const.CR );
     return retval.toString();
   }
 
   private static String getFontNameCode( int i ) {
-    if ( i < 0 || i >= font_name_code.length ) {
-      return font_name_code[ 0 ];
+    if ( i < 0 || i >= fontNameCode.length ) {
+      return fontNameCode[ 0 ];
     }
-    return font_name_code[ i ];
+    return fontNameCode[ i ];
   }
 
   private static String getFontUnderlineCode( int i ) {
-    if ( i < 0 || i >= font_underline_code.length ) {
-      return font_underline_code[ 0 ];
+    if ( i < 0 || i >= font_underlineCode.length ) {
+      return font_underlineCode[ 0 ];
     }
-    return font_underline_code[ i ];
+    return font_underlineCode[ i ];
   }
 
   private static String getFontAlignmentCode( int i ) {
-    if ( i < 0 || i >= font_alignment_code.length ) {
-      return font_alignment_code[ 0 ];
+    if ( i < 0 || i >= font_alignmentCode.length ) {
+      return font_alignmentCode[ 0 ];
     }
-    return font_alignment_code[ i ];
+    return font_alignmentCode[ i ];
   }
 
   private static String getFontOrientationCode( int i ) {
-    if ( i < 0 || i >= font_orientation_code.length ) {
-      return font_orientation_code[ 0 ];
+    if ( i < 0 || i >= font_orientationCode.length ) {
+      return font_orientationCode[ 0 ];
     }
-    return font_orientation_code[ i ];
+    return font_orientationCode[ i ];
   }
 
   private static String getFontColorCode( int i ) {
-    if ( i < 0 || i >= font_color_code.length ) {
-      return font_color_code[ 0 ];
+    if ( i < 0 || i >= fontColorCode.length ) {
+      return fontColorCode[ 0 ];
     }
-    return font_color_code[ i ];
+    return fontColorCode[ i ];
   }
 
   @Override
@@ -1196,20 +1196,20 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
           PKG, "ExcelOutputMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < outputFields.length; i++ ) {
         int idx = prev.indexOfValue( outputFields[ i ].getName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + outputFields[ i ].getName() + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + outputFields[ i ].getName() + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message = BaseMessages.getString( PKG, "ExcelOutputMeta.CheckResult.FieldsNotFound", error_message );
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      if ( errorFound ) {
+        errorMessage = BaseMessages.getString( PKG, "ExcelOutputMeta.CheckResult.FieldsNotFound", errorMessage );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =
@@ -1275,46 +1275,46 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public static String getFontNameDesc( int i ) {
-    if ( i < 0 || i >= font_name_desc.length ) {
-      return font_name_desc[ 0 ];
+    if ( i < 0 || i >= fontNameDesc.length ) {
+      return fontNameDesc[ 0 ];
     }
-    return font_name_desc[ i ];
+    return fontNameDesc[ i ];
   }
 
   public static String getFontUnderlineDesc( int i ) {
-    if ( i < 0 || i >= font_underline_desc.length ) {
-      return font_underline_desc[ 0 ];
+    if ( i < 0 || i >= font_underlineDesc.length ) {
+      return font_underlineDesc[ 0 ];
     }
-    return font_underline_desc[ i ];
+    return font_underlineDesc[ i ];
   }
 
   public static String getFontOrientationDesc( int i ) {
-    if ( i < 0 || i >= font_orientation_desc.length ) {
-      return font_orientation_desc[ 0 ];
+    if ( i < 0 || i >= font_orientationDesc.length ) {
+      return font_orientationDesc[ 0 ];
     }
-    return font_orientation_desc[ i ];
+    return font_orientationDesc[ i ];
   }
 
   public static String getFontColorDesc( int i ) {
-    if ( i < 0 || i >= font_color_desc.length ) {
-      return font_color_desc[ 0 ];
+    if ( i < 0 || i >= fontColorDesc.length ) {
+      return fontColorDesc[ 0 ];
     }
-    return font_color_desc[ i ];
+    return fontColorDesc[ i ];
   }
 
   public static String getFontAlignmentDesc( int i ) {
-    if ( i < 0 || i >= font_alignment_desc.length ) {
-      return font_alignment_desc[ 0 ];
+    if ( i < 0 || i >= font_alignmentDesc.length ) {
+      return font_alignmentDesc[ 0 ];
     }
-    return font_alignment_desc[ i ];
+    return font_alignmentDesc[ i ];
   }
 
   public int getHeaderFontName() {
-    return header_font_name;
+    return header_fontName;
   }
 
   public int getRowFontName() {
-    return row_font_name;
+    return row_fontName;
   }
 
   public int getHeaderFontUnderline() {
@@ -1330,19 +1330,19 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public int getHeaderFontColor() {
-    return header_font_color;
+    return header_fontColor;
   }
 
   public int getRowFontColor() {
-    return row_font_color;
+    return row_fontColor;
   }
 
   public int getHeaderBackGroundColor() {
-    return header_background_color;
+    return header_backgroundColor;
   }
 
   public int getRowBackGroundColor() {
-    return row_background_color;
+    return row_backgroundColor;
   }
 
   public static int getFontNameByDesc( String tt ) {
@@ -1350,8 +1350,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_name_desc.length; i++ ) {
-      if ( font_name_desc[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < fontNameDesc.length; i++ ) {
+      if ( fontNameDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1364,8 +1364,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_name_code.length; i++ ) {
-      if ( font_name_code[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < fontNameCode.length; i++ ) {
+      if ( fontNameCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1377,8 +1377,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_underline_desc.length; i++ ) {
-      if ( font_underline_desc[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < font_underlineDesc.length; i++ ) {
+      if ( font_underlineDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1391,8 +1391,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_orientation_desc.length; i++ ) {
-      if ( font_orientation_desc[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < font_orientationDesc.length; i++ ) {
+      if ( font_orientationDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1405,8 +1405,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_underline_code.length; i++ ) {
-      if ( font_underline_code[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < font_underlineCode.length; i++ ) {
+      if ( font_underlineCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1418,8 +1418,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_orientation_code.length; i++ ) {
-      if ( font_orientation_code[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < font_orientationCode.length; i++ ) {
+      if ( font_orientationCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1431,8 +1431,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_color_desc.length; i++ ) {
-      if ( font_color_desc[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < fontColorDesc.length; i++ ) {
+      if ( fontColorDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1445,8 +1445,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_alignment_desc.length; i++ ) {
-      if ( font_alignment_desc[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < font_alignmentDesc.length; i++ ) {
+      if ( font_alignmentDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1459,8 +1459,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_alignment_code.length; i++ ) {
-      if ( font_alignment_code[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < font_alignmentCode.length; i++ ) {
+      if ( font_alignmentCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1472,8 +1472,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       return 0;
     }
 
-    for ( int i = 0; i < font_color_code.length; i++ ) {
-      if ( font_color_code[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < fontColorCode.length; i++ ) {
+      if ( fontColorCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -1481,21 +1481,21 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public void setHeaderFontName( int fontname ) {
-    this.header_font_name = fontname;
+    this.header_fontName = fontname;
   }
 
   @Injection( name = "HEADER_FONT_NAME", group = "CUSTOM" )
   public void setHeaderFontName( String fontname ) {
-    this.header_font_name = getFontNameByCode( fontname );
+    this.header_fontName = getFontNameByCode( fontname );
   }
 
   public void setRowFontName( int fontname ) {
-    this.row_font_name = fontname;
+    this.row_fontName = fontname;
   }
 
   @Injection( name = "ROW_FONT_NAME", group = "CUSTOM" )
   public void setRowFontName( String fontname ) {
-    this.row_font_name = getFontNameByCode( fontname );
+    this.row_fontName = getFontNameByCode( fontname );
   }
 
   public void setHeaderFontUnderline( int fontunderline ) {
@@ -1517,19 +1517,19 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public void setHeaderFontColor( int fontcolor ) {
-    this.header_font_color = fontcolor;
+    this.header_fontColor = fontcolor;
   }
 
   public void setRowFontColor( int fontcolor ) {
-    this.row_font_color = fontcolor;
+    this.row_fontColor = fontcolor;
   }
 
   public void setHeaderBackGroundColor( int fontcolor ) {
-    this.header_background_color = fontcolor;
+    this.header_backgroundColor = fontcolor;
   }
 
   public void setRowBackGroundColor( int fontcolor ) {
-    this.row_background_color = fontcolor;
+    this.row_backgroundColor = fontcolor;
   }
 
   public void setHeaderAlignment( int alignment ) {
@@ -1566,11 +1566,11 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public void setHeaderRowHeight( String height ) {
-    this.header_row_height = height;
+    this.headerRow_height = height;
   }
 
   public String getHeaderRowHeight() {
-    return this.header_row_height;
+    return this.headerRow_height;
   }
 
   public boolean isHeaderFontBold() {

@@ -23,14 +23,6 @@
 
 package org.apache.hop.workflow.actions.pgpencryptfiles;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileType;
 import org.apache.hop.core.Const;
@@ -39,6 +31,14 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 /**
  * This defines a GnuPG wrapper class.
@@ -191,10 +191,10 @@ public class GPG {
       throw new HopException( BaseMessages.getString( PKG, "GPG.IOException" ), io );
     }
 
-    ProcessStreamReader psr_stdout = new ProcessStreamReader( p.getInputStream() );
-    ProcessStreamReader psr_stderr = new ProcessStreamReader( p.getErrorStream() );
-    psr_stdout.start();
-    psr_stderr.start();
+    ProcessStreamReader psrStdOut = new ProcessStreamReader( p.getInputStream() );
+    ProcessStreamReader psrStdErr = new ProcessStreamReader( p.getErrorStream() );
+    psrStdOut.start();
+    psrStdErr.start();
     if ( inputStr != null ) {
       BufferedWriter out = new BufferedWriter( new OutputStreamWriter( p.getOutputStream() ) );
       try {
@@ -215,15 +215,15 @@ public class GPG {
     try {
       p.waitFor();
 
-      psr_stdout.join();
-      psr_stderr.join();
+      psrStdOut.join();
+      psrStdErr.join();
     } catch ( InterruptedException i ) {
       throw new HopException( BaseMessages.getString( PKG, "GPG.ExceptionWait" ), i );
     }
 
     try {
       if ( p.exitValue() != 0 ) {
-        throw new HopException( BaseMessages.getString( PKG, "GPG.Exception.ExistStatus", psr_stderr
+        throw new HopException( BaseMessages.getString( PKG, "GPG.Exception.ExistStatus", psrStdErr
           .getString() ) );
       }
     } catch ( IllegalThreadStateException itse ) {
@@ -232,7 +232,7 @@ public class GPG {
       p.destroy();
     }
 
-    retval = psr_stdout.getString();
+    retval = psrStdOut.getString();
 
     return retval;
 

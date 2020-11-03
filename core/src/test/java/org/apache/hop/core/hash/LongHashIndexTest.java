@@ -69,7 +69,7 @@ public class LongHashIndexTest {
   }
 
   @Test
-  public void testPutElements_with_same_index_point() throws HopValueException {
+  public void testPutElements_with_sameIndex_point() throws HopValueException {
     LongHashIndex index = new LongHashIndex();
     long firstVariable = 3513L;
     long secondVariableWithSameIndexPoint = 8633L;
@@ -80,7 +80,7 @@ public class LongHashIndexTest {
   }
 
   @Test
-  public void testPutElements_when_initial_size_is_less_than_elements_count() throws HopValueException {
+  public void testPutElements_when_initial_size_is_less_than_elementsCount() throws HopValueException {
     LongHashIndex index = new LongHashIndex( 0 );
     index.put( 1L, 1L );
     index.put( 2L, 2L );

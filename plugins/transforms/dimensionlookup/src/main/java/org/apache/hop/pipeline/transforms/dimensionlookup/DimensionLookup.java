@@ -453,8 +453,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         returnRow[ 0 ] = data.notFoundTk;
 
         if ( meta.getCacheSize() >= 0 ) { // need -oo to +oo as well...
-          returnRow[ returnRow.length - 2 ] = data.min_date;
-          returnRow[ returnRow.length - 1 ] = data.max_date;
+          returnRow[ returnRow.length - 2 ] = data.minDate;
+          returnRow[ returnRow.length - 1 ] = data.maxDate;
         }
       }
       // else {
@@ -489,10 +489,10 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           // the result was multiple inserts for what should have been 1 [PDI-4317]
           valueDateFrom = valueDate;
         } else {
-          valueDateFrom = data.min_date;
+          valueDateFrom = data.minDate;
         }
 
-        valueDateTo = data.max_date;
+        valueDateTo = data.maxDate;
         valueVersion = new Long( 1L ); // Versions always start at 1.
 
         // get a new value from the sequence generator chosen.
@@ -706,7 +706,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
           // be either the system date or the value in a column
           //
           valueDateFrom = valueDate;
-          valueDateTo = data.max_date;
+          valueDateTo = data.maxDate;
 
           // First try to use an AUTOINCREMENT field
           if ( meta.getDatabaseMeta().supportsAutoinc() && isAutoIncrement() ) {
@@ -1683,8 +1683,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
 
     if ( super.init() ) {
       meta.actualizeWithInjectedValues();
-      data.min_date = meta.getMinDate();
-      data.max_date = meta.getMaxDate();
+      data.minDate = meta.getMinDate();
+      data.maxDate = meta.getMaxDate();
 
       data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
       data.realTableName = environmentSubstitute( meta.getTableName() );

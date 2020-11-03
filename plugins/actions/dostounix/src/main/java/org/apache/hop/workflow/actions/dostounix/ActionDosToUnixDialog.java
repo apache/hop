@@ -209,7 +209,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( action.arg_from_previous );
+    wPrevious.setSelection( action.argFromPrevious );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "JobDosToUnix.Previous.Tooltip" ) );
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -340,8 +340,8 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wlFields.setLayoutData(fdlFields);
 
     int rows =
-      action.source_filefolder == null ? 1 : ( action.source_filefolder.length == 0
-        ? 0 : action.source_filefolder.length );
+      action.sourceFileFolder == null ? 1 : ( action.sourceFileFolder.length == 0
+        ? 0 : action.sourceFileFolder.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -668,11 +668,11 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
       wName.setText( action.getName() );
     }
 
-    if ( action.source_filefolder != null ) {
-      for ( int i = 0; i < action.source_filefolder.length; i++ ) {
+    if ( action.sourceFileFolder != null ) {
+      for ( int i = 0; i < action.sourceFileFolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( action.source_filefolder[ i ] != null ) {
-          ti.setText( 1, action.source_filefolder[ i ] );
+        if ( action.sourceFileFolder[ i ] != null ) {
+          ti.setText( 1, action.sourceFileFolder[ i ] );
         }
 
         if ( action.wildcard[ i ] != null ) {
@@ -683,8 +683,8 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( action.arg_from_previous );
-    wIncludeSubfolders.setSelection( action.include_subfolders );
+    wPrevious.setSelection( action.argFromPrevious );
+    wIncludeSubfolders.setSelection( action.includeSubFolders );
 
     if ( action.getNrErrorsLessThan() != null ) {
       wNrErrorsLessThan.setText( action.getNrErrorsLessThan() );
@@ -737,7 +737,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     }
     action.setName( wName.getText() );
 
-    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setIncludeSubFolders( wIncludeSubfolders.getSelection() );
     action.setArgFromPrevious( wPrevious.getSelection() );
 
     action.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
@@ -760,23 +760,23 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
       action.setResultFilenames( ActionDosToUnix.ADD_NOTHING );
     }
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
       }
     }
-    action.source_filefolder = new String[ nr ];
+    action.sourceFileFolder = new String[ nr ];
     action.wildcard = new String[ nr ];
     action.conversionTypes = new int[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( source != null && source.length() != 0 ) {
-        action.source_filefolder[ nr ] = source;
+        action.sourceFileFolder[ nr ] = source;
         action.wildcard[ nr ] = wild;
         action.conversionTypes[ nr ] =
           ActionDosToUnix.getConversionTypeByDesc( wFields.getNonEmpty( i ).getText( 3 ) );

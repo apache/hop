@@ -37,7 +37,7 @@ import org.w3c.dom.Node;
 import java.util.List;
 
 public class ActionEmpty extends ActionBase implements IAction {
-  public Result execute( Result prev_result, int nr ) throws HopException {
+  public Result execute( Result prevResult, int nr ) throws HopException {
     return null;
   }
 

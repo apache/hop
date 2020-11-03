@@ -1899,7 +1899,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Detach transform",
     tooltip = "Remove hops to and from this action",
-    image = "ui/images/HOP_delete.svg"
+    image = "ui/images/HOP_delete.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void detachTransform( HopGuiPipelineTransformContext context ) {
     TransformMeta transformMeta = context.getTransformMeta();
@@ -1929,9 +1931,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10700-partitioning",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Modify,
-    name = "Specify transform partitioning",
+    name = "Set partitioning",
     tooltip = "Specify how rows of data need to be grouped into partitions allowing parallel execution where similar rows need to end up on the same transform copy",
-    image = "ui/images/partition_schema.svg"
+    image = "ui/images/partition_schema.svg",
+    category = "Data routing",
+    categoryOrder = "2"
   )
   public void partitioning( HopGuiPipelineTransformContext context ) {
     pipelineTransformDelegate.editTransformPartitioning( pipelineMeta, context.getTransformMeta() );
@@ -1941,9 +1945,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10800-error-handling",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Modify,
-    name = "Transform error handling",
+    name = "Error handling",
     tooltip = "Specify how error handling is behaving for this transform",
-    image = "ui/images/transform_error.svg"
+    image = "ui/images/transform_error.svg",
+    category = "Data routing",
+    categoryOrder = "2"
   )
   public void errorHandling( HopGuiPipelineTransformContext context ) {
     pipelineTransformDelegate.editTransformErrorHandling( pipelineMeta, context.getTransformMeta() );
@@ -1958,9 +1964,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10000-edit",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Modify,
-    name = "Edit the transform",
+    name = "Edit",
     tooltip = "Edit the transform properties",
-    image = "ui/images/Edit.svg"
+    image = "ui/images/Edit.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void editTransform( HopGuiPipelineTransformContext context ) {
     editTransform( context.getTransformMeta() );
@@ -1975,9 +1983,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10800-edit-description",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Modify,
-    name = "Edit transform description",
+    name = "Edit description",
     tooltip = "Modify the transform description",
-    image = "ui/images/Edit.svg"
+    image = "ui/images/Edit.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void editDescription( HopGuiPipelineTransformContext context ) {
     editDescription( context.getTransformMeta() );
@@ -1989,7 +1999,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Distribute rows",
     tooltip = "Make the transform distribute rows to next transforms",
-    image = "ui/images/Edit.svg"
+    image = "ui/images/Edit.svg",
+    category = "Data routing",
+    categoryOrder = "2"
   )
   public void setDistributes( HopGuiPipelineTransformContext context ) {
     context.getTransformMeta().setDistributes( true );
@@ -2003,7 +2015,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Copy rows",
     tooltip = "Make the transform copy rows to all next transforms",
-    image = "ui/images/copy-hop.svg"
+    image = "ui/images/copy-hop.svg",
+    category = "Data routing",
+    categoryOrder = "2"
   )
   public void setCopies( HopGuiPipelineTransformContext context ) {
     context.getTransformMeta().setDistributes( false );
@@ -2061,9 +2075,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10100-copies",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Modify,
-    name = "Set the number of transform copies",
+    name = "Specify copies",
     tooltip = "Set the number of transform copies to use during execution",
-    image = "ui/images/parallel-hop.svg"
+    image = "ui/images/parallel-hop.svg",
+    category = "Data routing",
+    categoryOrder = "2"
   )
   public void copies( HopGuiPipelineTransformContext context ) {
     TransformMeta transformMeta = context.getTransformMeta();
@@ -2099,9 +2115,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10900-delete",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Delete,
-    name = "Delete this transform",
+    name = "Delete",
     tooltip = "Delete the selected transform from the pipeline",
-    image = "ui/images/generic-delete.svg"
+    image = "ui/images/generic-delete.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void delTransform( HopGuiPipelineTransformContext context ) {
     delSelected( context.getTransformMeta() );
@@ -2111,9 +2129,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10200-fields-before",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Info,
-    name = "Show the fields entering this transform",
-    tooltip = "Show all the fields entering this transform",
-    image = "ui/images/info-hop.svg"
+    name = "Show input fields",
+    tooltip = "Show all the input fields entering this transform",
+    image = "ui/images/info-hop.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void fieldsBefore( HopGuiPipelineTransformContext context ) {
     selectedTransforms = null;
@@ -2124,9 +2144,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10300-fields-after",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Info,
-    name = "Show the fields exiting this transform",
-    tooltip = "Show all the fields resulting from this transform",
-    image = "ui/images/info-hop.svg"
+    name = "Show output fields",
+    tooltip = "Show all the output fields resulting from this transform",
+    image = "ui/images/info-hop.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void fieldsAfter( HopGuiPipelineTransformContext context ) {
     selectedTransforms = null;
@@ -2148,7 +2170,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Enable hop",
     tooltip = "Enable the hop",
-    image = "ui/images/HOP.svg"
+    image = "ui/images/HOP.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void enableHop( HopGuiPipelineHopContext context ) {
     PipelineHopMeta hop = context.getHopMeta();
@@ -2174,7 +2198,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Disable hop",
     tooltip = "Disable the hop",
-    image = "ui/images/HOP_disable.svg"
+    image = "ui/images/HOP_disable.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void disableHop( HopGuiPipelineHopContext context ) {
     PipelineHopMeta hopMeta = context.getHopMeta();
@@ -2195,7 +2221,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Delete,
     name = "Delete hop",
     tooltip = "Delete the hop between 2 actions",
-    image = "ui/images/HOP_delete.svg"
+    image = "ui/images/HOP_delete.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void deleteHop( HopGuiPipelineHopContext context ) {
     pipelineHopDelegate.delHop( pipelineMeta, context.getHopMeta() );
@@ -2258,7 +2286,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Enable downstream hops",
     tooltip = "Enable all disabled downstream hops",
-    image = "ui/images/HOP_enable_downstream.svg"
+    image = "ui/images/HOP_enable_downstream.svg",
+    category = "Bulk",
+    categoryOrder = "2"
   )
   public void enableHopsDownstream( HopGuiPipelineHopContext context ) {
     enableDisableHopsDownstream( context.getHopMeta(), true );
@@ -2270,7 +2300,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Disable downstream hops",
     tooltip = "Disable all enabled downstream hops",
-    image = "ui/images/HOP_disable_downstream.svg"
+    image = "ui/images/HOP_disable_downstream.svg",
+    category = "Bulk",
+    categoryOrder = "2"
   )
   public void disableHopsDownstream( HopGuiPipelineHopContext context ) {
     enableDisableHopsDownstream( context.getHopMeta(), false );
@@ -2316,7 +2348,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Edit the note",
     tooltip = "Edit the note",
-    image = "ui/images/Edit.svg"
+    image = "ui/images/Edit.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void editNote( HopGuiPipelineNoteContext context ) {
     selectionRegion = null;
@@ -2329,7 +2363,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Delete,
     name = "Delete the note",
     tooltip = "Delete the note",
-    image = "ui/images/generic-delete.svg"
+    image = "ui/images/generic-delete.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void deleteNote( HopGuiPipelineNoteContext context ) {
     selectionRegion = null;
@@ -2347,7 +2383,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Create,
     name = "Create a note",
     tooltip = "Create a new note",
-    image = "ui/images/new.svg"
+    image = "ui/images/new.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void newNote( HopGuiPipelineContext context ) {
     selectionRegion = null;
@@ -2373,7 +2411,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Edit pipeline",
     tooltip = "Edit pipeline properties",
-    image = "ui/images/toolbar/pipeline.svg"
+    image = "ui/images/toolbar/pipeline.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void editPipelineProperties( HopGuiPipelineContext context ) {
     editProperties( pipelineMeta, hopGui, true );
@@ -2884,7 +2924,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Create,
     name = "Create hop",
     tooltip = "Create a new hop between 2 transforms",
-    image = "ui/images/HOP.svg"
+    image = "ui/images/HOP.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void newHopCandidate( HopGuiPipelineTransformContext context ) {
     startHopTransform = context.getTransformMeta();
@@ -3059,7 +3101,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Info,
     name = "Preview output",
     tooltip = "Execute the pipeline and see the output of the transform",
-    image = "ui/images/preview.svg"
+    image = "ui/images/preview.svg",
+    category = "Preview",
+    categoryOrder = "3"
   )
   /**
    *
@@ -3097,7 +3141,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Info,
     name = "Debug output",
     tooltip = "Execute the pipeline and debug output of the transform. Pause the pipeline when the condition is met.",
-    image = "ui/images/debug.svg"
+    image = "ui/images/debug.svg",
+    category = "Preview",
+    categoryOrder = "3"
   )
   /**
    *
@@ -4150,7 +4196,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Info,
     name = "Sniff output",
     tooltip = "Take a look at 50 rows coming out of the selected transform",
-    image = "ui/images/preview.svg"
+    image = "ui/images/preview.svg",
+    category = "Preview",
+    categoryOrder = "3"
   )
   public void sniff( HopGuiPipelineTransformContext context ) {
     TransformMeta transformMeta = context.getTransformMeta();
@@ -4510,7 +4558,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Paste from the clipboard",
     tooltip = "Paste transforms, notes or a whole pipeline from the clipboard",
-    image = "ui/images/CPY.svg"
+    image = "ui/images/CPY.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void pasteFromClipboard( HopGuiPipelineContext context ) {
     pasteFromClipboard( context.getClick() );
@@ -4520,9 +4570,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     id = "pipeline-graph-transform-10010-copy-transform-to-clipboard",
     parentId = HopGuiPipelineTransformContext.CONTEXT_ID,
     type = GuiActionType.Custom,
-    name = "Copy transform to clipboard",
+    name = "Copy to clipboard",
     tooltip = "Copy the XML representation of this transform to the clipboard",
-    image = "ui/images/copy.svg"
+    image = "ui/images/copy.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void copyTransformToClipboard( HopGuiPipelineTransformContext context ) {
     pipelineClipboardDelegate.copySelected( pipelineMeta, Arrays.asList( context.getTransformMeta() ), Collections.emptyList() );

@@ -378,8 +378,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
    *
    * @param access_type The access type.
    */
-  public void setAccessType( int access_type ) {
-    iDatabase.setAccessType( access_type );
+  public void setAccessType( int accessType ) {
+    iDatabase.setAccessType( accessType );
   }
 
   /**
@@ -510,16 +510,16 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
     return iDatabase.getDataTablespace();
   }
 
-  public void setDataTablespace( String data_tablespace ) {
-    iDatabase.setDataTablespace( data_tablespace );
+  public void setDataTablespace( String dataTablespace ) {
+    iDatabase.setDataTablespace( dataTablespace );
   }
 
   public String getIndexTablespace() {
     return iDatabase.getIndexTablespace();
   }
 
-  public void setIndexTablespace( String index_tablespace ) {
-    iDatabase.setIndexTablespace( index_tablespace );
+  public void setIndexTablespace( String indexTablespace ) {
+    iDatabase.setIndexTablespace( indexTablespace );
   }
 
   public void setChanged() {
@@ -985,8 +985,8 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
     return iDatabase.getDefaultDatabasePort();
   }
 
-  public int getNotFoundTK( boolean use_autoinc ) {
-    return iDatabase.getNotFoundTK( use_autoinc );
+  public int getNotFoundTK( boolean useAutoInc ) {
+    return iDatabase.getNotFoundTK( useAutoInc );
   }
 
   public String getDriverClass() {
@@ -1141,20 +1141,20 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
     return retval;
   }
 
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc ) {
-    return getFieldDefinition( v, tk, pk, use_autoinc, true, true );
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoInc ) {
+    return getFieldDefinition( v, tk, pk, useAutoInc, true, true );
   }
 
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc,
-                                    boolean add_fieldname, boolean add_cr ) {
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoInc,
+                                    boolean addFieldname, boolean addCr ) {
 
     String definition =
-      v.getDatabaseColumnTypeDefinition( iDatabase, tk, pk, use_autoinc, add_fieldname, add_cr );
+      v.getDatabaseColumnTypeDefinition( iDatabase, tk, pk, useAutoInc, addFieldname, addCr );
     if ( !Utils.isEmpty( definition ) ) {
       return definition;
     }
 
-    return iDatabase.getFieldDefinition( v, tk, pk, use_autoinc, add_fieldname, add_cr );
+    return iDatabase.getFieldDefinition( v, tk, pk, useAutoInc, addFieldname, addCr );
   }
 
   public String getLimitClause( int nrRows ) {
@@ -1169,9 +1169,9 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
     return iDatabase.getSqlQueryFields( tableName );
   }
 
-  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
+  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
                                        String pk, boolean semicolon ) {
-    String retval = iDatabase.getAddColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
+    String retval = iDatabase.getAddColumnStatement( tableName, v, tk, useAutoInc, pk, semicolon );
     retval += Const.CR;
     if ( semicolon ) {
       retval += ";" + Const.CR;
@@ -1179,9 +1179,9 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
     return retval;
   }
 
-  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
+  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
                                         String pk, boolean semicolon ) {
-    String retval = iDatabase.getDropColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
+    String retval = iDatabase.getDropColumnStatement( tableName, v, tk, useAutoInc, pk, semicolon );
     retval += Const.CR;
     if ( semicolon ) {
       retval += ";" + Const.CR;
@@ -1189,9 +1189,9 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
     return retval;
   }
 
-  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
+  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
                                           String pk, boolean semicolon ) {
-    String retval = iDatabase.getModifyColumnStatement( tablename, v, tk, use_autoinc, pk, semicolon );
+    String retval = iDatabase.getModifyColumnStatement( tableName, v, tk, useAutoInc, pk, semicolon );
     retval += Const.CR;
     if ( semicolon ) {
       retval += ";" + Const.CR;
@@ -1902,12 +1902,12 @@ public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
     return getName();
   }
 
-  public String getSqlTableExists( String tablename ) {
-    return iDatabase.getSqlTableExists( tablename );
+  public String getSqlTableExists( String tableName ) {
+    return iDatabase.getSqlTableExists( tableName );
   }
 
-  public String getSqlColumnExists( String columnname, String tablename ) {
-    return iDatabase.getSqlColumnExists( columnname, tablename );
+  public String getSqlColumnExists( String columnname, String tableName ) {
+    return iDatabase.getSqlColumnExists( columnname, tableName );
   }
 
   /**

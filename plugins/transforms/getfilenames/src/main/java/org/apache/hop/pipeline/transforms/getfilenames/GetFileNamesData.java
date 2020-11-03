@@ -48,7 +48,7 @@ import java.util.zip.ZipInputStream;
 public class GetFileNamesData extends BaseTransformData implements ITransformData {
   public List<String> lineBuffer;
 
-  public Object[] previous_row;
+  public Object[] previousRow;
 
   public int nr_repeats;
 
@@ -124,7 +124,7 @@ public class GetFileNamesData extends BaseTransformData implements ITransformDat
     dafs = new DateFormatSymbols();
 
     nr_repeats = 0;
-    previous_row = null;
+    previousRow = null;
     filenr = 0;
     filessize = 0;
 

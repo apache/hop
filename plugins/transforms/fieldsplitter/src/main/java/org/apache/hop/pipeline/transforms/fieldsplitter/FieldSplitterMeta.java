@@ -532,7 +532,7 @@ public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMe
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
-    String error_message = "";
+    String errorMessage = "";
     CheckResult cr;
 
     // Look up fields in the input stream <prev>
@@ -542,14 +542,14 @@ public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMe
           PKG, "FieldSplitterMeta.CheckResult.TransformReceivingFields", prev.size() + "" ), transformMeta );
       remarks.add( cr );
 
-      error_message = "";
+      errorMessage = "";
 
       int i = prev.indexOfValue( splitField );
       if ( i < 0 ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString(
             PKG, "FieldSplitterMeta.CheckResult.SplitedFieldNotPresentInInputStream", splitField );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =
@@ -558,10 +558,10 @@ public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMe
         remarks.add( cr );
       }
     } else {
-      error_message =
+      errorMessage =
         BaseMessages.getString( PKG, "FieldSplitterMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform" )
           + Const.CR;
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

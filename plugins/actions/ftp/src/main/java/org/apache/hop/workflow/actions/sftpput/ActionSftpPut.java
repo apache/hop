@@ -550,15 +550,15 @@ public class ActionSftpPut extends ActionBase implements Cloneable, IAction {
           resultRow = rows.get( iteration );
 
           // Get file names
-          String file_previous = resultRow.getString( 0, null );
-          if ( !Utils.isEmpty( file_previous ) ) {
-            FileObject file = HopVfs.getFileObject( file_previous );
+          String filePrevious = resultRow.getString( 0, null );
+          if ( !Utils.isEmpty( filePrevious ) ) {
+            FileObject file = HopVfs.getFileObject( filePrevious );
             if ( !file.exists() ) {
-              logError( BaseMessages.getString( PKG, "JobSFTPPUT.Log.FilefromPreviousNotFound", file_previous ) );
+              logError( BaseMessages.getString( PKG, "JobSFTPPUT.Log.FilefromPreviousNotFound", filePrevious ) );
             } else {
               myFileList.add( file );
               if ( log.isDebug() ) {
-                logDebug( BaseMessages.getString( PKG, "JobSFTPPUT.Log.FilenameFromResult", file_previous ) );
+                logDebug( BaseMessages.getString( PKG, "JobSFTPPUT.Log.FilenameFromResult", filePrevious ) );
               }
             }
           }

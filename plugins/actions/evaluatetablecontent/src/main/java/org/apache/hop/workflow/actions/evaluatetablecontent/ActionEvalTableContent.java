@@ -76,7 +76,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
   private boolean useCustomSql;
   private String customSql;
   private DatabaseMeta connection;
-  private String tablename;
+  private String tableName;
   private String schemaname;
   private String limit;
   private int successCondition;
@@ -113,7 +113,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     clearResultList = true;
     customSql = null;
     schemaname = null;
-    tablename = null;
+    tableName = null;
     connection = null;
   }
 
@@ -154,7 +154,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     retval.append( super.getXml() );
     retval.append( "      " ).append( XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", getSuccessConditionCode( successCondition ) ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "limit", limit ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "is_custom_sql", useCustomSql) );
@@ -200,7 +200,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
       String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
-      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
       successCondition =
         getSucessConditionByCode( Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), "" ) );
       limit = Const.NVL( XmlHandler.getTagValue( entrynode, "limit" ), "0" );
@@ -285,7 +285,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
           }
 
         } else {
-          String realTablename = environmentSubstitute( tablename );
+          String realTablename = environmentSubstitute( tableName );
           String realSchemaname = environmentSubstitute( schemaname );
 
           if ( !Utils.isEmpty( realTablename ) ) {
@@ -464,11 +464,11 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
   }
 
   public String getTablename() {
-    return tablename;
+    return tableName;
   }
 
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTablename( String tableName ) {
+    this.tableName = tableName;
   }
 
   public String getSchemaname() {

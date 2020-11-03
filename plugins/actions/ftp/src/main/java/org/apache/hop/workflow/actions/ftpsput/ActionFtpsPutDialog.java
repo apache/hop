@@ -319,7 +319,7 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
     fdlConnectionType.top = new FormAttachment( wProxyPassword, 2 * margin );
     wlConnectionType.setLayoutData(fdlConnectionType);
     wConnectionType = new CCombo(wServerSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wConnectionType.setItems( FtpsConnection.connection_type_Desc );
+    wConnectionType.setItems( FtpsConnection.connectionTypeDesc );
     props.setLook( wConnectionType );
     FormData fdConnectionType = new FormData();
     fdConnectionType.left = new FormAttachment( middle, margin );
@@ -738,20 +738,20 @@ public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
           // Set proxy
-          String realProxy_host = workflowMeta.environmentSubstitute( wProxyHost.getText() );
-          String realProxy_user = workflowMeta.environmentSubstitute( wProxyUsername.getText() );
-          String realProxy_pass = Utils.resolvePassword( workflowMeta, wProxyPassword.getText() );
+          String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
+          String realProxyUser = workflowMeta.environmentSubstitute( wProxyUsername.getText() );
+          String realProxyPass = Utils.resolvePassword( workflowMeta, wProxyPassword.getText() );
 
-          connection.setProxyHost( realProxy_host );
+          connection.setProxyHost( realProxyHost );
           int proxyport = Const.toInt( workflowMeta.environmentSubstitute( wProxyPort.getText() ), 990 );
           if ( proxyport != 0 ) {
             connection.setProxyPort( proxyport );
           }
-          if ( !Utils.isEmpty( realProxy_user ) ) {
-            connection.setProxyUser( realProxy_user );
+          if ( !Utils.isEmpty( realProxyUser ) ) {
+            connection.setProxyUser( realProxyUser );
           }
-          if ( !Utils.isEmpty( realProxy_pass ) ) {
-            connection.setProxyPassword( realProxy_pass );
+          if ( !Utils.isEmpty( realProxyPass ) ) {
+            connection.setProxyPassword( realProxyPass );
           }
         }
 

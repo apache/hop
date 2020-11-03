@@ -93,7 +93,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
   /**
    * padding type
    */
-  private int[] padding_type;
+  private int[] paddingType;
 
   /**
    * Pad length
@@ -324,11 +324,11 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
   }
 
   public int[] getPaddingType() {
-    return padding_type;
+    return paddingType;
   }
 
   public void setPaddingType( int[] value ) {
-    padding_type = value;
+    paddingType = value;
   }
 
   @Override
@@ -341,7 +341,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
     fieldOutStream = new String[ nrkeys ];
     trimType = new int[ nrkeys ];
     lowerUpper = new int[ nrkeys ];
-    padding_type = new int[ nrkeys ];
+    paddingType = new int[ nrkeys ];
     padChar = new String[ nrkeys ];
     padLen = new String[ nrkeys ];
     initCap = new int[ nrkeys ];
@@ -360,7 +360,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
     System.arraycopy( fieldOutStream, 0, retval.fieldOutStream, 0, nrkeys );
     System.arraycopy( trimType, 0, retval.trimType, 0, nrkeys );
     System.arraycopy( lowerUpper, 0, retval.lowerUpper, 0, nrkeys );
-    System.arraycopy( padding_type, 0, retval.padding_type, 0, nrkeys );
+    System.arraycopy( paddingType, 0, retval.paddingType, 0, nrkeys );
     System.arraycopy( padChar, 0, retval.padChar, 0, nrkeys );
     System.arraycopy( padLen, 0, retval.padLen, 0, nrkeys );
     System.arraycopy( initCap, 0, retval.initCap, 0, nrkeys );
@@ -388,7 +388,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
 
         trimType[ i ] = getTrimTypeByCode( Const.NVL( XmlHandler.getTagValue( fnode, "trim_type" ), "" ) );
         lowerUpper[ i ] = getLowerUpperByCode( Const.NVL( XmlHandler.getTagValue( fnode, "lower_upper" ), "" ) );
-        padding_type[ i ] = getPaddingByCode( Const.NVL( XmlHandler.getTagValue( fnode, "padding_type" ), "" ) );
+        paddingType[ i ] = getPaddingByCode( Const.NVL( XmlHandler.getTagValue( fnode, "padding_type" ), "" ) );
         padChar[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "pad_char" ), "" );
         padLen[ i ] = Const.NVL( XmlHandler.getTagValue( fnode, "pad_len" ), "" );
         initCap[ i ] = getInitCapByCode( Const.NVL( XmlHandler.getTagValue( fnode, "init_cap" ), "" ) );
@@ -430,7 +430,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
       retval.append( "        " ).append(
         XmlHandler.addTagValue( "lower_upper", getLowerUpperCode( lowerUpper[ i ] ) ) );
       retval.append( "        " ).append(
-        XmlHandler.addTagValue( "padding_type", getPaddingCode( padding_type[ i ] ) ) );
+        XmlHandler.addTagValue( "padding_type", getPaddingCode( paddingType[ i ] ) ) );
       retval.append( "        " ).append( XmlHandler.addTagValue( "pad_char", padChar[ i ] ) );
       retval.append( "        " ).append( XmlHandler.addTagValue( "pad_len", padLen[ i ] ) );
       retval.append( "        " ).append( XmlHandler.addTagValue( "init_cap", getInitCapCode( initCap[ i ] ) ) );
@@ -485,15 +485,15 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
                      IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
     boolean first = true;
-    boolean error_found = false;
+    boolean errorFound = false;
 
     if ( prev == null ) {
 
-      error_message +=
+      errorMessage +=
         BaseMessages.getString( PKG, "StringOperationsMeta.CheckResult.NoInputReceived" ) + Const.CR;
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       remarks.add( cr );
     } else {
 
@@ -504,15 +504,15 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
         if ( v == null ) {
           if ( first ) {
             first = false;
-            error_message +=
+            errorMessage +=
               BaseMessages.getString( PKG, "StringOperationsMeta.CheckResult.MissingInStreamFields" ) + Const.CR;
           }
-          error_found = true;
-          error_message += "\t\t" + field + Const.CR;
+          errorFound = true;
+          errorMessage += "\t\t" + field + Const.CR;
         }
       }
-      if ( error_found ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      if ( errorFound ) {
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       } else {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -522,7 +522,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
 
       // Check whether all are strings
       first = true;
-      error_found = false;
+      errorFound = false;
       for ( int i = 0; i < fieldInStream.length; i++ ) {
         String field = fieldInStream[ i ];
 
@@ -531,17 +531,17 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
           if ( v.getType() != IValueMeta.TYPE_STRING ) {
             if ( first ) {
               first = false;
-              error_message +=
+              errorMessage +=
                 BaseMessages.getString( PKG, "StringOperationsMeta.CheckResult.OperationOnNonStringFields" )
                   + Const.CR;
             }
-            error_found = true;
-            error_message += "\t\t" + field + Const.CR;
+            errorFound = true;
+            errorMessage += "\t\t" + field + Const.CR;
           }
         }
       }
-      if ( error_found ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      if ( errorFound ) {
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       } else {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -566,10 +566,10 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
       for ( int idx = 0; idx < fieldInStream.length; idx++ ) {
         for ( int jdx = 0; jdx < fieldInStream.length; jdx++ ) {
           if ( fieldInStream[ idx ].equals( fieldInStream[ jdx ] ) && idx != jdx && idx < jdx ) {
-            error_message =
+            errorMessage =
               BaseMessages.getString(
                 PKG, "StringOperationsMeta.CheckResult.FieldInputError", fieldInStream[ idx ] );
-            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
             remarks.add( cr );
           }
         }

@@ -115,11 +115,11 @@ public class ChangeAction {
   private ActionType type;
   private Object[] previous;
   private Point[] previous_location;
-  private int[] previous_index;
+  private int[] previousIndex;
 
   private Object[] current;
   private Point[] current_location;
-  private int[] current_index;
+  private int[] currentIndex;
 
   private boolean nextAlso;
 
@@ -129,7 +129,7 @@ public class ChangeAction {
 
   public void setDelete( Object[] prev, int[] idx ) {
     current = prev;
-    current_index = idx;
+    currentIndex = idx;
 
     if ( prev[ 0 ] instanceof TransformMeta ) {
       type = ActionType.DeleteTransform;
@@ -154,8 +154,8 @@ public class ChangeAction {
   public void setChanged( Object[] prev, Object[] curr, int[] idx ) {
     previous = prev;
     current = curr;
-    current_index = idx;
-    previous_index = idx;
+    currentIndex = idx;
+    previousIndex = idx;
 
     if ( prev[ 0 ] instanceof TransformMeta ) {
       type = ActionType.ChangeTransform;
@@ -183,7 +183,7 @@ public class ChangeAction {
     }
 
     current = prev;
-    current_index = position;
+    currentIndex = position;
     previous = null;
 
     if ( prev[ 0 ] instanceof TransformMeta ) {
@@ -214,7 +214,7 @@ public class ChangeAction {
     previous_location = new Point[ prev.length ];
     current_location = new Point[ curr.length ];
     current = obj;
-    current_index = idx;
+    currentIndex = idx;
 
     for ( int i = 0; i < prev.length; i++ ) {
       previous_location[ i ] = new Point( prev[ i ].x, prev[ i ].y );
@@ -237,9 +237,9 @@ public class ChangeAction {
     previous_location = null;
     current_location = null;
     current = null;
-    current_index = curr;
+    currentIndex = curr;
     previous = null;
-    previous_index = prev;
+    previousIndex = prev;
 
     type = ActionType.PositionTableRow;
   }
@@ -265,11 +265,11 @@ public class ChangeAction {
   }
 
   public int[] getPreviousIndex() {
-    return previous_index;
+    return previousIndex;
   }
 
   public int[] getCurrentIndex() {
-    return current_index;
+    return currentIndex;
   }
 
   /**

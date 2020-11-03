@@ -641,8 +641,8 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       wOutDumpValue.select( 0 ); // NORMAL priority
     }
 
-    if ( action.iffileexists >= 0 ) {
-      wIfFileExists.select( action.iffileexists );
+    if ( action.ifFileExists >= 0 ) {
+      wIfFileExists.select( action.ifFileExists );
     } else {
       wIfFileExists.select( 2 ); // FAIL
     }
@@ -687,7 +687,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     action.outdumpvalue = wOutDumpValue.getSelectionIndex();
 
     action.setHighPriority( wHighPriority.getSelection() );
-    action.iffileexists = wIfFileExists.getSelectionIndex();
+    action.ifFileExists = wIfFileExists.getSelectionIndex();
 
     action.setAddFileToResult( wAddFileToResult.getSelection() );
 

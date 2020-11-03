@@ -58,6 +58,6 @@ echo %_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPAT
 echo.
 echo ===[Starting Hop Translator]=========================================================
 
-%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.i18n.editor.Translator %_cmdline%
+%_HOP_JAVA% -classpath %LIBSPATH%\*;%SWTJAR%\* -Dswt.autoScale=false -Djava.library.path=%LIBSPATH% %HOP_OPTIONS% org.apache.hop.ui.i18n.editor.Translator %_cmdline%
 @echo off
 :End

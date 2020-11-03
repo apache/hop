@@ -102,7 +102,7 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
     }
 
     // Allocate fields_used
-    data.fields_used = new int[ nr ];
+    data.fieldsUsed = new int[ nr ];
 //    data.values_used = new Value[ nr ];
 
     nr = 0;
@@ -118,14 +118,14 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
           logDetailed( BaseMessages.getString(
             PKG, "ScriptValuesMod.Log.UsedValueName", String.valueOf( i ), valname ) );
         }
-        data.fields_used[ nr ] = i;
+        data.fieldsUsed[ nr ] = i;
         nr++;
       }
     }
 
     if ( log.isDetailed() ) {
       logDetailed( BaseMessages.getString( PKG, "ScriptValuesMod.Log.UsingValuesFromInputStream", String
-        .valueOf( data.fields_used.length ) ) );
+        .valueOf( data.fieldsUsed.length ) ) );
     }
   }
 
@@ -213,9 +213,9 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
 
         // Add the used fields...
         //
-        for ( int i = 0; i < data.fields_used.length; i++ ) {
-          IValueMeta valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
-          Object valueData = row[ data.fields_used[ i ] ];
+        for ( int i = 0; i < data.fieldsUsed.length; i++ ) {
+          IValueMeta valueMeta = rowMeta.getValueMeta( data.fieldsUsed[ i ] );
+          Object valueData = row[ data.fieldsUsed[ i ] ];
 
           Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
           Scriptable jsarg;
@@ -310,9 +310,9 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
           Scriptable jsrow = Context.toObject( row, data.scope );
           data.scope.put( "row", data.scope, jsrow );
 
-        for ( int i = 0; i < data.fields_used.length; i++ ) {
-          IValueMeta valueMeta = rowMeta.getValueMeta( data.fields_used[ i ] );
-          Object valueData = row[ data.fields_used[ i ] ];
+        for ( int i = 0; i < data.fieldsUsed.length; i++ ) {
+          IValueMeta valueMeta = rowMeta.getValueMeta( data.fieldsUsed[ i ] );
+          Object valueData = row[ data.fieldsUsed[ i ] ];
 
           Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
           Scriptable jsarg;
@@ -337,8 +337,8 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
       if ( bFirstRun ) {
         bFirstRun = false;
         // Check if we had a Pipeline Status
-        Object tran_stat = data.scope.get( "pipeline_Status", data.scope );
-        if ( tran_stat != ScriptableObject.NOT_FOUND ) {
+        Object pipelineStatus = data.scope.get( "pipeline_Status", data.scope );
+        if ( pipelineStatus != ScriptableObject.NOT_FOUND ) {
           bWithPipelineStat = true;
           if ( log.isDetailed() ) {
             logDetailed( ( "tran_Status found. Checking pipeline status while script execution." ) );

@@ -98,9 +98,9 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
         }
       } else {
         if ( !Utils.isEmpty( data.schemaname ) ) {
-          data.tablename = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.schemaname, data.tablename );
+          data.tableName = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.schemaname, data.tableName );
         } else {
-          data.tablename = data.db.getDatabaseMeta().quoteField( data.tablename );
+          data.tableName = data.db.getDatabaseMeta().quoteField( data.tableName );
         }
       }
 
@@ -122,11 +122,11 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
     try {
       // get tablename
       if ( meta.isTablenameInField() ) {
-        data.tablename = getInputRowMeta().getString( r, data.indexOfTablename );
+        data.tableName = getInputRowMeta().getString( r, data.indexOfTablename );
         if ( !Utils.isEmpty( data.schemaname ) ) {
-          data.tablename = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.schemaname, data.tablename );
+          data.tableName = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.schemaname, data.tableName );
         } else {
-          data.tablename = data.db.getDatabaseMeta().quoteField( data.tablename );
+          data.tableName = data.db.getDatabaseMeta().quoteField( data.tableName );
         }
       }
       // get columnname
@@ -134,7 +134,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
       columnname = data.db.getDatabaseMeta().quoteField( columnname );
 
       // Check if table exists on the specified connection
-      columnexists = data.db.checkColumnExists( columnname, data.tablename );
+      columnexists = data.db.checkColumnExists( columnname, data.tableName );
 
       Object[] outputRowData = RowDataUtil.addValueData( r, getInputRowMeta().size(), columnexists );
 
@@ -171,7 +171,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
           logError( BaseMessages.getString( PKG, "ColumnExists.Error.TablenameMissing" ) );
           return false;
         }
-        data.tablename = environmentSubstitute( meta.getTablename() );
+        data.tableName = environmentSubstitute( meta.getTablename() );
       }
       data.schemaname = meta.getSchemaname();
       if ( !Utils.isEmpty( data.schemaname ) ) {

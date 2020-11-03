@@ -86,7 +86,7 @@ public class CheckResultDialog extends Dialog {
 
   private Color red, green, yellow;
 
-  private boolean show_successful_results = false;
+  private boolean showSuccessfulResults = false;
 
   private String transformName;
 
@@ -209,7 +209,7 @@ public class CheckResultDialog extends Dialog {
   }
 
   private void noOK() {
-    show_successful_results = !show_successful_results;
+    showSuccessfulResults = !showSuccessfulResults;
 
     getData();
   }
@@ -227,7 +227,7 @@ public class CheckResultDialog extends Dialog {
 
     for ( int i = 0; i < remarks.size(); i++ ) {
       ICheckResult cr = remarks.get( i );
-      if ( show_successful_results || cr.getType() != ICheckResult.TYPE_RESULT_OK ) {
+      if ( showSuccessfulResults || cr.getType() != ICheckResult.TYPE_RESULT_OK ) {
         TableItem ti = new TableItem( wFields.table, SWT.NONE );
         // MB - Support both Action and Transform Checking
         // 6/25/07
@@ -266,7 +266,7 @@ public class CheckResultDialog extends Dialog {
     wFields.setRowNums();
     wFields.optWidth( true );
 
-    if ( show_successful_results ) {
+    if ( showSuccessfulResults ) {
       wlFields.setText( STRING_HIDE_REMARKS );
       wNoOK.setText( STRING_HIDE_SUCESSFUL );
     } else {

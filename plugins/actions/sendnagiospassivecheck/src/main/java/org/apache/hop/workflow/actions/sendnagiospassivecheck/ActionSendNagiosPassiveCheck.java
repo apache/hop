@@ -100,22 +100,22 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
    */
   public static int DEFAULT_PORT = 5667;
 
-  public static final String[] encryption_mode_Desc = new String[] {
+  public static final String[] encryptionModeDesc = new String[] {
     BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.None" ),
     BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.TripleDES" ),
     BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.XOR" ) };
-  public static final String[] encryption_mode_Code = new String[] { "none", "tripledes", "xor" };
+  public static final String[] encryptionModeCode = new String[] { "none", "tripledes", "xor" };
 
   public static final int ENCRYPTION_MODE_NONE = 0;
   public static final int ENCRYPTION_MODE_TRIPLEDES = 1;
   public static final int ENCRYPTION_MODE_XOR = 2;
 
-  public static final String[] level_type_Desc = new String[] {
+  public static final String[] levelTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.LevelType.Unknown" ),
     BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.OK" ),
     BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.Warning" ),
     BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.EncryptionMode.Critical" ) };
-  public static final String[] level_type_Code = new String[] { "unknown", "ok", "warning", "critical" };
+  public static final String[] levelTypeCode = new String[] { "unknown", "ok", "warning", "critical" };
 
   public static final int LEVEL_TYPE_UNKNOWN = 0;
   public static final int LEVEL_TYPE_OK = 1;
@@ -150,8 +150,8 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
       return 0;
     }
 
-    for ( int i = 0; i < encryption_mode_Desc.length; i++ ) {
-      if ( encryption_mode_Desc[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < encryptionModeDesc.length; i++ ) {
+      if ( encryptionModeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -161,17 +161,17 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
   }
 
   public static String getEncryptionModeDesc( int i ) {
-    if ( i < 0 || i >= encryption_mode_Desc.length ) {
-      return encryption_mode_Desc[ 0 ];
+    if ( i < 0 || i >= encryptionModeDesc.length ) {
+      return encryptionModeDesc[ 0 ];
     }
-    return encryption_mode_Desc[ i ];
+    return encryptionModeDesc[ i ];
   }
 
   public static String getLevelDesc( int i ) {
-    if ( i < 0 || i >= level_type_Desc.length ) {
-      return level_type_Desc[ 0 ];
+    if ( i < 0 || i >= levelTypeDesc.length ) {
+      return levelTypeDesc[ 0 ];
     }
-    return level_type_Desc[ i ];
+    return levelTypeDesc[ i ];
   }
 
   public static int getLevelByDesc( String tt ) {
@@ -179,8 +179,8 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
       return 0;
     }
 
-    for ( int i = 0; i < level_type_Desc.length; i++ ) {
-      if ( level_type_Desc[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < levelTypeDesc.length; i++ ) {
+      if ( levelTypeDesc[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -190,17 +190,17 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
   }
 
   private static String getEncryptionModeCode( int i ) {
-    if ( i < 0 || i >= encryption_mode_Code.length ) {
-      return encryption_mode_Code[ 0 ];
+    if ( i < 0 || i >= encryptionModeCode.length ) {
+      return encryptionModeCode[ 0 ];
     }
-    return encryption_mode_Code[ i ];
+    return encryptionModeCode[ i ];
   }
 
   private String getLevelCode( int i ) {
-    if ( i < 0 || i >= level_type_Code.length ) {
-      return level_type_Code[ 0 ];
+    if ( i < 0 || i >= levelTypeCode.length ) {
+      return levelTypeCode[ 0 ];
     }
-    return level_type_Code[ i ];
+    return levelTypeCode[ i ];
   }
 
   public String getXml() {
@@ -228,8 +228,8 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
       return 0;
     }
 
-    for ( int i = 0; i < encryption_mode_Code.length; i++ ) {
-      if ( encryption_mode_Code[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < encryptionModeCode.length; i++ ) {
+      if ( encryptionModeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }
@@ -241,8 +241,8 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
       return 0;
     }
 
-    for ( int i = 0; i < level_type_Code.length; i++ ) {
-      if ( level_type_Code[ i ].equalsIgnoreCase( tt ) ) {
+    for ( int i = 0; i < levelTypeCode.length; i++ ) {
+      if ( levelTypeCode[ i ].equalsIgnoreCase( tt ) ) {
         return i;
       }
     }

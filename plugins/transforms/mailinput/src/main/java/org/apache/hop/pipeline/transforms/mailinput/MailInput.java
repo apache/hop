@@ -296,12 +296,12 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
           }
 
           // get folder
-          String foldername = data.inputRowMeta.getString( data.readrow, data.indexOfFolderField );
+          String folderName = data.inputRowMeta.getString( data.readrow, data.indexOfFolderField );
           if ( isDebug() ) {
             logDebug( BaseMessages.getString(
-              PKG, "MailInput.Log.FoldernameInStream", meta.getFolderField(), foldername ) );
+              PKG, "MailInput.Log.FoldernameInStream", meta.getFolderField(), folderName ) );
           }
-          data.folders = getFolders( foldername );
+          data.folders = getFolders( folderName );
         } // end if first
 
         if ( data.folderenr >= data.folders.length ) {
@@ -315,8 +315,8 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
             return false;
           }
           // get folder
-          String foldername = data.inputRowMeta.getString( data.readrow, data.indexOfFolderField );
-          data.folders = getFolders( foldername );
+          String folderName = data.inputRowMeta.getString( data.readrow, data.indexOfFolderField );
+          data.folders = getFolders( folderName );
         }
       }
 

@@ -105,13 +105,13 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
       if ( getLinesOutput() == 0 ) {
         // Add creation table once to the top
         if ( meta.createTable() ) {
-          String cr_table = data.db.getDDLCreationTable( schemaTable, data.insertRowMeta );
+          String crTable = data.db.getDDLCreationTable( schemaTable, data.insertRowMeta );
 
           if ( log.isRowLevel() ) {
-            logRowlevel( BaseMessages.getString( PKG, "SQLFileOutputLog.OutputSQL", cr_table ) );
+            logRowlevel( BaseMessages.getString( PKG, "SQLFileOutputLog.OutputSQL", crTable ) );
           }
           // Write to file
-          data.writer.write( cr_table + Const.CR + Const.CR );
+          data.writer.write( crTable + Const.CR + Const.CR );
         }
 
         // Truncate table

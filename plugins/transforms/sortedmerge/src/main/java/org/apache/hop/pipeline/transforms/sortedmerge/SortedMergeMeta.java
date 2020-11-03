@@ -176,22 +176,22 @@ public class SortedMergeMeta extends BaseTransformMeta implements ITransformMeta
           PKG, "SortedMergeMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fieldName.length; i++ ) {
         int idx = prev.indexOfValue( fieldName[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fieldName[ i ] + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + fieldName[ i ] + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
-          BaseMessages.getString( PKG, "SortedMergeMeta.CheckResult.SortKeysNotFound", error_message );
+      if ( errorFound ) {
+        errorMessage =
+          BaseMessages.getString( PKG, "SortedMergeMeta.CheckResult.SortKeysNotFound", errorMessage );
 
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         if ( fieldName.length > 0 ) {

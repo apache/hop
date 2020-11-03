@@ -465,11 +465,11 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
     row.addValueMeta( filename );
 
     // the short filename
-    IValueMeta short_filename = new ValueMetaString( "short_filename" );
-    short_filename.setLength( 500 );
-    short_filename.setPrecision( -1 );
-    short_filename.setOrigin( name );
-    row.addValueMeta( short_filename );
+    IValueMeta shortFilename = new ValueMetaString( "short_filename" );
+    shortFilename.setLength( 500 );
+    shortFilename.setPrecision( -1 );
+    shortFilename.setOrigin( name );
+    row.addValueMeta( shortFilename );
 
     // the path
     IValueMeta path = new ValueMetaString( "path" );

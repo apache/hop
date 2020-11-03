@@ -397,13 +397,13 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
                      IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
     boolean first = true;
-    boolean error_found = false;
+    boolean errorFound = false;
 
     if ( prev == null ) {
-      error_message += BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.NoInputReceived" ) + Const.CR;
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      errorMessage += BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.NoInputReceived" ) + Const.CR;
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       remarks.add( cr );
     } else {
 
@@ -414,15 +414,15 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
         if ( v == null ) {
           if ( first ) {
             first = false;
-            error_message +=
+            errorMessage +=
               BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.MissingInStreamFields" ) + Const.CR;
           }
-          error_found = true;
-          error_message += "\t\t" + field + Const.CR;
+          errorFound = true;
+          errorMessage += "\t\t" + field + Const.CR;
         }
       }
-      if ( error_found ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      if ( errorFound ) {
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       } else {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -432,7 +432,7 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
 
       // Check whether all are strings
       first = true;
-      error_found = false;
+      errorFound = false;
       for ( int i = 0; i < fieldInStream.length; i++ ) {
         String field = fieldInStream[ i ];
 
@@ -441,17 +441,17 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
           if ( v.getType() != IValueMeta.TYPE_STRING ) {
             if ( first ) {
               first = false;
-              error_message +=
+              errorMessage +=
                 BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.OperationOnNonStringFields" )
                   + Const.CR;
             }
-            error_found = true;
-            error_message += "\t\t" + field + Const.CR;
+            errorFound = true;
+            errorMessage += "\t\t" + field + Const.CR;
           }
         }
       }
-      if ( error_found ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      if ( errorFound ) {
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       } else {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -477,9 +477,9 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
       for ( int idx = 0; idx < fieldInStream.length; idx++ ) {
         for ( int jdx = 0; jdx < fieldInStream.length; jdx++ ) {
           if ( fieldInStream[ idx ].equals( fieldInStream[ jdx ] ) && idx != jdx && idx < jdx ) {
-            error_message =
+            errorMessage =
               BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.FieldInputError", fieldInStream[ idx ] );
-            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
             remarks.add( cr );
           }
         }

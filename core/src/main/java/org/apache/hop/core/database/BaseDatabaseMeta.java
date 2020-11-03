@@ -501,7 +501,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   @Override
-  public int getNotFoundTK( boolean use_autoinc ) {
+  public int getNotFoundTK( boolean useAutoInc ) {
     return 0;
   }
 
@@ -632,8 +632,8 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @return the schema-table combination to query the right table.
    */
   @Override
-  public String getSchemaTableCombination( String schema_name, String table_part ) {
-    return schema_name + "." + table_part;
+  public String getSchemaTableCombination( String schemaName, String tablePart ) {
+    return schemaName + "." + tablePart;
   }
 
   /**
@@ -736,18 +736,18 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param use_autoinc whether or not this field uses auto increment
+   * @param useAutoInc whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
+  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
                                         String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tablename + " DROP " + v.getName() + Const.CR;
+    return "ALTER TABLE " + tableName + " DROP " + v.getName() + Const.CR;
   }
 
   /**
@@ -1089,13 +1089,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   @Override
-  public String getSqlTableExists( String tablename ) {
-    return "SELECT 1 FROM " + tablename;
+  public String getSqlTableExists( String tableName ) {
+    return "SELECT 1 FROM " + tableName;
   }
 
   @Override
-  public String getSqlColumnExists( String columnname, String tablename ) {
-    return "SELECT " + columnname + " FROM " + tablename;
+  public String getSqlColumnExists( String columnname, String tableName ) {
+    return "SELECT " + columnname + " FROM " + tableName;
   }
 
   /**
@@ -1234,11 +1234,11 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @throws HopDatabaseException
    */
   @Override
-  public boolean checkIndexExists( Database database, String schemaName, String tableName, String[] idx_fields ) throws HopDatabaseException {
+  public boolean checkIndexExists( Database database, String schemaName, String tableName, String[] idxFields ) throws HopDatabaseException {
 
-    String tablename = database.getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
+    String schemaTable = database.getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
 
-    boolean[] exists = new boolean[ idx_fields.length ];
+    boolean[] exists = new boolean[ idxFields.length ];
     for ( int i = 0; i < exists.length; i++ ) {
       exists[ i ] = false;
     }
@@ -1247,7 +1247,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
       // Get a list of all the indexes for this table
       ResultSet indexList = null;
       try {
-        indexList = database.getDatabaseMetaData().getIndexInfo( null, null, tablename, false, true );
+        indexList = database.getDatabaseMetaData().getIndexInfo( null, null, schemaTable, false, true );
         while ( indexList.next() ) {
           // String tablen = indexList.getString("TABLE_NAME");
           // String indexn = indexList.getString("INDEX_NAME");
@@ -1255,7 +1255,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
           // int pos = indexList.getShort("ORDINAL_POSITION");
           // int type = indexList.getShort("TYPE");
 
-          int idx = Const.indexOfString( column, idx_fields );
+          int idx = Const.indexOfString( column, idxFields );
           if ( idx >= 0 ) {
             exists[ idx ] = true;
           }
@@ -1276,7 +1276,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
 
       return all;
     } catch ( Exception e ) {
-      throw new HopDatabaseException( "Unable to determine if indexes exists on table [" + tablename + "]", e );
+      throw new HopDatabaseException( "Unable to determine if indexes exists on table [" + schemaTable + "]", e );
     }
 
   }

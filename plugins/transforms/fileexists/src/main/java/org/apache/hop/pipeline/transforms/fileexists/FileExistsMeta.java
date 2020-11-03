@@ -201,24 +201,24 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( Utils.isEmpty( resultfieldname ) ) {
-      error_message = BaseMessages.getString( PKG, "FileExistsMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "FileExistsMeta.CheckResult.ResultFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "FileExistsMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "FileExistsMeta.CheckResult.ResultFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     if ( Utils.isEmpty( filenamefield ) ) {
-      error_message = BaseMessages.getString( PKG, "FileExistsMeta.CheckResult.FileFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "FileExistsMeta.CheckResult.FileFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "FileExistsMeta.CheckResult.FileFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "FileExistsMeta.CheckResult.FileFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     // See if we have input streams leading to this transform!
