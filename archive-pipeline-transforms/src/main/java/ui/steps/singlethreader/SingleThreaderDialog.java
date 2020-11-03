@@ -71,7 +71,7 @@ import org.pentaho.vfs.ui.VfsFileChooserDialog;
 import java.io.IOException;
 
 public class SingleThreaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SingleThreaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SingleThreaderMeta.class; // Needed by Translator
 
   private SingleThreaderMeta singleThreaderMeta;
 

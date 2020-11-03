@@ -59,7 +59,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/denormaliser.html"
 )
 public class DenormaliserMeta extends BaseTransformMeta implements ITransformMeta<Denormaliser, DenormaliserData> {
-  private static final Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DenormaliserMeta.class; // Needed by Translator
 
   /**
    * Fields to group over

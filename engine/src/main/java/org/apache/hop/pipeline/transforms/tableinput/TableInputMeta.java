@@ -68,7 +68,7 @@ public class TableInputMeta
   extends BaseTransformMeta
   implements ITransformMeta<TableInput, TableInputData> {
 
-  private static final Class<?> PKG = TableInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableInputMeta.class; // Needed by Translator
 
   private IHopMetadataProvider metadataProvider;
 

@@ -46,7 +46,7 @@ import java.util.zip.CRC32;
  */
 public class CheckSum extends BaseTransform<CheckSumMeta, CheckSumData> implements ITransform<CheckSumMeta, CheckSumData> {
 
-  private static final Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CheckSumMeta.class; // Needed by Translator
 
   public CheckSum( TransformMeta transformMeta, CheckSumMeta meta, CheckSumData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {

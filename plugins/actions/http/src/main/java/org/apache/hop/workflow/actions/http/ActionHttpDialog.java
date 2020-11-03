@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.*;
  * @since 19-06-2003
  */
 public class ActionHttpDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionHttp.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionHttp.class; // Needed by Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString( PKG, "JobHTTP.Filetype.All" ) };
 

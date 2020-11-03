@@ -58,7 +58,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/tablecompare.html"
   )
 public class TableCompareMeta extends BaseTransformMeta implements ITransformMeta<TableCompare, TableCompareData> {
-  private static final Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableCompare.class; // Needed by Translator
 
   private DatabaseMeta referenceConnection;
   private String referenceSchemaField;

@@ -59,7 +59,7 @@ import java.util.List;
 public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,
   IProvidesDatabaseConnectionInformation {
 
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PGBulkLoaderMeta.class; // Needed by Translator
 
   /**
    * what's the schema for the target?

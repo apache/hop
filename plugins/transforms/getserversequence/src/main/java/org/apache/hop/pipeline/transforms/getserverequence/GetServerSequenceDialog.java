@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class GetServerSequenceDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = GetServerSequenceMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetServerSequenceMeta.class; // Needed by Translator
 
   private Text wValuename;
 

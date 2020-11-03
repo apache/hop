@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.*;
  * @since 01-10-2011
  */
 public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // Needed by Translator
 
   private LabelText wName;
 

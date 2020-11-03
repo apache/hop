@@ -39,7 +39,7 @@ import java.util.Map;
 @PluginMainClassType( IWorkflowDialogPlugin.class )
 @PluginAnnotationType( WorkflowDialogPlugin.class )
 public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugin> implements IPluginType<WorkflowDialogPlugin> {
-  // private static final Class<?> PKG = WorkflowDialogPluginType.class; // for i18n purposes, needed by Translator!!
+  // private static final Class<?> PKG = WorkflowDialogPluginType.class; // Needed by Translator
 
   private static WorkflowDialogPluginType pluginType;
 

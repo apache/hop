@@ -52,7 +52,7 @@ import java.util.List;
  */
 public class GetFileNames extends BaseTransform<GetFileNamesMeta, GetFileNamesData> implements ITransform<GetFileNamesMeta, GetFileNamesData> {
 
-  private static final Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetFileNamesMeta.class; // Needed by Translator
 
   public GetFileNames( TransformMeta transformMeta, GetFileNamesMeta meta, GetFileNamesData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

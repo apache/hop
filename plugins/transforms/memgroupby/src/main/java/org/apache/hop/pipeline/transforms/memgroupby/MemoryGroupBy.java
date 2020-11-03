@@ -58,7 +58,7 @@ import java.util.TreeSet;
  * @since 2-jun-2003
  */
 public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupByData> implements ITransform<MemoryGroupByMeta, MemoryGroupByData> {
-  private static final Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MemoryGroupByMeta.class; // Needed by Translator
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

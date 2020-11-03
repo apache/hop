@@ -64,7 +64,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ssh.html"
 )
 public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH,SSHData> {
-  static Class<?> PKG = SSHMeta.class; // for i18n purposes, needed by Translator!!
+  static Class<?> PKG = SSHMeta.class; // Needed by Translator
   private static int DEFAULT_PORT = 22;
 
   private String command;

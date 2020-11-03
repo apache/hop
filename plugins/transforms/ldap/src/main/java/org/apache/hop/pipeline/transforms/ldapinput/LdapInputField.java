@@ -35,7 +35,7 @@ import org.apache.hop.i18n.BaseMessages;
  * @since 21-09-2007
  */
 public class LdapInputField implements Cloneable {
-  private static final Class<?> PKG = LdapInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LdapInputMeta.class; // Needed by Translator
 
   public static final String ATTRIBUTE_OBJECT_SID = "objectSid";
 

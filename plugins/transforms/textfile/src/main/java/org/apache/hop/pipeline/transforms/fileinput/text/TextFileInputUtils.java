@@ -50,7 +50,7 @@ import java.util.List;
  * @author Alexander Buloichik
  */
 public class TextFileInputUtils {
-  private static final Class<?> PKG = TextFileInputUtils.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TextFileInputUtils.class; // Needed by Translator
 
   public static final String[] guessStringsFromLine( IVariables variables, ILogChannel log, String line,
                                                      TextFileInputMeta inf, String delimiter, String enclosure, String escapeCharacter ) throws HopException {

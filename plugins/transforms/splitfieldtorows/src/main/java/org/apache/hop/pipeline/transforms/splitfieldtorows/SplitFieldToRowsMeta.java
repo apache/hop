@@ -57,7 +57,7 @@ import org.w3c.dom.Node;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/splitfieldtorows.html"
 )
 public class SplitFieldToRowsMeta extends BaseTransformMeta implements  ITransformMeta<SplitFieldToRows, SplitFieldToRowsData> {
-  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SplitFieldToRowsMeta.class; // Needed by Translator
 
   /**
    * Field to split

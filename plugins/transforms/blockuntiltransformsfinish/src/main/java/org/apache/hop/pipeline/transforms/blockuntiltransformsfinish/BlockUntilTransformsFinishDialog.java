@@ -43,7 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // Needed by Translator
 
   private String[] previousTransforms;
   private final BlockUntilTransformsFinishMeta input;

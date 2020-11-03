@@ -56,7 +56,7 @@ import java.util.List;
  * @since 5-apr-2003
  */
 public class SymmetricCryptoPipelineMeta extends BaseTransformMeta implements ITransform {
-  private static final Class<?> PKG = SymmetricCryptoPipelineMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SymmetricCryptoPipelineMeta.class; // Needed by Translator
 
   /**
    * Operations type

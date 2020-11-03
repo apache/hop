@@ -54,7 +54,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
-  private static final Class<?> PKG = PipelineExecutionConfigurationDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PipelineExecutionConfigurationDialog.class; // Needed by Translator
 
   public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS = "last-pipeline-run-configurations";
   private MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;

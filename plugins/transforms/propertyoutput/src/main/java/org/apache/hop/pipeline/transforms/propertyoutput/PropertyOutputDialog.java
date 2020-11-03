@@ -47,7 +47,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class PropertyOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = PropertyOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PropertyOutputMeta.class; // Needed by Translator
 
   private Button wAddToResult;
 

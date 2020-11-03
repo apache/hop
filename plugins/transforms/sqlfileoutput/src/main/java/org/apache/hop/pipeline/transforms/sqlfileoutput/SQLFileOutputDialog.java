@@ -72,7 +72,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SQLFileOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SQLFileOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SQLFileOutputMeta.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

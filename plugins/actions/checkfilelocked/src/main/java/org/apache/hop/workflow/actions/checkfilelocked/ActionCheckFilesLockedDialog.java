@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.*;
  * @since 06-05-2007
  */
 public class ActionCheckFilesLockedDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionCheckFilesLocked.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionCheckFilesLocked.class; // Needed by Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobCheckFilesLocked.Filetype.All" ) };

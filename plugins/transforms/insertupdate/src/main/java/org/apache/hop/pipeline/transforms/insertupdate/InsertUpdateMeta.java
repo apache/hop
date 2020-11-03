@@ -70,7 +70,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/insertupdate.html"
 )
 public class InsertUpdateMeta extends BaseTransformMeta implements ITransformMeta<InsertUpdate, InsertUpdateData>, IProvidesModelerMeta {
-  private static final Class<?> PKG = InsertUpdateMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = InsertUpdateMeta.class; // Needed by Translator
 
   private IHopMetadataProvider metadataProvider;
 

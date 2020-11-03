@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.*;
 
 public class JavaFilterDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = JavaFilterMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = JavaFilterMeta.class; // Needed by Translator
 
   private Text wTransformName;
   private CCombo wTrueTo;

@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Text;
 import java.util.Vector;
 
 public class TextFileImportWizardPage2 extends WizardPage {
-  private static final Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator
 
   private List wFields;
   private FormData fdFields;

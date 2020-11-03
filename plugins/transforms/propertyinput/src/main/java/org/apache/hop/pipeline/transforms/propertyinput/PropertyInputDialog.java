@@ -64,7 +64,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class PropertyInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PropertyInputMeta.class; // Needed by Translator
   private static final String[] YES_NO_COMBO = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 
@@ -848,13 +848,9 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
         new ColumnInfo(
           BaseMessages.getString( PKG, "PropertyInputDialog.FieldsTable.Name.Column" ),
           ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        // new ColumnInfo( BaseMessages.getString(PKG,
-        // "PropertyInputDialog.FieldsTable.Attribut.Column"),ColumnInfo.COLUMN_TYPE_TEXT,false),
-
         new ColumnInfo(
           BaseMessages.getString( PKG, "PropertyInputDialog.FieldsTable.Attribut.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, PropertyInputField.ColumnDesc, false ),
-
         new ColumnInfo(
           BaseMessages.getString( PKG, "PropertyInputDialog.FieldsTable.Type.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getValueMetaNames(), true ),

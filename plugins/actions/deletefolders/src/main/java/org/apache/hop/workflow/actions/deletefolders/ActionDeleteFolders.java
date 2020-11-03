@@ -72,7 +72,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deletefolders.html"
 )
 public class ActionDeleteFolders extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDeleteFolders.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionDeleteFolders.class; // Needed by Translator
 
   public boolean argFromPrevious;
 

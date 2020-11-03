@@ -61,7 +61,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/gettablenames.html"
 )
 public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMeta<GetTableNames, GetTableNamesData> {
-  private static final Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetTableNamesMeta.class; // Needed by Translator
 
   /**
    * database connection

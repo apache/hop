@@ -53,7 +53,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class LdapConnection {
   private static Class<?> classFromResourcesPackage =
-      LdapInputMeta.class; // for i18n purposes, needed by Translator!!
+      LdapInputMeta.class; // Needed by Translator
 
   public static final int SEARCH_SCOPE_OBJECT_SCOPE = 0;
 

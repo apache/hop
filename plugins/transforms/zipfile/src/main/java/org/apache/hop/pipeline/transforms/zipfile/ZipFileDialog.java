@@ -42,7 +42,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ZipFileDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ZipFileMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ZipFileMeta.class; // Needed by Translator
 
   private CCombo wSourceFileNameField;
 

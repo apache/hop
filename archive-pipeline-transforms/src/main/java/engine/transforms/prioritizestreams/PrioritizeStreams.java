@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.ITransform;
  */
 
 public class PrioritizeStreams extends BaseTransform implements ITransform {
-  private static final Class<?> PKG = PrioritizeStreamsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PrioritizeStreamsMeta.class; // Needed by Translator
 
   private PrioritizeStreamsMeta meta;
   private PrioritizeStreamsData data;

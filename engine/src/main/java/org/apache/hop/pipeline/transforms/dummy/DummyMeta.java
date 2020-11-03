@@ -46,7 +46,7 @@ import java.util.List;
  */
 public class DummyMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 
-  private static final Class<?> PKG = DummyMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DummyMeta.class; // Needed by Translator
 
   public DummyMeta() {
     super(); // allocate BaseTransformMeta

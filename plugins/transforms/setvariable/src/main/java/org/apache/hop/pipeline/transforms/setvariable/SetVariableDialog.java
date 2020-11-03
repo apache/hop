@@ -51,7 +51,7 @@ import java.util.List;
 import java.util.*;
 
 public class SetVariableDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SetVariableMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetVariableMeta.class; // Needed by Translator
 
   public static final String STRING_USAGE_WARNING_PARAMETER = "SetVariableUsageWarning";
 

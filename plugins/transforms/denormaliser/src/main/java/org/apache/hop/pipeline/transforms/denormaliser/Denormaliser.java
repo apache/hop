@@ -60,7 +60,7 @@ import java.util.Set;
  */
 public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserData> implements ITransform<DenormaliserMeta, DenormaliserData> {
 
-  private static final Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DenormaliserMeta.class; // Needed by Translator
 
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;

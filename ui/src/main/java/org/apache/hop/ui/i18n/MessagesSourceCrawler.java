@@ -212,7 +212,7 @@ public class MessagesSourceCrawler {
    */
   public void lookForOccurrencesInFile( String sourceFolder, FileObject javaFile ) throws IOException {
 
-    if (javaFile.toString().contains( "HopGuiWorkflowClipboardDelegate" )) {
+    if ( javaFile.toString().contains( "HopGuiWorkflowClipboardDelegate" ) ) {
       System.out.println();
     }
 
@@ -293,25 +293,29 @@ public class MessagesSourceCrawler {
       // private static final Class<?> PKG = Abort.class;
       //
       if ( classPackage != null ) {
-        for (Pattern classPkgPattern : classPkgPatterns) {
-          if (classPkgPattern.matcher( line ).matches()) {
+        for ( Pattern classPkgPattern : classPkgPatterns ) {
+          if ( classPkgPattern.matcher( line ).matches() ) {
             int fromIndex = line.indexOf( '=' ) + 1;
             int toIndex = line.indexOf( ".class", fromIndex );
-            String expression = Const.trim( line.substring( fromIndex, toIndex ) );
+            if (fromIndex>0 && toIndex>0) {
+              String expression = Const.trim( line.substring( fromIndex, toIndex ) );
 
-            // If the expression doesn't contain any package, we'll look up the package in the imports. If not found there,
-            // it's a local package.
-            //
-            if ( expression.contains( "." ) ) {
-              int lastDotIndex = expression.lastIndexOf( '.' );
-              messagesPackage = expression.substring( 0, lastDotIndex );
-            } else {
-              String packageName = importedClasses.get( expression );
-              if ( packageName == null ) {
-                messagesPackage = classPackage; // Local package
+              // If the expression doesn't contain any package, we'll look up the package in the imports. If not found there,
+              // it's a local package.
+              //
+              if ( expression.contains( "." ) ) {
+                int lastDotIndex = expression.lastIndexOf( '.' );
+                messagesPackage = expression.substring( 0, lastDotIndex );
               } else {
-                messagesPackage = packageName; // imported
+                String packageName = importedClasses.get( expression );
+                if ( packageName == null ) {
+                  messagesPackage = classPackage; // Local package
+                } else {
+                  messagesPackage = packageName; // imported
+                }
               }
+            } else {
+              log.logBasic( "Strange .class package detection in file "+javaFile.toString()+"  line: "+Const.CR+line );
             }
           }
         }
@@ -421,8 +425,8 @@ public class MessagesSourceCrawler {
         lookup.incrementOccurrences();
       }
     } else {
-      if (messagesPackage==null) {
-        log.logError( "Could not calculate messages package in file: "+fileObject );
+      if ( messagesPackage == null ) {
+        log.logError( "Could not calculate messages package in file: " + fileObject );
       } else {
         KeyOccurrence keyOccurrence = new KeyOccurrence( fileObject, sourceFolder, messagesPackage, row, column, key, arguments, line );
         addKeyOccurrence( keyOccurrence );

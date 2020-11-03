@@ -77,7 +77,7 @@ public class CsvInputMeta
   implements ITransformMeta<CsvInput, CsvInputData>,
   IInputFileMeta<CsvInput, CsvInputData>, ICsvInputAwareMeta {
 
-  private static final Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CsvInput.class; // Needed by Translator
 
   private String filename;
 

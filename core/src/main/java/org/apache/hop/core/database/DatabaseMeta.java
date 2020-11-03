@@ -75,7 +75,7 @@ import java.util.concurrent.Future;
   iconImage = "ui/images/CNC.svg"
 )
 public class DatabaseMeta implements Cloneable, IVariables, IHopMetadata {
-  private static final Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Database.class; // Needed by Translator
 
   public static final String XML_TAG = "connection";
 

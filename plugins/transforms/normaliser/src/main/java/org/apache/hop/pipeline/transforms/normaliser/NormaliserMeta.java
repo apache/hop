@@ -92,7 +92,7 @@ import java.util.Set;
 )
 @InjectionSupported( localizationPrefix = "NormaliserMeta.Injection.", groups = { "FIELDS" } )
 public class NormaliserMeta extends BaseTransformMeta implements ITransformMeta<Normaliser,NormaliserData> {
-  private static final Class<?> PKG = NormaliserMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = NormaliserMeta.class; // Needed by Translator
 
   private String typeField; // Name of the new type-field.
 

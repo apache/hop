@@ -67,7 +67,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getfilenames.html"
 )
 public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMeta<GetFileNames, GetFileNamesData> {
-  private static final Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetFileNamesMeta.class; // Needed by Translator
 
   public static final String[] RequiredFilesDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };

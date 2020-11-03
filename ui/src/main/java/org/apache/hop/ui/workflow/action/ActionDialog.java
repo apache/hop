@@ -57,7 +57,7 @@ public class ActionDialog extends Dialog {
   /**
    * The package name, used for internationalization.
    */
-  private static final Class<?> PKG = IAction.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = IAction.class; // Needed by Translator
 
   /**
    * The loggingObject for the dialog

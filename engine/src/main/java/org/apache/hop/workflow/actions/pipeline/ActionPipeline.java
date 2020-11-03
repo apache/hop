@@ -86,7 +86,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/pipeline.html"
 )
 public class ActionPipeline extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionPipeline.class; // Needed by Translator
 
   private String filename;
 

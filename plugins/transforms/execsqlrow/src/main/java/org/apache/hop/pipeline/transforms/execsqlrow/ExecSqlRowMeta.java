@@ -58,7 +58,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "ExecSqlRowMeta.Injection.", groups = "OUTPUT_FIELDS" )
 public class ExecSqlRowMeta extends BaseTransformMeta implements ITransformMeta<ExecSqlRow, ExecSqlRowData> {
-  private static final Class<?> PKG = ExecSqlRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExecSqlRowMeta.class; // Needed by Translator
 
   private IHopMetadataProvider metadataProvider;
 

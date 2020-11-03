@@ -81,7 +81,7 @@ import java.util.regex.Pattern;
 )
 
 public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpDelete.class; // Needed by Translator
 
   private String serverName;
 

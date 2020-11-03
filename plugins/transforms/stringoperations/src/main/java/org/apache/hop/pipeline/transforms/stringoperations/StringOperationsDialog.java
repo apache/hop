@@ -51,7 +51,7 @@ import java.util.*;
 
 public class StringOperationsDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = StringOperationsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StringOperationsMeta.class; // Needed by Translator
 
   private TableView wFields;
 

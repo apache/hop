@@ -69,7 +69,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DatabaseLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseLookupMeta.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

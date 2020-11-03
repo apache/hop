@@ -65,7 +65,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "AnalyticQuery.Injection." )
 public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {
 
-  private static final Class<?> PKG = AnalyticQuery.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = AnalyticQuery.class; // Needed by Translator
 
   public static final int TYPE_FUNCT_LEAD = 0;
   public static final int TYPE_FUNCT_LAG = 1;

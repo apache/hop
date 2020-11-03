@@ -49,7 +49,7 @@ import java.util.List;
 import java.util.*;
 
 public class AnalyticQueryDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = AnalyticQueryDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = AnalyticQueryDialog.class; // Needed by Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "AnalyticQuerySortWarning";
   private TableView wGroup;

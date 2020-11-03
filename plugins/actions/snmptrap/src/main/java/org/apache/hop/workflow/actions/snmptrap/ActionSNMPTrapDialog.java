@@ -58,7 +58,7 @@ import java.net.InetAddress;
  * @since 12-09-2008
  */
 public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSNMPTrap.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSNMPTrap.class; // Needed by Translator
 
   private LabelText wName;
 

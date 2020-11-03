@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.Text;
  */
 
 public class HopServerDialog extends Dialog implements IMetadataDialog {
-  private static final Class<?> PKG = HopServerDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopServerDialog.class; // Needed by Translator
   private final IHopMetadataProvider metadataProvider;
 
   private HopServer hopServer;

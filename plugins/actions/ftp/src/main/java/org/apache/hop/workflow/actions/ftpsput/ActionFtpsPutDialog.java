@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.*;
  * @since 10-03-2010
  */
 public class ActionFtpsPutDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFtpsPut.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpsPut.class; // Needed by Translator
 
   private Text wName;
 

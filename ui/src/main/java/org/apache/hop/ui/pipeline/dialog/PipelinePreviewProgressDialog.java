@@ -51,7 +51,7 @@ import java.util.List;
  * @since 13-jan-2006
  */
 public class PipelinePreviewProgressDialog {
-  private static final Class<?> PKG = PipelineDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PipelineDialog.class; // Needed by Translator
 
   private Shell shell;
   private PipelineMeta pipelineMeta;

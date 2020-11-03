@@ -64,7 +64,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "OraBulkLoader.Injection.", groups = { "FIELDS", "DATABASE_FIELDS" } )
 public class OraBulkLoaderMeta extends BaseTransformMeta implements ITransform,
   ProvidesDatabaseConnectionInformation {
-  private static final Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = OraBulkLoaderMeta.class; // Needed by Translator
 
   private static int DEFAULT_COMMIT_SIZE = 100000; // The bigger the better for Oracle
   private static int DEFAULT_BIND_SIZE = 0;

@@ -67,7 +67,7 @@ import java.util.regex.Pattern;
  * @since 20-04-2009
  */
 public class RegexEvalHelperDialog extends Dialog {
-  private static final Class<?> PKG = RegexEvalMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RegexEvalMeta.class; // Needed by Translator
 
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;

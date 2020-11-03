@@ -75,7 +75,7 @@ import java.util.Map;
  * @since 06-05-2007
  */
 public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionCopyFiles.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionCopyFiles.class; // Needed by Translator
 
   protected static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobCopyFiles.Filetype.All" ) };

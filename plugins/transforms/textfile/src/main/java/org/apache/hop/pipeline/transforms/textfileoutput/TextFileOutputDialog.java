@@ -62,7 +62,7 @@ import java.util.List;
 import java.util.*;
 
 public class TextFileOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = TextFileOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TextFileOutputMeta.class; // Needed by Translator
 
   private Label wlFilename;
   private Button wbFilename;

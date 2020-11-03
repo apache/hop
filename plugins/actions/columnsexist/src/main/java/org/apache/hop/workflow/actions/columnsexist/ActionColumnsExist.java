@@ -66,7 +66,7 @@ import java.util.List;
 		documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/columnsexist.html"
 )
 public class ActionColumnsExist extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionColumnsExist.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionColumnsExist.class; // Needed by Translator
   private String schemaname;
   private String tableName;
   private DatabaseMeta connection;

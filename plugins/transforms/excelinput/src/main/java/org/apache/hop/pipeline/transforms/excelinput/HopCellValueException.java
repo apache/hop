@@ -37,7 +37,7 @@ import org.apache.hop.i18n.BaseMessages;
 
 public class HopCellValueException extends HopException {
 
-  private static final Class<?> PKG = ExcelInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExcelInputMeta.class; // Needed by Translator
 
   private static final long serialVersionUID = 1L;
 

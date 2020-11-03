@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.MessageBox;
 
 public class HopGuiWorkflowHopDelegate {
 
-  private static final Class<?> PKG = HopGui.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopGui.class; // Needed by Translator
 
 
   private HopGui hopGui;

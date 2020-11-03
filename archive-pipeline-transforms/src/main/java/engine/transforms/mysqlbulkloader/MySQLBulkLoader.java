@@ -62,7 +62,7 @@ import java.util.Date;
  * @since 14-apr-2009
  */
 public class MySQLBulkLoader extends BaseTransform implements ITransform {
-  private static final Class<?> PKG = MySQLBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MySQLBulkLoaderMeta.class; // Needed by Translator
 
   private MySQLBulkLoaderMeta meta;
   private MySQLBulkLoaderData data;

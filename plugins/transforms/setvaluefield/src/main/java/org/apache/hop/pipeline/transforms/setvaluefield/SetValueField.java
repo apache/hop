@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.ITransform;
  * @since 10-11-2008
  */
 public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFieldData> implements ITransform<SetValueFieldMeta, SetValueFieldData> {
-  private static final Class<?> PKG = SetValueFieldMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetValueFieldMeta.class; // Needed by Translator
 
   public SetValueField( TransformMeta transformMeta, SetValueFieldMeta meta, SetValueFieldData data, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline pipeline ) {

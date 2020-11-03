@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 19-06-2003
  */
 public class EnterNumberDialog extends Dialog {
-  private static final Class<?> PKG = EnterNumberDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = EnterNumberDialog.class; // Needed by Translator
 
   private Label wlNumber, wlCheckbox;
   protected Text wNumber;

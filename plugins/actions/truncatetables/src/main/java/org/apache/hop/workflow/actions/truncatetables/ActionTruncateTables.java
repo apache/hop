@@ -68,7 +68,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/truncatetables.html"
 )
 public class ActionTruncateTables extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionTruncateTables.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionTruncateTables.class; // Needed by Translator
 
   private boolean argFromPrevious;
 

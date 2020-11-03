@@ -49,7 +49,7 @@ import org.snmp4j.smi.UdpAddress;
 import java.net.InetAddress;
 
 public class SyslogMessageDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SyslogMessageMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SyslogMessageMeta.class; // Needed by Translator
 
   private CCombo wMessageField;
 

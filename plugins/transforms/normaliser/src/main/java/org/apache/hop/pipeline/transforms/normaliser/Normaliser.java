@@ -44,7 +44,7 @@ import java.util.Set;
  * @since 5-apr-2003
  */
 public class Normaliser extends BaseTransform<NormaliserMeta,NormaliserData> implements ITransform<NormaliserMeta,NormaliserData> {
-  private static final Class<?> PKG = NormaliserMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = NormaliserMeta.class; // Needed by Translator
 
   public Normaliser( TransformMeta transformMeta, NormaliserMeta meta, NormaliserData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

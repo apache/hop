@@ -76,7 +76,7 @@ import java.util.regex.Pattern;
  */
 
 public class MailConnection {
-  private static final Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionGetPOP.class; // Needed by Translator
 
   /**
    * Target mail server.

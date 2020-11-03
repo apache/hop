@@ -66,7 +66,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/waitforfile.html"
 )
 public class ActionWaitForFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWaitForFile.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionWaitForFile.class; // Needed by Translator
 
   private String filename;
   private String maximumTimeout; // maximum timeout in seconds

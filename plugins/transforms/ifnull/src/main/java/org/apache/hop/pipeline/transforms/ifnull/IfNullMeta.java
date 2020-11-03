@@ -58,7 +58,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "IfNull.Injection.", groups = { "FIELDS", "VALUE_TYPES" } )
 public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNull,IfNullData> {
 
-  private static final Class<?> PKG = IfNullMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = IfNullMeta.class; // Needed by Translator
 
   @Override
   public IfNull createTransform( TransformMeta transformMeta, IfNullData data, int copyNr,
