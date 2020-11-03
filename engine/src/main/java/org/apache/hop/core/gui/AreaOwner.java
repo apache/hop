@@ -22,9 +22,6 @@
 
 package org.apache.hop.core.gui;
 
-import java.util.EnumSet;
-import java.util.Set;
-
 /**
  * When we draw something in HopGui (PipelinePainter) we keep a list of all the things we draw and the object that's behind
  * it. That should make it a lot easier to track what was drawn, setting tooltips, etc.
@@ -52,27 +49,12 @@ public class AreaOwner {
 
     CUSTOM;
 
-    private static final Set<AreaType> jobContextMenuArea = EnumSet.of( MINI_ICONS_BALLOON, ACTION_MINI_ICON_INPUT,
-      ACTION_MINI_ICON_EDIT, ACTION_MINI_ICON_CONTEXT, ACTION_MINI_ICON_OUTPUT );
-
-    private static final Set<AreaType> transformContextMenuArea = EnumSet.of( MINI_ICONS_BALLOON, TRANSFORM_INPUT_HOP_ICON,
-      TRANSFORM_EDIT_ICON, TRANSFORM_MENU_ICON, TRANSFORM_OUTPUT_HOP_ICON, TRANSFORM_INJECT_ICON );
-
-    public boolean belongsToJobContextMenu() {
-      return jobContextMenuArea.contains( this );
-    }
-
-    public boolean belongsToPipelineContextMenu() {
-      return transformContextMenuArea.contains( this );
-    }
-
   }
 
   private Rectangle area;
   private Object parent;
   private Object owner;
   private AreaType areaType;
-  private Object extensionAreaType;
 
   /**
    * @param x
@@ -90,13 +72,11 @@ public class AreaOwner {
     this.owner = owner;
   }
 
-  public AreaOwner( Object extensionAreaType, int x, int y, int width, int heigth, Point offset, Object parent,
-                    Object owner ) {
-    super();
-    this.extensionAreaType = extensionAreaType;
-    this.area = new Rectangle( x - offset.x, y - offset.y, width, heigth );
-    this.parent = parent;
-    this.owner = owner;
+  public AreaOwner( AreaOwner o ) {
+    this.areaType = o.areaType;
+    this.area = new Rectangle( o.area );
+    this.parent = o.parent;
+    this.owner = o.parent;
   }
 
   /**
@@ -109,6 +89,26 @@ public class AreaOwner {
   public boolean contains( int x, int y ) {
     return area.contains( x, y );
   }
+
+  public int getCentreX() {
+    return area.x + area.width / 2;
+  }
+
+  public int getCentreY() {
+    return area.y + area.height / 2;
+  }
+
+  /**
+   * Calculate the distance between the centres of the areas.
+   * @param o The other area owner to calcualte the distance to
+   * @return The distance.
+   */
+  public double distanceTo( AreaOwner o ) {
+    int distX = getCentreX() - o.getCentreX();
+    int distY = getCentreY() - o.getCentreY();
+    return Math.sqrt(distX*distX + distY*distY);
+  }
+
 
   /**
    * @return the area
@@ -164,13 +164,5 @@ public class AreaOwner {
    */
   public void setAreaType( AreaType areaType ) {
     this.areaType = areaType;
-  }
-
-  public Object getExtensionAreaType() {
-    return extensionAreaType;
-  }
-
-  public void setExtensionAreaType( Object extensionAreaType ) {
-    this.extensionAreaType = extensionAreaType;
   }
 }

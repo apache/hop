@@ -46,7 +46,9 @@ public class TransformDebugGuiPlugin {
     type = GuiActionType.Delete,
     name = "Clear Custom Logging",
     tooltip = "Clear custom log settings ",
-    image = "ui/images/debug.svg"
+    image = "ui/images/debug.svg",
+    category = "Logging",
+    categoryOrder = "7"
   )
   public void clearCustomTransformLogging( HopGuiPipelineTransformContext context ) {
     PipelineMeta pipelineMeta = context.getPipelineMeta();
@@ -65,7 +67,9 @@ public class TransformDebugGuiPlugin {
     type = GuiActionType.Modify,
     name = "Edit Custom Logging",
     tooltip = "Edit the custom log settings for this transform",
-    image = "ui/images/debug.svg"
+    image = "ui/images/debug.svg",
+    category = "Logging",
+    categoryOrder = "7"
   )
   public void applyCustomTransformLogging( HopGuiPipelineTransformContext context ) {
     HopGui hopGui = HopGui.getInstance();

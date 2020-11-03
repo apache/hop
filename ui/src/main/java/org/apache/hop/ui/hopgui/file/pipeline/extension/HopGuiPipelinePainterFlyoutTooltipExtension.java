@@ -44,10 +44,6 @@ public class HopGuiPipelinePainterFlyoutTooltipExtension {
     this.point = point;
   }
 
-  public String getExtensionAreaType() {
-    return (String) this.areaOwner.getExtensionAreaType();
-  }
-
   public TransformMeta getTransformMeta() {
     return (TransformMeta) this.areaOwner.getParent();
   }

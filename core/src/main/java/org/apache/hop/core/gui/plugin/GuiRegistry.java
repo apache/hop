@@ -22,6 +22,7 @@
 
 package org.apache.hop.core.gui.plugin;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
@@ -35,6 +36,7 @@ import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -385,6 +387,9 @@ public class GuiRegistry {
    */
   public void addGuiContextAction( String guiPluginClassName, Method method, GuiContextAction ca, ClassLoader classLoader ) {
     GuiAction action = new GuiAction( ca.id(), ca.type(), ca.name(), ca.tooltip(), ca.image(), guiPluginClassName, method.getName() );
+    action.setCategory( StringUtils.isEmpty(ca.category()) ? null : ca.category() );
+    action.setCategoryOrder( StringUtils.isEmpty(ca.categoryOrder()) ? null : ca.categoryOrder() );
+    action.setKeywords( Arrays.asList(ca.keywords()) );
     action.setClassLoader( classLoader );
 
     List<GuiAction> actions = contextActionsMap.get( ca.parentId() );

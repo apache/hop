@@ -52,4 +52,8 @@ public @interface GuiContextAction {
   String image();
 
   String[] keywords() default {};
+
+  String category() default "";
+
+  String categoryOrder() default "";
 }
