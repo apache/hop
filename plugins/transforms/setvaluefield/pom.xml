@@ -13,6 +13,6 @@
     <artifactId>hop-transform-setvaluefield</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugin Transforms Set Value to a Field</name>
+    <name>Hop Plugins Transforms Set Value to a Field</name>
 
 </project>

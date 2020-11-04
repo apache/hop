@@ -13,6 +13,6 @@
     <artifactId>hop-transform-setvalueconstant</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugin Transforms Set Value to a Constant</name>
+    <name>Hop Plugins Transforms Set Value to a Constant</name>
 
 </project>

@@ -13,7 +13,7 @@
     <artifactId>hop-transform-selectvalues</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugin Transforms Select Values</name>
+    <name>Hop Plugins Transforms Select Values</name>
 
     <dependencies>
         <dependency>
