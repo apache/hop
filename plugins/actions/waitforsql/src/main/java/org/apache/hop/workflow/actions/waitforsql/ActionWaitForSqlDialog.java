@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.*;
  * @since 27-10-2008
  */
 public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionWaitForSql.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionWaitForSql.class; // Needed by Translator
 
   private Button wbTable, wbSqlTable;
 

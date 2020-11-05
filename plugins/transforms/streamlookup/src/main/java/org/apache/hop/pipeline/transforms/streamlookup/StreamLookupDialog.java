@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.*;
 
 public class StreamLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StreamLookupMeta.class; // Needed by Translator
 
   private CCombo wTransform;
 

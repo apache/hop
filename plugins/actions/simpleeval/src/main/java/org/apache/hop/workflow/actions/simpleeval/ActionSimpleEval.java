@@ -61,7 +61,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/simpleeval.html"
 )
 public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSimpleEval.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSimpleEval.class; // Needed by Translator
 
   public static final String[] valueTypeDesc = new String[] {
     BaseMessages.getString( PKG, "JobSimpleEval.EvalPreviousField.Label" ),

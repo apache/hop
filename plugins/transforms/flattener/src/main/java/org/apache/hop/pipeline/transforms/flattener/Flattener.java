@@ -38,7 +38,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 17-jan-2006
  */
 public class Flattener extends BaseTransform<FlattenerMeta, FlattenerData> implements ITransform<FlattenerMeta, FlattenerData> {
-  private static final Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FlattenerMeta.class; // Needed by Translator
 
   public Flattener( TransformMeta transformMeta, FlattenerMeta meta, FlattenerData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {

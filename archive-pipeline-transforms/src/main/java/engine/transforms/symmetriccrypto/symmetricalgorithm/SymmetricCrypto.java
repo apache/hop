@@ -41,7 +41,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class SymmetricCrypto {
 
-  private static final Class<?> PKG = SymmetricCrypto.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SymmetricCrypto.class; // Needed by Translator
 
   private SymmetricCryptoMeta meta;
 

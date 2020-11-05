@@ -69,7 +69,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class DBProcDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DBProcMeta.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

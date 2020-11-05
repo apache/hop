@@ -77,7 +77,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "MySQLBulkLoader.Injection.", groups = { "FIELDS" } )
 public class MySQLBulkLoaderMeta extends BaseTransformMeta implements ITransform,
   ProvidesDatabaseConnectionInformation {
-  private static final Class<?> PKG = MySQLBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MySQLBulkLoaderMeta.class; // Needed by Translator
 
   public static final int FIELD_FORMAT_TYPE_OK = 0;
   public static final int FIELD_FORMAT_TYPE_DATE = 1;

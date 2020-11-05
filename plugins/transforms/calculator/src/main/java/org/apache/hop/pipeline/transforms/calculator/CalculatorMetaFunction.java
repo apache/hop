@@ -31,7 +31,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
 
 public class CalculatorMetaFunction implements Cloneable {
-  private static final Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CalculatorMeta.class; // Needed by Translator
 
   public static final String XML_TAG = "calculation";
 

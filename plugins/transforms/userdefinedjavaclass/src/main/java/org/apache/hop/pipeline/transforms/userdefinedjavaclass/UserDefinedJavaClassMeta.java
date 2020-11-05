@@ -81,7 +81,7 @@ import java.util.stream.Collectors;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/userdefinedjavaclass.html"
 )
 public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
-  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // Needed by Translator
 
   public enum ElementNames {
     classType, className, class_source, definitions, definition, fields, field, fieldName, fieldType,

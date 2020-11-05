@@ -65,7 +65,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Join"
 )
 public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> implements ITransform<MergeJoinMeta, MergeJoinData> {
-  private static final Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MergeJoinMeta.class; // Needed by Translator
 
   public MergeJoin( TransformMeta transformMeta, MergeJoinMeta meta, MergeJoinData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {

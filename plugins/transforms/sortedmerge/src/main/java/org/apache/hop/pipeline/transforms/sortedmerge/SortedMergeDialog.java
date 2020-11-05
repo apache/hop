@@ -50,7 +50,7 @@ import java.util.List;
 import java.util.*;
 
 public class SortedMergeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SortedMergeMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SortedMergeMeta.class; // Needed by Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "SortedMergeSortWarning";
 

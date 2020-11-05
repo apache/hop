@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Listener;
  * @since 17-may-2006
  */
 public class ComboVar extends Composite {
-  private static final Class<?> PKG = ComboVar.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ComboVar.class; // Needed by Translator
 
   private String toolTipText;
 

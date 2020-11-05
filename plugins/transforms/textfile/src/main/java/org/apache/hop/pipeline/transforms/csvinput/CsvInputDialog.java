@@ -83,7 +83,7 @@ import java.util.stream.Collectors;
 
 public class CsvInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {
-  private static final Class<?> PKG = CsvInput.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CsvInput.class; // Needed by Translator
 
   private final CsvInputMeta inputMeta;
 

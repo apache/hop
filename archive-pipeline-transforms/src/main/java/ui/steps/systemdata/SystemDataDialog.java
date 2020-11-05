@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SystemDataDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SystemDataMeta.class; // Needed by Translator
 
   private Label wlTransformName;
   private Text wTransformName;

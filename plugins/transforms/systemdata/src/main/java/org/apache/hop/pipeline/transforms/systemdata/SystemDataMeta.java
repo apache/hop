@@ -66,7 +66,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/systemdata.html"
 )
 public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<SystemData, SystemDataData> {
-  private static final Class<?> PKG = SystemDataMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SystemDataMeta.class; // Needed by Translator
 
   @Injection( name = "FIELD_NAME" )
   private String[] fieldName;

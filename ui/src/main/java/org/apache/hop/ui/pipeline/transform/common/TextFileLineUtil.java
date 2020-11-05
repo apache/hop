@@ -40,7 +40,7 @@ public class TextFileLineUtil {
   public static final int FILE_TYPE_CSV = 0;
   public static final int FILE_TYPE_FIXED = 1;
 
-  private static final Class<?> PKG = TextFileLineUtil.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TextFileLineUtil.class; // Needed by Translator
 
   public static final String getLine( ILogChannel log, InputStreamReader reader, int formatNr,
                                       StringBuilder line ) throws HopFileException {

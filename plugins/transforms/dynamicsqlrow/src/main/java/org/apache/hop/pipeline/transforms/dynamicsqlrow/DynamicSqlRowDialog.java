@@ -48,7 +48,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class DynamicSqlRowDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DynamicSqlRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DynamicSqlRowMeta.class; // Needed by Translator
 
   private boolean gotPreviousFields = false;
 

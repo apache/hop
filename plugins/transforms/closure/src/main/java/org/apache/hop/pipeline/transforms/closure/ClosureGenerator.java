@@ -43,7 +43,7 @@ import java.util.HashMap;
  */
 public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, ClosureGeneratorData> implements ITransform<ClosureGeneratorMeta, ClosureGeneratorData> {
 
-  private static final Class<?> PKG = ClosureGeneratorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ClosureGeneratorMeta.class; // Needed by Translator
 
   public ClosureGenerator( TransformMeta transformMeta, ClosureGeneratorMeta meta, ClosureGeneratorData data, int copyNr,
                            PipelineMeta pipelineMeta, Pipeline pipeline ) {

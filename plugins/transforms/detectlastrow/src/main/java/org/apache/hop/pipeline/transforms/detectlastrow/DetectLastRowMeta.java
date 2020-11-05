@@ -53,7 +53,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/detectlastrow.html"
 )
 public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMeta<DetectLastRow, DetectLastRowData> {
-  private static final Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DetectLastRowMeta.class; // Needed by Translator
 
   /**
    * function result: new value name

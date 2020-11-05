@@ -63,7 +63,7 @@ import java.util.List;
  * @since 12-10-2007
  */
 public class ActionCheckDbConnectionsDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionCheckDbConnectionsDialog.class; // Needed by Translator
 
   private Shell shell;
   

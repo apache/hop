@@ -71,7 +71,7 @@ import java.io.UnsupportedEncodingException;
  * @since 20-feb-2007
  */
 public class OraBulkLoader extends BaseTransform implements ITransform {
-  private static final Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = OraBulkLoaderMeta.class; // Needed by Translator
 
   public static final int EX_SUCC = 0;
 

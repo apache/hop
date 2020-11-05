@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.Shell;
  * @deprecated use {@link org.apache.hop.ui.pipeline.transforms.textfileoutput.TextFileOutputDialog} instead.
  */
 public class TextFileOutputLegacyDialog extends TextFileOutputDialog {
-  private static Class<?> textFileOutputLegacyMetaClass = TextFileOutputLegacyMeta.class;  // for i18n purposes, needed by Translator!!
+  private static Class<?> textFileOutputLegacyMetaClass = TextFileOutputLegacyMeta.class;  // Needed by Translator
 
   private Label wlFileIsCommand;
   private Button wFileIsCommand;

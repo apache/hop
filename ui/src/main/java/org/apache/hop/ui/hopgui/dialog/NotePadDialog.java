@@ -63,7 +63,7 @@ import org.eclipse.swt.widgets.Spinner;
  */
 public class NotePadDialog extends Dialog {
 
-  private static final Class<?> PKG = NotePadDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = NotePadDialog.class; // Needed by Translator
 
   private NotePadMeta notePadMeta;
 

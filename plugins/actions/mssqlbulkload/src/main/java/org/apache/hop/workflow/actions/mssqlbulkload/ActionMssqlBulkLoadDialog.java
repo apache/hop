@@ -62,7 +62,7 @@ import org.eclipse.swt.widgets.*;
  * @since Jan-2007
  */
 public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionMssqlBulkLoad.class; // Needed by Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobMssqlBulkLoad.Filetype.Text" ),

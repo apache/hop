@@ -50,7 +50,7 @@ public class BlockUntilTransformsFinish
   extends BaseTransform<BlockUntilTransformsFinishMeta, BlockUntilTransformsFinishData>
   implements ITransform<BlockUntilTransformsFinishMeta, BlockUntilTransformsFinishData> {
 
-  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // Needed by Translator
 
   public BlockUntilTransformsFinish( TransformMeta transformMeta, BlockUntilTransformsFinishMeta meta, BlockUntilTransformsFinishData data, int copyNr,
                                      PipelineMeta pipelineMeta, Pipeline pipeline ) {

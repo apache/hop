@@ -341,7 +341,7 @@ public class ContextDialog extends Dialog {
     // Add all the listeners
     //
     shell.addListener( SWT.Resize, event -> updateVerticalBar() );
-    // shell.addListener( SWT.Deactivate, event -> onFocusLost() );
+    shell.addListener( SWT.Deactivate, event -> onFocusLost() );
 
     wSearch.addModifyListener( event -> onModifySearch() );
 
@@ -525,7 +525,7 @@ public class ContextDialog extends Dialog {
         heightOffSet = 0;
       }
 
-      System.out.println("Bar="+verticalBar.getSelection()+"%  thumb="+verticalBar.getThumb()+"%  offset="+heightOffSet+"  total="+totalContentHeight);
+      // System.out.println("Bar="+verticalBar.getSelection()+"%  thumb="+verticalBar.getThumb()+"%  offset="+heightOffSet+"  total="+totalContentHeight);
     }
 
     // Draw all actions
@@ -736,9 +736,9 @@ public class ContextDialog extends Dialog {
   }
 
   private void onFocusLost() {
-    // focusLost = true;
+    focusLost = true;
 
-    // dispose();
+    dispose();
   }
 
   private void onModifySearch() {

@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.*;
  * @since 27-10-2007
  */
 public class ActionDeleteResultFilenamesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionDeleteResultFilenames.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionDeleteResultFilenames.class; // Needed by Translator
 
   private Text wName;
 

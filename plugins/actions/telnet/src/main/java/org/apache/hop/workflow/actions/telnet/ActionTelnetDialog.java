@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.*;
  * @since 19-06-2006
  */
 public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionTelnet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionTelnet.class; // Needed by Translator
 
   private Text wName;
 

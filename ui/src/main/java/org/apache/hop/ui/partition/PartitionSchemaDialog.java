@@ -69,7 +69,7 @@ import java.util.List;
  */
 
 public class PartitionSchemaDialog extends Dialog implements IMetadataDialog {
-  private static final Class<?> PKG = PartitionSchemaDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PartitionSchemaDialog.class; // Needed by Translator
 
   private final IHopMetadataProvider metadataProvider;
   private PartitionSchema partitionSchema;

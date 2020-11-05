@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 13-05-2008
  */
 public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionDeleteFolders.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionDeleteFolders.class; // Needed by Translator
 
   private Shell shell;
   

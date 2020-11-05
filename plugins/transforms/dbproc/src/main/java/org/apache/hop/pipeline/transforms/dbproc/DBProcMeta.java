@@ -64,7 +64,7 @@ import java.util.List;
 )
 public class DBProcMeta extends BaseTransformMeta implements ITransformMeta<DBProc, DBProcData> {
 
-  private static final Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DBProcMeta.class; // Needed by Translator
 
   /**
    * database connection

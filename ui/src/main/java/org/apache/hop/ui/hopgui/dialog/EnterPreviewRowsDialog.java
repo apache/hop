@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.Shell;
  * @author Matt
  */
 public class EnterPreviewRowsDialog extends Dialog {
-  private static final Class<?> PKG = EnterPreviewRowsDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = EnterPreviewRowsDialog.class; // Needed by Translator
 
   private String transformName;
 

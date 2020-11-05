@@ -68,7 +68,7 @@ import java.util.regex.Pattern;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpsput.html"
 )
 public class ActionFtpsPut extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtpsPut.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpsPut.class; // Needed by Translator
 
   private String serverName;
   private String serverPort;

@@ -57,7 +57,7 @@ import java.net.InetAddress;
  * @since 15-09-2007
  */
 public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFtpPut.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpPut.class; // Needed by Translator
 
   private Text wName;
 

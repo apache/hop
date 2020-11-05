@@ -29,6 +29,7 @@
     <filename>BasePluginType.java</filename>
     <filename>ConfigurationDialog.java</filename>
     <filename>Const.java</filename>
+    <filename>DatabaseFactory.java</filename>
   </files-to-avoid>
 
 </translator-config>

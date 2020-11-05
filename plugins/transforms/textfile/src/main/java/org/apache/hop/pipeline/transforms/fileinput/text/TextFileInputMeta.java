@@ -79,7 +79,7 @@ import java.util.Map;
 public class TextFileInputMeta
   extends BaseFileInputMeta<BaseFileInputAdditionalField, BaseFileInputFiles, BaseFileField, TextFileInput, TextFileInputData>
   implements ITransformMeta<TextFileInput, TextFileInputData>, ICsvInputAwareMeta {
-  private static final Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!! TODO: check i18n
+  private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator TODO: check i18n
   // for base
 
   private static final String STRING_BASE64_PREFIX = "Base64: ";

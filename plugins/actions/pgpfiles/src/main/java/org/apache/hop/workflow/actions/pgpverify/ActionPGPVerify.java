@@ -68,7 +68,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/pgpverify.html"
 )
 public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPGPVerify.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionPGPVerify.class; // Needed by Translator
 
   private String gpgLocation;
   private String filename;

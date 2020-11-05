@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.*;
  * @since 19-06-2003
  */
 public class ActionFileExistsDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFileExists.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFileExists.class; // Needed by Translator
 
   private static final String[] EXTENSIONS = new String[] { "*.txt", "*.csv", "*" };
 

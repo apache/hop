@@ -58,7 +58,7 @@ import java.util.Arrays;
  * @since 22-07-2008
  */
 public class ActionTruncateTablesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionTruncateTables.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionTruncateTables.class; // Needed by Translator
 
   private Shell shell;
   

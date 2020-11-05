@@ -78,7 +78,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SimpleMappingDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SimpleMappingMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SimpleMappingMeta.class; // Needed by Translator
 
   private SimpleMappingMeta mappingMeta;
 

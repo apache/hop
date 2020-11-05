@@ -64,7 +64,7 @@ import java.net.InetAddress;
  * @since 27-04-2008
  */
 public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpDelete.class; // Needed by Translator
 
   private LabelText wName;
 

@@ -32,7 +32,7 @@ import java.util.Date;
 
 public class FileErrorHandlerMissingFiles extends AbstractFileErrorHandler {
 
-  private static final Class<?> PKG = FileErrorHandlerMissingFiles.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FileErrorHandlerMissingFiles.class; // Needed by Translator
 
   public static final String THIS_FILE_DOES_NOT_EXIST = BaseMessages.getString(
     PKG, "FileErrorHandlerMissingFiles.FILE_DOES_NOT_EXIST" );

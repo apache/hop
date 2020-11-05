@@ -22,7 +22,6 @@
  ******************************************************************************/
 package org.apache.hop.pipeline.transforms.randomvalue;
 
-import java.util.List;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -41,9 +40,13 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.w3c.dom.Node;
+
+import java.util.List;
 
 /** Created on 08-07-2008 */
 @Transform(
@@ -58,8 +61,7 @@ import org.w3c.dom.Node;
 public class RandomValueMeta extends BaseTransformMeta
     implements ITransformMeta<RandomValue, RandomValueData> {
 
-  private static final Class<?> PKG =
-      RandomValueMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RandomValueMeta.class; // Needed by Translator
 
   public static final int TYPE_RANDOM_NONE = 0;
 

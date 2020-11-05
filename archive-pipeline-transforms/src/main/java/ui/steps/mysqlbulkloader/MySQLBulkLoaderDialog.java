@@ -84,7 +84,7 @@ import java.util.Set;
  * Dialog class for the MySQL bulk loader transform.
  */
 public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MySQLBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MySQLBulkLoaderMeta.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

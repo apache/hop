@@ -29,7 +29,7 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.i18n.BaseMessages;
 
 public class StringSearchResult {
-  private static final Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Const.class; // Needed by Translator
 
   private String string;
   private Object parentObject;

@@ -58,7 +58,7 @@ import java.net.InetAddress;
  * @since 19-06-2003
  */
 public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSftpPut.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSftpPut.class; // Needed by Translator
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobSFTPPUT.Filetype.Pem" ),
     BaseMessages.getString( PKG, "JobSFTPPUT.Filetype.All" ) };

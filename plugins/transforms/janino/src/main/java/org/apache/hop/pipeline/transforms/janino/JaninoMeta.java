@@ -63,7 +63,7 @@ import java.util.Objects;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/janino.html"
 )
 public class JaninoMeta extends BaseTransformMeta implements ITransformMeta<Janino, JaninoData> {
-  private static final Class<?> PKG = JaninoMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = JaninoMeta.class; // Needed by Translator
 
   /**
    * The formula calculations to be performed

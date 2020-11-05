@@ -89,7 +89,7 @@ import java.util.List;
  * @since 15-12-2003
  */
 public class EnterOptionsDialog extends Dialog {
-  private static final Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseDialog.class; // Needed by Translator
 
   public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 

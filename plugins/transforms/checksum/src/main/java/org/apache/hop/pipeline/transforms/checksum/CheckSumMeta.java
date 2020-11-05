@@ -66,7 +66,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "CheckSum.Injection.", groups = { "FIELDS" } )
 public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<CheckSum, CheckSumData> {
 
-  private static final Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CheckSumMeta.class; // Needed by Translator
  
   public static final String TYPE_CRC32 = "CRC32";
   public static final String TYPE_ADLER32 = "ADLER32";

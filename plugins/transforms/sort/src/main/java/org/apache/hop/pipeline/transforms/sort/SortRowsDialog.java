@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.*;
 
 public class SortRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SortRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SortRowsMeta.class; // Needed by Translator
 
   private TextVar wSortDir;
 

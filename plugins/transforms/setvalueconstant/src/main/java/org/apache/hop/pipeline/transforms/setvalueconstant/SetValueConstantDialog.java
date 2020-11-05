@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.*;
 
 public class SetValueConstantDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SetValueConstantMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetValueConstantMeta.class; // Needed by Translator
 
   private final SetValueConstantMeta input;
 

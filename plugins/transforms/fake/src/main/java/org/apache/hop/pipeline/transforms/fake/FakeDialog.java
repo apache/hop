@@ -51,7 +51,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class FakeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = FakeMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FakeMeta.class; // Needed by Translator
 
   private TableView wFields;
   

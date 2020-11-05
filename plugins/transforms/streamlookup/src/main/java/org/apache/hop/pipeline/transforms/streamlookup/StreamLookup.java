@@ -56,7 +56,7 @@ import java.util.Collections;
  * @since 26-apr-2003
  */
 public class StreamLookup extends BaseTransform<StreamLookupMeta, StreamLookupData> implements ITransform<StreamLookupMeta, StreamLookupData> {
-  private static final Class<?> PKG = StreamLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StreamLookupMeta.class; // Needed by Translator
 
   public StreamLookup(TransformMeta transformMeta, StreamLookupMeta meta, StreamLookupData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline pipeline ) {

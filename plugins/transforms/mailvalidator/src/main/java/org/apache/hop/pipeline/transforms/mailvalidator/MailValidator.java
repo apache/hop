@@ -46,7 +46,7 @@ import javax.xml.crypto.Data;
  */
 
 public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidatorData> implements ITransform<MailValidatorMeta, MailValidatorData> {
-  private static final Class<?> PKG = MailValidatorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailValidatorMeta.class; // Needed by Translator
 
   public MailValidator(TransformMeta transformMeta, MailValidatorMeta meta, MailValidatorData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

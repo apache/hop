@@ -59,7 +59,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 10-03-2007
  */
 public class ActionAbortDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionAbortDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionAbortDialog.class; // Needed by Translator
 
   private Shell shell;
   

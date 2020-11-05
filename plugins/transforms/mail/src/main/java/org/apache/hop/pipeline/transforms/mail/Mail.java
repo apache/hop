@@ -72,7 +72,7 @@ import java.util.zip.ZipOutputStream;
  */
 
 public class Mail extends BaseTransform<MailMeta, MailData> implements ITransform<MailMeta, MailData> {
-  private static final Class<?> PKG = MailMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailMeta.class; // Needed by Translator
 
   public Mail( TransformMeta transformMeta, MailMeta meta, MailData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

@@ -43,7 +43,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ActionMailValidatorDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionMailValidator.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionMailValidator.class; // Needed by Translator
 
   private Text wName;
 

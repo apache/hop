@@ -72,7 +72,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mysqlbulkfile.html"
 )
 public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMysqlBulkFile.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionMysqlBulkFile.class; // Needed by Translator
 
   private String tableName;
   private String schemaname;

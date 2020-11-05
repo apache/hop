@@ -60,7 +60,7 @@ import java.util.Calendar;
  * @since 19-06-2003
  */
 public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionGetPOP.class; // Needed by Translator
 
   private Text wName;
 

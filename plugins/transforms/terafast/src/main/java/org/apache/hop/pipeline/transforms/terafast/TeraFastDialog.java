@@ -54,7 +54,7 @@ import java.util.*;
 
 public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TeraFastMeta.class; // Needed by Translator
 
   private static final int FORM_ATTACHMENT_OFFSET = 100;
 

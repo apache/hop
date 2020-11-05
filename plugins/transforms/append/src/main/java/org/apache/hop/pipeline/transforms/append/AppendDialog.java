@@ -47,7 +47,7 @@ import java.util.List;
  */
 
 public class AppendDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = AppendDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = AppendDialog.class; // Needed by Translator
 
   private CCombo wHeadHop;
 

@@ -77,7 +77,7 @@ import java.net.InetAddress;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/snmptrap.html"
 )
 public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSNMPTrap.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSNMPTrap.class; // Needed by Translator
 
   private String serverName;
   private String port;

@@ -63,7 +63,7 @@ import java.util.List;
  */
 public class DimensionLookup extends BaseTransform<DimensionLookupMeta, DimensionLookupData> implements ITransform<DimensionLookupMeta, DimensionLookupData> {
 
-  private static final Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DimensionLookupMeta.class; // Needed by Translator
 
   private static final int CREATION_METHOD_AUTOINC = 1;
   private static final int CREATION_METHOD_SEQUENCE = 2;

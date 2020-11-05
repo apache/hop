@@ -60,7 +60,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/rowsfromresult.html"
 )
 public class RowsFromResultMeta extends BaseTransformMeta implements ITransformMeta<RowsFromResult, RowsFromResultData> {
-  private static final Class<?> PKG = RowsFromResult.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RowsFromResult.class; // Needed by Translator
 
   private String[] fieldname;
   private int[] type;

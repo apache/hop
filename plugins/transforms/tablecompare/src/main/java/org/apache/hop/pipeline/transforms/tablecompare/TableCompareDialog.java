@@ -45,7 +45,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.Arrays;
 
 public class TableCompareDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = TableCompare.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableCompare.class; // Needed by Translator
 
   private final TableCompareMeta input;
 

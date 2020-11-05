@@ -64,7 +64,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MailInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailInputMeta.class; // Needed by Translator
 
   private final MailInputMeta input;
   private TextVar wServerName;
