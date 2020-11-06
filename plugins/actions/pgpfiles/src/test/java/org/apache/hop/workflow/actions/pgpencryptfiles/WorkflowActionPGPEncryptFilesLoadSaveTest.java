@@ -23,12 +23,6 @@
 
 package org.apache.hop.workflow.actions.pgpencryptfiles;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
@@ -37,6 +31,12 @@ import org.apache.hop.pipeline.transforms.loadsave.validator.PrimitiveIntArrayLo
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class WorkflowActionPGPEncryptFilesLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionPGPEncryptFiles> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -48,8 +48,8 @@ public class WorkflowActionPGPEncryptFilesLoadSaveTest extends WorkflowActionLoa
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "GPGLocation", "argFromPrevious", "includeSubfolders",
-      "addResultFilesname", "destinationIsAFile", "createDestinationFolder", "addDate",
+    return Arrays.asList( new String[] { "gpgLocation", "argFromPrevious", "includeSubFolders",
+      "addResultFileNames", "destinationIsAFile", "createDestinationFolder", "addDate",
       "addTime", "specifyFormat", "dateTimeFormat", "nrErrorsLessThan", "successCondition",
       "addDateBeforeExtension", "doNotKeepFolderStructure", "ifFileExists", "destinationFolder",
       "ifMovedFileExists", "movedDateTimeFormat", "createMoveToFolder", "addMovedDate",

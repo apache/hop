@@ -109,9 +109,10 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
   public String[] sourceFileFolder;
   public String[] destinationFileFolder;
   public String[] wildcard;
-  HashSet<String> listFilesRemove = new HashSet<>();
-  HashSet<String> listAddResult = new HashSet<>();
-  int NbrFail = 0;
+
+  private HashSet<String> listFilesRemove = new HashSet<>();
+  private HashSet<String> listAddResult = new HashSet<>();
+  private int nbrFail = 0;
 
   private Map<String, String> configurationMappings = new HashMap<>();
 
@@ -397,7 +398,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
               PKG, "JobCopyFiles.Log.CanNotCopyFolderToFile", HopVfs.getFriendlyURI( realSourceFilefoldername ),
               HopVfs.getFriendlyURI( realDestinationFilefoldername ) ) );
 
-            NbrFail++;
+            nbrFail++;
 
           } else {
 
@@ -986,70 +987,6 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public void setCopyEmptyFolders( boolean copyEmptyFolders ) {
-    this.copyEmptyFolders = copyEmptyFolders;
-  }
-
-  public boolean isCopyEmptyFolders() {
-    return copyEmptyFolders;
-  }
-
-  public void setOverwriteFiles( boolean overwriteFiles ) {
-    this.overwriteFiles = overwriteFiles;
-  }
-
-  public boolean isOverwriteFiles() {
-    return overwriteFiles;
-  }
-
-  public void setIncludeSubFolders( boolean includeSubFolders ) {
-    this.includeSubFolders = includeSubFolders;
-  }
-
-  public boolean isIncludeSubFolders() {
-    return includeSubFolders;
-  }
-
-  public void setAddResultFilenames( boolean addResultFilenames ) {
-    this.addResultFilenames = addResultFilenames;
-  }
-
-  public boolean isAddResultFilenames() {
-    return addResultFilenames;
-  }
-
-  public void setArgFromPrevious( boolean argFromPrevious ) {
-    this.argFromPrevious = argFromPrevious;
-  }
-
-  public boolean isArgFromPrevious() {
-    return argFromPrevious;
-  }
-
-  public void setRemoveSourceFiles( boolean removeSourceFiles ) {
-    this.removeSourceFiles = removeSourceFiles;
-  }
-
-  public boolean isRemoveSourceFiles() {
-    return removeSourceFiles;
-  }
-
-  public void setDestinationIsAFile( boolean destinationIsAFile ) {
-    this.destinationIsAFile = destinationIsAFile;
-  }
-
-  public boolean isDestinationIsAFile() {
-    return destinationIsAFile;
-  }
-
-  public void setCreateDestinationFolder( boolean createDestinationFolder ) {
-    this.createDestinationFolder = createDestinationFolder;
-  }
-
-  public boolean isCreateDestinationFolder() {
-    return createDestinationFolder;
-  }
-
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     boolean res = ActionValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
@@ -1097,5 +1034,238 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
       path = null;
     }
     return path;
+  }
+
+  /**
+   * Gets copyEmptyFolders
+   *
+   * @return value of copyEmptyFolders
+   */
+  public boolean isCopyEmptyFolders() {
+    return copyEmptyFolders;
+  }
+
+  /**
+   * @param copyEmptyFolders The copyEmptyFolders to set
+   */
+  public void setCopyEmptyFolders( boolean copyEmptyFolders ) {
+    this.copyEmptyFolders = copyEmptyFolders;
+  }
+
+  /**
+   * Gets argFromPrevious
+   *
+   * @return value of argFromPrevious
+   */
+  public boolean isArgFromPrevious() {
+    return argFromPrevious;
+  }
+
+  /**
+   * @param argFromPrevious The argFromPrevious to set
+   */
+  public void setArgFromPrevious( boolean argFromPrevious ) {
+    this.argFromPrevious = argFromPrevious;
+  }
+
+  /**
+   * Gets overwriteFiles
+   *
+   * @return value of overwriteFiles
+   */
+  public boolean isOverwriteFiles() {
+    return overwriteFiles;
+  }
+
+  /**
+   * @param overwriteFiles The overwriteFiles to set
+   */
+  public void setOverwriteFiles( boolean overwriteFiles ) {
+    this.overwriteFiles = overwriteFiles;
+  }
+
+  /**
+   * Gets includeSubFolders
+   *
+   * @return value of includeSubFolders
+   */
+  public boolean isIncludeSubFolders() {
+    return includeSubFolders;
+  }
+
+  /**
+   * @param includeSubFolders The includeSubFolders to set
+   */
+  public void setIncludeSubFolders( boolean includeSubFolders ) {
+    this.includeSubFolders = includeSubFolders;
+  }
+
+  /**
+   * Gets addResultFilenames
+   *
+   * @return value of addResultFilenames
+   */
+  public boolean isAddResultFilenames() {
+    return addResultFilenames;
+  }
+
+  /**
+   * @param addResultFilenames The addResultFilenames to set
+   */
+  public void setAddResultFilenames( boolean addResultFilenames ) {
+    this.addResultFilenames = addResultFilenames;
+  }
+
+  /**
+   * Gets removeSourceFiles
+   *
+   * @return value of removeSourceFiles
+   */
+  public boolean isRemoveSourceFiles() {
+    return removeSourceFiles;
+  }
+
+  /**
+   * @param removeSourceFiles The removeSourceFiles to set
+   */
+  public void setRemoveSourceFiles( boolean removeSourceFiles ) {
+    this.removeSourceFiles = removeSourceFiles;
+  }
+
+  /**
+   * Gets destinationIsAFile
+   *
+   * @return value of destinationIsAFile
+   */
+  public boolean isDestinationIsAFile() {
+    return destinationIsAFile;
+  }
+
+  /**
+   * @param destinationIsAFile The destinationIsAFile to set
+   */
+  public void setDestinationIsAFile( boolean destinationIsAFile ) {
+    this.destinationIsAFile = destinationIsAFile;
+  }
+
+  /**
+   * Gets createDestinationFolder
+   *
+   * @return value of createDestinationFolder
+   */
+  public boolean isCreateDestinationFolder() {
+    return createDestinationFolder;
+  }
+
+  /**
+   * @param createDestinationFolder The createDestinationFolder to set
+   */
+  public void setCreateDestinationFolder( boolean createDestinationFolder ) {
+    this.createDestinationFolder = createDestinationFolder;
+  }
+
+  /**
+   * Gets sourceFileFolder
+   *
+   * @return value of sourceFileFolder
+   */
+  public String[] getSourceFileFolder() {
+    return sourceFileFolder;
+  }
+
+  /**
+   * @param sourceFileFolder The sourceFileFolder to set
+   */
+  public void setSourceFileFolder( String[] sourceFileFolder ) {
+    this.sourceFileFolder = sourceFileFolder;
+  }
+
+  /**
+   * Gets destinationFileFolder
+   *
+   * @return value of destinationFileFolder
+   */
+  public String[] getDestinationFileFolder() {
+    return destinationFileFolder;
+  }
+
+  /**
+   * @param destinationFileFolder The destinationFileFolder to set
+   */
+  public void setDestinationFileFolder( String[] destinationFileFolder ) {
+    this.destinationFileFolder = destinationFileFolder;
+  }
+
+  /**
+   * Gets wildcard
+   *
+   * @return value of wildcard
+   */
+  public String[] getWildcard() {
+    return wildcard;
+  }
+
+  /**
+   * @param wildcard The wildcard to set
+   */
+  public void setWildcard( String[] wildcard ) {
+    this.wildcard = wildcard;
+  }
+
+  /**
+   * Gets listFilesRemove
+   *
+   * @return value of listFilesRemove
+   */
+  public HashSet<String> getListFilesRemove() {
+    return listFilesRemove;
+  }
+
+  /**
+   * @param listFilesRemove The listFilesRemove to set
+   */
+  public void setListFilesRemove( HashSet<String> listFilesRemove ) {
+    this.listFilesRemove = listFilesRemove;
+  }
+
+  /**
+   * Gets listAddResult
+   *
+   * @return value of listAddResult
+   */
+  public HashSet<String> getListAddResult() {
+    return listAddResult;
+  }
+
+  /**
+   * @param listAddResult The listAddResult to set
+   */
+  public void setListAddResult( HashSet<String> listAddResult ) {
+    this.listAddResult = listAddResult;
+  }
+
+  /**
+   * Gets nbrFail
+   *
+   * @return value of nbrFail
+   */
+  public int getNbrFail() {
+    return nbrFail;
+  }
+
+  /**
+   * @param nbrFail The nbrFail to set
+   */
+  public void setNbrFail( int nbrFail ) {
+    this.nbrFail = nbrFail;
+  }
+
+  /**
+   * Gets configurationMappings
+   *
+   * @return value of configurationMappings
+   */
+  public Map<String, String> getConfigurationMappings() {
+    return configurationMappings;
   }
 }

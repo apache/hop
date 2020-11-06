@@ -1215,19 +1215,19 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   /**
-   * @param gpglocation
-   * @deprecated use {@link #setGPGLocation(String)} instead
+   * @param gpgLocation
+   * @deprecated use {@link #setGpgLocation(String)} instead
    */
   @Deprecated
-  public void setGPGPLocation( String gpgLocation ) {
+  public void setGpgPLocation( String gpgLocation ) {
     this.gpgLocation = gpgLocation;
   }
 
-  public void setGPGLocation( String gpgLocation ) {
+  public void setGpgLocation( String gpgLocation ) {
     this.gpgLocation = gpgLocation;
   }
 
-  public String getGPGLocation() {
+  public String getGpgLocation() {
     return gpgLocation;
   }
 

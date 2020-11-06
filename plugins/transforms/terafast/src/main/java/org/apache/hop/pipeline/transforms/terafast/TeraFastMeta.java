@@ -31,27 +31,33 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.util.*;
+import org.apache.hop.core.util.AbstractTransformMeta;
+import org.apache.hop.core.util.BooleanPluginProperty;
+import org.apache.hop.core.util.GenericTransformData;
+import org.apache.hop.core.util.IntegerPluginProperty;
+import org.apache.hop.core.util.PluginMessages;
+import org.apache.hop.core.util.StringListPluginProperty;
+import org.apache.hop.core.util.StringPluginProperty;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
 
 @Transform(
-        id = "TeraFast",
-        image = "TeraFast.svg",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.terafast",
-        description = "TeraFast.Description",
-		name = "TeraFast.Name",
-		categoryDescription = "BaseTransform.Category.Bulk",
-		documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/terafast.html"
+  id = "TeraFast",
+  image = "TeraFast.svg",
+  i18nPackageName = "org.apache.hop.pipeline.transforms.terafast",
+  description = "TeraFast.Description",
+  name = "TeraFast.Name",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
+  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/terafast.html"
 )
 public class TeraFastMeta extends AbstractTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 

@@ -66,7 +66,8 @@ import java.util.List;
 @Transform(
   id = "SimpleMapping",
   name = "Simple Mapping",
-  image = "MAP.svg"
+  image = "MAP.svg",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping"
 )
 public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, SimpleMappingData> implements ITransformMeta<SimpleMapping, SimpleMappingData>, ISubPipelineAwareMeta {
 

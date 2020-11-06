@@ -1206,7 +1206,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    * @return the logChannelId
    */
   public String getLogChannelId() {
-    return log.getLogChannelId();
+    return log==null ? null : log.getLogChannelId();
   }
 
   /**

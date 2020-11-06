@@ -50,7 +50,8 @@ import java.util.List;
 @Transform(
   id = "MappingInput",
   name = "Mapping Input",
-  image = "MPI.svg"
+  image = "MPI.svg",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping"
 )
 public class MappingInputMeta extends BaseTransformMeta implements ITransformMeta<MappingInput, MappingInputData> {
 

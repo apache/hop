@@ -35,12 +35,12 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
@@ -118,7 +118,9 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
     // Add a label in front of the item
     //
-    if ( toolbarItem.getType() != GuiToolbarElementType.LABEL && StringUtils.isNotEmpty( toolbarItem.getLabel() ) ) {
+    if ( toolbarItem.getType() != GuiToolbarElementType.LABEL &&
+         toolbarItem.getType() != GuiToolbarElementType.CHECKBOX &&
+         StringUtils.isNotEmpty( toolbarItem.getLabel() ) ) {
       ToolItem labelSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
       Label label = new Label( parent, SWT.BORDER | SWT.SINGLE | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
       label.setText( Const.NVL( toolbarItem.getLabel(), "" ) );
@@ -175,8 +177,23 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
         combo.addListener( SWT.Selection, listener );
         toolItemMap.put( toolbarItem.getId(), comboSeparator );
         widgetsMap.put( toolbarItem.getId(), combo );
-
         break;
+
+      case CHECKBOX:
+        ToolItem checkboxSeparator = new ToolItem( toolBar, SWT.SEPARATOR );
+        Button checkbox = new Button( parent, SWT.CHECK | ( toolbarItem.isAlignRight() ? SWT.RIGHT : SWT.LEFT ) );
+        checkbox.setToolTipText( Const.NVL( toolbarItem.getToolTip(), "" ) );
+        checkbox.setText( Const.NVL(toolbarItem.getLabel(), "") );
+        checkbox.setBackground( toolBar.getBackground() );
+        checkbox.pack();
+        checkboxSeparator.setWidth( checkbox.getSize().x + toolbarItem.getExtraWidth() ); // extra room for widget decorations
+        checkboxSeparator.setControl( checkbox );
+        listener = getListener( toolbarItem.getClassLoader(), toolbarItem.getListenerClass(), toolbarItem.getListenerMethod() );
+        checkbox.addListener( SWT.Selection, listener );
+        toolItemMap.put( toolbarItem.getId(), checkboxSeparator );
+        widgetsMap.put( toolbarItem.getId(), checkbox );
+        break;
+
       default:
         break;
     }
@@ -199,7 +216,6 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
 
     return maxWidth;
   }
-
 
   public void enableToolbarItem( String id, boolean enabled ) {
     ToolItem toolItem = toolItemMap.get( id );

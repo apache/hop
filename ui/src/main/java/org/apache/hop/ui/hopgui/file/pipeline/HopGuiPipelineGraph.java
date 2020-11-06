@@ -1063,9 +1063,9 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           Shell parent = hopShell();
           org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
 
-          // If we lost focus ignore the next left click
+          // Show the context dialog
           //
-          avoidContextDialog = GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
+          GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
         }
 
       }
