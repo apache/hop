@@ -71,7 +71,7 @@ pipeline {
                 branch 'master'
             }
             steps {
-                sh "./mvnw $MAVEN_PARAMS clean install"
+                sh "mvn $MAVEN_PARAMS clean install -P !assemblies"
             }
             post {
                 always {
