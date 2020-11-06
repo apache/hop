@@ -43,7 +43,8 @@ github:
     commits: commits@hop.apache.org
     jira_options: link label worklog
 
-#  protected_branches:
+#remove ~ when enabling the protection
+  protected_branches: ~
 #    master:
 #      required_pull_request_reviews:
 #        required_approving_review_count: 1
