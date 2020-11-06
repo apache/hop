@@ -55,7 +55,7 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.multimerge",
         name = "MultiwayMergeJoin.Name",
         description = "MultiwayMergeJoin.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Join",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/multimerge.html"
 )
 public class MultiMergeJoinMeta extends BaseTransformMeta implements ITransformMeta<MultiMergeJoin,MultiMergeJoinData> {

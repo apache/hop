@@ -28,10 +28,15 @@ import org.apache.hop.core.SwtUniversalImage;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
+import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
@@ -51,6 +56,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Dialog;
@@ -59,15 +65,26 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.ToolBar;
+import org.eclipse.swt.widgets.ToolItem;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+@GuiPlugin
 public class ContextDialog extends Dialog {
 
   public static final String CATEGORY_OTHER = "Other";
+
+  public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "ContextDialog-Toolbar";
+  public static final String TOOLBAR_ITEM_COLLAPSE_ALL = "ContextDialog-Toolbar-10010-CollapseAll";
+  public static final String TOOLBAR_ITEM_EXPAND_ALL = "ContextDialog-Toolbar-10020-ExpandAll";
+  public static final String TOOLBAR_ITEM_ENABLE_CATEGORIES = "ContextDialog-Toolbar-10030-EnableCategories";
+
+  public static final String AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES = "ContextDialog-Toolbar-ShowCategories";
+
   private Point location;
   private List<GuiAction> actions;
   private PropsUi props;
@@ -100,7 +117,7 @@ public class ContextDialog extends Dialog {
 
   private GuiAction selectedAction;
 
-  private List<AreaOwner> areaOwners = new ArrayList<>();
+  private List<AreaOwner<OwnerType, Object>> areaOwners = new ArrayList<>();
 
   private Color highlightColor;
 
@@ -111,14 +128,23 @@ public class ContextDialog extends Dialog {
   private Font itemsFont;
   private Item firstShownItem;
   private Item lastShownItem;
+  private ToolBar toolBar;
+  private GuiToolbarWidgets toolBarWidgets;
+
+  private enum OwnerType {
+    CATEGORY,
+    ITEM,
+  }
 
   private class CategoryAndOrder {
     String category;
     String order;
+    boolean collapsed;
 
-    public CategoryAndOrder( String category, String order ) {
+    public CategoryAndOrder( String category, String order, boolean collapsed ) {
       this.category = category;
       this.order = order;
+      this.collapsed = collapsed;
     }
 
     @Override public boolean equals( Object o ) {
@@ -167,6 +193,26 @@ public class ContextDialog extends Dialog {
     public void setOrder( String order ) {
       this.order = order;
     }
+
+    /**
+     * Gets collapsed
+     *
+     * @return value of collapsed
+     */
+    public boolean isCollapsed() {
+      return collapsed;
+    }
+
+    /**
+     * @param collapsed The collapsed to set
+     */
+    public void setCollapsed( boolean collapsed ) {
+      this.collapsed = collapsed;
+    }
+
+    public void flipCollapsed() {
+      collapsed = !collapsed;
+    }
   }
 
   private List<CategoryAndOrder> categories;
@@ -175,7 +221,7 @@ public class ContextDialog extends Dialog {
     private GuiAction action;
     private Image image;
     private boolean selected;
-    private AreaOwner areaOwner;
+    private AreaOwner<OwnerType, Object> areaOwner;
 
     public Item( GuiAction action, Image image ) {
       this.action = action;
@@ -265,6 +311,25 @@ public class ContextDialog extends Dialog {
     xMargin = 3 * margin;
     yMargin = 2 * margin;
 
+    // Let's take a look at the list of actions and see if we've got categories to use...
+    //
+    categories = new ArrayList<>();
+    for ( GuiAction action : actions ) {
+      if ( StringUtils.isNotEmpty( action.getCategory() ) ) {
+        CategoryAndOrder categoryAndOrder = new CategoryAndOrder( action.getCategory(), Const.NVL( action.getCategoryOrder(), "0" ), false );
+        if ( !categories.contains( categoryAndOrder ) ) {
+          categories.add( categoryAndOrder );
+        }
+      } else {
+        // Add an "Other" category
+        CategoryAndOrder categoryAndOrder = new CategoryAndOrder( CATEGORY_OTHER, "9999", false );
+        if ( !categories.contains( categoryAndOrder ) ) {
+          categories.add( categoryAndOrder );
+        }
+      }
+    }
+
+    categories.sort( Comparator.comparing( o -> o.order ) );
 
     // Load the action images
     //
@@ -279,22 +344,37 @@ public class ContextDialog extends Dialog {
       items.add( new Item( action, image ) );
     }
 
+    // Create a toolbar at the top of the main composite...
+    //
+    toolBar = new ToolBar( shell, SWT.WRAP | SWT.LEFT | SWT.HORIZONTAL );
+    toolBarWidgets = new GuiToolbarWidgets();
+    toolBarWidgets.registerGuiPluginObject( this );
+    toolBarWidgets.createToolbarWidgets( toolBar, GUI_PLUGIN_TOOLBAR_PARENT_ID );
+    FormData layoutData = new FormData();
+    layoutData.left = new FormAttachment( 0, 0 );
+    layoutData.top = new FormAttachment( 0, 0 );
+    layoutData.right = new FormAttachment( 100, 0 );
+    toolBar.setLayoutData( layoutData );
+    toolBar.pack();
+
+    recallToolbarSettings();
+
     // Add a search bar at the top...
     //
-    Composite toolBar = new Composite( shell, SWT.NONE );
-    toolBar.setLayout( new GridLayout( 2, false ) );
-    props.setLook( toolBar );
-    FormData fdlToolBar = new FormData();
-    fdlToolBar.top = new FormAttachment( 0, 0 );
-    fdlToolBar.left = new FormAttachment( 0, 0 );
-    fdlToolBar.right = new FormAttachment( 100, 0 );
-    toolBar.setLayoutData( fdlToolBar );
+    Composite searchComposite = new Composite( shell, SWT.NONE );
+    searchComposite.setLayout( new GridLayout( 2, false ) );
+    props.setLook( searchComposite );
+    FormData fdlSearchComposite = new FormData();
+    fdlSearchComposite.top = new FormAttachment( toolBar, 0 );
+    fdlSearchComposite.left = new FormAttachment( 0, 0 );
+    fdlSearchComposite.right = new FormAttachment( 100, 0 );
+    searchComposite.setLayoutData( fdlSearchComposite );
 
-    Label wlSearch = new Label( toolBar, SWT.LEFT );
+    Label wlSearch = new Label( searchComposite, SWT.LEFT );
     wlSearch.setText( "Search " );
     props.setLook( wlSearch );
 
-    wSearch = new Text( toolBar, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH );
+    wSearch = new Text( searchComposite, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.SEARCH );
     wSearch.setLayoutData( new GridData( GridData.FILL_BOTH ) );
 
     // Add a description label at the bottom...
@@ -313,7 +393,7 @@ public class ContextDialog extends Dialog {
     FormData fdCanvas = new FormData();
     fdCanvas.left = new FormAttachment( 0, 0 );
     fdCanvas.right = new FormAttachment( 100, 0 );
-    fdCanvas.top = new FormAttachment( toolBar, 0 );
+    fdCanvas.top = new FormAttachment( searchComposite, 0 );
     fdCanvas.bottom = new FormAttachment( wlTooltip, 0 );
     wCanvas.setLayoutData( fdCanvas );
 
@@ -341,7 +421,7 @@ public class ContextDialog extends Dialog {
     // Add all the listeners
     //
     shell.addListener( SWT.Resize, event -> updateVerticalBar() );
-    shell.addListener( SWT.Deactivate, event -> onFocusLost() );
+    // shell.addListener( SWT.Deactivate, event -> onFocusLost() );
 
     wSearch.addModifyListener( event -> onModifySearch() );
 
@@ -370,16 +450,33 @@ public class ContextDialog extends Dialog {
     wCanvas.addMouseListener( new MouseAdapter() {
       @Override
       public void mouseDown( MouseEvent event ) {
-        // See where the click was...
-        //
-        Item item = findItem( event.x, event.y );
-        if ( item != null ) {
-          selectedAction = item.getAction();
 
-          shiftClicked = ( event.stateMask & SWT.SHIFT ) != 0;
-          ctrlClicked = ( event.stateMask & SWT.CONTROL ) != 0 || ( Const.isOSX() && ( event.stateMask & SWT.COMMAND ) != 0 );
+        AreaOwner<OwnerType, Object> areaOwner = AreaOwner.getVisibleAreaOwner( areaOwners, event.x, event.y );
+        if ( areaOwner == null ) {
+          return;
+        }
+        switch ( areaOwner.getParent() ) {
+          case CATEGORY:
+            // Clicked on a category header: expand or unfold
+            //
+            CategoryAndOrder categoryAndOrder = (CategoryAndOrder) areaOwner.getOwner();
+            categoryAndOrder.flipCollapsed();
+            wCanvas.redraw();
+            break;
+          case ITEM:
+            // See which item we clicked on...
+            //
+            Item item = (Item) areaOwner.getOwner();
+            if ( item != null ) {
+              selectedAction = item.getAction();
 
-          dispose();
+              shiftClicked = ( event.stateMask & SWT.SHIFT ) != 0;
+              ctrlClicked = ( event.stateMask & SWT.CONTROL ) != 0 || ( Const.isOSX() && ( event.stateMask & SWT.COMMAND ) != 0 );
+
+              dispose();
+            }
+          default:
+            break;
         }
       }
     } );
@@ -423,13 +520,35 @@ public class ContextDialog extends Dialog {
     return selectedAction;
   }
 
-  private void dispose() {
+  private void recallToolbarSettings() {
+    Button categoriesCheckBox = getCategoriesCheckBox();
+    if (categoriesCheckBox!=null) {
+      String strUseCategories = AuditManagerGuiUtil.getLastUsedValue( AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES );
+      categoriesCheckBox.setSelection( "Y".equalsIgnoreCase( Const.NVL(strUseCategories, "Y" )) );
+    }
+  }
+
+  private void storeToolbarSettings() {
+    Button categoriesCheckBox = getCategoriesCheckBox();
+    if ( categoriesCheckBox != null ) {
+      AuditManagerGuiUtil.addLastUsedValue( AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES, categoriesCheckBox.getSelection() ? "Y" : "N" );
+    }
+  }
+
+    public boolean isDisposed() {
+    return shell.isDisposed();
+  }
+
+  public void dispose() {
 
     // Save the shell size and location in case the position isn't a mouse click
     //
     if ( location == null ) {
       props.setScreen( new WindowProperty( shell ) );
     }
+
+    // Store the toolbar settings
+    storeToolbarSettings();
 
     // Close the dialog window
     shell.close();
@@ -443,7 +562,52 @@ public class ContextDialog extends Dialog {
     headerFont.dispose();
   }
 
-  private boolean paintInitialized = false;
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_COLLAPSE_ALL,
+    toolTip = "Collapse all categories",
+    image = "ui/images/CollapseAll.svg"
+  )
+  public void collapseAll() {
+    for (CategoryAndOrder category : categories) {
+      category.setCollapsed( true );
+    }
+    wCanvas.redraw();
+  }
+
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_EXPAND_ALL,
+    toolTip = "Expand all categories",
+    image = "ui/images/ExpandAll.svg"
+  )
+  public void expandAll() {
+    for (CategoryAndOrder category : categories) {
+      category.setCollapsed( false );
+    }
+    wCanvas.redraw();
+  }
+
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_ENABLE_CATEGORIES,
+    label = "Show categories",
+    toolTip = "Enable/Disable categories",
+    type = GuiToolbarElementType.CHECKBOX
+  )
+  public void enableDisableCategories() {
+    wCanvas.redraw();
+    wSearch.setFocus();
+  }
+
+
+  private Button getCategoriesCheckBox() {
+    ToolItem checkboxItem = toolBarWidgets.findToolItem( TOOLBAR_ITEM_ENABLE_CATEGORIES );
+    if (checkboxItem==null) {
+      return null;
+    }
+    return (Button) checkboxItem.getControl();
+  }
 
   /**
    * This is where all the actions are drawn
@@ -464,35 +628,16 @@ public class ContextDialog extends Dialog {
       gc = new GC( image );
     }
 
+    boolean useCategories;
 
-    boolean useCategories = true; // TODO: replace by checkbox selection value
-
-    if ( !paintInitialized ) {
-
-      // Let's take a look at the list of actions and see if we've got categories to use...
-      //
-      categories = new ArrayList<>();
-      for ( GuiAction action : actions ) {
-        if ( StringUtils.isNotEmpty( action.getCategory() ) ) {
-          CategoryAndOrder categoryAndOrder = new CategoryAndOrder( action.getCategory(), Const.NVL( action.getCategoryOrder(), "0" ) );
-          if ( !categories.contains( categoryAndOrder ) ) {
-            categories.add( categoryAndOrder );
-          }
-        } else {
-          // Add an "Other" category
-          CategoryAndOrder categoryAndOrder = new CategoryAndOrder( CATEGORY_OTHER, "9999" );
-          if ( !categories.contains( categoryAndOrder ) ) {
-            categories.add( categoryAndOrder );
-          }
-        }
-      }
-
-      categories.sort( Comparator.comparing( o -> o.order ) );
-
-      useCategories &= !categories.isEmpty();
-
-      paintInitialized = true;
+    Button categoriesCheckBox = getCategoriesCheckBox();
+    if (categoriesCheckBox==null) {
+      useCategories=true;
+    } else {
+       useCategories = categoriesCheckBox.getSelection();
     }
+    useCategories &= !categories.isEmpty();
+    updateToolbar();
 
     // Fill everything with white...
     //
@@ -538,7 +683,8 @@ public class ContextDialog extends Dialog {
 
     firstShownItem = null;
 
-    while ( categoryNr < categories.size() || ( ( !useCategories || categories.isEmpty() ) && categoryNr == 0 ) ) {
+    while ( ( useCategories && categoryNr < categories.size() ) ||
+            ( !useCategories || categories.isEmpty() ) && (categoryNr == 0 ) ) {
 
       CategoryAndOrder categoryAndOrder;
       if ( !useCategories || categories.isEmpty() ) {
@@ -556,78 +702,89 @@ public class ContextDialog extends Dialog {
           // Draw the category header
           //
           gc.setFont( headerFont );
+          if ( categoryAndOrder.isCollapsed() ) {
+            gc.setForeground( GuiResource.getInstance().getColorDarkGray() );
+          } else {
+            gc.setForeground( GuiResource.getInstance().getColorBlack() );
+          }
           org.eclipse.swt.graphics.Point categoryExtent = gc.textExtent( categoryAndOrder.category );
           // gc.drawLine( margin, y-1, canvasBounds.width - xMargin, y-1 );
           gc.drawText( categoryAndOrder.category, x, y );
-          areaOwners.add( new AreaOwner( AreaOwner.AreaType.CUSTOM, x, y + heightOffSet, categoryExtent.x, categoryExtent.y, new Point( 0, heightOffSet ), null, categoryAndOrder ) );
+          areaOwners.add( new AreaOwner<>( AreaOwner.AreaType.CUSTOM, x, y + heightOffSet, categoryExtent.x, categoryExtent.y, new Point( 0, heightOffSet ), OwnerType.CATEGORY, categoryAndOrder ) );
           y += categoryExtent.y + yMargin;
           gc.setLineWidth( 1 );
           gc.drawLine( margin, y - yMargin, canvasBounds.width - xMargin, y - yMargin );
         }
 
+        gc.setForeground( GuiResource.getInstance().getColorBlack() );
         gc.setFont( itemsFont );
 
+        if ( categoryAndOrder==null || !categoryAndOrder.isCollapsed() ) {
 
-        // Paint the action items
-        //
-        for ( Item item : itemsToPaint ) {
+          // Paint the action items
+          //
+          for ( Item item : itemsToPaint ) {
 
-          lastShownItem = item;
-          if ( firstShownItem == null ) {
-            firstShownItem = item;
+            lastShownItem = item;
+            if ( firstShownItem == null ) {
+              firstShownItem = item;
+            }
+
+            String name = Const.NVL( item.action.getName(), item.action.getId() );
+
+            org.eclipse.swt.graphics.Rectangle imageBounds = item.image.getBounds();
+            org.eclipse.swt.graphics.Point nameExtent = gc.textExtent( name );
+
+            int width = Math.max( nameExtent.x, imageBounds.width );
+            height = nameExtent.y + margin + imageBounds.height;
+
+            if ( x + width + xMargin > canvasBounds.width ) {
+              x = margin;
+              y += height + yMargin;
+            }
+
+            if ( item.isSelected() ) {
+              gc.setLineWidth( 2 );
+              gc.setBackground( highlightColor );
+              gc.fillRoundRectangle( x - xMargin / 2, y - yMargin / 2, width + xMargin, height + yMargin, margin, margin );
+            }
+
+            // So we draw the icon in the centre of the name text...
+            //
+            gc.drawImage( item.image, x + nameExtent.x / 2 - imageBounds.width / 2, y );
+
+            // Then we draw the text underneath
+            //
+            gc.drawText( name, x, y + imageBounds.height + margin );
+
+            // Reset the background color
+            //
+            gc.setLineWidth( 1 );
+            gc.setBackground( GuiResource.getInstance().getColorBackground() );
+
+            // The drawn area is the complete rectangle
+            //
+            AreaOwner<OwnerType, Object> areaOwner = new AreaOwner( AreaOwner.AreaType.CUSTOM, x, y + heightOffSet, width, height,
+              new Point( 0, heightOffSet ), OwnerType.ITEM, item );
+            areaOwners.add( areaOwner );
+            item.setAreaOwner( areaOwner );
+
+            // Now we advance x and y to where we want to draw the next one...
+            //
+            x += width + xMargin;
+            if ( x > canvasBounds.width ) {
+              x = margin;
+              y += height + yMargin;
+            }
           }
 
-          String name = Const.NVL( item.action.getName(), item.action.getId() );
-
-          org.eclipse.swt.graphics.Rectangle imageBounds = item.image.getBounds();
-          org.eclipse.swt.graphics.Point nameExtent = gc.textExtent( name );
-
-          int width = Math.max( nameExtent.x, imageBounds.width );
-          height = nameExtent.y + margin + imageBounds.height;
-
-          if ( x + width + xMargin > canvasBounds.width ) {
-            x = margin;
-            y += height + yMargin;
-          }
-
-          if ( item.isSelected() ) {
-            gc.setLineWidth( 2 );
-            gc.setBackground( highlightColor );
-            gc.fillRoundRectangle( x - xMargin / 2, y - yMargin / 2, width + xMargin, height + yMargin, margin, margin );
-          }
-
-          // So we draw the icon in the centre of the name text...
+          // Back to the left on a next line to draw the next category (if any)
           //
-          gc.drawImage( item.image, x + nameExtent.x / 2 - imageBounds.width / 2, y );
-
-          // Then we draw the text underneath
-          //
-          gc.drawText( name, x, y + imageBounds.height + margin );
-
-          // Reset the background color
-          //
-          gc.setLineWidth( 1 );
-          gc.setBackground( GuiResource.getInstance().getColorBackground() );
-
-          // The drawn area is the complete rectangle
-          //
-          AreaOwner areaOwner = new AreaOwner( AreaOwner.AreaType.CUSTOM, x, y + heightOffSet, width, height, new Point( 0, heightOffSet ), null, item );
-          areaOwners.add( areaOwner );
-          item.setAreaOwner( areaOwner );
-
-          // Now we advance x and y to where we want to draw the next one...
-          //
-          x += width + xMargin;
-          if ( x > canvasBounds.width ) {
-            x = margin;
-            y += height + yMargin;
-          }
+          x = margin;
+          y += height + yMargin;
+        } else {
+          y -= yMargin; // tighter together when collapsed
         }
-
-        // Back to the left on a next line to draw the next category (if any)
-        //
-        x = margin;
-        y += height + yMargin;
       }
 
       // Pick the next category
@@ -650,6 +807,13 @@ public class ContextDialog extends Dialog {
       gc.dispose();
       image.dispose();
     }
+  }
+
+  private void updateToolbar() {
+    Button categoriesCheckBox = getCategoriesCheckBox();
+    boolean categoriesEnabled = categoriesCheckBox!=null && categoriesCheckBox.getSelection();
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_COLLAPSE_ALL, categoriesEnabled );
+    toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_EXPAND_ALL, categoriesEnabled );
   }
 
   private List<Item> findItemsForCategory( CategoryAndOrder categoryAndOrder ) {
@@ -716,21 +880,19 @@ public class ContextDialog extends Dialog {
       }
     }
 
-    if ( paintInitialized ) {
-
-      if ( filteredItems.isEmpty() ) {
-        selectItem( null, false );
-      }
-
-      // if selected item is exclude, change to a new default selection: first in the list
-      //
-      else if ( !filteredItems.contains( selectedItem ) ) {
-        selectItem( filteredItems.get( 0 ), false );
-      }
-      // Update vertical bar
-      //
-      this.updateVerticalBar();
+    if ( filteredItems.isEmpty() ) {
+      selectItem( null, false );
     }
+
+    // if selected item is exclude, change to a new default selection: first in the list
+    //
+    else if ( !filteredItems.contains( selectedItem ) ) {
+      selectItem( filteredItems.get( 0 ), false );
+    }
+    // Update vertical bar
+    //
+    this.updateVerticalBar();
+
 
     wCanvas.redraw();
   }
@@ -792,8 +954,8 @@ public class ContextDialog extends Dialog {
       case SWT.END:
         Rectangle lastArea = lastShownItem.getAreaOwner().getArea();
         int bottomY = lastArea.y + lastArea.height + yMargin;
-        int percentage = (int)((100-verticalBar.getThumb()) * ((double)bottomY / totalContentHeight));
-        verticalBar.setSelection( percentage - verticalBar.getThumb()/2 );
+        int percentage = (int) ( ( 100 - verticalBar.getThumb() ) * ( (double) bottomY / totalContentHeight ) );
+        verticalBar.setSelection( percentage - verticalBar.getThumb() / 2 );
         selectItem( lastShownItem, true );
         break;
     }
@@ -917,7 +1079,7 @@ public class ContextDialog extends Dialog {
 
       // Set the selection as well...
       //
-      int selection = Math.max(0, (int)((double)100 * ( heightOffSet - canvasBounds.height) / totalContentHeight));
+      int selection = Math.max( 0, (int) ( (double) 100 * ( heightOffSet - canvasBounds.height ) / totalContentHeight ) );
       verticalBar.setSelection( selection );
     }
   }

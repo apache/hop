@@ -85,7 +85,7 @@ public class ExtensionPointPluginType extends BasePluginType<ExtensionPoint> imp
   }
 
   @Override
-  protected String extractID( ExtensionPoint annotation ) {
+  protected String extractID( ExtensionPoint annotation )  {
     return annotation.id();
   }
 

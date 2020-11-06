@@ -27,5 +27,6 @@ public enum GuiToolbarElementType {
   TOOLBAR_BUTTON,
   LABEL,
   COMBO,
+  CHECKBOX,
   ;
 }
