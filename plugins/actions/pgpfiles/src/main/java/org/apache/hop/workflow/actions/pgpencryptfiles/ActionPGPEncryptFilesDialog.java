@@ -1487,11 +1487,11 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     }
     wasciiMode.setSelection( action.isAsciiMode() );
     wPrevious.setSelection( action.argFromPrevious );
-    wIncludeSubfolders.setSelection( action.includeSubfolders );
+    wIncludeSubfolders.setSelection( action.includeSubFolders );
     wDestinationIsAFile.setSelection( action.destinationIsAFile );
     wCreateDestinationFolder.setSelection( action.createDestinationFolder );
 
-    wAddFileToResult.setSelection( action.addResultFilesname );
+    wAddFileToResult.setSelection( action.addResultFileNames );
 
     wCreateMoveToFolder.setSelection( action.createMoveToFolder );
 
@@ -1560,8 +1560,8 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
       wDateTimeFormat.setText( action.getDateTimeFormat() );
     }
 
-    if ( action.getGPGLocation() != null ) {
-      wGpgExe.setText( action.getGPGLocation() );
+    if ( action.getGpgLocation() != null ) {
+      wGpgExe.setText( action.getGpgLocation() );
     }
 
     wAddMovedDate.setSelection( action.isAddMovedDate() );
@@ -1591,10 +1591,10 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
       return;
     }
     action.setName( wName.getText() );
-    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setIncludeSubFolders( wIncludeSubfolders.getSelection() );
     action.setAsciiMode( wasciiMode.getSelection() );
     action.setArgFromPrevious( wPrevious.getSelection() );
-    action.setAddresultfilesname( wAddFileToResult.getSelection() );
+    action.setAddResultFileNames( wAddFileToResult.getSelection() );
     action.setDestinationIsAFile( wDestinationIsAFile.getSelection() );
     action.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
     action.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
@@ -1625,7 +1625,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     action.setDestinationFolder( wDestinationFolder.getText() );
 
-    action.setGPGLocation( wGpgExe.getText() );
+    action.setGpgLocation( wGpgExe.getText() );
 
     if ( wIfMovedFileExists.getSelectionIndex() == 1 ) {
       action.setIfMovedFileExists( "overwrite_file" );

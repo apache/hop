@@ -90,8 +90,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
   private GPG gpg;
 
   public boolean argFromPrevious;
-  public boolean includeSubfolders;
-  public boolean addResultFilesname;
+  public boolean includeSubFolders;
+  public boolean addResultFileNames;
   public boolean destinationIsAFile;
   public boolean createDestinationFolder;
 
@@ -149,8 +149,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     userId = null;
     destinationFileFolder = null;
     wildcard = null;
-    includeSubfolders = false;
-    addResultFilesname = false;
+    includeSubFolders = false;
+    addResultFileNames = false;
     destinationIsAFile = false;
     createDestinationFolder = false;
     nrErrorsLessThan = "10";
@@ -196,8 +196,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     retval.append( super.getXml() );
     retval.append( "      " ).append( XmlHandler.addTagValue( "gpglocation", gpgLocation ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubfolders ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "add_result_filesname", addResultFilesname ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubFolders ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "add_result_filesname", addResultFileNames ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "destination_is_a_file", destinationIsAFile ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "create_destination_folder", createDestinationFolder ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", addDate ) );
@@ -249,8 +249,8 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       super.loadXml( entrynode );
       gpgLocation = XmlHandler.getTagValue( entrynode, "gpglocation" );
       argFromPrevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "arg_from_previous" ) );
-      includeSubfolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
-      addResultFilesname = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_result_filesname" ) );
+      includeSubFolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "include_subfolders" ) );
+      addResultFileNames = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "add_result_filesname" ) );
       destinationIsAFile = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "destination_is_a_file" ) );
       createDestinationFolder =
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "create_destination_folder" ) );
@@ -326,7 +326,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       successConditionBrokenExit = false;
       limitFiles = Const.toInt( environmentSubstitute( getNrErrorsLessThan() ), 10 );
 
-      if ( includeSubfolders ) {
+      if ( includeSubFolders ) {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Log.IncludeSubFoldersOn" ) );
         }
@@ -636,7 +636,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
 
               FileObject[] fileObjects = sourcefilefolder.findFiles( new AllFileSelector() {
                 public boolean traverseDescendents( FileSelectInfo info ) {
-                  return info.getDepth() == 0 || includeSubfolders;
+                  return info.getDepth() == 0 || includeSubFolders;
                 }
 
                 public boolean includeFile( FileSelectInfo info ) {
@@ -746,7 +746,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
 
         // add filename to result filename
-        if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
+        if ( addResultFileNames && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
           addFileToResultFilenames( destinationfilename.toString(), result, parentWorkflow );
         }
 
@@ -765,7 +765,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           }
 
           // add filename to result filename
-          if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
+          if ( addResultFileNames && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
             addFileToResultFilenames( destinationfilename.toString(), result, parentWorkflow );
           }
 
@@ -794,7 +794,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           }
 
           // add filename to result filename
-          if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
+          if ( addResultFileNames && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
             addFileToResultFilenames( destinationfile.toString(), result, parentWorkflow );
           }
 
@@ -825,7 +825,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
             }
 
             // add filename to result filename
-            if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
+            if ( addResultFileNames && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
               addFileToResultFilenames( destinationfile.toString(), result, parentWorkflow );
             }
 
@@ -838,7 +838,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               }
 
               // add filename to result filename
-              if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
+              if ( addResultFileNames && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
                 addFileToResultFilenames( destinationfile.toString(), result, parentWorkflow );
               }
 
@@ -861,7 +861,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
               }
 
               // add filename to result filename
-              if ( addResultFilesname && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
+              if ( addResultFileNames && !ifFileExists.equals( "fail" ) && !ifFileExists.equals( "do_nothing" ) ) {
                 addFileToResultFilenames( destinationfile.toString(), result, parentWorkflow );
               }
 
@@ -933,7 +933,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         if ( !Currentfile.getParent().toString().equals( sourcefilefolder.toString() ) ) {
 
           // Not in the Base Folder..Only if include sub folders
-          if ( includeSubfolders ) {
+          if ( includeSubFolders ) {
             // Folders..only if include subfolders
             if ( Currentfile.getType() != FileType.FOLDER ) {
 
@@ -1283,11 +1283,11 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     return destinationFolder;
   }
 
-  public void setGPGLocation( String gpgLocation ) {
+  public void setGpgLocation( String gpgLocation ) {
     this.gpgLocation = gpgLocation;
   }
 
-  public String getGPGLocation() {
+  public String getGpgLocation() {
     return gpgLocation;
   }
 
@@ -1295,12 +1295,21 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     this.doNotKeepFolderStructure = DoNotKeepFolderStructure;
   }
 
-  public void setIncludeSubfolders( boolean includeSubfolders ) {
-    this.includeSubfolders = includeSubfolders;
+  public void setIncludeSubFolders( boolean includeSubFolders ) {
+    this.includeSubFolders = includeSubFolders;
   }
 
-  public void setAddresultfilesname( boolean addResultFilesnamein ) {
-    this.addResultFilesname = addResultFilesnamein;
+  public void setAddResultFileNames( boolean addResultFileNames ) {
+    this.addResultFileNames = addResultFileNames;
+  }
+
+  /**
+   * Gets addResultFilenames
+   *
+   * @return value of addResultFilenames
+   */
+  public boolean isAddResultFileNames() {
+    return addResultFileNames;
   }
 
   public void setArgFromPrevious( boolean argFromPrevious ) {

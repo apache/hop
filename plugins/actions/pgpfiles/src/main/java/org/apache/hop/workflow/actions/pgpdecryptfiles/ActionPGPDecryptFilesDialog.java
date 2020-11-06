@@ -1515,8 +1515,8 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
       wDateTimeFormat.setText( action.getDateTimeFormat() );
     }
 
-    if ( action.getGPGLocation() != null ) {
-      wGpgExe.setText( action.getGPGLocation() );
+    if ( action.getGpgLocation() != null ) {
+      wGpgExe.setText( action.getGpgLocation() );
     }
 
     wAddMovedDate.setSelection( action.isAddMovedDate() );
@@ -1579,7 +1579,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
 
     action.setDestinationFolder( wDestinationFolder.getText() );
 
-    action.setGPGPLocation( wGpgExe.getText() );
+    action.setGpgPLocation( wGpgExe.getText() );
 
     if ( wIfMovedFileExists.getSelectionIndex() == 1 ) {
       action.setIfMovedFileExists( "overwrite_file" );
