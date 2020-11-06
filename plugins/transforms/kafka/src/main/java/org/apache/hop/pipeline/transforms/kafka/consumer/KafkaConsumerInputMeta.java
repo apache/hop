@@ -64,7 +64,7 @@ import java.util.stream.IntStream;
   i18nPackageName = "org.apache.hop.pipeline.transforms.kafka.consumer",
   name = "KafkaConsumer.TypeLongDesc",
   description = "KafkaConsumer.TypeTooltipDesc",
-  categoryDescription = "streaming",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
   keywords = "kafka,consumer,input"
 )
 @InjectionSupported( localizationPrefix = "KafkaConsumerInputMeta.Injection.", groups = { "CONFIGURATION_PROPERTIES" } )

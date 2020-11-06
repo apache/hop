@@ -135,6 +135,9 @@ public class GuiAction {
         return true;
       }
     }
+    if (matchesString( category, filter )) {
+      return true;
+    }
     return false;
   }
 

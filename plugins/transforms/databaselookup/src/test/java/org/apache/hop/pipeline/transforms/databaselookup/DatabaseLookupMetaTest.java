@@ -65,7 +65,7 @@ public class DatabaseLookupMetaTest implements IInitializer<ITransformMeta> {
     HopEnvironment.init();
     PluginRegistry.init( false );
     List<String> attributes =
-      Arrays.asList( "schemaName", "tablename", "databaseMeta", "orderByClause", "cached",
+      Arrays.asList( "schemaName", "tableName", "databaseMeta", "orderByClause", "cached",
         "cacheSize", "loadingAllDataInCache", "failingOnMultipleResults", "eatingRowOnLookupFailure",
         "streamKeyField1", "streamKeyField2", "keyCondition", "tableKeyField", "returnValueField",
         "returnValueNewName", "returnValueDefault", "returnValueDefaultType" );

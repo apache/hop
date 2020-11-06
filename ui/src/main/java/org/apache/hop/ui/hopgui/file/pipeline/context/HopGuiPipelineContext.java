@@ -91,6 +91,8 @@ public class HopGuiPipelineContext extends BaseGuiContextHandler implements IGui
           }
         );
       createTransformAction.getKeywords().addAll( Arrays.asList(transformPlugin.getKeywords()));
+      createTransformAction.setCategory( transformPlugin.getCategory() );
+      createTransformAction.setCategoryOrder( "9999_"+transformPlugin.getCategory() ); // sort alphabetically
       try {
         createTransformAction.setClassLoader( registry.getClassLoader( transformPlugin ) );
       } catch ( HopPluginException e ) {

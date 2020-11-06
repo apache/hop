@@ -22,24 +22,30 @@
 
 package org.apache.hop.core.gui;
 
+import java.util.List;
+
 /**
  * When we draw something in HopGui (PipelinePainter) we keep a list of all the things we draw and the object that's behind
  * it. That should make it a lot easier to track what was drawn, setting tooltips, etc.
  *
  * @author Matt
  */
-public class AreaOwner {
+public class AreaOwner<Parent, Owner> {
 
   public enum AreaType {
     NOTE, TRANSFORM_PARTITIONING, TRANSFORM_ICON, TRANSFORM_ERROR_ICON, TRANSFORM_ERROR_RED_ICON,
-    TRANSFORM_INPUT_HOP_ICON, TRANSFORM_OUTPUT_HOP_ICON, TRANSFORM_INFO_HOP_ICON, TRANSFORM_ERROR_HOP_ICON, TRANSFORM_TARGET_HOP_ICON,
-    HOP_COPY_ICON, ROW_DISTRIBUTION_ICON, HOP_ERROR_ICON, HOP_INFO_ICON, HOP_INFO_TRANSFORM_COPIES_ERROR,
+    TRANSFORM_INPUT_HOP_ICON, TRANSFORM_OUTPUT_HOP_ICON, TRANSFORM_INFO_HOP_ICON,
+    TRANSFORM_ERROR_HOP_ICON, TRANSFORM_TARGET_HOP_ICON,
+    HOP_COPY_ICON, ROW_DISTRIBUTION_ICON, HOP_ERROR_ICON,
+    HOP_INFO_ICON, HOP_INFO_TRANSFORM_COPIES_ERROR,
 
     MINI_ICONS_BALLOON,
 
-    TRANSFORM_TARGET_HOP_ICON_OPTION, TRANSFORM_EDIT_ICON, TRANSFORM_MENU_ICON, TRANSFORM_COPIES_TEXT, TRANSFORM_DATA_SERVICE,
+    TRANSFORM_TARGET_HOP_ICON_OPTION, TRANSFORM_EDIT_ICON,
+    TRANSFORM_MENU_ICON, TRANSFORM_COPIES_TEXT, TRANSFORM_DATA_SERVICE,
 
-    ACTION_ICON, WORKFLOW_HOP_ICON, WORKFLOW_HOP_PARALLEL_ICON, ACTION_MINI_ICON_INPUT, ACTION_MINI_ICON_OUTPUT,
+    ACTION_ICON, WORKFLOW_HOP_ICON, WORKFLOW_HOP_PARALLEL_ICON,
+    ACTION_MINI_ICON_INPUT, ACTION_MINI_ICON_OUTPUT,
     ACTION_MINI_ICON_CONTEXT, ACTION_MINI_ICON_EDIT,
 
     ACTION_BUSY, ACTION_RESULT_SUCCESS, ACTION_RESULT_FAILURE, ACTION_RESULT_CHECKPOINT,
@@ -52,31 +58,31 @@ public class AreaOwner {
   }
 
   private Rectangle area;
-  private Object parent;
-  private Object owner;
+  private Parent parent;
+  private Owner owner;
   private AreaType areaType;
 
   /**
    * @param x
    * @param y
    * @param width
-   * @param heigth
+   * @param height
    * @param owner
    */
-  public AreaOwner( AreaType areaType, int x, int y, int width, int heigth, Point offset, Object parent,
-                    Object owner ) {
+  public AreaOwner( AreaType areaType, int x, int y, int width, int height, Point offset,
+                    Parent parent, Owner owner ) {
     super();
     this.areaType = areaType;
-    this.area = new Rectangle( x - offset.x, y - offset.y, width, heigth );
+    this.area = new Rectangle( x - offset.x, y - offset.y, width, height );
     this.parent = parent;
     this.owner = owner;
   }
 
-  public AreaOwner( AreaOwner o ) {
+  public AreaOwner( AreaOwner<Parent, Owner> o ) {
     this.areaType = o.areaType;
     this.area = new Rectangle( o.area );
     this.parent = o.parent;
-    this.owner = o.parent;
+    this.owner = o.owner;
   }
 
   /**
@@ -100,13 +106,35 @@ public class AreaOwner {
 
   /**
    * Calculate the distance between the centres of the areas.
+   *
    * @param o The other area owner to calcualte the distance to
    * @return The distance.
    */
   public double distanceTo( AreaOwner o ) {
     int distX = getCentreX() - o.getCentreX();
     int distY = getCentreY() - o.getCentreY();
-    return Math.sqrt(distX*distX + distY*distY);
+    return Math.sqrt( distX * distX + distY * distY );
+  }
+
+  /**
+   * Find the last area owner, the one drawn last, for the given coordinate.
+   * In other words, this searches the provided list back-to-front.
+   *
+   * @param areaOwners The list of area owners
+   * @param x          The x coordinate
+   * @param y          The y coordinate
+   * @return The area owner or null if nothing could be found
+   */
+  public static synchronized <Owner, Parent> AreaOwner<Owner, Parent> getVisibleAreaOwner(
+    List<AreaOwner<Owner, Parent>> areaOwners, int x, int y ) {
+
+    for ( int i = areaOwners.size() - 1; i >= 0; i-- ) {
+      AreaOwner<Owner, Parent> areaOwner = areaOwners.get( i );
+      if ( areaOwner.contains( x, y ) ) {
+        return areaOwner;
+      }
+    }
+    return null;
   }
 
 
@@ -127,28 +155,28 @@ public class AreaOwner {
   /**
    * @return the owner
    */
-  public Object getOwner() {
+  public Owner getOwner() {
     return owner;
   }
 
   /**
    * @param owner the owner to set
    */
-  public void setOwner( Object owner ) {
+  public void setOwner( Owner owner ) {
     this.owner = owner;
   }
 
   /**
    * @return the parent
    */
-  public Object getParent() {
+  public Parent getParent() {
     return parent;
   }
 
   /**
    * @param parent the parent to set
    */
-  public void setParent( Object parent ) {
+  public void setParent( Parent parent ) {
     this.parent = parent;
   }
 

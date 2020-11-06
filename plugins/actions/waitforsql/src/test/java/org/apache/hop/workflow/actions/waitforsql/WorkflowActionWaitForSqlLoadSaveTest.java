@@ -44,8 +44,8 @@ public class WorkflowActionWaitForSqlLoadSaveTest extends WorkflowActionLoadSave
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "database", "schemaname", "tablename", "successCondition",
-      "rowsCountValue", "iscustomSql", "isUseVars", "customSql", "isAddRowsResult", "maximumTimeout",
+    return Arrays.asList( new String[] { "database", "schemaName", "tableName", "successCondition",
+      "rowsCountValue", "isCustomSql", "isUseVars", "customSql", "isAddRowsResult", "maximumTimeout",
       "checkCycleTime", "successOnTimeout", "isClearResultList" } );
   }
 

@@ -85,4 +85,10 @@
     <description>Allows you to browse to local or VFS locations</description>
   </gui-plugin>
 
+  <gui-plugin>
+    <classname>org.apache.hop.ui.core.dialog.ContextDialog</classname>
+    <description>This dialog presents you all the actions you can take in a given context</description>
+  </gui-plugin>
+
+
 </gui-plugins>

@@ -145,34 +145,6 @@
       <argument id="1">var</argument>
     </Arguments>
   </jsFunction>
-  <jsFunction name="sendMail">
-    <help>Sends an eMail to a given address.</help>
-    <sample>// Sends an eMail to an given Address.
-      // Be aware, this function could be a usefull spam task.
-      //
-      // Usage:
-      // sendMail(var, var, var, var, var);
-      // 1: String - SMTP-Server
-      // 2: String - The Address from which the mail shoud be send
-      // 3: String - The Address to which the mail should be send.
-      // For more Recipient's, please provide a list seperated by ','
-      // 4: String - Subject of the Mail
-      // 5: String - The Message Text of the mail.
-      //
-      // 2006-11-15
-      //
-      var xSMTP="Your SMTP Server";
-      var xSender = "Sender eMail";
-      var xRecipients = "Recipient1,Recipient2,...";
-      var xSubject = "Hello World!";
-      var xMessage = "This is the message";
-      sendMail(xSMTP,xSender,xRecipients,xSubject,xMessage);
-    </sample>
-    <type>4</type>
-    <Arguments>
-      <argument id="1">var,var,var,var,var</argument>
-    </Arguments>
-  </jsFunction>
   <jsFunction name="replace">
     <help>Searches inside the given String(arg1) for the matching one(arg2) and repalces it with arg3.</help>
     <sample>// Replaces Strings inside the given Variable.
