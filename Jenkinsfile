@@ -19,6 +19,7 @@
 
 def AGENT_LABEL = env.AGENT_LABEL ?: 'ubuntu'
 def JDK_NAME = env.JDK_NAME ?: 'jdk_1.8_latest'
+def MAVEN_NAME = env.MAVEN_NAME ?: 'maven_3_latest'
 
 def MAVEN_PARAMS = "-U -B -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2"
 
@@ -30,6 +31,7 @@ pipeline {
 
     tools {
         jdk JDK_NAME
+        maven MVN_NAME
     }
 
     environment {
