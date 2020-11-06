@@ -421,7 +421,7 @@ public class ContextDialog extends Dialog {
     // Add all the listeners
     //
     shell.addListener( SWT.Resize, event -> updateVerticalBar() );
-    // shell.addListener( SWT.Deactivate, event -> onFocusLost() );
+    shell.addListener( SWT.Deactivate, event -> onFocusLost() );
 
     wSearch.addModifyListener( event -> onModifySearch() );
 
