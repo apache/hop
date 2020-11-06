@@ -49,7 +49,7 @@ import org.eclipse.swt.widgets.*;
  * @since 28-01-2007
  */
 public class ActionWaitForFileDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionWaitForFile.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionWaitForFile.class; // Needed by Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobWaitForFile.Filetype.All" ) };

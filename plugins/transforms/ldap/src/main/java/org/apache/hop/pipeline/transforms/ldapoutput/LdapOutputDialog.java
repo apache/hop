@@ -22,11 +22,6 @@
  ******************************************************************************/
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.SourceToTargetMapping;
@@ -80,9 +75,14 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 public class LdapOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG =
-      LdapOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LdapOutputMeta.class; // Needed by Translator
 
   private Button wUsingAuthentication;
 

@@ -76,8 +76,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class LdapInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG =
-      LdapInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LdapInputMeta.class; // Needed by Translator
 
   private Button wInclRownum;
 

@@ -51,7 +51,7 @@ import java.util.TimerTask;
 
 public class HopGuiWorkflowGridDelegate {
 
-  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // Needed by Translator
 
   private HopGui hopGui;
 

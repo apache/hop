@@ -53,7 +53,7 @@ import java.util.List;
 import java.util.*;
 
 public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FuzzyMatchMeta.class; // Needed by Translator
 
   private CCombo wTransform;
 

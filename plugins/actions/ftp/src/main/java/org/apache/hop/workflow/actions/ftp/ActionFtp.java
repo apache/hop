@@ -23,16 +23,14 @@
 
 package org.apache.hop.workflow.actions.ftp;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.enterprisedt.net.ftp.FTPClient;
+import com.enterprisedt.net.ftp.FTPConnectMode;
+import com.enterprisedt.net.ftp.FTPException;
+import com.enterprisedt.net.ftp.FTPFile;
+import com.enterprisedt.net.ftp.FTPFileFactory;
+import com.enterprisedt.net.ftp.FTPFileParser;
+import com.enterprisedt.net.ftp.FTPTransferType;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -60,14 +58,15 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 import org.w3c.dom.Node;
 
-import com.enterprisedt.net.ftp.FTPClient;
-import com.enterprisedt.net.ftp.FTPConnectMode;
-import com.enterprisedt.net.ftp.FTPException;
-import com.enterprisedt.net.ftp.FTPFile;
-import com.enterprisedt.net.ftp.FTPFileFactory;
-import com.enterprisedt.net.ftp.FTPFileParser;
-import com.enterprisedt.net.ftp.FTPTransferType;
-import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines an FTP action.
@@ -86,7 +85,7 @@ import com.google.common.annotations.VisibleForTesting;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftp.html"
 )
 public class ActionFtp extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtp.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtp.class; // Needed by Translator
 
   private String serverName;
 
@@ -130,11 +129,11 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
   private boolean addtime;
 
-  private boolean SpecifyFormat;
+  private boolean specifyFormat;
 
-  private String date_time_format;
+  private String dateTimeFormat;
 
-  private boolean AddDateBeforeExtension;
+  private boolean addDateBeforeExtension;
 
   private boolean isaddresult;
 
@@ -180,11 +179,11 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
   public String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
 
-  private String nr_limit;
+  private String nrLimit;
 
-  private String success_condition;
+  private String successCondition;
 
-  long NrErrors = 0;
+  long nrErrors = 0;
 
   long NrfilesRetrieved = 0;
 
@@ -198,10 +197,10 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
   public ActionFtp( String n ) {
     super( n, "" );
-    nr_limit = "10";
+    nrLimit = "10";
     port = "21";
     socksProxyPort = "1080";
-    success_condition = SUCCESS_IF_NO_ERRORS;
+    successCondition = SUCCESS_IF_NO_ERRORS;
     ifFileExists = ifFileExistsSkip;
     SifFileExists = SifFileExistsSkip;
 
@@ -210,8 +209,8 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     movetodirectory = null;
     adddate = false;
     addtime = false;
-    SpecifyFormat = false;
-    AddDateBeforeExtension = false;
+    specifyFormat = false;
+    addDateBeforeExtension = false;
     isaddresult = true;
     createmovefolder = false;
 
@@ -250,9 +249,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "adddate", adddate ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "addtime", addtime ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDateBeforeExtension", AddDateBeforeExtension ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", specifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", dateTimeFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDateBeforeExtension", addDateBeforeExtension ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "isaddresult", isaddresult ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "createmovefolder", createmovefolder ) );
 
@@ -270,8 +269,8 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "ifFileExists", SifFileExists ) );
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit", nr_limit ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", success_condition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit", nrLimit ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
 
     return retval.toString();
   }
@@ -303,9 +302,9 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
       adddate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "adddate" ) );
       addtime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addtime" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
-      date_time_format = XmlHandler.getTagValue( entrynode, "date_time_format" );
-      AddDateBeforeExtension =
+      specifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
+      dateTimeFormat = XmlHandler.getTagValue( entrynode, "date_time_format" );
+      addDateBeforeExtension =
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "AddDateBeforeExtension" ) );
 
       String addresult = XmlHandler.getTagValue( entrynode, "isaddresult" );
@@ -341,8 +340,8 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
         }
 
       }
-      nr_limit = XmlHandler.getTagValue( entrynode, "nr_limit" );
-      success_condition =
+      nrLimit = XmlHandler.getTagValue( entrynode, "nr_limit" );
+      successCondition =
         Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), SUCCESS_IF_NO_ERRORS );
 
     } catch ( HopXmlException xe ) {
@@ -350,20 +349,20 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public void setLimit( String nr_limitin ) {
-    this.nr_limit = nr_limitin;
+  public void setLimit( String nrLimitin ) {
+    this.nrLimit = nrLimitin;
   }
 
   public String getLimit() {
-    return nr_limit;
+    return nrLimit;
   }
 
-  public void setSuccessCondition( String success_condition ) {
-    this.success_condition = success_condition;
+  public void setSuccessCondition( String successCondition ) {
+    this.successCondition = successCondition;
   }
 
   public String getSuccessCondition() {
-    return success_condition;
+    return successCondition;
   }
 
   public void setCreateMoveFolder( boolean createmovefolderin ) {
@@ -374,12 +373,12 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     return createmovefolder;
   }
 
-  public void setAddDateBeforeExtension( boolean AddDateBeforeExtension ) {
-    this.AddDateBeforeExtension = AddDateBeforeExtension;
+  public void setAddDateBeforeExtension( boolean addDateBeforeExtension ) {
+    this.addDateBeforeExtension = addDateBeforeExtension;
   }
 
   public boolean isAddDateBeforeExtension() {
-    return AddDateBeforeExtension;
+    return addDateBeforeExtension;
   }
 
   public void setAddToResult( boolean isaddresultin ) {
@@ -407,19 +406,19 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
   }
 
   public boolean isSpecifyFormat() {
-    return SpecifyFormat;
+    return specifyFormat;
   }
 
-  public void setSpecifyFormat( boolean SpecifyFormat ) {
-    this.SpecifyFormat = SpecifyFormat;
+  public void setSpecifyFormat( boolean specifyFormat ) {
+    this.specifyFormat = specifyFormat;
   }
 
   public String getDateTimeFormat() {
-    return date_time_format;
+    return dateTimeFormat;
   }
 
-  public void setDateTimeFormat( String date_time_format ) {
-    this.date_time_format = date_time_format;
+  public void setDateTimeFormat( String dateTimeFormat ) {
+    this.dateTimeFormat = dateTimeFormat;
   }
 
   /**
@@ -749,7 +748,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
     result.setNrErrors( 1 );
     result.setResult( false );
-    NrErrors = 0;
+    nrErrors = 0;
     NrfilesRetrieved = 0;
     successConditionBroken = false;
     boolean exitaction = false;
@@ -782,10 +781,10 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
       }
 
       if ( !Utils.isEmpty( proxyHost ) ) {
-        String realProxy_host = environmentSubstitute( proxyHost );
-        ftpclient.setRemoteAddr( InetAddress.getByName( realProxy_host ) );
+        String realProxyHost = environmentSubstitute( proxyHost );
+        ftpclient.setRemoteAddr( InetAddress.getByName( realProxyHost ) );
         if ( isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "ActionFTP.OpenedProxyConnectionOn", realProxy_host ) );
+          logDetailed( BaseMessages.getString( PKG, "ActionFTP.OpenedProxyConnectionOn", realProxyHost ) );
         }
 
         // FIXME: Proper default port for proxy
@@ -913,7 +912,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
           } else {
             logError( BaseMessages.getString( PKG, "ActionFTP.MoveToFolderNotExist" ) );
             exitaction = true;
-            NrErrors++;
+            nrErrors++;
           }
         }
       }
@@ -971,7 +970,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
           }
 
           if ( successConditionBroken ) {
-            throw new Exception( BaseMessages.getString( PKG, "ActionFTP.SuccesConditionBroken", "" + NrErrors ) );
+            throw new Exception( BaseMessages.getString( PKG, "ActionFTP.SuccesConditionBroken", "" + nrErrors ) );
           }
 
           boolean getIt = true;
@@ -1023,7 +1022,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
       FTPClient.clearSOCKS();
     }
 
-    result.setNrErrors( NrErrors );
+    result.setNrErrors( nrErrors );
     result.setNrFilesRetrieved( NrfilesRetrieved );
     if ( getSuccessStatus() ) {
       result.setResult( true );
@@ -1125,7 +1124,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
   private void displayResults() {
     if ( isDetailed() ) {
       logDetailed( "=======================================" );
-      logDetailed( BaseMessages.getString( PKG, "ActionFTP.Log.Info.FilesInError", "" + NrErrors ) );
+      logDetailed( BaseMessages.getString( PKG, "ActionFTP.Log.Info.FilesInError", "" + nrErrors ) );
       logDetailed( BaseMessages.getString( PKG, "ActionFTP.Log.Info.FilesRetrieved", "" + NrfilesRetrieved ) );
       logDetailed( "=======================================" );
     }
@@ -1134,10 +1133,10 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
   private boolean getSuccessStatus() {
     boolean retval = false;
 
-    if ( ( NrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
+    if ( ( nrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
       || ( NrfilesRetrieved >= limitFiles && getSuccessCondition().equals(
       SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) )
-      || ( NrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+      || ( nrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
 
@@ -1145,7 +1144,7 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
   }
 
   private void updateErrors() {
-    NrErrors++;
+    nrErrors++;
     if ( checkIfSuccessConditionBroken() ) {
       // Success condition was broken
       successConditionBroken = true;
@@ -1154,8 +1153,8 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
 
   private boolean checkIfSuccessConditionBroken() {
     boolean retval = false;
-    if ( ( NrErrors > 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
-      || ( NrErrors >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+    if ( ( nrErrors > 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
+      || ( nrErrors >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
     return retval;
@@ -1194,8 +1193,8 @@ public class ActionFtp extends ActionBase implements Cloneable, IAction {
     SimpleDateFormat daf = new SimpleDateFormat();
     Date now = new Date();
 
-    if ( SpecifyFormat && !Utils.isEmpty( date_time_format ) ) {
-      daf.applyPattern( date_time_format );
+    if ( specifyFormat && !Utils.isEmpty( dateTimeFormat ) ) {
+      daf.applyPattern( dateTimeFormat );
       String dt = daf.format( now );
       retval += dt;
     } else {

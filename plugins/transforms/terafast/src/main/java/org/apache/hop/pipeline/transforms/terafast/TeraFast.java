@@ -51,7 +51,7 @@ import java.util.List;
 
 public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformData> implements ITransform<TeraFastMeta, GenericTransformData> {
 
-  private static final Class<?> PKG = TeraFastMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TeraFastMeta.class; // Needed by Translator
 
   private TeraFastMeta meta;
 

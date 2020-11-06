@@ -56,7 +56,7 @@ import java.util.List;
 )
 public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMeta<ColumnExists, ColumnExistsData> {
 
-  private static final Class<?> PKG = ColumnExistsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ColumnExistsMeta.class; // Needed by Translator
 
   /**
    * database connection
@@ -65,7 +65,7 @@ public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMet
 
   private String schemaname;
 
-  private String tablename;
+  private String tableName;
 
   /**
    * dynamic tablename
@@ -113,14 +113,14 @@ public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMet
    * @return Returns the tablename.
    */
   public String getTablename() {
-    return tablename;
+    return tableName;
   }
 
   /**
-   * @param tablename The tablename to set.
+   * @param tableName The tablename to set.
    */
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTablename( String tableName ) {
+    this.tableName = tableName;
   }
 
   /**
@@ -198,7 +198,7 @@ public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMet
   public void setDefault() {
     database = null;
     schemaname = null;
-    tablename = null;
+    tableName = null;
     istablenameInfield = false;
     resultfieldname = "result";
   }
@@ -219,7 +219,7 @@ public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMet
   public String getXml() {
     StringBuilder retval = new StringBuilder();
     retval.append( "    " + XmlHandler.addTagValue( "connection", database == null ? "" : database.getName() ) );
-    retval.append( "    " + XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "    " + XmlHandler.addTagValue( "tablename", tableName ) );
     retval.append( "    " + XmlHandler.addTagValue( "schemaname", schemaname ) );
     retval.append( "    " + XmlHandler.addTagValue( "istablenameInfield", istablenameInfield ) );
     retval.append( "    " + XmlHandler.addTagValue( "tablenamefield", tablenamefield ) );
@@ -232,7 +232,7 @@ public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMet
     try {
       String con = XmlHandler.getTagValue( transformNode, "connection" );
       database = DatabaseMeta.loadDatabase( metadataProvider, con );
-      tablename = XmlHandler.getTagValue( transformNode, "tablename" );
+      tableName = XmlHandler.getTagValue( transformNode, "tablename" );
       schemaname = XmlHandler.getTagValue( transformNode, "schemaname" );
       istablenameInfield = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "istablenameInfield" ) );
       tablenamefield = XmlHandler.getTagValue( transformNode, "tablenamefield" );
@@ -248,47 +248,47 @@ public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMet
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                      String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( database == null ) {
-      error_message = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
     if ( Utils.isEmpty( resultfieldname ) ) {
-      error_message = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.ResultFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
     } else {
-      error_message = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.ResultFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
     }
     remarks.add( cr );
     if ( istablenameInfield ) {
       if ( Utils.isEmpty( tablenamefield ) ) {
-        error_message = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.TableFieldMissing" );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.TableFieldMissing" );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       } else {
-        error_message = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.TableFieldOK" );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+        errorMessage = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.TableFieldOK" );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       }
       remarks.add( cr );
     } else {
-      if ( Utils.isEmpty( tablename ) ) {
-        error_message = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.TablenameMissing" );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      if ( Utils.isEmpty( tableName ) ) {
+        errorMessage = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.TablenameMissing" );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       } else {
-        error_message = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.TablenameOK" );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+        errorMessage = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.TablenameOK" );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       }
       remarks.add( cr );
     }
 
     if ( Utils.isEmpty( columnnamefield ) ) {
-      error_message = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.ColumnNameFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.ColumnNameFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
     } else {
-      error_message = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.ColumnNameFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ColumnExistsMeta.CheckResult.ColumnNameFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
     }
     remarks.add( cr );
 

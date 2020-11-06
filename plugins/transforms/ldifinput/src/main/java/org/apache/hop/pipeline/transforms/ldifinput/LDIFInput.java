@@ -53,7 +53,7 @@ import java.util.Enumeration;
  * @since 24-05-2007
  */
 public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> implements ITransform<LDIFInputMeta, LDIFInputData> {
-  private static final Class<?> PKG = LDIFInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LDIFInputMeta.class; // Needed by Translator
 
 
   public LDIFInput( TransformMeta transformMeta, LDIFInputMeta meta, LDIFInputData data, int copyNr, PipelineMeta pipelineMeta,

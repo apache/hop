@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.*;
 
 public class RestDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = RestMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RestMeta.class; // Needed by Translator
 
   private ComboVar wApplicationType;
 

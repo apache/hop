@@ -72,7 +72,7 @@ import java.util.*;
 )
 @InjectionSupported( localizationPrefix = "DimensionLookup.Injection.", groups = { "KEYS", "FIELDS" } )
 public class DimensionLookupMeta extends BaseTransformMeta implements ITransformMeta<DimensionLookup, DimensionLookupData>, IProvidesModelerMeta {
-  private static final Class<?> PKG = DimensionLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DimensionLookupMeta.class; // Needed by Translator
 
   public static final int TYPE_UPDATE_DIM_INSERT = 0;
   public static final int TYPE_UPDATE_DIM_UPDATE = 1;
@@ -294,10 +294,10 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
   }
 
   /**
-   * @param tablename The tablename to set.
+   * @param tableName The tablename to set.
    */
-  public void setTableName( String tablename ) {
-    this.tableName = tablename;
+  public void setTableName( String tableName ) {
+    this.tableName = tableName;
   }
 
   /**
@@ -1039,10 +1039,10 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
       // post 2.2 version
       if ( !( CREATION_METHOD_AUTOINC.equals( techKeyCreation ) || CREATION_METHOD_SEQUENCE.equals( techKeyCreation )
         || CREATION_METHOD_TABLEMAX.equals( techKeyCreation ) ) ) {
-        String error_message =
+        String errorMessage =
           BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.ErrorTechKeyCreation" ) + ": "
             + techKeyCreation + "!";
-        CheckResult cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        CheckResult cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
     }
@@ -1063,7 +1063,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
 
   private void checkUpdate( List<ICheckResult> remarks, TransformMeta transforminfo, IRowMeta prev ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
@@ -1072,8 +1072,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
         db.connect();
         if ( !Utils.isEmpty( tableName ) ) {
           boolean first = true;
-          boolean error_found = false;
-          error_message = "";
+          boolean errorFound = false;
+          errorMessage = "";
 
           IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
           if ( r != null ) {
@@ -1085,16 +1085,16 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.MissingCompareFieldsInTargetTable" )
                       + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + lufield + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + lufield + Const.CR;
               }
             }
-            if ( error_found ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+            if ( errorFound ) {
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
             } else {
               cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
@@ -1105,82 +1105,82 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
             /* Also, check the fields: tk, version, from-to, ... */
             if ( keyField != null && keyField.length() > 0 ) {
               if ( r.indexOfValue( keyField ) < 0 ) {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyNotFound", keyField )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyFound", keyField )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transforminfo );
               }
               remarks.add( cr );
             } else {
-              error_message =
+              errorMessage =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyRequired" ) + Const.CR;
-              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo ) );
+              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo ) );
             }
 
             if ( versionField != null && versionField.length() > 0 ) {
               if ( r.indexOfValue( versionField ) < 0 ) {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionFieldNotFound", versionField )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionFieldFound", versionField )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transforminfo );
               }
               remarks.add( cr );
             } else {
-              error_message =
+              errorMessage =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionKeyRequired" ) + Const.CR;
-              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo ) );
+              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo ) );
             }
 
             if ( dateFrom != null && dateFrom.length() > 0 ) {
               if ( r.indexOfValue( dateFrom ) < 0 ) {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartPointOfDaterangeNotFound",
                     dateFrom ) + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartPointOfDaterangeFound",
                     dateFrom ) + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transforminfo );
               }
               remarks.add( cr );
             } else {
-              error_message =
+              errorMessage =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartKeyRequired" ) + Const.CR;
-              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo ) );
+              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo ) );
             }
 
             if ( dateTo != null && dateTo.length() > 0 ) {
               if ( r.indexOfValue( dateTo ) < 0 ) {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndPointOfDaterangeNotFound", dateTo )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndPointOfDaterangeFound", dateTo )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transforminfo );
               }
               remarks.add( cr );
             } else {
-              error_message =
+              errorMessage =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndKeyRequired" ) + Const.CR;
-              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo ) );
+              remarks.add( new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo ) );
             }
           } else {
-            error_message = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+            errorMessage = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadTableInfo" );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
             remarks.add( cr );
           }
         }
@@ -1188,8 +1188,8 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
         // Look up fields in the input stream <prev>
         if ( prev != null && prev.size() > 0 ) {
           boolean first = true;
-          error_message = "";
-          boolean error_found = false;
+          errorMessage = "";
+          boolean errorFound = false;
 
           for ( int i = 0; i < fieldStream.length; i++ ) {
             logDebug( BaseMessages.getString( PKG, "DimensionLookupMeta.Log.CheckField", i + " --> "
@@ -1198,15 +1198,15 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
             if ( v == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.MissongFields" ) + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + fieldStream[ i ] + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + fieldStream[ i ] + Const.CR;
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+          if ( errorFound ) {
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
           } else {
             cr =
               new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
@@ -1214,10 +1214,10 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
           }
           remarks.add( cr );
         } else {
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform" )
               + Const.CR;
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
           remarks.add( cr );
         }
 
@@ -1225,34 +1225,34 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
         if ( databaseMeta.supportsSequences() && CREATION_METHOD_SEQUENCE.equals( getTechKeyCreation() )
           && sequenceName != null && sequenceName.length() != 0 ) {
           if ( db.checkSequenceExists( sequenceName ) ) {
-            error_message =
+            errorMessage =
               BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.SequenceExists", sequenceName );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transforminfo );
             remarks.add( cr );
           } else {
-            error_message +=
+            errorMessage +=
               BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.SequenceCouldNotFound", sequenceName );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
             remarks.add( cr );
           }
         }
       } catch ( HopException e ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotConectToDB" ) + e.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
         remarks.add( cr );
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.InvalidConnectionName" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      errorMessage = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.InvalidConnectionName" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       remarks.add( cr );
     }
   }
 
   private void checkLookup( List<ICheckResult> remarks, TransformMeta transforminfo, IRowMeta prev ) {
     int i;
-    boolean error_found = false;
-    String error_message = "";
+    boolean errorFound = false;
+    String errorMessage = "";
     boolean first;
     CheckResult cr;
 
@@ -1276,11 +1276,11 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
                 if ( strvalue == null ) {
                   if ( first ) {
                     first = false;
-                    error_message +=
+                    errorMessage +=
                       BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.KeyhasProblem" ) + Const.CR;
                   }
-                  error_found = true;
-                  error_message +=
+                  errorFound = true;
+                  errorMessage +=
                     "\t\t" + keyField + BaseMessages.getString( PKG,
                       "DimensionLookupMeta.CheckResult.KeyNotPresentInStream" ) + Const.CR;
                 } else {
@@ -1290,11 +1290,11 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
                   if ( dimvalue == null ) {
                     if ( first ) {
                       first = false;
-                      error_message +=
+                      errorMessage +=
                         BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.KeyhasProblem2" ) + Const.CR;
                     }
-                    error_found = true;
-                    error_message +=
+                    errorFound = true;
+                    errorMessage +=
                       "\t\t" + dimfield
                         + BaseMessages.getString( PKG,
                         "DimensionLookupMeta.CheckResult.KeyNotPresentInDimensiontable" )
@@ -1305,26 +1305,26 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
                     if ( strvalue.getType() != dimvalue.getType() ) {
                       if ( first ) {
                         first = false;
-                        error_message +=
+                        errorMessage +=
                           BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.KeyhasProblem3" ) + Const.CR;
                       }
                       warning_found = true;
-                      error_message +=
+                      errorMessage +=
                         "\t\t" + strfield + " (" + strvalue.getOrigin() + BaseMessages.getString( PKG,
                           "DimensionLookupMeta.CheckResult.KeyNotTheSameTypeAs" )
                           + dimfield + " ("
                           + databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName )
                           + ")" + Const.CR;
-                      error_message +=
+                      errorMessage +=
                         BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.WarningInfoInDBConversion" );
                     }
                   }
                 }
               }
-              if ( error_found ) {
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+              if ( errorFound ) {
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else if ( warning_found ) {
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_WARNING, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_WARNING, errorMessage, transforminfo );
               } else {
                 cr =
                   new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
@@ -1333,7 +1333,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
               remarks.add( cr );
 
               // In case of lookup, the first column of the UpIns dialog table contains the table field
-              error_found = false;
+              errorFound = false;
               for ( i = 0; i < fieldLookup.length; i++ ) {
                 String lufield = fieldLookup[ i ];
                 if ( lufield != null && lufield.length() > 0 ) {
@@ -1342,17 +1342,17 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
                   if ( v == null ) {
                     if ( first ) {
                       first = false;
-                      error_message +=
+                      errorMessage +=
                         BaseMessages.getString( PKG,
                           "DimensionLookupMeta.CheckResult.FieldsToRetrieveNotExistInDimension" ) + Const.CR;
                     }
-                    error_found = true;
-                    error_message += "\t\t" + lufield + Const.CR;
+                    errorFound = true;
+                    errorMessage += "\t\t" + lufield + Const.CR;
                   }
                 }
               }
-              if ( error_found ) {
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+              if ( errorFound ) {
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else {
                 cr =
                   new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
@@ -1362,77 +1362,77 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
 
               /* Also, check the fields: tk, version, from-to, ... */
               if ( tableFields.indexOfValue( keyField ) < 0 ) {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyNotFound", keyField )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.TechnicalKeyFound", keyField )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transforminfo );
               }
               remarks.add( cr );
 
               if ( tableFields.indexOfValue( versionField ) < 0 ) {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionFieldNotFound", versionField )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.VersionFieldFound", versionField )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transforminfo );
               }
               remarks.add( cr );
 
               if ( tableFields.indexOfValue( dateFrom ) < 0 ) {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartOfDaterangeFieldNotFound",
                     dateFrom ) + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.StartOfDaterangeFieldFound",
                     dateFrom ) + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transforminfo );
               }
               remarks.add( cr );
 
               if ( tableFields.indexOfValue( dateTo ) < 0 ) {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndOfDaterangeFieldNotFound", dateTo )
                     + Const.CR;
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               } else {
-                error_message =
+                errorMessage =
                   BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.EndOfDaterangeFieldFound", dateTo );
-                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transforminfo );
+                cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transforminfo );
               }
               remarks.add( cr );
             } else {
-              error_message =
+              errorMessage =
                 BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform" )
                   + Const.CR;
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
               remarks.add( cr );
             }
           } else {
-            error_message = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+            errorMessage = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotReadTableInfo" );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
             remarks.add( cr );
           }
         }
       } catch ( HopException e ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.CouldNotConnectDB" ) + e.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
         remarks.add( cr );
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      errorMessage = BaseMessages.getString( PKG, "DimensionLookupMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       remarks.add( cr );
     }
   }
@@ -1568,30 +1568,30 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
 
               logDebug( "sql =" + sql );
 
-              String[] idx_fields = null;
+              String[] idxFields = null;
 
               // Key lookup dimensions...
               if ( !Utils.isEmpty( keyLookup ) ) {
-                idx_fields = new String[ keyLookup.length ];
+                idxFields = new String[ keyLookup.length ];
                 for ( int i = 0; i < keyLookup.length; i++ ) {
-                  idx_fields[ i ] = keyLookup[ i ];
+                  idxFields[ i ] = keyLookup[ i ];
                 }
               } else {
                 retval.setError( BaseMessages.getString( PKG,
                   "DimensionLookupMeta.ReturnValue.NoKeyFieldsSpecified" ) );
               }
 
-              if ( !Utils.isEmpty( idx_fields ) && !db.checkIndexExists( schemaTable, idx_fields ) ) {
+              if ( !Utils.isEmpty( idxFields ) && !db.checkIndexExists( schemaTable, idxFields ) ) {
                 String indexname = "idx_" + tableName + "_lookup";
-                sql += db.getCreateIndexStatement( schemaTable, indexname, idx_fields, false, false, false, true );
+                sql += db.getCreateIndexStatement( schemaTable, indexname, idxFields, false, false, false, true );
               }
 
               // (Bitmap) index on technical key
-              idx_fields = new String[] { keyField };
+              idxFields = new String[] { keyField };
               if ( !Utils.isEmpty( keyField ) ) {
-                if ( !db.checkIndexExists( schemaTable, idx_fields ) ) {
+                if ( !db.checkIndexExists( schemaTable, idxFields ) ) {
                   String indexname = "idx_" + tableName + "_tk";
-                  sql += db.getCreateIndexStatement( schemaTable, indexname, idx_fields, true, false, true, true );
+                  sql += db.getCreateIndexStatement( schemaTable, indexname, idxFields, true, false, true, true );
                 }
               } else {
                 retval.setError( BaseMessages.getString( PKG,

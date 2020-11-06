@@ -52,7 +52,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getserversequence.html"
 )
 public class GetServerSequenceMeta extends BaseTransformMeta implements ITransformMeta<GetServerSequence, GetServerSequenceData> {
-  private static final Class<?> PKG = GetServerSequenceMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetServerSequenceMeta.class; // Needed by Translator
 
   private String valuename;
   private String hopServerName;

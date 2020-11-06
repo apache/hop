@@ -55,7 +55,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/zipfile.html"
 )
 public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<ZipFile, ZipFileData> {
-  private static final Class<?> PKG = ZipFileMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ZipFileMeta.class; // Needed by Translator
 
   /**
    * dynamic filename
@@ -255,16 +255,16 @@ public class ZipFileMeta extends BaseTransformMeta implements ITransformMeta<Zip
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     // source filename
     if ( Utils.isEmpty( sourcefilenamefield ) ) {
-      error_message = BaseMessages.getString( PKG, "ZipFileMeta.CheckResult.SourceFileFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ZipFileMeta.CheckResult.SourceFileFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "ZipFileMeta.CheckResult.TargetFileFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ZipFileMeta.CheckResult.TargetFileFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

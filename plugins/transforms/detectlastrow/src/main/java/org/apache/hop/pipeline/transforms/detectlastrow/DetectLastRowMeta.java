@@ -53,7 +53,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/detectlastrow.html"
 )
 public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMeta<DetectLastRow, DetectLastRowData> {
-  private static final Class<?> PKG = DetectLastRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DetectLastRowMeta.class; // Needed by Translator
 
   /**
    * function result: new value name
@@ -118,15 +118,15 @@ public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMe
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( Utils.isEmpty( resultfieldname ) ) {
-      error_message = BaseMessages.getString( PKG, "DetectLastRowMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "DetectLastRowMeta.CheckResult.ResultFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "DetectLastRowMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "DetectLastRowMeta.CheckResult.ResultFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

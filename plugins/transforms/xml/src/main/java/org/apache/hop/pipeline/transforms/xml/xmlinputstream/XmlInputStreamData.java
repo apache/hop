@@ -23,16 +23,15 @@
 
 package org.apache.hop.pipeline.transforms.xml.xmlinputstream;
 
-import java.io.InputStream;
-import java.util.Map;
-
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.transform.BaseTransformData;
 import org.apache.hop.pipeline.transform.ITransformData;
+
+import javax.xml.stream.XMLEventReader;
+import javax.xml.stream.XMLInputFactory;
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * @author Jens Bleuel
@@ -69,19 +68,19 @@ public class XmlInputStreamData extends BaseTransformData implements ITransformD
   public String[] elementPath;
 
   // positions of fields in the row (-1: field is not included in the stream)
-  public int pos_xml_filename;
-  public int pos_xml_row_number;
-  public int pos_xml_data_type_numeric;
-  public int pos_xml_data_type_description;
+  public int pos_xmlFilename;
+  public int pos_xmlRow_number;
+  public int pos_xml_dataType_numeric;
+  public int pos_xml_dataTypeDescription;
   public int pos_xml_location_line;
-  public int pos_xml_location_column;
+  public int pos_xml_locationColumn;
   public int pos_xml_element_id;
   public int pos_xml_parent_element_id;
   public int pos_xml_element_level;
   public int pos_xml_path;
   public int pos_xml_parent_path;
-  public int pos_xml_data_name;
-  public int pos_xml_data_value;
+  public int pos_xml_dataName;
+  public int pos_xml_dataValue;
 
   public XmlInputStreamData() {
     super();

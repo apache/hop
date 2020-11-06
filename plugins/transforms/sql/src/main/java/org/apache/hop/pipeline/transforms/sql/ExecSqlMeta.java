@@ -70,7 +70,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "ExecSqlMeta.Injection.", groups = { "PARAMETERS" } )
 public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<ExecSql, ExecSqlData> {
-  private static final Class<?> PKG = ExecSqlMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExecSqlMeta.class; // Needed by Translator
 
   private DatabaseMeta databaseMeta;
 

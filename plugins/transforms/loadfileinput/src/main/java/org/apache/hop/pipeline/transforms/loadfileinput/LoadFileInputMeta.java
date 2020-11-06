@@ -93,7 +93,7 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
   private static final String FILE = "file";
   private static final String FIELDS = "fields";
 
-  private static final Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LoadFileInputMeta.class; // Needed by Translator
 
   public static final String[] RequiredFilesDesc = new String[] { BaseMessages.getString( PKG, "System.Combo.No" ),
     BaseMessages.getString( PKG, "System.Combo.Yes" ) };

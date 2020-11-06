@@ -58,7 +58,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 public class SwitchCaseDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SwitchCaseMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SwitchCaseMeta.class; // Needed by Translator
 
   private Label wlFieldName;
   private CCombo wFieldName;

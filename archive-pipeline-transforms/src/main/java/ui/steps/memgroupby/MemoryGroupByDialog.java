@@ -63,7 +63,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class MemoryGroupByDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MemoryGroupByMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MemoryGroupByMeta.class; // Needed by Translator
 
   private Label wlGroup;
   private TableView wGroup;

@@ -30,9 +30,9 @@ import javax.xml.namespace.QName;
 public final class WsdlOpFault extends WsdlOpReturnType implements java.io.Serializable {
 
   private static final long serialVersionUID = 1L;
-  private final QName _name;
-  private final boolean _complexType;
-  private final boolean _elementFormQualified;
+  private final QName name;
+  private final boolean isComplexType;
+  private final boolean isElementFormQualified;
 
   /**
    * Create a new WsdlOpFault instance.
@@ -41,12 +41,12 @@ public final class WsdlOpFault extends WsdlOpReturnType implements java.io.Seria
    * @param xmlType   XML type of the parameter.
    * @param wsdlTypes Wsdl type information.
    */
-  protected WsdlOpFault( String name, QName xmlType, boolean isComplex, WsdlTypes wsdlTypes ) {
+  protected WsdlOpFault( String name, QName xmlType, boolean isComplexType, WsdlTypes wsdlTypes ) {
 
-    _name = wsdlTypes.getTypeQName( name );
-    _elementFormQualified = wsdlTypes.isElementFormQualified( _name.getNamespaceURI() );
-    _xmlType = xmlType;
-    _complexType = isComplex;
+    this.name = wsdlTypes.getTypeQName( name );
+    this.isElementFormQualified = wsdlTypes.isElementFormQualified( this.name.getNamespaceURI() );
+    this.xmlType = xmlType;
+    this.isComplexType = isComplexType;
   }
 
   /**
@@ -55,7 +55,7 @@ public final class WsdlOpFault extends WsdlOpReturnType implements java.io.Seria
    * @return QName.
    */
   public QName getName() {
-    return _name;
+    return name;
   }
 
   /**
@@ -64,7 +64,7 @@ public final class WsdlOpFault extends WsdlOpReturnType implements java.io.Seria
    * @return true if xmltype is a complex type.
    */
   public boolean isComplexType() {
-    return _complexType;
+    return isComplexType;
   }
 
   /**
@@ -73,6 +73,6 @@ public final class WsdlOpFault extends WsdlOpReturnType implements java.io.Seria
    * @return true if it is.
    */
   public boolean isFaultNameElementFormQualified() {
-    return _elementFormQualified;
+    return isElementFormQualified;
   }
 }

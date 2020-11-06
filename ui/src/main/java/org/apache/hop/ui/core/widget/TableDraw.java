@@ -27,13 +27,9 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -71,7 +67,7 @@ public class TableDraw extends Canvas {
   private int fontwidth;
 
   private Image cache_image;
-  private int prev_fromx, prev_tox, prev_fromy, prev_toy;
+  private int prevFromX, prevToX, prevFromY, prevToY;
 
   private Vector<ITextFileInputField> fields;
 
@@ -97,10 +93,10 @@ public class TableDraw extends Canvas {
 
     // Cache displayed text...
     cache_image = null;
-    prev_fromx = -1;
-    prev_tox = -1;
-    prev_fromy = -1;
-    prev_toy = -1;
+    prevFromX = -1;
+    prevToX = -1;
+    prevFromY = -1;
+    prevToY = -1;
 
     display = parent.getDisplay();
     bg = GuiResource.getInstance().getColorBackground();
@@ -315,7 +311,7 @@ public class TableDraw extends Canvas {
 
     Image image = new Image( display, area.x, area.y );
 
-    if ( fromx != prev_fromx || fromy != prev_fromy || tox != prev_tox || toy != prev_toy ) {
+    if ( fromx != prevFromX || fromy != prevFromY || tox != prevToX || toy != prevToY ) {
       if ( cache_image != null ) {
         cache_image.dispose();
         cache_image = null;

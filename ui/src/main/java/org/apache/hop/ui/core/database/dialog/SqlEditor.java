@@ -79,7 +79,7 @@ import java.util.List;
  * @since 13-10-2003
  */
 public class SqlEditor {
-  private static final Class<?> PKG = SqlEditor.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SqlEditor.class; // Needed by Translator
 
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(
     "SQL Editor", LoggingObjectType.HOP_GUI, null );

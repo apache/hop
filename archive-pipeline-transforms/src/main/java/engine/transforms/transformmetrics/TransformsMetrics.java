@@ -50,7 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 
 public class TransformsMetrics extends BaseTransform implements ITransform {
-  private static final Class<?> PKG = TransformsMetrics.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TransformsMetrics.class; // Needed by Translator
 
   private TransformsMetricsMeta meta;
   private TransformsMetricsData data;

@@ -30,7 +30,7 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.engine.EngineComponent.ComponentExecutionStatus;
 
 public class TransformInitThread implements Runnable {
-  private static final Class<?> PKG = Pipeline.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Pipeline.class; // Needed by Translator
 
   public boolean ok;
   public boolean finished;

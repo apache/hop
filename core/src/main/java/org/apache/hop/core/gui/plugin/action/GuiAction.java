@@ -40,6 +40,8 @@ public class GuiAction {
   private String guiPluginMethodName;
   private ClassLoader classLoader;
   private List<String> keywords;
+  private String category;
+  private String categoryOrder;
 
   public GuiAction() {
     this.keywords = new ArrayList<>();
@@ -101,6 +103,8 @@ public class GuiAction {
     for ( String keyword : guiAction.getKeywords() ) {
       keywords.add( keyword );
     }
+    this.category = guiAction.category;
+    this.categoryOrder = guiAction.categoryOrder;
     this.classLoader = guiAction.getClassLoader();
   }
 
@@ -341,5 +345,37 @@ public class GuiAction {
    */
   public void setKeywords( List<String> keywords ) {
     this.keywords = keywords;
+  }
+
+  /**
+   * Gets category
+   *
+   * @return value of category
+   */
+  public String getCategory() {
+    return category;
+  }
+
+  /**
+   * @param category The category to set
+   */
+  public void setCategory( String category ) {
+    this.category = category;
+  }
+
+  /**
+   * Gets categoryOrder
+   *
+   * @return value of categoryOrder
+   */
+  public String getCategoryOrder() {
+    return categoryOrder;
+  }
+
+  /**
+   * @param categoryOrder The categoryOrder to set
+   */
+  public void setCategoryOrder( String categoryOrder ) {
+    this.categoryOrder = categoryOrder;
   }
 }

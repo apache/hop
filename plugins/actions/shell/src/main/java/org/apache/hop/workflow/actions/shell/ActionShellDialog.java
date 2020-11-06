@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.*;
  */
 
 public class ActionShellDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionShell.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionShell.class; // Needed by Translator
 
   private static final String[] FILEFORMATS = new String[] {
     BaseMessages.getString( PKG, "JobShell.Fileformat.Scripts" ),
@@ -741,9 +741,9 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     action.setName( wName.getText() );
     action.setWorkDirectory( wWorkDirectory.getText() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -751,7 +751,7 @@ public class ActionShellDialog extends ActionDialog implements IActionDialog {
     }
     action.arguments = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         action.arguments[ nr ] = arg;

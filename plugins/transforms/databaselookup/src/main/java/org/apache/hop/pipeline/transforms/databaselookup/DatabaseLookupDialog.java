@@ -69,7 +69,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DatabaseLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseLookupMeta.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 
@@ -635,8 +635,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     if ( input.getSchemaName() != null ) {
       wSchema.setText( input.getSchemaName() );
     }
-    if ( input.getTablename() != null ) {
-      wTable.setText( input.getTablename() );
+    if ( input.getTableName() != null ) {
+      wTable.setText( input.getTableName() );
     }
     if ( input.getDatabaseMeta() != null ) {
       wConnection.setText( input.getDatabaseMeta().getName() );
@@ -707,7 +707,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     }
 
     input.setSchemaName( wSchema.getText() );
-    input.setTablename( wTable.getText() );
+    input.setTableName( wTable.getText() );
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
     input.setOrderByClause( wOrderBy.getText() );
     input.setFailingOnMultipleResults( wFailMultiple.getSelection() );

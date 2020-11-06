@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.*;
  * @since 01-10-2011
  */
 public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSendNagiosPassiveCheck.class; // Needed by Translator
 
   private LabelText wName;
 
@@ -285,7 +285,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     fdlEncryptionMode.top = new FormAttachment( wSenderServiceName, margin );
     wlEncryptionMode.setLayoutData(fdlEncryptionMode);
     wEncryptionMode = new CCombo(wSenderSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wEncryptionMode.setItems( ActionSendNagiosPassiveCheck.encryption_mode_Desc );
+    wEncryptionMode.setItems( ActionSendNagiosPassiveCheck.encryptionModeDesc );
 
     props.setLook( wEncryptionMode );
     FormData fdEncryptionMode = new FormData();
@@ -309,7 +309,7 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
     fdlLevelMode.top = new FormAttachment( wEncryptionMode, margin );
     wlLevelMode.setLayoutData(fdlLevelMode);
     wLevelMode = new CCombo(wSenderSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wLevelMode.setItems( ActionSendNagiosPassiveCheck.level_type_Desc );
+    wLevelMode.setItems( ActionSendNagiosPassiveCheck.levelTypeDesc );
 
     props.setLook( wLevelMode );
     FormData fdLevelMode = new FormData();

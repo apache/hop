@@ -59,7 +59,7 @@ import java.util.Date;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/writetolog.html"
 )
 public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionWriteToLog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionWriteToLog.class; // Needed by Translator
 
   /**
    * The log level with which the message should be logged.
@@ -268,9 +268,9 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
    * @return The Result of the execution.
    */
   @Override
-  public Result execute( Result prev_result, int nr ) {
-    prev_result.setResult( evaluate( prev_result ) );
-    return prev_result;
+  public Result execute( Result prevResult, int nr ) {
+    prevResult.setResult( evaluate( prevResult ) );
+    return prevResult;
   }
 
   @Override

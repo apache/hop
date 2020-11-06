@@ -185,13 +185,13 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     }
 
     @Override
-    public String getSqlTableExists(String tablename) {
-        return getSqlQueryFields(tablename);
+    public String getSqlTableExists(String tableName) {
+        return getSqlQueryFields(tableName);
     }
 
     @Override
-    public String getSqlColumnExists(String columnname, String tablename) {
-        return getSqlQueryColumnFields(columnname, tablename);
+    public String getSqlColumnExists(String columnname, String tableName) {
+        return getSqlQueryColumnFields(columnname, tableName);
     }
 
     public String getSqlQueryColumnFields(String columnname, String tableName) {
@@ -216,7 +216,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     /**
      * Generates the SQL statement to add a column to the specified table
      *
-     * @param tablename  The table to add
+     * @param tableName  The table to add
      * @param v          The column defined as a value
      * @param tk         the name of the technical key field
      * @param useAutoinc whether or not this field uses auto increment
@@ -225,15 +225,15 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
      * @return the SQL statement to add a column to the specified table
      */
     @Override
-    public String getAddColumnStatement(String tablename, IValueMeta v, String tk, boolean useAutoinc,
+    public String getAddColumnStatement(String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon) {
-        return "ALTER TABLE " + tablename + " ADD " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+        return "ALTER TABLE " + tableName + " ADD " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
     }
 
     /**
      * Generates the SQL statement to modify a column in the specified table
      *
-     * @param tablename  The table to add
+     * @param tableName  The table to add
      * @param v          The column defined as a value
      * @param tk         the name of the technical key field
      * @param useAutoinc whether or not this field uses auto increment
@@ -242,16 +242,16 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
      * @return the SQL statement to modify a column in the specified table
      */
     @Override
-    public String getModifyColumnStatement(String tablename, IValueMeta v, String tk, boolean useAutoinc,
+    public String getModifyColumnStatement(String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                            String pk, boolean semicolon) {
         return "ALTER TABLE "
-                + tablename + " ALTER COLUMN " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
+                + tableName + " ALTER COLUMN " + getFieldDefinition(v, tk, pk, useAutoinc, true, false);
     }
 
     /**
      * Generates the SQL statement to drop a column from the specified table
      *
-     * @param tablename  The table to add
+     * @param tableName  The table to add
      * @param v          The column defined as a value
      * @param tk         the name of the technical key field
      * @param useAutoinc whether or not this field uses auto increment
@@ -260,9 +260,9 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
      * @return the SQL statement to drop a column from the specified table
      */
     @Override
-    public String getDropColumnStatement(String tablename, IValueMeta v, String tk, boolean useAutoinc,
+    public String getDropColumnStatement(String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                          String pk, boolean semicolon) {
-        return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
+        return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
     }
 
     @Override
@@ -350,7 +350,6 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     }
 
     /**
-     * @param schemaName the schema name to search in or null if you want to search the whole DB
      * @return The SQL on this database to get a list of stored procedures.
      */
     public String getSqlListOfProcedures() {
@@ -432,7 +431,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     @Override
     public boolean checkIndexExists(Database database, String schemaName, String tableName, String[] idxFields) throws HopDatabaseException {
 
-        String tablename = database.getDatabaseMeta().getQuotedSchemaTableCombination(schemaName, tableName);
+        String schemaTable = database.getDatabaseMeta().getQuotedSchemaTableCombination(schemaName, tableName);
 
         boolean[] exists = new boolean[idxFields.length];
         for (int i = 0; i < exists.length; i++) {
@@ -446,7 +445,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
             StringBuilder sql = new StringBuilder(128);
             sql.append("select i.name table_name, c.name column_name ");
             sql.append("from     sysindexes i, sysindexkeys k, syscolumns c ");
-            sql.append("where    i.name = '" + tablename + "' ");
+            sql.append("where    i.name = '" + schemaTable + "' ");
             sql.append("AND      i.id = k.id ");
             sql.append("AND      i.id = c.id ");
             sql.append("AND      k.colid = c.colid ");
@@ -484,7 +483,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
 
             return all;
         } catch (Exception e) {
-            throw new HopDatabaseException("Unable to determine if indexes exists on table [" + tablename + "]", e);
+            throw new HopDatabaseException("Unable to determine if indexes exists on table [" + schemaTable + "]", e);
         }
     }
 

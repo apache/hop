@@ -74,7 +74,7 @@ import java.util.List;
 import java.util.*;
 
 public class ScriptValuesMetaModDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ScriptValuesMetaMod.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ScriptValuesMetaMod.class; // Needed by Translator
 
   private static final String[] YES_NO_COMBO = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
@@ -1571,14 +1571,8 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
         }
         TreeItem itemFields = new TreeItem( itemoutput, SWT.NULL );
         itemFields.setData( "" );
-        itemFields
-          .setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.OutputFiels.CompatibilityOff" ) );
+        itemFields.setText( BaseMessages.getString( PKG, "ScriptValuesDialogMod.OutputFiels.CompatibilityOff" ) );
       }
-      /*
-       * }catch(HopException ke){ new ErrorDialog(shell, BaseMessages.getString(PKG,
-       * "ScriptValuesDialogMod.FailedToGetFields.DialogTitle"), BaseMessages.getString(PKG,
-       * "ScriptValuesDialogMod.FailedToGetFields.DialogMessage"), ke); }
-       */
     } );
   }
 

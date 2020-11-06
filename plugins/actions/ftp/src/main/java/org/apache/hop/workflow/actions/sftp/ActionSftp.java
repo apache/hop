@@ -73,7 +73,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/sftp.html"
 )
 public class ActionSftp extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionSftp.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSftp.class; // Needed by Translator
 
   private static final int DEFAULT_PORT = 22;
   private String serverName;
@@ -435,7 +435,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
     if ( log.isDetailed() ) {
       logDetailed( BaseMessages.getString( PKG, "JobSFTP.Log.StartAction" ) );
     }
-    HashSet<String> list_previous_filenames = new HashSet<String>();
+    HashSet<String> listPreviousFilenames = new HashSet<String>();
 
     if ( copyprevious ) {
       if ( rows.size() == 0 ) {
@@ -452,11 +452,11 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
           resultRow = rows.get( iteration );
 
           // Get file names
-          String file_previous = resultRow.getString( 0, null );
-          if ( !Utils.isEmpty( file_previous ) ) {
-            list_previous_filenames.add( file_previous );
+          String filePrevious = resultRow.getString( 0, null );
+          if ( !Utils.isEmpty( filePrevious ) ) {
+            listPreviousFilenames.add( filePrevious );
             if ( log.isDebug() ) {
-              logDebug( BaseMessages.getString( PKG, "JobSFTP.Log.FilenameFromResult", file_previous ) );
+              logDebug( BaseMessages.getString( PKG, "JobSFTP.Log.FilenameFromResult", filePrevious ) );
             }
           }
         }
@@ -597,7 +597,7 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
         if ( copyprevious ) {
           // filenames list is send by previous action
           // download if the current file is in this list
-          getIt = list_previous_filenames.contains( filelist[ i ] );
+          getIt = listPreviousFilenames.contains( filelist[ i ] );
         } else {
           // download files
           // but before see if the file matches the regular expression!
@@ -662,8 +662,8 @@ public class ActionSftp extends ActionBase implements Cloneable, IAction {
           TargetFolder.close();
           TargetFolder = null;
         }
-        if ( list_previous_filenames != null ) {
-          list_previous_filenames = null;
+        if ( listPreviousFilenames != null ) {
+          listPreviousFilenames = null;
         }
       } catch ( Exception e ) {
         // Ignore errors

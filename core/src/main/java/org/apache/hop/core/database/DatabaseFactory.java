@@ -35,7 +35,7 @@ import org.apache.hop.i18n.BaseMessages;
  */
 public class DatabaseFactory implements IDatabaseFactory {
 
-  private static final Class<?> PKG = Database.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Database.class; // Needed by Translator
   private boolean success;
 
   public static final ILoggingObject loggingObject = new SimpleLoggingObject(

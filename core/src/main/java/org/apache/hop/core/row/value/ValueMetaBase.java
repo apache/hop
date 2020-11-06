@@ -3872,41 +3872,41 @@ public class ValueMetaBase implements IValueMeta {
    */
   @Override
   public Object convertDataFromString( String pol, IValueMeta convertMeta, String nullIf, String ifNull,
-                                       int trim_type ) throws HopValueException {
+                                       int trimType ) throws HopValueException {
     if ( convertMeta == null ) {
       throw new HopValueException( "API coding error: convertMeta input parameter should not be equals to null" );
     }
     // null handling and conversion of value to null
     //
-    String null_value = nullIf;
+    String nullValue = nullIf;
     int inValueType = convertMeta.getType();
     int outValueType = getType();
 
-    if ( null_value == null ) {
+    if ( nullValue == null ) {
       switch ( inValueType ) {
         case IValueMeta.TYPE_BOOLEAN:
-          null_value = Const.NULL_BOOLEAN;
+          nullValue = Const.NULL_BOOLEAN;
           break;
         case IValueMeta.TYPE_STRING:
-          null_value = Const.NULL_STRING;
+          nullValue = Const.NULL_STRING;
           break;
         case IValueMeta.TYPE_BIGNUMBER:
-          null_value = Const.NULL_BIGNUMBER;
+          nullValue = Const.NULL_BIGNUMBER;
           break;
         case IValueMeta.TYPE_NUMBER:
-          null_value = Const.NULL_NUMBER;
+          nullValue = Const.NULL_NUMBER;
           break;
         case IValueMeta.TYPE_INTEGER:
-          null_value = Const.NULL_INTEGER;
+          nullValue = Const.NULL_INTEGER;
           break;
         case IValueMeta.TYPE_DATE:
-          null_value = Const.NULL_DATE;
+          nullValue = Const.NULL_DATE;
           break;
         case IValueMeta.TYPE_BINARY:
-          null_value = Const.NULL_BINARY;
+          nullValue = Const.NULL_BINARY;
           break;
         default:
-          null_value = Const.NULL_NONE;
+          nullValue = Const.NULL_NONE;
           break;
       }
     }
@@ -3919,7 +3919,7 @@ public class ValueMetaBase implements IValueMeta {
       // because you could get an NPE since you haven't checked isEmpty(pol)
       // yet!
       if ( Utils.isEmpty( pol )
-        || pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( null_value ), pol.length() ) ) ) {
+        || pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( nullValue ), pol.length() ) ) ) {
         pol = ifNull;
       }
     }
@@ -3943,12 +3943,12 @@ public class ValueMetaBase implements IValueMeta {
     } else {
       // if the null_value is specified, we try to match with that.
       //
-      if ( !Utils.isEmpty( null_value ) ) {
-        if ( null_value.length() <= pol.length() ) {
+      if ( !Utils.isEmpty( nullValue ) ) {
+        if ( nullValue.length() <= pol.length() ) {
           // If the polled value is equal to the spaces right-padded null_value,
           // we have a match
           //
-          if ( pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( null_value ), pol.length() ) ) ) {
+          if ( pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( nullValue ), pol.length() ) ) ) {
             return emptyValue;
           }
         }
@@ -3964,7 +3964,7 @@ public class ValueMetaBase implements IValueMeta {
 
     // Trimming
     StringBuilder strpol;
-    switch ( trim_type ) {
+    switch ( trimType ) {
       case IValueMeta.TRIM_TYPE_LEFT:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( 0 ) == ' ' ) {
@@ -5282,7 +5282,7 @@ public class ValueMetaBase implements IValueMeta {
 
   @Override
   public String getDatabaseColumnTypeDefinition( IDatabase iDatabase, String tk, String pk,
-                                                 boolean use_autoinc, boolean add_fieldname, boolean add_cr ) {
+                                                 boolean useAutoInc, boolean addFieldname, boolean addCr ) {
     return null; // No default suggestions...
   }
 

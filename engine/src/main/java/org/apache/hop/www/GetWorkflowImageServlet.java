@@ -46,7 +46,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
   private static final long serialVersionUID = -4365372274638005929L;
   public static final float ZOOM_FACTOR = 1.5f;
 
-  private static final Class<?> PKG = GetPipelineStatusServlet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetPipelineStatusServlet.class; // Needed by Translator
 
   public static final String CONTEXT_PATH = "/hop/workflowImage";
 

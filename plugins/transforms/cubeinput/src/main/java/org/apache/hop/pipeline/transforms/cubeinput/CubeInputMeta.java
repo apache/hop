@@ -67,7 +67,7 @@ import java.util.zip.GZIPInputStream;
 )
 public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<CubeInput, CubeInputData> {
 
-  private static final Class<?> PKG = CubeInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CubeInputMeta.class; // Needed by Translator
 
   private String filename;
   private String rowLimit;

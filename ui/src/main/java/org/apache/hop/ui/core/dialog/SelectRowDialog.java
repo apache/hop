@@ -57,7 +57,7 @@ import java.util.List;
  * @author Matt
  */
 public class SelectRowDialog extends Dialog {
-  private static final Class<?> PKG = SelectRowDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SelectRowDialog.class; // Needed by Translator
 
   private Label wlFields;
   private TableView wFields;

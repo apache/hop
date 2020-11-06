@@ -40,7 +40,7 @@ public class MappingInput
   extends BaseTransform<MappingInputMeta, MappingInputData>
   implements ITransform<MappingInputMeta, MappingInputData> {
 
-  private static final Class<?> PKG = MappingInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MappingInputMeta.class; // Needed by Translator
 
   public MappingInput( TransformMeta transformMeta, MappingInputMeta meta, MappingInputData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

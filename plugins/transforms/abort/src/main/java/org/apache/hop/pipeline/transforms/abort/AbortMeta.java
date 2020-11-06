@@ -57,7 +57,7 @@ import static org.apache.hop.core.util.StringUtil.isEmpty;
 )
 public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort, AbortData> {
 
-  private static final Class<?> PKG = AbortMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = AbortMeta.class; // Needed by Translator
 
   public enum AbortOption {
     ABORT,

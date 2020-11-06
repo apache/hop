@@ -64,7 +64,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class MailInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MailInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailInputMeta.class; // Needed by Translator
 
   private final MailInputMeta input;
   private TextVar wServerName;
@@ -1572,9 +1572,9 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
       try {
         Folder folder = mailConn.getStore().getDefaultFolder();
         SelectFolderDialog s = new SelectFolderDialog( shell, SWT.NONE, folder );
-        String foldername = s.open();
-        if ( foldername != null ) {
-          input.setText( foldername );
+        String folderName = s.open();
+        if ( folderName != null ) {
+          input.setText( folderName );
         }
       } catch ( Exception e ) {
         // Ignore errors
@@ -1631,18 +1631,18 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     }
   }
 
-  private void checkFolder( String foldername ) {
-    if ( !Utils.isEmpty( foldername ) ) {
+  private void checkFolder( String folderName ) {
+    if ( !Utils.isEmpty( folderName ) ) {
       if ( connect() ) {
         // check folder
-        if ( mailConn.folderExists( foldername ) ) {
+        if ( mailConn.folderExists( folderName ) ) {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "MailInput.IMAPFolderExists.OK", foldername ) + Const.CR );
+          mb.setMessage( BaseMessages.getString( PKG, "MailInput.IMAPFolderExists.OK", folderName ) + Const.CR );
           mb.setText( BaseMessages.getString( PKG, "MailInput.IMAPFolderExists.Title.Ok" ) );
           mb.open();
         } else {
           MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
-          mb.setMessage( BaseMessages.getString( PKG, "MailInput.Connected.NOK.IMAPFolderExists", foldername )
+          mb.setMessage( BaseMessages.getString( PKG, "MailInput.Connected.NOK.IMAPFolderExists", folderName )
             + Const.CR );
           mb.setText( BaseMessages.getString( PKG, "MailInput.IMAPFolderExists.Title.Bad" ) );
           mb.open();

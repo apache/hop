@@ -63,7 +63,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getvariable.html"
 )
 public class GetVariableMeta extends BaseTransformMeta implements ITransformMeta<GetVariable, GetVariableData> {
-  private static final Class<?> PKG = GetVariableMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetVariableMeta.class; // Needed by Translator
 
   @InjectionDeep
   private FieldDefinition[] fieldDefinitions;

@@ -59,7 +59,7 @@ import java.util.List;
 public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMeta<PGBulkLoader, PGBulkLoaderData>,
   IProvidesDatabaseConnectionInformation {
 
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PGBulkLoaderMeta.class; // Needed by Translator
 
   /**
    * what's the schema for the target?
@@ -314,7 +314,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -329,8 +329,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
           remarks.add( cr );
 
           boolean first = true;
-          boolean error_found = false;
-          error_message = "";
+          boolean errorFound = false;
+          errorMessage = "";
 
           // Check fields in table
           String schemaTable =
@@ -345,8 +345,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
 
             // How about the fields to insert/dateMask in the table?
             first = true;
-            error_found = false;
-            error_message = "";
+            errorFound = false;
+            errorMessage = "";
 
             for ( int i = 0; i < fieldTable.length; i++ ) {
               String field = fieldTable[ i ];
@@ -355,17 +355,17 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
               if ( v == null ) {
                 if ( first ) {
                   first = false;
-                  error_message +=
+                  errorMessage +=
                     BaseMessages
                       .getString( PKG, "GPBulkLoaderMeta.CheckResult.MissingFieldsToLoadInTargetTable" )
                       + Const.CR;
                 }
-                error_found = true;
-                error_message += "\t\t" + field + Const.CR;
+                errorFound = true;
+                errorMessage += "\t\t" + field + Const.CR;
               }
             }
-            if ( error_found ) {
-              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            if ( errorFound ) {
+              cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             } else {
               cr =
                 new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -373,8 +373,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
             }
             remarks.add( cr );
           } else {
-            error_message = BaseMessages.getString( PKG, "GPBulkLoaderMeta.CheckResult.CouldNotReadTableInfo" );
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            errorMessage = BaseMessages.getString( PKG, "GPBulkLoaderMeta.CheckResult.CouldNotReadTableInfo" );
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           }
         }
@@ -387,23 +387,23 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
           remarks.add( cr );
 
           boolean first = true;
-          error_message = "";
-          boolean error_found = false;
+          errorMessage = "";
+          boolean errorFound = false;
 
           for ( int i = 0; i < fieldStream.length; i++ ) {
             IValueMeta v = prev.searchValueMeta( fieldStream[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "GPBulkLoaderMeta.CheckResult.MissingFieldsInInput" ) + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + fieldStream[ i ] + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + fieldStream[ i ] + Const.CR;
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          if ( errorFound ) {
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           } else {
             cr =
               new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -411,22 +411,22 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
           }
           remarks.add( cr );
         } else {
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "GPBulkLoaderMeta.CheckResult.MissingFieldsInInput3" ) + Const.CR;
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "GPBulkLoaderMeta.CheckResult.DatabaseErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "GPBulkLoaderMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "GPBulkLoaderMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

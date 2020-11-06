@@ -58,7 +58,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/flattener.html"
 )
 public class FlattenerMeta extends BaseTransformMeta implements ITransformMeta<Flattener, FlattenerData> {
-  private static final Class<?> PKG = FlattenerMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FlattenerMeta.class; // Needed by Translator
 
   /**
    * The field to flatten

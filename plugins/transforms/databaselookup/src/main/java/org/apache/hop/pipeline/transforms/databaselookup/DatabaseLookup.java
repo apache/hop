@@ -55,7 +55,7 @@ import java.util.List;
  */
 public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLookupData> implements ITransform<DatabaseLookupMeta, DatabaseLookupData> {
 
-  private static final Class<?> PKG = DatabaseLookupMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseLookupMeta.class; // Needed by Translator
 
   public DatabaseLookup( TransformMeta transformMeta, DatabaseLookupMeta meta, DatabaseLookupData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
@@ -209,7 +209,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
 
     String schemaTable =
       meta.getDatabaseMeta().getQuotedSchemaTableCombination(
-        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTablename() ) );
+        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ) );
 
     IRowMeta fields = data.db.getTableFields( schemaTable );
     if ( fields != null ) {
@@ -317,7 +317,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.db.setLookup(
-        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTablename() ),
+        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ),
         meta.getTableKeyField(), meta.getKeyCondition(), meta.getReturnValueField(),
         meta.getReturnValueNewName(), meta.getOrderByClause(), meta.isFailingOnMultipleResults()
       );
@@ -443,7 +443,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       sql += " FROM "
         + dbMeta.getQuotedSchemaTableCombination(
         environmentSubstitute( meta.getSchemaName() ),
-        environmentSubstitute( meta.getTablename() ) );
+        environmentSubstitute( meta.getTableName() ) );
 
       // order by?
       if ( meta.getOrderByClause() != null && meta.getOrderByClause().length() != 0 ) {

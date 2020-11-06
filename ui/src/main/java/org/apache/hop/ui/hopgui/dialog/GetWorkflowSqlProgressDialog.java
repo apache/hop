@@ -44,7 +44,7 @@ import java.util.List;
  * @since 29-mrt-2006
  */
 public class GetWorkflowSqlProgressDialog {
-  private static final Class<?> PKG = GetWorkflowSqlProgressDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetWorkflowSqlProgressDialog.class; // Needed by Translator
 
   private Shell shell;
   private WorkflowMeta workflowMeta;

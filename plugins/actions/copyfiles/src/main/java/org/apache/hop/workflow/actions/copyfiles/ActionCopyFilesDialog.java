@@ -23,9 +23,6 @@
 
 package org.apache.hop.workflow.actions.copyfiles;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
@@ -46,7 +43,6 @@ import org.apache.hop.workflow.action.IActionDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -69,6 +65,9 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This dialog allows you to edit the Copy Files action settings.
  *
@@ -76,7 +75,7 @@ import org.eclipse.swt.widgets.ToolItem;
  * @since 06-05-2007
  */
 public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionCopyFiles.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionCopyFiles.class; // Needed by Translator
 
   protected static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "JobCopyFiles.Filetype.All" ) };
@@ -313,8 +312,8 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     wlFields.setLayoutData( fdlFields );
 
     int rows =
-      action.source_filefolder == null ? 1 : ( action.source_filefolder.length == 0
-        ? 0 : action.source_filefolder.length );
+      action.sourceFileFolder == null ? 1 : ( action.sourceFileFolder.length == 0
+        ? 0 : action.sourceFileFolder.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -470,13 +469,13 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
     if ( action.getName() != null ) {
       wName.setText( action.getName() );
     }
-    wCopyEmptyFolders.setSelection( action.copy_empty_folders );
+    wCopyEmptyFolders.setSelection( action.copyEmptyFolders );
 
-    if ( action.source_filefolder != null ) {
-      for ( int i = 0; i < action.source_filefolder.length; i++ ) {
+    if ( action.sourceFileFolder != null ) {
+      for ( int i = 0; i < action.sourceFileFolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( action.source_filefolder[ i ] != null ) {
-          String sourceUrl = action.source_filefolder[ i ];
+        if ( action.sourceFileFolder[ i ] != null ) {
+          String sourceUrl = action.sourceFileFolder[ i ];
           String clusterName = action.getConfigurationBy( sourceUrl );
           if ( clusterName != null ) {
             clusterName =
@@ -499,8 +498,8 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
         if ( action.wildcard[ i ] != null ) {
           ti.setText( 3, action.wildcard[ i ] );
         }
-        if ( action.destination_filefolder[ i ] != null ) {
-          String destinationURL = action.destination_filefolder[ i ];
+        if ( action.destinationFileFolder[ i ] != null ) {
+          String destinationURL = action.destinationFileFolder[ i ];
           String clusterName = action.getConfigurationBy( destinationURL );
           if ( clusterName != null ) {
             clusterName = clusterName.startsWith( ActionCopyFiles.LOCAL_DEST_FILE ) ? LOCAL_ENVIRONMENT : clusterName;
@@ -523,14 +522,14 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
       wFields.setRowNums();
       wFields.optWidth( true );
     }
-    wPrevious.setSelection( action.arg_from_previous );
-    wOverwriteFiles.setSelection( action.overwrite_files );
-    wIncludeSubfolders.setSelection( action.include_subfolders );
-    wRemoveSourceFiles.setSelection( action.remove_source_files );
-    wDestinationIsAFile.setSelection( action.destination_is_a_file );
-    wCreateDestinationFolder.setSelection( action.create_destination_folder );
+    wPrevious.setSelection( action.argFromPrevious );
+    wOverwriteFiles.setSelection( action.overwriteFiles );
+    wIncludeSubfolders.setSelection( action.includeSubFolders );
+    wRemoveSourceFiles.setSelection( action.removeSourceFiles );
+    wDestinationIsAFile.setSelection( action.destinationIsAFile );
+    wCreateDestinationFolder.setSelection( action.createDestinationFolder );
 
-    wAddFileToResult.setSelection( action.add_result_filesname );
+    wAddFileToResult.setSelection( action.addResultFilenames );
 
     wName.selectAll();
     wName.setFocus();
@@ -553,23 +552,23 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     action.setName( wName.getText() );
     action.setCopyEmptyFolders( wCopyEmptyFolders.getSelection() );
-    action.setoverwrite_files( wOverwriteFiles.getSelection() );
-    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setOverwriteFiles( wOverwriteFiles.getSelection() );
+    action.setIncludeSubFolders( wIncludeSubfolders.getSelection() );
     action.setArgFromPrevious( wPrevious.getSelection() );
     action.setRemoveSourceFiles( wRemoveSourceFiles.getSelection() );
-    action.setAddresultfilesname( wAddFileToResult.getSelection() );
+    action.setAddResultFilenames( wAddFileToResult.getSelection() );
     action.setDestinationIsAFile( wDestinationIsAFile.getSelection() );
     action.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
 
 
     Map<String, String> sourceDestinationMappings = new HashMap<>();
-    action.source_filefolder = new String[ nritems ];
-    action.destination_filefolder = new String[ nritems ];
-    action.wildcard = new String[ nritems ];
+    action.sourceFileFolder = new String[ nrItems ];
+    action.destinationFileFolder = new String[ nrItems ];
+    action.wildcard = new String[ nrItems ];
 
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String sourceNc = wFields.getNonEmpty( i ).getText( 1 );
       sourceNc = sourceNc.equals( LOCAL_ENVIRONMENT ) ? ActionCopyFiles.LOCAL_SOURCE_FILE + i : sourceNc;
       sourceNc = sourceNc.equals( STATIC_ENVIRONMENT ) ? ActionCopyFiles.STATIC_SOURCE_FILE + i : sourceNc;
@@ -581,8 +580,8 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
       String dest = wFields.getNonEmpty( i ).getText( 5 );
       source = ActionCopyFiles.SOURCE_URL + i + "-" + source;
       dest = ActionCopyFiles.DEST_URL + i + "-" + dest;
-      action.source_filefolder[ i ] = action.loadURL( source, sourceNc, getMetadataProvider(), sourceDestinationMappings );
-      action.destination_filefolder[ i ] = action.loadURL( dest, destNc, getMetadataProvider(), sourceDestinationMappings );
+      action.sourceFileFolder[ i ] = action.loadURL( source, sourceNc, getMetadataProvider(), sourceDestinationMappings );
+      action.destinationFileFolder[ i ] = action.loadURL( dest, destNc, getMetadataProvider(), sourceDestinationMappings );
       action.wildcard[ i ] = wild;
     }
     action.setConfigurationMappings( sourceDestinationMappings );

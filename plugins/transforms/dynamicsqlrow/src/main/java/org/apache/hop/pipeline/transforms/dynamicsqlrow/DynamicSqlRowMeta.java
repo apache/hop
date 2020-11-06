@@ -58,7 +58,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/dynamicsqlrow.html"
 )
 public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMeta<DynamicSqlRow, DynamicSqlRowData> {
-  private static final Class<?> PKG = DynamicSqlRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DynamicSqlRowMeta.class; // Needed by Translator
 
   /**
    * database connection
@@ -294,7 +294,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMe
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     // See if we have input streams leading to this transform!
     if ( input.length > 0 ) {
@@ -337,7 +337,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMe
         db.connect();
         if ( sql != null && sql.length() != 0 ) {
 
-          error_message = "";
+          errorMessage = "";
 
           IRowMeta r = db.getQueryFields( sql, true );
           if ( r != null ) {
@@ -346,22 +346,22 @@ public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMe
                 PKG, "DynamicSQLRowMeta.CheckResult.QueryOK" ), transformMeta );
             remarks.add( cr );
           } else {
-            error_message = BaseMessages.getString( PKG, "DynamicSQLRowMeta.CheckResult.InvalidDBQuery" );
-            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            errorMessage = BaseMessages.getString( PKG, "DynamicSQLRowMeta.CheckResult.InvalidDBQuery" );
+            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           }
         }
       } catch ( HopException e ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "DynamicSQLRowMeta.CheckResult.ErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "DynamicSQLRowMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "DynamicSQLRowMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
   }

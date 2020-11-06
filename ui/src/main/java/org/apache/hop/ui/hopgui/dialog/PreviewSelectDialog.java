@@ -50,7 +50,7 @@ import org.eclipse.swt.widgets.TableItem;
 import java.util.List;
 
 public class PreviewSelectDialog extends Dialog {
-  private static final Class<?> PKG = PreviewSelectDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PreviewSelectDialog.class; // Needed by Translator
 
   private Label wlFields;
 

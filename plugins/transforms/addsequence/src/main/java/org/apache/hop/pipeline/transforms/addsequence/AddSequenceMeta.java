@@ -63,7 +63,7 @@ import java.util.List;
 )
 public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta<AddSequence, AddSequenceData> {
 
-  private static final Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = AddSequenceMeta.class; // Needed by Translator
 
   private String valuename;
 
@@ -345,8 +345,8 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
         try {
           db.connect();
           if ( !db.checkSequenceExists( schemaName, sequenceName ) ) {
-            String cr_table = db.getCreateSequenceStatement( sequenceName, startAt, incrementBy, maxValue, true );
-            retval.setSql( cr_table );
+            String crTable = db.getCreateSequenceStatement( sequenceName, startAt, incrementBy, maxValue, true );
+            retval.setSql( crTable );
           } else {
             retval.setSql( null ); // Empty string means: nothing to do: set it to null...
           }

@@ -69,7 +69,7 @@ import org.eclipse.swt.widgets.Text;
  */
 
 public class SecretKeyGeneratorDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SecretKeyGeneratorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SecretKeyGeneratorMeta.class; // Needed by Translator
 
   private Label wlTransformName;
   private Text wTransformName;

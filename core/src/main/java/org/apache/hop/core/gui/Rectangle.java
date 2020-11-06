@@ -41,8 +41,32 @@ public class Rectangle {
     this.height = height;
   }
 
+  public Rectangle(Rectangle r) {
+    this.x = r.x;
+    this.y = r.y;
+    this.width = r.width;
+    this.height = r.height;
+  }
+
+  @Override public String toString() {
+    return "Rectangle(" + x + "," + y + "-" + width + "x" + height +')';
+  }
+
   public boolean contains( int x2, int y2 ) {
     return x2 >= x && x2 <= x + width && y2 >= y && y2 <= y + height;
   }
 
+  public int getCentreX() {
+    return x+width/2;
+  }
+
+  public int getCentreY() {
+    return y+height/2;
+  }
+
+  public double distance(Rectangle r) {
+    double deltaX = getCentreX()-r.getCentreX();
+    double deltaY = getCentreY()-r.getCentreY();
+    return Math.sqrt( deltaX*deltaX + deltaY*deltaY );
+  }
 }

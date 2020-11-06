@@ -87,7 +87,7 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
@@ -96,16 +96,16 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
     return "ALTER TABLE "
-      + tablename + " ADD COLUMN ( " + getFieldDefinition( v, tk, pk, useAutoinc, true, false ) + " ) ";
+      + tableName + " ADD COLUMN ( " + getFieldDefinition( v, tk, pk, useAutoinc, true, false ) + " ) ";
   }
 
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
@@ -114,15 +114,15 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName() + Const.CR;
+    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName() + Const.CR;
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
@@ -131,10 +131,10 @@ public class CacheDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     return "ALTER TABLE "
-      + tablename + " ALTER COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+      + tableName + " ALTER COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
 
   @Override

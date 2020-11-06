@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 
 public class MergeJoinDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MergeJoinMeta.class; // Needed by Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeJoinSortWarning";
 
@@ -173,7 +173,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     wType = new CCombo( shell, SWT.BORDER );
     props.setLook( wType );
 
-    wType.setItems( MergeJoinMeta.join_types );
+    wType.setItems( MergeJoinMeta.joinTypes );
 
     wType.addModifyListener( lsMod );
     FormData fdType = new FormData();
@@ -319,7 +319,7 @@ public class MergeJoinDialog extends BaseTransformDialog implements ITransformDi
     if ( joinType != null && joinType.length() > 0 ) {
       wType.setText( joinType );
     } else {
-      wType.setText( MergeJoinMeta.join_types[ 0 ] );
+      wType.setText( MergeJoinMeta.joinTypes[ 0 ] );
     }
 
     for ( int i = 0; i < input.getKeyFields1().length; i++ ) {

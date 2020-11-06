@@ -65,7 +65,7 @@ import org.eclipse.swt.widgets.Text;
  * @since 13-05-2008
  */
 public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionDeleteFolders.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionDeleteFolders.class; // Needed by Translator
 
   private Shell shell;
   
@@ -528,9 +528,9 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
       action.setSuccessCondition( ActionDeleteFolders.SUCCESS_IF_NO_ERRORS );
     }
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -538,7 +538,7 @@ public class ActionDeleteFoldersDialog extends ActionDialog implements IActionDi
     }
     action.arguments = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         action.arguments[ nr ] = arg;

@@ -14,7 +14,7 @@
 	<artifactId>hop-transform-pgp</artifactId>
 	<packaging>jar</packaging>
 
-	<name>Hop Plugin Transforms PGP</name>
+	<name>Hop Plugins Transforms PGP</name>
 
 	<properties>
 	</properties>

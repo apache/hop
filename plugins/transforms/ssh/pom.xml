@@ -13,7 +13,7 @@
   <artifactId>hop-transform-ssh</artifactId>
   <packaging>jar</packaging>
 
-  <name>Hop Plugin Transforms SSH</name>
+  <name>Hop Plugins Transforms SSH</name>
 
   <dependencies>
     <dependency>

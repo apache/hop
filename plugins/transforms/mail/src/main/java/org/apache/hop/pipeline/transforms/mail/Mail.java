@@ -72,7 +72,7 @@ import java.util.zip.ZipOutputStream;
  */
 
 public class Mail extends BaseTransform<MailMeta, MailData> implements ITransform<MailMeta, MailData> {
-  private static final Class<?> PKG = MailMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailMeta.class; // Needed by Translator
 
   public Mail( TransformMeta transformMeta, MailMeta meta, MailData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
@@ -555,15 +555,15 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
 
     // set message priority
     if ( meta.isUsePriority() ) {
-      String priority_int = "1";
+      String priorityInt = "1";
       if ( meta.getPriority().equals( "low" ) ) {
-        priority_int = "3";
+        priorityInt = "3";
       }
       if ( meta.getPriority().equals( "normal" ) ) {
-        priority_int = "2";
+        priorityInt = "2";
       }
 
-      msg.setHeader( "X-Priority", priority_int ); // (String)int between 1= high and 3 = low.
+      msg.setHeader( "X-Priority", priorityInt ); // (String)int between 1= high and 3 = low.
       msg.setHeader( "Importance", meta.getImportance() );
       // seems to be needed for MS Outlook.
       // where it returns a string of high /normal /low.
@@ -572,13 +572,13 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
     }
 
     // set Email sender
-    String email_address = senderAddress;
-    if ( !Utils.isEmpty( email_address ) ) {
+    String emailAddress = senderAddress;
+    if ( !Utils.isEmpty( emailAddress ) ) {
       // get sender name
       if ( !Utils.isEmpty( senderName ) ) {
-        email_address = senderName + '<' + email_address + '>';
+        emailAddress = senderName + '<' + emailAddress + '>';
       }
-      msg.setFrom( new InternetAddress( email_address ) );
+      msg.setFrom( new InternetAddress( emailAddress ) );
     } else {
       throw new MessagingException( BaseMessages.getString( PKG, "Mail.Error.ReplyEmailNotFilled" ) );
     }
@@ -936,13 +936,13 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
       try {
         if ( !info.getFile().toString().equals( sourceFolder ) ) {
           // Pass over the Base folder itself
-          String short_filename = info.getFile().getName().getBaseName();
+          String shortFilename = info.getFile().getName().getBaseName();
 
           if ( info.getFile().getParent().equals( info.getBaseFolder() )
             || ( ( !info.getFile().getParent().equals( info.getBaseFolder() ) && meta.isIncludeSubFolders() ) ) ) {
             if ( ( info.getFile().getType() == FileType.FILE && fileWildcard == null )
               || ( info.getFile().getType() == FileType.FILE && fileWildcard != null && GetFileWildcard(
-              short_filename, fileWildcard ) ) ) {
+              shortFilename, fileWildcard ) ) ) {
               returncode = true;
             }
           }

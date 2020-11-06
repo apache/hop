@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.*;
 
 public class HttpDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = HttpMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HttpMeta.class; // Needed by Translator
 
   private Label wlUrl;
   private TextVar wUrl;

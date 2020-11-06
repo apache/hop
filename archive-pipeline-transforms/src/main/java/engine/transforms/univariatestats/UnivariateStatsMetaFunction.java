@@ -47,7 +47,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   private boolean m_max = true;
   private boolean m_median = true;
   private double m_arbitraryPercentile = -1;
-  private boolean m_interpolatePercentile = true;
+  private boolean mInterpolatePercentile = true;
 
   /**
    * Creates a new <code>UnivariateStatsMetaFunction</code>
@@ -74,7 +74,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
     m_max = max;
     m_median = median;
     m_arbitraryPercentile = arbPercentile;
-    m_interpolatePercentile = interpolate;
+    mInterpolatePercentile = interpolate;
   }
 
   /**
@@ -124,7 +124,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
 
     temp = XmlHandler.getTagValue( uniNode, "interpolate" );
     if ( temp.equalsIgnoreCase( "N" ) ) {
-      m_interpolatePercentile = false;
+      mInterpolatePercentile = false;
     }
   }
 
@@ -147,7 +147,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
   @Override
   public int hashCode() {
     return Objects.hash( m_sourceFieldName, m_n, m_mean, m_stdDev, m_min, m_max, m_median, m_arbitraryPercentile,
-      m_interpolatePercentile );
+      mInterpolatePercentile );
   }
 
   /**
@@ -166,7 +166,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
     xml += XmlHandler.addTagValue( "max", m_max );
     xml += XmlHandler.addTagValue( "median", m_median );
     xml += XmlHandler.addTagValue( "percentile", "" + m_arbitraryPercentile );
-    xml += XmlHandler.addTagValue( "interpolate", m_interpolatePercentile );
+    xml += XmlHandler.addTagValue( "interpolate", mInterpolatePercentile );
 
     xml += ( "</" + XML_TAG + ">" );
 
@@ -320,7 +320,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
    * @return true if interpolation is to be used
    */
   public boolean getInterpolatePercentile() {
-    return m_interpolatePercentile;
+    return mInterpolatePercentile;
   }
 
   /**
@@ -329,7 +329,7 @@ public class UnivariateStatsMetaFunction implements Cloneable {
    * @param i true is interpolation is to be used
    */
   public void setInterpolatePercentile( boolean i ) {
-    m_interpolatePercentile = i;
+    mInterpolatePercentile = i;
   }
 
   /**

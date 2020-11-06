@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.*;
  * @since 27-10-2008
  */
 public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionWaitForSql.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionWaitForSql.class; // Needed by Translator
 
   private Button wbTable, wbSqlTable;
 
@@ -711,7 +711,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     }
 
     wSchemaname.setText( Const.nullToEmpty( action.schemaname ) );
-    wTablename.setText( Const.nullToEmpty( action.tablename ) );
+    wTablename.setText( Const.nullToEmpty( action.tableName ) );
 
     wSuccessCondition.setText( ActionWaitForSql.getSuccessConditionDesc( action.successCondition ) );
     wRowsCountValue.setText( Const.NVL( action.rowsCountValue, "0" ) );
@@ -746,7 +746,7 @@ public class ActionWaitForSqlDialog extends ActionDialog implements IActionDialo
     action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
 
     action.schemaname = wSchemaname.getText();
-    action.tablename = wTablename.getText();
+    action.tableName = wTablename.getText();
     action.successCondition = ActionWaitForSql.getSuccessConditionByDesc( wSuccessCondition.getText() );
     action.rowsCountValue = wRowsCountValue.getText();
     action.iscustomSql = wcustomSql.getSelection();

@@ -74,7 +74,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "T__9"
   public final void mT__9() throws RecognitionException {
-    int _type = T__9;
+    int Type = T__9;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:6:6:
@@ -84,7 +84,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // ' '
 
     match( ' ' );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -92,7 +92,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "T__10"
   public final void mT__10() throws RecognitionException {
-    int _type = T__10;
+    int Type = T__10;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:7:7:
@@ -102,7 +102,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // 'UNA:+,? \\''
 
     match( "UNA:+,? '" );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -110,7 +110,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "T__11"
   public final void mT__11() throws RecognitionException {
-    int _type = T__11;
+    int Type = T__11;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:8:7:
@@ -121,7 +121,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
     match( "UNA:+.? '" );
 
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -129,7 +129,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "T__12"
   public final void mT__12() throws RecognitionException {
-    int _type = T__12;
+    int Type = T__12;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\FastSimpleGenericEdifactDirectXML.g:9:7:
@@ -139,7 +139,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // '\\n'
 
     match( '\n' );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -147,7 +147,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "T__13"
   public final void mT__13() throws RecognitionException {
-    int _type = T__13;
+    int Type = T__13;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
@@ -157,7 +157,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // FastSimpleGenericEdifactDirectXML.g:10:9: '\\r'
 
     match( '\r' );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -165,7 +165,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "T__14"
   public final void mT__14() throws RecognitionException {
-    int _type = T__14;
+    int Type = T__14;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
@@ -175,7 +175,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // FastSimpleGenericEdifactDirectXML.g:11:9:'\\t'
 
     match( '\t' );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -183,7 +183,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "RELEASE_CHARACTER"
   public final void mRELEASE_CHARACTER() throws RecognitionException {
-    int _type = RELEASE_CHARACTER;
+    int Type = RELEASE_CHARACTER;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
@@ -195,7 +195,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // '?'
 
     match( '?' );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -203,7 +203,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "ELEMENT_SEPARATOR"
   public final void mELEMENT_SEPARATOR() throws RecognitionException {
-    int _type = ELEMENT_SEPARATOR;
+    int Type = ELEMENT_SEPARATOR;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
@@ -215,7 +215,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // '+'
 
     match( '+' );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -223,7 +223,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "SEGMENT_TERMINATOR"
   public final void mSEGMENT_TERMINATOR() throws RecognitionException {
-    int _type = SEGMENT_TERMINATOR;
+    int Type = SEGMENT_TERMINATOR;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
@@ -235,7 +235,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // '\\''
 
     match( '\'' );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -243,7 +243,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "COMPLEX_ELEMENT_ITEM_SEPARATOR"
   public final void mCOMPLEX_ELEMENT_ITEM_SEPARATOR() throws RecognitionException {
-    int _type = COMPLEX_ELEMENT_ITEM_SEPARATOR;
+    int Type = COMPLEX_ELEMENT_ITEM_SEPARATOR;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
@@ -255,7 +255,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
     // ':'
 
     match( ':' );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 
@@ -263,7 +263,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
 
   // $ANTLR start "TEXT_DATA"
   public final void mTEXT_DATA() throws RecognitionException {
-    int _type = TEXT_DATA;
+    int Type = TEXT_DATA;
     int _channel = DEFAULT_TOKEN_CHANNEL;
     // C:\\workspace-sts\\Hop trunk -
     // restruct\\engine\\src\\org\\project-hop\\di\\pipeline\\transforms\\edi2xml\\grammar\\
@@ -405,7 +405,7 @@ public class FastSimpleGenericEdifactDirectXMLLexer extends Lexer {
       }
       cnt1++;
     } while ( true );
-    state.type = _type;
+    state.type = Type;
     state.channel = _channel;
   }
 

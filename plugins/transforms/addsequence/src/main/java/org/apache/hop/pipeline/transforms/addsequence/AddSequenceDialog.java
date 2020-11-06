@@ -44,7 +44,7 @@ import org.eclipse.swt.widgets.*;
 
 
 public class AddSequenceDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = AddSequenceMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = AddSequenceMeta.class; // Needed by Translator
 
   private Text wValuename;
 

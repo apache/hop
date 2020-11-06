@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 
 public class FilterRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = FilterRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FilterRowsMeta.class; // Needed by Translator
 
   private CCombo wTrueTo;
 

@@ -33,7 +33,7 @@ import org.apache.hop.i18n.BaseMessages;
  */
 public class SymmetricCryptoMeta {
 
-  private static final Class<?> PKG = SymmetricCryptoMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SymmetricCryptoMeta.class; // Needed by Translator
 
   private SymmetricCryptoInterface cryptographyInterface;
   private static SymmetricCryptoInterface[] allSymmetricCryptoInterface;

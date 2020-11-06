@@ -66,7 +66,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ping.html"
 )
 public class ActionPing extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionPing.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionPing.class; // Needed by Translator
 
   private String hostname;
   private String timeout;

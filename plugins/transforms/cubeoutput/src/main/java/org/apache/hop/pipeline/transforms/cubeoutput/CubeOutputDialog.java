@@ -39,7 +39,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class CubeOutputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = CubeOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CubeOutputMeta.class; // Needed by Translator
 
   private TextVar wFilename;
   private Button wAddToResult;

@@ -50,7 +50,7 @@ import java.util.*;
 
 public class StringCutDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = StringCutMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StringCutMeta.class; // Needed by Translator
 
   private TableView wFields;
 

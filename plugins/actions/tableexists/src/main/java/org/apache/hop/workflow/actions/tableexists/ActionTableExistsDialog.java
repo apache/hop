@@ -56,7 +56,7 @@ import org.eclipse.swt.widgets.*;
  * @since 19-06-2003
  */
 public class ActionTableExistsDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionTableExists.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionTableExists.class; // Needed by Translator
 
   private Text wName;
 

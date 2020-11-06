@@ -117,12 +117,12 @@ public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
       return "";
     }
 
-    BigInteger bi_passwd = new BigInteger( password.getBytes() );
+    BigInteger biPasswd = new BigInteger( password.getBytes() );
 
-    BigInteger bi_r0 = new BigInteger( getSeed() );
-    BigInteger bi_r1 = bi_r0.xor( bi_passwd );
+    BigInteger biR0 = new BigInteger( getSeed() );
+    BigInteger biR1 = biR0.xor( biPasswd );
 
-    return bi_r1.toString( RADIX );
+    return biR1.toString( RADIX );
   }
 
   @VisibleForTesting
@@ -134,13 +134,13 @@ public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
       return "";
     }
 
-    BigInteger bi_confuse = new BigInteger( getSeed() );
+    BigInteger biConfuse = new BigInteger( getSeed() );
 
     try {
-      BigInteger bi_r1 = new BigInteger( encrypted, RADIX );
-      BigInteger bi_r0 = bi_r1.xor( bi_confuse );
+      BigInteger biR1 = new BigInteger( encrypted, RADIX );
+      BigInteger biR0 = biR1.xor( biConfuse );
 
-      return new String( bi_r0.toByteArray() );
+      return new String( biR0.toByteArray() );
     } catch ( Exception e ) {
       return "";
     }

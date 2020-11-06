@@ -64,7 +64,7 @@ import java.net.InetAddress;
  * @since 27-04-2008
  */
 public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpDelete.class; // Needed by Translator
 
   private LabelText wName;
 
@@ -309,7 +309,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     fdlConnectionType.top = new FormAttachment( wPassword, 2 * margin );
     wlConnectionType.setLayoutData(fdlConnectionType);
     wConnectionType = new CCombo(wServerSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wConnectionType.setItems( FtpsConnection.connection_type_Desc );
+    wConnectionType.setItems( FtpsConnection.connectionTypeDesc );
     props.setLook( wConnectionType );
     FormData fdConnectionType = new FormData();
     fdConnectionType.left = new FormAttachment( middle, margin );
@@ -1069,8 +1069,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         ftpclient.setRemotePort( realPort );
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
-          String realProxy_host = workflowMeta.environmentSubstitute( wProxyHost.getText() );
-          ftpclient.setRemoteAddr( InetAddress.getByName( realProxy_host ) );
+          String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
+          ftpclient.setRemoteAddr( InetAddress.getByName( realProxyHost ) );
 
           int port = Const.toInt( workflowMeta.environmentSubstitute( wProxyPort.getText() ), 21 );
           if ( port != 0 ) {
@@ -1133,19 +1133,19 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
           // Set proxy
-          String realProxy_host = workflowMeta.environmentSubstitute( wProxyHost.getText() );
-          String realProxy_user = workflowMeta.environmentSubstitute( wProxyUsername.getText() );
-          String realProxy_pass = Utils.resolvePassword( workflowMeta, wProxyPassword.getText() );
-          ftpsclient.setProxyHost( realProxy_host );
+          String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
+          String realProxyUser = workflowMeta.environmentSubstitute( wProxyUsername.getText() );
+          String realProxyPass = Utils.resolvePassword( workflowMeta, wProxyPassword.getText() );
+          ftpsclient.setProxyHost( realProxyHost );
           int proxyport = Const.toInt( workflowMeta.environmentSubstitute( wProxyPort.getText() ), 990 );
           if ( proxyport != 0 ) {
             ftpsclient.setProxyPort( proxyport );
           }
-          if ( !Utils.isEmpty( realProxy_user ) ) {
-            ftpsclient.setProxyUser( realProxy_user );
+          if ( !Utils.isEmpty( realProxyUser ) ) {
+            ftpsclient.setProxyUser( realProxyUser );
           }
-          if ( !Utils.isEmpty( realProxy_pass ) ) {
-            ftpsclient.setProxyPassword( realProxy_pass );
+          if ( !Utils.isEmpty( realProxyPass ) ) {
+            ftpsclient.setProxyPassword( realProxyPass );
           }
         }
 

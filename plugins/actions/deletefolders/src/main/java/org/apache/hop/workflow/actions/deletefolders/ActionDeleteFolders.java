@@ -72,7 +72,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deletefolders.html"
 )
 public class ActionDeleteFolders extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDeleteFolders.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionDeleteFolders.class; // Needed by Translator
 
   public boolean argFromPrevious;
 
@@ -278,25 +278,25 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     return retval;
   }
 
-  private boolean deleteFolder( String foldername ) {
+  private boolean deleteFolder( String folderName ) {
     boolean rcode = false;
     FileObject filefolder = null;
 
     try {
-      filefolder = HopVfs.getFileObject( foldername );
+      filefolder = HopVfs.getFileObject( folderName );
 
       if ( filefolder.exists() ) {
         // the file or folder exists
         if ( filefolder.getType() == FileType.FOLDER ) {
           // It's a folder
           if ( log.isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "ActionDeleteFolders.ProcessingFolder", foldername ) );
+            logDetailed( BaseMessages.getString( PKG, "ActionDeleteFolders.ProcessingFolder", folderName ) );
           }
           // Delete Files
           int count = filefolder.delete( new TextFileSelector() );
 
           if ( log.isDetailed() ) {
-            logDetailed( BaseMessages.getString( PKG, "ActionDeleteFolders.TotalDeleted", foldername, String
+            logDetailed( BaseMessages.getString( PKG, "ActionDeleteFolders.TotalDeleted", folderName, String
               .valueOf( count ) ) );
           }
           rcode = true;
@@ -307,13 +307,13 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
       } else {
         // File already deleted, no reason to try to delete it
         if ( log.isBasic() ) {
-          logBasic( BaseMessages.getString( PKG, "ActionDeleteFolders.FolderAlreadyDeleted", foldername ) );
+          logBasic( BaseMessages.getString( PKG, "ActionDeleteFolders.FolderAlreadyDeleted", folderName ) );
         }
         rcode = true;
       }
     } catch ( Exception e ) {
       logError(
-        BaseMessages.getString( PKG, "ActionDeleteFolders.CouldNotDelete", foldername, e.getMessage() ), e );
+        BaseMessages.getString( PKG, "ActionDeleteFolders.CouldNotDelete", folderName, e.getMessage() ), e );
     } finally {
       if ( filefolder != null ) {
         try {

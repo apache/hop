@@ -85,7 +85,7 @@ import java.util.stream.Collectors;
 
 public class TextFileInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<TextFileInputMeta>, ICsvInputAwareTransformDialog {
-  private static final Class<?> PKG = TextFileInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator
 
   private static final String[] YES_NO_COMBO =
     new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,

@@ -60,7 +60,7 @@ import java.util.Map;
 )
 public class CubeOutputMeta extends BaseTransformMeta implements ITransformMeta<CubeOutput, CubeOutputData> {
 
-  private static final Class<?> PKG = CubeOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CubeOutputMeta.class; // Needed by Translator
 
   private String filename;
   /**

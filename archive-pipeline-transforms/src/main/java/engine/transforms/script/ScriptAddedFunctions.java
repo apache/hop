@@ -1717,11 +1717,11 @@ public class ScriptAddedFunctions {
   }
 
   // Evaluates the given ScriptFile
-  private static void checkAndLoadJSFile( ScriptEngine actualContext, Bindings eval_scope, String fileName ) {
+  private static void checkAndLoadJSFile( ScriptEngine actualContext, Bindings evalScope, String fileName ) {
     Reader inStream = null;
     try {
       inStream = new InputStreamReader( HopVFS.getInputStream( fileName ) );
-      actualContext.eval( inStream, eval_scope );
+      actualContext.eval( inStream, evalScope );
     } catch ( HopFileException Signal ) {
       /*
        * //TODO AKRETION: see if we can find better catches compatibles with JSR223 catch (FileNotFoundException Signal)
@@ -2304,15 +2304,15 @@ public class ScriptAddedFunctions {
         try {
           // Source file
           file = HopVFS.getFileObject( (String) ArgList[ 0 ] );
-          String foldername = null;
+          String folderName = null;
           if ( file.exists() ) {
-            foldername = HopVFS.getFilename( file.getParent() );
+            folderName = HopVFS.getFilename( file.getParent() );
 
           } else {
             throw new RuntimeException( "file [" + ArgList[ 0 ] + "] can not be found!" );
           }
 
-          return foldername;
+          return folderName;
         } catch ( IOException e ) {
           throw new RuntimeException( "The function call getParentFoldername throw an error : " + e.toString() );
         } finally {

@@ -57,7 +57,7 @@ import org.eclipse.swt.widgets.TableItem;
  * @author Matt
  */
 public class EnterStringsDialog extends Dialog {
-  private static final Class<?> PKG = EnterStringsDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = EnterStringsDialog.class; // Needed by Translator
 
   private Label wlFields;
   private TableView wFields;

@@ -51,7 +51,7 @@ import java.util.List;
  */
 public class DBProc extends BaseTransform<DBProcMeta, DBProcData> implements ITransform<DBProcMeta, DBProcData> {
 
-  private static final Class<?> PKG = DBProcMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DBProcMeta.class; // Needed by Translator
 
   public DBProc( TransformMeta transformMeta, DBProcMeta meta, DBProcData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {

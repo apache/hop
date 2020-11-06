@@ -70,8 +70,8 @@ public class WorkflowActionCopyFilesTest {
 
   @Test
   public void fileNotCopied() throws Exception {
-    entry.source_filefolder = new String[] { EMPTY };
-    entry.destination_filefolder = new String[] { EMPTY };
+    entry.sourceFileFolder = new String[] { EMPTY };
+    entry.destinationFileFolder = new String[] { EMPTY };
     entry.wildcard = new String[] { EMPTY };
 
     entry.execute( new Result(), 0 );
@@ -85,8 +85,8 @@ public class WorkflowActionCopyFilesTest {
     String srcPath = "path/to/file";
     String destPath = "path/to/dir";
 
-    entry.source_filefolder = new String[] { srcPath };
-    entry.destination_filefolder = new String[] { destPath };
+    entry.sourceFileFolder = new String[] { srcPath };
+    entry.destinationFileFolder = new String[] { destPath };
     entry.wildcard = new String[] { EMPTY };
 
     Result result = entry.execute( new Result(), 0 );
@@ -103,8 +103,8 @@ public class WorkflowActionCopyFilesTest {
     String[] srcPath = new String[] { "path1", "path2", "path3" };
     String[] destPath = new String[] { "dest1", "dest2", "dest3" };
 
-    entry.source_filefolder = srcPath;
-    entry.destination_filefolder = destPath;
+    entry.sourceFileFolder = srcPath;
+    entry.destinationFileFolder = destPath;
     entry.wildcard = new String[] { EMPTY, EMPTY, EMPTY };
 
     Result result = entry.execute( new Result(), 0 );
@@ -120,8 +120,8 @@ public class WorkflowActionCopyFilesTest {
     String[] srcPath = new String[] { "EMPTY_SOURCE_URL-0-" };
     String[] destPath = new String[] { "EMPTY_DEST_URL-0-" };
 
-    entry.source_filefolder = srcPath;
-    entry.destination_filefolder = destPath;
+    entry.sourceFileFolder = srcPath;
+    entry.destinationFileFolder = destPath;
     entry.wildcard = new String[] { EMPTY };
 
     String xml = "<entry>" + entry.getXml() + "</entry>";
@@ -136,7 +136,7 @@ public class WorkflowActionCopyFilesTest {
         false ),
       "entry" ),
       null );
-    assertTrue( loadedentry.destination_filefolder[ 0 ].equals( destPath[ 0 ] ) );
-    assertTrue( loadedentry.source_filefolder[ 0 ].equals( srcPath[ 0 ] ) );
+    assertTrue( loadedentry.destinationFileFolder[ 0 ].equals( destPath[ 0 ] ) );
+    assertTrue( loadedentry.sourceFileFolder[ 0 ].equals( srcPath[ 0 ] ) );
   }
 }

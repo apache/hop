@@ -57,7 +57,7 @@ import java.util.List;
 )
 public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<StringCut, StringCutData> {
 
-  private static final Class<?> PKG = StringCutMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StringCutMeta.class; // Needed by Translator
 
   private String[] fieldInStream;
 
@@ -213,13 +213,13 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
                      IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
     boolean first = true;
-    boolean error_found = false;
+    boolean errorFound = false;
 
     if ( prev == null ) {
-      error_message += BaseMessages.getString( PKG, "StringCutMeta.CheckResult.NoInputReceived" ) + Const.CR;
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      errorMessage += BaseMessages.getString( PKG, "StringCutMeta.CheckResult.NoInputReceived" ) + Const.CR;
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       remarks.add( cr );
     } else {
 
@@ -230,15 +230,15 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
         if ( v == null ) {
           if ( first ) {
             first = false;
-            error_message +=
+            errorMessage +=
               BaseMessages.getString( PKG, "StringCutMeta.CheckResult.MissingInStreamFields" ) + Const.CR;
           }
-          error_found = true;
-          error_message += "\t\t" + field + Const.CR;
+          errorFound = true;
+          errorMessage += "\t\t" + field + Const.CR;
         }
       }
-      if ( error_found ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      if ( errorFound ) {
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       } else {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -248,7 +248,7 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
 
       // Check whether all are strings
       first = true;
-      error_found = false;
+      errorFound = false;
       for ( int i = 0; i < fieldInStream.length; i++ ) {
         String field = fieldInStream[ i ];
 
@@ -257,16 +257,16 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
           if ( v.getType() != IValueMeta.TYPE_STRING ) {
             if ( first ) {
               first = false;
-              error_message +=
+              errorMessage +=
                 BaseMessages.getString( PKG, "StringCutMeta.CheckResult.OperationOnNonStringFields" ) + Const.CR;
             }
-            error_found = true;
-            error_message += "\t\t" + field + Const.CR;
+            errorFound = true;
+            errorMessage += "\t\t" + field + Const.CR;
           }
         }
       }
-      if ( error_found ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      if ( errorFound ) {
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transforminfo );
       } else {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(

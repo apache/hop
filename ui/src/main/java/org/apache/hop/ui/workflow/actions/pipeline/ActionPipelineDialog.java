@@ -23,8 +23,6 @@
 
 package org.apache.hop.ui.workflow.actions.pipeline;
 
-import java.util.List;
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -64,6 +62,8 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
+import java.util.List;
+
 /**
  * This dialog allows you to edit the pipeline action (ActionPipeline)
  *
@@ -71,7 +71,7 @@ import org.eclipse.swt.widgets.TableItem;
  * @since 19-06-2003
  */
 public class ActionPipelineDialog extends ActionBaseDialog implements IActionDialog {
-    private static final Class<?> PKG = ActionPipeline.class; // for i18n purposes, needed by Translator!!
+    private static final Class<?> PKG = ActionPipeline.class; // Needed by Translator
 
     protected ActionPipeline action;
 
@@ -324,8 +324,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
         ap.setRunConfiguration(wRunConfiguration.getText());
         ap.setFileName(wPath.getText());
         if (ap.getFilename().isEmpty()) {
-            throw new HopException(BaseMessages.getString(PKG,
-                    "ActionPipeline.Dialog.Exception.NoValidMappingDetailsFound"));
+            throw new HopException(BaseMessages.getString(PKG, "ActionPipeline.Dialog.Exception.NoValidMappingDetailsFound"));
         }
 
         // Do the parameters

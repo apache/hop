@@ -330,9 +330,9 @@ public class TextFileInputReader implements IBaseFileInputReader {
     if ( putrow && r != null ) {
       // See if the previous values need to be repeated!
       if ( data.nr_repeats > 0 ) {
-        if ( data.previous_row == null ) { // First invocation...
+        if ( data.previousRow == null ) { // First invocation...
 
-          data.previous_row = data.outputRowMeta.cloneRow( r );
+          data.previousRow = data.outputRowMeta.cloneRow( r );
         } else {
           // int repnr = 0;
           for ( int i = 0; i < meta.inputFields.length; i++ ) {
@@ -340,11 +340,11 @@ public class TextFileInputReader implements IBaseFileInputReader {
               if ( r[ i ] == null ) {
                 // if it is empty: take the previous value!
 
-                r[ i ] = data.previous_row[ i ];
+                r[ i ] = data.previousRow[ i ];
               } else {
                 // not empty: change the previous_row entry!
 
-                data.previous_row[ i ] = r[ i ];
+                data.previousRow[ i ] = r[ i ];
               }
               // repnr++;
             }

@@ -305,35 +305,35 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
   @Override
   public Object convertDataFromString( String pol, IValueMeta convertMeta, String nullIf, String ifNull,
-                                       int trim_type ) throws HopValueException {
+                                       int trimType ) throws HopValueException {
     // null handling and conversion of value to null
     //
-    String null_value = nullIf;
-    if ( null_value == null ) {
+    String nullValue = nullIf;
+    if ( nullValue == null ) {
       switch ( convertMeta.getType() ) {
         case IValueMeta.TYPE_BOOLEAN:
-          null_value = Const.NULL_BOOLEAN;
+          nullValue = Const.NULL_BOOLEAN;
           break;
         case IValueMeta.TYPE_STRING:
-          null_value = Const.NULL_STRING;
+          nullValue = Const.NULL_STRING;
           break;
         case IValueMeta.TYPE_BIGNUMBER:
-          null_value = Const.NULL_BIGNUMBER;
+          nullValue = Const.NULL_BIGNUMBER;
           break;
         case IValueMeta.TYPE_NUMBER:
-          null_value = Const.NULL_NUMBER;
+          nullValue = Const.NULL_NUMBER;
           break;
         case IValueMeta.TYPE_INTEGER:
-          null_value = Const.NULL_INTEGER;
+          nullValue = Const.NULL_INTEGER;
           break;
         case IValueMeta.TYPE_DATE:
-          null_value = Const.NULL_DATE;
+          nullValue = Const.NULL_DATE;
           break;
         case IValueMeta.TYPE_BINARY:
-          null_value = Const.NULL_BINARY;
+          nullValue = Const.NULL_BINARY;
           break;
         default:
-          null_value = Const.NULL_NONE;
+          nullValue = Const.NULL_NONE;
           break;
       }
     }
@@ -346,7 +346,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
       // because you could get an NPE since you haven't checked isEmpty(pol)
       // yet!
       if ( Utils.isEmpty( pol )
-        || pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( null_value ), pol.length() ) ) ) {
+        || pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( nullValue ), pol.length() ) ) ) {
         pol = ifNull;
       }
     }
@@ -359,12 +359,12 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
     } else {
       // if the null_value is specified, we try to match with that.
       //
-      if ( !Utils.isEmpty( null_value ) ) {
-        if ( null_value.length() <= pol.length() ) {
+      if ( !Utils.isEmpty( nullValue ) ) {
+        if ( nullValue.length() <= pol.length() ) {
           // If the polled value is equal to the spaces right-padded null_value,
           // we have a match
           //
-          if ( pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( null_value ), pol.length() ) ) ) {
+          if ( pol.equalsIgnoreCase( Const.rightPad( new StringBuilder( nullValue ), pol.length() ) ) ) {
             return null;
           }
         }
@@ -380,7 +380,7 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
     StringBuilder strpol;
     // Trimming
-    switch ( trim_type ) {
+    switch ( trimType ) {
       case IValueMeta.TRIM_TYPE_LEFT:
         strpol = new StringBuilder( pol );
         while ( strpol.length() > 0 && strpol.charAt( 0 ) == ' ' ) {
@@ -535,17 +535,17 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
   @Override
   public String getDatabaseColumnTypeDefinition( IDatabase iDatabase, String tk, String pk,
-                                                 boolean use_autoinc, boolean add_fieldname, boolean add_cr ) {
+                                                 boolean useAutoInc, boolean addFieldname, boolean addCr ) {
 
     String retval = null;
     if ( iDatabase.isPostgresVariant() ) {
-      if ( add_fieldname ) {
+      if ( addFieldname ) {
         retval = getName() + " ";
       } else {
         retval = "";
       }
       retval += "INET";
-      if ( add_cr ) {
+      if ( addCr ) {
         retval += Const.CR;
       }
     }

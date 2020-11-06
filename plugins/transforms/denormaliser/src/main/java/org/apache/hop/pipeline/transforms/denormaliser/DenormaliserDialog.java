@@ -48,7 +48,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class DenormaliserDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DenormaliserMeta.class; // for i18n purposes, needed by Translator!! $NON-NLS-1$
+  private static final Class<?> PKG = DenormaliserMeta.class; // Needed by Translator $NON-NLS-1$
 
   public static final String STRING_SORT_WARNING_PARAMETER = "PivotSortWarning";
 

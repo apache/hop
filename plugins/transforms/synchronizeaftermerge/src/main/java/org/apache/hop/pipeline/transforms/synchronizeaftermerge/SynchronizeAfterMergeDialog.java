@@ -65,7 +65,7 @@ import java.util.List;
 import java.util.*;
 
 public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

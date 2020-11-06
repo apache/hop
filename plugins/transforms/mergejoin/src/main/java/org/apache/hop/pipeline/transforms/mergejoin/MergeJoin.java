@@ -65,7 +65,7 @@ import java.util.List;
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Join"
 )
 public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> implements ITransform<MergeJoinMeta, MergeJoinData> {
-  private static final Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MergeJoinMeta.class; // Needed by Translator
 
   public MergeJoin( TransformMeta transformMeta, MergeJoinMeta meta, MergeJoinData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
@@ -409,8 +409,8 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
         return false;
       }
       String joinType = meta.getJoinType();
-      for ( int i = 0; i < MergeJoinMeta.join_types.length; ++i ) {
-        if ( joinType.equalsIgnoreCase( MergeJoinMeta.join_types[ i ] ) ) {
+      for ( int i = 0; i < MergeJoinMeta.joinTypes.length; ++i ) {
+        if ( joinType.equalsIgnoreCase( MergeJoinMeta.joinTypes[ i ] ) ) {
           data.one_optional = MergeJoinMeta.one_optionals[ i ];
           data.two_optional = MergeJoinMeta.two_optionals[ i ];
           return true;

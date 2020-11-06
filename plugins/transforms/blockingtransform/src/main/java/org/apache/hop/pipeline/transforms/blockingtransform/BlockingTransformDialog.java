@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.*;
 
 
 public class BlockingTransformDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = BlockingTransformDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BlockingTransformDialog.class; // Needed by Translator
 
   private final BlockingTransformMeta input;
 

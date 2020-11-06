@@ -59,7 +59,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/execprocess.html"
 )
 public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta<ExecProcess, ExecProcessData> {
-  private static final Class<?> PKG = ExecProcessMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExecProcessMeta.class; // Needed by Translator
 
   /**
    * dynamic process field name
@@ -294,23 +294,23 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if (Utils.isEmpty(resultfieldname)) {
-      error_message = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldMissing");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
     } else {
-      error_message = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ResultFieldOK");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
     }
     remarks.add(cr);
 
     if (Utils.isEmpty(processfield)) {
-      error_message = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldMissing");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldMissing");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
     } else {
-      error_message = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldOK");
-      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString(PKG, "ExecProcessMeta.CheckResult.ProcessFieldOK");
+      cr = new CheckResult(CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
     }
     remarks.add(cr);
 

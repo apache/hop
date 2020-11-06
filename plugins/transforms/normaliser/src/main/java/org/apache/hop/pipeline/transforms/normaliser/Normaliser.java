@@ -44,7 +44,7 @@ import java.util.Set;
  * @since 5-apr-2003
  */
 public class Normaliser extends BaseTransform<NormaliserMeta,NormaliserData> implements ITransform<NormaliserMeta,NormaliserData> {
-  private static final Class<?> PKG = NormaliserMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = NormaliserMeta.class; // Needed by Translator
 
   public Normaliser( TransformMeta transformMeta, NormaliserMeta meta, NormaliserData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
@@ -112,7 +112,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta,NormaliserData> imp
 
       // Which fields are not impacted? We can just copy these, leave them alone.
       //
-      data.copy_fieldnrs = new ArrayList<>();
+      data.copyFieldnrs = new ArrayList<>();
 
       Set<String> normaliserFields = meta.getFieldNames();
       int irmSize = data.inputRowMeta.size();
@@ -121,7 +121,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta,NormaliserData> imp
         IValueMeta v = data.inputRowMeta.getValueMeta( Integer.valueOf( i ) );
         // Backwards compatibility - old loop called Const.indexofstring which uses equalsIgnoreCase
         if ( !normaliserFields.contains( v.getName().toLowerCase() ) ) {
-          data.copy_fieldnrs.add( Integer.valueOf( i ) );
+          data.copyFieldnrs.add( Integer.valueOf( i ) );
         }
       }
 
@@ -129,7 +129,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta,NormaliserData> imp
 
     // Modest performance improvement over millions of rows - don't recalculate on each loop iteration something that doesn't change
     int typeOccSize = data.type_occ.size();
-    int copyFldNrsSz = data.copy_fieldnrs.size();
+    int copyFldNrsSz = data.copyFieldnrs.size();
     int rowMetaSz = data.outputRowMeta.size();
 
     // Modest performance improvement (large memory improvement) - re-use temporary objects instead of re-creating them - better for GC over time
@@ -152,7 +152,7 @@ public class Normaliser extends BaseTransform<NormaliserMeta,NormaliserData> imp
       // Copy the input row data, excluding the fields that are normalized...
       //
       for ( i = 0; i < copyFldNrsSz; i++ ) {
-        nr = data.copy_fieldnrs.get( i );
+        nr = data.copyFieldnrs.get( i );
         outputRowData[ outputIndex++ ] = r[ nr ];
       }
 

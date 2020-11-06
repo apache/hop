@@ -23,13 +23,6 @@
 
 package org.apache.hop.workflow.actions.ftpsget;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -57,6 +50,13 @@ import org.apache.hop.workflow.action.validator.AndValidator;
 import org.ftp4che.util.ftpfile.FTPFile;
 import org.w3c.dom.Node;
 
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * This defines an FTPS action.
  *
@@ -74,7 +74,7 @@ import org.w3c.dom.Node;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpsget.html"
 )
 public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtpsGet.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpsGet.class; // Needed by Translator
 
   private String serverName;
   private String userName;
@@ -93,9 +93,9 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
 
   private boolean adddate;
   private boolean addtime;
-  private boolean SpecifyFormat;
-  private String date_time_format;
-  private boolean AddDateBeforeExtension;
+  private boolean specifyFormat;
+  private String dateTimeFormat;
+  private boolean addDateBeforeExtension;
   private boolean isaddresult;
   private boolean createmovefolder;
   private String port;
@@ -121,10 +121,10 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
   public String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
   public String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
 
-  private String nr_limit;
-  private String success_condition;
+  private String nrLimit;
+  private String successCondition;
 
-  long NrErrors = 0;
+  long nrErrors = 0;
   long NrfilesRetrieved = 0;
   boolean successConditionBroken = false;
   int limitFiles = 0;
@@ -136,9 +136,9 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
 
   public ActionFtpsGet( String n ) {
     super( n, "" );
-    nr_limit = "10";
+    nrLimit = "10";
     port = "21";
-    success_condition = SUCCESS_IF_NO_ERRORS;
+    successCondition = SUCCESS_IF_NO_ERRORS;
     ifFileExists = 0;
 
     serverName = null;
@@ -146,8 +146,8 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
     movetodirectory = null;
     adddate = false;
     addtime = false;
-    SpecifyFormat = false;
-    AddDateBeforeExtension = false;
+    specifyFormat = false;
+    addDateBeforeExtension = false;
     isaddresult = true;
     createmovefolder = false;
     connectionType = FtpsConnection.CONNECTION_TYPE_FTP;
@@ -184,9 +184,9 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "adddate", adddate ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "addtime", addtime ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDateBeforeExtension", AddDateBeforeExtension ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", specifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", dateTimeFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "AddDateBeforeExtension", addDateBeforeExtension ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "isaddresult", isaddresult ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "createmovefolder", createmovefolder ) );
 
@@ -198,8 +198,8 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
 
     retval.append( "      " ).append( XmlHandler.addTagValue( "ifFileExists", getFileExistsAction( ifFileExists ) ) );
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit", nr_limit ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", success_condition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit", nrLimit ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "connection_type", FtpsConnection.getConnectionTypeCode( connectionType ) ) );
 
     return retval.toString();
@@ -227,9 +227,9 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
 
       adddate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "adddate" ) );
       addtime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addtime" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
-      date_time_format = XmlHandler.getTagValue( entrynode, "date_time_format" );
-      AddDateBeforeExtension =
+      specifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
+      dateTimeFormat = XmlHandler.getTagValue( entrynode, "date_time_format" );
+      addDateBeforeExtension =
         "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "AddDateBeforeExtension" ) );
 
       String addresult = XmlHandler.getTagValue( entrynode, "isaddresult" );
@@ -249,8 +249,8 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
         Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( entrynode, "proxy_password" ) );
 
       ifFileExists = getFileExistsIndex( XmlHandler.getTagValue( entrynode, "ifFileExists" ) );
-      nr_limit = XmlHandler.getTagValue( entrynode, "nr_limit" );
-      success_condition =
+      nrLimit = XmlHandler.getTagValue( entrynode, "nr_limit" );
+      successCondition =
         Const.NVL( XmlHandler.getTagValue( entrynode, "success_condition" ), SUCCESS_IF_NO_ERRORS );
       connectionType =
         FtpsConnection.getConnectionTypeByCode( Const.NVL(
@@ -260,20 +260,20 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
     }
   }
 
-  public void setLimit( String nr_limitin ) {
-    this.nr_limit = nr_limitin;
+  public void setLimit( String nrLimitin ) {
+    this.nrLimit = nrLimitin;
   }
 
   public String getLimit() {
-    return nr_limit;
+    return nrLimit;
   }
 
-  public void setSuccessCondition( String success_condition ) {
-    this.success_condition = success_condition;
+  public void setSuccessCondition( String successCondition ) {
+    this.successCondition = successCondition;
   }
 
   public String getSuccessCondition() {
-    return success_condition;
+    return successCondition;
   }
 
   public void setCreateMoveFolder( boolean createmovefolderin ) {
@@ -284,12 +284,12 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
     return createmovefolder;
   }
 
-  public void setAddDateBeforeExtension( boolean AddDateBeforeExtension ) {
-    this.AddDateBeforeExtension = AddDateBeforeExtension;
+  public void setAddDateBeforeExtension( boolean addDateBeforeExtension ) {
+    this.addDateBeforeExtension = addDateBeforeExtension;
   }
 
   public boolean isAddDateBeforeExtension() {
-    return AddDateBeforeExtension;
+    return addDateBeforeExtension;
   }
 
   public void setAddToResult( boolean isaddresultin ) {
@@ -317,19 +317,19 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
   }
 
   public boolean isSpecifyFormat() {
-    return SpecifyFormat;
+    return specifyFormat;
   }
 
-  public void setSpecifyFormat( boolean SpecifyFormat ) {
-    this.SpecifyFormat = SpecifyFormat;
+  public void setSpecifyFormat( boolean specifyFormat ) {
+    this.specifyFormat = specifyFormat;
   }
 
   public String getDateTimeFormat() {
-    return date_time_format;
+    return dateTimeFormat;
   }
 
-  public void setDateTimeFormat( String date_time_format ) {
-    this.date_time_format = date_time_format;
+  public void setDateTimeFormat( String dateTimeFormat ) {
+    this.dateTimeFormat = dateTimeFormat;
   }
 
   /**
@@ -606,7 +606,7 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
     Result result = previousResult;
     result.setNrErrors( 1 );
     result.setResult( false );
-    NrErrors = 0;
+    nrErrors = 0;
     NrfilesRetrieved = 0;
     successConditionBroken = false;
     boolean exitaction = false;
@@ -658,7 +658,7 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
           } else {
             logError( BaseMessages.getString( PKG, "ActionFTPS.MoveToFolderNotExist" ) );
             exitaction = true;
-            NrErrors++;
+            nrErrors++;
           }
         }
       }
@@ -692,7 +692,7 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    result.setNrErrors( NrErrors );
+    result.setNrErrors( nrErrors );
     result.setNrFilesRetrieved( NrfilesRetrieved );
     if ( getSuccessStatus() ) {
       result.setResult( true );
@@ -720,7 +720,7 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
       }
 
       if ( successConditionBroken ) {
-        throw new HopException( BaseMessages.getString( PKG, "ActionFTPS.SuccesConditionBroken", NrErrors ) );
+        throw new HopException( BaseMessages.getString( PKG, "ActionFTPS.SuccesConditionBroken", nrErrors ) );
       }
 
       FTPFile file = fileList.get( i );
@@ -846,7 +846,7 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
   private void displayResults() {
     if ( isDetailed() ) {
       logDetailed( "=======================================" );
-      logDetailed( BaseMessages.getString( PKG, "ActionFTPS.Log.Info.FilesInError", "" + NrErrors ) );
+      logDetailed( BaseMessages.getString( PKG, "ActionFTPS.Log.Info.FilesInError", "" + nrErrors ) );
       logDetailed( BaseMessages.getString( PKG, "ActionFTPS.Log.Info.FilesRetrieved", "" + NrfilesRetrieved ) );
       logDetailed( "=======================================" );
     }
@@ -855,10 +855,10 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
   private boolean getSuccessStatus() {
     boolean retval = false;
 
-    if ( ( NrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
+    if ( ( nrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
       || ( NrfilesRetrieved >= limitFiles && getSuccessCondition().equals(
       SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) )
-      || ( NrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+      || ( nrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
 
@@ -866,7 +866,7 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
   }
 
   private void updateErrors() {
-    NrErrors++;
+    nrErrors++;
     if ( checkIfSuccessConditionBroken() ) {
       // Success condition was broken
       successConditionBroken = true;
@@ -875,8 +875,8 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
 
   private boolean checkIfSuccessConditionBroken() {
     boolean retval = false;
-    if ( ( NrErrors > 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
-      || ( NrErrors >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+    if ( ( nrErrors > 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
+      || ( nrErrors >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
     return retval;
@@ -912,8 +912,8 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
     SimpleDateFormat daf = new SimpleDateFormat();
     Date now = new Date();
 
-    if ( SpecifyFormat && !Utils.isEmpty( date_time_format ) ) {
-      daf.applyPattern( date_time_format );
+    if ( specifyFormat && !Utils.isEmpty( dateTimeFormat ) ) {
+      daf.applyPattern( dateTimeFormat );
       String dt = daf.format( now );
       retval += dt;
     } else {
@@ -1049,20 +1049,20 @@ public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
 
   void buildFTPSConnection( FtpsConnection connection ) throws Exception {
     if ( !Utils.isEmpty( proxyHost ) ) {
-      String realProxy_host = environmentSubstitute( proxyHost );
-      String realProxy_username = environmentSubstitute( proxyUsername );
-      String realProxy_password =
+      String realProxyHost = environmentSubstitute( proxyHost );
+      String realProxyUsername = environmentSubstitute( proxyUsername );
+      String realProxyPassword =
         Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( proxyPassword ) );
 
-      connection.setProxyHost( realProxy_host );
-      if ( !Utils.isEmpty( realProxy_username ) ) {
-        connection.setProxyUser( realProxy_username );
+      connection.setProxyHost( realProxyHost );
+      if ( !Utils.isEmpty( realProxyUsername ) ) {
+        connection.setProxyUser( realProxyUsername );
       }
-      if ( !Utils.isEmpty( realProxy_password ) ) {
-        connection.setProxyPassword( realProxy_password );
+      if ( !Utils.isEmpty( realProxyPassword ) ) {
+        connection.setProxyPassword( realProxyPassword );
       }
       if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPS.OpenedProxyConnectionOn", realProxy_host ) );
+        logDetailed( BaseMessages.getString( PKG, "ActionFTPS.OpenedProxyConnectionOn", realProxyHost ) );
       }
 
       int proxyport = Const.toInt( environmentSubstitute( proxyPort ), 21 );

@@ -13,7 +13,7 @@
     <artifactId>hop-transform-databasejoin</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugin Transforms Database Join</name>
+    <name>Hop Plugins Transforms Database Join</name>
 
     <dependencies>
         <dependency>

@@ -96,7 +96,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public abstract class Workflow extends Variables implements IVariables, INamedParams, IHasLogChannel, ILoggingObject,
   IExecutor, IExtensionData, IWorkflowEngine<WorkflowMeta> {
-  protected static Class<?> PKG = Workflow.class; // for i18n purposes, needed by Translator!!
+  protected static Class<?> PKG = Workflow.class; // Needed by Translator
 
   public static final String CONFIGURATION_IN_EXPORT_FILENAME = "__workflow_execution_configuration__.xml";
 
@@ -253,8 +253,8 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   public Workflow() {
     super();
     init();
-    this.log = new LogChannel( this );
-    this.logLevel = log.getLogLevel();
+    // Don't spam the logging backend for nothing. Don't create this.log here.
+    this.logLevel = LogLevel.BASIC;
   }
 
   /**
@@ -897,6 +897,12 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    */
   @Override public void setWorkflowMeta( WorkflowMeta workflowMeta ) {
     this.workflowMeta = workflowMeta;
+
+    // We change the topic in other words.
+    // This means we need to create a new Logging Object
+    //
+    this.log = new LogChannel( this, parentLoggingObject );
+    this.logLevel = log.getLogLevel();
   }
 
   public WorkflowTracker getWorkflowTracker() {

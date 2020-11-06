@@ -67,7 +67,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class GetFileNamesDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = GetFileNamesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetFileNamesMeta.class; // Needed by Translator
 
   private static final String[] YES_NO_COMBO = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
