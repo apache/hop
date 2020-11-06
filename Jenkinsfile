@@ -31,7 +31,7 @@ pipeline {
 
     tools {
         jdk JDK_NAME
-        maven MVN_NAME
+        maven MAVEN_NAME
     }
 
     environment {
