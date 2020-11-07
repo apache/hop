@@ -72,11 +72,13 @@ pipeline {
             when {
                 branch 'master'
             }
-            dir("local-snapshots-dir/") {
-                    deleteDir()
-            }
             steps {
                 echo 'Test & Build'
+
+                dir("local-snapshots-dir/") {
+                    deleteDir()
+                }
+                
                 sh "mvn $MAVEN_PARAMS -DaltDeploymentRepository=snapshot-repo::default::file:./local-snapshots-dir clean deploy"
             }
             post {
