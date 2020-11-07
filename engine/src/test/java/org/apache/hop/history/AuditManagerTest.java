@@ -50,8 +50,6 @@ public class AuditManagerTest {
 
     @Test
     public void testHasAnActiveAuditManager() {
-   
-      System.out.println("AuditManagerTest.testHasAnActiveAuditManager()"  + testFolder.getRoot().getAbsolutePath());
       assertNotNull(AuditManager.getActive());
     }
 
