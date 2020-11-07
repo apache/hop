@@ -21,7 +21,7 @@ def AGENT_LABEL = env.AGENT_LABEL ?: 'ubuntu'
 def JDK_NAME = env.JDK_NAME ?: 'jdk_1.8_latest'
 def MAVEN_NAME = env.MAVEN_NAME ?: 'maven_3_latest'
 
-def MAVEN_PARAMS = "-U -B -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2"
+def MAVEN_PARAMS = "-T 2 -U -B -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2"
 
 pipeline {
 
@@ -72,8 +72,12 @@ pipeline {
             when {
                 branch 'master'
             }
+            dir("local-snapshots-dir/") {
+                    deleteDir()
+            }
             steps {
-                sh "mvn $MAVEN_PARAMS clean deploy"
+                echo 'Test & Build'
+                sh "mvn $MAVEN_PARAMS -DaltDeploymentRepository=snapshot-repo::default::file:./local-snapshots-dir clean deploy"
             }
             post {
                 always {
@@ -82,10 +86,20 @@ pipeline {
                 }
             }
         }
+        stage('Deploy'){
+            when {
+                branch 'master'
+            }
+            steps{
+                echo 'Deploying'
+                sh 'mvn -f jenkins.pom -X -P deploy-snapshots wagon:upload'
+            }
+        }
 
     }
     post {
         always {
+            cleanWs()
             emailext(
                 subject: '${DEFAULT_SUBJECT}',
                 body: '${DEFAULT_CONTENT}',
