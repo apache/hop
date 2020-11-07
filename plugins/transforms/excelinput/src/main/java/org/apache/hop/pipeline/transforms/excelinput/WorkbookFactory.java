@@ -32,6 +32,10 @@ import org.apache.hop.pipeline.transforms.excelinput.staxpoi.StaxPoiWorkbook;
 import java.io.InputStream;
 
 public class WorkbookFactory {
+  
+  private WorkbookFactory() {
+    throw new IllegalStateException("Utility class");
+  }
 
   public static IKWorkbook getWorkbook( SpreadSheetType type, String filename, String encoding ) throws HopException {
     switch ( type ) {

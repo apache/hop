@@ -79,11 +79,11 @@ public class SortRowsData extends BaseTransformData implements ITransformData {
   public SortRowsData() {
     super();
 
-    files = new ArrayList<FileObject>();
-    fis = new ArrayList<InputStream>();
-    gzis = new ArrayList<GZIPInputStream>();
-    dis = new ArrayList<DataInputStream>();
-    bufferSizes = new ArrayList<Integer>();
+    files = new ArrayList<>();
+    fis = new ArrayList<>();
+    gzis = new ArrayList<>();
+    dis = new ArrayList<>();
+    bufferSizes = new ArrayList<>();
 
     previous = null; // Heroic
   }

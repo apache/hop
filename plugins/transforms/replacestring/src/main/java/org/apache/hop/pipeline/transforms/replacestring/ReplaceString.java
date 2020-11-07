@@ -23,27 +23,24 @@
 
 package org.apache.hop.pipeline.transforms.replacestring;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.annotations.VisibleForTesting;
 
 /**
  * Search and replace in string.
@@ -125,7 +122,7 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
 
     Object[] rowData = RowDataUtil.resizeArray( row, data.outputRowMeta.size() );
     int index = 0;
-    Set<Integer> numFieldsAlreadyBeenTransformed = new HashSet<Integer>();
+    Set<Integer> numFieldsAlreadyBeenTransformed = new HashSet<>();
     for ( int i = 0; i < data.numFields; i++ ) {
 
       IRowMeta currentRowMeta =
@@ -214,10 +211,8 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
       Object[] output = getOneRow( getInputRowMeta(), r );
       putRow( data.outputRowMeta, output );
 
-      if ( checkFeedback( getLinesRead() ) ) {
-        if ( log.isDetailed() ) {
+      if ( checkFeedback( getLinesRead() ) &&  log.isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "ReplaceString.Log.LineNumber" ) + getLinesRead() );
-        }
       }
     } catch ( HopException e ) {
       boolean sendToErrorRow = false;
@@ -242,12 +237,7 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
   }
 
   public boolean init() {
-
-    if ( super.init() ) {
-
-      return true;
-    }
-    return false;
+    return super.init() ;
   }
 
   public void dispose() {
