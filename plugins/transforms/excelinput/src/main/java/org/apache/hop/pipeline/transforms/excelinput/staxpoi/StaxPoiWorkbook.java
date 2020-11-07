@@ -67,7 +67,7 @@ public class StaxPoiWorkbook implements IKWorkbook {
   private OPCPackage opcpkg;
 
   protected StaxPoiWorkbook() {
-    openSheetsMap = new HashMap<String, StaxPoiSheet>();
+    openSheetsMap = new HashMap<>();
     this.log = HopLogStore.getLogChannelFactory().create( this );
   }
 
@@ -91,14 +91,14 @@ public class StaxPoiWorkbook implements IKWorkbook {
     }
   }
 
-  private void openFile( OPCPackage pkg, String encoding ) throws HopException {
+  private void openFile( OPCPackage pkg, String encoding ) throws HopException, IOException, XMLStreamException {
     InputStream workbookData = null;
     XMLStreamReader workbookReader = null;
     try {
       reader = new XSSFReader( pkg );
-      sheetNameIDMap = new LinkedHashMap<String, String>();
+      sheetNameIDMap = new LinkedHashMap<>();
       workbookData = reader.getWorkbookData();
-      XMLInputFactory factory = XMLInputFactory.newInstance();
+      XMLInputFactory factory = StaxUtil.safeXMLInputFactory();
       workbookReader = factory.createXMLStreamReader( workbookData );
       while ( workbookReader.hasNext() ) {
         if ( workbookReader.next() == XMLStreamConstants.START_ELEMENT
@@ -117,18 +117,10 @@ public class StaxPoiWorkbook implements IKWorkbook {
       throw new HopException( e );
     } finally {
       if ( workbookReader != null ) {
-        try {
           workbookReader.close();
-        } catch ( XMLStreamException e ) {
-          throw new HopException( e );
-        }
       }
       if ( workbookData != null ) {
-        try {
           workbookData.close();
-        } catch ( IOException e ) {
-          throw new HopException( e );
-        }
       }
     }
   }
@@ -143,6 +135,7 @@ public class StaxPoiWorkbook implements IKWorkbook {
       return null;
     }
     StaxPoiSheet sheet = openSheetsMap.get( sheetID );
+
     if ( sheet == null ) {
       try {
         sheet = new StaxPoiSheet( reader, sheetName, sheetID );

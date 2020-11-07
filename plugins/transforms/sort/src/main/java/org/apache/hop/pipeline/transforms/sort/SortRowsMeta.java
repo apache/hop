@@ -604,7 +604,7 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<So
   public List<String> getGroupFields() {
     if ( this.groupFields == null ) {
       for ( int i = 0; i < preSortedField.length; i++ ) {
-        if ( preSortedField[ i ] == true ) {
+        if ( preSortedField[ i ] ) {
           if ( groupFields == null ) {
             groupFields = new ArrayList<>();
           }
@@ -616,7 +616,7 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<So
   }
 
   public boolean isGroupSortEnabled() {
-    return ( this.getGroupFields() != null ) ? true : false;
+    return this.getGroupFields() != null ;
   }
 
   /**

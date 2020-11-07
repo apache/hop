@@ -22,6 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.excelinput.staxpoi;
 
+import javax.xml.XMLConstants;
+import javax.xml.stream.XMLInputFactory;
 import org.apache.poi.ss.SpreadsheetVersion;
 
 public class StaxUtil {
@@ -29,6 +31,10 @@ public class StaxUtil {
   public static final int MAX_ROWS = DEFAULT_SPREADSHEET_VERSION.getMaxRows();
   public static final int MAX_COLUMNS = DEFAULT_SPREADSHEET_VERSION.getMaxColumns();
 
+  private StaxUtil() {
+    throw new IllegalStateException("Utility class");
+  }
+  
   public static int extractRowNumber( String position ) {
     int startIndex = 0;
     while ( !Character.isDigit( position.charAt( startIndex ) ) && startIndex < position.length() ) {
@@ -62,6 +68,14 @@ public class StaxUtil {
     }
 
     return col;
+  }
+  
+  public static final XMLInputFactory safeXMLInputFactory() {
+    XMLInputFactory factory = XMLInputFactory.newInstance();
+    // To prevent from XXE attacks
+    factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+    return factory;
   }
 
 }
