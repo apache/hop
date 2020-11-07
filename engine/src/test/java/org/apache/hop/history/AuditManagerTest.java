@@ -21,25 +21,25 @@
  ******************************************************************************/
 package org.apache.hop.history;
 
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.history.local.LocalAuditManager;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.history.local.LocalAuditManager;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.mockito.Mockito;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-@Ignore
 public class AuditManagerTest {
+  
+    @Rule
+    public TemporaryFolder testFolder = new TemporaryFolder();
 
     @Test
     public void testSingleton() {
@@ -50,7 +50,7 @@ public class AuditManagerTest {
 
     @Test
     public void testHasAnActiveAuditManager() {
-        assertNotNull(AuditManager.getActive());
+      assertNotNull(AuditManager.getActive());
     }
 
     @Test
@@ -95,7 +95,7 @@ public class AuditManagerTest {
 
     @Test
     public void testFindAllEventsWithDefaultAuditManager() throws HopException {
-        AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager());
+        AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager(testFolder.getRoot().getAbsolutePath()));
         String group = "testFindAllEventsWithDefaultAuditManager";
         AuditManager.clearEvents();
         AuditManager.registerEvent(group, "type1", "name1", "operation1");
@@ -112,7 +112,7 @@ public class AuditManagerTest {
 
     @Test
     public void testFindUniqueEventsWithDefaultAuditManager() throws HopException {
-        AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager());
+        AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager(testFolder.getRoot().getAbsolutePath()));
         String group = "testFindUniqueEventsWithDefaultAuditManager";
         AuditManager.clearEvents();
         AuditManager.registerEvent(group, "type1", "name1", "operation1");
@@ -143,7 +143,7 @@ public class AuditManagerTest {
 
     @Test
     public void testClearEvents() throws HopException {
-        AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager());
+        AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager(testFolder.getRoot().getAbsolutePath()));
         String group = "testClearEvents";
         AuditManager.registerEvent(group, "type1", "name1", "operation1");
         AuditManager.registerEvent(group, "type1", "name1", "operation1");
