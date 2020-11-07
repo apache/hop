@@ -40,6 +40,10 @@ public class XmlParserFactoryProducer {
 
   private static final Log logger = LogFactory.getLog( XmlParserFactoryProducer.class );
 
+  private XmlParserFactoryProducer() {
+	  // Static class
+  }
+    
   /**
    * Creates an instance of {@link DocumentBuilderFactory} class with enabled {@link XMLConstants#FEATURE_SECURE_PROCESSING} property.
    * Enabling this feature prevents from some XXE attacks (e.g. XML bomb)
