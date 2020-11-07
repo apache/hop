@@ -170,6 +170,7 @@
         <karaf-maven-plugin.version>3.0.8</karaf-maven-plugin.version>
         <maven-checkstyle-plugin.version>3.1.1</maven-checkstyle-plugin.version>
         <spotless-maven-plugin.version>2.4.2</spotless-maven-plugin.version>
+        <wagon-plugin.version>2.0.0</wagon-plugin.version>
 
         <codehaus-jackson.version>1.9.13</codehaus-jackson.version>
         <fasterxml-jackson.version>2.10.2</fasterxml-jackson.version>
@@ -482,6 +483,11 @@
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>3.0.0-M4</version>
                 <type>maven-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>wagon-maven-plugin</artifactId>
+                <version>${wagon-plugin.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1043,6 +1049,28 @@
 				</plugins>
 			</build>
 		</profile>
+        <profile>
+            <!--
+           This profile is used to deploy all the artifacts in the
+           'local-snapshots-dir' to Apache's SNAPSHOT repo.
+            -->
+            <id>deploy-snapshots</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>wagon-maven-plugin</artifactId>
+                        <version>${wagon-plugin.version}</version>
+                        <configuration>
+                            <fromDir>${project.basedir}/local-snapshots-dir</fromDir>
+                            <includes>**</includes>
+                            <serverId>apache.snapshots.https</serverId>
+                            <url>${distMgmtSnapshotsUrl}</url>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <reporting>
@@ -1103,73 +1131,6 @@
             <id>central</id>
             <url>https://repo1.maven.org/maven2/</url>
             <name>Maven Central</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <!-- External Dependencies -->
-        <repository>
-            <id>confluent</id>
-            <url>https://packages.confluent.io/maven/</url>
-            <name>Confluent</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>exasol</id>
-            <url>https://maven.exasol.com/artifactory/exasol-releases/</url>
-            <name>Exasol</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>greenplum</id>
-            <url>http://nexus.saas.hand-china.com/content/repositories/rdc/</url>
-            <name>Greenplum</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>mulesoft</id>
-            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
-            <name>Mulesoft</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>geomajas</id>
-            <url>http://maven.geomajas.org/</url>
-            <name>Geomajas</name>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>clojars</id>
-            <url>https://clojars.org/repo/</url>
-            <name>Clojars</name>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
