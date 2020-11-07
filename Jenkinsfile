@@ -78,7 +78,7 @@ pipeline {
                 dir("local-snapshots-dir/") {
                     deleteDir()
                 }
-                
+
                 sh "mvn $MAVEN_PARAMS -DaltDeploymentRepository=snapshot-repo::default::file:./local-snapshots-dir clean deploy"
             }
             post {
@@ -94,7 +94,7 @@ pipeline {
             }
             steps{
                 echo 'Deploying'
-                sh 'mvn -f jenkins.pom -X -P deploy-snapshots wagon:upload'
+                sh 'mvn -X -P deploy-snapshots wagon:upload'
             }
         }
 
