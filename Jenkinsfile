@@ -77,7 +77,7 @@ pipeline {
                     sh "find ./ -name '*.adoc' -exec cp -prv --parents '{}' './tmp/' ';'"
             }
         }
-        stage('Checkout Docs') {
+        stage('Process Docs') {
             when {
                 branch 'master'
             }
@@ -85,16 +85,8 @@ pipeline {
                 dir('hop-doc') {
                     deleteDir()
                     sh 'git clone -b master https://gitbox.apache.org/repos/asf/incubator-hop-docs.git .'
-                }
-            }
-        }
-        stage('Copy docs') {
-            when {
-                branch 'master'
-            }
-            steps {
                     sh '''
-                        cd tmp;
+                        cd ../tmp;
                         for f in $(find ./ -name '*.adoc')
                         do
                         echo "Processing $f"
@@ -104,18 +96,12 @@ pipeline {
                             mkdir -p ../hop-doc/hop-user-manual/modules/ROOT/pages$FILEPATH && cp $f ../hop-doc/hop-user-manual/modules/ROOT/pages$FILEPATH;
                         fi
                         done
+                        cd ../hop-doc
                     '''
-            }
-        }
-        stage('Push Documentation') {
-            when {
-                branch 'master'
-            }
-            steps {
-                dir('hop-doc') {
                     sh 'git add .'
                     sh 'git commit -m "Documentation updated to $GIT_COMMIT"'
                     sh 'git push --force origin master'
+
                 }
             }
         }
