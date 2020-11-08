@@ -80,7 +80,7 @@ public class HopGuiWorkflowSearchable implements ISearchable<WorkflowMeta> {
         perspective.switchToTab( tabItemHandlerWithFilename );
         workflowGraph = (HopGuiWorkflowGraph) tabItemHandlerWithFilename.getTypeHandler();
       } else {
-        workflowGraph = (HopGuiWorkflowGraph) perspective.addWorkflow( perspective.getComposite(), HopGui.getInstance(), workflowMeta, perspective.getWorkflowFileType() );
+        workflowGraph = (HopGuiWorkflowGraph) perspective.addWorkflow( HopGui.getInstance(), workflowMeta, perspective.getWorkflowFileType() );
       }
 
       // Select and open the found action?

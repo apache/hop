@@ -28,8 +28,8 @@ import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.empty.EmptyHopFileTypeHandler;
-import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,7 +85,7 @@ public class EmptyHopPerspective implements IHopPerspective {
   @Override public void initialize( HopGui hopGui, Composite parent ) {
   }
 
-  @Override public Composite getComposite() {
+  @Override public Control getControl() {
     return null;
   }
 

@@ -64,6 +64,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -342,7 +343,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    * @param pipelineMeta
    * @return
    */
-  public IHopFileTypeHandler addPipeline( Composite parent, HopGui hopGui, PipelineMeta pipelineMeta, HopPipelineFileType pipelineFile ) throws HopException {
+  public IHopFileTypeHandler addPipeline( HopGui hopGui, PipelineMeta pipelineMeta, HopPipelineFileType pipelineFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
     tabItem.setImage( GuiResource.getInstance().getImageToolbarPipeline() );
     HopGuiPipelineGraph pipelineGraph = new HopGuiPipelineGraph( tabFolder, hopGui, tabItem, this, pipelineMeta, pipelineFile );
@@ -390,7 +391,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
    * @param workflowMeta
    * @return The file type handler
    */
-  public IHopFileTypeHandler addWorkflow( Composite parent, HopGui hopGui, WorkflowMeta workflowMeta, HopWorkflowFileType workflowFile ) throws HopException {
+  public IHopFileTypeHandler addWorkflow( HopGui hopGui, WorkflowMeta workflowMeta, HopWorkflowFileType workflowFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
     tabItem.setImage( GuiResource.getInstance().getImageToolbarWorkflow() );
     HopGuiWorkflowGraph jobGraph = new HopGuiWorkflowGraph( tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile );
@@ -657,36 +658,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     this.hopGui = hopGui;
   }
 
-  /**
-   * Gets parent
-   *
-   * @return value of parent
-   */
-  public Composite getParent() {
-    return parent;
-  }
-
-  /**
-   * @param parent The parent to set
-   */
-  public void setParent( Composite parent ) {
-    this.parent = parent;
-  }
-
-  /**
-   * Gets composite
-   *
-   * @return value of composite
-   */
-  @Override public Composite getComposite() {
+  @Override public Control getControl() {
     return composite;
-  }
-
-  /**
-   * @param composite The composite to set
-   */
-  public void setComposite( Composite composite ) {
-    this.composite = composite;
   }
 
   /**
