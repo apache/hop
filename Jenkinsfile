@@ -84,7 +84,7 @@ pipeline {
             steps {
                 dir('hop-doc') {
                     deleteDir()
-                    sh 'git clone -b master https://gitbox.apache.org/repos/asf/incubator-hop-docs.git .'
+                    sh 'git clone -b master https://github.com/apache/incubator-hop-docs.git .'
                     sh '''
                         cd ../tmp;
                         for f in $(find ./ -name '*.adoc')
