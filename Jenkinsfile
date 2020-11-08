@@ -68,35 +68,86 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Test & Build') {
+        stage('Copy project docs') {
             when {
                 branch 'master'
             }
             steps {
-                echo 'Test & Build'
-
-                dir("local-snapshots-dir/") {
-                    deleteDir()
-                }
-
-                sh "mvn $MAVEN_PARAMS -DaltDeploymentRepository=snapshot-repo::default::file:./local-snapshots-dir clean deploy"
-            }
-            post {
-                always {
-                    junit(testResults: '**/surefire-reports/*.xml', allowEmptyResults: true)
-                    junit(testResults: '**/failsafe-reports/*.xml', allowEmptyResults: true)
-                }
+                    sh 'mkdir ./tmp'
+                    sh "find ./ -name '*.adoc' -exec cp -prv --parents '{}' './tmp/' ';'"
             }
         }
-        stage('Deploy'){
+        stage('Checkout Docs') {
             when {
                 branch 'master'
             }
-            steps{
-                echo 'Deploying'
-                sh 'mvn -X -P deploy-snapshots wagon:upload'
+            steps {
+                dir('hop-doc') {
+                    deleteDir()
+                    sh 'git clone -b master https://gitbox.apache.org/repos/asf/incubator-hop-docs.git .'
+                }
             }
         }
+        stage('Copy docs') {
+            when {
+                branch 'master'
+            }
+            steps {
+                    sh '''
+                        cd tmp;
+                        for f in $(find ./ -name '*.adoc')
+                        do
+                        echo "Processing $f"
+                        FILEPATH=$(grep -nr "documentationPath" $f | awk -F  ":" '{print $4}' | sed -e 's/^[[:space:]]*//');
+                        if ! [ -z "$FILEPATH" ]
+                        then
+                            mkdir -p ../hop-doc/hop-user-manual/modules/ROOT/pages$FILEPATH && cp $f ../hop-doc/hop-user-manual/modules/ROOT/pages$FILEPATH;
+                        fi
+                        done
+                    '''
+            }
+        }
+        stage('Push Documentation') {
+            when {
+                branch 'master'
+            }
+            steps {
+                dir('hop-doc') {
+                    sh 'git add .'
+                    sh 'git commit -m "Documentation updated to $GIT_COMMIT"'
+                    sh 'git push --force origin master'
+                }
+            }
+        }
+        // stage('Test & Build') {
+        //     when {
+        //         branch 'master'
+        //     }
+        //     steps {
+        //         echo 'Test & Build'
+
+        //         dir("local-snapshots-dir/") {
+        //             deleteDir()
+        //         }
+
+        //         sh "mvn $MAVEN_PARAMS -DaltDeploymentRepository=snapshot-repo::default::file:./local-snapshots-dir clean deploy"
+        //     }
+        //     post {
+        //         always {
+        //             junit(testResults: '**/surefire-reports/*.xml', allowEmptyResults: true)
+        //             junit(testResults: '**/failsafe-reports/*.xml', allowEmptyResults: true)
+        //         }
+        //     }
+        // }
+        // stage('Deploy'){
+        //     when {
+        //         branch 'master'
+        //     }
+        //     steps{
+        //         echo 'Deploying'
+        //         sh 'mvn -X -P deploy-snapshots wagon:upload'
+        //     }
+        // }
 
     }
     post {
