@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class SocketReaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = SocketReaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SocketReaderMeta.class; // Needed by Translator
 
   private SocketReaderMeta input;
   private TextVar wHostname;

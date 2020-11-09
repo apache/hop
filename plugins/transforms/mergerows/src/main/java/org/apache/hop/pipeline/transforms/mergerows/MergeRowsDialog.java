@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.*;
 import java.util.List;
 
 public class MergeRowsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MergeRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MergeRowsMeta.class; // Needed by Translator
   public static final String STRING_SORT_WARNING_PARAMETER = "MergeRowsSortWarning";
 
   private CCombo wReference;

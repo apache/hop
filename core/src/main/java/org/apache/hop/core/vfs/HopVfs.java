@@ -56,7 +56,7 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class HopVfs {
-  private static final Class<?> PKG = HopVfs.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopVfs.class; // Needed by Translator
 
   public static final String TEMP_DIR = System.getProperty( "java.io.tmpdir" );
 

@@ -22,11 +22,6 @@
  ******************************************************************************/
 package org.apache.hop.pipeline.transforms.randomvalue;
 
-import java.security.NoSuchAlgorithmException;
-import java.util.List;
-import javax.crypto.KeyGenerator;
-import javax.crypto.Mac;
-import javax.crypto.SecretKey;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
@@ -39,6 +34,12 @@ import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import java.security.NoSuchAlgorithmException;
+import java.util.List;
+
 /**
  * Get random value.
  *
@@ -48,8 +49,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
     implements ITransform<RandomValueMeta, RandomValueData> {
 
-  private static final Class<?> PKG =
-      RandomValueMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RandomValueMeta.class; // Needed by Translator
 
   public RandomValue(
       TransformMeta transformMeta,

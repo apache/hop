@@ -59,7 +59,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/fuzzymatch.html"
 )
 public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<FuzzyMatch, FuzzyMatchData> {
-  private static final Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FuzzyMatchMeta.class; // Needed by Translator
 
   public static final String DEFAULT_SEPARATOR = ",";
   /**
@@ -608,22 +608,22 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
       }
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Check the values to retrieve from the lookup stream!
       for ( int i = 0; i < value.length; i++ ) {
         idx = info.indexOfValue( value[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + value[ i ] + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + value[ i ] + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
+      if ( errorFound ) {
+        errorMessage =
           BaseMessages.getString( PKG, "FuzzyMatchMeta.CheckResult.FieldsNotFoundInLookupStream2" )
-            + Const.CR + Const.CR + error_message;
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            + Const.CR + Const.CR + errorMessage;
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       } else {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(

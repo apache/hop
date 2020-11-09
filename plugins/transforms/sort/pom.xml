@@ -13,6 +13,6 @@
     <artifactId>hop-transform-sort</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugin Transforms Sort Rows</name>
+    <name>Hop Plugins Transforms Sort Rows</name>
 
 </project>

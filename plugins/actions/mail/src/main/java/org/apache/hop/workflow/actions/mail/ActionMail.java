@@ -90,7 +90,7 @@ import java.util.zip.ZipOutputStream;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/mail.html"
 )
 public class ActionMail extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionMail.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionMail.class; // Needed by Translator
 
   private String server;
 
@@ -691,15 +691,15 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
       // set message priority
       if ( usePriority ) {
-        String priority_int = "1";
+        String priorityInt = "1";
         if ( priority.equals( "low" ) ) {
-          priority_int = "3";
+          priorityInt = "3";
         }
         if ( priority.equals( "normal" ) ) {
-          priority_int = "2";
+          priorityInt = "2";
         }
 
-        msg.setHeader( "X-Priority", priority_int ); // (String)int between 1= high and 3 = low.
+        msg.setHeader( "X-Priority", priorityInt ); // (String)int between 1= high and 3 = low.
         msg.setHeader( "Importance", importance );
         // seems to be needed for MS Outlook.
         // where it returns a string of high /normal /low.
@@ -709,22 +709,22 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       }
 
       // Set Mail sender (From)
-      String sender_address = environmentSubstitute( replyAddress );
-      if ( !Utils.isEmpty( sender_address ) ) {
-        String sender_name = environmentSubstitute( replyName );
-        if ( !Utils.isEmpty( sender_name ) ) {
-          sender_address = sender_name + '<' + sender_address + '>';
+      String senderAddress = environmentSubstitute( replyAddress );
+      if ( !Utils.isEmpty( senderAddress ) ) {
+        String senderName = environmentSubstitute( replyName );
+        if ( !Utils.isEmpty( senderName ) ) {
+          senderAddress = senderName + '<' + senderAddress + '>';
         }
-        msg.setFrom( new InternetAddress( sender_address ) );
+        msg.setFrom( new InternetAddress( senderAddress ) );
       } else {
         throw new MessagingException( BaseMessages.getString( PKG, "JobMail.Error.ReplyEmailNotFilled" ) );
       }
 
       // set Reply to addresses
-      String reply_to_address = environmentSubstitute( replyToAddresses );
-      if ( !Utils.isEmpty( reply_to_address ) ) {
+      String replyToAddress = environmentSubstitute( replyToAddresses );
+      if ( !Utils.isEmpty( replyToAddress ) ) {
         // Split the mail-address: space separated
-        String[] reply_Address_List = environmentSubstitute( reply_to_address ).split( " " );
+        String[] reply_Address_List = environmentSubstitute( replyToAddress ).split( " " );
         InternetAddress[] address = new InternetAddress[ reply_Address_List.length ];
         for ( int i = 0; i < reply_Address_List.length; i++ ) {
           address[ i ] = new InternetAddress( reply_Address_List[ i ] );

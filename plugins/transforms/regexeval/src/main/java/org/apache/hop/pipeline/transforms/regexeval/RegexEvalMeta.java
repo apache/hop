@@ -57,7 +57,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/regexeval.html"
 )
 public class RegexEvalMeta extends BaseTransformMeta implements ITransformMeta<RegexEval,RegexEvalData> {
-  private static final Class<?> PKG = RegexEvalMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RegexEvalMeta.class; // Needed by Translator
 
   private String script;
   private String matcher;

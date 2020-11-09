@@ -60,7 +60,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/tableoutput.html"
 )
 public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta<TableOutput, TableOutputData>, IProvidesModelerMeta {
-  private static final Class<?> PKG = TableOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = TableOutputMeta.class; // Needed by Translator
 
   private DatabaseMeta databaseMeta;
   private String schemaName;
@@ -317,12 +317,12 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   /**
-   * @param tablename The tablename to set.
+   * @param tableName The tablename to set.
    * @deprecated Use {@link #setTableName(String)}
    */
   @Deprecated
-  public void setTablename( String tablename ) {
-    setTableName( tablename );
+  public void setTablename( String tableName ) {
+    setTableName( tableName );
   }
 
   /**
@@ -525,8 +525,8 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
                   PKG, "TableOutputMeta.CheckResult.TableOk", schemaTable ), transformMeta );
               remarks.add( cr );
 
-              String error_message = "";
-              boolean error_found = false;
+              String errorMessage = "";
+              boolean errorFound = false;
               // OK, we have the table fields.
               // Now see what we can find as previous transform...
               if ( prev != null && prev.size() > 0 ) {
@@ -541,16 +541,16 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
                     IValueMeta pv = prev.getValueMeta( i );
                     int idx = r.indexOfValue( pv.getName() );
                     if ( idx < 0 ) {
-                      error_message += "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
-                      error_found = true;
+                      errorMessage += "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
+                      errorFound = true;
                     }
                   }
-                  if ( error_found ) {
-                    error_message =
+                  if ( errorFound ) {
+                    errorMessage =
                       BaseMessages.getString(
-                        PKG, "TableOutputMeta.CheckResult.FieldsNotFoundInOutput", error_message );
+                        PKG, "TableOutputMeta.CheckResult.FieldsNotFoundInOutput", errorMessage );
 
-                    cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+                    cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
                     remarks.add( cr );
                   } else {
                     cr =
@@ -563,16 +563,16 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
                   for ( int i = 0; i < getFieldDatabase().length; i++ ) {
                     int idx = r.indexOfValue( getFieldDatabase()[ i ] );
                     if ( idx < 0 ) {
-                      error_message += "\t\t" + getFieldDatabase()[ i ] + Const.CR;
-                      error_found = true;
+                      errorMessage += "\t\t" + getFieldDatabase()[ i ] + Const.CR;
+                      errorFound = true;
                     }
                   }
-                  if ( error_found ) {
-                    error_message =
+                  if ( errorFound ) {
+                    errorMessage =
                       BaseMessages.getString(
-                        PKG, "TableOutputMeta.CheckResult.FieldsSpecifiedNotInTable", error_message );
+                        PKG, "TableOutputMeta.CheckResult.FieldsSpecifiedNotInTable", errorMessage );
 
-                    cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+                    cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
                     remarks.add( cr );
                   } else {
                     cr =
@@ -582,22 +582,22 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
                   }
                 }
 
-                error_message = "";
+                errorMessage = "";
                 if ( !specifyFields() ) {
                   // Starting from table fields in r...
                   for ( int i = 0; i < getFieldDatabase().length; i++ ) {
                     IValueMeta rv = r.getValueMeta( i );
                     int idx = prev.indexOfValue( rv.getName() );
                     if ( idx < 0 ) {
-                      error_message += "\t\t" + rv.getName() + " (" + rv.getTypeDesc() + ")" + Const.CR;
-                      error_found = true;
+                      errorMessage += "\t\t" + rv.getName() + " (" + rv.getTypeDesc() + ")" + Const.CR;
+                      errorFound = true;
                     }
                   }
-                  if ( error_found ) {
-                    error_message =
-                      BaseMessages.getString( PKG, "TableOutputMeta.CheckResult.FieldsNotFound", error_message );
+                  if ( errorFound ) {
+                    errorMessage =
+                      BaseMessages.getString( PKG, "TableOutputMeta.CheckResult.FieldsNotFound", errorMessage );
 
-                    cr = new CheckResult( ICheckResult.TYPE_RESULT_WARNING, error_message, transformMeta );
+                    cr = new CheckResult( ICheckResult.TYPE_RESULT_WARNING, errorMessage, transformMeta );
                     remarks.add( cr );
                   } else {
                     cr =
@@ -610,16 +610,16 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
                   for ( int i = 0; i < getFieldStream().length; i++ ) {
                     int idx = prev.indexOfValue( getFieldStream()[ i ] );
                     if ( idx < 0 ) {
-                      error_message += "\t\t" + getFieldStream()[ i ] + Const.CR;
-                      error_found = true;
+                      errorMessage += "\t\t" + getFieldStream()[ i ] + Const.CR;
+                      errorFound = true;
                     }
                   }
-                  if ( error_found ) {
-                    error_message =
+                  if ( errorFound ) {
+                    errorMessage =
                       BaseMessages.getString(
-                        PKG, "TableOutputMeta.CheckResult.FieldsSpecifiedNotFound", error_message );
+                        PKG, "TableOutputMeta.CheckResult.FieldsSpecifiedNotFound", errorMessage );
 
-                    cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+                    cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
                     remarks.add( cr );
                   } else {
                     cr =
@@ -721,7 +721,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev, String tk,
-                                        boolean use_autoinc, String pk ) {
+                                        boolean useAutoInc, String pk ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
@@ -733,14 +733,14 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
             db.connect();
 
             String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
-            String cr_table = db.getDDL( schemaTable, prev, tk, use_autoinc, pk );
+            String crTable = db.getDDL( schemaTable, prev, tk, useAutoInc, pk );
 
             // Empty string means: nothing to do: set it to null...
-            if ( cr_table == null || cr_table.length() == 0 ) {
-              cr_table = null;
+            if ( crTable == null || crTable.length() == 0 ) {
+              crTable = null;
             }
 
-            retval.setSql( cr_table );
+            retval.setSql( crTable );
           } catch ( HopDatabaseException dbe ) {
             retval.setError( BaseMessages.getString( PKG, "TableOutputMeta.Error.ErrorConnecting", dbe
               .getMessage() ) );

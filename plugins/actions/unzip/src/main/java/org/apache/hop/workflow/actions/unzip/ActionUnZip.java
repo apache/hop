@@ -79,23 +79,23 @@ import org.w3c.dom.Node;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/unzip.html"
 )
 public class ActionUnZip extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionUnZip.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionUnZip.class; // Needed by Translator
 
   private String zipFilename;
   public int afterunzip;
   private String wildcard;
-  private String wildcardexclude;
+  private String wildcardExclude;
   private String sourcedirectory; // targetdirectory on screen, renamed because of PDI-7761
   private String movetodirectory;
   private boolean addfiletoresult;
   private boolean isfromprevious;
   private boolean adddate;
   private boolean addtime;
-  private boolean SpecifyFormat;
-  private String date_time_format;
+  private boolean specifyFormat;
+  private String dateTimeFormat;
   private boolean rootzip;
   private boolean createfolder;
-  private String nr_limit;
+  private String nrLimit;
   private String wildcardSource;
   private int iffileexist;
   private boolean createMoveToDirectory;
@@ -106,7 +106,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   public String SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED = "success_when_at_least";
   public String SUCCESS_IF_ERRORS_LESS = "success_if_errors_less";
   public String SUCCESS_IF_NO_ERRORS = "success_if_no_errors";
-  private String success_condition;
+  private String successCondition;
 
   public static final int IF_FILE_EXISTS_SKIP = 0;
   public static final int IF_FILE_EXISTS_OVERWRITE = 1;
@@ -136,8 +136,8 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     BaseMessages.getString( PKG, "JobUnZip.OverwriteIfZipSmaller.Label" ),
     BaseMessages.getString( PKG, "JobUnZip.OverwriteIfZipSmallerOrEqual.Label" ), };
 
-  private int NrErrors = 0;
-  private int NrSuccess = 0;
+  private int nrErrors = 0;
+  private int nrSuccess = 0;
   boolean successConditionBroken = false;
   boolean successConditionBrokenExit = false;
   int limitFiles = 0;
@@ -150,20 +150,20 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     zipFilename = null;
     afterunzip = 0;
     wildcard = null;
-    wildcardexclude = null;
+    wildcardExclude = null;
     sourcedirectory = null;
     movetodirectory = null;
     addfiletoresult = false;
     isfromprevious = false;
     adddate = false;
     addtime = false;
-    SpecifyFormat = false;
+    specifyFormat = false;
     rootzip = false;
     createfolder = false;
-    nr_limit = "10";
+    nrLimit = "10";
     wildcardSource = null;
     iffileexist = IF_FILE_EXISTS_SKIP;
-    success_condition = SUCCESS_IF_NO_ERRORS;
+    successCondition = SUCCESS_IF_NO_ERRORS;
     createMoveToDirectory = false;
 
     addOriginalTimestamp = false;
@@ -185,7 +185,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     retval.append( super.getXml() );
     retval.append( "      " ).append( XmlHandler.addTagValue( "zipfilename", zipFilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcardexclude", wildcardexclude ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcardexclude", wildcardExclude ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "targetdirectory", sourcedirectory ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "movetodirectory", movetodirectory ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "afterunzip", afterunzip ) );
@@ -194,13 +194,13 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     retval.append( "      " ).append( XmlHandler.addTagValue( "adddate", adddate ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "addtime", addtime ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "addOriginalTimestamp", addOriginalTimestamp ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", specifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", dateTimeFormat ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "rootzip", rootzip ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "createfolder", createfolder ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit", nr_limit ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit", nrLimit ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "wildcardSource", wildcardSource ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", success_condition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
     retval
       .append( "      " ).append( XmlHandler.addTagValue( "iffileexists", getIfFileExistsCode( iffileexist ) ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "create_move_to_directory", createMoveToDirectory ) );
@@ -217,7 +217,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       afterunzip = Const.toInt( XmlHandler.getTagValue( entrynode, "afterunzip" ), -1 );
 
       wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
-      wildcardexclude = XmlHandler.getTagValue( entrynode, "wildcardexclude" );
+      wildcardExclude = XmlHandler.getTagValue( entrynode, "wildcardexclude" );
       sourcedirectory = XmlHandler.getTagValue( entrynode, "targetdirectory" );
       movetodirectory = XmlHandler.getTagValue( entrynode, "movetodirectory" );
       addfiletoresult = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addfiletoresult" ) );
@@ -225,15 +225,15 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       adddate = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "adddate" ) );
       addtime = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addtime" ) );
       addOriginalTimestamp = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "addOriginalTimestamp" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
-      date_time_format = XmlHandler.getTagValue( entrynode, "date_time_format" );
+      specifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "SpecifyFormat" ) );
+      dateTimeFormat = XmlHandler.getTagValue( entrynode, "date_time_format" );
       rootzip = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "rootzip" ) );
       createfolder = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "createfolder" ) );
-      nr_limit = XmlHandler.getTagValue( entrynode, "nr_limit" );
+      nrLimit = XmlHandler.getTagValue( entrynode, "nr_limit" );
       wildcardSource = XmlHandler.getTagValue( entrynode, "wildcardSource" );
-      success_condition = XmlHandler.getTagValue( entrynode, "success_condition" );
-      if ( Utils.isEmpty( success_condition ) ) {
-        success_condition = SUCCESS_IF_NO_ERRORS;
+      successCondition = XmlHandler.getTagValue( entrynode, "success_condition" );
+      if ( Utils.isEmpty( successCondition ) ) {
+        successCondition = SUCCESS_IF_NO_ERRORS;
       }
       iffileexist = getIfFileExistsInt( XmlHandler.getTagValue( entrynode, "iffileexists" ) );
       createMoveToDirectory =
@@ -256,13 +256,13 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     String realFilenameSource = environmentSubstitute( zipFilename );
     String realWildcardSource = environmentSubstitute( wildcardSource );
     String realWildcard = environmentSubstitute( wildcard );
-    String realWildcardExclude = environmentSubstitute( wildcardexclude );
+    String realWildcardExclude = environmentSubstitute( wildcardExclude );
     String realTargetdirectory = environmentSubstitute( sourcedirectory );
     String realMovetodirectory = environmentSubstitute( movetodirectory );
 
     limitFiles = Const.toInt( environmentSubstitute( getLimit() ), 10 );
-    NrErrors = 0;
-    NrSuccess = 0;
+    nrErrors = 0;
+    nrSuccess = 0;
     successConditionBroken = false;
     successConditionBrokenExit = false;
 
@@ -356,10 +356,10 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           for ( int iteration = 0; iteration < rows.size() && !parentWorkflow.isStopped(); iteration++ ) {
             if ( successConditionBroken ) {
               if ( !successConditionBrokenExit ) {
-                logError( BaseMessages.getString( PKG, "JobUnZip.Error.SuccessConditionbroken", "" + NrErrors ) );
+                logError( BaseMessages.getString( PKG, "JobUnZip.Error.SuccessConditionbroken", "" + nrErrors ) );
                 successConditionBrokenExit = true;
               }
-              result.setNrErrors( NrErrors );
+              result.setNrErrors( nrErrors );
               return result;
             }
 
@@ -423,8 +423,8 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    result.setNrErrors( NrErrors );
-    result.setNrLinesWritten( NrSuccess );
+    result.setNrErrors( nrErrors );
+    result.setNrLinesWritten( nrSuccess );
     if ( getSuccessStatus() ) {
       result.setResult( true );
     }
@@ -436,8 +436,8 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private void displayResults() {
     if ( log.isDetailed() ) {
       logDetailed( "=======================================" );
-      logDetailed( BaseMessages.getString( PKG, "JobUnZip.Log.Info.FilesInError", "" + NrErrors ) );
-      logDetailed( BaseMessages.getString( PKG, "JobUnZip.Log.Info.FilesInSuccess", "" + NrSuccess ) );
+      logDetailed( BaseMessages.getString( PKG, "JobUnZip.Log.Info.FilesInError", "" + nrErrors ) );
+      logDetailed( BaseMessages.getString( PKG, "JobUnZip.Log.Info.FilesInSuccess", "" + nrSuccess ) );
       logDetailed( "=======================================" );
     }
   }
@@ -464,7 +464,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
         for ( int i = 0; i < children.length && !parentWorkflow.isStopped(); i++ ) {
           if ( successConditionBroken ) {
             if ( !successConditionBrokenExit ) {
-              logError( BaseMessages.getString( PKG, "JobUnZip.Error.SuccessConditionbroken", "" + NrErrors ) );
+              logError( BaseMessages.getString( PKG, "JobUnZip.Error.SuccessConditionbroken", "" + nrErrors ) );
               successConditionBrokenExit = true;
             }
             return false;
@@ -532,20 +532,20 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
           lastindexOfDot = lenstring;
         }
 
-        String foldername = realTargetdirectory + "/" + shortSourceFilename.substring( 0, lastindexOfDot );
-        FileObject rootfolder = HopVfs.getFileObject( foldername );
+        String folderName = realTargetdirectory + "/" + shortSourceFilename.substring( 0, lastindexOfDot );
+        FileObject rootfolder = HopVfs.getFileObject( folderName );
         if ( !rootfolder.exists() ) {
           try {
             rootfolder.createFolder();
             if ( log.isDetailed() ) {
-              logDetailed( BaseMessages.getString( PKG, "JobUnZip.Log.RootFolderCreated", foldername ) );
+              logDetailed( BaseMessages.getString( PKG, "JobUnZip.Log.RootFolderCreated", folderName ) );
             }
           } catch ( Exception e ) {
             throw new Exception(
-              BaseMessages.getString( PKG, "JobUnZip.Error.CanNotCreateRootFolder", foldername ), e );
+              BaseMessages.getString( PKG, "JobUnZip.Error.CanNotCreateRootFolder", folderName ), e );
           }
         }
-        unzipToFolder = foldername;
+        unzipToFolder = folderName;
       }
 
       // Try to read the entries from the VFS object...
@@ -583,7 +583,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
 
         if ( successConditionBroken ) {
           if ( !successConditionBrokenExit ) {
-            logError( BaseMessages.getString( PKG, "JobUnZip.Error.SuccessConditionbroken", "" + NrErrors ) );
+            logError( BaseMessages.getString( PKG, "JobUnZip.Error.SuccessConditionbroken", "" + nrErrors ) );
             successConditionBrokenExit = true;
           }
           return false;
@@ -796,7 +796,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   }
 
   private void updateErrors() {
-    NrErrors++;
+    nrErrors++;
     if ( checkIfSuccessConditionBroken() ) {
       // Success condition was broken
       successConditionBroken = true;
@@ -804,13 +804,13 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   }
 
   private void updateSuccess() {
-    NrSuccess++;
+    nrSuccess++;
   }
 
   private boolean checkIfSuccessConditionBroken() {
     boolean retval = false;
-    if ( ( NrErrors > 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
-      || ( NrErrors >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+    if ( ( nrErrors > 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
+      || ( nrErrors >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
     return retval;
@@ -819,9 +819,9 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   private boolean getSuccessStatus() {
     boolean retval = false;
 
-    if ( ( NrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
-      || ( NrSuccess >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) )
-      || ( NrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+    if ( ( nrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_NO_ERRORS ) )
+      || ( nrSuccess >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_AT_LEAST_X_FILES_UN_ZIPPED ) )
+      || ( nrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
 
@@ -848,7 +848,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     }
     if ( iffileexist == IF_FILE_EXISTS_FAIL ) {
       updateErrors();
-      logError( BaseMessages.getString( PKG, "JobUnZip.Log.FileError", destinationFile, "" + NrErrors ) );
+      logError( BaseMessages.getString( PKG, "JobUnZip.Log.FileError", destinationFile, "" + nrErrors ) );
       return false;
     }
 
@@ -1014,8 +1014,8 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     this.wildcard = wildcard;
   }
 
-  public void setWildcardExclude( String wildcardexclude ) {
-    this.wildcardexclude = wildcardexclude;
+  public void setWildcardExclude( String wildcardExclude ) {
+    this.wildcardExclude = wildcardExclude;
   }
 
   public void setSourceDirectory( String targetdirectoryin ) {
@@ -1051,7 +1051,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   }
 
   public String getWildcardExclude() {
-    return wildcardexclude;
+    return wildcardExclude;
   }
 
   public void setAddFileToResult( boolean addfiletoresultin ) {
@@ -1095,19 +1095,19 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   }
 
   public boolean isSpecifyFormat() {
-    return SpecifyFormat;
+    return specifyFormat;
   }
 
-  public void setSpecifyFormat( boolean SpecifyFormat ) {
-    this.SpecifyFormat = SpecifyFormat;
+  public void setSpecifyFormat( boolean specifyFormat ) {
+    this.specifyFormat = specifyFormat;
   }
 
   public String getDateTimeFormat() {
-    return date_time_format;
+    return dateTimeFormat;
   }
 
-  public void setDateTimeFormat( String date_time_format ) {
-    this.date_time_format = date_time_format;
+  public void setDateTimeFormat( String dateTimeFormat ) {
+    this.dateTimeFormat = dateTimeFormat;
   }
 
   public void setDatafromprevious( boolean isfromprevious ) {
@@ -1134,20 +1134,20 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     return createfolder;
   }
 
-  public void setLimit( String nr_limitin ) {
-    this.nr_limit = nr_limitin;
+  public void setLimit( String nrLimitin ) {
+    this.nrLimit = nrLimitin;
   }
 
   public String getLimit() {
-    return nr_limit;
+    return nrLimit;
   }
 
-  public void setSuccessCondition( String success_condition ) {
-    this.success_condition = success_condition;
+  public void setSuccessCondition( String successCondition ) {
+    this.successCondition = successCondition;
   }
 
   public String getSuccessCondition() {
-    return success_condition;
+    return successCondition;
   }
 
   protected String getTargetFilename( FileObject file ) throws FileSystemException {
@@ -1162,7 +1162,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       return retval;
     }
 
-    if ( !SpecifyFormat && !adddate && !addtime ) {
+    if ( !specifyFormat && !adddate && !addtime ) {
       return retval;
     }
 
@@ -1183,9 +1183,9 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
       timestamp = new Date( file.getContent().getLastModifiedTime() );
     }
 
-    if ( SpecifyFormat && !Utils.isEmpty( date_time_format ) ) {
+    if ( specifyFormat && !Utils.isEmpty( dateTimeFormat ) ) {
       if ( !dateFormatSet ) {
-        daf.applyPattern( date_time_format );
+        daf.applyPattern( dateTimeFormat );
       }
       String dt = daf.format( timestamp );
       retval += dt;

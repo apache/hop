@@ -46,7 +46,7 @@ import org.apache.hop.pipeline.transform.ITransform;
  * @since 8-sep-2004
  */
 public class XBaseInput extends BaseTransform implements ITransform {
-  private static final Class<?> PKG = XBaseInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = XBaseInputMeta.class; // Needed by Translator
 
   private XBaseInputMeta meta;
   private XBaseInputData data;

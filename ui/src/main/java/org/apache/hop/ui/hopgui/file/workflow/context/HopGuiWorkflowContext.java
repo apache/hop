@@ -97,6 +97,8 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
             }
           );
         createActionGuiAction.getKeywords().addAll( Arrays.asList(actionPlugin.getKeywords()));
+        createActionGuiAction.setCategory( actionPlugin.getCategory() );
+        createActionGuiAction.setCategoryOrder( "9999_"+actionPlugin.getCategory() ); // sort alphabetically
       try {
         createActionGuiAction.setClassLoader( registry.getClassLoader( actionPlugin ) );
       } catch ( HopPluginException e ) {
@@ -111,19 +113,25 @@ public class HopGuiWorkflowContext extends BaseGuiContextHandler implements IGui
   }
 
   private GuiAction createStartGuiAction() {
-    return new GuiAction( "workflow-graph-create-workflow-action-start", GuiActionType.Create, WorkflowMeta.STRING_SPECIAL_START, null, "ui/images/STR.svg",
-      (shiftClicked, controlClicked, t) -> {
-          workflowGraph.workflowActionDelegate.newAction( workflowMeta, WorkflowMeta.STRING_SPECIAL, WorkflowMeta.STRING_SPECIAL_START, controlClicked, click );
-        }
-      );
+    GuiAction guiAction = new GuiAction( "workflow-graph-create-workflow-action-start", GuiActionType.Create, WorkflowMeta.STRING_SPECIAL_START, null, "ui/images/STR.svg",
+      ( shiftClicked, controlClicked, t ) -> {
+        workflowGraph.workflowActionDelegate.newAction( workflowMeta, WorkflowMeta.STRING_SPECIAL, WorkflowMeta.STRING_SPECIAL_START, controlClicked, click );
+      }
+    );
+    guiAction.setCategory( "Basic" );
+    guiAction.setCategoryOrder( "1" );
+    return guiAction;
   }
 
   private GuiAction createDummyGuiAction() {
-    return new GuiAction( "workflow-graph-create-workflow-action-dummy", GuiActionType.Create, WorkflowMeta.STRING_SPECIAL_DUMMY, null, "ui/images/DUM.svg",
-      (shiftClicked, controlClicked, t) -> {
+    GuiAction guiAction = new GuiAction( "workflow-graph-create-workflow-action-dummy", GuiActionType.Create, WorkflowMeta.STRING_SPECIAL_DUMMY, null, "ui/images/DUM.svg",
+      ( shiftClicked, controlClicked, t ) -> {
         workflowGraph.workflowActionDelegate.newAction( workflowMeta, WorkflowMeta.STRING_SPECIAL, WorkflowMeta.STRING_SPECIAL_DUMMY, controlClicked, click );
       }
     );
+    guiAction.setCategory( "Basic" );
+    guiAction.setCategoryOrder( "1" );
+    return guiAction;
   }
 
   /**

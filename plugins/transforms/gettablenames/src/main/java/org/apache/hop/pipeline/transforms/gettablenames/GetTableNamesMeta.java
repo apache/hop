@@ -61,7 +61,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/gettablenames.html"
 )
 public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMeta<GetTableNames, GetTableNamesData> {
-  private static final Class<?> PKG = GetTableNamesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetTableNamesMeta.class; // Needed by Translator
 
   /**
    * database connection
@@ -418,20 +418,20 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( database == null ) {
-      error_message = BaseMessages.getString( PKG, "GetTableNamesMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "GetTableNamesMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
     if ( Utils.isEmpty( tablenamefieldname ) ) {
-      error_message = BaseMessages.getString( PKG, "GetTableNamesMeta.CheckResult.TablenameFieldNameMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "GetTableNamesMeta.CheckResult.TablenameFieldNameMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "GetTableNamesMeta.CheckResult.TablenameFieldNameOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "GetTableNamesMeta.CheckResult.TablenameFieldNameOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

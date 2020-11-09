@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.*;
 
 public class DatabaseJoinDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseJoinMeta.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

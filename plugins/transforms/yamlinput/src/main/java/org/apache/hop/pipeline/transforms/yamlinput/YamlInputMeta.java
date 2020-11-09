@@ -65,7 +65,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/yamlinput.html"
 )
 public class YamlInputMeta extends BaseTransformMeta implements ITransformMeta<YamlInput,YamlInputData> {
-  private static final Class<?> PKG = YamlInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = YamlInputMeta.class; // Needed by Translator
 
   private static final String YES = "Y";
 

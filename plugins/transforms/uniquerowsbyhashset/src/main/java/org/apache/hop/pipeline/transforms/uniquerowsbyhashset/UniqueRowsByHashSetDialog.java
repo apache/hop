@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.*;
 
 public class UniqueRowsByHashSetDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // Needed by Translator
 
   private final UniqueRowsByHashSetMeta input;
 

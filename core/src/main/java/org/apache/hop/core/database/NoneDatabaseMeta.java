@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.row.IValueMeta;
 
 public class NoneDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
-  @Override public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc, boolean add_fieldname, boolean add_cr ) {
+  @Override public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoInc, boolean addFieldname, boolean addCr ) {
     return null;
   }
 
@@ -42,11 +42,11 @@ public class NoneDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     return "jdbc://none";
   }
 
-  @Override public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc, String pk, boolean semicolon ) {
+  @Override public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc, String pk, boolean semicolon ) {
     return "";
   }
 
-  @Override public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc, String pk, boolean semicolon ) {
+  @Override public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc, String pk, boolean semicolon ) {
     return "";
   }
 }

@@ -37,7 +37,7 @@ import java.util.Map;
  * @since 15-12-2003
  */
 public class Props implements Cloneable {
-  private static final Class<?> PKG = Const.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = Const.class; // Needed by Translator
 
   private static final String STRING_USER_PREFERENCES = "User preferences";
 

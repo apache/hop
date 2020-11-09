@@ -13,6 +13,6 @@
   <artifactId>hop-transform-sqlfileoutput</artifactId>
   <packaging>jar</packaging>
 
-  <name>Hop Plugin Transforms SQL File Output</name>
+  <name>Hop Plugins Transforms SQL File Output</name>
 
 </project>

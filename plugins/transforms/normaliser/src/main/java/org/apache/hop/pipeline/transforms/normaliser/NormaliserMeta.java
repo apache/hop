@@ -92,7 +92,7 @@ import java.util.Set;
 )
 @InjectionSupported( localizationPrefix = "NormaliserMeta.Injection.", groups = { "FIELDS" } )
 public class NormaliserMeta extends BaseTransformMeta implements ITransformMeta<Normaliser,NormaliserData> {
-  private static final Class<?> PKG = NormaliserMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = NormaliserMeta.class; // Needed by Translator
 
   private String typeField; // Name of the new type-field.
 
@@ -223,10 +223,10 @@ public class NormaliserMeta extends BaseTransformMeta implements ITransformMeta<
 
     // Then add the type field!
     //
-    IValueMeta typefield_value = new ValueMetaString( typeField );
-    typefield_value.setOrigin( name );
-    typefield_value.setLength( maxlen );
-    row.addValueMeta( typefield_value );
+    IValueMeta typefieldValue = new ValueMetaString( typeField );
+    typefieldValue.setOrigin( name );
+    typefieldValue.setLength( maxlen );
+    row.addValueMeta( typefieldValue );
 
     // Loop over the distinct list of fieldNorm[i]
     // Add the new fields that need to be created.
@@ -280,7 +280,7 @@ public class NormaliserMeta extends BaseTransformMeta implements ITransformMeta<
                      String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
 
-    String error_message = "";
+    String errorMessage = "";
     CheckResult cr;
 
     // Look up fields in the input stream <prev>
@@ -291,8 +291,8 @@ public class NormaliserMeta extends BaseTransformMeta implements ITransformMeta<
       remarks.add( cr );
 
       boolean first = true;
-      error_message = "";
-      boolean error_found = false;
+      errorMessage = "";
+      boolean errorFound = false;
 
       for ( int i = 0; i < normaliserFields.length; i++ ) {
         String lufield = normaliserFields[ i ].getName();
@@ -301,14 +301,14 @@ public class NormaliserMeta extends BaseTransformMeta implements ITransformMeta<
         if ( v == null ) {
           if ( first ) {
             first = false;
-            error_message += BaseMessages.getString( PKG, "NormaliserMeta.CheckResult.FieldsNotFound" ) + Const.CR;
+            errorMessage += BaseMessages.getString( PKG, "NormaliserMeta.CheckResult.FieldsNotFound" ) + Const.CR;
           }
-          error_found = true;
-          error_message += "\t\t" + lufield + Const.CR;
+          errorFound = true;
+          errorMessage += "\t\t" + lufield + Const.CR;
         }
       }
-      if ( error_found ) {
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      if ( errorFound ) {
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       } else {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
@@ -316,9 +316,9 @@ public class NormaliserMeta extends BaseTransformMeta implements ITransformMeta<
       }
       remarks.add( cr );
     } else {
-      error_message =
+      errorMessage =
         BaseMessages.getString( PKG, "NormaliserMeta.CheckResult.CouldNotReadFieldsFromPreviousTransform" ) + Const.CR;
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

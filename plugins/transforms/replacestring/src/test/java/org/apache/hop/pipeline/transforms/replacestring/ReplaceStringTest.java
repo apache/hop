@@ -39,7 +39,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -186,8 +185,8 @@ public class ReplaceStringTest {
     byte[] array = { 0, 97, 0, 65, -1, 65, -1, 33 };
     byte[] matcharray = { -1, 33 };
     String match = new String( matcharray, "UTF-16BE" );
-    Object[] _row = new Object[] { new String( array, "UTF-16BE" ), "another data" };
-    doReturn( _row ).when( replaceString ).getRow();
+    Object[] Row = new Object[] { new String( array, "UTF-16BE" ), "another data" };
+    doReturn( Row ).when( replaceString ).getRow();
     inputRowMeta.addValueMeta( 0, new ValueMetaString( "string" ) );
 
     doReturn( new String[] { "string" } ).when( meta ).getFieldInStream();

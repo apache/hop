@@ -75,15 +75,15 @@ public class ExcelOutputMetaTest implements InitializerInterface<ITransform> {
     Map<String, FieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
     attrValidatorMap.put( "outputFields",
       new ArrayLoadSaveValidator<ExcelField>( new ExcelFieldLoadSaveValidator(), 5 ) );
-    attrValidatorMap.put( "headerFontName", new IntLoadSaveValidator( ExcelOutputMeta.font_name_code.length ) );
-    attrValidatorMap.put( "headerFontUnderline", new IntLoadSaveValidator( ExcelOutputMeta.font_underline_code.length ) );
-    attrValidatorMap.put( "headerFontOrientation", new IntLoadSaveValidator( ExcelOutputMeta.font_orientation_code.length ) );
-    attrValidatorMap.put( "headerFontColor", new IntLoadSaveValidator( ExcelOutputMeta.font_color_code.length ) );
-    attrValidatorMap.put( "headerBackGroundColor", new IntLoadSaveValidator( ExcelOutputMeta.font_color_code.length ) );
-    attrValidatorMap.put( "headerAlignment", new IntLoadSaveValidator( ExcelOutputMeta.font_alignment_code.length ) );
-    attrValidatorMap.put( "rowBackGroundColor", new IntLoadSaveValidator( ExcelOutputMeta.font_color_code.length ) );
-    attrValidatorMap.put( "rowFontName", new IntLoadSaveValidator( ExcelOutputMeta.font_name_code.length ) );
-    attrValidatorMap.put( "rowFontColor", new IntLoadSaveValidator( ExcelOutputMeta.font_color_code.length ) );
+    attrValidatorMap.put( "headerFontName", new IntLoadSaveValidator( ExcelOutputMeta.fontNameCode.length ) );
+    attrValidatorMap.put( "headerFontUnderline", new IntLoadSaveValidator( ExcelOutputMeta.font_underlineCode.length ) );
+    attrValidatorMap.put( "headerFontOrientation", new IntLoadSaveValidator( ExcelOutputMeta.font_orientationCode.length ) );
+    attrValidatorMap.put( "headerFontColor", new IntLoadSaveValidator( ExcelOutputMeta.fontColorCode.length ) );
+    attrValidatorMap.put( "headerBackGroundColor", new IntLoadSaveValidator( ExcelOutputMeta.fontColorCode.length ) );
+    attrValidatorMap.put( "headerAlignment", new IntLoadSaveValidator( ExcelOutputMeta.font_alignmentCode.length ) );
+    attrValidatorMap.put( "rowBackGroundColor", new IntLoadSaveValidator( ExcelOutputMeta.fontColorCode.length ) );
+    attrValidatorMap.put( "rowFontName", new IntLoadSaveValidator( ExcelOutputMeta.fontNameCode.length ) );
+    attrValidatorMap.put( "rowFontColor", new IntLoadSaveValidator( ExcelOutputMeta.fontColorCode.length ) );
 
     Map<String, FieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, FieldLoadSaveValidator<?>>();
 

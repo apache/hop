@@ -46,7 +46,7 @@ import java.util.List;
  */
 
 public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetValueConstantData> implements ITransform<SetValueConstantMeta, SetValueConstantData> {
-  private static final Class<?> PKG = SetValueConstantMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetValueConstantMeta.class; // Needed by Translator
 
   public SetValueConstant( TransformMeta transformMeta, SetValueConstantMeta meta, SetValueConstantData data, int copyNr, PipelineMeta pipelineMeta,
                            Pipeline pipeline ) {

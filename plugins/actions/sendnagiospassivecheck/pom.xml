@@ -1,36 +1,50 @@
 <?xml version="1.0"?>
 <project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<modelVersion>4.0.0</modelVersion>
+        xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.apache.hop</groupId>
-		<artifactId>hop-plugins-actions</artifactId>
-		<version>0.50-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.apache.hop</groupId>
+        <artifactId>hop-plugins-actions</artifactId>
+        <version>0.50-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>hop-action-sendnagiospassivecheck</artifactId>
-	<packaging>jar</packaging>
+    <artifactId>hop-action-sendnagiospassivecheck</artifactId>
+    <packaging>jar</packaging>
 
-	<name>Hop Plugins Actions Send Nagios passive check</name>
+    <name>Hop Plugins Actions Send Nagios passive check</name>
 
-	<properties>
-		<jsendnsca.version>2.1</jsendnsca.version>
-	</properties>
-	
-	<dependencies>
-		<dependency>
-			<groupId>com.googlecode.jsendnsca</groupId>
-			<artifactId>jsendnsca</artifactId>
-			<version>${jsendnsca.version}</version>
-			<exclusions>
-				<exclusion>
-					<groupId>*</groupId>
-					<artifactId>*</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-	</dependencies>
+    <properties>
+        <jsendnsca.version>2.1</jsendnsca.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.googlecode.jsendnsca</groupId>
+            <artifactId>jsendnsca</artifactId>
+            <version>${jsendnsca.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>clojars</id>
+            <url>https://clojars.org/repo/</url>
+            <name>Clojars</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 </project>

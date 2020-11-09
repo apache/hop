@@ -24,8 +24,8 @@
 package org.apache.hop.pipeline.transforms.mergejoin;
 
 import org.apache.hop.core.CheckResult;
-import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -41,16 +41,18 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelineMeta.PipelineType;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.transform.*;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.errorhandling.Stream;
-import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
+import org.apache.hop.pipeline.transform.ITransformIOMeta;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformIOMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.apache.hop.pipeline.transform.errorhandling.IStream.StreamType;
+import org.apache.hop.pipeline.transform.errorhandling.Stream;
+import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 import org.w3c.dom.Node;
 
-import javax.xml.crypto.Data;
 import java.util.List;
 
 @InjectionSupported( localizationPrefix = "MergeJoin.Injection." )
@@ -60,13 +62,13 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.mergejoin",
         name = "BaseTransform.TypeLongDesc.MergeJoin",
         description = "BaseTransform.TypeTooltipDesc.MergeJoin",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Join",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/mergejoin.html"
 )
 public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<MergeJoin, MergeJoinData> {
-  private static final Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MergeJoinMeta.class; // Needed by Translator
 
-  public static final String[] join_types = { "INNER", "LEFT OUTER", "RIGHT OUTER", "FULL OUTER" };
+  public static final String[] joinTypes = { "INNER", "LEFT OUTER", "RIGHT OUTER", "FULL OUTER" };
   public static final boolean[] one_optionals = { false, false, true, true };
   public static final boolean[] two_optionals = { false, true, false, true };
 
@@ -221,7 +223,7 @@ public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<M
   }
 
   public void setDefault() {
-    joinType = join_types[ 0 ];
+    joinType = joinTypes[ 0 ];
     allocate( 0, 0 );
   }
 

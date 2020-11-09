@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  * @since 30 September 2008
  */
 public class StringCut extends BaseTransform<StringCutMeta, StringCutData> implements ITransform<StringCutMeta, StringCutData> {
-  private static final Class<?> PKG = StringCutMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = StringCutMeta.class; // Needed by Translator
 
 
   public StringCut( TransformMeta transformMeta, StringCutMeta meta, StringCutData data, int copyNr, PipelineMeta pipelineMeta,

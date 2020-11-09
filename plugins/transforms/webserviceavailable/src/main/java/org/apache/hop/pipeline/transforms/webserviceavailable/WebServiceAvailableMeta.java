@@ -55,7 +55,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/webserviceavailable.html"
 )
 public class WebServiceAvailableMeta extends BaseTransformMeta implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
-  private static final Class<?> PKG = WebServiceAvailableMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WebServiceAvailableMeta.class; // Needed by Translator
 
   /**
    * dynamic filename
@@ -172,24 +172,24 @@ public class WebServiceAvailableMeta extends BaseTransformMeta implements ITrans
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( Utils.isEmpty( resultfieldname ) ) {
-      error_message = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.ResultFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.ResultFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     if ( Utils.isEmpty( urlField ) ) {
-      error_message = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.URLFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.URLFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.URLFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "WebServiceAvailableMeta.CheckResult.URLFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     // See if we have input streams leading to this transform!

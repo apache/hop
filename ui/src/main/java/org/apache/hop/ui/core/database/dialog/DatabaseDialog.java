@@ -37,7 +37,7 @@ import org.eclipse.swt.widgets.Shell;
  * @since 18-05-2003
  */
 public class DatabaseDialog extends DatabaseMetaDialog {
-  private static final Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseDialog.class; // Needed by Translator
 
   public DatabaseDialog( Shell parent ) {
     super( parent, HopGui.getInstance().getMetadataProvider(), new DatabaseMeta() );

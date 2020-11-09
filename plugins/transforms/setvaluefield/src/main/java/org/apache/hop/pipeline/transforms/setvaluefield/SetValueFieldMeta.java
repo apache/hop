@@ -56,7 +56,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/setvaluefield.html"
 )
 public class SetValueFieldMeta extends BaseTransformMeta implements ITransformMeta<SetValueField, SetValueFieldData> {
-  private static final Class<?> PKG = SetValueFieldMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetValueFieldMeta.class; // Needed by Translator
 
   @Injection( name = "FIELD_NAME", group = "FIELDS" )
   private String[] fieldName;

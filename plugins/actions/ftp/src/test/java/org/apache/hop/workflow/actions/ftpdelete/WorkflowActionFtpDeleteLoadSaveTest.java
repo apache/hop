@@ -55,7 +55,7 @@ public class WorkflowActionFtpDeleteLoadSaveTest extends WorkflowActionLoadSaveT
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    validators.put( "FtpsConnectionType", new IntLoadSaveValidator( FtpsConnection.connection_type_Code.length ) );
+    validators.put( "FtpsConnectionType", new IntLoadSaveValidator( FtpsConnection.connectionTypeCode.length ) );
 
     return validators;
   }

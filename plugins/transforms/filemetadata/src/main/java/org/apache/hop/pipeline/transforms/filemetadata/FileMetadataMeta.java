@@ -44,21 +44,22 @@ import org.w3c.dom.Node;
 import java.util.ArrayList;
 
 @Transform(
-        id="FileMetadataPlugin",
-        name="FileMetadata.Name.Default",
-        image="icon.svg",
-        description="FileMetadata.Name.Desc",
-        i18nPackageName = "org.apache.hop.pipeline.transforms.filemetadata",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transforms:BaseTransform.Category.Transform")
+  id = "FileMetadataPlugin",
+  name = "FileMetadata.Name.Default",
+  image = "icon.svg",
+  description = "FileMetadata.Name.Desc",
+  i18nPackageName = "org.apache.hop.pipeline.transforms.filemetadata",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform"
+)
 public class FileMetadataMeta extends BaseTransformMeta implements ITransformMeta<FileMetadata, FileMetadataData> {
 
-//  public enum DetectionMethod {
-//    FILE_FORMAT,          // delimited or fixed width?
-//    DELIMITED_LAYOUT,     // delimiters, enclosure, skip header lines etc.
-//    DELIMITED_FIELDS,     // fields and types in a delimited file
-//    FIXED_LAYOUT,         // fixed layout, total record length, nr. of fields
-//    FIXED_FIELDS          // fixed fields layout beginning, end
-//  }
+  //  public enum DetectionMethod {
+  //    FILE_FORMAT,          // delimited or fixed width?
+  //    DELIMITED_LAYOUT,     // delimiters, enclosure, skip header lines etc.
+  //    DELIMITED_FIELDS,     // fields and types in a delimited file
+  //    FIXED_LAYOUT,         // fixed layout, total record length, nr. of fields
+  //    FIXED_FIELDS          // fixed fields layout beginning, end
+  //  }
 
   /**
    * The PKG member is used when looking up internationalized strings.
@@ -76,10 +77,10 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
   private String defaultCharset = "ISO-8859-1";
 
   // candidates for delimiters in delimited files
-  private ArrayList<String> delimiterCandidates = new ArrayList<>(5);
+  private ArrayList<String> delimiterCandidates = new ArrayList<>( 5 );
 
   // candidates for enclosure characters in delimited files
-  private ArrayList<String> enclosureCandidates = new ArrayList<>(5);
+  private ArrayList<String> enclosureCandidates = new ArrayList<>( 5 );
 
 
   /**
@@ -99,13 +100,13 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
     defaultCharset = "ISO-8859-1";
 
     delimiterCandidates.clear();
-    delimiterCandidates.add("\t");
-    delimiterCandidates.add(";");
-    delimiterCandidates.add(",");
+    delimiterCandidates.add( "\t" );
+    delimiterCandidates.add( ";" );
+    delimiterCandidates.add( "," );
 
     enclosureCandidates.clear();
-    enclosureCandidates.add("\"");
-    enclosureCandidates.add("'");
+    enclosureCandidates.add( "\"" );
+    enclosureCandidates.add( "'" );
   }
 
 
@@ -118,14 +119,14 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
    */
   public Object clone() {
     FileMetadataMeta copy = (FileMetadataMeta) super.clone();
-    copy.setDelimiterCandidates(new ArrayList<>(this.delimiterCandidates));
-    copy.setEnclosureCandidates(new ArrayList<>(this.enclosureCandidates));
+    copy.setDelimiterCandidates( new ArrayList<>( this.delimiterCandidates ) );
+    copy.setEnclosureCandidates( new ArrayList<>( this.enclosureCandidates ) );
     return copy;
   }
 
   @Override
-  public ITransform createTransform(TransformMeta transformMeta, FileMetadataData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
-    return new FileMetadata(transformMeta, this, data, copyNr, pipelineMeta, pipeline);
+  public ITransform createTransform( TransformMeta transformMeta, FileMetadataData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    return new FileMetadata( transformMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -135,22 +136,22 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
 
   public String getXml() throws HopValueException {
 
-    StringBuilder buffer = new StringBuilder(800);
+    StringBuilder buffer = new StringBuilder( 800 );
 
-    buffer.append("    ").append(XmlHandler.addTagValue("fileName", fileName));
-    buffer.append("    ").append(XmlHandler.addTagValue("limitRows", limitRows));
-    buffer.append("    ").append(XmlHandler.addTagValue("defaultCharset", defaultCharset));
+    buffer.append( "    " ).append( XmlHandler.addTagValue( "fileName", fileName ) );
+    buffer.append( "    " ).append( XmlHandler.addTagValue( "limitRows", limitRows ) );
+    buffer.append( "    " ).append( XmlHandler.addTagValue( "defaultCharset", defaultCharset ) );
 
-    for (String delimiterCandidate : delimiterCandidates) {
-      buffer.append("      <delimiterCandidate>").append(Const.CR);
-      buffer.append("        ").append(XmlHandler.addTagValue("candidate", delimiterCandidate));
-      buffer.append("      </delimiterCandidate>").append(Const.CR);
+    for ( String delimiterCandidate : delimiterCandidates ) {
+      buffer.append( "      <delimiterCandidate>" ).append( Const.CR );
+      buffer.append( "        " ).append( XmlHandler.addTagValue( "candidate", delimiterCandidate ) );
+      buffer.append( "      </delimiterCandidate>" ).append( Const.CR );
     }
 
-    for (String enclosureCandidate : enclosureCandidates) {
-      buffer.append("      <enclosureCandidate>").append(Const.CR);
-      buffer.append("        ").append(XmlHandler.addTagValue("candidate", enclosureCandidate));
-      buffer.append("      </enclosureCandidate>").append(Const.CR);
+    for ( String enclosureCandidate : enclosureCandidates ) {
+      buffer.append( "      <enclosureCandidate>" ).append( Const.CR );
+      buffer.append( "        " ).append( XmlHandler.addTagValue( "candidate", enclosureCandidate ) );
+      buffer.append( "      </enclosureCandidate>" ).append( Const.CR );
     }
 
     return buffer.toString();
@@ -161,57 +162,56 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
    * This method is called by Hop when a transform needs to load its configuration from XML.
    * <p/>
    *
-   * @param transformNode  the XML node containing the configuration
+   * @param transformNode    the XML node containing the configuration
    * @param metadataProvider the metadata provider
    */
   public void loadXml( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
 
     try {
-      setFileName(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "fileName")));
-      setLimitRows(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "limitRows")));
-      setDefaultCharset(XmlHandler.getNodeValue(XmlHandler.getSubNode(transformNode, "defaultCharset")));
+      setFileName( XmlHandler.getNodeValue( XmlHandler.getSubNode( transformNode, "fileName" ) ) );
+      setLimitRows( XmlHandler.getNodeValue( XmlHandler.getSubNode( transformNode, "limitRows" ) ) );
+      setDefaultCharset( XmlHandler.getNodeValue( XmlHandler.getSubNode( transformNode, "defaultCharset" ) ) );
 
-      int nrDelimiters = XmlHandler.countNodes(transformNode, "delimiterCandidate");
+      int nrDelimiters = XmlHandler.countNodes( transformNode, "delimiterCandidate" );
       delimiterCandidates.clear();
-      for (int i = 0; i < nrDelimiters; i++) {
-        Node node = XmlHandler.getSubNodeByNr(transformNode, "delimiterCandidate", i);
-        String candidate = XmlHandler.getTagValue(node, "candidate");
-        delimiterCandidates.add(candidate);
+      for ( int i = 0; i < nrDelimiters; i++ ) {
+        Node node = XmlHandler.getSubNodeByNr( transformNode, "delimiterCandidate", i );
+        String candidate = XmlHandler.getTagValue( node, "candidate" );
+        delimiterCandidates.add( candidate );
       }
 
-      int nrEnclosures = XmlHandler.countNodes(transformNode, "enclosureCandidate");
+      int nrEnclosures = XmlHandler.countNodes( transformNode, "enclosureCandidate" );
       enclosureCandidates.clear();
-      for (int i = 0; i < nrEnclosures; i++) {
-        Node node = XmlHandler.getSubNodeByNr(transformNode, "enclosureCandidate", i);
-        String candidate = XmlHandler.getTagValue(node, "candidate");
-        enclosureCandidates.add(candidate);
+      for ( int i = 0; i < nrEnclosures; i++ ) {
+        Node node = XmlHandler.getSubNodeByNr( transformNode, "enclosureCandidate", i );
+        String candidate = XmlHandler.getTagValue( node, "candidate" );
+        enclosureCandidates.add( candidate );
       }
 
 
-    } catch (Exception e) {
-      throw new HopXmlException("File metadata plugin unable to read transform info from XML node", e);
+    } catch ( Exception e ) {
+      throw new HopXmlException( "File metadata plugin unable to read transform info from XML node", e );
     }
 
   }
 
 
-
   @Override public void getFields( IRowMeta rowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider ) {
 
-    rowMeta.addValueMeta(new ValueMetaString("charset"));
-    rowMeta.addValueMeta(new ValueMetaString("delimiter"));
-    rowMeta.addValueMeta(new ValueMetaString("enclosure"));
-    rowMeta.addValueMeta(new ValueMetaInteger("field_count"));
-    rowMeta.addValueMeta(new ValueMetaInteger("skip_header_lines"));
-    rowMeta.addValueMeta(new ValueMetaInteger("skip_footer_lines"));
-    rowMeta.addValueMeta(new ValueMetaBoolean("header_line_present"));
-    rowMeta.addValueMeta(new ValueMetaString("name"));
-    rowMeta.addValueMeta(new ValueMetaString("type"));
-    rowMeta.addValueMeta(new ValueMetaInteger("length"));
-    rowMeta.addValueMeta(new ValueMetaInteger("precision"));
-    rowMeta.addValueMeta(new ValueMetaString("mask"));
-    rowMeta.addValueMeta(new ValueMetaString("decimal_symbol"));
-    rowMeta.addValueMeta(new ValueMetaString("grouping_symbol"));
+    rowMeta.addValueMeta( new ValueMetaString( "charset" ) );
+    rowMeta.addValueMeta( new ValueMetaString( "delimiter" ) );
+    rowMeta.addValueMeta( new ValueMetaString( "enclosure" ) );
+    rowMeta.addValueMeta( new ValueMetaInteger( "field_count" ) );
+    rowMeta.addValueMeta( new ValueMetaInteger( "skip_header_lines" ) );
+    rowMeta.addValueMeta( new ValueMetaInteger( "skip_footer_lines" ) );
+    rowMeta.addValueMeta( new ValueMetaBoolean( "header_line_present" ) );
+    rowMeta.addValueMeta( new ValueMetaString( "name" ) );
+    rowMeta.addValueMeta( new ValueMetaString( "type" ) );
+    rowMeta.addValueMeta( new ValueMetaInteger( "length" ) );
+    rowMeta.addValueMeta( new ValueMetaInteger( "precision" ) );
+    rowMeta.addValueMeta( new ValueMetaString( "mask" ) );
+    rowMeta.addValueMeta( new ValueMetaString( "decimal_symbol" ) );
+    rowMeta.addValueMeta( new ValueMetaString( "grouping_symbol" ) );
 
   }
 
@@ -219,7 +219,7 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
     return delimiterCandidates;
   }
 
-  public void setDelimiterCandidates(ArrayList<String> delimiterCandidates) {
+  public void setDelimiterCandidates( ArrayList<String> delimiterCandidates ) {
     this.delimiterCandidates = delimiterCandidates;
   }
 
@@ -227,7 +227,7 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
     return enclosureCandidates;
   }
 
-  public void setEnclosureCandidates(ArrayList<String> enclosureCandidates) {
+  public void setEnclosureCandidates( ArrayList<String> enclosureCandidates ) {
     this.enclosureCandidates = enclosureCandidates;
   }
 
@@ -235,7 +235,7 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
     return limitRows;
   }
 
-  public void setLimitRows(String limitRows) {
+  public void setLimitRows( String limitRows ) {
     this.limitRows = limitRows;
   }
 
@@ -243,7 +243,7 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
     return defaultCharset;
   }
 
-  public void setDefaultCharset(String defaultCharset) {
+  public void setDefaultCharset( String defaultCharset ) {
     this.defaultCharset = defaultCharset;
   }
 
@@ -251,7 +251,7 @@ public class FileMetadataMeta extends BaseTransformMeta implements ITransformMet
     return fileName;
   }
 
-  public void setFileName(String fileName) {
+  public void setFileName( String fileName ) {
     this.fileName = fileName;
   }
 

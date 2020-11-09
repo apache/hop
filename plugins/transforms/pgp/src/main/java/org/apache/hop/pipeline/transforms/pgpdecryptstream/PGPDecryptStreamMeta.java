@@ -53,16 +53,16 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.pgpdecryptstream",
         description = "PGPDecryptStream.Description",
         name = "PGPDecryptStream.Name",
-        categoryDescription = "BaseTransform.Category.Cryptography",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/pgpdecryptstream.html"
 )
 public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransformMeta<PGPDecryptStream, PGPDecryptStreamData> {
-  private static final Class<?> PKG = PGPDecryptStreamMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PGPDecryptStreamMeta.class; // Needed by Translator
 
   /**
    * GPG location
    */
-  private String gpglocation;
+  private String gpgLocation;
 
   /**
    * passhrase
@@ -93,12 +93,12 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransfor
     super(); // allocate BaseTransformMeta
   }
 
-  public void setGPGLocation( String gpglocation ) {
-    this.gpglocation = gpglocation;
+  public void setGPGLocation( String gpgLocation ) {
+    this.gpgLocation = gpgLocation;
   }
 
   public String getGPGLocation() {
-    return gpglocation;
+    return gpgLocation;
   }
 
   /**
@@ -188,7 +188,7 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransfor
     resultfieldname = "result";
     streamfield = null;
     passhrase = null;
-    gpglocation = null;
+    gpgLocation = null;
   }
 
   @Override
@@ -206,7 +206,7 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransfor
   @Override
   public String getXml() {
     StringBuilder retval = new StringBuilder();
-    retval.append( "    " + XmlHandler.addTagValue( "gpglocation", gpglocation ) );
+    retval.append( "    " + XmlHandler.addTagValue( "gpglocation", gpgLocation ) );
     retval.append( "    " ).append(
       XmlHandler.addTagValue( "passhrase", Encr.encryptPasswordIfNotUsingVariables( passhrase ) ) );
     retval.append( "    " + XmlHandler.addTagValue( "streamfield", streamfield ) );
@@ -218,7 +218,7 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransfor
 
   private void readData( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
-      gpglocation = XmlHandler.getTagValue( transformNode, "gpglocation" );
+      gpgLocation = XmlHandler.getTagValue( transformNode, "gpglocation" );
       passhrase = Encr.decryptPasswordOptionallyEncrypted( XmlHandler.getTagValue( transformNode, "passhrase" ) );
       streamfield = XmlHandler.getTagValue( transformNode, "streamfield" );
       resultfieldname = XmlHandler.getTagValue( transformNode, "resultfieldname" );
@@ -235,43 +235,43 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransfor
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
-    if ( Utils.isEmpty( gpglocation ) ) {
-      error_message = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.GPGLocationMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+    if ( Utils.isEmpty( gpgLocation ) ) {
+      errorMessage = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.GPGLocationMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.GPGLocationOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.GPGLocationOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
     }
     if ( !isPassphraseFromField() ) {
       // Check static pass-phrase
       if ( Utils.isEmpty( passhrase ) ) {
-        error_message = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.PassphraseMissing" );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.PassphraseMissing" );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
-        error_message = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.PassphraseOK" );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+        errorMessage = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.PassphraseOK" );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       }
     }
     if ( Utils.isEmpty( resultfieldname ) ) {
-      error_message = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.ResultFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.ResultFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     if ( Utils.isEmpty( streamfield ) ) {
-      error_message = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.StreamFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.StreamFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.StreamFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "PGPDecryptStreamMeta.CheckResult.StreamFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     // See if we have input streams leading to this transform!

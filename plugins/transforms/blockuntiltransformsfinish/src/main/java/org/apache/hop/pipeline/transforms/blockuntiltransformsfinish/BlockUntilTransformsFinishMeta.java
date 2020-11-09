@@ -57,7 +57,7 @@ import java.util.List;
 )
 public class BlockUntilTransformsFinishMeta extends BaseTransformMeta implements ITransformMeta<BlockUntilTransformsFinish, BlockUntilTransformsFinishData> {
 
-  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BlockUntilTransformsFinishMeta.class; // Needed by Translator
 
   /**
    * by which transforms to display?

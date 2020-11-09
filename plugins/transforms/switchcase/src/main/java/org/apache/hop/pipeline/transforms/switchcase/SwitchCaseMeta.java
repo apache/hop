@@ -69,7 +69,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/switchcase.html"
 )
 public class SwitchCaseMeta extends BaseTransformMeta implements ITransformMeta<SwitchCase, SwitchCaseData> {
-  private static final Class<?> PKG = SwitchCaseMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SwitchCaseMeta.class; // Needed by Translator
 
   private static final String XML_TAG_CASE_VALUES = "cases";
   private static final String XML_TAG_CASE_VALUE = "case";

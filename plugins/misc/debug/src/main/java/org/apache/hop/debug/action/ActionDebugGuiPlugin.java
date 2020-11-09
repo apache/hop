@@ -45,7 +45,9 @@ public class ActionDebugGuiPlugin {
     type = GuiActionType.Delete,
     name = "Clear Custom Logging",
     tooltip = "Clear custom log settings ",
-    image = "ui/images/debug.svg"
+    image = "ui/images/debug.svg",
+    category = "Logging",
+    categoryOrder = "7"
   )
   public void clearCustomActionLogging( HopGuiWorkflowActionContext context ) {
     WorkflowMeta workflowMeta = context.getWorkflowMeta();
@@ -64,7 +66,9 @@ public class ActionDebugGuiPlugin {
     type = GuiActionType.Modify,
     name = "Edit Custom Logging",
     tooltip = "Edit the custom log settings for this action",
-    image = "ui/images/debug.svg"
+    image = "ui/images/debug.svg",
+    category = "Logging",
+    categoryOrder = "7"
   )
   public void applyCustomActionLogging( HopGuiWorkflowActionContext context ) {
     HopGui hopGui = HopGui.getInstance();

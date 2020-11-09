@@ -46,7 +46,7 @@ import org.productivity.java.syslog4j.impl.net.udp.UDPNetSyslogConfig;
  */
 
 public class SyslogMessage extends BaseTransform<SyslogMessageMeta, SyslogMessageData> implements ITransform<SyslogMessageMeta, SyslogMessageData> {
-  private static final Class<?> PKG = SyslogMessageMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SyslogMessageMeta.class; // Needed by Translator
 
   public SyslogMessage(TransformMeta transformMeta, SyslogMessageMeta meta, SyslogMessageData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

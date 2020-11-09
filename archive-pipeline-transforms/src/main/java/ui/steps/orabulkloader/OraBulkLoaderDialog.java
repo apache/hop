@@ -96,7 +96,7 @@ import java.util.Set;
  * @author Sven Boden
  */
 public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = OraBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = OraBulkLoaderMeta.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

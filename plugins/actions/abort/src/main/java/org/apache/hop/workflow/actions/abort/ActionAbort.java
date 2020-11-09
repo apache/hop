@@ -56,7 +56,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/abord.html"
 )
 public class ActionAbort extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionAbort.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionAbort.class; // Needed by Translator
 
   private String message;
 

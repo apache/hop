@@ -13,6 +13,6 @@
     <artifactId>hop-transform-sortedmerge</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugin Transforms Sorted Merge</name>
+    <name>Hop Plugins Transforms Sorted Merge</name>
 
 </project>

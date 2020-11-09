@@ -47,7 +47,7 @@ import java.util.List;
 import java.util.*;
 
 public class JaninoDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = JaninoMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = JaninoMeta.class; // Needed by Translator
 
   private Text wTransformName;
 

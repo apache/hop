@@ -57,7 +57,7 @@ import java.net.InetAddress;
  * @since 15-09-2007
  */
 public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFtpPut.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpPut.class; // Needed by Translator
 
   private Text wName;
 
@@ -840,8 +840,8 @@ public class ActionFtpPutDialog extends ActionDialog implements IActionDialog {
         ftpclient.setRemotePort( realPort );
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
-          String realProxy_host = workflowMeta.environmentSubstitute( wProxyHost.getText() );
-          ftpclient.setRemoteAddr( InetAddress.getByName( realProxy_host ) );
+          String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
+          ftpclient.setRemoteAddr( InetAddress.getByName( realProxyHost ) );
 
           int port = Const.toInt( workflowMeta.environmentSubstitute( wProxyPort.getText() ), 21 );
           if ( port != 0 ) {

@@ -85,7 +85,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  */
 public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
-  private static final Class<?> PKG = DatabaseMetaDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseMetaDialog.class; // Needed by Translator
 
   private Shell parent;
   private Shell shell;

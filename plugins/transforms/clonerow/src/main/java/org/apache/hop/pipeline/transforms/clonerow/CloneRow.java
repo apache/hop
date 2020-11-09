@@ -43,7 +43,7 @@ import org.apache.hop.pipeline.transform.TransformMeta;
  */
 public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> implements ITransform<CloneRowMeta, CloneRowData> {
 
-  private static final Class<?> PKG = CloneRowMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CloneRowMeta.class; // Needed by Translator
 
   public CloneRow( TransformMeta transformMeta, CloneRowMeta meta, CloneRowData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {

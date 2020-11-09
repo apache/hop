@@ -58,7 +58,7 @@ import java.util.Arrays;
  * @since 22-07-2008
  */
 public class ActionTruncateTablesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionTruncateTables.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionTruncateTables.class; // Needed by Translator
 
   private Shell shell;
   
@@ -341,9 +341,9 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
     action.setArgFromPrevious(wPrevious.getSelection());
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -352,7 +352,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
     String[] tables = new String[ nr ];
     String[] schemas =new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       if ( arg != null && arg.length() != 0 ) {

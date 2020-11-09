@@ -51,7 +51,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/syslog.html"
 )
 public class SyslogMessageMeta extends BaseTransformMeta implements ITransformMeta<SyslogMessage, SyslogMessageData> {
-  private static final Class<?> PKG = SyslogMessageMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SyslogMessageMeta.class; // Needed by Translator
 
   /**
    * dynamic message fieldname
@@ -255,16 +255,16 @@ public class SyslogMessageMeta extends BaseTransformMeta implements ITransformMe
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     // source filename
     if ( Utils.isEmpty( messagefieldname ) ) {
-      error_message = BaseMessages.getString( PKG, "SyslogMessageMeta.CheckResult.MessageFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "SyslogMessageMeta.CheckResult.MessageFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "SyslogMessageMeta.CheckResult.MessageFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "SyslogMessageMeta.CheckResult.MessageFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

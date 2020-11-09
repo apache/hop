@@ -98,7 +98,7 @@ import java.util.Map;
 @GuiPlugin
 public class HopVfsFileDialog implements IFileDialog, IDirectoryDialog {
 
-  private static final Class<?> PKG = HopVfsFileDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopVfsFileDialog.class; // Needed by Translator
 
   public static final String BOOKMARKS_AUDIT_TYPE = "vfs-bookmarks";
 

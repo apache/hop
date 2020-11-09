@@ -48,7 +48,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class CubeInputDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = CubeInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CubeInputMeta.class; // Needed by Translator
 
   private TextVar wFilename;
 

@@ -59,7 +59,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "Injection.NullIf.", groups = { "FIELDS" } )
 public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<NullIf,NullIfData> {
 
-  private static final Class<?> PKG = NullIfMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = NullIfMeta.class; // Needed by Translator
 
   @Override
   public NullIf createTransform( TransformMeta transformMeta, NullIfData data, int copyNr,

@@ -37,7 +37,7 @@ import org.w3c.dom.Node;
  * @since 20-06-2007
  */
 public class LoadFileInputField implements Cloneable {
-  private static final Class<?> PKG = LoadFileInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = LoadFileInputMeta.class; // Needed by Translator
 
   public static final int TYPE_TRIM_NONE = 0;
   public static final int TYPE_TRIM_LEFT = 1;
@@ -281,8 +281,8 @@ public class LoadFileInputField implements Cloneable {
     this.trimtype = trimtype;
   }
 
-  public void setElementType( int element_type ) {
-    this.elementtype = element_type;
+  public void setElementType( int elementType ) {
+    this.elementtype = elementType;
   }
 
   public String getGroupSymbol() {

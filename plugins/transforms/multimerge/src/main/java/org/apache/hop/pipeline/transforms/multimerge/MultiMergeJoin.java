@@ -56,7 +56,7 @@ import java.util.PriorityQueue;
  */
 
 public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJoinData> implements ITransform<MultiMergeJoinMeta,MultiMergeJoinData> {
-  private static final Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MultiMergeJoinMeta.class; // Needed by Translator
 
   public MultiMergeJoin(TransformMeta transformMeta, MultiMergeJoinMeta meta, MultiMergeJoinData data, int copyNr, PipelineMeta pipelineMeta,
                  Pipeline pipeline ) {
@@ -382,8 +382,8 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
         }
       }
       String joinType = meta.getJoinType();
-      for ( int i = 0; i < MultiMergeJoinMeta.join_types.length; ++i ) {
-        if ( joinType.equalsIgnoreCase( MultiMergeJoinMeta.join_types[ i ] ) ) {
+      for ( int i = 0; i < MultiMergeJoinMeta.joinTypes.length; ++i ) {
+        if ( joinType.equalsIgnoreCase( MultiMergeJoinMeta.joinTypes[ i ] ) ) {
           data.optional = MultiMergeJoinMeta.optionals[ i ];
           return true;
         }

@@ -118,19 +118,19 @@ public class PrintSpool {
 
       double margin_left = 0.40; // 0,40 inch about 1cm
       double margin_right = 0.40;
-      double margin_top = 0.40;
+      double marginTop = 0.40;
       double margin_bottom = 0.40;
 
       EnterPrintDialog epd =
         new EnterPrintDialog(
-          sh, 1, 1, 100, factorx, factory, page, margin_left, margin_right, margin_top, margin_bottom, img );
+          sh, 1, 1, 100, factorx, factory, page, margin_left, margin_right, marginTop, margin_bottom, img );
       if ( epd.open() == SWT.OK ) {
         double page_left = epd.leftMargin * dpi_printer.x;
         double page_right = epd.rightMargin * dpi_printer.x;
-        double page_top = epd.topMargin * dpi_printer.y;
+        double pageTop = epd.topMargin * dpi_printer.y;
         double page_bottom = epd.bottomMargin * dpi_printer.y;
         double page_sizex = page.width - page_left - page_right;
-        double page_sizey = page.height - page_top - page_bottom;
+        double page_sizey = page.height - pageTop - page_bottom;
 
         double size_on_paperx = max.x * factorx;
         double size_on_papery = max.y * factory;
@@ -143,17 +143,17 @@ public class PrintSpool {
         // How much of the image do we print on each page: all or just a page worth of pixels?
 
         for ( int c = 0; c < epd.nrcols; c++ ) {
-          double left_to_printx = actual_sizex - page_sizex * c;
+          double leftToPrintX = actual_sizex - page_sizex * c;
           double printx =
-            ( left_to_printx > page_sizex ) ? page_sizex : ( left_to_printx >= 0 ? left_to_printx : 0 );
+            ( leftToPrintX > page_sizex ) ? page_sizex : ( leftToPrintX >= 0 ? leftToPrintX : 0 );
 
           for ( int r = 0; r < epd.nrrows; r++ ) {
-            double left_to_printy = actual_sizey - page_sizey * r;
+            double leftToPrintY = actual_sizey - page_sizey * r;
             double printy =
-              ( left_to_printy > page_sizey ) ? page_sizey : ( left_to_printy >= 0 ? left_to_printy : 0 );
+              ( leftToPrintY > page_sizey ) ? page_sizey : ( leftToPrintY >= 0 ? leftToPrintY : 0 );
 
-            int startx = (int) ( actual_sizex - left_to_printx );
-            int starty = (int) ( actual_sizey - left_to_printy );
+            int startx = (int) ( actual_sizex - leftToPrintX );
+            int starty = (int) ( actual_sizey - leftToPrintY );
 
             int fromx = (int) ( startx / ( factorx * epd.scale / 100 ) );
             int fromy = (int) ( starty / ( factory * epd.scale / 100 ) );
@@ -164,7 +164,7 @@ public class PrintSpool {
             GC gc_printer = new GC( printer );
 
             gc_printer.drawImage(
-              img, fromx, fromy, imx, imy, (int) page_left, (int) page_top, (int) printx, (int) printy );
+              img, fromx, fromy, imx, imy, (int) page_left, (int) pageTop, (int) printx, (int) printy );
 
             // ShowImageDialog sid = new ShowImageDialog(sh, props, img);
             // sid.open();
@@ -176,7 +176,7 @@ public class PrintSpool {
               + img.getBounds().height + ")" );
             System.out.println( "fromx="
               + fromx + ", fromy=" + fromy + ", imx=" + imx + ", imy=" + imy + ", page_left=" + (int) page_left
-              + ", page_top=" + (int) page_top + ", printx=" + (int) printx + ", printy=" + (int) printy );
+              + ", page_top=" + (int) pageTop + ", printx=" + (int) printx + ", printy=" + (int) printy );
 
             printer.endPage();
             gc_printer.dispose();

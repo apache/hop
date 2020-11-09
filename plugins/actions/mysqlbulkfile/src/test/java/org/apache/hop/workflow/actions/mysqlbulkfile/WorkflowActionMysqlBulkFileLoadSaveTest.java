@@ -40,9 +40,9 @@ public class WorkflowActionMysqlBulkFileLoadSaveTest extends WorkflowActionLoadS
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "schemaname", "tablename", "filename", "separator", "enclosed",
-      "optionEnclosed", "lineterminated", "limitlines", "listColumn", "highPriority", "outdumpvalue",
-      "iffileexists", "addFileToResult", "database" } );
+    return Arrays.asList( new String[] { "schemaName", "tableName", "filename", "separator", "enclosed",
+      "optionEnclosed", "lineTerminated", "limitLines", "listColumn", "highPriority", "outDumpValue",
+      "ifFileExists", "addFileToResult", "database" } );
   }
 
 }

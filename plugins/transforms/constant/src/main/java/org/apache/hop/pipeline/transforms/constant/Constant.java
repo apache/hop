@@ -53,7 +53,7 @@ import java.util.List;
  * @since 4-apr-2003
  */
 public class Constant extends BaseTransform<ConstantMeta, ConstantData> implements ITransform<ConstantMeta, ConstantData> {
-  private static final Class<?> PKG = ConstantMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ConstantMeta.class; // Needed by Translator
 
   public Constant( TransformMeta transformMeta, ConstantMeta meta, ConstantData data, int copyNr, PipelineMeta pipelineMeta,
                    Pipeline pipeline ) {

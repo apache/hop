@@ -68,7 +68,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 public class GroupByDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = GroupByMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GroupByMeta.class; // Needed by Translator
 
   public static final String STRING_SORT_WARNING_PARAMETER = "GroupSortWarning";
   private static final int AGGREGATION_TABLE_TYPE_INDEX = 3;

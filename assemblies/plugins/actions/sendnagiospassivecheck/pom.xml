@@ -38,5 +38,18 @@
 			</exclusions>
 		</dependency>        
     </dependencies>
-    
+
+    <repositories>
+        <repository>
+            <id>clojars</id>
+            <url>https://clojars.org/repo/</url>
+            <name>Clojars</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 </project>

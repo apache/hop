@@ -49,7 +49,7 @@ import java.util.List;
  */
 public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> implements ITransform<CalculatorMeta, CalculatorData> {
 
-  private static final Class<?> PKG = CalculatorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CalculatorMeta.class; // Needed by Translator
 
   public class FieldIndexes {
     public int indexName;

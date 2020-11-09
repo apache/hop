@@ -55,7 +55,7 @@ import org.eclipse.swt.widgets.*;
  * @since 20-02-2008
  */
 public class ActionPGPDecryptFilesDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionPGPDecryptFiles.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionPGPDecryptFiles.class; // Needed by Translator
 
   private static final String[] FILETYPES = new String[] { BaseMessages.getString(
     PKG, "ActionPGPDecryptFiles.Filetype.All" ) };
@@ -300,7 +300,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wlPrevious.setLayoutData(fdlPrevious);
     wPrevious = new Button(wSettings, SWT.CHECK );
     props.setLook( wPrevious );
-    wPrevious.setSelection( action.arg_from_previous );
+    wPrevious.setSelection( action.argFromPrevious );
     wPrevious.setToolTipText( BaseMessages.getString( PKG, "ActionPGPDecryptFiles.Previous.Tooltip" ) );
     FormData fdPrevious = new FormData();
     fdPrevious.left = new FormAttachment( middle, 0 );
@@ -477,8 +477,8 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     wlFields.setLayoutData(fdlFields);
 
     int rows =
-      action.source_filefolder == null ? 1 : ( action.source_filefolder.length == 0
-        ? 0 : action.source_filefolder.length );
+      action.sourceFileFolder == null ? 1 : ( action.sourceFileFolder.length == 0
+        ? 0 : action.sourceFileFolder.length );
     final int FieldsRows = rows;
 
     ColumnInfo[] colinf =
@@ -1420,11 +1420,11 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
   public void getData() {
     wName.setText( Const.nullToEmpty( action.getName() ) );
 
-    if ( action.source_filefolder != null ) {
-      for ( int i = 0; i < action.source_filefolder.length; i++ ) {
+    if ( action.sourceFileFolder != null ) {
+      for ( int i = 0; i < action.sourceFileFolder.length; i++ ) {
         TableItem ti = wFields.table.getItem( i );
-        if ( action.source_filefolder[ i ] != null ) {
-          ti.setText( 1, action.source_filefolder[ i ] );
+        if ( action.sourceFileFolder[ i ] != null ) {
+          ti.setText( 1, action.sourceFileFolder[ i ] );
         }
         if ( action.wildcard[ i ] != null ) {
           ti.setText( 2, action.wildcard[ i ] );
@@ -1433,22 +1433,22 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
           ti.setText( 3, action.passphrase[ i ] );
         }
 
-        if ( action.destination_filefolder[ i ] != null ) {
-          ti.setText( 4, action.destination_filefolder[ i ] );
+        if ( action.destinationFileFolder[ i ] != null ) {
+          ti.setText( 4, action.destinationFileFolder[ i ] );
         }
       }
       wFields.setRowNums();
       wFields.optWidth( true );
 
     }
-    wPrevious.setSelection( action.arg_from_previous );
-    wIncludeSubfolders.setSelection( action.include_subfolders );
-    wDestinationIsAFile.setSelection( action.destination_is_a_file );
-    wCreateDestinationFolder.setSelection( action.create_destination_folder );
+    wPrevious.setSelection( action.argFromPrevious );
+    wIncludeSubfolders.setSelection( action.includeSubFolders );
+    wDestinationIsAFile.setSelection( action.destinationIsAFile );
+    wCreateDestinationFolder.setSelection( action.createDestinationFolder );
 
-    wAddFileToResult.setSelection( action.add_result_filesname );
+    wAddFileToResult.setSelection( action.addResultFilenames );
 
-    wCreateMoveToFolder.setSelection( action.create_move_to_folder );
+    wCreateMoveToFolder.setSelection( action.createMoveToFolder );
 
     if ( action.getNrErrorsLessThan() != null ) {
       wNrErrorsLessThan.setText( action.getNrErrorsLessThan() );
@@ -1515,8 +1515,8 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
       wDateTimeFormat.setText( action.getDateTimeFormat() );
     }
 
-    if ( action.getGPGLocation() != null ) {
-      wGpgExe.setText( action.getGPGLocation() );
+    if ( action.getGpgLocation() != null ) {
+      wGpgExe.setText( action.getGpgLocation() );
     }
 
     wAddMovedDate.setSelection( action.isAddMovedDate() );
@@ -1546,9 +1546,9 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
       return;
     }
     action.setName( wName.getText() );
-    action.setIncludeSubfolders( wIncludeSubfolders.getSelection() );
+    action.setIncludeSubFolders( wIncludeSubfolders.getSelection() );
     action.setArgFromPrevious( wPrevious.getSelection() );
-    action.setAddresultfilesname( wAddFileToResult.getSelection() );
+    action.setAddResultFilenames( wAddFileToResult.getSelection() );
     action.setDestinationIsAFile( wDestinationIsAFile.getSelection() );
     action.setCreateDestinationFolder( wCreateDestinationFolder.getSelection() );
     action.setNrErrorsLessThan( wNrErrorsLessThan.getText() );
@@ -1579,7 +1579,7 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
 
     action.setDestinationFolder( wDestinationFolder.getText() );
 
-    action.setGPGPLocation( wGpgExe.getText() );
+    action.setGpgPLocation( wGpgExe.getText() );
 
     if ( wIfMovedFileExists.getSelectionIndex() == 1 ) {
       action.setIfMovedFileExists( "overwrite_file" );
@@ -1605,30 +1605,30 @@ public class ActionPGPDecryptFilesDialog extends ActionDialog implements IAction
     action.setMovedDateTimeFormat( wMovedDateTimeFormat.getText() );
     action.setAddMovedDateBeforeExtension( wAddMovedDateBeforeExtension.getSelection() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
       }
     }
-    action.source_filefolder = new String[ nr ];
+    action.sourceFileFolder = new String[ nr ];
     action.passphrase = new String[ nr ];
-    action.destination_filefolder = new String[ nr ];
+    action.destinationFileFolder = new String[ nr ];
     action.wildcard = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String source = wFields.getNonEmpty( i ).getText( 1 );
       String wild = wFields.getNonEmpty( i ).getText( 2 );
       String passphrase = wFields.getNonEmpty( i ).getText( 3 );
       String dest = wFields.getNonEmpty( i ).getText( 4 );
 
       if ( source != null && source.length() != 0 ) {
-        action.source_filefolder[ nr ] = source;
+        action.sourceFileFolder[ nr ] = source;
         action.wildcard[ nr ] = wild;
         action.passphrase[ nr ] = passphrase;
-        action.destination_filefolder[ nr ] = dest;
+        action.destinationFileFolder[ nr ] = dest;
         nr++;
       }
     }

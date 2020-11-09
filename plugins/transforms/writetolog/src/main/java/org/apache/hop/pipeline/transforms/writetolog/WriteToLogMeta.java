@@ -55,7 +55,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/writetolog.html"
 )
 public class WriteToLogMeta extends BaseTransformMeta implements ITransformMeta<WriteToLog, WriteToLogData> {
-  private static final Class<?> PKG = WriteToLogMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WriteToLogMeta.class; // Needed by Translator
 
   /**
    * by which fields to display?
@@ -282,21 +282,21 @@ public class WriteToLogMeta extends BaseTransformMeta implements ITransformMeta<
           PKG, "WriteToLogMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fieldName.length; i++ ) {
         int idx = prev.indexOfValue( fieldName[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fieldName[ i ] + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + fieldName[ i ] + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message = BaseMessages.getString( PKG, "WriteToLogMeta.CheckResult.FieldsFound", error_message );
+      if ( errorFound ) {
+        errorMessage = BaseMessages.getString( PKG, "WriteToLogMeta.CheckResult.FieldsFound", errorMessage );
 
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         if ( fieldName.length > 0 ) {

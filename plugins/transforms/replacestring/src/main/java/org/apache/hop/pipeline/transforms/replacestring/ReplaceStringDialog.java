@@ -55,7 +55,7 @@ import java.util.*;
  * @since 28 September 2007
  */
 public class ReplaceStringDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ReplaceStringMeta.class; // Needed by Translator
 
   private TableView wFields;
 
@@ -224,6 +224,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
 
 
     lsDef = new SelectionAdapter() {
+      @Override
       public void widgetDefaultSelected( SelectionEvent e ) {
         ok();
       }
@@ -233,6 +234,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
+      @Override
       public void shellClosed( ShellEvent e ) {
         cancel();
       }

@@ -76,7 +76,7 @@ import java.util.Map;
 import java.util.Set;
 
 public class CombinationLookupDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = CombinationLookupDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CombinationLookupDialog.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

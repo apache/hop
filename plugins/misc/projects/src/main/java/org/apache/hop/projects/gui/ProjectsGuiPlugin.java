@@ -90,7 +90,7 @@ public class ProjectsGuiPlugin {
     root = HopGui.ID_MAIN_TOOLBAR,
     id = ID_TOOLBAR_PROJECT_LABEL,
     type = GuiToolbarElementType.LABEL,
-    label = "  Project : ",
+    label = "Project:",
     toolTip = "Click here to edit the active project",
     separator = true
   )
@@ -330,7 +330,7 @@ public class ProjectsGuiPlugin {
     root = HopGui.ID_MAIN_TOOLBAR,
     id = ID_TOOLBAR_ENVIRONMENT_LABEL,
     type = GuiToolbarElementType.LABEL,
-    label = "  Environment : ",
+    label = "Environment:",
     toolTip = "Click here to edit the active environment",
     separator = true
   )

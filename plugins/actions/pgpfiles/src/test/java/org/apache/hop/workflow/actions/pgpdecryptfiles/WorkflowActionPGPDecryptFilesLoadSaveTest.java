@@ -23,18 +23,18 @@
 
 package org.apache.hop.workflow.actions.pgpdecryptfiles;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.StringLoadSaveValidator;
 import org.apache.hop.workflow.action.loadsave.WorkflowActionLoadSaveTestSupport;
 import org.junit.ClassRule;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class WorkflowActionPGPDecryptFilesLoadSaveTest extends WorkflowActionLoadSaveTestSupport<ActionPGPDecryptFiles> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
@@ -46,32 +46,33 @@ public class WorkflowActionPGPDecryptFilesLoadSaveTest extends WorkflowActionLoa
 
   @Override
   protected List<String> listCommonAttributes() {
-    return Arrays.asList( new String[] { "GPGLocation",
-      "arg_from_previous",
-      "include_subfolders",
-      "add_result_filesname",
-      "destination_is_a_file",
-      "create_destination_folder",
+    return Arrays.asList( new String[] {
+      "gpgLocation",
+      "argFromPrevious",
+      "includeSubFolders",
+      "addResultFilenames",
+      "destinationIsAFile",
+      "createDestinationFolder",
       "addDate",
       "addTime",
-      "SpecifyFormat",
+      "specifyFormat",
       "dateTimeFormat",
       "nrErrorsLessThan",
-      "success_condition",
-      "AddDateBeforeExtension",
-      "DoNotKeepFolderStructure",
+      "successCondition",
+      "addDateBeforeExtension",
+      "doNotKeepFolderStructure",
       "ifFileExists",
       "destinationFolder",
       "ifMovedFileExists",
       "movedDateTimeFormat",
-      "create_move_to_folder",
+      "createMoveToFolder",
       "addMovedDate",
       "addMovedTime",
-      "SpecifyMoveFormat",
-      "AddMovedDateBeforeExtension",
-      "source_filefolder",
+      "specifyMoveFormat",
+      "addMovedDateBeforeExtension",
+      "sourceFileFolder",
       "passphrase",
-      "destination_filefolder",
+      "destinationFileFolder",
       "wildcard" } );
   }
 
@@ -79,9 +80,9 @@ public class WorkflowActionPGPDecryptFilesLoadSaveTest extends WorkflowActionLoa
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
     int count = new Random().nextInt( 50 ) + 1;
-    validators.put( "source_filefolder", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
+    validators.put( "sourceFileFolder", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
     validators.put( "passphrase", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
-    validators.put( "destination_filefolder", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
+    validators.put( "destinationFileFolder", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
     validators.put( "wildcard", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
 
     return validators;

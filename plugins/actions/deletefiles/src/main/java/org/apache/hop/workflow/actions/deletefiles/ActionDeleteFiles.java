@@ -81,7 +81,7 @@ import com.google.common.collect.Multimap;
 )
 public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction {
 
-  private static final Class<?> PKG = ActionDeleteFiles.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionDeleteFiles.class; // Needed by Translator
 
   private boolean argFromPrevious;
 

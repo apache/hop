@@ -147,7 +147,14 @@ import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * Handles the display of Workflows in HopGui, in a graphical form.
@@ -160,7 +167,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   IHopFileTypeHandler,
   IGuiRefresher {
 
-  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = HopGuiWorkflowGraph.class; // Needed by Translator
 
   public static final String GUI_PLUGIN_TOOLBAR_PARENT_ID = "HopGuiWorkflowGraph-Toolbar";
   public static final String TOOLBAR_ITEM_START = "HopGuiWorkflowGraph-ToolBar-10010-Run";
@@ -416,7 +423,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public void mouseDoubleClick( MouseEvent e ) {
 
-    if (!PropsUi.getInstance().useDoubleClick()) {
+    if ( !PropsUi.getInstance().useDoubleClick() ) {
       return;
     }
 
@@ -432,8 +439,8 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
     try {
       HopGuiWorkflowGraphExtension ext = new HopGuiWorkflowGraphExtension( this, e, real, areaOwner );
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowGraphMouseDoubleClick.id, ext);
-      if (ext.isPreventingDefault()) {
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowGraphMouseDoubleClick.id, ext );
+      if ( ext.isPreventingDefault() ) {
         return;
       }
     } catch ( Exception ex ) {
@@ -494,7 +501,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     try {
       HopGuiWorkflowGraphExtension ext = new HopGuiWorkflowGraphExtension( this, e, real, areaOwner );
       ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowGraphMouseDown.id, ext );
-      if (ext.isPreventingDefault()) {
+      if ( ext.isPreventingDefault() ) {
         return;
       }
     } catch ( Exception ex ) {
@@ -606,7 +613,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // User held control and clicked a hop between steps - We want to flip the active state of the hop.
           //
           if ( e.button == 2 || ( e.button == 1 && control ) ) {
-            hop.setEnabled(!hop.isEnabled());
+            hop.setEnabled( !hop.isEnabled() );
             updateGui();
           } else {
             // A hop: show the hop context menu in the mouseUp() listener
@@ -853,7 +860,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     final NotePadMeta fSingleClickNote = singleClickNote;
     final WorkflowHopMeta fSingleClickHop = singleClickHop;
 
-    if (PropsUi.getInstance().useDoubleClick()) {
+    if ( PropsUi.getInstance().useDoubleClick() ) {
       Display.getDefault().timerExec( Display.getDefault().getDoubleClickTime(),
         () -> showContextDialog( e, real, fSingleClick, fSingleClickType, fSingleClickAction, fSingleClickNote, fSingleClickHop )
       );
@@ -899,9 +906,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           Shell parent = hopShell();
           org.eclipse.swt.graphics.Point p = parent.getDisplay().map( canvas, null, e.x, e.y );
 
-          // If we lost focus ignore the next left click
+          // Show the context dialog
           //
-          ignoreNextClick = GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
+          GuiContextUtil.handleActionSelection( parent, message, new Point( p.x, p.y ), contextHandler.getSupportedActions() );
         }
       }
     }
@@ -1118,14 +1125,14 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void mouseExit( MouseEvent event ) {
   }
 
-  public void mouseScrolled( MouseEvent event ) {   
-     if ( event.count > 0 ) { 
-    	 // scroll up 
-    	 zoomIn(); 
-     } else if ( event.count < 0 ) { 
-    	 // scroll down 
-    	 zoomOut(); 
-   	}
+  public void mouseScrolled( MouseEvent event ) {
+    if ( event.count > 0 ) {
+      // scroll up
+      zoomIn();
+    } else if ( event.count < 0 ) {
+      // scroll down
+      zoomOut();
+    }
   }
 
   private void addCandidateAsHop() {
@@ -1357,7 +1364,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   private void readMagnification() {
     float oldMagnification = magnification;
     Combo zoomLabel = (Combo) toolBarWidgets.getWidgetsMap().get( TOOLBAR_ITEM_ZOOM_LEVEL );
-    if ( zoomLabel == null || zoomLabel.isDisposed()) {
+    if ( zoomLabel == null || zoomLabel.isDisposed() ) {
       return;
     }
     String possibleText = zoomLabel.getText();
@@ -1554,7 +1561,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Create,
     name = "Create hop",
     tooltip = "Create a new hop between 2 actions",
-    image = "ui/images/HOP.svg"
+    image = "ui/images/HOP.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void newHopCandidate( HopGuiWorkflowActionContext context ) {
     startHopAction = context.getActionMeta();
@@ -1568,7 +1577,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Edit action description",
     tooltip = "Modify the action description",
-    image = "ui/images/Edit.svg"
+    image = "ui/images/Edit.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void editActionDescription( HopGuiWorkflowActionContext context ) {
     ActionMeta action = context.getActionMeta();
@@ -1592,7 +1603,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Parallel execution",
     tooltip = "Enable of disable parallel execution of next actions",
-    image = "ui/images/parallel-hop.svg"
+    image = "ui/images/parallel-hop.svg",
+    category = "Advanced",
+    categoryOrder = "3"
   )
   public void editActionParallel( HopGuiWorkflowActionContext context ) {
 
@@ -1634,7 +1647,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Delete,
     name = "Delete this action",
     tooltip = "Delete the selected action from the workflow",
-    image = "ui/images/generic-delete.svg"
+    image = "ui/images/generic-delete.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void deleteAction( HopGuiWorkflowActionContext context ) {
     delSelected( context.getActionMeta() );
@@ -1697,7 +1712,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Paste from the clipboard",
     tooltip = "Paste actions, notes or a whole workflow from the clipboard",
-    image = "ui/images/CPY.svg"
+    image = "ui/images/CPY.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void pasteFromClipboard( HopGuiWorkflowContext context ) {
     workflowClipboardDelegate.pasteXml( workflowMeta, workflowClipboardDelegate.fromClipboard(), context.getClick() );
@@ -1709,7 +1726,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Edit workflow",
     tooltip = "Edit the workflow properties",
-    image = "ui/images/toolbar/workflow3.svg"
+    image = "ui/images/toolbar/workflow3.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void editWorkflowProperties( HopGuiWorkflowContext context ) {
     editProperties( workflowMeta, hopGui, true );
@@ -1725,7 +1744,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Create,
     name = "Create a note",
     tooltip = "Create a new note",
-    image = "ui/images/new.svg"
+    image = "ui/images/new.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void newNote( HopGuiWorkflowContext context ) {
     String title = BaseMessages.getString( PKG, "WorkflowGraph.Dialog.EditNote.Title" );
@@ -1761,7 +1782,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Delete,
     name = "Delete the note",
     tooltip = "Delete the note",
-    image = "ui/images/generic-delete.svg"
+    image = "ui/images/generic-delete.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void deleteNote( HopGuiWorkflowNoteContext context ) {
     selectionRegion = null;
@@ -1800,7 +1823,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Enable hop",
     tooltip = "Enable the hop",
-    image = "ui/images/HOP.svg"
+    image = "ui/images/HOP.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void enableHop( HopGuiWorkflowHopContext context ) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -1822,7 +1847,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Disable hop",
     tooltip = "Disable the hop",
-    image = "ui/images/HOP_disable.svg"
+    image = "ui/images/HOP_disable.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void disableHop( HopGuiWorkflowHopContext context ) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -1856,7 +1883,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Delete,
     name = "Delete hop",
     tooltip = "Delete the hop between 2 actions",
-    image = "ui/images/HOP_delete.svg"
+    image = "ui/images/HOP_delete.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void deleteHop( HopGuiWorkflowHopContext context ) {
     workflowHopDelegate.delHop( workflowMeta, context.getHopMeta() );
@@ -1869,7 +1898,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Unconditional hop",
     tooltip = "Go to the next execution regardless of execution outcome",
-    image = "ui/images/unconditional-hop.svg"
+    image = "ui/images/unconditional-hop.svg",
+    category = "Routing",
+    categoryOrder = "2"
   )
   public void setHopUnconditional( HopGuiWorkflowHopContext context ) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -1889,7 +1920,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Success hop",
     tooltip = "Go to the next execution when successful",
-    image = "ui/images/true.svg"
+    image = "ui/images/true.svg",
+    category = "Routing",
+    categoryOrder = "2"
   )
   public void setHopEvaluationTrue( HopGuiWorkflowHopContext context ) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -1909,7 +1942,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Failure hop",
     tooltip = "Go to the next execution when unsuccessful",
-    image = "ui/images/false.svg"
+    image = "ui/images/false.svg",
+    category = "Routing",
+    categoryOrder = "2"
   )
   public void setHopEvaluationFalse( HopGuiWorkflowHopContext context ) {
     WorkflowHopMeta hop = context.getHopMeta();
@@ -1972,7 +2007,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Enable downstream hops",
     tooltip = "Enable all disabled downstream hops",
-    image = "ui/images/HOP_enable_downstream.svg"
+    image = "ui/images/HOP_enable_downstream.svg",
+    category = "Bulk",
+    categoryOrder = "3"
   )
   public void enableHopsDownstream( HopGuiWorkflowHopContext context ) {
     enableDisableHopsDownstream( context.getHopMeta(), true );
@@ -1984,7 +2021,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Disable downstream hops",
     tooltip = "Disable all enabled downstream hops",
-    image = "ui/images/HOP_disable_downstream.svg"
+    image = "ui/images/HOP_disable_downstream.svg",
+    category = "Bulk",
+    categoryOrder = "3"
   )
   public void disableHopsDownstream( HopGuiWorkflowHopContext context ) {
     enableDisableHopsDownstream( context.getHopMeta(), false );
@@ -2390,7 +2429,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Edit the action",
     tooltip = "Edit the action properties",
-    image = "ui/images/Edit.svg"
+    image = "ui/images/Edit.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void editAction( HopGuiWorkflowActionContext context ) {
 
@@ -2636,7 +2677,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     type = GuiActionType.Modify,
     name = "Detach action",
     tooltip = "Remove hops to and from this action",
-    image = "ui/images/HOP_delete.svg"
+    image = "ui/images/HOP_delete.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void detachAction( HopGuiWorkflowActionContext context ) {
     ActionMeta actionMeta = context.getActionMeta();
@@ -2663,15 +2706,17 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-          id = "pipeline-graph-transform-10010-copy-transform-to-clipboard",
-          parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
-          type = GuiActionType.Custom,
-          name = "Copy Action to clipboard",
-          tooltip = "Copy the XML representation of this Action to the clipboard",
-          image = "ui/images/copy.svg"
+    id = "pipeline-graph-transform-10010-copy-transform-to-clipboard",
+    parentId = HopGuiWorkflowActionContext.CONTEXT_ID,
+    type = GuiActionType.Custom,
+    name = "Copy Action to clipboard",
+    tooltip = "Copy the XML representation of this Action to the clipboard",
+    image = "ui/images/copy.svg",
+    category = "Basic",
+    categoryOrder = "1"
   )
   public void copyActionToClipboard( HopGuiWorkflowActionContext context ) {
-      workflowClipboardDelegate.copySelected( workflowMeta, Arrays.asList( context.getActionMeta() ), workflowMeta.getSelectedNotes() );
+    workflowClipboardDelegate.copySelected( workflowMeta, Arrays.asList( context.getActionMeta() ), workflowMeta.getSelectedNotes() );
   }
 
   public void newProps() {
@@ -2832,11 +2877,11 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       if ( StringUtils.isEmpty( workflowMeta.getFilename() ) ) {
         throw new HopException( "No filename: please specify a filename for this workflow" );
       }
-      
+
       // Keep track of save
       //
       AuditManager.registerEvent( HopNamespace.getNamespace(), "file", workflowMeta.getFilename(), "save" );
-      
+
       String xml = workflowMeta.getXml();
       OutputStream out = HopVfs.getOutputStream( workflowMeta.getFilename(), false );
       try {
@@ -2859,12 +2904,12 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @Override
   public void saveAs( String filename ) throws HopException {
     try {
-    	
+
       // Enforce file extension
-      if (!filename.toLowerCase().endsWith(this.getFileType().getDefaultFileExtension())) {
-         filename = filename + this.getFileType().getDefaultFileExtension();
-      } 
-        
+      if ( !filename.toLowerCase().endsWith( this.getFileType().getDefaultFileExtension() ) ) {
+        filename = filename + this.getFileType().getDefaultFileExtension();
+      }
+
       FileObject fileObject = HopVfs.getFileObject( filename );
       if ( fileObject.exists() ) {
         MessageBox box = new MessageBox( hopGui.getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
@@ -2875,7 +2920,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           return;
         }
       }
-      
+
       workflowMeta.setFilename( filename );
       save();
     } catch ( Exception e ) {
@@ -3087,21 +3132,20 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         messageDialog.setMessage( "Do you want to save file '" + buildTabName() + "' before closing?" );
         int answer = messageDialog.open();
         if ( ( answer & SWT.YES ) != 0 ) {
-        	if ( StringUtils.isEmpty( this.getFilename() ) ) {
-        		// Ask for the filename
-        		//
-        		String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
-        		if ( filename == null ) {
-        			return false;         		
-        		}
-        		
-        		filename = hopGui.getVariables().environmentSubstitute( filename );         	    	
-        		saveAs(filename);
-        	}
-        	else {
-        		save();       
-        	}
-            return true;   
+          if ( StringUtils.isEmpty( this.getFilename() ) ) {
+            // Ask for the filename
+            //
+            String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+            if ( filename == null ) {
+              return false;
+            }
+
+            filename = hopGui.getVariables().environmentSubstitute( filename );
+            saveAs( filename );
+          } else {
+            save();
+          }
+          return true;
         }
         if ( ( answer & SWT.NO ) != 0 ) {
           // User doesn't want to save but close
@@ -3136,99 +3180,99 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public synchronized void start( WorkflowExecutionConfiguration executionConfiguration ) throws HopException {
 
-	  // If filename set & not changed ?
+    // If filename set & not changed ?
+    //
+    if ( handleWorkflowMetaChanges( workflowMeta ) ) {
+
+      // If the workflow is not running, start the workflow...
       //
-      if (  handleWorkflowMetaChanges( workflowMeta ) ) { 
-    	  
-    	  // If the workflow is not running, start the workflow...
-    	  //
-    	  if ( !isRunning() ) {
-          try {
+      if ( !isRunning() ) {
+        try {
 
-            // Make sure we clear the log before executing again...
-            //
-            if ( executionConfiguration.isClearingLog() ) {
-              workflowLogDelegate.clearLog();
-            }
-
-            // Also make sure to clear the old log actions in the central log
-            // store & registry
-            //
-            if ( workflow != null ) {
-              HopLogStore.discardLines( workflow.getLogChannelId(), true );
-            }
-
-            WorkflowMeta runWorkflowMeta;
-
-            runWorkflowMeta = new WorkflowMeta( hopGui.getVariables(), workflowMeta.getFilename(), workflowMeta.getMetadataProvider() );
-
-            String hopGuiObjectId = UUID.randomUUID().toString();
-            SimpleLoggingObject hopGuiLoggingObject = new SimpleLoggingObject( "HOPGUI", LoggingObjectType.HOP_GUI, null );
-            hopGuiLoggingObject.setContainerObjectId( hopGuiObjectId );
-            hopGuiLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
-
-            workflow = WorkflowEngineFactory.createWorkflowEngine( executionConfiguration.getRunConfiguration(), hopGui.getMetadataProvider(), runWorkflowMeta );
-
-            workflow.setLogLevel( executionConfiguration.getLogLevel() );
-            workflow.shareVariablesWith( workflowMeta );
-            workflow.setInteractive( true );
-            workflow.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
-
-            // Pass specific extension points...
-            //
-            workflow.getExtensionDataMap().putAll( executionConfiguration.getExtensionOptions() );
-
-            // Add action listeners
-            //
-            workflow.addActionListener( createRefreshActionListener() );
-
-            // If there is an alternative start action, pass it to the workflow
-            //
-            if ( !Utils.isEmpty( executionConfiguration.getStartActionName() ) ) {
-              ActionMeta startActionMeta =
-                runWorkflowMeta.findAction( executionConfiguration.getStartActionName(), executionConfiguration.getStartActionNr() );
-              workflow.setStartActionMeta( startActionMeta );
-            }
-
-            // Set the named parameters
-            Map<String, String> paramMap = executionConfiguration.getParametersMap();
-            Set<String> keys = paramMap.keySet();
-            for ( String key : keys ) {
-              workflow.getWorkflowMeta().setParameterValue( key, Const.NVL( paramMap.get( key ), "" ) );
-            }
-            workflow.getWorkflowMeta().activateParameters();
-
-            log.logMinimal( BaseMessages.getString( PKG, "WorkflowLog.Log.StartingWorkflow" ) );
-            workflowThread = new Thread( () -> workflow.startExecution() );
-            workflowThread.start();
-            workflowGridDelegate.previousNrItems = -1;
-            // Link to the new workflowTracker!
-            workflowGridDelegate.workflowTracker = workflow.getWorkflowTracker();
-
-            updateGui();
-            
-            // Attach a listener to notify us that the pipeline has finished.
-            //
-            workflow.addWorkflowFinishedListener( workflow -> HopGuiWorkflowGraph.this.jobFinished() );
-
-            // Show the execution results views
-            //
-            addAllTabs();
-          } catch ( HopException e ) {
-            new ErrorDialog(
-              hopShell(), BaseMessages.getString( PKG, "WorkflowLog.Dialog.CanNotOpenWorkflow.Title" ), BaseMessages.getString(
-              PKG, "WorkflowLog.Dialog.CanNotOpenWorkflow.Message" ), e );
-            workflow = null;
+          // Make sure we clear the log before executing again...
+          //
+          if ( executionConfiguration.isClearingLog() ) {
+            workflowLogDelegate.clearLog();
           }
-        } else {
-          MessageBox m = new MessageBox( hopShell(), SWT.OK | SWT.ICON_WARNING );
-          m.setText( BaseMessages.getString( PKG, "WorkflowLog.Dialog.WorkflowIsAlreadyRunning.Title" ) );
-          m.setMessage( BaseMessages.getString( PKG, "WorkflowLog.Dialog.WorkflowIsAlreadyRunning.Message" ) );
-          m.open();
+
+          // Also make sure to clear the old log actions in the central log
+          // store & registry
+          //
+          if ( workflow != null ) {
+            HopLogStore.discardLines( workflow.getLogChannelId(), true );
+          }
+
+          WorkflowMeta runWorkflowMeta;
+
+          runWorkflowMeta = new WorkflowMeta( hopGui.getVariables(), workflowMeta.getFilename(), workflowMeta.getMetadataProvider() );
+
+          String hopGuiObjectId = UUID.randomUUID().toString();
+          SimpleLoggingObject hopGuiLoggingObject = new SimpleLoggingObject( "HOPGUI", LoggingObjectType.HOP_GUI, null );
+          hopGuiLoggingObject.setContainerObjectId( hopGuiObjectId );
+          hopGuiLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
+
+          workflow = WorkflowEngineFactory.createWorkflowEngine( executionConfiguration.getRunConfiguration(), hopGui.getMetadataProvider(), runWorkflowMeta );
+
+          workflow.setLogLevel( executionConfiguration.getLogLevel() );
+          workflow.shareVariablesWith( workflowMeta );
+          workflow.setInteractive( true );
+          workflow.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
+
+          // Pass specific extension points...
+          //
+          workflow.getExtensionDataMap().putAll( executionConfiguration.getExtensionOptions() );
+
+          // Add action listeners
+          //
+          workflow.addActionListener( createRefreshActionListener() );
+
+          // If there is an alternative start action, pass it to the workflow
+          //
+          if ( !Utils.isEmpty( executionConfiguration.getStartActionName() ) ) {
+            ActionMeta startActionMeta =
+              runWorkflowMeta.findAction( executionConfiguration.getStartActionName(), executionConfiguration.getStartActionNr() );
+            workflow.setStartActionMeta( startActionMeta );
+          }
+
+          // Set the named parameters
+          Map<String, String> paramMap = executionConfiguration.getParametersMap();
+          Set<String> keys = paramMap.keySet();
+          for ( String key : keys ) {
+            workflow.getWorkflowMeta().setParameterValue( key, Const.NVL( paramMap.get( key ), "" ) );
+          }
+          workflow.getWorkflowMeta().activateParameters();
+
+          log.logMinimal( BaseMessages.getString( PKG, "WorkflowLog.Log.StartingWorkflow" ) );
+          workflowThread = new Thread( () -> workflow.startExecution() );
+          workflowThread.start();
+          workflowGridDelegate.previousNrItems = -1;
+          // Link to the new workflowTracker!
+          workflowGridDelegate.workflowTracker = workflow.getWorkflowTracker();
+
+          updateGui();
+
+          // Attach a listener to notify us that the pipeline has finished.
+          //
+          workflow.addWorkflowFinishedListener( workflow -> HopGuiWorkflowGraph.this.jobFinished() );
+
+          // Show the execution results views
+          //
+          addAllTabs();
+        } catch ( HopException e ) {
+          new ErrorDialog(
+            hopShell(), BaseMessages.getString( PKG, "WorkflowLog.Dialog.CanNotOpenWorkflow.Title" ), BaseMessages.getString(
+            PKG, "WorkflowLog.Dialog.CanNotOpenWorkflow.Message" ), e );
+          workflow = null;
         }
-      } else {       
-          showSaveFileMessage();        
-      }    
+      } else {
+        MessageBox m = new MessageBox( hopShell(), SWT.OK | SWT.ICON_WARNING );
+        m.setText( BaseMessages.getString( PKG, "WorkflowLog.Dialog.WorkflowIsAlreadyRunning.Title" ) );
+        m.setMessage( BaseMessages.getString( PKG, "WorkflowLog.Dialog.WorkflowIsAlreadyRunning.Message" ) );
+        m.open();
+      }
+    } else {
+      showSaveFileMessage();
+    }
   }
 
   public void showSaveFileMessage() {
@@ -3281,19 +3325,19 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   /**
    * Handle if workflow filename is set and changed saved
-   * 
+   * <p>
    * Prompt auto save feature...
-   * 
+   *
    * @param workflowMeta
    * @return true if workflow meta has name and if changed is saved
-   * @throws HopException 
+   * @throws HopException
    */
   public boolean handleWorkflowMetaChanges( WorkflowMeta workflowMeta ) throws HopException {
     if ( workflowMeta.hasChanged() ) {
-      if ( StringUtils.isNotEmpty(workflowMeta.getFilename()) && hopGui.getProps().getAutoSave() ) {
+      if ( StringUtils.isNotEmpty( workflowMeta.getFilename() ) && hopGui.getProps().getAutoSave() ) {
         if ( log.isDetailed() ) {
           log.logDetailed( BaseMessages.getString( PKG, "WorkflowLog.Log.AutoSaveFileBeforeRunning" ) );
-        }        
+        }
         save();
       } else {
         MessageDialogWithToggle md =
@@ -3309,23 +3353,23 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               BaseMessages.getString( PKG, "System.Button.No" ) },
             0, BaseMessages.getString( PKG, "WorkflowLog.Dialog.SaveChangedFile.Toggle" ), hopGui.getProps().getAutoSave() );
         int answer = md.open();
-        
+
         if ( ( answer & 0xFF ) == 0 ) {
-        	if ( StringUtils.isEmpty( workflowMeta.getFilename() ) ) {
-                // Ask for the filename: saveAs
-                //
-        	    String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
-        	    if ( filename != null ) {
-        	    	filename = hopGui.getVariables().environmentSubstitute( filename );         	    	
-        	    	saveAs(filename);
-        	    }
-        	}
+          if ( StringUtils.isEmpty( workflowMeta.getFilename() ) ) {
+            // Ask for the filename: saveAs
+            //
+            String filename = BaseDialog.presentFileDialog( true, hopGui.getShell(), fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+            if ( filename != null ) {
+              filename = hopGui.getVariables().environmentSubstitute( filename );
+              saveAs( filename );
+            }
+          }
         }
         hopGui.getProps().setAutoSave( md.getToggleState() );
       }
     }
-    
-    return  StringUtils.isNotEmpty(workflowMeta.getFilename()) && !workflowMeta.hasChanged();
+
+    return StringUtils.isNotEmpty( workflowMeta.getFilename() ) && !workflowMeta.hasChanged();
   }
 
   private ActionMeta lastChained = null;

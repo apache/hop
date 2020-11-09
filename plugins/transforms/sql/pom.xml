@@ -13,6 +13,6 @@
   <artifactId>hop-transform-sql</artifactId>
   <packaging>jar</packaging>
 
-  <name>Hop Plugin Transforms SQL</name>
+  <name>Hop Plugins Transforms SQL</name>
 
 </project>

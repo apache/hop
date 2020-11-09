@@ -44,7 +44,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class FileExistsDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = FileExistsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FileExistsMeta.class; // Needed by Translator
 
   private boolean gotPreviousFields = false;
   private CCombo wFileName;

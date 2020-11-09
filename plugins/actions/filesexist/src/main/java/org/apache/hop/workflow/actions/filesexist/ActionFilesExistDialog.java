@@ -51,7 +51,7 @@ import org.eclipse.swt.widgets.*;
  * @since 12-10-2007
  */
 public class ActionFilesExistDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionFilesExist.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFilesExist.class; // Needed by Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobFilesExist.Filetype.Text" ),
@@ -371,9 +371,9 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     action.setName( wName.getText() );
     action.setFilename( wFilename.getText() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -381,7 +381,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     }
     String[] arguments = new String[ nr ];
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         arguments[ nr ] = arg;

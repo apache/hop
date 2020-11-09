@@ -58,7 +58,7 @@ import java.util.List;
  */
 public class RowGenerator extends BaseTransform<RowGeneratorMeta, RowGeneratorData> implements ITransform<RowGeneratorMeta, RowGeneratorData> {
 
-  private static final Class<?> PKG = RowGeneratorMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RowGeneratorMeta.class; // Needed by Translator
 
   public RowGenerator( TransformMeta transformMeta, RowGeneratorMeta meta, RowGeneratorData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {

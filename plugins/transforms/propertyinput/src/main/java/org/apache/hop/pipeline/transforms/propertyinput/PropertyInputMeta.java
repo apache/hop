@@ -66,7 +66,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/pgbulkloader.html"
 )
 public class PropertyInputMeta extends BaseTransformMeta implements ITransformMeta<PropertyInput, PropertyInputData> {
-  private static final Class<?> PKG = PropertyInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PropertyInputMeta.class; // Needed by Translator
 
   public static final String[] RequiredFilesDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
@@ -77,9 +77,9 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
 
   private static final String YES = "Y";
 
-  public static final String[] type_trim_code = { "none", "left", "right", "both" };
+  public static final String[] type_trimCode = { "none", "left", "right", "both" };
 
-  public static final String[] column_code = { "key", "value" };
+  public static final String[] columnCode = { "key", "value" };
 
   public static final String[] fileTypeDesc = new String[] {
     BaseMessages.getString( PKG, "PropertyInputMeta.FileType.Property" ),
@@ -991,8 +991,8 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
 
   public static final int getTrimTypeByCode( String tt ) {
     if ( tt != null ) {
-      for ( int i = 0; i < type_trim_code.length; i++ ) {
-        if ( type_trim_code[ i ].equalsIgnoreCase( tt ) ) {
+      for ( int i = 0; i < type_trimCode.length; i++ ) {
+        if ( type_trimCode[ i ].equalsIgnoreCase( tt ) ) {
           return i;
         }
       }
@@ -1002,8 +1002,8 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
 
   public static final int getColumnByCode( String tt ) {
     if ( tt != null ) {
-      for ( int i = 0; i < column_code.length; i++ ) {
-        if ( column_code[ i ].equalsIgnoreCase( tt ) ) {
+      for ( int i = 0; i < columnCode.length; i++ ) {
+        if ( columnCode[ i ].equalsIgnoreCase( tt ) ) {
           return i;
         }
       }

@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.replacestring;
 
+import static org.apache.hop.core.ICheckResult.*;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -61,7 +63,7 @@ import java.util.List;
 )
 public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMeta<ReplaceString, ReplaceStringData> {
 
-  private static final Class<?> PKG = ReplaceStringMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ReplaceStringMeta.class; // Needed by Translator
 
   @Injection( name = "FIELD_IN_STREAM", group = "FIELDS" )
   private String[] fieldInStream;
@@ -96,14 +98,14 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
   @Injection( name = "IS_UNICODE", group = "FIELDS" )
   private int[] isUnicode;
 
-  public static final String[] caseSensitiveCode = { "no", "yes" };
+  protected static final String[] caseSensitiveCode = { "no", "yes" };
 
-  public static final String[] isUnicodeCode = { "no", "yes" };
+  protected static final String[] isUnicodeCode = { "no", "yes" };
 
-  public static final String[] caseSensitiveDesc = new String[] {
+  protected static final String[] caseSensitiveDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 
-  public static final String[] isUnicodeDesc = new String[] {
+  protected static final String[] isUnicodeDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 
   public static final int CASE_SENSITIVE_NO = 0;
@@ -114,19 +116,19 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
 
   public static final int IS_UNICODE_YES = 1;
 
-  public static final String[] wholeWordDesc = new String[] {
+  protected static final String[] wholeWordDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 
-  public static final String[] wholeWordCode = { "no", "yes" };
+  protected static final String[] wholeWordCode = { "no", "yes" };
 
   public static final int WHOLE_WORD_NO = 0;
 
   public static final int WHOLE_WORD_YES = 1;
 
-  public static final String[] useRegExDesc = new String[] {
+  protected static final String[] useRegExDesc = new String[] {
     BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 
-  public static final String[] useRegExCode = { "no", "yes" };
+  protected static final String[] useRegExCode = { "no", "yes" };
 
   public static final int USE_REGEX_NO = 0;
 
@@ -397,13 +399,14 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
                      IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
-    String error_message = "";
+    StringBuilder errorMessage = new StringBuilder();
     boolean first = true;
-    boolean error_found = false;
+    boolean errorFound = false;
 
     if ( prev == null ) {
-      error_message += BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.NoInputReceived" ) + Const.CR;
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      errorMessage.append(BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.NoInputReceived" ))
+      .append(Const.CR);
+      cr = new CheckResult( TYPE_RESULT_ERROR, errorMessage.toString(), transforminfo );
       remarks.add( cr );
     } else {
 
@@ -414,47 +417,45 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
         if ( v == null ) {
           if ( first ) {
             first = false;
-            error_message +=
-              BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.MissingInStreamFields" ) + Const.CR;
+            errorMessage.append(
+              BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.MissingInStreamFields" ))
+            .append(Const.CR);
           }
-          error_found = true;
-          error_message += "\t\t" + field + Const.CR;
+          errorFound = true;
+          errorMessage.append("\t\t").append(field).append(Const.CR);
         }
       }
-      if ( error_found ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      if ( errorFound ) {
+        cr = new CheckResult( TYPE_RESULT_ERROR, errorMessage.toString(), transforminfo );
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "ReplaceStringMeta.CheckResult.FoundInStreamFields" ), transforminfo );
       }
       remarks.add( cr );
 
       // Check whether all are strings
       first = true;
-      error_found = false;
+      errorFound = false;
       for ( int i = 0; i < fieldInStream.length; i++ ) {
         String field = fieldInStream[ i ];
 
         IValueMeta v = prev.searchValueMeta( field );
-        if ( v != null ) {
-          if ( v.getType() != IValueMeta.TYPE_STRING ) {
+        if ( v != null && v.getType() != IValueMeta.TYPE_STRING ) {
             if ( first ) {
               first = false;
-              error_message +=
-                BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.OperationOnNonStringFields" )
-                  + Const.CR;
+              errorMessage.append(BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.OperationOnNonStringFields" ))
+                .append(Const.CR);
             }
-            error_found = true;
-            error_message += "\t\t" + field + Const.CR;
-          }
+            errorFound = true;
+            errorMessage.append("\t\t").append(field).append(Const.CR);
         }
       }
-      if ( error_found ) {
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+      if ( errorFound ) {
+        cr = new CheckResult( TYPE_RESULT_ERROR, errorMessage.toString(), transforminfo );
       } else {
         cr =
-          new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
+          new CheckResult( TYPE_RESULT_OK, BaseMessages.getString(
             PKG, "ReplaceStringMeta.CheckResult.AllOperationsOnStringFields" ), transforminfo );
       }
       remarks.add( cr );
@@ -464,9 +465,10 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
           if ( Utils.isEmpty( fieldInStream[ idx ] ) ) {
             cr =
               new CheckResult(
-                CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
-                PKG, "ReplaceStringMeta.CheckResult.InStreamFieldMissing", new Integer( idx + 1 )
-                  .toString() ), transforminfo );
+                TYPE_RESULT_ERROR, BaseMessages.getString(
+                PKG, "ReplaceStringMeta.CheckResult.InStreamFieldMissing", 
+                Integer.toString( idx + 1 )),
+                transforminfo );
             remarks.add( cr );
 
           }
@@ -477,9 +479,9 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
       for ( int idx = 0; idx < fieldInStream.length; idx++ ) {
         for ( int jdx = 0; jdx < fieldInStream.length; jdx++ ) {
           if ( fieldInStream[ idx ].equals( fieldInStream[ jdx ] ) && idx != jdx && idx < jdx ) {
-            error_message =
+            String errMessage = 
               BaseMessages.getString( PKG, "ReplaceStringMeta.CheckResult.FieldInputError", fieldInStream[ idx ] );
-            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transforminfo );
+            cr = new CheckResult( TYPE_RESULT_ERROR, errMessage, transforminfo );
             remarks.add( cr );
           }
         }

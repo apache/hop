@@ -130,9 +130,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
 
   protected final ChangedFlag changedFlag = new ChangedFlag();
 
-  protected int max_undo;
+  protected int maxUndo;
 
-  protected int undo_position;
+  protected int undoPosition;
 
   protected RunOptions runOptions = new RunOptions();
 
@@ -552,7 +552,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
    * org.apache.hop.core.gui.Point[], org.apache.hop.core.gui.Point[], int, boolean)
    */
   @Override
-  public void addUndo( Object[] from, Object[] to, int[] pos, Point[] prev, Point[] curr, int type_of_change,
+  public void addUndo( Object[] from, Object[] to, int[] pos, Point[] prev, Point[] curr, int typeOfChange,
                        boolean nextAlso ) {
     // First clean up after the current position.
     // Example: position at 3, size=5
@@ -562,13 +562,13 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
     // Add 4
     // 01234
 
-    while ( undo.size() > undo_position + 1 && undo.size() > 0 ) {
+    while ( undo.size() > undoPosition + 1 && undo.size() > 0 ) {
       int last = undo.size() - 1;
       undo.remove( last );
     }
 
     ChangeAction ta = new ChangeAction();
-    switch ( type_of_change ) {
+    switch ( typeOfChange ) {
       case TYPE_UNDO_CHANGE:
         ta.setChanged( from, to, pos );
         break;
@@ -585,11 +585,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
         break;
     }
     undo.add( ta );
-    undo_position++;
+    undoPosition++;
 
-    if ( undo.size() > max_undo ) {
+    if ( undo.size() > maxUndo ) {
       undo.remove( 0 );
-      undo_position--;
+      undoPosition--;
     }
   }
 
@@ -597,8 +597,8 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
    * Clear undo.
    */
   public void clearUndo() {
-    undo = new ArrayList<ChangeAction>();
-    undo_position = -1;
+    undo = new ArrayList<>();
+    undoPosition = -1;
   }
 
   /*
@@ -609,13 +609,13 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
   @Override
   public ChangeAction nextUndo() {
     int size = undo.size();
-    if ( size == 0 || undo_position >= size - 1 ) {
+    if ( size == 0 || undoPosition >= size - 1 ) {
       return null; // no redo left...
     }
 
-    undo_position++;
+    undoPosition++;
 
-    ChangeAction retval = undo.get( undo_position );
+    ChangeAction retval = undo.get( undoPosition );
 
     return retval;
   }
@@ -628,11 +628,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
   @Override
   public ChangeAction viewNextUndo() {
     int size = undo.size();
-    if ( size == 0 || undo_position >= size - 1 ) {
+    if ( size == 0 || undoPosition >= size - 1 ) {
       return null; // no redo left...
     }
 
-    ChangeAction retval = undo.get( undo_position + 1 );
+    ChangeAction retval = undo.get( undoPosition + 1 );
 
     return retval;
   }
@@ -645,13 +645,13 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
    */
   @Override
   public ChangeAction previousUndo() {
-    if ( undo.isEmpty() || undo_position < 0 ) {
+    if ( undo.isEmpty() || undoPosition < 0 ) {
       return null; // No undo left!
     }
 
-    ChangeAction retval = undo.get( undo_position );
+    ChangeAction retval = undo.get( undoPosition );
 
-    undo_position--;
+    undoPosition--;
 
     return retval;
   }
@@ -663,11 +663,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
    */
   @Override
   public ChangeAction viewThisUndo() {
-    if ( undo.isEmpty() || undo_position < 0 ) {
+    if ( undo.isEmpty() || undoPosition < 0 ) {
       return null; // No undo left!
     }
 
-    ChangeAction retval = undo.get( undo_position );
+    ChangeAction retval = undo.get( undoPosition );
 
     return retval;
   }
@@ -680,11 +680,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
    */
   @Override
   public ChangeAction viewPreviousUndo() {
-    if ( undo.isEmpty() || undo_position < 0 ) {
+    if ( undo.isEmpty() || undoPosition < 0 ) {
       return null; // No undo left!
     }
 
-    ChangeAction retval = undo.get( undo_position );
+    ChangeAction retval = undo.get( undoPosition );
 
     return retval;
   }
@@ -696,7 +696,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
    */
   @Override
   public int getMaxUndo() {
-    return max_undo;
+    return maxUndo;
   }
 
   /*
@@ -706,7 +706,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
    */
   @Override
   public void setMaxUndo( int mu ) {
-    max_undo = mu;
+    maxUndo = mu;
     while ( undo.size() > mu && undo.size() > 0 ) {
       undo.remove( 0 );
     }
@@ -1363,7 +1363,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
     setFilename( null );
     notes = new ArrayList<>();
     attributesMap = new HashMap<>();
-    max_undo = Const.MAX_UNDO;
+    maxUndo = Const.MAX_UNDO;
     clearUndo();
     clearChanged();
     setChanged( false );

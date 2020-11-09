@@ -287,28 +287,28 @@ public class ValueMetaBaseTest  {
     String inputValueNullString = null;
     String nullIf = null;
     String ifNull = null;
-    int trim_type = 0;
+    int trimType = 0;
     Object result;
 
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "N" );
     result =
-      outValueMetaString.convertDataFromString( inputValueEmptyString, inValueMetaString, nullIf, ifNull, trim_type );
+      outValueMetaString.convertDataFromString( inputValueEmptyString, inValueMetaString, nullIf, ifNull, trimType );
     assertEquals( "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = N: "
       + "Conversion from empty string to string must return empty string", StringUtils.EMPTY, result );
 
     result =
-      outValueMetaString.convertDataFromString( inputValueNullString, inValueMetaString, nullIf, ifNull, trim_type );
+      outValueMetaString.convertDataFromString( inputValueNullString, inValueMetaString, nullIf, ifNull, trimType );
     assertEquals( "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = N: "
       + "Conversion from null string must return null", null, result );
 
     System.setProperty( Const.HOP_EMPTY_STRING_DIFFERS_FROM_NULL, "Y" );
     result =
-      outValueMetaString.convertDataFromString( inputValueEmptyString, inValueMetaString, nullIf, ifNull, trim_type );
+      outValueMetaString.convertDataFromString( inputValueEmptyString, inValueMetaString, nullIf, ifNull, trimType );
     assertEquals( "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = Y: "
       + "Conversion from empty string to string must return empty string", StringUtils.EMPTY, result );
 
     result =
-      outValueMetaString.convertDataFromString( inputValueNullString, inValueMetaString, nullIf, ifNull, trim_type );
+      outValueMetaString.convertDataFromString( inputValueNullString, inValueMetaString, nullIf, ifNull, trimType );
     assertEquals( "HOP_EMPTY_STRING_DIFFERS_FROM_NULL = Y: "
       + "Conversion from null string must return empty string", StringUtils.EMPTY, result );
   }
@@ -320,11 +320,11 @@ public class ValueMetaBaseTest  {
     String inputValueEmptyString = StringUtils.EMPTY;
     String nullIf = null;
     String ifNull = null;
-    int trim_type = 0;
+    int trimType = 0;
     Object result;
 
     result =
-      outValueMetaDate.convertDataFromString( inputValueEmptyString, inValueMetaString, nullIf, ifNull, trim_type );
+      outValueMetaDate.convertDataFromString( inputValueEmptyString, inValueMetaString, nullIf, ifNull, trimType );
     assertEquals( "Conversion from empty string to date must return null", result, null );
   }
 
@@ -335,9 +335,9 @@ public class ValueMetaBaseTest  {
     IValueMeta iValueMeta = null;
     String nullIf = null;
     String ifNull = null;
-    int trim_type = 0;
+    int trimType = 0;
 
-    valueMetaBase.convertDataFromString( inputValueEmptyString, iValueMeta, nullIf, ifNull, trim_type );
+    valueMetaBase.convertDataFromString( inputValueEmptyString, iValueMeta, nullIf, ifNull, trimType );
   }
 
   @Test( expected = HopValueException.class )

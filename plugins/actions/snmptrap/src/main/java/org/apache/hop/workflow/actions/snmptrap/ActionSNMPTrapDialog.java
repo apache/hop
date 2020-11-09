@@ -58,7 +58,7 @@ import java.net.InetAddress;
  * @since 12-09-2008
  */
 public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionSNMPTrap.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionSNMPTrap.class; // Needed by Translator
 
   private LabelText wName;
 
@@ -242,7 +242,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     fdlTargetType.top = new FormAttachment(wServerSettings, margin );
     wlTargetType.setLayoutData(fdlTargetType);
     wTargetType = new CCombo(wAdvancedSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
-    wTargetType.setItems( ActionSNMPTrap.target_type_Desc );
+    wTargetType.setItems( ActionSNMPTrap.targetTypeDesc );
 
     props.setLook( wTargetType );
     FormData fdTargetType = new FormData();

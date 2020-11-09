@@ -33,9 +33,14 @@ import org.eclipse.swt.widgets.Shell;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GuiContextUtil {
+
+  private static final Map<String, ContextDialog> shellDialogMap = new HashMap<>();
+
 
   public static final List<GuiAction> getContextActions( IActionContextHandlersProvider provider, GuiActionType actionType ) {
     return GuiContextUtil.filterHandlerActions( provider.getContextHandlers(), actionType );
@@ -106,25 +111,38 @@ public class GuiContextUtil {
      * @param actions
      * @return true if the action dialog lost focus
      */
-  public static boolean handleActionSelection( Shell parent, String message, Point clickLocation, List<GuiAction> actions ) {
+  public synchronized static boolean handleActionSelection( Shell parent, String message, Point clickLocation, List<GuiAction> actions ) {
     if ( actions.isEmpty() ) {
       return false;
     }
 
     try {
 
-      List<String> fileTypes = new ArrayList<>();
-      for ( GuiAction action : actions ) {
-        fileTypes.add( action.getType().name() + " - " + action.getName() + " : " + action.getTooltip() );
-      }
+      synchronized ( parent ) {
+        ContextDialog contextDialog = shellDialogMap.get( parent.getText() );
+        if ( contextDialog != null ) {
+          if ( !contextDialog.isDisposed() ) {
+            contextDialog.dispose();
+          }
+          shellDialogMap.remove( parent.getText() );
+          return true;
+        }
 
-      ContextDialog contextDialog = new ContextDialog( parent, message, clickLocation, actions );
-      GuiAction selectedAction = contextDialog.open();
-      if ( selectedAction != null ) {
-        IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
-        actionLambda.executeAction( contextDialog.isShiftClicked(), contextDialog.isCtrlClicked() );
-      } else {
-        return contextDialog.isFocusLost();
+        List<String> fileTypes = new ArrayList<>();
+        for ( GuiAction action : actions ) {
+          fileTypes.add( action.getType().name() + " - " + action.getName() + " : " + action.getTooltip() );
+        }
+
+        contextDialog = new ContextDialog( parent, message, clickLocation, actions );
+        shellDialogMap.put( parent.getText(), contextDialog );
+        GuiAction selectedAction = contextDialog.open();
+        shellDialogMap.remove( parent.getText() );
+        if ( selectedAction != null ) {
+          IGuiActionLambda<?> actionLambda = selectedAction.getActionLambda();
+          actionLambda.executeAction( contextDialog.isShiftClicked(), contextDialog.isCtrlClicked() );
+        } else {
+          return contextDialog.isFocusLost();
+        }
       }
     } catch ( Exception e ) {
       new ErrorDialog( parent, "Error", "An error occurred executing action", e );

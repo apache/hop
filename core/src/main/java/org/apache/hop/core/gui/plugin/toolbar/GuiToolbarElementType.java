@@ -24,8 +24,9 @@ package org.apache.hop.core.gui.plugin.toolbar;
 
 public enum GuiToolbarElementType {
   NONE, // To disable default options
-  TOOLBAR_BUTTON,
+  BUTTON,
   LABEL,
   COMBO,
+  CHECKBOX,
   ;
 }

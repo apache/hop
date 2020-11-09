@@ -81,17 +81,17 @@ import java.util.stream.Collectors;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/userdefinedjavaclass.html"
 )
 public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITransformMeta<UserDefinedJavaClass, UserDefinedJavaClassData> {
-  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UserDefinedJavaClassMeta.class; // Needed by Translator
 
   public enum ElementNames {
-    class_type, class_name, class_source, definitions, definition, fields, field, field_name, field_type,
-    field_length, field_precision, clear_result_fields,
+    classType, className, class_source, definitions, definition, fields, field, fieldName, fieldType,
+    fieldLength, fieldPrecision, clearResultFields,
 
     infoTransforms, infoTransform, info_, target_transforms, target_transform, target_,
 
-    transform_tag, transform_name, transform_description,
+    transform_tag, transformName, transformDescription,
 
-    usage_parameters, usage_parameter, parameter_tag, parameter_value, parameter_description,
+    usage_parameters, usage_parameter, parameter_tag, parameterValue, parameterDescription,
   }
 
   @InjectionDeep
@@ -363,8 +363,8 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
       for ( int i = 0; i < nrDefinitions; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( definitionsNode, ElementNames.definition.name(), i );
         definitions.add( new UserDefinedJavaClassDef(
-          ClassType.valueOf( XmlHandler.getTagValue( fnode, ElementNames.class_type.name() ) ),
-          XmlHandler.getTagValue( fnode, ElementNames.class_name.name() ),
+          ClassType.valueOf( XmlHandler.getTagValue( fnode, ElementNames.classType.name() ) ),
+          XmlHandler.getTagValue( fnode, ElementNames.className.name() ),
           XmlHandler.getTagValue( fnode, ElementNames.class_source.name() ) ) );
       }
       definitions = orderDefinitions( definitions );
@@ -375,13 +375,13 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
       for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fieldsNode, ElementNames.field.name(), i );
         fields.add( new FieldInfo(
-          XmlHandler.getTagValue( fnode, ElementNames.field_name.name() ),
-          ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, ElementNames.field_type.name() ) ),
-          Const.toInt( XmlHandler.getTagValue( fnode, ElementNames.field_length.name() ), -1 ),
-          Const.toInt( XmlHandler.getTagValue( fnode, ElementNames.field_precision.name() ), -1 ) ) );
+          XmlHandler.getTagValue( fnode, ElementNames.fieldName.name() ),
+          ValueMetaFactory.getIdForValueMeta( XmlHandler.getTagValue( fnode, ElementNames.fieldType.name() ) ),
+          Const.toInt( XmlHandler.getTagValue( fnode, ElementNames.fieldLength.name() ), -1 ),
+          Const.toInt( XmlHandler.getTagValue( fnode, ElementNames.fieldPrecision.name() ), -1 ) ) );
       }
 
-      setClearingResultFields( !"N".equals( XmlHandler.getTagValue( transformNode, ElementNames.clear_result_fields
+      setClearingResultFields( !"N".equals( XmlHandler.getTagValue( transformNode, ElementNames.clearResultFields
         .name() ) ) );
 
       infoTransformDefinitions.clear();
@@ -391,8 +391,8 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
         Node infoNode = XmlHandler.getSubNodeByNr( infosNode, ElementNames.infoTransform.name(), i );
         InfoTransformDefinition transformDefinition = new InfoTransformDefinition();
         transformDefinition.tag = XmlHandler.getTagValue( infoNode, ElementNames.transform_tag.name() );
-        transformDefinition.transformName = XmlHandler.getTagValue( infoNode, ElementNames.transform_name.name() );
-        transformDefinition.description = XmlHandler.getTagValue( infoNode, ElementNames.transform_description.name() );
+        transformDefinition.transformName = XmlHandler.getTagValue( infoNode, ElementNames.transformName.name() );
+        transformDefinition.description = XmlHandler.getTagValue( infoNode, ElementNames.transformDescription.name() );
         infoTransformDefinitions.add( transformDefinition );
       }
 
@@ -403,8 +403,8 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
         Node targetNode = XmlHandler.getSubNodeByNr( targetsNode, ElementNames.target_transform.name(), i );
         TargetTransformDefinition transformDefinition = new TargetTransformDefinition();
         transformDefinition.tag = XmlHandler.getTagValue( targetNode, ElementNames.transform_tag.name() );
-        transformDefinition.transformName = XmlHandler.getTagValue( targetNode, ElementNames.transform_name.name() );
-        transformDefinition.description = XmlHandler.getTagValue( targetNode, ElementNames.transform_description.name() );
+        transformDefinition.transformName = XmlHandler.getTagValue( targetNode, ElementNames.transformName.name() );
+        transformDefinition.description = XmlHandler.getTagValue( targetNode, ElementNames.transformDescription.name() );
         targetTransformDefinitions.add( transformDefinition );
       }
 
@@ -415,9 +415,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
         Node parameterNode = XmlHandler.getSubNodeByNr( parametersNode, ElementNames.usage_parameter.name(), i );
         UsageParameter usageParameter = new UsageParameter();
         usageParameter.tag = XmlHandler.getTagValue( parameterNode, ElementNames.parameter_tag.name() );
-        usageParameter.value = XmlHandler.getTagValue( parameterNode, ElementNames.parameter_value.name() );
+        usageParameter.value = XmlHandler.getTagValue( parameterNode, ElementNames.parameterValue.name() );
         usageParameter.description =
-          XmlHandler.getTagValue( parameterNode, ElementNames.parameter_description.name() );
+          XmlHandler.getTagValue( parameterNode, ElementNames.parameterDescription.name() );
         usageParameters.add( usageParameter );
       }
     } catch ( Exception e ) {
@@ -512,9 +512,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     for ( UserDefinedJavaClassDef def : definitions ) {
       retval.append( String.format( "\n        <%s>", ElementNames.definition.name() ) );
       retval.append( "\n        " ).append(
-        XmlHandler.addTagValue( ElementNames.class_type.name(), def.getClassType().name() ) );
+        XmlHandler.addTagValue( ElementNames.classType.name(), def.getClassType().name() ) );
       retval.append( "\n        " ).append(
-        XmlHandler.addTagValue( ElementNames.class_name.name(), def.getClassName() ) );
+        XmlHandler.addTagValue( ElementNames.className.name(), def.getClassName() ) );
       retval.append( "\n        " );
       retval.append( XmlHandler.addTagValue( ElementNames.class_source.name(), def.getSource() ) );
       retval.append( String.format( "\n        </%s>", ElementNames.definition.name() ) );
@@ -524,16 +524,16 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     retval.append( String.format( "\n    <%s>", ElementNames.fields.name() ) );
     for ( FieldInfo fi : fields ) {
       retval.append( String.format( "\n        <%s>", ElementNames.field.name() ) );
-      retval.append( "\n        " ).append( XmlHandler.addTagValue( ElementNames.field_name.name(), fi.name ) );
+      retval.append( "\n        " ).append( XmlHandler.addTagValue( ElementNames.fieldName.name(), fi.name ) );
       retval.append( "\n        " ).append(
-        XmlHandler.addTagValue( ElementNames.field_type.name(), ValueMetaFactory.getValueMetaName( fi.type ) ) );
-      retval.append( "\n        " ).append( XmlHandler.addTagValue( ElementNames.field_length.name(), fi.length ) );
+        XmlHandler.addTagValue( ElementNames.fieldType.name(), ValueMetaFactory.getValueMetaName( fi.type ) ) );
+      retval.append( "\n        " ).append( XmlHandler.addTagValue( ElementNames.fieldLength.name(), fi.length ) );
       retval.append( "\n        " ).append(
-        XmlHandler.addTagValue( ElementNames.field_precision.name(), fi.precision ) );
+        XmlHandler.addTagValue( ElementNames.fieldPrecision.name(), fi.precision ) );
       retval.append( String.format( "\n        </%s>", ElementNames.field.name() ) );
     }
     retval.append( String.format( "\n    </%s>", ElementNames.fields.name() ) );
-    retval.append( XmlHandler.addTagValue( ElementNames.clear_result_fields.name(), clearingResultFields ) );
+    retval.append( XmlHandler.addTagValue( ElementNames.clearResultFields.name(), clearingResultFields ) );
 
     // Add the XML for the info transform definitions...
     //
@@ -541,9 +541,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     for ( InfoTransformDefinition transformDefinition : infoTransformDefinitions ) {
       retval.append( XmlHandler.openTag( ElementNames.infoTransform.name() ) );
       retval.append( XmlHandler.addTagValue( ElementNames.transform_tag.name(), transformDefinition.tag ) );
-      retval.append( XmlHandler.addTagValue( ElementNames.transform_name.name(), transformDefinition.transformMeta != null
+      retval.append( XmlHandler.addTagValue( ElementNames.transformName.name(), transformDefinition.transformMeta != null
         ? transformDefinition.transformMeta.getName() : null ) );
-      retval.append( XmlHandler.addTagValue( ElementNames.transform_description.name(), transformDefinition.description ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.transformDescription.name(), transformDefinition.description ) );
       retval.append( XmlHandler.closeTag( ElementNames.infoTransform.name() ) );
     }
     retval.append( XmlHandler.closeTag( ElementNames.infoTransforms.name() ) );
@@ -554,9 +554,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     for ( TargetTransformDefinition transformDefinition : targetTransformDefinitions ) {
       retval.append( XmlHandler.openTag( ElementNames.target_transform.name() ) );
       retval.append( XmlHandler.addTagValue( ElementNames.transform_tag.name(), transformDefinition.tag ) );
-      retval.append( XmlHandler.addTagValue( ElementNames.transform_name.name(), transformDefinition.transformMeta != null
+      retval.append( XmlHandler.addTagValue( ElementNames.transformName.name(), transformDefinition.transformMeta != null
         ? transformDefinition.transformMeta.getName() : null ) );
-      retval.append( XmlHandler.addTagValue( ElementNames.transform_description.name(), transformDefinition.description ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.transformDescription.name(), transformDefinition.description ) );
       retval.append( XmlHandler.closeTag( ElementNames.target_transform.name() ) );
     }
     retval.append( XmlHandler.closeTag( ElementNames.target_transforms.name() ) );
@@ -565,9 +565,9 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
     for ( UsageParameter usageParameter : usageParameters ) {
       retval.append( XmlHandler.openTag( ElementNames.usage_parameter.name() ) );
       retval.append( XmlHandler.addTagValue( ElementNames.parameter_tag.name(), usageParameter.tag ) );
-      retval.append( XmlHandler.addTagValue( ElementNames.parameter_value.name(), usageParameter.value ) );
+      retval.append( XmlHandler.addTagValue( ElementNames.parameterValue.name(), usageParameter.value ) );
       retval.append( XmlHandler
-        .addTagValue( ElementNames.parameter_description.name(), usageParameter.description ) );
+        .addTagValue( ElementNames.parameterDescription.name(), usageParameter.description ) );
       retval.append( XmlHandler.closeTag( ElementNames.usage_parameter.name() ) );
     }
     retval.append( XmlHandler.closeTag( ElementNames.usage_parameters.name() ) );

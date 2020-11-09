@@ -65,7 +65,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public abstract class BasePluginType<T extends Annotation> implements IPluginType<T> {
-  protected static Class<?> classFromResourcesPackage = BasePluginType.class; // for i18n purposes, needed by Translator!!
+  protected static Class<?> classFromResourcesPackage = BasePluginType.class; // Needed by Translator
 
   protected String id;
   protected String name;

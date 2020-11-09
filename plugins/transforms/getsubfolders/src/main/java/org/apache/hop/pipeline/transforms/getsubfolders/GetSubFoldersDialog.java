@@ -52,7 +52,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class GetSubFoldersDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = GetSubFoldersMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = GetSubFoldersMeta.class; // Needed by Translator
 
   private Label wlFoldername;
 

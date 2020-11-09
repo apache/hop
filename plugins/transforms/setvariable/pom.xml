@@ -13,6 +13,6 @@
     <artifactId>hop-transform-setvariable</artifactId>
     <packaging>jar</packaging>
 
-    <name>Hop Plugin Transforms Set Variables</name>
+    <name>Hop Plugins Transforms Set Variables</name>
 
 </project>

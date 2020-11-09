@@ -23,15 +23,13 @@
 
 package org.apache.hop.workflow.actions.ftpdelete;
 
-import java.io.File;
-import java.net.InetAddress;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import com.enterprisedt.net.ftp.FTPClient;
+import com.enterprisedt.net.ftp.FTPConnectMode;
+import com.enterprisedt.net.ftp.FTPException;
+import com.trilead.ssh2.Connection;
+import com.trilead.ssh2.HTTPProxyData;
+import com.trilead.ssh2.SFTPv3Client;
+import com.trilead.ssh2.SFTPv3DirectoryEntry;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Result;
@@ -56,13 +54,14 @@ import org.apache.hop.workflow.actions.ftpsget.FtpsConnection;
 import org.apache.hop.workflow.actions.sftp.SftpClient;
 import org.w3c.dom.Node;
 
-import com.enterprisedt.net.ftp.FTPClient;
-import com.enterprisedt.net.ftp.FTPConnectMode;
-import com.enterprisedt.net.ftp.FTPException;
-import com.trilead.ssh2.Connection;
-import com.trilead.ssh2.HTTPProxyData;
-import com.trilead.ssh2.SFTPv3Client;
-import com.trilead.ssh2.SFTPv3DirectoryEntry;
+import java.io.File;
+import java.net.InetAddress;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This defines an FTP action.
@@ -82,7 +81,7 @@ import com.trilead.ssh2.SFTPv3DirectoryEntry;
 )
 
 public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionFtpDelete.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionFtpDelete.class; // Needed by Translator
 
   private String serverName;
 
@@ -140,15 +139,15 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
 
   public String SUCCESS_IF_ALL_FILES_DOWNLOADED = "success_is_all_files_downloaded";
 
-  private String nr_limit_success;
+  private String nrLimitSuccess;
 
-  private String success_condition;
+  private String successCondition;
 
   private boolean copyprevious;
 
   private int FtpsConnectionType;
 
-  long NrErrors = 0;
+  long nrErrors = 0;
 
   long NrfilesDeleted = 0;
 
@@ -172,8 +171,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     protocol = PROTOCOL_FTP;
     port = "21";
     socksProxyPort = "1080";
-    nr_limit_success = "10";
-    success_condition = SUCCESS_IF_ALL_FILES_DOWNLOADED;
+    nrLimitSuccess = "10";
+    successCondition = SUCCESS_IF_ALL_FILES_DOWNLOADED;
     publicpublickey = false;
     keyFilename = null;
     keyFilePass = null;
@@ -216,8 +215,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     retval.append( "      " ).append( XmlHandler.addTagValue( "keyfilename", keyFilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "keyfilepass", keyFilePass ) );
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit_success", nr_limit_success ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", success_condition ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_limit_success", nrLimitSuccess ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "copyprevious", copyprevious ) );
     retval.append( "      " ).append(
       XmlHandler
@@ -259,8 +258,8 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
       keyFilename = XmlHandler.getTagValue( entrynode, "keyfilename" );
       keyFilePass = XmlHandler.getTagValue( entrynode, "keyfilepass" );
 
-      nr_limit_success = XmlHandler.getTagValue( entrynode, "nr_limit_success" );
-      success_condition = XmlHandler.getTagValue( entrynode, "success_condition" );
+      nrLimitSuccess = XmlHandler.getTagValue( entrynode, "nr_limit_success" );
+      successCondition = XmlHandler.getTagValue( entrynode, "success_condition" );
       copyprevious = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copyprevious" ) );
       FtpsConnectionType =
         FtpsConnection.getConnectionTypeByCode( Const.NVL( XmlHandler.getTagValue(
@@ -279,9 +278,9 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
   private boolean getStatus() {
     boolean retval = false;
 
-    if ( ( NrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_ALL_FILES_DOWNLOADED ) )
+    if ( ( nrErrors == 0 && getSuccessCondition().equals( SUCCESS_IF_ALL_FILES_DOWNLOADED ) )
       || ( NrfilesDeleted >= limitFiles && getSuccessCondition().equals( SUCCESS_IF_AT_LEAST_X_FILES_DOWNLOADED ) )
-      || ( NrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
+      || ( nrErrors <= limitFiles && getSuccessCondition().equals( SUCCESS_IF_ERRORS_LESS ) ) ) {
       retval = true;
     }
 
@@ -352,20 +351,20 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     FtpsConnectionType = type;
   }
 
-  public void setLimitSuccess( String nr_limit_successin ) {
-    this.nr_limit_success = nr_limit_successin;
+  public void setLimitSuccess( String nrLimitSuccessin ) {
+    this.nrLimitSuccess = nrLimitSuccessin;
   }
 
   public String getLimitSuccess() {
-    return nr_limit_success;
+    return nrLimitSuccess;
   }
 
-  public void setSuccessCondition( String success_condition ) {
-    this.success_condition = success_condition;
+  public void setSuccessCondition( String successCondition ) {
+    this.successCondition = successCondition;
   }
 
   public String getSuccessCondition() {
-    return success_condition;
+    return successCondition;
   }
 
   /**
@@ -549,10 +548,10 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
     List<RowMetaAndData> rows = result.getRows();
 
     result.setResult( false );
-    NrErrors = 0;
+    nrErrors = 0;
     NrfilesDeleted = 0;
     successConditionBroken = false;
-    HashSet<String> list_previous_files = new HashSet<>();
+    HashSet<String> listPreviousFiles = new HashSet<>();
 
     // Here let's put some controls before stating the workflow
 
@@ -706,9 +705,9 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
           resultRow = rows.get( iteration );
 
           // Get file names
-          String file_previous = resultRow.getString( 0, null );
-          if ( !Utils.isEmpty( file_previous ) ) {
-            list_previous_files.add( file_previous );
+          String filePrevious = resultRow.getString( 0, null );
+          if ( !Utils.isEmpty( filePrevious ) ) {
+            listPreviousFiles.add( filePrevious );
           }
         }
       } else {
@@ -738,7 +737,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
         try {
           // First see if the file matches the regular expression!
           if ( copyprevious ) {
-            if ( list_previous_files.contains( filelist[ i ] ) ) {
+            if ( listPreviousFiles.contains( filelist[ i ] ) ) {
               getIt = true;
             }
           } else {
@@ -817,7 +816,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
 
     result.setResult( !successConditionBroken );
     result.setNrFilesRetrieved( NrfilesDeleted );
-    result.setNrErrors( NrErrors );
+    result.setNrErrors( nrErrors );
 
     return result;
   }
@@ -909,19 +908,19 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
       new FtpsConnection( getFtpsConnectionType(), realservername, realport, realusername, realpassword );
 
     if ( !Utils.isEmpty( proxyHost ) ) {
-      String realProxy_host = environmentSubstitute( proxyHost );
-      String realProxy_username = environmentSubstitute( proxyUsername );
-      String realProxy_password = Utils.resolvePassword( this, proxyPassword );
+      String realProxyHost = environmentSubstitute( proxyHost );
+      String realProxyUsername = environmentSubstitute( proxyUsername );
+      String realProxyPassword = Utils.resolvePassword( this, proxyPassword );
 
-      ftpsclient.setProxyHost( realProxy_host );
-      if ( !Utils.isEmpty( realProxy_username ) ) {
-        ftpsclient.setProxyUser( realProxy_username );
+      ftpsclient.setProxyHost( realProxyHost );
+      if ( !Utils.isEmpty( realProxyUsername ) ) {
+        ftpsclient.setProxyUser( realProxyUsername );
       }
-      if ( !Utils.isEmpty( realProxy_password ) ) {
-        ftpsclient.setProxyPassword( realProxy_password );
+      if ( !Utils.isEmpty( realProxyPassword ) ) {
+        ftpsclient.setProxyPassword( realProxyPassword );
       }
       if ( isDetailed() ) {
-        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.OpenedProxyConnectionOn", realProxy_host ) );
+        logDetailed( BaseMessages.getString( PKG, "ActionFTPDelete.OpenedProxyConnectionOn", realProxyHost ) );
       }
 
       int proxyport = Const.toInt( environmentSubstitute( proxyPort ), 21 );
@@ -1040,7 +1039,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
   }
 
   private void updateErrors() {
-    NrErrors++;
+    nrErrors++;
     if ( !getStatus() ) {
       // Success condition was broken
       successConditionBroken = true;

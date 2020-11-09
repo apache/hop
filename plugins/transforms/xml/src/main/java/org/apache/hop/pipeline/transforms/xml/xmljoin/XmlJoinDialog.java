@@ -527,16 +527,6 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     dispose();
   }
 
-  /*
-   * private void get() { try { RowMetaInterface r = pipelineMeta.getPrevTransformFields(TransformName);
-   * 
-   * } catch(KettleException ke) { new ErrorDialog(shell, BaseMessages.getString(PKG,
-   * "System.Dialog.GetFieldsFailed.Title"), BaseMessages.getString(PKG, "System.Dialog.GetFieldsFailed.Message"), ke);
-   * }
-   * 
-   * }
-   */
-
   private void setEncodings() {
     // Encoding of the text file:
     if ( !gotEncodings ) {

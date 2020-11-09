@@ -61,7 +61,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/mail.html"
 )
 public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, MailData> {
-  private static final Class<?> PKG = MailMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailMeta.class; // Needed by Translator
 
   private String server;
 

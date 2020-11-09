@@ -141,7 +141,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
   implements ITransform<Meta, Data>,
   IVariables, ILoggingObject, IExtensionData, IEngineComponent {
 
-  private static final Class<?> PKG = BaseTransform.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = BaseTransform.class; // Needed by Translator
 
   protected IVariables variables = new Variables();
 
@@ -281,7 +281,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    */
   public boolean terminator;
 
-  public List<Object[]> terminator_rows;
+  public List<Object[]> terminatorRows;
 
   protected Meta meta;
   protected Data data;
@@ -451,9 +451,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     terminator = transformMeta.hasTerminator();
     if ( terminator ) {
-      terminator_rows = new ArrayList<>();
+      terminatorRows = new ArrayList<>();
     } else {
-      terminator_rows = null;
+      terminatorRows = null;
     }
 
     startTime = null;
@@ -1063,9 +1063,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     // Keep adding to terminator_rows buffer...
     //
-    if ( terminator && terminator_rows != null ) {
+    if ( terminator && terminatorRows != null ) {
       try {
-        terminator_rows.add( rowMeta.cloneRow( row ) );
+        terminatorRows.add( rowMeta.cloneRow( row ) );
       } catch ( HopValueException e ) {
         throw new HopTransformException( "Unable to clone row while adding rows to the terminator rows.", e );
       }
@@ -1306,9 +1306,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
 
     // Keep adding to terminator_rows buffer...
-    if ( terminator && terminator_rows != null ) {
+    if ( terminator && terminatorRows != null ) {
       try {
-        terminator_rows.add( rowMeta.cloneRow( row ) );
+        terminatorRows.add( rowMeta.cloneRow( row ) );
       } catch ( HopValueException e ) {
         throw new HopTransformException( "Unable to clone row while adding rows to the terminator buffer", e );
       }
@@ -2682,9 +2682,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @param end_date      the end_date
    * @return the row meta and data
    */
-  public RowMetaAndData buildLog( String sname, int copynr, long lines_read, long lines_written,
-                                  long lines_updated, long lines_skipped, long errors, Date start_date,
-                                  Date end_date ) {
+  public RowMetaAndData buildLog( String sname, int copynr, long linesRead, long linesWritten,
+                                  long linesUpdated, long lines_skipped, long errors, Date startDate,
+                                  Date endDate ) {
     IRowMeta r = new RowMeta();
     Object[] data = new Object[ 9 ];
     int nr = 0;
@@ -2701,17 +2701,17 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
 
     r.addValueMeta( new ValueMetaNumber(
       BaseMessages.getString( PKG, "BaseTransform.ColumnName.LinesReaded" ) ) );
-    data[ nr ] = (double) lines_read;
+    data[ nr ] = (double) linesRead;
     nr++;
 
     r.addValueMeta( new ValueMetaNumber(
       BaseMessages.getString( PKG, "BaseTransform.ColumnName.LinesWritten" ) ) );
-    data[ nr ] = (double) lines_written;
+    data[ nr ] = (double) linesWritten;
     nr++;
 
     r.addValueMeta( new ValueMetaNumber(
       BaseMessages.getString( PKG, "BaseTransform.ColumnName.LinesUpdated" ) ) );
-    data[ nr ] = (double) lines_updated;
+    data[ nr ] = (double) linesUpdated;
     nr++;
 
     r.addValueMeta( new ValueMetaNumber(
@@ -2725,11 +2725,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     nr++;
 
     r.addValueMeta( new ValueMetaDate( "start_date" ) );
-    data[ nr ] = start_date;
+    data[ nr ] = startDate;
     nr++;
 
     r.addValueMeta( new ValueMetaDate( "end_date" ) );
-    data[ nr ] = end_date;
+    data[ nr ] = endDate;
     nr++;
 
     return new RowMetaAndData( r, data );

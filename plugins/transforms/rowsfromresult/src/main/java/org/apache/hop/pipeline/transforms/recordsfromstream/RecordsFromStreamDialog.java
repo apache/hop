@@ -28,7 +28,7 @@ import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultDialog;
 import org.eclipse.swt.widgets.Shell;
 
 public class RecordsFromStreamDialog extends RowsFromResultDialog {
-  private static final Class<?> PKG = RecordsFromStreamMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = RecordsFromStreamMeta.class; // Needed by Translator
 
   @Override public String getTitle() {
     return BaseMessages.getString( PKG, "RecordsFromStreamDialog.Shell.Title" );

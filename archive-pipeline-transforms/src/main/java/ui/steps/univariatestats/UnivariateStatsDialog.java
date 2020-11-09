@@ -71,7 +71,7 @@ import java.util.Set;
  */
 public class UnivariateStatsDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = UnivariateStatsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = UnivariateStatsMeta.class; // Needed by Translator
 
   /**
    * various UI bits and pieces for the dialog
@@ -92,8 +92,8 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements ITrans
   private UnivariateStatsMeta m_originalMeta;
 
   // holds the names of the fields entering this transform
-  private Map<String, Integer> m_inputFields;
-  private ColumnInfo[] m_colinf;
+  private Map<String, Integer> mInputFields;
+  private ColumnInfo[] mColinf;
 
   public UnivariateStatsDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
 
@@ -103,7 +103,7 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements ITrans
     // m_currentMeta is looked at for changes
     m_currentMeta = (UnivariateStatsMeta) in;
     m_originalMeta = (UnivariateStatsMeta) m_currentMeta.clone();
-    m_inputFields = new HashMap<String, Integer>();
+    mInputFields = new HashMap<String, Integer>();
   }
 
   /**
@@ -172,7 +172,7 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements ITrans
     final int fieldsRows =
       ( m_currentMeta.getInputFieldMetaFunctions() != null ) ? m_currentMeta.getNumFieldsToProcess() : 1;
 
-    m_colinf =
+    mColinf =
       new ColumnInfo[] {
         new ColumnInfo(
           BaseMessages.getString( PKG, "UnivariateStatsDialog.InputFieldColumn.Column" ),
@@ -204,7 +204,7 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements ITrans
 
     m_wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, m_colinf, fieldsRows, lsMod, props );
+        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, mColinf, fieldsRows, lsMod, props );
 
     m_fdFields = new FormData();
     m_fdFields.left = new FormAttachment( 0, 0 );
@@ -227,7 +227,7 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements ITrans
               IValueMeta field = row.getValueMeta( i );
               // limit the choices to only numeric input fields
               if ( field.isNumeric() ) {
-                m_inputFields.put( field.getName(), Integer.valueOf( i ) );
+                mInputFields.put( field.getName(), Integer.valueOf( i ) );
               }
             }
 
@@ -312,11 +312,11 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements ITrans
    * Set up the input field combo box
    */
   protected void setComboBoxes() {
-    Set<String> keySet = m_inputFields.keySet();
+    Set<String> keySet = mInputFields.keySet();
     List<String> entries = new ArrayList<>( keySet );
     String[] fieldNames = entries.toArray( new String[ entries.size() ] );
     Const.sortStrings( fieldNames );
-    m_colinf[ 0 ].setComboValues( fieldNames );
+    mColinf[ 0 ].setComboValues( fieldNames );
   }
 
   /**

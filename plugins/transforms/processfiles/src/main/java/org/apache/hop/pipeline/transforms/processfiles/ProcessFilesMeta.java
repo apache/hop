@@ -48,11 +48,11 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.ProcessFiles",
         description = "ProcessFiles.Description",
         name = "ProcessFiles.Name",
-        categoryDescription = "BaseTransform.Category.Utility",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/processfiles.html"
 )
 public class ProcessFilesMeta extends BaseTransformMeta implements ITransformMeta<ProcessFiles, ProcessFilesData> {
-  private static final Class<?> PKG = ProcessFilesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ProcessFilesMeta.class; // Needed by Translator
 
   private boolean addresultfilenames;
   private boolean overwritetargetfile;
@@ -279,25 +279,25 @@ public class ProcessFilesMeta extends BaseTransformMeta implements ITransformMet
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     // source filename
     if ( Utils.isEmpty( sourcefilenamefield ) ) {
-      error_message = BaseMessages.getString( PKG, "ProcessFilesMeta.CheckResult.SourceFileFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ProcessFilesMeta.CheckResult.SourceFileFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "ProcessFilesMeta.CheckResult.TargetFileFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ProcessFilesMeta.CheckResult.TargetFileFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
     if ( operationType != OPERATION_TYPE_DELETE && Utils.isEmpty( targetfilenamefield ) ) {
-      error_message = BaseMessages.getString( PKG, "ProcessFilesMeta.CheckResult.TargetFileFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ProcessFilesMeta.CheckResult.TargetFileFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } else {
-      error_message = BaseMessages.getString( PKG, "ProcessFilesMeta.CheckResult.SourceFileFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ProcessFilesMeta.CheckResult.SourceFileFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

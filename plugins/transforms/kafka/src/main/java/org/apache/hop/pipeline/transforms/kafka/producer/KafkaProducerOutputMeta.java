@@ -49,7 +49,7 @@ import java.util.stream.IntStream;
   i18nPackageName = "org.apache.hop.pipeline.transforms.kafka.producer",
   name = "KafkaProducer.TypeLongDesc",
   description = "KafkaProducer.TypeTooltipDesc",
-  categoryDescription = "streaming",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
   keywords = "kafka,producer,output"
 )
 @InjectionSupported( localizationPrefix = "KafkaProducerOutputMeta.Injection.", groups = { "CONFIGURATION_PROPERTIES" } )

@@ -66,7 +66,7 @@ import java.util.List;
 @InjectionSupported( localizationPrefix = "CheckSum.Injection.", groups = { "FIELDS" } )
 public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<CheckSum, CheckSumData> {
 
-  private static final Class<?> PKG = CheckSumMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = CheckSumMeta.class; // Needed by Translator
  
   public static final String TYPE_CRC32 = "CRC32";
   public static final String TYPE_ADLER32 = "ADLER32";
@@ -330,14 +330,14 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( Utils.isEmpty( resultfieldName ) ) {
-      error_message = BaseMessages.getString( PKG, "CheckSumMeta.CheckResult.ResultFieldMissing" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "CheckSumMeta.CheckResult.ResultFieldMissing" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
     } else {
-      error_message = BaseMessages.getString( PKG, "CheckSumMeta.CheckResult.ResultFieldOK" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "CheckSumMeta.CheckResult.ResultFieldOK" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
     }
     remarks.add( cr );
 
@@ -352,21 +352,21 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
           PKG, "CheckSumMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
       remarks.add( cr );
 
-      boolean error_found = false;
-      error_message = "";
+      boolean errorFound = false;
+      errorMessage = "";
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fieldName.length; i++ ) {
         int idx = prev.indexOfValue( fieldName[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fieldName[ i ] + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + fieldName[ i ] + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message = BaseMessages.getString( PKG, "CheckSumMeta.CheckResult.FieldsFound", error_message );
+      if ( errorFound ) {
+        errorMessage = BaseMessages.getString( PKG, "CheckSumMeta.CheckResult.FieldsFound", errorMessage );
 
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         if ( fieldName.length > 0 ) {

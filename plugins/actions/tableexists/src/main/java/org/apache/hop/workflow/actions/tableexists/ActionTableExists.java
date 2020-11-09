@@ -64,16 +64,16 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/tableexists.html"
 )
 public class ActionTableExists extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionTableExists.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionTableExists.class; // Needed by Translator
 
-  private String tablename;
+  private String tableName;
   private String schemaname;
   private DatabaseMeta connection;
 
   public ActionTableExists( String n ) {
     super( n, "" );
     schemaname = null;
-    tablename = null;
+    tableName = null;
     connection = null;
   }
 
@@ -91,7 +91,7 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
 
     retval.append( super.getXml() );
 
-    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tablename ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "tablename", tableName ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "schemaname", schemaname ) );
     retval.append( "      " ).append(
       XmlHandler.addTagValue( "connection", connection == null ? null : connection.getName() ) );
@@ -104,7 +104,7 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     try {
       super.loadXml( entrynode );
 
-      tablename = XmlHandler.getTagValue( entrynode, "tablename" );
+      tableName = XmlHandler.getTagValue( entrynode, "tablename" );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
       String dbname = XmlHandler.getTagValue( entrynode, "connection" );
       connection = DatabaseMeta.loadDatabase( metadataProvider, dbname );
@@ -113,12 +113,12 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
     }
   }
 
-  public void setTablename( String tablename ) {
-    this.tablename = tablename;
+  public void setTablename( String tableName ) {
+    this.tableName = tableName;
   }
 
   public String getTablename() {
-    return tablename;
+    return tableName;
   }
 
   public String getSchemaname() {
@@ -154,7 +154,7 @@ public class ActionTableExists extends ActionBase implements Cloneable, IAction 
       db.shareVariablesWith( this );
       try {
         db.connect();
-        String realTablename = environmentSubstitute( tablename );
+        String realTablename = environmentSubstitute( tableName );
         String realSchemaname = environmentSubstitute( schemaname );
 
         if ( db.checkTableExists( realSchemaname, realTablename ) ) {

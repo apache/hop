@@ -57,7 +57,7 @@ import java.util.List;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/setvalueconstant.html"
 )
 public class SetValueConstantMeta extends BaseTransformMeta implements ITransformMeta<SetValueConstant, SetValueConstantData> {
-  private static final Class<?> PKG = SetValueConstantMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SetValueConstantMeta.class; // Needed by Translator
 
   @InjectionDeep
   private List<Field> fields = new ArrayList<>();
@@ -151,22 +151,22 @@ public class SetValueConstantMeta extends BaseTransformMeta implements ITransfor
           PKG, "SetValueConstantMeta.CheckResult.TransformRecevingData", prev.size() + "" ), transformMeta );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < fields.size(); i++ ) {
         int idx = prev.indexOfValue( fields.get( i ).getFieldName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + fields.get( i ).getFieldName() + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + fields.get( i ).getFieldName() + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
-          BaseMessages.getString( PKG, "SetValueConstantMeta.CheckResult.FieldsFound", error_message );
+      if ( errorFound ) {
+        errorMessage =
+          BaseMessages.getString( PKG, "SetValueConstantMeta.CheckResult.FieldsFound", errorMessage );
 
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         if ( Utils.isEmpty( fields ) ) {

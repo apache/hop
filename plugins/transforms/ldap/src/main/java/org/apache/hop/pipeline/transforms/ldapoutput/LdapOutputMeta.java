@@ -57,7 +57,7 @@ import org.w3c.dom.Node;
 public class LdapOutputMeta extends BaseTransformMeta
     implements ILdapMeta, ITransformMeta<LdapOutput, LdapOutputData> {
   private static Class<?> classFromResourcesPackage =
-      LdapOutputMeta.class; // for i18n purposes, needed by Translator!!
+      LdapOutputMeta.class; // Needed by Translator
 
   /** Flag indicating that we use authentication for connection */
   private boolean useAuthentication;

@@ -55,13 +55,13 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.multimerge",
         name = "MultiwayMergeJoin.Name",
         description = "MultiwayMergeJoin.Description",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Join",
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/multimerge.html"
 )
 public class MultiMergeJoinMeta extends BaseTransformMeta implements ITransformMeta<MultiMergeJoin,MultiMergeJoinData> {
-  private static final Class<?> PKG = MultiMergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MultiMergeJoinMeta.class; // Needed by Translator
 
-  public static final String[] join_types = { "INNER", "FULL OUTER" };
+  public static final String[] joinTypes = { "INNER", "FULL OUTER" };
   public static final boolean[] optionals = { false, true };
 
 
@@ -198,7 +198,7 @@ public class MultiMergeJoinMeta extends BaseTransformMeta implements ITransformM
 
   @Override
   public void setDefault() {
-    joinType = join_types[ 0 ];
+    joinType = joinTypes[ 0 ];
     allocateKeys( 0 );
     allocateInputTransforms( 0 );
   }

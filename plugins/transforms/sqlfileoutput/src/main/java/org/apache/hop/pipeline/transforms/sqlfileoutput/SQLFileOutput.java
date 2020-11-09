@@ -46,7 +46,7 @@ import java.io.OutputStreamWriter;
 
 
 public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutputData> implements ITransform<SQLFileOutputMeta,SQLFileOutputData> {
-  private static final Class<?> PKG = SQLFileOutputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SQLFileOutputMeta.class; // Needed by Translator
 
   String schemaTable;
   String schemaName;
@@ -105,13 +105,13 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
       if ( getLinesOutput() == 0 ) {
         // Add creation table once to the top
         if ( meta.createTable() ) {
-          String cr_table = data.db.getDDLCreationTable( schemaTable, data.insertRowMeta );
+          String crTable = data.db.getDDLCreationTable( schemaTable, data.insertRowMeta );
 
           if ( log.isRowLevel() ) {
-            logRowlevel( BaseMessages.getString( PKG, "SQLFileOutputLog.OutputSQL", cr_table ) );
+            logRowlevel( BaseMessages.getString( PKG, "SQLFileOutputLog.OutputSQL", crTable ) );
           }
           // Write to file
-          data.writer.write( cr_table + Const.CR + Const.CR );
+          data.writer.write( crTable + Const.CR + Const.CR );
         }
 
         // Truncate table

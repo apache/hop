@@ -45,7 +45,7 @@ import org.apache.hop.pipeline.transform.ITransform;
  */
 
 public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData> implements ITransform<SampleRowsMeta, SampleRowsData> {
-  private static final Class<?> PKG = SampleRowsMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SampleRowsMeta.class; // Needed by Translator
 
   public SampleRows( TransformMeta transformMeta, SampleRowsMeta meta, SampleRowsData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

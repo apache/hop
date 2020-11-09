@@ -63,7 +63,7 @@ import java.util.List;
 )
 public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMeta<DatabaseJoin, DatabaseJoinData> {
 
-  private static final Class<?> PKG = DatabaseJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseJoinMeta.class; // Needed by Translator
 
   /**
    * database connection
@@ -374,7 +374,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
                      IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
-    String error_message = "";
+    String errorMessage = "";
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -385,7 +385,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
         if ( sql != null && sql.length() != 0 ) {
           IRowMeta param = getParameterRow( prev );
 
-          error_message = "";
+          errorMessage = "";
 
           IRowMeta r =
             db.getQueryFields( pipelineMeta.environmentSubstitute( sql ), true, param, new Object[ param.size() ] );
@@ -395,24 +395,24 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
                 PKG, "DatabaseJoinMeta.CheckResult.QueryOK" ), transformMeta );
             remarks.add( cr );
           } else {
-            error_message = BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.InvalidDBQuery" );
-            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            errorMessage = BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.InvalidDBQuery" );
+            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           }
 
           int q = db.countParameters( pipelineMeta.environmentSubstitute( sql ) );
           if ( q != parameterField.length ) {
-            error_message =
+            errorMessage =
               BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.DismatchBetweenParametersAndQuestion" )
                 + Const.CR;
-            error_message +=
+            errorMessage +=
               BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.DismatchBetweenParametersAndQuestion2" )
                 + q + Const.CR;
-            error_message +=
+            errorMessage +=
               BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.DismatchBetweenParametersAndQuestion3" )
                 + parameterField.length;
 
-            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
             remarks.add( cr );
           } else {
             cr =
@@ -426,23 +426,23 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
         // Look up fields in the input stream <prev>
         if ( prev != null && prev.size() > 0 ) {
           boolean first = true;
-          error_message = "";
-          boolean error_found = false;
+          errorMessage = "";
+          boolean errorFound = false;
 
           for ( int i = 0; i < parameterField.length; i++ ) {
             IValueMeta v = prev.searchValueMeta( parameterField[ i ] );
             if ( v == null ) {
               if ( first ) {
                 first = false;
-                error_message +=
+                errorMessage +=
                   BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.MissingFields" ) + Const.CR;
               }
-              error_found = true;
-              error_message += "\t\t" + parameterField[ i ] + Const.CR;
+              errorFound = true;
+              errorMessage += "\t\t" + parameterField[ i ] + Const.CR;
             }
           }
-          if ( error_found ) {
-            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          if ( errorFound ) {
+            cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           } else {
             cr =
               new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString(
@@ -450,22 +450,22 @@ public class DatabaseJoinMeta extends BaseTransformMeta implements ITransformMet
           }
           remarks.add( cr );
         } else {
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.CounldNotReadFields" ) + Const.CR;
-          cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( HopException e ) {
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.ErrorOccurred" ) + e.getMessage();
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } finally {
         db.disconnect();
       }
     } else {
-      error_message = BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.InvalidConnection" );
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "DatabaseJoinMeta.CheckResult.InvalidConnection" );
+      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 

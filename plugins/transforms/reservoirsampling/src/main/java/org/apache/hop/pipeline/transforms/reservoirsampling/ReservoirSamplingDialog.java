@@ -40,7 +40,7 @@ import org.eclipse.swt.widgets.*;
 
 public class ReservoirSamplingDialog extends BaseTransformDialog implements ITransformDialog {
 
-  private static final Class<?> PKG = ReservoirSamplingMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ReservoirSamplingMeta.class; // Needed by Translator
 
   private Text mWTransformName;
 

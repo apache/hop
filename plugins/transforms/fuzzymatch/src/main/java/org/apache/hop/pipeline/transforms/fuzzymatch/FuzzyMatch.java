@@ -58,7 +58,7 @@ import java.util.Iterator;
  * @since 03-mars-2008
  */
 public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> implements ITransform<FuzzyMatchMeta, FuzzyMatchData> {
-  private static final Class<?> PKG = FuzzyMatchMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = FuzzyMatchMeta.class; // Needed by Translator
 
   public FuzzyMatch( TransformMeta transformMeta, FuzzyMatchMeta meta, FuzzyMatchData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {

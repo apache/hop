@@ -1173,30 +1173,30 @@ public class ValueDataUtilTest {
     return calculate( string_dataA, string_dataB, null, valueMetaInterfaceType, calculatorMetaFunction );
   }
 
-  private Object createObject( String string_value, int valueMetaInterfaceType, IValueMeta parameterValueMeta ) throws HopValueException {
+  private Object createObject( String stringValue, int valueMetaInterfaceType, IValueMeta parameterValueMeta ) throws HopValueException {
     if ( valueMetaInterfaceType == IValueMeta.TYPE_NUMBER ) {
-      return ( !Utils.isEmpty( string_value ) ? Double.valueOf( string_value ) : null );
+      return ( !Utils.isEmpty( stringValue ) ? Double.valueOf( stringValue ) : null );
     } else if ( valueMetaInterfaceType == IValueMeta.TYPE_INTEGER ) {
-      return ( !Utils.isEmpty( string_value ) ? Long.valueOf( string_value ) : null );
+      return ( !Utils.isEmpty( stringValue ) ? Long.valueOf( stringValue ) : null );
     } else if ( valueMetaInterfaceType == IValueMeta.TYPE_DATE ) {
       SimpleDateFormat simpleDateFormat = new SimpleDateFormat( yyyy_MM_dd );
       try {
-        return ( !Utils.isEmpty( string_value ) ? simpleDateFormat.parse( string_value ) : null );
+        return ( !Utils.isEmpty( stringValue ) ? simpleDateFormat.parse( stringValue ) : null );
       } catch ( ParseException pe ) {
         fail( pe.getMessage() );
         return null;
       }
     } else if ( valueMetaInterfaceType == IValueMeta.TYPE_BIGNUMBER ) {
-      return ( !Utils.isEmpty( string_value ) ? BigDecimal.valueOf( Double.valueOf( string_value ) ) : null );
+      return ( !Utils.isEmpty( stringValue ) ? BigDecimal.valueOf( Double.valueOf( stringValue ) ) : null );
     } else if ( valueMetaInterfaceType == IValueMeta.TYPE_STRING ) {
-      return ( !Utils.isEmpty( string_value ) ? string_value : null );
+      return ( !Utils.isEmpty( stringValue ) ? stringValue : null );
     } else if ( valueMetaInterfaceType == IValueMeta.TYPE_BINARY ) {
       IValueMeta binaryValueMeta = new ValueMetaBinary( "binary_data" );
       return
-        ( !Utils.isEmpty( string_value ) ? binaryValueMeta.convertData( parameterValueMeta, string_value ) : null );
+        ( !Utils.isEmpty( stringValue ) ? binaryValueMeta.convertData( parameterValueMeta, stringValue ) : null );
     } else if ( valueMetaInterfaceType == IValueMeta.TYPE_BOOLEAN ) {
-      if ( !Utils.isEmpty( string_value ) ) {
-        return ( string_value.equalsIgnoreCase( "true" ) ? true : false );
+      if ( !Utils.isEmpty( stringValue ) ) {
+        return ( stringValue.equalsIgnoreCase( "true" ) ? true : false );
       } else {
         return null;
       }

@@ -41,22 +41,23 @@ public class WorkflowActionMoveFilesTest extends WorkflowActionLoadSaveTestSuppo
   @Override
   protected List<String> listCommonAttributes() {
     return Arrays.asList(
-      "add_date",
-      "add_time",
-      "SpecifyFormat",
-      "date_time_format",
-      "AddDateBeforeExtension",
-      "DoNotKeepFolderStructure",
-      "iffileexists",
+      "addDate",
+      "addTime",
+      "specifyFormat",
+      "dateTimeFormat",
+      "addDateBeforeExtension",
+      "doNotKeepFolderStructure",
+      "ifFileExists",
       "destinationFolder",
-      "ifmovedfileexists",
-      "moved_date_time_format",
-      "AddMovedDateBeforeExtension",
-      "add_moved_date",
-      "add_moved_time",
-      "SpecifyMoveFormat",
-      "create_move_to_folder",
-      "simulate" );
+      "ifMovedFileExists",
+      "movedDateTimeFormat",
+      "addMovedDateBeforeExtension",
+      "addMovedDate",
+      "addMovedTime",
+      "specifyMoveFormat",
+      "createMoveToFolder",
+      "simulate"
+    );
   }
 
   @Override

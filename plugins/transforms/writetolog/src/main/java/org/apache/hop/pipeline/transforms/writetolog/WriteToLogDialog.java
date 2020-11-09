@@ -52,7 +52,7 @@ import java.util.List;
 import java.util.*;
 
 public class WriteToLogDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = WriteToLogDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = WriteToLogDialog.class; // Needed by Translator
 
   private final WriteToLogMeta input;
 

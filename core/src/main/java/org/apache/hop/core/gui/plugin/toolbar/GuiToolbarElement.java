@@ -53,7 +53,7 @@ public @interface GuiToolbarElement {
    *
    * @return
    */
-  GuiToolbarElementType type() default GuiToolbarElementType.TOOLBAR_BUTTON;
+  GuiToolbarElementType type() default GuiToolbarElementType.BUTTON;
 
   /**
    * The label of the GUI element: the menu item text and so on.

@@ -60,7 +60,7 @@ import java.util.Comparator;
  * @since 23-03-2006
  */
 public class EnterMappingDialog extends Dialog {
-  private static final Class<?> PKG = DatabaseDialog.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = DatabaseDialog.class; // Needed by Translator
 
   public class GuessPair {
     private int _srcIndex = -1;

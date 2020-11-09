@@ -27,18 +27,16 @@ import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.injection.InjectionSupported;
-import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
 
 import java.util.ArrayList;
@@ -62,10 +60,10 @@ import java.util.List;
         i18nPackageName = "org.apache.hop.pipeline.transforms.mergejoin",
         name = "BaseTransform.TypeLongDesc.MergeJoin",
         description = "BaseTransform.TypeTooltipDesc.MergeJoin",
-        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Join"
+        categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins"
 )
 public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> implements ITransform<MergeJoinMeta, MergeJoinData> {
-  private static final Class<?> PKG = MergeJoinMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MergeJoinMeta.class; // Needed by Translator
 
   public MergeJoin( TransformMeta transformMeta, MergeJoinMeta meta, MergeJoinData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline pipeline ) {
@@ -409,8 +407,8 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
         return false;
       }
       String joinType = meta.getJoinType();
-      for ( int i = 0; i < MergeJoinMeta.join_types.length; ++i ) {
-        if ( joinType.equalsIgnoreCase( MergeJoinMeta.join_types[ i ] ) ) {
+      for ( int i = 0; i < MergeJoinMeta.joinTypes.length; ++i ) {
+        if ( joinType.equalsIgnoreCase( MergeJoinMeta.joinTypes[ i ] ) ) {
           data.one_optional = MergeJoinMeta.one_optionals[ i ];
           data.two_optional = MergeJoinMeta.two_optionals[ i ];
           return true;

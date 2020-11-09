@@ -33,7 +33,7 @@ import org.apache.hop.i18n.BaseMessages;
  */
 
 public class MailConnectionMeta {
-  private static final Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionGetPOP.class; // Needed by Translator
 
   public static final String FOLDER_SEPARATOR = "/";
 

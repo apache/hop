@@ -60,7 +60,7 @@ import org.eclipse.swt.widgets.*;
  * @since 06-03-2006
  */
 public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDialog {
-  private static final Class<?> PKG = ActionMysqlBulkFile.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionMysqlBulkFile.class; // Needed by Translator
 
   private static final String[] FILETYPES = new String[] {
     BaseMessages.getString( PKG, "JobMysqlBulkFile.Filetype.Text" ),
@@ -600,11 +600,11 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
    */
   public void getData() {
     wName.setText( Const.NVL( action.getName(), "" ) );
-    if ( action.getSchemaname() != null ) {
-      wTablename.setText( action.getSchemaname() );
+    if ( action.getSchemaName() != null ) {
+      wTablename.setText( action.getSchemaName() );
     }
-    if ( action.getTablename() != null ) {
-      wTablename.setText( action.getTablename() );
+    if ( action.getTableName() != null ) {
+      wTablename.setText( action.getTableName() );
     }
     if ( action.getFilename() != null ) {
       wFilename.setText( action.getFilename() );
@@ -618,15 +618,15 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     }
     wOptionEnclosed.setSelection( action.isOptionEnclosed() );
 
-    if ( action.getLineterminated() != null ) {
-      wLineterminated.setText( action.getLineterminated() );
+    if ( action.getLineTerminated() != null ) {
+      wLineterminated.setText( action.getLineTerminated() );
     }
 
     wHighPriority.setSelection( action.isHighPriority() );
     wOptionEnclosed.setSelection( action.isOptionEnclosed() );
 
-    if ( action.getLimitlines() != null ) {
-      wLimitlines.setText( action.getLimitlines() );
+    if ( action.getLimitLines() != null ) {
+      wLimitlines.setText( action.getLimitLines() );
     } else {
       wLimitlines.setText( "0" );
     }
@@ -635,14 +635,14 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       wListColumn.setText( action.getListColumn() );
     }
 
-    if ( action.outdumpvalue >= 0 ) {
-      wOutDumpValue.select( action.outdumpvalue );
+    if ( action.outDumpValue >= 0 ) {
+      wOutDumpValue.select( action.outDumpValue );
     } else {
       wOutDumpValue.select( 0 ); // NORMAL priority
     }
 
-    if ( action.iffileexists >= 0 ) {
-      wIfFileExists.select( action.iffileexists );
+    if ( action.ifFileExists >= 0 ) {
+      wIfFileExists.select( action.ifFileExists );
     } else {
       wIfFileExists.select( 2 ); // FAIL
     }
@@ -673,21 +673,21 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     }
     action.setName( wName.getText() );
     action.setDatabase( getWorkflowMeta().findDatabase( wConnection.getText() ) );
-    action.setSchemaname( wSchemaname.getText() );
-    action.setTablename( wTablename.getText() );
+    action.setSchemaName( wSchemaname.getText() );
+    action.setTableName( wTablename.getText() );
     action.setFilename( wFilename.getText() );
     action.setSeparator( wSeparator.getText() );
     action.setEnclosed( wEnclosed.getText() );
     action.setOptionEnclosed( wOptionEnclosed.getSelection() );
-    action.setLineterminated( wLineterminated.getText() );
+    action.setLineTerminated( wLineterminated.getText() );
 
-    action.setLimitlines( wLimitlines.getText() );
+    action.setLimitLines( wLimitlines.getText() );
     action.setListColumn( wListColumn.getText() );
 
-    action.outdumpvalue = wOutDumpValue.getSelectionIndex();
+    action.outDumpValue = wOutDumpValue.getSelectionIndex();
 
     action.setHighPriority( wHighPriority.getSelection() );
-    action.iffileexists = wIfFileExists.getSelectionIndex();
+    action.ifFileExists = wIfFileExists.getSelectionIndex();
 
     action.setAddFileToResult( wAddFileToResult.getSelection() );
 

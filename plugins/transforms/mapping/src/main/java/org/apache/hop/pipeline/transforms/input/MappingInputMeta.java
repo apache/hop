@@ -50,11 +50,12 @@ import java.util.List;
 @Transform(
   id = "MappingInput",
   name = "Mapping Input",
-  image = "MPI.svg"
+  image = "MPI.svg",
+  categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Mapping"
 )
 public class MappingInputMeta extends BaseTransformMeta implements ITransformMeta<MappingInput, MappingInputData> {
 
-  private static final Class<?> PKG = MappingInputMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MappingInputMeta.class; // Needed by Translator
 
   private String[] fieldName;
 

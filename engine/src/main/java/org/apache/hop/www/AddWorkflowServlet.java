@@ -106,8 +106,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
 
       String serverObjectId = UUID.randomUUID().toString();
-      SimpleLoggingObject servletLoggingObject =
-        new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
+      SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
       servletLoggingObject.setContainerObjectId( serverObjectId );
       servletLoggingObject.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
 

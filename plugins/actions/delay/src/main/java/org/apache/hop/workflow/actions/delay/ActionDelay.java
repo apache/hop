@@ -58,7 +58,7 @@ import java.util.List;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/delay.html"
 )
 public class ActionDelay extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDelay.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionDelay.class; // Needed by Translator
 
   private static String DEFAULT_MAXIMUM_TIMEOUT = "0";
 

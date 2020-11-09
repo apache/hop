@@ -47,7 +47,7 @@ import javax.mail.MessagingException;
  * @since 12-08-2009
  */
 public class SelectFolderDialog extends Dialog {
-  private static final Class<?> PKG = ActionGetPOP.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionGetPOP.class; // Needed by Translator
 
   private final PropsUi props;
   private Shell shell;

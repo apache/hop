@@ -66,7 +66,7 @@ import java.util.List;
 )
 @InjectionSupported( localizationPrefix = "SelectValues.Injection.", groups = { "FIELDS", "REMOVES", "METAS" } )
 public class SelectValuesMeta extends BaseTransformMeta implements ITransformMeta<SelectValues, SelectValuesData> {
-  private static final Class<?> PKG = SelectValuesMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = SelectValuesMeta.class; // Needed by Translator
 
   public static final int UNDEFINED = -2;
 
@@ -530,23 +530,23 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
       /*
        * Take care of the normal SELECT fields...
        */
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < this.selectFields.length; i++ ) {
         int idx = prev.indexOfValue( selectFields[ i ].getName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + selectFields[ i ].getName() + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + selectFields[ i ].getName() + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
+      if ( errorFound ) {
+        errorMessage =
           BaseMessages.getString( PKG, "SelectValuesMeta.CheckResult.SelectedFieldsNotFound" ) + Const.CR + Const.CR
-            + error_message;
+            + errorMessage;
 
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =
@@ -561,16 +561,16 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
           IValueMeta pv = prev.getValueMeta( i );
           int idx = Const.indexOfString( pv.getName(), getSelectName() );
           if ( idx < 0 ) {
-            error_message += "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
-            error_found = true;
+            errorMessage += "\t\t" + pv.getName() + " (" + pv.getTypeDesc() + ")" + Const.CR;
+            errorFound = true;
           }
         }
-        if ( error_found ) {
-          error_message =
+        if ( errorFound ) {
+          errorMessage =
             BaseMessages.getString( PKG, "SelectValuesMeta.CheckResult.FieldsNotFound" ) + Const.CR + Const.CR
-              + error_message;
+              + errorMessage;
 
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_COMMENT, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_COMMENT, errorMessage, transformMeta );
           remarks.add( cr );
         } else {
           cr =
@@ -584,23 +584,23 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
        * How about the DE-SELECT (remove) fields...
        */
 
-      error_message = "";
-      error_found = false;
+      errorMessage = "";
+      errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < this.deleteName.length; i++ ) {
         int idx = prev.indexOfValue( deleteName[ i ] );
         if ( idx < 0 ) {
-          error_message += "\t\t" + deleteName[ i ] + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + deleteName[ i ] + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
+      if ( errorFound ) {
+        errorMessage =
           BaseMessages.getString( PKG, "SelectValuesMeta.CheckResult.DeSelectedFieldsNotFound" ) + Const.CR + Const.CR
-            + error_message;
+            + errorMessage;
 
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =
@@ -612,23 +612,23 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
       /*
        * How about the Meta-fields...?
        */
-      error_message = "";
-      error_found = false;
+      errorMessage = "";
+      errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < this.meta.length; i++ ) {
         int idx = prev.indexOfValue( this.meta[ i ].getName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + this.meta[ i ].getName() + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + this.meta[ i ].getName() + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
+      if ( errorFound ) {
+        errorMessage =
           BaseMessages.getString( PKG, "SelectValuesMeta.CheckResult.MetadataFieldsNotFound" ) + Const.CR + Const.CR
-            + error_message;
+            + errorMessage;
 
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =
@@ -658,8 +658,8 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
 
     // Check for doubles in the selected fields...
     int[] cnt = new int[ selectFields.length ];
-    boolean error_found = false;
-    String error_message = "";
+    boolean errorFound = false;
+    String errorMessage = "";
 
     for ( int i = 0; i < selectFields.length; i++ ) {
       cnt[ i ] = 0;
@@ -670,20 +670,20 @@ public class SelectValuesMeta extends BaseTransformMeta implements ITransformMet
       }
 
       if ( cnt[ i ] > 1 ) {
-        if ( !error_found ) { // first time...
-          error_message =
+        if ( !errorFound ) { // first time...
+          errorMessage =
             BaseMessages.getString( PKG, "SelectValuesMeta.CheckResult.DuplicateFieldsSpecified" ) + Const.CR;
         } else {
-          error_found = true;
+          errorFound = true;
         }
-        error_message +=
+        errorMessage +=
           BaseMessages.getString( PKG, "SelectValuesMeta.CheckResult.OccurentRow", i + " : " + selectFields[ i ]
             .getName() + "  (" + cnt[ i ] ) + Const.CR;
-        error_found = true;
+        errorFound = true;
       }
     }
-    if ( error_found ) {
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+    if ( errorFound ) {
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
   }

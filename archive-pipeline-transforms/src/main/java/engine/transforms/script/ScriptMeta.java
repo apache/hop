@@ -67,7 +67,7 @@ import java.util.Properties;
  *
  */
 public class ScriptMeta extends BaseTransformMeta implements ITransform {
-  private static final Class<?> PKG = ScriptMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ScriptMeta.class; // Needed by Translator
 
   private static final String JSSCRIPT_TAG_TYPE = "jsScript_type";
   private static final String JSSCRIPT_TAG_NAME = "jsScript_name";
@@ -351,8 +351,8 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
   public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
-    boolean error_found = false;
-    String error_message = "";
+    boolean errorFound = false;
+    String errorMessage = "";
     CheckResult cr;
 
     ScriptEngine jscx;
@@ -409,8 +409,8 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
           }
         }
       } catch ( Exception e ) {
-        error_message = ( "Couldn't add JavaClasses to Context! Error:" );
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = ( "Couldn't add JavaClasses to Context! Error:" );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
 
@@ -433,8 +433,8 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
         jsscope.put( "ERROR_PIPELINE", Integer.valueOf( Script.ERROR_PIPELINE ) );
         jsscope.put( "CONTINUE_PIPELINE", Integer.valueOf( Script.CONTINUE_PIPELINE ) );
       } catch ( Exception ex ) {
-        error_message = "Couldn't add Pipeline Constants! Error:" + Const.CR + ex.toString();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = "Couldn't add Pipeline Constants! Error:" + Const.CR + ex.toString();
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
 
@@ -484,8 +484,8 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
         //
         jsscope.put( "row", row );
       } catch ( Exception ev ) {
-        error_message = "Couldn't add Input fields to Script! Error:" + Const.CR + ev.toString();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = "Couldn't add Input fields to Script! Error:" + Const.CR + ev.toString();
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
 
@@ -493,13 +493,13 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
         // Checking for StartScript
         if ( strActiveStartScript != null && strActiveStartScript.length() > 0 ) {
           jscx.eval( strActiveStartScript, jsscope );
-          error_message = "Found Start Script. " + strActiveStartScriptName + " Processing OK";
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+          errorMessage = "Found Start Script. " + strActiveStartScriptName + " Processing OK";
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( Exception e ) {
-        error_message = "Couldn't process Start Script! Error:" + Const.CR + e.toString();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        errorMessage = "Couldn't process Start Script! Error:" + Const.CR + e.toString();
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
 
@@ -525,7 +525,7 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
                 .valueOf( fieldname.length ) )
                 + Const.CR + Const.CR );
 
-            if ( error_found ) {
+            if ( errorFound ) {
               cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, message.toString(), transformMeta );
             } else {
               cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, message.toString(), transformMeta );
@@ -534,17 +534,17 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
           }
         } catch ( ScriptException jse ) {
           // Context.exit(); TODO AKRETION NOT SURE
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "ScriptMeta.CheckResult.CouldNotExecuteScript" )
               + Const.CR + jse.toString();
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         } catch ( Exception e ) {
           // Context.exit(); TODO AKRETION NOT SURE
-          error_message =
+          errorMessage =
             BaseMessages.getString( PKG, "ScriptMeta.CheckResult.CouldNotExecuteScript2" )
               + Const.CR + e.toString();
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
 
@@ -553,27 +553,27 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
           if ( strActiveEndScript != null && strActiveEndScript.length() > 0 ) {
             /* Object endScript = */
             jscx.eval( strActiveEndScript, jsscope );
-            error_message = "Found End Script. " + strActiveEndScriptName + " Processing OK";
-            cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, error_message, transformMeta );
+            errorMessage = "Found End Script. " + strActiveEndScriptName + " Processing OK";
+            cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
             remarks.add( cr );
           }
         } catch ( Exception e ) {
-          error_message = "Couldn't process End Script! Error:" + Const.CR + e.toString();
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+          errorMessage = "Couldn't process End Script! Error:" + Const.CR + e.toString();
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
           remarks.add( cr );
         }
       } catch ( Exception e ) {
         // Context.exit(); TODO AKRETION NOT SURE
-        error_message =
+        errorMessage =
           BaseMessages.getString( PKG, "ScriptMeta.CheckResult.CouldNotCompileScript" )
             + Const.CR + e.toString();
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       }
     } else {
       // Context.exit(); TODO AKRETION NOT SURE
-      error_message = BaseMessages.getString( PKG, "ScriptMeta.CheckResult.CouldNotGetFieldsFromPreviousTransform" );
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      errorMessage = BaseMessages.getString( PKG, "ScriptMeta.CheckResult.CouldNotGetFieldsFromPreviousTransform" );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     }
 
@@ -610,7 +610,7 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
   }
 
   public boolean getValue( Bindings scope, int i, Value res, StringBuilder message ) {
-    boolean error_found = false;
+    boolean errorFound = false;
 
     if ( fieldname[ i ] != null && fieldname[ i ].length() > 0 ) {
       res.setName( rename[ i ] );
@@ -713,7 +713,7 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
       } catch ( Exception e ) {
         message.append( BaseMessages.getString( PKG, "ScriptMeta.CheckResult.ErrorRetrievingValue", fieldname[ i ] )
           + " : " + e.toString() );
-        error_found = true;
+        errorFound = true;
       }
       res.setLength( length[ i ], precision[ i ] );
 
@@ -721,10 +721,10 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
         .toStringMeta() ) );
     } else {
       message.append( BaseMessages.getString( PKG, "ScriptMeta.CheckResult.ValueIsEmpty", String.valueOf( i ) ) );
-      error_found = true;
+      errorFound = true;
     }
 
-    return error_found;
+    return errorFound;
   }
 
   public ITransform getTransform( TransformMeta transformMeta, ITransformData data, int cnr,

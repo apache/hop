@@ -45,7 +45,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 public class ValueMapperDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = ValueMapperMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ValueMapperMeta.class; // Needed by Translator
 
   private Text wTransformName;
 

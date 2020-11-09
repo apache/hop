@@ -32,8 +32,8 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopFileException;
-import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.variables.IVariables;
@@ -52,11 +52,6 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.WrappedException;
 
-import javax.mail.Message;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -82,7 +77,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -102,7 +96,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     "appendToFile", "getPipelineName", "writeToLog", "getFiscalDate", "getProcessCount", "ceil", "floor",
     "abs", "getDayNumber", "isWorkingDay", "fireToDB", "getNextWorkingDay", "quarter", "dateDiff", "dateAdd",
     "fillString", "isCodepage", "ltrim", "rtrim", "lpad", "rpad", "week", "month", "year", "str2RegExp",
-    "fileExists", "touch", "isRegExp", "date2str", "str2date", "sendMail", "replace", "decode", "isNum",
+    "fileExists", "touch", "isRegExp", "date2str", "str2date", "replace", "decode", "isNum",
     "isDate", "lower", "upper", "str2num", "num2str", "Alert", "setEnvironmentVar", "getEnvironmentVar",
     "LoadScriptFile", "LoadScriptFromTab", "print", "println", "resolveIP", "trim", "substr", "getVariable",
     "setVariable", "LuhnCheck", "getDigitsOnly", "indexOf", "getOutputRowMeta", "getInputRowMeta",
@@ -1226,55 +1220,6 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
     return new Double( -1 );
   }
 
-  public static void sendMail( Context actualContext, Scriptable actualObject, Object[] ArgList,
-                               Function FunctionContext ) {
-
-    boolean debug = false;
-
-    // Arguments:
-    // String smtp, String from, String recipients[ ], String subject, String message
-    if ( ArgList.length == 5 ) {
-
-      try {
-        // Set the host smtp address
-        Properties props = new Properties();
-        props.put( "mail.smtp.host", ArgList[ 0 ] );
-
-        // create some properties and get the default Session
-        Session session = Session.getDefaultInstance( props, null );
-        session.setDebug( debug );
-
-        // create a message
-        Message msg = new MimeMessage( session );
-
-        // set the from and to address
-        InternetAddress addressFrom = new InternetAddress( (String) ArgList[ 1 ] );
-        msg.setFrom( addressFrom );
-
-        // Get Recipients
-        String[] strArrRecipients = ( (String) ArgList[ 2 ] ).split( "," );
-
-        InternetAddress[] addressTo = new InternetAddress[ strArrRecipients.length ];
-        for ( int i = 0; i < strArrRecipients.length; i++ ) {
-          addressTo[ i ] = new InternetAddress( strArrRecipients[ i ] );
-        }
-        msg.setRecipients( Message.RecipientType.TO, addressTo );
-
-        // Optional : You can also set your custom headers in the Email if you Want
-        msg.addHeader( "MyHeaderName", "myHeaderValue" );
-
-        // Setting the Subject and Content Type
-        msg.setSubject( (String) ArgList[ 3 ] );
-        msg.setContent( ArgList[ 4 ], "text/plain" );
-        Transport.send( msg );
-      } catch ( Exception e ) {
-        throw Context.reportRuntimeError( "sendMail: " + e.toString() );
-      }
-    } else {
-      throw Context.reportRuntimeError( "The function call sendMail requires 5 arguments." );
-    }
-  }
-
   public static String upper( Context actualContext, Scriptable actualObject, Object[] ArgList,
                               Function FunctionContext ) {
     String sRC = "";
@@ -1773,11 +1718,11 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   }
 
   // Evaluates the given ScriptFile
-  private static void checkAndLoadJSFile( Context actualContext, Scriptable eval_scope, String fileName ) {
+  private static void checkAndLoadJSFile( Context actualContext, Scriptable evalScope, String fileName ) {
     Reader inStream = null;
     try {
       inStream = new InputStreamReader( HopVfs.getInputStream( fileName ) );
-      actualContext.evaluateReader( eval_scope, inStream, fileName, 1, null );
+      actualContext.evaluateReader( evalScope, inStream, fileName, 1, null );
     } catch ( FileNotFoundException Signal ) {
       Context.reportError( "Unable to open file \"" + fileName + "\" (reason: \"" + Signal.getMessage() + "\")" );
     } catch ( WrappedException Signal ) {
@@ -2378,15 +2323,15 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         try {
           // Source file
           file = HopVfs.getFileObject( Context.toString( ArgList[ 0 ] ) );
-          String foldername = null;
+          String folderName = null;
           if ( file.exists() ) {
-            foldername = HopVfs.getFilename( file.getParent() );
+            folderName = HopVfs.getFilename( file.getParent() );
 
           } else {
             Context.reportRuntimeError( "file [" + Context.toString( ArgList[ 0 ] ) + "] can not be found!" );
           }
 
-          return foldername;
+          return folderName;
         } catch ( IOException e ) {
           throw Context.reportRuntimeError( "The function call getParentFoldername throw an error : "
             + e.toString() );

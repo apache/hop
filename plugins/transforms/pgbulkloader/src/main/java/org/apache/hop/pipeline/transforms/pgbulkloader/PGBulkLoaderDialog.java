@@ -63,7 +63,7 @@ import java.util.List;
 import java.util.*;
 
 public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = PGBulkLoaderMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = PGBulkLoaderMeta.class; // Needed by Translator
 
   private MetaSelectionLine<DatabaseMeta> wConnection;
 

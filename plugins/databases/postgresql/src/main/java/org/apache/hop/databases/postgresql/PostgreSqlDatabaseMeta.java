@@ -146,13 +146,13 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   }
 
   @Override
-  public String getSqlTableExists( String tablename ) {
-    return getSqlQueryFields( tablename );
+  public String getSqlTableExists( String tableName ) {
+    return getSqlQueryFields( tableName );
   }
 
   @Override
-  public String getSqlColumnExists( String columnname, String tablename ) {
-    return getSqlQueryColumnFields( columnname, tablename );
+  public String getSqlColumnExists( String columnname, String tableName ) {
+    return getSqlQueryColumnFields( columnname, tableName );
   }
 
   public String getSqlQueryColumnFields( String columnname, String tableName ) {
@@ -201,7 +201,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
   /**
    * Generates the SQL statement to add a column to the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
@@ -210,15 +210,15 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                        String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tablename + " ADD COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
+    return "ALTER TABLE " + tableName + " ADD COLUMN " + getFieldDefinition( v, tk, pk, useAutoinc, true, false );
   }
 
   /**
    * Generates the SQL statement to drop a column from the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
@@ -227,15 +227,15 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                         String pk, boolean semicolon ) {
-    return "ALTER TABLE " + tablename + " DROP COLUMN " + v.getName();
+    return "ALTER TABLE " + tableName + " DROP COLUMN " + v.getName();
   }
 
   /**
    * Generates the SQL statement to modify a column in the specified table
    *
-   * @param tablename   The table to add
+   * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
    * @param useAutoinc whether or not this field uses auto increment
@@ -244,7 +244,7 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoinc,
+  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoinc,
                                           String pk, boolean semicolon ) {
     String retval = "";
 
@@ -268,13 +268,13 @@ public class PostgreSqlDatabaseMeta extends BaseDatabaseMeta implements IDatabas
     tmpColumn.setName( tmpName );
 
     // Create a new tmp column
-    retval += getAddColumnStatement( tablename, tmpColumn, tk, useAutoinc, pk, semicolon ) + ";" + Const.CR;
+    retval += getAddColumnStatement( tableName, tmpColumn, tk, useAutoinc, pk, semicolon ) + ";" + Const.CR;
     // copy the old data over to the tmp column
-    retval += "UPDATE " + tablename + " SET " + tmpColumn.getName() + "=" + v.getName() + ";" + Const.CR;
+    retval += "UPDATE " + tableName + " SET " + tmpColumn.getName() + "=" + v.getName() + ";" + Const.CR;
     // drop the old column
-    retval += getDropColumnStatement( tablename, v, tk, useAutoinc, pk, semicolon ) + ";" + Const.CR;
+    retval += getDropColumnStatement( tableName, v, tk, useAutoinc, pk, semicolon ) + ";" + Const.CR;
     // rename the temp column to replace the removed column
-    retval += "ALTER TABLE " + tablename + " RENAME " + tmpColumn.getName() + " TO " + v.getName() + ";" + Const.CR;
+    retval += "ALTER TABLE " + tableName + " RENAME " + tmpColumn.getName() + " TO " + v.getName() + ";" + Const.CR;
     return retval;
   }
 

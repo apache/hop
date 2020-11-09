@@ -60,7 +60,7 @@ import java.util.Map;
         documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/excelwriter.html"
 )
 public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
-  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ExcelWriterTransformMeta.class; // Needed by Translator
 
   public static final String IF_FILE_EXISTS_REUSE = "reuse";
   public static final String IF_FILE_EXISTS_CREATE_NEW = "new";
@@ -188,9 +188,9 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
    */
   private boolean doNotOpenNewFileInit;
 
-  private boolean SpecifyFormat;
+  private boolean specifyFormat;
 
-  private String date_time_format;
+  private String dateTimeFormat;
 
   /**
    * Flag : auto size columns?
@@ -383,19 +383,19 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
   }
 
   public boolean isSpecifyFormat() {
-    return SpecifyFormat;
+    return specifyFormat;
   }
 
-  public void setSpecifyFormat( boolean SpecifyFormat ) {
-    this.SpecifyFormat = SpecifyFormat;
+  public void setSpecifyFormat( boolean specifyFormat ) {
+    this.specifyFormat = specifyFormat;
   }
 
   public String getDateTimeFormat() {
-    return date_time_format;
+    return dateTimeFormat;
   }
 
-  public void setDateTimeFormat( String date_time_format ) {
-    this.date_time_format = date_time_format;
+  public void setDateTimeFormat( String dateTimeFormat ) {
+    this.dateTimeFormat = dateTimeFormat;
   }
 
   /**
@@ -634,8 +634,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
       transformNrInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "split" ) );
       dateInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_date" ) );
       timeInFilename = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "add_time" ) );
-      SpecifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) );
-      date_time_format = XmlHandler.getTagValue( transformNode, "file", "date_time_format" );
+      specifyFormat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "SpecifyFormat" ) );
+      dateTimeFormat = XmlHandler.getTagValue( transformNode, "file", "date_time_format" );
 
       autosizecolums = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "autosizecolums" ) );
       streamingData = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "stream_data" ) );
@@ -709,8 +709,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
     transformNrInFilename = false;
     dateInFilename = false;
     timeInFilename = false;
-    date_time_format = null;
-    SpecifyFormat = false;
+    dateTimeFormat = null;
+    specifyFormat = false;
     addToResultFilenames = true;
     protectsheet = false;
     splitEvery = 0;
@@ -775,8 +775,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
 
     Date now = new Date();
 
-    if ( SpecifyFormat && !Utils.isEmpty( date_time_format ) ) {
-      daf.applyPattern( date_time_format );
+    if ( specifyFormat && !Utils.isEmpty( dateTimeFormat ) ) {
+      daf.applyPattern( dateTimeFormat );
       String dt = daf.format( now );
       retval += dt;
     } else {
@@ -842,8 +842,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
     retval.append( "      " ).append( XmlHandler.addTagValue( "split", transformNrInFilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_date", dateInFilename ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "add_time", timeInFilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", SpecifyFormat ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", date_time_format ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "SpecifyFormat", specifyFormat ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "date_time_format", dateTimeFormat ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "sheetname", sheetname ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "autosizecolums", autosizecolums ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "stream_data", streamingData ) );
@@ -903,21 +903,21 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
           PKG, "ExcelWriterTransformMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
       remarks.add( cr );
 
-      String error_message = "";
-      boolean error_found = false;
+      String errorMessage = "";
+      boolean errorFound = false;
 
       // Starting from selected fields in ...
       for ( int i = 0; i < outputFields.length; i++ ) {
         int idx = prev.indexOfValue( outputFields[ i ].getName() );
         if ( idx < 0 ) {
-          error_message += "\t\t" + outputFields[ i ].getName() + Const.CR;
-          error_found = true;
+          errorMessage += "\t\t" + outputFields[ i ].getName() + Const.CR;
+          errorFound = true;
         }
       }
-      if ( error_found ) {
-        error_message =
-          BaseMessages.getString( PKG, "ExcelWriterTransformMeta.CheckResult.FieldsNotFound", error_message );
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, error_message, transformMeta );
+      if ( errorFound ) {
+        errorMessage =
+          BaseMessages.getString( PKG, "ExcelWriterTransformMeta.CheckResult.FieldsNotFound", errorMessage );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =

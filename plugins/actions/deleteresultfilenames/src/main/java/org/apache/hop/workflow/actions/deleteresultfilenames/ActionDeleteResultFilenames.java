@@ -66,19 +66,19 @@ import java.util.regex.Pattern;
   documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deleteresultfilenames.html"
 )
 public class ActionDeleteResultFilenames extends ActionBase implements Cloneable, IAction {
-  private static final Class<?> PKG = ActionDeleteResultFilenames.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = ActionDeleteResultFilenames.class; // Needed by Translator
 
-  private String foldername;
-  private boolean specifywildcard;
+  private String folderName;
+  private boolean specifyWildcard;
   private String wildcard;
-  private String wildcardexclude;
+  private String wildcardExclude;
 
   public ActionDeleteResultFilenames( String n ) {
     super( n, "" );
-    foldername = null;
-    wildcardexclude = null;
+    folderName = null;
+    wildcardExclude = null;
     wildcard = null;
-    specifywildcard = false;
+    specifyWildcard = false;
   }
 
   public ActionDeleteResultFilenames() {
@@ -94,10 +94,10 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     StringBuilder retval = new StringBuilder( 100 ); // 75 chars in just tag names and spaces
 
     retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "foldername", foldername ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "specify_wildcard", specifywildcard ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "foldername", folderName ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "specify_wildcard", specifyWildcard ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "wildcard", wildcard ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcardexclude", wildcardexclude ) );
+    retval.append( "      " ).append( XmlHandler.addTagValue( "wildcardexclude", wildcardExclude ) );
 
     return retval.toString();
   }
@@ -106,10 +106,10 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
                        IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
-      foldername = XmlHandler.getTagValue( entrynode, "foldername" );
-      specifywildcard = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "specify_wildcard" ) );
+      folderName = XmlHandler.getTagValue( entrynode, "foldername" );
+      specifyWildcard = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "specify_wildcard" ) );
       wildcard = XmlHandler.getTagValue( entrynode, "wildcard" );
-      wildcardexclude = XmlHandler.getTagValue( entrynode, "wildcardexclude" );
+      wildcardExclude = XmlHandler.getTagValue( entrynode, "wildcardexclude" );
 
     } catch ( HopXmlException xe ) {
       throw new HopXmlException( BaseMessages.getString(
@@ -117,20 +117,20 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     }
   }
 
-  public void setSpecifyWildcard( boolean specifywildcard ) {
-    this.specifywildcard = specifywildcard;
+  public void setSpecifyWildcard( boolean specifyWildcard ) {
+    this.specifyWildcard = specifyWildcard;
   }
 
   public boolean isSpecifyWildcard() {
-    return specifywildcard;
+    return specifyWildcard;
   }
 
-  public void setFoldername( String foldername ) {
-    this.foldername = foldername;
+  public void setFoldername( String folderName ) {
+    this.folderName = folderName;
   }
 
   public String getFoldername() {
-    return foldername;
+    return folderName;
   }
 
   public String getWildcard() {
@@ -138,7 +138,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
   }
 
   public String getWildcardExclude() {
-    return wildcardexclude;
+    return wildcardExclude;
   }
 
   public String getRealWildcard() {
@@ -149,8 +149,8 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
     this.wildcard = wildcard;
   }
 
-  public void setWildcardExclude( String wildcardexclude ) {
-    this.wildcardexclude = wildcardexclude;
+  public void setWildcardExclude( String wildcardExclude ) {
+    this.wildcardExclude = wildcardExclude;
   }
 
   public Result execute( Result previousResult, int nr ) {
@@ -163,7 +163,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
         if ( log.isBasic() ) {
           logBasic( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.log.FilesFound", "" + size ) );
         }
-        if ( !specifywildcard ) {
+        if ( !specifyWildcard ) {
           // Delete all files
           previousResult.getResultFiles().clear();
           if ( log.isDetailed() ) {
@@ -179,7 +179,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
               if ( file != null && file.exists() ) {
                 if ( CheckFileWildcard( file.getName().getBaseName(), environmentSubstitute( wildcard ), true )
                   && !CheckFileWildcard(
-                  file.getName().getBaseName(), environmentSubstitute( wildcardexclude ), false ) ) {
+                  file.getName().getBaseName(), environmentSubstitute( wildcardExclude ), false ) ) {
                   // Remove file from result files list
                   result.getResultFiles().remove( resultFile.getFile().toString() );
 

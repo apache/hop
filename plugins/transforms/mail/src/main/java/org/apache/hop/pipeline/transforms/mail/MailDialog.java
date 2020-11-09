@@ -52,7 +52,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class MailDialog extends BaseTransformDialog implements ITransformDialog {
-  private static final Class<?> PKG = MailMeta.class; // for i18n purposes, needed by Translator!!
+  private static final Class<?> PKG = MailMeta.class; // Needed by Translator
 
   private static final String[] FILETYPES =
     new String[] { BaseMessages.getString( PKG, "MailDialog.Filetype.All" ) };
@@ -2468,9 +2468,9 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     input.setSecureConnectionType( wSecureConnectionType.getText() );
     input.setReplyToAddresses( wReplyToAddresses.getText() );
 
-    int nritems = wFields.nrNonEmpty();
+    int nrItems = wFields.nrNonEmpty();
     int nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String arg = wFields.getNonEmpty( i ).getText( 1 );
       if ( arg != null && arg.length() != 0 ) {
         nr++;
@@ -2479,7 +2479,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     input.allocate( nr );
 
     nr = 0;
-    for ( int i = 0; i < nritems; i++ ) {
+    for ( int i = 0; i < nrItems; i++ ) {
       String image = wFields.getNonEmpty( i ).getText( 1 );
       String id = wFields.getNonEmpty( i ).getText( 2 );
       input.setEmbeddedImage( i, image );
