@@ -68,7 +68,7 @@ pipeline {
                 checkout scm
             }
         }
-        stage ('Print Labels') {
+        stage ('Print Labels for Branch') {
             when {
                 branch branch pattern: "PR-\\d+", comparator: "REGEXP"
             }
