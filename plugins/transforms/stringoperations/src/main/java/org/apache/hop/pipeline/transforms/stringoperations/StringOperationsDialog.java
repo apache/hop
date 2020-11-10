@@ -238,7 +238,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
           }
 
           // Dislay in red missing field names
-          Display.getDefault().asyncExec( () -> {
+          display.asyncExec( () -> {
             if ( !wFields.isDisposed() ) {
               for ( int i = 0; i < wFields.table.getItemCount(); i++ ) {
                 TableItem it = wFields.table.getItem( i );
