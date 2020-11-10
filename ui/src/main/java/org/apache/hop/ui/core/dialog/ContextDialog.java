@@ -25,6 +25,7 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.SwtUniversalImage;
+import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
@@ -32,11 +33,14 @@ import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.history.AuditManager;
+import org.apache.hop.history.AuditState;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
+import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.util.SwtSvgImageUtil;
 import org.eclipse.swt.SWT;
@@ -70,7 +74,9 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @GuiPlugin
@@ -83,10 +89,13 @@ public class ContextDialog extends Dialog {
   public static final String TOOLBAR_ITEM_EXPAND_ALL = "ContextDialog-Toolbar-10020-ExpandAll";
   public static final String TOOLBAR_ITEM_ENABLE_CATEGORIES = "ContextDialog-Toolbar-10030-EnableCategories";
 
-  public static final String AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES = "ContextDialog-Toolbar-ShowCategories";
+  public static final String AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES = "ContextDialogShowCategories";
+  public static final String AUDIT_TYPE_CONTEXT_DIALOG = "ContextDialog";
+  public static final String AUDIT_NAME_CATEGORY_STATES = "CategoryStates";
 
   private Point location;
   private List<GuiAction> actions;
+  private String contextId;
   private PropsUi props;
   private Shell shell;
   private Text wSearch;
@@ -280,12 +289,14 @@ public class ContextDialog extends Dialog {
     }
   }
 
-  public ContextDialog( Shell parent, String title, Point location, List<GuiAction> actions ) {
+  public ContextDialog( Shell parent, String title, Point location, List<GuiAction> actions, String contextId ) {
     super( parent );
 
     this.setText( title );
     this.location = location;
     this.actions = actions;
+    this.contextId = contextId;
+
     props = PropsUi.getInstance();
 
     shiftClicked = false;
@@ -422,6 +433,7 @@ public class ContextDialog extends Dialog {
     //
     shell.addListener( SWT.Resize, event -> updateVerticalBar() );
     shell.addListener( SWT.Deactivate, event -> onFocusLost() );
+    shell.addListener( SWT.Close, event -> storeDialogSettings() );
 
     wSearch.addModifyListener( event -> onModifySearch() );
 
@@ -522,33 +534,60 @@ public class ContextDialog extends Dialog {
 
   private void recallToolbarSettings() {
     Button categoriesCheckBox = getCategoriesCheckBox();
-    if (categoriesCheckBox!=null) {
-      String strUseCategories = AuditManagerGuiUtil.getLastUsedValue( AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES );
-      categoriesCheckBox.setSelection( "Y".equalsIgnoreCase( Const.NVL(strUseCategories, "Y" )) );
-    }
-  }
-
-  private void storeToolbarSettings() {
-    Button categoriesCheckBox = getCategoriesCheckBox();
     if ( categoriesCheckBox != null ) {
-      AuditManagerGuiUtil.addLastUsedValue( AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES, categoriesCheckBox.getSelection() ? "Y" : "N" );
+      String strUseCategories = HopConfig.getGuiProperty( AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES );
+      categoriesCheckBox.setSelection( "Y".equalsIgnoreCase( Const.NVL( strUseCategories, "Y" ) ) );
+    }
+
+    AuditState auditState = AuditManager.retrieveState( LogChannel.UI, HopNamespace.getNamespace(), AUDIT_TYPE_CONTEXT_DIALOG, AUDIT_NAME_CATEGORY_STATES );
+    if (auditState!=null) {
+      Map<String, Object> states = auditState.getStateMap();
+      for ( CategoryAndOrder category : categories ) {
+        Object expanded = states.get( category.getCategory() );
+        if ( expanded == null ) {
+          category.setCollapsed( false );
+        } else {
+          category.setCollapsed( "N".equalsIgnoreCase( expanded.toString() ) );
+        }
+      }
     }
   }
 
-    public boolean isDisposed() {
-    return shell.isDisposed();
-  }
-
-  public void dispose() {
-
+  private void storeDialogSettings() {
     // Save the shell size and location in case the position isn't a mouse click
     //
     if ( location == null ) {
       props.setScreen( new WindowProperty( shell ) );
     }
 
+    Button categoriesCheckBox = getCategoriesCheckBox();
+    if ( categoriesCheckBox != null ) {
+
+      HopConfig.setGuiProperty( AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES, categoriesCheckBox.getSelection() ? "Y" : "N" );
+      try {
+        HopConfig.getInstance().saveToFile();
+      } catch ( Exception e ) {
+        new ErrorDialog( shell, "Error", "Error saving GUI options to hop-config.json", e );
+      }
+    }
+
+    // Store the category states: expanded or not
+    //
+    Map<String, Object> states = new HashMap<>();
+    for ( CategoryAndOrder category : categories ) {
+      states.put( category.getCategory(), category.isCollapsed() ? "N" : "Y" );
+    }
+    AuditManager.storeState( LogChannel.UI, HopNamespace.getNamespace(), AUDIT_TYPE_CONTEXT_DIALOG, AUDIT_NAME_CATEGORY_STATES, states );
+  }
+
+  public boolean isDisposed() {
+    return shell.isDisposed();
+  }
+
+  public void dispose() {
+
     // Store the toolbar settings
-    storeToolbarSettings();
+    storeDialogSettings();
 
     // Close the dialog window
     shell.close();
@@ -569,7 +608,7 @@ public class ContextDialog extends Dialog {
     image = "ui/images/CollapseAll.svg"
   )
   public void collapseAll() {
-    for (CategoryAndOrder category : categories) {
+    for ( CategoryAndOrder category : categories ) {
       category.setCollapsed( true );
     }
     wCanvas.redraw();
@@ -582,7 +621,7 @@ public class ContextDialog extends Dialog {
     image = "ui/images/ExpandAll.svg"
   )
   public void expandAll() {
-    for (CategoryAndOrder category : categories) {
+    for ( CategoryAndOrder category : categories ) {
       category.setCollapsed( false );
     }
     wCanvas.redraw();
@@ -603,7 +642,7 @@ public class ContextDialog extends Dialog {
 
   private Button getCategoriesCheckBox() {
     ToolItem checkboxItem = toolBarWidgets.findToolItem( TOOLBAR_ITEM_ENABLE_CATEGORIES );
-    if (checkboxItem==null) {
+    if ( checkboxItem == null ) {
       return null;
     }
     return (Button) checkboxItem.getControl();
@@ -631,10 +670,10 @@ public class ContextDialog extends Dialog {
     boolean useCategories;
 
     Button categoriesCheckBox = getCategoriesCheckBox();
-    if (categoriesCheckBox==null) {
-      useCategories=true;
+    if ( categoriesCheckBox == null ) {
+      useCategories = true;
     } else {
-       useCategories = categoriesCheckBox.getSelection();
+      useCategories = categoriesCheckBox.getSelection();
     }
     useCategories &= !categories.isEmpty();
     updateToolbar();
@@ -684,7 +723,7 @@ public class ContextDialog extends Dialog {
     firstShownItem = null;
 
     while ( ( useCategories && categoryNr < categories.size() ) ||
-            ( !useCategories || categories.isEmpty() ) && (categoryNr == 0 ) ) {
+      ( !useCategories || categories.isEmpty() ) && ( categoryNr == 0 ) ) {
 
       CategoryAndOrder categoryAndOrder;
       if ( !useCategories || categories.isEmpty() ) {
@@ -719,7 +758,7 @@ public class ContextDialog extends Dialog {
         gc.setForeground( GuiResource.getInstance().getColorBlack() );
         gc.setFont( itemsFont );
 
-        if ( categoryAndOrder==null || !categoryAndOrder.isCollapsed() ) {
+        if ( categoryAndOrder == null || !categoryAndOrder.isCollapsed() ) {
 
           // Paint the action items
           //
@@ -811,7 +850,7 @@ public class ContextDialog extends Dialog {
 
   private void updateToolbar() {
     Button categoriesCheckBox = getCategoriesCheckBox();
-    boolean categoriesEnabled = categoriesCheckBox!=null && categoriesCheckBox.getSelection();
+    boolean categoriesEnabled = categoriesCheckBox != null && categoriesCheckBox.getSelection();
     toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_COLLAPSE_ALL, categoriesEnabled );
     toolBarWidgets.enableToolbarItem( TOOLBAR_ITEM_EXPAND_ALL, categoriesEnabled );
   }

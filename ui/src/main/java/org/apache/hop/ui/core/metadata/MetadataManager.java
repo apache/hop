@@ -36,6 +36,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.GuiContextHandler;
 import org.apache.hop.ui.hopgui.context.GuiContextUtil;
 import org.apache.hop.ui.hopgui.dialog.MetadataExplorerDialog;
 import org.eclipse.swt.SWT;
@@ -96,7 +97,7 @@ public class MetadataManager<T extends IHopMetadata> {
         action.setClassLoader( getClassLoader() );
         actions.add( action );
       }
-      return GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the " + hopMetadata.name() + " to edit", actions );
+      return GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the " + hopMetadata.name() + " to edit", new GuiContextHandler( "HopGuiMetadataContext", actions ) );
 
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error editing metadata", e );
@@ -125,7 +126,7 @@ public class MetadataManager<T extends IHopMetadata> {
         action.setClassLoader( getClassLoader() );
         actions.add( action );
       }
-      return GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the " + hopMetadata.name() + " to delete after confirmation", actions );
+      return GuiContextUtil.handleActionSelection( hopGui.getShell(), "Select the " + hopMetadata.name() + " to delete after confirmation", new GuiContextHandler( "HopGuiMetadaContext", actions ) );
 
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error deleting metadata", e );

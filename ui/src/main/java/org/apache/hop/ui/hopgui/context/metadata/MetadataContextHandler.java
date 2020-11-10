@@ -37,6 +37,8 @@ import java.util.List;
 
 public class MetadataContextHandler implements IGuiContextHandler {
 
+  public static final String CONTEXT_ID = "HopGuiMetadataContext";
+
   private HopGui hopGui;
   private IHopMetadataProvider metadataProvider;
   private Class<? extends IHopMetadata> metadataObjectClass;
@@ -50,6 +52,10 @@ public class MetadataContextHandler implements IGuiContextHandler {
 
     metadataManager = new MetadataManager<>( hopGui.getVariables(), metadataProvider, metadataObjectClass );
     metadataManager.setClassLoader( metadataObjectClass.getClassLoader() );
+  }
+
+  @Override public String getContextId() {
+    return CONTEXT_ID;
   }
 
   @Override public List<GuiAction> getSupportedActions() {

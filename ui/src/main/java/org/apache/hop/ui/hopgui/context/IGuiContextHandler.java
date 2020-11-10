@@ -35,4 +35,9 @@ public interface IGuiContextHandler {
    * @return Get a list of all the supported actions by this context handler
    */
   List<GuiAction> getSupportedActions();
+
+  /**
+   * @return The name of the context handler
+   */
+  String getContextId();
 }

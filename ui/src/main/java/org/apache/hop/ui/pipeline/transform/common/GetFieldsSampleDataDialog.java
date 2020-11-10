@@ -26,9 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.EnterNumberDialog;
 import org.apache.hop.ui.core.dialog.EnterTextDialog;
-import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -85,10 +82,12 @@ public class GetFieldsSampleDataDialog extends EnterNumberDialog {
           etd.setModal();
           etd.open();
         } else {
-          final Dialog errorDlg = new SimpleMessageDialog( parentDialog.getShell(),
-            BaseMessages.getString( PKG, "System.Dialog.Error.Title" ),
-            BaseMessages.getString( PKG, "GetFieldsSampleDataDialog.ScanResults.Error.Message" ), MessageDialog.ERROR );
-          errorDlg.open();
+
+          MessageBox box = new MessageBox(shell, SWT.OK | SWT.ICON_ERROR);
+          box.setText( BaseMessages.getString( PKG, "System.Dialog.Error.Title" ) );
+          box.setMessage( BaseMessages.getString( PKG, "GetFieldsSampleDataDialog.ScanResults.Error.Message" ) );
+          box.open();
+
         }
       }
     }
