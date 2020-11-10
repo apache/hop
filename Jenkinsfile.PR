@@ -73,9 +73,7 @@ pipeline {
                 branch pattern: "PR-\\d+", comparator: "REGEXP"
             }
             steps {
-                pullRequest.labels.each{
-                    echo "label: $it"
-                }
+                echo sh(returnStdout: true, script: 'env')
             }
         }
         // stage('Test & Build') {
