@@ -95,12 +95,6 @@
     <classname>org.apache.hop.www.RegisterPackageServlet</classname>
   </servlet>
 
-  <servlet id="stopHopServer">
-    <description>Stop Hop Server</description>
-    <classname>org.apache.hop.www.StopHopServerServlet</classname>
-  </servlet>
-
-
   <!-- Easier remote execution ... -->
 
   <servlet id="addExport">

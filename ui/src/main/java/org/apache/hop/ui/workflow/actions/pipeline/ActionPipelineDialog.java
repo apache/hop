@@ -36,7 +36,6 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.core.dialog.SimpleMessageDialog;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
@@ -48,8 +47,6 @@ import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
-import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -59,6 +56,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
@@ -389,10 +387,10 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
 
     protected void ok() {
         if (Utils.isEmpty(wName.getText())) {
-            final Dialog dialog = new SimpleMessageDialog(shell,
-                    BaseMessages.getString(PKG, "System.TransformActionNameMissing.Title"),
-                    BaseMessages.getString(PKG, "System.ActionNameMissing.Msg"), MessageDialog.ERROR);
-            dialog.open();
+            MessageBox box = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
+            box.setText( BaseMessages.getString(PKG, "System.TransformActionNameMissing.Title") );
+            box.setMessage( BaseMessages.getString(PKG, "System.ActionNameMissing.Msg") );
+            box.open();
             return;
         }
         action.setName(wName.getText());

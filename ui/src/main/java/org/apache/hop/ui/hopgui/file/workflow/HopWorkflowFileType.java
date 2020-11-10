@@ -31,21 +31,23 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.laf.BasePropertyHandler;
-import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
-import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.context.GuiContextHandler;
 import org.apache.hop.ui.hopgui.context.IGuiContextHandler;
 import org.apache.hop.ui.hopgui.file.HopFileTypeBase;
+import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
-import org.apache.hop.ui.hopgui.file.HopFileTypePlugin;
+import org.apache.hop.ui.hopgui.perspective.TabItemHandler;
 import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
+import org.apache.hop.workflow.WorkflowMeta;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -63,9 +65,9 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
   @Override public String getName() {
     return WORKFLOW_FILE_TYPE_DESCRIPTION;
   }
-  
+
   @Override public String getDefaultFileExtension() {
-	  	return ".hwf";
+    return ".hwf";
   }
 
   @Override public String[] getFilterExtensions() {
@@ -108,7 +110,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       // Other file types we might allow to open more than once but not workflows for now.
       //
       TabItemHandler tabItemHandlerWithFilename = perspective.findTabItemHandlerWithFilename( filename );
-      if (tabItemHandlerWithFilename!=null) {
+      if ( tabItemHandlerWithFilename != null ) {
         // Same file so we can simply switch to it.
         // This will prevent confusion.
         //
@@ -127,7 +129,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       // Keep track of open...
       //
       AuditManager.registerEvent( HopNamespace.getNamespace(), "file", filename, "open" );
-      
+
       // Inform those that want to know about it that we loaded a pipeline
       //
       ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), "WorkflowAfterOpen", workflowMeta );
@@ -183,29 +185,26 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
     return metaObject instanceof WorkflowMeta;
   }
 
-  public static final String ACTION_ID_NEW_PIPELINE = "NewWorkflow";
+  public static final String ACTION_ID_NEW_WORKFLOW = "NewWorkflow";
 
   @Override public List<IGuiContextHandler> getContextHandlers() {
 
     HopGui hopGui = HopGui.getInstance();
 
     List<IGuiContextHandler> handlers = new ArrayList<>();
-    handlers.add( () -> {
-      List<GuiAction> actions = new ArrayList<>();
 
-      GuiAction newAction = new GuiAction( ACTION_ID_NEW_PIPELINE, GuiActionType.Create, "Workflow", "Creates a workflow: a sequential set of actions where a path is followed based on the outcome of executions and conditions.",
-        BasePropertyHandler.getProperty( "Workflow_image" ),
-        ( shiftClicked, controlClicked, parameters ) -> {
-          try {
-            HopWorkflowFileType.this.newFile( hopGui, hopGui.getVariables() );
-          } catch ( Exception e ) {
-            new ErrorDialog( hopGui.getShell(), "Error", "Error creating new workflow", e );
-          }
-        } );
-      actions.add( newAction );
+    GuiAction newAction = new GuiAction( ACTION_ID_NEW_WORKFLOW, GuiActionType.Create, "Workflow",
+      "Creates a workflow: a sequential set of actions where a path is followed based on the outcome of executions and conditions.",
+      BasePropertyHandler.getProperty( "Workflow_image" ),
+      ( shiftClicked, controlClicked, parameters ) -> {
+        try {
+          HopWorkflowFileType.this.newFile( hopGui, hopGui.getVariables() );
+        } catch ( Exception e ) {
+          new ErrorDialog( hopGui.getShell(), "Error", "Error creating new workflow", e );
+        }
+      } );
+    handlers.add( new GuiContextHandler( ACTION_ID_NEW_WORKFLOW, Arrays.asList( newAction ) ) );
 
-      return actions;
-    } );
     return handlers;
   }
 }
