@@ -29,6 +29,7 @@ import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
 import java.util.List;
 
@@ -100,9 +101,9 @@ public interface IHopPerspective extends IActionContextHandlersProvider {
   boolean hasNavigationNextFile();
 
   /**
-   * @return The composite of this perspective
+   * @return The control of this perspective
    */
-  Composite getComposite();
+  Control getControl();
 
   /**
    * Remove this file type handler from the perspective

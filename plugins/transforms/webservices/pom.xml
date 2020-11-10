@@ -27,4 +27,18 @@
             <version>1.6.2</version>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>geomajas</id>
+            <url>http://maven.geomajas.org/</url>
+            <name>Geomajas</name>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
 </project>

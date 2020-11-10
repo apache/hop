@@ -53,6 +53,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
@@ -286,14 +287,9 @@ public class HopPluginExplorePerspective implements IHopPerspective {
 	public boolean hasNavigationNextFile() {
 		return false;
 	}
-
-	/**
-	 * Gets composite
-	 *
-	 * @return value of composite
-	 */
+	
 	@Override
-	public Composite getComposite() {
+	public Control getControl() {
 		return composite;
 	}
 

@@ -128,7 +128,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
 
       // Show it in the perspective
       //
-      IHopFileTypeHandler typeHandler = perspective.addPipeline( perspective.getTabFolder(), hopGui, pipelineMeta, this );
+      IHopFileTypeHandler typeHandler = perspective.addPipeline( hopGui, pipelineMeta, this );
 
       // Keep track of open...
       //
@@ -162,7 +162,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
 
       // Show it in the perspective
       //
-      return perspective.addPipeline( perspective.getTabFolder(), hopGui, pipelineMeta, this );
+      return perspective.addPipeline( hopGui, pipelineMeta, this );
     } catch ( Exception e ) {
       throw new HopException( "Error creating new pipeline", e );
     }

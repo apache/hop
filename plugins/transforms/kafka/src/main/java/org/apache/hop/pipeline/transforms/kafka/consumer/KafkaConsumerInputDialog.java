@@ -831,7 +831,7 @@ public class KafkaConsumerInputDialog extends BaseTransformDialog implements ITr
     try {
       // Add a new tab with a new pipeline in the background
       //
-      doPerspective.addPipeline( doPerspective.getComposite(), hopGui, kafkaPipelineMeta, new HopPipelineFileType() );
+      doPerspective.addPipeline( hopGui, kafkaPipelineMeta, new HopPipelineFileType() );
 
       // Ask the user to save the new pipeline
       //

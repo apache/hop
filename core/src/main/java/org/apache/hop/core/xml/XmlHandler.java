@@ -184,21 +184,19 @@ public class XmlHandler {
    * @return The string of the subtag or null if nothing was found.
    */
   public static String getTagValue( Node n, String tag, String subtag ) {
-    NodeList children, tags;
-    Node childnode, tagnode;
 
     if ( n == null ) {
       return null;
     }
 
-    children = n.getChildNodes();
+    NodeList children = n.getChildNodes();
     for ( int i = 0; i < children.getLength(); i++ ) {
-      childnode = children.item( i );
+      Node childnode = children.item( i );
       if ( childnode.getNodeName().equalsIgnoreCase( tag ) ) {
         // <file>
-        tags = childnode.getChildNodes();
+        NodeList tags = childnode.getChildNodes();
         for ( int j = 0; j < tags.getLength(); j++ ) {
-          tagnode = tags.item( j );
+          Node tagnode = tags.item( j );
           if ( tagnode.getNodeName().equalsIgnoreCase( subtag ) ) {
             if ( tagnode.getFirstChild() != null ) {
               return tagnode.getFirstChild().getNodeValue();
@@ -218,18 +216,15 @@ public class XmlHandler {
    * @return The number of nodes found with a certain tag
    */
   public static int countNodes( Node n, String tag ) {
-    NodeList children;
-    Node childnode;
-
-    int count = 0;
 
     if ( n == null ) {
       return 0;
     }
 
-    children = n.getChildNodes();
+    int count = 0;
+    NodeList children = n.getChildNodes();
     for ( int i = 0; i < children.getLength(); i++ ) {
-      childnode = children.item( i );
+      Node childnode = children.item( i );
       if ( childnode.getNodeName().equalsIgnoreCase( tag ) ) {
         // <file>
         count++;
@@ -246,18 +241,15 @@ public class XmlHandler {
    * @return The list of nodes found with the specified tag
    */
   public static List<Node> getNodes( Node n, String tag ) {
-    NodeList children;
-    Node childnode;
-
-    List<Node> nodes = new ArrayList<Node>();
+    List<Node> nodes = new ArrayList<>();
 
     if ( n == null ) {
       return nodes;
     }
 
-    children = n.getChildNodes();
+    NodeList children = n.getChildNodes();
     for ( int i = 0; i < children.getLength(); i++ ) {
-      childnode = children.item( i );
+      Node childnode = children.item( i );
       if ( childnode.getNodeName().equalsIgnoreCase( tag ) ) {
         // <file>
         nodes.add( childnode );
@@ -277,20 +269,15 @@ public class XmlHandler {
    * @return The node found or null if we couldn't find anything.
    */
   public static Node getNodeWithTagValue( Node n, String tag, String subtag, String subtagvalue, int nr ) {
-    NodeList children;
-    Node childnode, tagnode;
-    String value;
-
     int count = 0;
-
-    children = n.getChildNodes();
+    NodeList children = n.getChildNodes();
     for ( int i = 0; i < children.getLength(); i++ ) {
-      childnode = children.item( i );
+      Node childnode = children.item( i );
       if ( childnode.getNodeName().equalsIgnoreCase( tag ) ) {
         // <hop>
-        tagnode = getSubNode( childnode, subtag );
-        value = getNodeValue( tagnode );
-        if ( value.equalsIgnoreCase( subtagvalue ) ) {
+        Node tagnode = getSubNode( childnode, subtag );
+        String value = getNodeValue( tagnode );
+        if ( value!=null && value.equalsIgnoreCase( subtagvalue ) ) {
           if ( count == nr ) {
             return childnode;
           }
@@ -312,12 +299,9 @@ public class XmlHandler {
    */
   public static Node getNodeWithAttributeValue( Node n, String tag, String attributeName,
                                                 String attributeValue ) {
-    NodeList children;
-    Node childnode;
-
-    children = n.getChildNodes();
+    NodeList children = n.getChildNodes();
     for ( int i = 0; i < children.getLength(); i++ ) {
-      childnode = children.item( i );
+      Node childnode = children.item( i );
       if ( childnode.getNodeName().equalsIgnoreCase( tag ) ) {
         // <hop>
         Node attribute = childnode.getAttributes().getNamedItem( attributeName );
@@ -338,20 +322,17 @@ public class XmlHandler {
    * @return The subnode if the tag was found, or null if nothing was found.
    */
   public static Node getSubNode( Node n, String tag ) {
-    int i;
-    NodeList children;
-    Node childnode;
 
-    if ( n == null ) {
+	if ( n == null ) {
       return null;
     }
 
     // Get the children one by one out of the node,
     // compare the tags and return the first found.
     //
-    children = n.getChildNodes();
-    for ( i = 0; i < children.getLength(); i++ ) {
-      childnode = children.item( i );
+    NodeList children = n.getChildNodes();
+    for ( int i = 0; i < children.getLength(); i++ ) {
+      Node childnode = children.item( i );
       if ( childnode.getNodeName().equalsIgnoreCase( tag ) ) {
         return childnode;
       }
@@ -423,16 +404,13 @@ public class XmlHandler {
    * @return The subnode found or null in case the position was invalid.
    */
   public static Node getSubNodeByNr( Node n, String tag, int nr, boolean useCache ) {
-    NodeList children;
-    Node childnode;
-
     if ( n == null ) {
       return null;
     }
 
     int count = 0;
     // Find the child-nodes of this Node n:
-    children = n.getChildNodes();
+    NodeList children = n.getChildNodes();
 
     int lastChildNr = -1;
     XMlHandlerCacheEntry entry = null;
@@ -449,7 +427,7 @@ public class XmlHandler {
     }
 
     for ( int i = lastChildNr; i < children.getLength(); i++ ) { // Try all children
-      childnode = children.item( i );
+      Node childnode = children.item( i );
       if ( childnode.getNodeName().equalsIgnoreCase( tag ) ) { // We found the right tag
         if ( count == nr ) {
           if ( useCache ) {

@@ -136,7 +136,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
 
       // Show it in the perspective
       //
-      return perspective.addWorkflow( perspective.getTabFolder(), hopGui, workflowMeta, this );
+      return perspective.addWorkflow( hopGui, workflowMeta, this );
     } catch ( Exception e ) {
       throw new HopException( "Error opening workflow file '" + filename + "'", e );
     }
@@ -161,7 +161,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
 
       // Show it in the perspective
       //
-      return perspective.addWorkflow( perspective.getTabFolder(), hopGui, workflowMeta, this );
+      return perspective.addWorkflow( hopGui, workflowMeta, this );
     } catch ( Exception e ) {
       throw new HopException( "Error creating new workflow", e );
     }

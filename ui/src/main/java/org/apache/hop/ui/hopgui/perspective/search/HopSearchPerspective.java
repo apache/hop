@@ -466,36 +466,8 @@ public class HopSearchPerspective implements IHopPerspective {
     this.hopGui = hopGui;
   }
 
-  /**
-   * Gets parent
-   *
-   * @return value of parent
-   */
-  public Composite getParent() {
-    return parent;
-  }
-
-  /**
-   * @param parent The parent to set
-   */
-  public void setParent( Composite parent ) {
-    this.parent = parent;
-  }
-
-  /**
-   * Gets composite
-   *
-   * @return value of composite
-   */
-  @Override public Composite getComposite() {
+  @Override public Control getControl() {
     return composite;
-  }
-
-  /**
-   * @param composite The composite to set
-   */
-  public void setComposite( Composite composite ) {
-    this.composite = composite;
   }
 
   @Override public List<IGuiContextHandler> getContextHandlers() {

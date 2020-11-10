@@ -26,6 +26,7 @@ package org.apache.hop.core.xml;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Singleton to help speed up lookups in an XML DOM tree.<br>
@@ -51,16 +52,16 @@ public class XmlHandlerCache {
 
   Map<XMlHandlerCacheEntry, Integer> cache;
 
-  private volatile int cacheHits;
+  private AtomicInteger cacheHits;
 
   private XmlHandlerCache() {
     cache = Collections.synchronizedMap( new WeakHashMap<XMlHandlerCacheEntry, Integer>() );
-    cacheHits = 0;
+    cacheHits = new AtomicInteger();
   }
 
   public static synchronized XmlHandlerCache getInstance() {
     if ( instance == null ) {
-      return instance = new XmlHandlerCache();
+      instance = new XmlHandlerCache();
     }
     return instance;
   }
@@ -83,7 +84,7 @@ public class XmlHandlerCache {
   public int getLastChildNr( XMlHandlerCacheEntry entry ) {
     Integer lastChildNr = cache.get( entry );
     if ( lastChildNr != null ) {
-      cacheHits++;
+      cacheHits.incrementAndGet();
       return lastChildNr;
     }
     return -1;
@@ -93,7 +94,7 @@ public class XmlHandlerCache {
    * @return the number of cache hits for your statistical pleasure.
    */
   public int getCacheHits() {
-    return cacheHits;
+    return cacheHits.get();
   }
 
   /**
@@ -102,7 +103,7 @@ public class XmlHandlerCache {
    * @param cacheHits the number of cache hits.
    */
   public void setCacheHits( int cacheHits ) {
-    this.cacheHits = cacheHits;
+    this.cacheHits.set(cacheHits);
   }
 
   /**
