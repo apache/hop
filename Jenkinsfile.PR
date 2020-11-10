@@ -70,7 +70,7 @@ pipeline {
         }
         stage ('Print Labels for Branch') {
             when {
-                branch branch pattern: "PR-\\d+", comparator: "REGEXP"
+                branch pattern: "PR-\\d+", comparator: "REGEXP"
             }
             steps {
                 pullRequest.labels.each{
