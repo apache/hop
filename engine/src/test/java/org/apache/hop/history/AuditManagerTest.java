@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.history.local.LocalAuditManager;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -93,6 +94,7 @@ public class AuditManagerTest {
         assertEquals("Not getting unique events", 2, uniqueEvents.size());
     }
 
+    @Ignore
     @Test
     public void testFindAllEventsWithDefaultAuditManager() throws HopException {
         AuditManager.getInstance().setActiveAuditManager(new LocalAuditManager(testFolder.getRoot().getAbsolutePath()));
