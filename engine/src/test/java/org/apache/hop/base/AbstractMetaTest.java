@@ -549,9 +549,9 @@ public class AbstractMetaTest {
   public void testMultithreadHammeringOfListener() throws Exception {
 
     CountDownLatch latch = new CountDownLatch( 3 );
-    AbstractMetaListenerThread th1 = new AbstractMetaListenerThread( meta, 1000000, latch, 50 ); // do 2k random add/delete/fire
-    AbstractMetaListenerThread th2 = new AbstractMetaListenerThread( meta, 1000000, latch, 50 ); // do 2k random add/delete/fire
-    AbstractMetaListenerThread th3 = new AbstractMetaListenerThread( meta, 1000000, latch, 50 ); // do 2k random add/delete/fire
+    AbstractMetaListenerThread th1 = new AbstractMetaListenerThread( meta, 1000000, latch, 50 ); // do 1M random add/delete/fire
+    AbstractMetaListenerThread th2 = new AbstractMetaListenerThread( meta, 1000000, latch, 50 ); // do 1M random add/delete/fire
+    AbstractMetaListenerThread th3 = new AbstractMetaListenerThread( meta, 1000000, latch, 50 ); // do 1M random add/delete/fire
 
     Thread t1 = new Thread( th1 );
     Thread t2 = new Thread( th2 );
