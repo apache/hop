@@ -42,10 +42,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -548,6 +545,7 @@ public class AbstractMetaTest {
     assertTrue( meta.hasChanged() );
   }
 
+  @Ignore
   @Test
   public void testMultithreadHammeringOfListener() throws Exception {
 
