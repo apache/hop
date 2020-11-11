@@ -64,22 +64,26 @@ public class KeyboardShortcut {
       return parentMethodName.toString();
     }
     StringBuilder str = new StringBuilder();
-    if ( shift ) {
-      str.append( "SHIFT-" );
-    }
     if ( control ) {
-      str.append( "CTRL-" );
+      str.append( "Ctrl+" );
     }
     if ( alt ) {
-      str.append( "ALT-" );
+      str.append( "Alt+" );
+    }
+    if ( shift ) {
+      str.append( "Shift+" );
     }
     if ( command ) {
-      str.append( "CMD-" );
+      str.append( "Cmd+" );
     }
         
-    // Character
-    if ( keyCode >= 97 && keyCode <= 122 ) {
-      str.append( ( (char) keyCode ) );
+    // Character upper
+    if ( keyCode >= 65 && keyCode <= 90 ) {
+      str.append( (char) keyCode );
+    }
+    // Character lower
+    else if ( keyCode >= 97 && keyCode <= 122 ) {
+      str.append( Character.toUpperCase( (char) keyCode ) );
     }
     // Delete key
     else if ( keyCode == 127 ) {
@@ -87,7 +91,7 @@ public class KeyboardShortcut {
     } 
     // Digit
     else if ( keyCode >= 48 && keyCode <= 57 ) {
-        str.append( ( (char) keyCode ) );
+      str.append( ( (char) keyCode ) );
     }
     return str.toString();
   }
