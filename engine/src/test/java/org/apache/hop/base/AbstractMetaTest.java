@@ -50,8 +50,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -545,14 +545,13 @@ public class AbstractMetaTest {
     assertTrue( meta.hasChanged() );
   }
 
-  @Ignore
   @Test
   public void testMultithreadHammeringOfListener() throws Exception {
 
     CountDownLatch latch = new CountDownLatch( 3 );
-    AbstractMetaListenerThread th1 = new AbstractMetaListenerThread( meta, 2000, latch ); // do 2k random add/delete/fire
-    AbstractMetaListenerThread th2 = new AbstractMetaListenerThread( meta, 2000, latch ); // do 2k random add/delete/fire
-    AbstractMetaListenerThread th3 = new AbstractMetaListenerThread( meta, 2000, latch ); // do 2k random add/delete/fire
+    AbstractMetaListenerThread th1 = new AbstractMetaListenerThread( meta, 1000000, latch, 50 ); // do 1M random add/delete/fire
+    AbstractMetaListenerThread th2 = new AbstractMetaListenerThread( meta, 1000000, latch, 50 ); // do 1M random add/delete/fire
+    AbstractMetaListenerThread th3 = new AbstractMetaListenerThread( meta, 1000000, latch, 50 ); // do 1M random add/delete/fire
 
     Thread t1 = new Thread( th1 );
     Thread t2 = new Thread( th2 );
@@ -637,20 +636,31 @@ public class AbstractMetaTest {
     int times;
     CountDownLatch whenDone;
     String message;
+    int maxListeners;
+    private Random random;
 
-    AbstractMetaListenerThread( AbstractMeta aMeta, int times, CountDownLatch latch ) {
+    AbstractMetaListenerThread( AbstractMeta aMeta, int times, CountDownLatch latch, int maxListeners ) {
       this.metaToWork = aMeta;
       this.times = times;
       this.whenDone = latch;
+      this.maxListeners = maxListeners;
+      this.random = new Random( System.currentTimeMillis() );
     }
 
     @Override public void run() {
+
+      // Add a bunch of listeners to start with
+      //
+      for ( int i = 0; i < random.nextInt( maxListeners ) / 2; i++ ) {
+        metaToWork.addFilenameChangedListener( new MockFilenameChangeListener( random.nextInt( maxListeners ) ) );
+      }
+
       for ( int i = 0; i < times; i++ ) {
-        int randomNum = ThreadLocalRandom.current().nextInt( 0, 3 );
+        int randomNum = random.nextInt( 3 );
         switch ( randomNum ) {
           case 0: {
             try {
-              metaToWork.addFilenameChangedListener( mock( IFilenameChangedListener.class ) );
+              metaToWork.addFilenameChangedListener( new MockFilenameChangeListener( random.nextInt( maxListeners ) ) );
             } catch ( Throwable ex ) {
               message = "Exception adding listener.";
             }
@@ -658,7 +668,7 @@ public class AbstractMetaTest {
           }
           case 1: {
             try {
-              metaToWork.removeFilenameChangedListener( mock( IFilenameChangedListener.class ) );
+              metaToWork.removeFilenameChangedListener( new MockFilenameChangeListener( random.nextInt( maxListeners ) ) );
             } catch ( Throwable ex ) {
               message = "Exception removing listener.";
             }
