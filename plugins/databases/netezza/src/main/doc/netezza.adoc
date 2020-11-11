@@ -1,7 +1,7 @@
 [[database-plugins-netezza]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/netezza/src/main/doc/netezza.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/netezza/src/main/doc/netezza.adoc
 = Netezza
 
 [width="90%", cols="2*", options="header"]

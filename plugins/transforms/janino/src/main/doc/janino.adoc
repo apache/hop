@@ -1,6 +1,6 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/janino/src/main/doc/janino.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/janino/src/main/doc/janino.adoc
 = User Defined Java Expression
 
 == Description

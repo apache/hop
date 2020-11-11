@@ -1,7 +1,7 @@
 [[database-plugins-mssql]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/mssql/src/main/doc/mssql.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/mssql/src/main/doc/mssql.adoc
 = MS SqlServer
 
 This database type uses, the JTDS driver. When creating new database connections it is recommended to use the native connection type.

@@ -57,7 +57,7 @@ import java.util.Map;
         name = "BaseTransform.TypeLongDesc.GetFilesRowsCount",
         description = "BaseTransform.TypeTooltipDesc.GetFilesRowsCount",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getfilesrowcount.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/getfilesrowcount.html"
 )
 public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransformMeta<GetFilesRowsCount, GetFilesRowsCountData> {
   private static final Class<?> PKG = GetFilesRowsCountMeta.class; // Needed by Translator

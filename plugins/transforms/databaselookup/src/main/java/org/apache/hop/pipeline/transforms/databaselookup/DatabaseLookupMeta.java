@@ -60,7 +60,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.DatabaseLookup",
         description = "BaseTransform.TypeTooltipDesc.DatabaseLookup",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/databaselookup.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/databaselookup.html"
 )
 public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformMeta<DatabaseLookup, DatabaseLookupData>, IProvidesModelerMeta {
 

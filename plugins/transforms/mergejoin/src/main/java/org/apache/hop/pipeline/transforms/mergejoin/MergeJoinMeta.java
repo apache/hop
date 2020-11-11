@@ -63,7 +63,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.MergeJoin",
         description = "BaseTransform.TypeTooltipDesc.MergeJoin",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Joins",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/mergejoin.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mergejoin.html"
 )
 public class MergeJoinMeta extends BaseTransformMeta implements ITransformMeta<MergeJoin, MergeJoinData> {
   private static final Class<?> PKG = MergeJoinMeta.class; // Needed by Translator

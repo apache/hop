@@ -33,7 +33,7 @@ import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultMeta;
         name = "RecordsFromStream.Name",
         description = "RecordsFromStream.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Streaming",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/recordsfromstream.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/recordsfromstream.html"
 )
 public class RecordsFromStreamMeta extends RowsFromResultMeta {
 }

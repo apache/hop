@@ -59,7 +59,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.AddSequence",
         description = "BaseTransform.TypeTooltipDesc.AddSequence",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/addsequence.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/addsequence.html"
 )
 public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta<AddSequence, AddSequenceData> {
 

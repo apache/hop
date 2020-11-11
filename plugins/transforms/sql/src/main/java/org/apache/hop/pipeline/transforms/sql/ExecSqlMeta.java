@@ -66,7 +66,7 @@ import java.util.List;
         name = "ExecSql.Name",
         description = "ExecSql.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Scripting",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/sql.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/sql.html"
 )
 @InjectionSupported( localizationPrefix = "ExecSqlMeta.Injection.", groups = { "PARAMETERS" } )
 public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<ExecSql, ExecSqlData> {

@@ -171,7 +171,7 @@ public class DummyDialog extends BaseTransformDialog implements ITransformDialog
 
   @Override
   protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
-    plugin.setDocumentationUrl("https://www.project-hop.org/manual/latest/plugins/transforms/dummy.html");
+    plugin.setDocumentationUrl("https://hop.apache.org/manual/latest/plugins/transforms/dummy.html");
     return super.createHelpButton(shell, stepMeta, plugin);
   }
 

@@ -63,7 +63,7 @@ import java.util.List;
         name = "AddXML.name",
         description = "AddXML.description",
         categoryDescription = "AddXML.category",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/addxml.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/addxml.html"
 )
 @InjectionSupported( localizationPrefix = "AddXMLMeta.Injection.", groups = { "OUTPUT_FIELDS" } )
 public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddXml, AddXmlData> {

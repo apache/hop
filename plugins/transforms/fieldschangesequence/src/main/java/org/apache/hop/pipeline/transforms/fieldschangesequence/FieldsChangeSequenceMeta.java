@@ -54,7 +54,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.FieldsChangeSequence",
         description = "BaseTransform.TypeTooltipDesc.FieldsChangeSequence",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/fieldschangesequence.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/fieldschangesequence.html"
 )
 public class FieldsChangeSequenceMeta extends BaseTransformMeta implements ITransformMeta<FieldsChangeSequence, FieldsChangeSequenceData> {
   private static final Class<?> PKG = FieldsChangeSequenceMeta.class; // Needed by Translator

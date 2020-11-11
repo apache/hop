@@ -57,7 +57,7 @@ import java.util.List;
     description = "BaseTransform.TypeLongDesc.RandomValue",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
     documentationUrl =
-        "https://www.project-hop.org/manual/latest/plugins/transforms/randomvalue.html")
+        "https://hop.apache.org/manual/latest/plugins/transforms/randomvalue.html")
 public class RandomValueMeta extends BaseTransformMeta
     implements ITransformMeta<RandomValue, RandomValueData> {
 

@@ -66,7 +66,7 @@ import java.util.List;
   description = "ActionWaitForSQL.Description",
   image = "WaitForSQL.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/waitforsql.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/waitforsql.html"
 )
 public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWaitForSql.class; // Needed by Translator

@@ -65,7 +65,7 @@ import java.util.Map.Entry;
     name = "BaseTransform.TypeLongDesc.MetaInject",
     description = "BaseTransform.TypeTooltipDesc.MetaInject",
     categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-    documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/metainject.html"
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/metainject.html"
 )
 @InjectionSupported( localizationPrefix = "MetaInject.Injection.", groups = { "SOURCE_OUTPUT_FIELDS",
   "MAPPING_FIELDS" } )

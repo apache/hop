@@ -68,7 +68,7 @@ import java.util.Map;
         name = "GetXMLData.name",
         description = "GetXMLData.description",
         categoryDescription = "GetXMLData.category",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getxmldata.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/getxmldata.html"
 )
 public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<GetXmlData, GetXmlDataData> {
   private static final Class<?> PKG = GetXmlDataMeta.class; // for i18n purposes, needed by Translator2!!

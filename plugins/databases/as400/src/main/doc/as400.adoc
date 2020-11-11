@@ -1,7 +1,7 @@
 [[database-plugins-as400]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/as400/src/main/doc/as400.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/as400/src/main/doc/as400.adoc
 = AS400
 
 [width="90%", cols="2*", options="header"]

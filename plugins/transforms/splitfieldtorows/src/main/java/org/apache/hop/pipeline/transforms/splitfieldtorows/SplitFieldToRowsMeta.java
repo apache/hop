@@ -54,7 +54,7 @@ import org.w3c.dom.Node;
         image = "splitfieldtorows.svg",
         description = "SplitFieldToRows.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/splitfieldtorows.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/splitfieldtorows.html"
 )
 public class SplitFieldToRowsMeta extends BaseTransformMeta implements  ITransformMeta<SplitFieldToRows, SplitFieldToRowsData> {
   private static final Class<?> PKG = SplitFieldToRowsMeta.class; // Needed by Translator

@@ -57,7 +57,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.Rest",
         description = "BaseTransform.TypeTooltipDesc.Rest",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/rest.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/rest.html"
 )
 public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, RestData> {
   private static final Class<?> PKG = RestMeta.class; // Needed by Translator

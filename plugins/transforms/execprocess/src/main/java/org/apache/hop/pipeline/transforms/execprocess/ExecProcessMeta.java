@@ -56,7 +56,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.ExecProcess",
         description = "BaseTransform.TypeTooltipDesc.ExecProcess",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/execprocess.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/execprocess.html"
 )
 public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta<ExecProcess, ExecProcessData> {
   private static final Class<?> PKG = ExecProcessMeta.class; // Needed by Translator

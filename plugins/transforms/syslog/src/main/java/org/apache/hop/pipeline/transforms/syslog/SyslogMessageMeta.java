@@ -48,7 +48,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.SyslogMessage",
         description = "BaseTransform.TypeTooltipDesc.SyslogMessage",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/syslog.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/syslog.html"
 )
 public class SyslogMessageMeta extends BaseTransformMeta implements ITransformMeta<SyslogMessage, SyslogMessageData> {
   private static final Class<?> PKG = SyslogMessageMeta.class; // Needed by Translator

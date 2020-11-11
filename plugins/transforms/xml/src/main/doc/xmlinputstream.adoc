@@ -1,6 +1,6 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/xml/src/main/doc/xmlinputstream.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/xml/src/main/doc/xmlinputstream.adoc
 = XML Input Stream (StAX) 
 
 == Description

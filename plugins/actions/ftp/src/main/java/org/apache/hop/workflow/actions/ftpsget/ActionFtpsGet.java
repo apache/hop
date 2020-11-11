@@ -71,7 +71,7 @@ import java.util.regex.Pattern;
   description = "ActionFTPSGet.Description",
   image = "FTPSGet.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpsget.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpsget.html"
 )
 public class ActionFtpsGet extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFtpsGet.class; // Needed by Translator

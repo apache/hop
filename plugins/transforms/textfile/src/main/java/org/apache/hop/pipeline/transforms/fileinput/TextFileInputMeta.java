@@ -72,7 +72,7 @@ import java.util.Map;
         name = "BaseTransform.TypeLongDesc.TextFileInput",
         description = "BaseTransform.TypeTooltipDesc.TextFileInput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/textfileinput.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/textfileinput.html"
 )
 public class TextFileInputMeta
   extends BaseTransformMeta

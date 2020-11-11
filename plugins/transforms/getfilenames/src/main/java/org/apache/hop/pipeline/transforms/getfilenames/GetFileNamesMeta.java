@@ -64,7 +64,7 @@ import java.util.Map;
         name = "BaseTransform.TypeLongDesc.GetFileNames",
         description = "BaseTransform.TypeTooltipDesc.GetFileNames",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/getfilenames.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/getfilenames.html"
 )
 public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMeta<GetFileNames, GetFileNamesData> {
   private static final Class<?> PKG = GetFileNamesMeta.class; // Needed by Translator

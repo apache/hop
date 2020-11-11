@@ -52,7 +52,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.Delay",
         description = "BaseTransform.TypeTooltipDesc.Delay",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/delay.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/delay.html"
 )
 public class DelayMeta extends BaseTransformMeta implements ITransformMeta<Delay, DelayData> {
   private static final Class<?> PKG = DelayMeta.class; // Needed by Translator

@@ -59,7 +59,7 @@ import java.util.List;
         name = "XSLT.name",
         description = "XSLT.description",
         categoryDescription = "XSLT.category",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xslt.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xslt.html"
 )
 public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, XsltData> {
   private static final Class<?> PKG = XsltMeta.class; // for i18n purposes, needed by Translator2!!

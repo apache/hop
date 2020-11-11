@@ -54,7 +54,7 @@ import java.util.List;
         name = "NullIf.Name",
         description = "NullIf.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/nullif.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/nullif.html"
 )
 @InjectionSupported( localizationPrefix = "Injection.NullIf.", groups = { "FIELDS" } )
 public class NullIfMeta extends BaseTransformMeta implements ITransformMeta<NullIf,NullIfData> {

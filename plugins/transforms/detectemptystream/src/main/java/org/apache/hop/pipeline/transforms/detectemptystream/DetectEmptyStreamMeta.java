@@ -47,7 +47,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.DetectEmptyStream",
         description = "BaseTransform.TypeTooltipDesc.DetectEmptyStream",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/detectemptystream.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/detectemptystream.html"
 )
 public class DetectEmptyStreamMeta extends BaseTransformMeta implements ITransformMeta<DetectEmptyStream, DetectEmptyStreamData> {
   private static final Class<?> PKG = DetectEmptyStreamMeta.class; // Needed by Translator

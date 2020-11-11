@@ -47,7 +47,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.RowsToResult",
         description = "BaseTransform.TypeTooltipDesc.RowsToResult",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/rowstoresult.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/rowstoresult.html"
 )
 public class RowsToResultMeta extends BaseTransformMeta implements ITransformMeta<RowsToResult, RowsToResultData> {
   private static final Class<?> PKG = RowsToResult.class; // Needed by Translator
