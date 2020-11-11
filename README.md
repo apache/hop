@@ -29,11 +29,11 @@ Required:
 
 Clone Hop to a local repository: 
 
-    $ git clone https://github.com/project-hop/hop.git
+    $ git clone https://github.com/apache/incubator-hop.git
 
 Change into the clone repository and build: 
 
-    $ cd hop 
+    $ cd incubator-hop 
     $ mvn clean install 
 
 ## Run Hop 
