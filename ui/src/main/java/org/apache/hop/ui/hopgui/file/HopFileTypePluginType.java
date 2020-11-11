@@ -35,7 +35,7 @@ import org.apache.hop.core.plugins.PluginMainClassType;
 public class HopFileTypePluginType extends BasePluginType<HopFileTypePlugin> implements IPluginType<HopFileTypePlugin> {
 
   private HopFileTypePluginType() {
-    super( HopFileTypePlugin.class, "HOP_FILE_TYPES", "Hop File Type Plugins" );
+    super( HopFileTypePlugin.class, "HOP_FILE_TYPES", "Hop File Type" );
 
     pluginFolders.add( new PluginFolder( "plugins", false, true ) );
   }

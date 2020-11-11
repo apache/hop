@@ -1,12 +1,12 @@
 <hop-file-types>
 
   <hop-file-type id="FileType-Pipeline">
-    <description>Pipeline File Type plugin</description>
+    <description>Pipeline File Type</description>
     <classname>org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType</classname>
   </hop-file-type>
 
-  <hop-file-type id="FileType-Job">
-    <description>Job File Type plugin</description>
+  <hop-file-type id="FileType-Workflow">
+    <description>Workflow File Type</description>
     <classname>org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType</classname>
   </hop-file-type>
 
