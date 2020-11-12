@@ -107,7 +107,7 @@ public class MetadataPluginType extends BasePluginType<HopMetadata> implements I
 
   @Override
   protected String extractImageFile( HopMetadata annotation ) {
-    return null;
+    return annotation.iconImage();
   }
 
   @Override
