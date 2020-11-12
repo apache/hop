@@ -127,11 +127,11 @@ public class NotePadDialog extends Dialog {
   private Label wlBorderColor;
   private FormData fdlBorderColor;
 
-  private static GuiResource guiresource = GuiResource.getInstance();
+  private GuiResource guiresource = GuiResource.getInstance();
 
-  public static RGB COLOR_RGB_BLACK = guiresource.getColorBlack().getRGB();
-  public static RGB COLOR_RGB_YELLOW = guiresource.getColorYellow().getRGB();
-  public static RGB COLOR_RGB_GRAY = guiresource.getColorGray().getRGB();
+  public RGB COLOR_RGB_BLACK = guiresource.getColorBlack().getRGB();
+  public RGB COLOR_RGB_YELLOW = guiresource.getColorYellow().getRGB();
+  public RGB COLOR_RGB_GRAY = guiresource.getColorGray().getRGB();
 
   private Color fontColor;
   private Color bgColor;
