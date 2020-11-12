@@ -52,7 +52,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.WebServiceAvailable",
         description = "BaseTransform.TypeTooltipDesc.WebServiceAvailable",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/webserviceavailable.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/webserviceavailable.html"
 )
 public class WebServiceAvailableMeta extends BaseTransformMeta implements ITransformMeta<WebServiceAvailable, WebServiceAvailableData> {
   private static final Class<?> PKG = WebServiceAvailableMeta.class; // Needed by Translator

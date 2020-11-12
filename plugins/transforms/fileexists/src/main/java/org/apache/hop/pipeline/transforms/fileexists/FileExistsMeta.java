@@ -55,7 +55,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.FileExists",
         description = "BaseTransform.TypeTooltipDesc.FileExists",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/fileexists.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/fileexists.html"
 )
 public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<FileExists, FileExistsData> {
   private static final Class<?> PKG = FileExistsMeta.class; // Needed by Translator

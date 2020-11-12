@@ -54,7 +54,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.FilesFromResult",
         description = "BaseTransform.TypeTooltipDesc.FilesFromResult",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Workflow",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/filesfromresult.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/filesfromresult.html"
 )
 public class FilesFromResultMeta extends BaseTransformMeta implements ITransformMeta<FilesFromResult, FilesFromResultData> {
   private static final Class<?> PKG = FilesFromResult.class; // Needed by Translator

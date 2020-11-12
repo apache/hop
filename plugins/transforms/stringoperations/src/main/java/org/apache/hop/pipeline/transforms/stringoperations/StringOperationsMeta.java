@@ -53,7 +53,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.StringOperations",
         description = "BaseTransform.TypeTooltipDesc.StringOperations",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/stringoperations.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/stringoperations.html"
 )
 public class StringOperationsMeta extends BaseTransformMeta implements ITransformMeta<StringOperations,StringOperationsData> {
 

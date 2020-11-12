@@ -64,7 +64,7 @@ import java.util.List;
   description = "ActionWriteToFile.Description",
   image = "WriteToFile.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/writetofile.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/writetofile.html"
 )
 public class ActionWriteToFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWriteToFile.class; // Needed by Translator

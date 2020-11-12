@@ -61,7 +61,7 @@ import java.util.List;
 		name= "StreamSchemaTransform.Name",
 		description = "StreamSchemaTransform.TooltipDesc",
 		categoryDescription= "StreamSchemaTransform.Category",
-		documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/streamschemamerge.html"
+		documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/streamschemamerge.html"
 )
 public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMeta<StreamSchema, StreamSchemaData> {
 

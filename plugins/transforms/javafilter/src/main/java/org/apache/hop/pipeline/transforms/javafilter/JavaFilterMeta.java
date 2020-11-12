@@ -61,7 +61,7 @@ import java.util.Objects;
         name = "BaseTransform.TypeLongDesc.JavaFilter",
         description = "BaseTransform.TypeTooltipDesc.JavaFilter",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/javafilter.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/javafilter.html"
 )
 public class JavaFilterMeta extends BaseTransformMeta implements ITransformMeta<JavaFilter, JavaFilterData> {
   private static final Class<?> PKG = JavaFilterMeta.class; // Needed by Translator

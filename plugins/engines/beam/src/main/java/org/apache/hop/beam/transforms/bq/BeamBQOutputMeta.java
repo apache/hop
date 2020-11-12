@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
         name = "Beam BigQuery Output",
         description = "Writes to a BigQuery table in Beam",
         categoryDescription = "Big Data",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beambigqueryoutput.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beambigqueryoutput.html"
 )
 public class BeamBQOutputMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 

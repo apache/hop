@@ -63,7 +63,7 @@ import java.util.Map;
         name = "BaseTransform.TypeLongDesc.SystemInfo",
         description = "BaseTransform.TypeTooltipDesc.SystemInfo",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/systemdata.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/systemdata.html"
 )
 public class SystemDataMeta extends BaseTransformMeta implements ITransformMeta<SystemData, SystemDataData> {
   private static final Class<?> PKG = SystemDataMeta.class; // Needed by Translator

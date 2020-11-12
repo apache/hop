@@ -60,7 +60,7 @@ import java.util.Map;
         name = "BaseTransform.TypeTooltipDesc.PropertyOutput",
         description = "BaseTransform.TypeLongDesc.PropertyOutput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/propertyoutput.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/propertyoutput.html"
 )
 public class PropertyOutputMeta extends BaseTransformMeta implements ITransformMeta<PropertyOutput, PropertyOutputData> {
   private static final Class<?> PKG = PropertyOutputMeta.class; // Needed by Translator

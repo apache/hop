@@ -54,7 +54,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.MailValidator",
         description = "BaseTransform.TypeTooltipDesc.MailValidator",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Validation",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/mailvalidator.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mailvalidator.html"
 )
 public class MailValidatorMeta extends BaseTransformMeta implements ITransformMeta<MailValidator, MailValidatorData> {
   private static final Class<?> PKG = MailValidatorMeta.class; // Needed by Translator

@@ -60,7 +60,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.HTTPPOST",
         description = "BaseTransform.TypeTooltipDesc.HTTPPOST",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/httppost.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/httppost.html"
 )
 public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<HttpPost, HttpPostData> {
   private static final Class<?> PKG = HttpPostMeta.class; // Needed by Translator

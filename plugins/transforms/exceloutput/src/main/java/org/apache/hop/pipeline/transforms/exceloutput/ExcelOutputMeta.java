@@ -60,7 +60,7 @@ import java.util.Map;
         name = "BaseTransform.TypeLongDesc.ExcelOutput",
         description = "BaseTransform.TypeTooltipDesc.ExcelOutput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/exceloutput.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/exceloutput.html"
 )
 @InjectionSupported( localizationPrefix = "ExcelOutput.Injection.", groups = { "FIELDS", "CUSTOM", "CONTENT" } )
 public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta<ExcelOutput, ExcelOutputData> {

@@ -1,6 +1,6 @@
 :documentationPath: /plugins/actions/
 :language: en_US
-:page-alternativeEditUrl:  https://github.com/project-hop/hop/edit/master/plugins/actions/pgpverify/src/main/doc/pgpverify.adoc
+:page-alternativeEditUrl:  https://github.com/apache/incubator-hop/edit/master/plugins/actions/pgpverify/src/main/doc/pgpverify.adoc
 = Verify file signature with PGP
 
 == Description

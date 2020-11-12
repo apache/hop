@@ -1,7 +1,7 @@
 [[database-plugins-oraclerdb]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/oraclerdb/src/main/doc/oraclerdb.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/oraclerdb/src/main/doc/oraclerdb.adoc
 = Oracle RDB
 
 [width="90%", cols="2*", options="header"]

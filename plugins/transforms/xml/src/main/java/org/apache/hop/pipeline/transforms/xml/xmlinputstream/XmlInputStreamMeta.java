@@ -54,7 +54,7 @@ import java.util.List;
         name = "XMLInputStream.name",
         description = "XMLInputStream.description",
         categoryDescription = "XMLInputStream.category",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmlinputstream.html" )
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xmlinputstream.html" )
 public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformMeta<XmlInputStream, XmlInputStreamData> {
   private static final int DEFAULT_STRING_LEN_FILENAME = 256; // default length for XML path
   private static final int DEFAULT_STRING_LEN_PATH = 1024; // default length for XML path

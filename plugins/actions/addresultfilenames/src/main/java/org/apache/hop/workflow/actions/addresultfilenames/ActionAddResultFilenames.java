@@ -70,7 +70,7 @@ import java.util.regex.Pattern;
   description = "ActionAddResultFilenames.Description",
   image="AddResultFileNames.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/addresultfilenames.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/addresultfilenames.html"
 )
 public class ActionAddResultFilenames extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionAddResultFilenames.class; // Needed by Translator

@@ -68,7 +68,7 @@ import java.util.Map;
         id = "JsonInput",
         image = "JSI.svg",
         i18nPackageName = "org.apache.org.apache.hop.pipeline.transforms.jsoninput",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/jsoninput.html",
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/jsoninput.html",
         name = "JsonInput.name",
         description = "JsonInput.description",
         categoryDescription = "JsonInput.category"

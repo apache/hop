@@ -60,7 +60,7 @@ import java.util.List;
         name = "AnalyticQuery.Name",
         description = "AnalyticQuery.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/analyticquery.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/analyticquery.html"
 )
 @InjectionSupported( localizationPrefix = "AnalyticQuery.Injection." )
 public class AnalyticQueryMeta extends BaseTransformMeta implements ITransformMeta<AnalyticQuery, AnalyticQueryData> {

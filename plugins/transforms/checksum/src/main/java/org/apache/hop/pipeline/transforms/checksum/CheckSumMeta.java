@@ -61,7 +61,7 @@ import java.util.List;
         name = "CheckSum.Name",
         description = "CheckSum.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/checksum.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/checksum.html"
 )
 @InjectionSupported( localizationPrefix = "CheckSum.Injection.", groups = { "FIELDS" } )
 public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<CheckSum, CheckSumData> {

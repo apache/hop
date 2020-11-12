@@ -1,7 +1,7 @@
 [[database-plugins-redshift]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/redshift/src/main/doc/redshift.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/redshift/src/main/doc/redshift.adoc
 = Redshift
 
 [width="90%", cols="2*", options="header"]

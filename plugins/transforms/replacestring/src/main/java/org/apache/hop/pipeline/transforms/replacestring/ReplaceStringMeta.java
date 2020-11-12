@@ -59,7 +59,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.ReplaceString",
         description = "BaseTransform.TypeTooltipDesc.ReplaceString",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/replacestring.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/replacestring.html"
 )
 public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMeta<ReplaceString, ReplaceStringData> {
 

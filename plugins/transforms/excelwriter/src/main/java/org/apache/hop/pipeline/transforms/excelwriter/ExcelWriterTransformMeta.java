@@ -57,7 +57,7 @@ import java.util.Map;
         name = "BaseTransform.TypeLongDesc.TypeExitExcelWriterTransform",
         description = "BaseTransform.TypeTooltipDesc.TypeExitExcelWriterTransform",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Output",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/excelwriter.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/excelwriter.html"
 )
 public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITransformMeta<ExcelWriterTransform, ExcelWriterTransformData> {
   private static final Class<?> PKG = ExcelWriterTransformMeta.class; // Needed by Translator

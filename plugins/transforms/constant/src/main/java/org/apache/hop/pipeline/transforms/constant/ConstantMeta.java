@@ -55,7 +55,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.AddConstants",
         description = "BaseTransform.TypeTooltipDesc.AddConstants",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/constant.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/constant.html"
 )
 public class ConstantMeta extends BaseTransformMeta implements ITransformMeta<Constant, ConstantData> {
 

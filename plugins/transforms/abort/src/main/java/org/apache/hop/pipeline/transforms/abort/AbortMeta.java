@@ -53,7 +53,7 @@ import static org.apache.hop.core.util.StringUtil.isEmpty;
         description = "Abort.Description",
         image = "abort.svg",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/abort.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/abort.html"
 )
 public class AbortMeta extends BaseTransformMeta implements ITransformMeta<Abort, AbortData> {
 

@@ -64,7 +64,7 @@ import org.w3c.dom.Node;
         name = "BaseTransform.TypeLongDesc.ConcatFields",
         description = "BaseTransform.TypeTooltipDesc.ConcatFields",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/concatfields.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/concatfields.html"
 )
 public class ConcatFieldsMeta extends BaseTransformMeta  implements ITransformMeta<ConcatFields, ConcatFieldsData> {
 

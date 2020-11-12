@@ -50,7 +50,7 @@ import org.w3c.dom.Node;
         description = "Create a Beam Window",
         image = "beam-window.svg",
         categoryDescription = "Big Data",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamwindow.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beamwindow.html"
 )
 public class BeamWindowMeta extends BaseTransformMeta implements ITransformMeta<Dummy, DummyData> {
 

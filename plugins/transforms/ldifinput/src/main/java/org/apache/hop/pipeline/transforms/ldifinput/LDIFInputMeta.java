@@ -64,7 +64,7 @@ import java.util.Map;
         i18nPackageName = "org.apache.hop.pipeline.transforms.ldifinput",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
         keywords = {"ldif","input"},
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ldifinput.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/ldifinput.html"
 )
 public class LDIFInputMeta extends BaseTransformMeta implements ITransformMeta<LDIFInput, LDIFInputData> {
   private static final Class<?> PKG = LDIFInputMeta.class; // Needed by Translator

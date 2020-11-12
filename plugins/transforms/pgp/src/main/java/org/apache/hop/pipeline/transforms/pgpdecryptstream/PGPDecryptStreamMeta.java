@@ -54,7 +54,7 @@ import java.util.List;
         description = "PGPDecryptStream.Description",
         name = "PGPDecryptStream.Name",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Cryptography",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/pgpdecryptstream.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/pgpdecryptstream.html"
 )
 public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransformMeta<PGPDecryptStream, PGPDecryptStreamData> {
   private static final Class<?> PKG = PGPDecryptStreamMeta.class; // Needed by Translator
