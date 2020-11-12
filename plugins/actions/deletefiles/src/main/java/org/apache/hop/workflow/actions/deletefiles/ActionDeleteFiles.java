@@ -77,7 +77,7 @@ import com.google.common.collect.Multimap;
   description = "ActionDeleteFiles.Description",
   image = "DeleteFiles.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deletefiles.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/deletefiles.html"
 )
 public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction {
 

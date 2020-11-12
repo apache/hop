@@ -61,7 +61,7 @@ import java.util.List;
         name = "ValueMapper.Name",
         description = "ValueMapper.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/valuemapper.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/valuemapper.html"
 )
 public class ValueMapperMeta extends BaseTransformMeta implements ITransformMeta<ValueMapper, ValueMapperData> {
   private static final Class<?> PKG = ValueMapperMeta.class; // Needed by Translator

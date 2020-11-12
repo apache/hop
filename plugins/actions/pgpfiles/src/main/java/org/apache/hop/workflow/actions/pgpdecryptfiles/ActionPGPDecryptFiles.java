@@ -74,7 +74,7 @@ import java.util.regex.Pattern;
   description = "ActionPGPDecryptFiles.Description",
   image = "PGPDecryptFiles.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileEncryption",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/pgpdecryptfiles.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pgpdecryptfiles.html"
 )
 public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionPGPDecryptFiles.class; // Needed by Translator

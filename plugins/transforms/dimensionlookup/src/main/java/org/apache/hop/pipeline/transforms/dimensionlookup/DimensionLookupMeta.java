@@ -68,7 +68,7 @@ import java.util.*;
         name = "BaseTransform.TypeLongDesc.DimensionUpdate",
         description = "BaseTransform.TypeTooltipDesc.DimensionUpdate",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.DataWarehouse",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/dimensionlookup.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/dimensionlookup.html"
 )
 @InjectionSupported( localizationPrefix = "DimensionLookup.Injection.", groups = { "KEYS", "FIELDS" } )
 public class DimensionLookupMeta extends BaseTransformMeta implements ITransformMeta<DimensionLookup, DimensionLookupData>, IProvidesModelerMeta {

@@ -62,7 +62,7 @@ import java.util.List;
   name = "XmlJoin.name",
   description = "XmlJoin.description",
   categoryDescription = "XmlJoin.category",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/xmljoin.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/xmljoin.html"
 )
 @InjectionSupported( localizationPrefix = "XmlJoin.Injection." )
 public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<XmlJoin, XmlJoinData> {

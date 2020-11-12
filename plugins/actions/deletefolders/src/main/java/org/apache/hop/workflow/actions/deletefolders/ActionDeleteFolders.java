@@ -69,7 +69,7 @@ import java.util.List;
   description = "ActionDeleteFolders.Description",
   image = "DeleteFolders.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/deletefolders.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/deletefolders.html"
 )
 public class ActionDeleteFolders extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionDeleteFolders.class; // Needed by Translator

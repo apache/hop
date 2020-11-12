@@ -56,7 +56,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.SampleRows",
         description = "BaseTransform.TypeTooltipDesc.SampleRows",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Statistics",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/samplerows.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/samplerows.html"
 )
 public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<SampleRows, SampleRowsData> {
   private static final Class<?> PKG = SampleRowsMeta.class; // Needed by Translator

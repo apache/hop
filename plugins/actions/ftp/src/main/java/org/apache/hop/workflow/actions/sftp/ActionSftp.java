@@ -70,7 +70,7 @@ import org.w3c.dom.Node;
   description = "ActionSFTP.Description",
   image = "SFTP.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/sftp.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/sftp.html"
 )
 public class ActionSftp extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSftp.class; // Needed by Translator

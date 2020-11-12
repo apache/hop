@@ -1,7 +1,7 @@
 [[database-plugins-greenplum]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/greenplum/src/main/doc/greenplum.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/greenplum/src/main/doc/greenplum.adoc
 = Greenplum
 
 [width="90%", cols="2*", options="header"]

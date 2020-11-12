@@ -61,7 +61,7 @@ import java.util.List;
         name = "SSH.Name",
         description = "SSH.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ssh.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/ssh.html"
 )
 public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH,SSHData> {
   static Class<?> PKG = SSHMeta.class; // Needed by Translator

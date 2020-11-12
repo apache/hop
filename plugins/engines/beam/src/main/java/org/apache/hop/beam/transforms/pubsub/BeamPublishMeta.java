@@ -43,7 +43,7 @@ import org.w3c.dom.Node;
         description = "Publish to a Pub/Sub topic",
         image = "beam-gcp-pubsub-publish.svg",
         categoryDescription = "Big Data",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beampublisher.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beampublisher.html"
 )
 public class BeamPublishMeta extends BaseTransformMeta implements ITransformMeta<BeamPublish, BeamPublishData> {
 

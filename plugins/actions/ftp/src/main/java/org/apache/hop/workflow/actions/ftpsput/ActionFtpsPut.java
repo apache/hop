@@ -65,7 +65,7 @@ import java.util.regex.Pattern;
   description = "ActionFTPSPut.Description",
   image = "FTPSPut.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileTransfer",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/ftpsput.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/ftpsput.html"
 )
 public class ActionFtpsPut extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFtpsPut.class; // Needed by Translator

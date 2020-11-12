@@ -54,7 +54,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.UniqueRows",
         description = "BaseTransform.TypeTooltipDesc.UniqueRows",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/uniquerows.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/uniquerows.html"
 )
 public class UniqueRowsMeta extends BaseTransformMeta implements ITransformMeta<UniqueRows, UniqueRowsData> {
   private static final Class<?> PKG = UniqueRowsMeta.class; // Needed by Translator

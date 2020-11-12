@@ -1,7 +1,7 @@
 [[database-plugins-mariadb]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/mariadb/src/main/doc/mariadb.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/mariadb/src/main/doc/mariadb.adoc
 = Mariadb
 
 [width="90%", cols="2*", options="header"]

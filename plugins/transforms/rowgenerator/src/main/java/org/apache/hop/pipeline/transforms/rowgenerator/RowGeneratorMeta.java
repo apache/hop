@@ -59,7 +59,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.GenerateRows",
         description = "BaseTransform.TypeTooltipDesc.GenerateRows",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Input",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/rowgenerator.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/rowgenerator.html"
       )
 public class RowGeneratorMeta extends BaseTransformMeta implements ITransformMeta<RowGenerator, RowGeneratorData> {
   private static final Class<?> PKG = RowGeneratorMeta.class; // Needed by Translator

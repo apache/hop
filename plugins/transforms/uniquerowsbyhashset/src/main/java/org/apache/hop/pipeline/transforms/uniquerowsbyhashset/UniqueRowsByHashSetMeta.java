@@ -48,7 +48,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.UniqueRowsByHashSet",
         description = "BaseTransform.TypeTooltipDesc.UniqueRowsByHashSet",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/uniquerowsbyhashset.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/uniquerowsbyhashset.html"
 )
 public class UniqueRowsByHashSetMeta extends BaseTransformMeta implements ITransformMeta<UniqueRowsByHashSet, UniqueRowsByHashSetData> {
   private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // Needed by Translator

@@ -1,7 +1,7 @@
 [[database-plugins-ingres]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/ingres/src/main/doc/ingres.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/ingres/src/main/doc/ingres.adoc
 = ingres
 
 [width="90%", cols="2*", options="header"]

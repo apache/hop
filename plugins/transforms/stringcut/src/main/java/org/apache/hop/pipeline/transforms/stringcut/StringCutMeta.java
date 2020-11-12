@@ -53,7 +53,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.StringCut",
         description = "BaseTransform.TypeTooltipDesc.StringCut",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/stringcut.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/stringcut.html"
 )
 public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<StringCut, StringCutData> {
 

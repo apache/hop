@@ -81,7 +81,7 @@ import java.util.UUID;
         name = "Action.Workflow.TypeDesc",
         description = "Action.Workflow.Tooltip",
         categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/workflow.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/workflow.html"
 )
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWorkflow.class; // Needed by Translator

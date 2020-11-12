@@ -70,7 +70,7 @@ import org.w3c.dom.Node;
   description = "ActionSetVariables.Description",
   image = "SetVariables.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Utility",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/setvariables.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/setvariables.html"
 )
 public class ActionSetVariables extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionSetVariables.class; // Needed by Translator

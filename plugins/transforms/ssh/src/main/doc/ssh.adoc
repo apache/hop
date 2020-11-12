@@ -1,6 +1,6 @@
 :documentationPath: /plugins/transforms/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/transforms/ssh/src/main/doc/ssh.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/transforms/ssh/src/main/doc/ssh.adoc
 = Run SSH commands
 
 == Description

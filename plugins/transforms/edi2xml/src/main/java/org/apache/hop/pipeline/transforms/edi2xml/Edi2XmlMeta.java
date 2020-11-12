@@ -48,7 +48,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.Edi2Xml",
         description = "BaseTransform.TypeTooltipDesc.Edi2Xml",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/edi2xml.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/edi2xml.html"
 )
 public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi2Xml, Edi2XmlData> {
 

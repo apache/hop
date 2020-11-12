@@ -1,7 +1,7 @@
 [[database-plugins-sqlbase]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/sqlbqse/src/main/doc/sqlbqse.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/sqlbqse/src/main/doc/sqlbqse.adoc
 = Gupta SQLBase
 
 [width="90%", cols="2*", options="header"]

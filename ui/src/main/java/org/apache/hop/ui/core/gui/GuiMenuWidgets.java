@@ -201,7 +201,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
 
   public static String getShortcutString( KeyboardShortcut shortcut ) {
     String s = shortcut.toString();
-    if ( StringUtils.isEmpty( s ) || s.endsWith( "-" ) ) {
+    if ( StringUtils.isEmpty( s ) || s.endsWith( "+" ) ) {
       // Unknown characters from the SWT library
       // We'll handle the special cases here.
       //
@@ -214,21 +214,21 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
       }
       if ( keyCode == SWT.DEL ) {
           return s + "Delete";
-        }
+      }
       if ( keyCode == SWT.ARROW_LEFT ) {
-        return s + "LEFT";
+        return s + "Left";
       }
       if ( keyCode == SWT.ARROW_RIGHT ) {
-        return s + "RIGHT";
+        return s + "Right";
       }
       if ( keyCode == SWT.ARROW_UP ) {
-        return s + "UP";
+        return s + "Up";
       }
       if ( keyCode == SWT.ARROW_DOWN ) {
-        return s + "DOWN";
+        return s + "Down";
       }
       if ( keyCode == SWT.HOME ) {
-        return s + "HOME";
+        return s + "Home";
       }
       if ( keyCode == SWT.F1 ) {
         return s + "F1";

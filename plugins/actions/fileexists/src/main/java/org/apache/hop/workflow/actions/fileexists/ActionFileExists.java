@@ -64,7 +64,7 @@ import java.util.Map;
   description = "ActionFileExists.Description",
   image = "FileExists.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.Conditions",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/fileexists.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/fileexists.html"
 )
 public class ActionFileExists extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionFileExists.class; // Needed by Translator

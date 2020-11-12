@@ -1,7 +1,7 @@
 [[database-plugins-mysql]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/mysql/src/main/doc/mysql.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/mysql/src/main/doc/mysql.adoc
 = MySql
 
 [width="90%", cols="2*", options="header"]

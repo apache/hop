@@ -58,7 +58,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.Calculator",
         description = "BaseTransform.TypeTooltipDesc.Calculator",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/calculator.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/calculator.html"
 )
 public class CalculatorMeta extends BaseTransformMeta implements ITransformMeta<Calculator, CalculatorData> {
 

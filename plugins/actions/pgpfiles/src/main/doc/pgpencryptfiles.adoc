@@ -1,6 +1,6 @@
 :documentationPath: /plugins/actions/
 :language: en_US
-:page-alternativeEditUrl:  https://github.com/project-hop/hop/edit/master/plugins/actions/pgpencryptfiles/src/main/doc/pgpencryptfiles.adoc
+:page-alternativeEditUrl:  https://github.com/apache/incubator-hop/edit/master/plugins/actions/pgpencryptfiles/src/main/doc/pgpencryptfiles.adoc
 = Encrypt files with PGP
 
 == Description

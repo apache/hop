@@ -63,7 +63,7 @@ import java.util.List;
   description = "ActionWaitForFile.Description",
   image = "WaitForFile.svg",
   categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.FileManagement",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/actions/waitforfile.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/waitforfile.html"
 )
 public class ActionWaitForFile extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWaitForFile.class; // Needed by Translator

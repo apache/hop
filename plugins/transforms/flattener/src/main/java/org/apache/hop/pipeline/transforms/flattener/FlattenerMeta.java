@@ -55,7 +55,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.RowFlattener",
         description = "BaseTransform.TypeTooltipDesc.RowFlattener",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/flattener.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/flattener.html"
 )
 public class FlattenerMeta extends BaseTransformMeta implements ITransformMeta<Flattener, FlattenerData> {
   private static final Class<?> PKG = FlattenerMeta.class; // Needed by Translator

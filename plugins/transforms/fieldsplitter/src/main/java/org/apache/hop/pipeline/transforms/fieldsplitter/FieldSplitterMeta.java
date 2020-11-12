@@ -106,7 +106,7 @@ import java.util.List;
         name = "SplitFields.Name",
         description = "SplitFields.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/fieldsplitter.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/fieldsplitter.html"
 )
 public class FieldSplitterMeta extends BaseTransformMeta implements ITransformMeta<FieldSplitter, FieldSplitterData> {
   private static final Class<?> PKG = FieldSplitterMeta.class; // Needed by Translator

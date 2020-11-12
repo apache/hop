@@ -59,7 +59,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.StreamLookup",
         description = "BaseTransform.TypeTooltipDesc.StreamLookup",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Lookup",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/streamlookup.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/streamlookup.html"
 )
 public class StreamLookupMeta extends BaseTransformMeta implements ITransformMeta<StreamLookup, StreamLookupData> {
   private static final Class<?> PKG = StreamLookupMeta.class; // Needed by Translator

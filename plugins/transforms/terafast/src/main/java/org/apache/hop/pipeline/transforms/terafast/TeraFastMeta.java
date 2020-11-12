@@ -57,7 +57,7 @@ import java.util.List;
   description = "TeraFast.Description",
   name = "TeraFast.Name",
   categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Bulk",
-  documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/terafast.html"
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/terafast.html"
 )
 public class TeraFastMeta extends AbstractTransformMeta implements ITransformMeta<ITransform, ITransformData> {
 

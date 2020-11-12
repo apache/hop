@@ -55,7 +55,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.TableCompare",
         categoryDescription="i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
         i18nPackageName="org.apache.hop.pipeline.transforms.tablecompare",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/tablecompare.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/tablecompare.html"
   )
 public class TableCompareMeta extends BaseTransformMeta implements ITransformMeta<TableCompare, TableCompareData> {
   private static final Class<?> PKG = TableCompare.class; // Needed by Translator

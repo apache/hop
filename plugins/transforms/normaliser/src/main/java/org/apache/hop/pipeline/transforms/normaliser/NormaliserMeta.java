@@ -88,7 +88,7 @@ import java.util.Set;
 		i18nPackageName = "org.apache.hop.pipeline.transforms.normaliser",
 		categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Transform",
 		keywords = {"transform"},
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/normaliser.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/normaliser.html"
 )
 @InjectionSupported( localizationPrefix = "NormaliserMeta.Injection.", groups = { "FIELDS" } )
 public class NormaliserMeta extends BaseTransformMeta implements ITransformMeta<Normaliser,NormaliserData> {

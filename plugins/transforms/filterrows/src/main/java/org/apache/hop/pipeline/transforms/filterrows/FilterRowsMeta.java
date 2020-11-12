@@ -67,7 +67,7 @@ import java.util.Optional;
         name = "BaseTransform.TypeLongDesc.FilterRows",
         description = "BaseTransform.TypeTooltipDesc.FilterRows",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/filterrows.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/filterrows.html"
 )
 public class FilterRowsMeta extends BaseTransformMeta implements ITransformMeta<FilterRows, FilterRowsData> {
   private static final Class<?> PKG = FilterRowsMeta.class; // Needed by Translator

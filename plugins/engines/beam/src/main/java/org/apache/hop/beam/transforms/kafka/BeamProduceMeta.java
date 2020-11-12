@@ -44,7 +44,7 @@ import org.w3c.dom.Node;
         description = "Send messages to a Kafka Topic (Producer)",
         image = "beam-kafka-output.svg",
         categoryDescription = "Big Data",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/beamproduce.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/beamproduce.html"
 )
 public class BeamProduceMeta extends BaseTransformMeta implements ITransformMeta<BeamProduce, DummyData> {
 

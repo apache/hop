@@ -1,7 +1,7 @@
 [[database-plugins-cache]]
 :documentationPath: /plugins/databases/
 :language: en_US
-:page-alternativeEditUrl: https://github.com/project-hop/hop/edit/master/plugins/databases/cache/src/main/doc/cache.adoc
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/databases/cache/src/main/doc/cache.adoc
 = Cache
 
 [width="90%", cols="2*", options="header"]

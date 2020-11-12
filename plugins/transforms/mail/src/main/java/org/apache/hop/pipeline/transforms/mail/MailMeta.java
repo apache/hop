@@ -58,7 +58,7 @@ import java.util.List;
         name = "BaseTransform.TypeLongDesc.Mail",
         description = "BaseTransform.TypeTooltipDesc.Mail",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Utility",
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/mail.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mail.html"
 )
 public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, MailData> {
   private static final Class<?> PKG = MailMeta.class; // Needed by Translator

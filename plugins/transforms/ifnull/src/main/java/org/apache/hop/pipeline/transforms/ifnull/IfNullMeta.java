@@ -53,7 +53,7 @@ import java.util.List;
         name = "IfNull.Name",
         description = "IfNull.Description",
         categoryDescription = "i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow" ,
-        documentationUrl = "https://www.project-hop.org/manual/latest/plugins/transforms/ifnull.html"
+        documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/ifnull.html"
 )
 @InjectionSupported( localizationPrefix = "IfNull.Injection.", groups = { "FIELDS", "VALUE_TYPES" } )
 public class IfNullMeta extends BaseTransformMeta implements ITransformMeta<IfNull,IfNullData> {
