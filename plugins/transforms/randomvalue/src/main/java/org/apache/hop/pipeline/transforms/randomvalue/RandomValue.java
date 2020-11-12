@@ -74,7 +74,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           row[index] = data.randomgen.nextDouble();
           break;
         case RandomValueMeta.TYPE_RANDOM_INTEGER:
-          row[index] = data.randomgen.nextInt();
+          row[index] = Long.valueOf(data.randomgen.nextInt());
           break;
         case RandomValueMeta.TYPE_RANDOM_STRING:
           // TODO Math.abs(Long.MIN_VALUE) == Long.MIN_VALUE --> Don't expect Math.abs always return
