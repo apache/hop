@@ -229,7 +229,7 @@ public class DataSetDialog extends Dialog implements IMetadataDialog {
       new ColumnInfo( BaseMessages.getString( PKG, "DataSetDialog.ColumnInfo.FieldType" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaFactory.getAllValueMetaNames(), false ),
       new ColumnInfo( BaseMessages.getString( PKG, "DataSetDialog.ColumnInfo.FieldFormat" ),
-        ColumnInfo.COLUMN_TYPE_TEXT, true, false ),
+        ColumnInfo.COLUMN_TYPE_FORMAT, 2 ),
       new ColumnInfo( BaseMessages.getString( PKG, "DataSetDialog.ColumnInfo.FieldLength" ),
         ColumnInfo.COLUMN_TYPE_TEXT, true, false ),
       new ColumnInfo( BaseMessages.getString( PKG, "DataSetDialog.ColumnInfo.FieldPrecision" ),
