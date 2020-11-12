@@ -55,6 +55,9 @@ if not "%HOP_SHARED_JDBC_FOLDER%"=="" (
 
 set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLATFORM_OS=Windows
 set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_PLATFORM_RUNTIME=GUI
+
+set HOP_OPTIONS=%HOP_OPTIONS% -DHOP_AUTO_CREATE_CONFIG=Y
+
 echo ===[Environment Settings - hop-gui.bat]===================================
 echo.
 echo Java identified as %_HOP_JAVA%

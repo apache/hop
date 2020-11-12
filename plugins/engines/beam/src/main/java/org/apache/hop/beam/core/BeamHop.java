@@ -22,6 +22,7 @@
 
 package org.apache.hop.beam.core;
 
+import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.exception.HopException;
@@ -53,6 +54,10 @@ public class BeamHop {
   public static final void init( List<String> transformPluginClasses, List<String> xpPluginClasses ) throws HopException {
     PluginRegistry registry = PluginRegistry.getInstance();
     synchronized ( registry ) {
+
+      // Don't create hop config files everywhere...
+      //
+      System.setProperty( Const.HOP_AUTO_CREATE_CONFIG, "N" );
 
       // Load Hop base plugins
       //
