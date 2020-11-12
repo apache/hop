@@ -267,5 +267,11 @@
     <default-value>N</default-value>
   </hop-variable>
 
+  <hop-variable>
+    <description>Set this value to N if you don't want to automatically create a hop configuration file (hop-config.json) when it's missing</description>
+    <variable>HOP_AUTO_CREATE_CONFIG</variable>
+    <default-value>Y</default-value>
+  </hop-variable>
+
 </hop-variables>
 

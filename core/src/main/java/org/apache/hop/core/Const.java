@@ -154,6 +154,11 @@ public class Const {
     System.getProperty( "user.dir" ) + File.separator + "config" );
 
   /**
+   * The name of the variable which configures whether or not we should automatically create a config file when it's missing
+   */
+  public static final String HOP_AUTO_CREATE_CONFIG = "HOP_AUTO_CREATE_CONFIG";
+
+  /**
    * The variable which points to a shared folder with JDBC drivers in them.
    */
   public static final String HOP_SHARED_JDBC_FOLDER = "HOP_SHARED_JDBC_FOLDER";

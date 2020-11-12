@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.config.ConfigFileSerializer;
 import org.apache.hop.core.config.ConfigNoFileSerializer;
 import org.apache.hop.core.config.DescribedVariable;
@@ -62,10 +63,16 @@ public abstract class ConfigFile implements IConfigFile {
         //
         this.serializer = new ConfigFileSerializer();
       } else {
-        // Doesn't serialize anything really, reads an empty map with an empty file
-        //
-        System.out.println( "Hop configuration file not found, not serializing: " + getConfigFilename() );
-        this.serializer = new ConfigNoFileSerializer();
+        boolean createWhenMissing = "Y".equalsIgnoreCase(System.getProperty( Const.HOP_AUTO_CREATE_CONFIG, "N" ));
+        if (createWhenMissing) {
+          System.out.println( "Creating new default Hop configuration file: " + getConfigFilename() );
+          this.serializer = new ConfigFileSerializer();
+        } else {
+          // Doesn't serialize anything really, reads an empty map with an empty file
+          //
+          System.out.println( "Hop configuration file not found, not serializing: " + getConfigFilename() );
+          this.serializer = new ConfigNoFileSerializer();
+        }
       }
       configMap = serializer.readFromFile( getConfigFilename() );
     } catch ( Exception e ) {
