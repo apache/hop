@@ -24,6 +24,7 @@
 package org.apache.hop.workflow.actions.shell;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
@@ -524,7 +525,9 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       Map<String, String> env = procBuilder.environment();
       String[] variables = listVariables();
       for ( int i = 0; i < variables.length; i++ ) {
-        env.put( variables[ i ], getVariable( variables[ i ] ) );
+        if ( StringUtils.isNotEmpty(variables[i])) {
+          env.put( variables[ i ], Const.NVL( getVariable( variables[ i ] ), "" ) );
+        }
       }
 
       if ( getWorkDirectory() != null && !Utils.isEmpty( Const.rtrim( getWorkDirectory() ) ) ) {
