@@ -1505,17 +1505,16 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
 
     HopGui hopGui = HopGui.getInstance();
     if ( ArgList.length == 1 && hopGui != null ) {
-      String strMessage = Context.toString( ArgList[ 0 ] );
-      MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-      mb.setMessage( strMessage );
-      mb.setText(  "alert"  );
-      mb.open();
-/*
-      boolean ok = hopGui.messageBox( strMessage, "Alert", true, Const.INFO );
-      if ( !ok ) {
-        throw new RuntimeException( "Alert dialog cancelled by user." );
-      }
-*/
+      hopGui.getDisplay().asyncExec( () -> {
+        String strMessage = Context.toString( ArgList[ 0 ] );
+        MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.CANCEL | SWT.ICON_INFORMATION );
+        mb.setMessage( strMessage );
+        mb.setText(  "alert"  );
+        int answer = mb.open();
+        if ((answer&SWT.CANCEL)!=0) {
+          throw new RuntimeException( "Alert dialog cancelled by user." );
+        }
+      } );
     }
 
     return "";

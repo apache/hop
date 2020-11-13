@@ -28,6 +28,8 @@ import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 
+import java.util.List;
+
 public class ProjectsConfigSingleton {
 
   private static ProjectsConfigSingleton configSingleton;
@@ -56,6 +58,10 @@ public class ProjectsConfigSingleton {
     HopConfig.getInstance().getConfigMap().put( ProjectsConfig.HOP_CONFIG_PROJECTS_CONFIG_KEY, projectsConfig );
   }
 
+  public static ProjectsConfigSingleton getInstance() {
+    return configSingleton;
+  }
+
   public static ProjectsConfig getConfig() {
     if ( configSingleton == null ) {
       configSingleton = new ProjectsConfigSingleton();
@@ -67,4 +73,13 @@ public class ProjectsConfigSingleton {
     HopConfig.getInstance().saveOption( ProjectsConfig.HOP_CONFIG_PROJECTS_CONFIG_KEY, configSingleton.projectsConfig );
     HopConfig.getInstance().saveToFile();
   }
+
+  public List<String> listProjectNames() {
+    return projectsConfig.listProjectConfigNames();
+  }
+
+  public List<String> listEnvironmentNames() {
+    return projectsConfig.listEnvironmentNames();
+  }
 }
+
