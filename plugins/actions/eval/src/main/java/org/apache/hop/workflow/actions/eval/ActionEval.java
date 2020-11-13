@@ -154,7 +154,8 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
       }
 
       scope.put( "rows", scope, array );
-      scope.put( "parent_job", scope, parentWorkflow );
+      scope.put( "parent_job", scope, parentWorkflow ); // migration
+      scope.put( "parent_workflow", scope, parentWorkflow );
       scope.put( "previous_result", scope, prevResult );
 
       try {
