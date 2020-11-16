@@ -438,6 +438,9 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   public void delTransforms( PipelineMeta pipelineMeta, List<TransformMeta> transforms ) {
+    if ( transforms == null || transforms.size() == 0 ) {
+      return; // nothing to do
+    }
     try {
       ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.PipelineBeforeDeleteTransforms.id, transforms );
     } catch ( HopException e ) {
