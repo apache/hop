@@ -2684,7 +2684,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public void delSelected( TransformMeta transformMeta ) {
     List<TransformMeta> selection = pipelineMeta.getSelectedTransforms();
-    if ( currentTransform == null && transformMeta == null && selection.isEmpty() ) {
+    if ( currentTransform == null && transformMeta == null && selection.isEmpty() && pipelineMeta.getSelectedNotes().isEmpty() ) {
       return; // nothing to do
     }
     if ( transformMeta != null && selection.size() == 0 ) {
@@ -2699,8 +2699,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
     }
 
-    pipelineTransformDelegate.delTransforms( pipelineMeta, selection );
-    notePadDelegate.deleteNotes( pipelineMeta, pipelineMeta.getSelectedNotes() );
+    if ( selection.size() > 0 ) {
+      pipelineTransformDelegate.delTransforms(pipelineMeta, selection);
+    }
+    if ( pipelineMeta.getSelectedNotes().size() > 0 ) {
+      notePadDelegate.deleteNotes( pipelineMeta, pipelineMeta.getSelectedNotes() );
+    }
   }
 
   public void editDescription( TransformMeta transformMeta ) {
