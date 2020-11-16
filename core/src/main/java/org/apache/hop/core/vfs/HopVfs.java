@@ -39,7 +39,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPluginType;
 import org.apache.hop.i18n.BaseMessages;
@@ -53,6 +52,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class HopVfs {
@@ -410,7 +410,7 @@ public class HopVfs {
         // when there multiple nodes with multiple JVMs on each node. In this case, the temp file names would end up being
         // duplicated which would cause the sort to fail.
         //
-        String filename = baseUrl + "/" + prefix + "_" + UuidUtil.getUUIDAsString() + suffix;
+        String filename = baseUrl + "/" + prefix + "_" + UUID.randomUUID() + suffix;
 
         fileObject = getFileObject( filename );
       } while ( fileObject.exists() );

@@ -26,7 +26,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Uuid4Util;
-import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -39,6 +38,7 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Get random value.
@@ -82,7 +82,7 @@ public class RandomValue extends BaseTransform<RandomValueMeta, RandomValueData>
           row[index] = Long.toString(Math.abs(data.randomgen.nextLong()), 32);
           break;
         case RandomValueMeta.TYPE_RANDOM_UUID:
-          row[index] = UuidUtil.getUUIDAsString();
+          row[index] = UUID.randomUUID().toString();
           break;
         case RandomValueMeta.TYPE_RANDOM_UUID4:
           row[index] = data.u4.getUUID4AsString();

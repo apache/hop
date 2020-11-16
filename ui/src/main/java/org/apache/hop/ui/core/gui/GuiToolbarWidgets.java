@@ -22,17 +22,11 @@
 
 package org.apache.hop.ui.core.gui;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarItem;
-import org.apache.hop.core.util.UuidUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -45,10 +39,15 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * This class contains the widgets for the GUI elements of a GUI Plugin
@@ -60,7 +59,7 @@ public class GuiToolbarWidgets extends BaseGuiWidgets {
   private Map<String, ToolItem> toolItemMap;
 
   public GuiToolbarWidgets() {
-    super( UuidUtil.getUUIDAsString() );
+    super( UUID.randomUUID().toString() );
     guiToolBarMap = new HashMap<>();
     widgetsMap = new HashMap<>();
     toolItemMap = new HashMap<>();
