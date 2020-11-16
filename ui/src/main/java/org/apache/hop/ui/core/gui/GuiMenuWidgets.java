@@ -25,10 +25,9 @@ package org.apache.hop.ui.core.gui;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.core.gui.plugin.GuiRegistry;
 import org.apache.hop.core.gui.plugin.key.KeyboardShortcut;
-import org.apache.hop.core.util.UuidUtil;
+import org.apache.hop.core.gui.plugin.menu.GuiMenuItem;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
@@ -42,6 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * This class contains the widgets for Menu Bars
@@ -52,7 +52,7 @@ public class GuiMenuWidgets extends BaseGuiWidgets {
   private Map<String, KeyboardShortcut> shortcutMap;
 
   public GuiMenuWidgets() {
-    super( UuidUtil.getUUIDAsString() );
+    super( UUID.randomUUID().toString() );
     this.menuItemMap = new HashMap<>();
     this.shortcutMap = new HashMap<>();
   }

@@ -22,7 +22,7 @@
 
 package org.apache.hop.resource;
 
-import org.apache.hop.core.util.UuidUtil;
+import java.util.UUID;
 
 public class UuidResourceNaming extends SimpleResourceNaming {
 
@@ -51,7 +51,7 @@ public class UuidResourceNaming extends SimpleResourceNaming {
     // The UUID will look something like this:
     // 03a32f25-1538-11dc-ae07-5dbf1395f3fd
     //
-    return UuidUtil.getUUIDAsString();
+    return UUID.randomUUID().toString();
   }
 
 }

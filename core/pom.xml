@@ -33,7 +33,6 @@
     <commons-dbcp.version>1.4</commons-dbcp.version>
     <commons-pool.version>1.5.7</commons-pool.version>
     <jetty-util.version>9.4.22.v20191022</jetty-util.version>
-    <jug.version>2.0.0</jug.version>
     <jsch.version>0.1.54</jsch.version>
     <jzlib.version>1.0.7</jzlib.version>
     <ognl.version>2.6.9</ognl.version>
@@ -369,18 +368,6 @@
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-util</artifactId>
       <version>${jetty-util.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.safehaus.jug</groupId>
-      <artifactId>jug</artifactId>
-      <classifier>asl</classifier>
-      <version>${jug.version}</version>
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
