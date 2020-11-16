@@ -19,10 +19,6 @@
   <properties>
     <!-- Test running configuration -->
     <maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
-
-    <!-- Third-party dependencies -->
-    <common.version>3.111.0</common.version>
-    <jfreechart.version>1.0.13</jfreechart.version>
   </properties>
 
 
@@ -84,17 +80,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-    <dependency>
-      <groupId>jfree</groupId>
-      <artifactId>jfreechart</artifactId>
-      <version>${jfreechart.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+
 
     <dependency>
       <groupId>org.mozilla</groupId>
