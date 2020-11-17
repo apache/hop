@@ -1064,7 +1064,7 @@
                         <configuration>
                             <fromDir>${project.basedir}/local-snapshots-dir</fromDir>
                             <includes>**</includes>
-                            <excludes>hop-assemblies*</excludes>
+                            <excludes>**/hop-assemblies*/**</excludes>
                             <serverId>apache.snapshots.https</serverId>
                             <url>${distMgmtSnapshotsUrl}</url>
                         </configuration>
