@@ -154,9 +154,10 @@ public abstract class ConfigurationDialog extends Dialog {
       wVariables.applyOSXChanges();
       wParams.applyOSXChanges();
     }
-    getInfo();
-    retval = true;
-    dispose();
+    if (getInfo()) {
+      retval = true;
+      dispose();
+    }
   }
 
   private void dispose() {
@@ -168,7 +169,10 @@ public abstract class ConfigurationDialog extends Dialog {
     dispose();
   }
 
-  public abstract void getInfo();
+  /**
+   * @return True if all is OK.  Returns false if there is an error in the configuration
+   */
+  public abstract boolean getInfo();
 
   protected void getParamsData() {
     wParams.clearAll( false );

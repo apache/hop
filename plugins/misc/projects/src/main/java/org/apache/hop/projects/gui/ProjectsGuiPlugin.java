@@ -51,6 +51,7 @@ import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
 import org.apache.hop.ui.core.gui.HopNamespace;
 import org.apache.hop.ui.core.vfs.HopVfsFileDialog;
 import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.pipeline.dialog.PipelineExecutionConfigurationDialog;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.apache.hop.workflow.engines.local.LocalWorkflowRunConfiguration;
 import org.eclipse.swt.SWT;
@@ -217,20 +218,7 @@ public class ProjectsGuiPlugin {
           }
         }
         if ( !localFound ) {
-          MessageBox box = new MessageBox( HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
-          box.setText( "Create local pipeline run configuration?" );
-          box.setMessage( "Do you want to have a local pipeline run configuration for this project?" );
-          int anwser = box.open();
-          if ( ( anwser & SWT.YES ) != 0 ) {
-            LocalPipelineRunConfiguration localPipelineRunConfiguration = new LocalPipelineRunConfiguration();
-            localPipelineRunConfiguration.setEnginePluginId( "Local" );
-            PipelineRunConfiguration local = new PipelineRunConfiguration(
-              "local",
-              "Runs your pipelines locally with the standard local Hop pipeline engine",
-              new ArrayList<>(),
-              localPipelineRunConfiguration );
-            prcSerializer.save( local );
-          }
+          PipelineExecutionConfigurationDialog.createLocalPipelineConfiguration( hopGui.getShell(), prcSerializer );
         }
 
         // Then the local workflow runconfig

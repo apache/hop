@@ -30,7 +30,6 @@ import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.LoadSaveTester;
 import org.apache.hop.pipeline.transforms.loadsave.validator.ArrayLoadSaveValidator;
 import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Test;
@@ -51,7 +50,7 @@ public class AddXMLMetaTest {
     fieldLoadSaveValidatorTypeMap.put( XmlField[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
         new XMLFieldLoadSaveValidator( xmlField ), 1 ) );
 
-//    LoadSaveTester tester = new LoadSaveTester( AddXmlMeta.class, attributes, new HashMap<String, String>(), new HashMap<String, String>(),
+//    TransformLoadSaveTester tester = new TransformLoadSaveTester( AddXmlMeta.class, attributes, new HashMap<String, String>(), new HashMap<String, String>(),
 //        new HashMap<String, IFieldLoadSaveValidator<?>>(), fieldLoadSaveValidatorTypeMap );
 
 //    tester.testXmlRoundTrip();

@@ -29,7 +29,9 @@ import org.apache.hop.history.AuditManager;
 import org.apache.hop.history.IAuditManager;
 import org.apache.hop.ui.core.gui.HopNamespace;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utility methods for conveniently storing and retrieving items, lists and so on...
@@ -109,6 +111,35 @@ public class AuditManagerGuiUtil {
       auditManager.storeList( HopNamespace.getNamespace(), type, list );
     } catch(Exception e) {
       LogChannel.UI.logError( "Unable to store list using audit manager with type: "+type+" in group "+HopNamespace.getNamespace(), e );
+    }
+  }
+
+  public static final Map<String, String> getUsageMap(String type) {
+    if ( StringUtil.isEmpty(type)) {
+      return new HashMap<>();
+    }
+    IAuditManager auditManager = AuditManager.getActive();
+    try {
+      Map<String, String> map = auditManager.loadMap( HopNamespace.getNamespace(), type );
+      if (map==null) {
+        map = new HashMap<>();
+      }
+      return map;
+    } catch(Exception e) {
+      LogChannel.UI.logError( "Unable to retrieve the usage map for type "+type+" in group "+HopNamespace.getNamespace(), e );
+      return new HashMap<>();
+    }
+  }
+
+  public static final void saveUsageMap(String type, Map<String, String> map) {
+    if ( StringUtil.isEmpty(type)) {
+      return; // Nothing to store
+    }
+    IAuditManager auditManager = AuditManager.getActive();
+    try {
+      auditManager.saveMap( HopNamespace.getNamespace(), type, map );
+    } catch(Exception e) {
+      LogChannel.UI.logError( "Unable to save the usage map for type "+type+" in group "+HopNamespace.getNamespace(), e );
     }
   }
 }

@@ -31,9 +31,11 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.pipeline.engines.local.LocalPipelineRunConfiguration;
 import org.apache.hop.ui.core.dialog.ConfigurationDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -46,17 +48,21 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
   private static final Class<?> PKG = PipelineExecutionConfigurationDialog.class; // Needed by Translator
 
   public static final String AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS = "last-pipeline-run-configurations";
+  public static final String MAP_TYPE_PIPELINE_RUN_CONFIG_USAGE = "pipeline-run-configuration-usage";
+
   private MetaSelectionLine<PipelineRunConfiguration> wRunConfiguration;
 
   public PipelineExecutionConfigurationDialog( Shell parent, PipelineExecutionConfiguration configuration,
@@ -169,7 +175,23 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
       hopGui.getLog().logError( "Unable to obtain a list of pipeline run configurations", e );
     }
 
-    wRunConfiguration.setText( AuditManagerGuiUtil.getLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS ) );
+    String lastGlobalRunConfig = AuditManagerGuiUtil.getLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS );
+    String lastPipelineRunConfig = null;
+    if ( StringUtils.isNotEmpty(abstractMeta.getName())) {
+      Map<String, String> pipelineUsageMap = AuditManagerGuiUtil.getUsageMap( MAP_TYPE_PIPELINE_RUN_CONFIG_USAGE );
+      lastPipelineRunConfig = pipelineUsageMap.get( abstractMeta.getName() );
+    }
+
+    wRunConfiguration.setText( Const.NVL(lastPipelineRunConfig, "" ) );
+
+    if (StringUtils.isNotEmpty( lastPipelineRunConfig ) &&
+        StringUtils.isNotEmpty( lastGlobalRunConfig ) &&
+      !lastPipelineRunConfig.equals( lastGlobalRunConfig )) {
+      wRunConfiguration.getLabelWidget().setBackground( GuiResource.getInstance().getColorLightBlue() );
+      wRunConfiguration.getLabelWidget().setToolTipText( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.VerifyRunConfigurationName.Warning" ) );
+      wRunConfiguration.getComboWidget().setBackground( GuiResource.getInstance().getColorLightBlue() );
+      wRunConfiguration.getComboWidget().setToolTipText( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.VerifyRunConfigurationName.Warning" ) );
+    }
 
     try {
       ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiRunConfiguration.id, wRunConfiguration );
@@ -194,20 +216,83 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     getVariablesData();
   }
 
-  public void getInfo() {
+  public boolean getInfo() {
     try {
+      IHopMetadataSerializer<PipelineRunConfiguration> serializer = hopGui.getMetadataProvider().getSerializer( PipelineRunConfiguration.class );
+
+      // See if there are any run configurations defined.  If not, ask about creating a local one.
+      //
+      if (serializer.listObjectNames().isEmpty()) {
+        String name = createLocalPipelineConfiguration( shell, serializer );
+        wRunConfiguration.setText( name );
+      }
+
       String runConfigurationName = wRunConfiguration.getText();
+      if (StringUtils.isEmpty( runConfigurationName )) {
+        MessageBox box = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
+        box.setText( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.NoRunConfigurationSpecified.Title" ) );
+        box.setMessage( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.NoRunConfigurationSpecified.Message" ) );
+        box.open();
+        return false;
+      }
+      // See if the run configuration is available...
+      //
+
+      if (!serializer.exists( runConfigurationName )) {
+        MessageBox box = new MessageBox( shell, SWT.OK | SWT.ICON_ERROR );
+        box.setText( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.RunConfigurationDoesNotExist.Title" ) );
+        box.setMessage( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.RunConfigurationDoesNotExist.Message", runConfigurationName ) );
+        box.open();
+        return false;
+      }
+
       getConfiguration().setRunConfiguration( runConfigurationName );
       AuditManagerGuiUtil.addLastUsedValue( AUDIT_LIST_TYPE_LAST_USED_RUN_CONFIGURATIONS, runConfigurationName );
+      if (StringUtils.isNotEmpty(abstractMeta.getName())) {
+        Map<String, String> usageMap = AuditManagerGuiUtil.getUsageMap( MAP_TYPE_PIPELINE_RUN_CONFIG_USAGE );
+        usageMap.put(abstractMeta.getName(), runConfigurationName);
+        AuditManagerGuiUtil.saveUsageMap( MAP_TYPE_PIPELINE_RUN_CONFIG_USAGE, usageMap );
+      }
+
       configuration.setClearingLog( wClearLog.getSelection() );
       configuration.setLogLevel( LogLevel.values()[ wLogLevel.getSelectionIndex() ] );
 
       // The lower part of the dialog...
       getInfoParameters();
       getInfoVariables();
+
+      return true;
     } catch ( Exception e ) {
       new ErrorDialog( shell, "Error in settings", "There is an error in the dialog settings", e );
+      return false;
     }
+  }
+
+  public static final String createLocalPipelineConfiguration(Shell shell, IHopMetadataSerializer<PipelineRunConfiguration> prcSerializer) {
+    try {
+      MessageBox box = new MessageBox( HopGui.getInstance().getShell(), SWT.YES | SWT.NO | SWT.ICON_QUESTION );
+      box.setText( BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.NoRunConfigurationDefined.Title" ) );
+      box.setMessage(BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.NoRunConfigurationDefined.Message" ) );
+      int answer = box.open();
+      if ( ( answer & SWT.YES ) != 0 ) {
+        LocalPipelineRunConfiguration localPipelineRunConfiguration = new LocalPipelineRunConfiguration();
+        localPipelineRunConfiguration.setEnginePluginId( "Local" );
+        PipelineRunConfiguration local = new PipelineRunConfiguration(
+          "local",
+          BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.LocalRunConfiguration.Description" ),
+          new ArrayList<>(),
+          localPipelineRunConfiguration );
+        prcSerializer.save( local );
+
+        return local.getName();
+      }
+    } catch(Exception e) {
+      new ErrorDialog( shell,
+        BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.ErrorSavingRunConfiguration.Title" ),
+        BaseMessages.getString( PKG, "PipelineExecutionConfigurationDialog.ErrorSavingRunConfiguration.Message" ),
+        e );
+    }
+    return null;
   }
 
   /**

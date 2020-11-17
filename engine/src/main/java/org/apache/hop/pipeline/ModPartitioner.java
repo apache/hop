@@ -28,10 +28,11 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
-public class ModPartitioner extends BasePartitioner {
+public class ModPartitioner extends BasePartitioner implements IXml {
 
   private String fieldName;
   protected int partitionColumnIndex = -1;

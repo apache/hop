@@ -29,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.LoadSaveTester;
-import org.apache.hop.pipeline.transforms.loadsave.validator.IFieldLoadSaveValidator;
 import org.junit.Test;
 
 public class XsdValidatorMetaTest {
@@ -67,8 +65,8 @@ public class XsdValidatorMetaTest {
     setterMap.put( "xsddefinedfield", "setXSDDefinedField" );
     setterMap.put( "xsdsource", "setXSDSource" );
 
-//    LoadSaveTester loadSaveTester =
-//        new LoadSaveTester( XsdValidatorMeta.class, attributes, getterMap, setterMap,
+//    TransformLoadSaveTester loadSaveTester =
+//        new TransformLoadSaveTester( XsdValidatorMeta.class, attributes, getterMap, setterMap,
 //            new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
 //
 //    loadSaveTester.testXmlRoundTrip();

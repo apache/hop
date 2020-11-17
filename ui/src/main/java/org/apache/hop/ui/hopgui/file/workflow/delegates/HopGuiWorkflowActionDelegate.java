@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
@@ -221,10 +216,10 @@ public class HopGuiWorkflowActionDelegate {
     }
   }
 
-  public void deleteActionCopies( WorkflowMeta workflow, List<ActionMeta> actions ) {
+  public void deleteActions( WorkflowMeta workflow, List<ActionMeta> actions ) {
 
     // Hops belonging to the deleting actions are placed in a single transaction and removed.
-    List<WorkflowHopMeta> jobHops = new ArrayList<>();
+    List<WorkflowHopMeta> workflowHops = new ArrayList<>();
     int[] hopIndexes = new int[ workflow.nrWorkflowHops() ];
     int hopIndex = 0;
     for ( int i = workflow.nrWorkflowHops() - 1; i >= 0; i-- ) {
@@ -232,7 +227,7 @@ public class HopGuiWorkflowActionDelegate {
       for ( int j = 0; j < actions.size() && hopIndex < hopIndexes.length; j++ ) {
         if ( hi.getFromAction().equals( actions.get( j ) ) || hi.getToAction().equals( actions.get( j ) ) ) {
           int idx = workflow.indexOfWorkflowHop( hi );
-          jobHops.add( (WorkflowHopMeta) hi.clone() );
+          workflowHops.add( (WorkflowHopMeta) hi.clone() );
           hopIndexes[ hopIndex ] = idx;
           workflow.removeWorkflowHop( idx );
           hopIndex++;
@@ -240,8 +235,8 @@ public class HopGuiWorkflowActionDelegate {
         }
       }
     }
-    if ( !jobHops.isEmpty() ) {
-      WorkflowHopMeta[] hops = jobHops.toArray( new WorkflowHopMeta[ jobHops.size() ] );
+    if ( !workflowHops.isEmpty() ) {
+      WorkflowHopMeta[] hops = workflowHops.toArray( new WorkflowHopMeta[ workflowHops.size() ] );
       hopGui.undoDelegate.addUndoDelete( workflow, hops, hopIndexes );
     }
 
@@ -257,7 +252,7 @@ public class HopGuiWorkflowActionDelegate {
     workflowGraph.updateGui();
   }
 
-  public void deleteActionCopies( WorkflowMeta workflowMeta, ActionMeta action ) {
+  public void deleteAction( WorkflowMeta workflowMeta, ActionMeta action ) {
     for ( int i = workflowMeta.nrWorkflowHops() - 1; i >= 0; i-- ) {
       WorkflowHopMeta hi = workflowMeta.getWorkflowHop( i );
       if ( hi.getFromAction().equals( action ) || hi.getToAction().equals( action ) ) {
