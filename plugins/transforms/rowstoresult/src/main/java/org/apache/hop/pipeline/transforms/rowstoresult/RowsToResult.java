@@ -29,10 +29,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Writes results to a next pipeline in a Job
@@ -42,10 +40,6 @@ import org.apache.hop.pipeline.transform.ITransform;
  */
 public class RowsToResult extends BaseTransform<RowsToResultMeta, RowsToResultData> implements ITransform<RowsToResultMeta, RowsToResultData> {
   private static final Class<?> PKG = RowsToResult.class; // Needed by Translator
-
-  private RowsToResultMeta meta;
-
-  private RowsToResultData data;
 
   public RowsToResult( TransformMeta transformMeta, RowsToResultMeta meta, RowsToResultData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
