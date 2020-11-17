@@ -947,7 +947,7 @@ public class ContextDialog extends Dialog {
     this.filter( text );
   }
 
-  private void onKeyPressed( KeyEvent event ) {
+  private synchronized void onKeyPressed( KeyEvent event ) {
 
     if ( filteredItems.isEmpty() ) {
       return;
@@ -967,7 +967,9 @@ public class ContextDialog extends Dialog {
         area = firstShownItem.getAreaOwner().getArea();
       }
     } else {
-      area = selectedItem.getAreaOwner().getArea();
+      if (selectedItem.getAreaOwner()!=null) {
+        area = selectedItem.getAreaOwner().getArea();
+      }
     }
 
     switch ( event.keyCode ) {
