@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.pipeline.LoadSaveTester;
 import org.junit.Test;
 
 public class XMLInputStreamMetaTest {
@@ -45,8 +44,8 @@ public class XMLInputStreamMetaTest {
         "includeXmlPathField", "xmlPathField", "includeXmlParentPathField", "xmlParentPathField",
         "includeXmlDataNameField", "xmlDataNameField", "includeXmlDataValueField", "xmlDataValueField" );
 
-//    LoadSaveTester<XmlInputStreamMeta> loadSaveTester =
-//      new LoadSaveTester<XmlInputStreamMeta>( XmlInputStreamMeta.class, attributes );
+//    TransformLoadSaveTester<XmlInputStreamMeta> loadSaveTester =
+//      new TransformLoadSaveTester<XmlInputStreamMeta>( XmlInputStreamMeta.class, attributes );
 //
 //    loadSaveTester.testSerialization();
   }

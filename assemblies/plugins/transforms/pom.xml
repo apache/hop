@@ -104,6 +104,7 @@
         <module>rowgenerator</module>
         <module>rowsfromresult</module>
         <module>rowstoresult</module>
+        <module>salesforce</module>
         <module>samplerows</module>
         <module>selectvalues</module>
         <module>setvalueconstant</module>
