@@ -952,6 +952,9 @@ public class ContextDialog extends Dialog {
     if ( filteredItems.isEmpty() ) {
       return;
     }
+    if (shell.isDisposed() || !shell.isVisible()) {
+      return;
+    }
 
     // Which item area are we currently using as a base...
     //

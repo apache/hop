@@ -90,6 +90,8 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
           "ui/images/open.svg",
           ( shiftAction, controlAction, t ) -> openReferencedObject( iTransformMeta, objectDescription, index )
         );
+        openReferencedAction.setCategory( "Basic" );
+        openReferencedAction.setCategoryOrder( "1" );
         actions.add( openReferencedAction );
       }
     }

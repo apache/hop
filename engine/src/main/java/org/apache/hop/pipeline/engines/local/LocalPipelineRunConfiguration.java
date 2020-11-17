@@ -149,7 +149,7 @@ public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration
     this.rowSetSize = Integer.toString( Const.ROWS_IN_ROWSET );
     this.feedbackShown = false;
     this.feedbackSize = Integer.toString( Const.ROWS_UPDATE );
-    this.sampleTypeInGui = SampleType.First.name();
+    this.sampleTypeInGui = SampleType.Last.name();
     this.sampleSize = "100";
   }
 

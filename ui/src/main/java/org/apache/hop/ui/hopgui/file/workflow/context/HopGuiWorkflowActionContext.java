@@ -88,6 +88,8 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler implement
           "ui/images/open.svg",
           ( shiftAction, controlAction, t ) -> openReferencedObject( action, objectDescription, index )
         );
+        openReferencedAction.setCategory( "Basic" );
+        openReferencedAction.setCategoryOrder( "1" );
         actions.add( openReferencedAction );
       }
     }
