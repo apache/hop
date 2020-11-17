@@ -34,5 +34,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: RAT Check
+        run: mvn clean apache-rat:check
       - name: Build with Maven
         run: mvn clean install -U -B -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -P !assemblies -Djacoco.skip=true --file pom.xml
