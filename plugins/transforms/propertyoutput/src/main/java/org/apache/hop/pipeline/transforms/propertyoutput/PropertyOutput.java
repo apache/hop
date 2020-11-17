@@ -46,11 +46,11 @@ import java.util.Properties;
  * @since 13-Apr-2008
  */
 
-public class PropertyOutput extends BaseTransform implements ITransform {
-  private static final Class<?> PKG = PropertyOutputMeta.class; // Needed by Translator
+public class PropertyOutput
+  extends BaseTransform<PropertyOutputMeta,PropertyOutputData>
+  implements ITransform<PropertyOutputMeta,PropertyOutputData> {
 
-  private PropertyOutputMeta meta;
-  private PropertyOutputData data;
+  private static final Class<?> PKG = PropertyOutputMeta.class; // Needed by Translator
 
   public PropertyOutput( TransformMeta transformMeta, PropertyOutputMeta meta, PropertyOutputData data, int copyNr, PipelineMeta pipelineMeta,
                          Pipeline pipeline ) {

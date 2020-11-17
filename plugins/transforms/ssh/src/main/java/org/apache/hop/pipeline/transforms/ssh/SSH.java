@@ -26,17 +26,15 @@ package org.apache.hop.pipeline.transforms.ssh;
 import com.trilead.ssh2.Session;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Write commands to SSH *
@@ -47,9 +45,6 @@ import org.apache.hop.pipeline.transform.ITransform;
 
 public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<SSHMeta, SSHData> {
   private static final Class<?> PKG = SSHMeta.class; // Needed by Translator
-
-  private SSHMeta meta;
-  private SSHData data;
 
   public SSH( TransformMeta transformMeta, SSHMeta meta, SSHData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
     super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );

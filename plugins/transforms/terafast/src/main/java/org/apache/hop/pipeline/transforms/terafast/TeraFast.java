@@ -53,8 +53,6 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
 
   private static final Class<?> PKG = TeraFastMeta.class; // Needed by Translator
 
-  private TeraFastMeta meta;
-
   private Process process;
 
   private OutputStream fastload;
