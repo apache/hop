@@ -126,7 +126,7 @@ public class NotePadMeta implements Cloneable, IXml, IGuiPosition, IGuiSize {
 
   public NotePadMeta( NotePadMeta n ) {
     this( n.note, n.location.x, n.location.y, n.width, n.height, n.fontName, n.fontSize, n.fontBold, n.fontItalic,
-      n.fontColorRed, n.backgroundColorGreen, n.fontColorBlue, n.backgroundColorRed,
+      n.fontColorRed, n.fontColorGreen, n.fontColorBlue, n.backgroundColorRed,
       n.backgroundColorGreen, n.backgroundColorBlue, n.borderColorRed, n.borderColorGreen, n.borderColorBlue );
   }
 
