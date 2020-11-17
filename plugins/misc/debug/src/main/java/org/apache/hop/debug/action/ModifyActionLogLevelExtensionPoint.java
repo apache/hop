@@ -65,8 +65,8 @@ public class ModifyActionLogLevelExtensionPoint implements IExtensionPoint<IWork
         if ( rootWorkflow.getParentWorkflow() == null && rootWorkflow.getParentPipeline() == null ) {
           break;
         }
-        rootWorkflow = rootWorkflow.getParentWorkflow();
         rootPipeline = rootWorkflow.getParentPipeline();
+        rootWorkflow = rootWorkflow.getParentWorkflow();
       } else {
         if ( rootPipeline.getParentWorkflow() == null && rootPipeline.getParentPipeline() == null ) {
           break;
