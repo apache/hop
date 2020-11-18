@@ -203,6 +203,9 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
           new ErrorDialog( hopGui.getShell(), "Error", "Error creating new workflow", e );
         }
       } );
+    newAction.setCategory( "File" );
+    newAction.setCategoryOrder( "1" );
+
     handlers.add( new GuiContextHandler( ACTION_ID_NEW_WORKFLOW, Arrays.asList( newAction ) ) );
 
     return handlers;

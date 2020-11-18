@@ -72,6 +72,8 @@ public class MetadataContextHandler implements IGuiContextHandler {
       hopMetadata.iconImage(),
       ( shiftClicked, controlClicked, parameters ) -> metadataManager.newMetadata() );
     newAction.setClassLoader( metadataObjectClass.getClassLoader() );
+    newAction.setCategory( "Metadata" );
+    newAction.setCategoryOrder( "2" );
     actions.add( newAction );
 
     GuiAction editAction = new GuiAction(
@@ -82,6 +84,8 @@ public class MetadataContextHandler implements IGuiContextHandler {
       hopMetadata.iconImage(),
       ( shiftClicked, controlClicked, parameters ) -> metadataManager.editMetadata() );
     editAction.setClassLoader( metadataObjectClass.getClassLoader() );
+    editAction.setCategory( "Metadata" );
+    editAction.setCategoryOrder( "2" );
     actions.add( editAction );
 
     GuiAction deleteAction = new GuiAction(
@@ -92,6 +96,8 @@ public class MetadataContextHandler implements IGuiContextHandler {
       hopMetadata.iconImage(),
       ( shiftClicked, controlClicked, parameters ) -> metadataManager.deleteMetadata() );
     deleteAction.setClassLoader( metadataObjectClass.getClassLoader() );
+    deleteAction.setCategory( "Metadata" );
+    deleteAction.setCategoryOrder( "2" );
     actions.add( deleteAction );
 
     return actions;
