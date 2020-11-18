@@ -105,7 +105,7 @@ public class HopGuiFileDelegate {
     try {
       IHopFileTypeHandler typeHandler = getActiveFileTypeHandler();
       IHopFileType<?> fileType = typeHandler.getFileType();
-      if ( !fileType.hasCapability( IHopFileType.CAPABILITY_SAVE ) ) {
+      if ( !fileType.hasCapability( IHopFileType.CAPABILITY_SAVE_AS ) ) {
         return null;
       }
 

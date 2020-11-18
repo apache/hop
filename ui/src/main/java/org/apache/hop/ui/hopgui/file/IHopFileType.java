@@ -36,6 +36,7 @@ public interface IHopFileType<T extends IXml> {
 
   String CAPABILITY_NEW = "New";
   String CAPABILITY_SAVE = "Save";
+  String CAPABILITY_SAVE_AS = "SaveAs";
   String CAPABILITY_START = "Start";
   String CAPABILITY_CLOSE = "Close";
   String CAPABILITY_STOP = "Stop";
