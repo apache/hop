@@ -310,7 +310,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
   @VisibleForTesting
   IWorkflowEngine<WorkflowMeta> createWorkflow( WorkflowMeta workflowMeta, ILoggingObject parentLogging ) throws HopException {
 
-    return WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute(meta.getRunConfigurationName()), metadataProvider, workflowMeta );
+    return WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute(meta.getRunConfigurationName()), metadataProvider, workflowMeta, parentLogging );
   }
 
   @VisibleForTesting

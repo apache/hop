@@ -161,7 +161,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           //
           workflowMeta.setMetadataProvider( metadataProvider );
 
-          final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta );
+          final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
           // store it all in the map...
           //

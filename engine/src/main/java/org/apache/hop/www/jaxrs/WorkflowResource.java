@@ -108,7 +108,7 @@ public class WorkflowResource {
         servletLoggingObject.setContainerObjectId( serverObjectId );
         String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
         try {
-          IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflow.getWorkflowMeta() );
+          IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflow.getWorkflowMeta(), servletLoggingObject );
           newWorkflow.setLogLevel( workflow.getLogLevel() );
 
           // Discard old log lines from the old workflow
@@ -175,7 +175,7 @@ public class WorkflowResource {
       // Create the workflow and store in the list...
       //
       String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
-      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta );
+      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
       // Setting variables
       //

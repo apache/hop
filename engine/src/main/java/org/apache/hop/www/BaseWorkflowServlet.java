@@ -70,7 +70,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     // Create the workflow and store in the list...
     //
     String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
-    final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta );
+    final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
     // Setting variables
     workflow.initializeVariablesFrom( null );
