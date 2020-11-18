@@ -203,6 +203,9 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
           new ErrorDialog( hopGui.getShell(), "Error", "Error creating new pipeline", e );
         }
       } );
+    newAction.setCategory( "File" );
+    newAction.setCategoryOrder( "1" );
+
     handlers.add( new GuiContextHandler( ACTION_ID_NEW_PIPELINE, Arrays.asList(newAction) ) );
     return handlers;
   }
