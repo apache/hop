@@ -128,7 +128,7 @@ public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerP
             servletLoggingObject.setContainerObjectId( serverObjectId );
 
             String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
-            IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflow.getWorkflowMeta() );
+            IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflow.getWorkflowMeta(), servletLoggingObject );
             newWorkflow.setLogLevel( workflow.getLogLevel() );
 
             // Discard old log lines from the old workflow

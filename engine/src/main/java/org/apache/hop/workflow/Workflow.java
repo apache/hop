@@ -1320,6 +1320,13 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   }
 
   /**
+   * @param parentLoggingObject The parentLoggingObject to set
+   */
+  public void setParentLoggingObject( ILoggingObject parentLoggingObject ) {
+    this.parentLoggingObject = parentLoggingObject;
+  }
+
+  /**
    * Gets the registration date. For workflow, this always returns null
    *
    * @return null

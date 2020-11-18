@@ -3209,7 +3209,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           hopGuiLoggingObject.setContainerObjectId( hopGuiObjectId );
           hopGuiLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 
-          workflow = WorkflowEngineFactory.createWorkflowEngine( executionConfiguration.getRunConfiguration(), hopGui.getMetadataProvider(), runWorkflowMeta );
+          workflow = WorkflowEngineFactory.createWorkflowEngine( executionConfiguration.getRunConfiguration(), hopGui.getMetadataProvider(), runWorkflowMeta, hopGuiLoggingObject );
 
           workflow.setLogLevel( executionConfiguration.getLogLevel() );
           workflow.shareVariablesWith( workflowMeta );

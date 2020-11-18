@@ -268,7 +268,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   private void runWorkflow( CommandLine cmd, ILogChannel log, WorkflowExecutionConfiguration configuration, WorkflowMeta workflowMeta ) {
     try {
       String runConfigurationName = workflowMeta.environmentSubstitute(configuration.getRunConfiguration());
-      IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta );
+      IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta, null );
       workflow.initializeVariablesFrom( null );
       workflow.getWorkflowMeta().setInternalHopVariables( workflow );
       workflow.injectVariables( configuration.getVariablesMap() );
