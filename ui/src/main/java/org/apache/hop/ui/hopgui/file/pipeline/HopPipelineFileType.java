@@ -85,6 +85,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
     capabilities.setProperty( IHopFileType.CAPABILITY_START, "true" );
     capabilities.setProperty( IHopFileType.CAPABILITY_STOP, "true" );
     capabilities.setProperty( IHopFileType.CAPABILITY_SAVE, "true" );
+    capabilities.setProperty( IHopFileType.CAPABILITY_SAVE_AS, "true" );
     capabilities.setProperty( IHopFileType.CAPABILITY_PAUSE, "true" );
     capabilities.setProperty( IHopFileType.CAPABILITY_PREVIEW, "true" );
     capabilities.setProperty( IHopFileType.CAPABILITY_DEBUG, "true" );
