@@ -88,6 +88,7 @@ public class ContextDialog extends Dialog {
   public static final String TOOLBAR_ITEM_COLLAPSE_ALL = "ContextDialog-Toolbar-10010-CollapseAll";
   public static final String TOOLBAR_ITEM_EXPAND_ALL = "ContextDialog-Toolbar-10020-ExpandAll";
   public static final String TOOLBAR_ITEM_ENABLE_CATEGORIES = "ContextDialog-Toolbar-10030-EnableCategories";
+  public static final String TOOLBAR_ITEM_CLEAR_SEARCH = "ContextDialog-Toolbar-10040-ClearSearch";
 
   public static final String AUDIT_TYPE_TOOLBAR_SHOW_CATEGORIES = "ContextDialogShowCategories";
   public static final String AUDIT_TYPE_CONTEXT_DIALOG = "ContextDialog";
@@ -668,6 +669,17 @@ public class ContextDialog extends Dialog {
     return (Button) checkboxItem.getControl();
   }
 
+  @GuiToolbarElement(
+    root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+    id = TOOLBAR_ITEM_CLEAR_SEARCH,
+    toolTip = "Clear search filter",
+    image = "ui/images/ClearText.svg",
+    separator = true
+  )
+  public void clearSearchFilter() {
+    wSearch.setText("");
+  }
+
   /**
    * This is where all the actions are drawn
    *
@@ -849,7 +861,9 @@ public class ContextDialog extends Dialog {
       // Pick the next category
       //
       categoryNr++;
-      y += yMargin;
+      if (!itemsToPaint.isEmpty()) {
+        y += yMargin;
+      }
     }
 
     totalContentHeight = y + heightOffSet;
