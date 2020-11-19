@@ -140,6 +140,8 @@ public class ContextDialog extends Dialog {
   private ToolBar toolBar;
   private GuiToolbarWidgets toolBarWidgets;
 
+  private static ContextDialog activeInstance;
+
   private enum OwnerType {
     CATEGORY,
     ITEM,
@@ -508,9 +510,16 @@ public class ContextDialog extends Dialog {
     } );
     wCanvas.addKeyListener( keyAdapter );
 
-    // Show the dialog now
+    // Layout all the widgets in the shell.
     //
     shell.layout();
+
+    // Set the active instance.
+    //
+    activeInstance = this;
+
+    // Show the dialog now
+    //
     shell.open();
 
     // Filter all actions by default
@@ -529,7 +538,18 @@ public class ContextDialog extends Dialog {
       }
     }
 
+    activeInstance = null;
+
     return selectedAction;
+  }
+
+  /**
+   * Gets the currently active instance
+   *
+   * @return The currently active instance or null if the dialog is not showing.
+   */
+  public static ContextDialog getInstance() {
+    return activeInstance;
   }
 
   private void recallToolbarSettings() {
@@ -899,7 +919,16 @@ public class ContextDialog extends Dialog {
     wCanvas.redraw();
   }
 
-  private void filter( String text ) {
+  /**
+   * Gets the search text widget
+   *
+   * @return the search text widget
+   */
+  public Text getSearchTextWidget() {
+    return wSearch;
+  }
+
+  public void filter( String text ) {
 
     if ( text == null ) {
       text = "";
