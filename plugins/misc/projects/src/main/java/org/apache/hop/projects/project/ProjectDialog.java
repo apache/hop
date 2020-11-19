@@ -82,6 +82,8 @@ public class ProjectDialog extends Dialog {
 
   private IVariables variables;
 
+  private boolean variablesChanged;
+
   public ProjectDialog( Shell parent, Project project, ProjectConfig projectConfig, IVariables variables ) {
     super( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE );
 
@@ -328,6 +330,7 @@ public class ProjectDialog extends Dialog {
     fdVariables.top = new FormAttachment( wlVariables, margin );
     fdVariables.bottom = new FormAttachment( wOK, -margin * 2 );
     wVariables.setLayoutData( fdVariables );
+    wVariables.addModifyListener( e-> { variablesChanged=true; } );
     // lastControl = wVariables;
 
     // When enter is hit, close the dialog
@@ -441,5 +444,21 @@ public class ProjectDialog extends Dialog {
     // Update the project to the right absolute configuration file
     //
     project.setConfigFilename( projectConfig.getActualProjectConfigFilename( variables ) );
+  }
+
+  /**
+   * Gets variablesChanged
+   *
+   * @return value of variablesChanged
+   */
+  public boolean isVariablesChanged() {
+    return variablesChanged;
+  }
+
+  /**
+   * @param variablesChanged The variablesChanged to set
+   */
+  public void setVariablesChanged( boolean variablesChanged ) {
+    this.variablesChanged = variablesChanged;
   }
 }
