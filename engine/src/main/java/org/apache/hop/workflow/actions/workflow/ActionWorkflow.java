@@ -570,7 +570,6 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         // Link both ways!
         workflow.getWorkflowTracker().setParentWorkflowTracker( parentWorkflow.getWorkflowTracker() );
 
-
         ActionWorkflowRunner runner = new ActionWorkflowRunner( workflow, result, nr, log );
         Thread jobRunnerThread = new Thread( runner );
         // PDI-6518

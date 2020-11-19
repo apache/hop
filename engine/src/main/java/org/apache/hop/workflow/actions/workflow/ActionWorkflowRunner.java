@@ -32,6 +32,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
+import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 
 /**
  * @author Matt
@@ -68,6 +69,11 @@ public class ActionWorkflowRunner implements Runnable {
       //
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowStart.id, getWorkflow() );
 
+      if (workflow instanceof LocalWorkflowEngine ) {
+        // We don't want to re-initialize the variables because we defined them already
+        //
+        ((LocalWorkflowEngine)workflow).setInitializingVariablesOnStart( false );
+      }
       result = workflow.startExecution();
     } catch ( HopException e ) {
       e.printStackTrace();
@@ -75,7 +81,7 @@ public class ActionWorkflowRunner implements Runnable {
       result.setResult( false );
       result.setNrErrors( 1 );
     } finally {
-      //[PDI-14981] otherwise will get null pointer exception if 'workflow finished' listeners will be using it
+      // Otherwise we will get a null pointer exception if 'workflow finished' listeners will be using it
       workflow.setResult( result );
       try {
         ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowFinish.id, getWorkflow() );
