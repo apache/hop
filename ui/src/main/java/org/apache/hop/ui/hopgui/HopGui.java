@@ -809,7 +809,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
   public void handleFileCapabilities( IHopFileType fileType, boolean running, boolean paused ) {
 
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE, IHopFileType.CAPABILITY_SAVE );
-    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE );
+    mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS );
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_FILE_CLOSE, IHopFileType.CAPABILITY_CLOSE );
 
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_SELECT_ALL, IHopFileType.CAPABILITY_SELECT );
@@ -831,7 +831,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     mainMenuWidgets.enableMenuItem( fileType, ID_MAIN_MENU_EDIT_NAV_NEXT, IHopFileType.CAPABILITY_FILE_HISTORY, getActivePerspective().hasNavigationNextFile() );
 
     mainToolbarWidgets.enableToolbarItem( fileType, ID_MAIN_TOOLBAR_SAVE, IHopFileType.CAPABILITY_SAVE );
-    mainToolbarWidgets.enableToolbarItem( fileType, ID_MAIN_TOOLBAR_SAVE_AS, IHopFileType.CAPABILITY_SAVE );
+    mainToolbarWidgets.enableToolbarItem( fileType, ID_MAIN_TOOLBAR_SAVE_AS, IHopFileType.CAPABILITY_SAVE_AS );
   }
 
   public IHopFileTypeHandler getActiveFileTypeHandler() {
