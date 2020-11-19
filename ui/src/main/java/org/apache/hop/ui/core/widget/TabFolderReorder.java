@@ -34,6 +34,7 @@ import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.DropTargetListener;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.TransferData;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -151,11 +152,13 @@ public class TabFolderReorder {
       Image dragImage = dragItem.getImage();
       String dragToolTip = dragItem.getToolTipText();
       boolean dragShowClose = dragItem.getShowClose();
+      Font dragFont = dragItem.getFont();
       Object dragData = dragItem.getData();
 
       dragItem.setText( item.getText() );
       dragItem.setImage( item.getImage() );
       dragItem.setToolTipText( item.getToolTipText() );
+      dragItem.setFont( item.getFont() );
       dragItem.setData( item.getData() );
       dragItem.setShowClose( item.getShowClose() );
       dragItem.setControl( item.getControl() );
@@ -163,6 +166,7 @@ public class TabFolderReorder {
       item.setText( dragText );
       item.setImage( dragImage );
       item.setToolTipText( dragToolTip );
+      item.setFont( dragFont );
       item.setData( dragData );
       item.setShowClose( dragShowClose );
       item.setControl( dragControl );
