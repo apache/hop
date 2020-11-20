@@ -24,6 +24,7 @@
 package org.apache.hop.pipeline.transforms.replacestring;
 
 import static org.apache.hop.core.ICheckResult.*;
+import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
@@ -103,10 +104,10 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
   protected static final String[] isUnicodeCode = { "no", "yes" };
 
   protected static final String[] caseSensitiveDesc = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
 
   protected static final String[] isUnicodeDesc = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
 
   public static final int CASE_SENSITIVE_NO = 0;
 
@@ -117,7 +118,7 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
   public static final int IS_UNICODE_YES = 1;
 
   protected static final String[] wholeWordDesc = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
 
   protected static final String[] wholeWordCode = { "no", "yes" };
 
@@ -126,7 +127,7 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
   public static final int WHOLE_WORD_YES = 1;
 
   protected static final String[] useRegExDesc = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
 
   protected static final String[] useRegExCode = { "no", "yes" };
 
