@@ -24,7 +24,7 @@
 package org.apache.hop.pipeline.transforms.replacestring;
 
 import static org.apache.hop.core.ICheckResult.*;
-import static org.apache.hop.i18n.MessageContants.*;
+import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.CheckResult;
