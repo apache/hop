@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.stringoperations;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
@@ -144,7 +146,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
     BaseMessages.getString( PKG, "StringOperationsMeta.LowerUpper.Upper" ) };
 
   public static final String[] initCapDesc = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
 
   public static final String[] initCapCode = { "no", "yes" };
 

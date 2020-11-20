@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.xml.addxml;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -330,8 +332,8 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
               false ),
           new ColumnInfo( BaseMessages.getString( PKG, "AddXMLDialog.Null.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
           new ColumnInfo( BaseMessages.getString( PKG, "AddXMLDialog.Attribute.Column" ),
-              ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, "System.Combo.Yes" ),
-                BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
+              ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
+                BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) }, true ),
           new ColumnInfo( BaseMessages.getString( PKG, "AddXMLDialog.AttributeParentName.Column" ),
               ColumnInfo.COLUMN_TYPE_TEXT, false ) };
     wFields =
@@ -516,8 +518,8 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
       if ( field.getNullString() != null ) {
         item.setText( 10, field.getNullString() );
       }
-      item.setText( 11, field.isAttribute() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
-          .getString( PKG, "System.Combo.No" ) );
+      item.setText( 11, field.isAttribute() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages
+          .getString( PKG, SYSTEM_COMBO_NO ) );
       if ( field.getAttributeParentName() != null ) {
         item.setText( 12, field.getAttributeParentName() );
       }
@@ -570,7 +572,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
       field.setDecimalSymbol( item.getText( 8 ) );
       field.setGroupingSymbol( item.getText( 9 ) );
       field.setNullString( item.getText( 10 ) );
-      field.setAttribute( BaseMessages.getString( PKG, "System.Combo.Yes" ).equals( item.getText( 11 ) ) );
+      field.setAttribute( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equals( item.getText( 11 ) ) );
       field.setAttributeParentName( item.getText( 12 ) );
 
       // CHECKSTYLE:Indentation:OFF

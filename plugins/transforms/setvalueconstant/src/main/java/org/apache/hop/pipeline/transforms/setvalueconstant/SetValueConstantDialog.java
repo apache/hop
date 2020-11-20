@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.setvalueconstant;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -168,7 +170,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
         BaseMessages.getString( PKG, "SetValueConstantDialog.Value.SetEmptyString" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {
-          BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } );
+          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } );
 
     wFields =
       new TableView(
@@ -288,8 +290,8 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
       if ( field.getReplaceMask() != null ) {
         ti.setText( 3, field.getReplaceMask() );
       }
-      ti.setText( 4, field.isEmptyString() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
-        .getString( PKG, "System.Combo.No" ) );
+      ti.setText( 4, field.isEmptyString() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages
+        .getString( PKG, SYSTEM_COMBO_NO ) );
 
     }
 
@@ -322,7 +324,7 @@ public class SetValueConstantDialog extends BaseTransformDialog implements ITran
       TableItem ti = wFields.getNonEmpty( i );
       SetValueConstantMeta.Field field = new SetValueConstantMeta.Field();
       field.setFieldName( ti.getText( 1 ) );
-      field.setEmptyString( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti.getText( 4 ) ) );
+      field.setEmptyString( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( ti.getText( 4 ) ) );
       field.setReplaceValue( field.isEmptyString() ? "" : ti.getText( 2 ) );
       field.setReplaceMask( field.isEmptyString() ? "" : ti.getText( 3 ) );
       fields.add( field );

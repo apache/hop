@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -88,8 +90,8 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
   private static final Class<?> PKG = TextFileInputMeta.class; // Needed by Translator
 
   private static final String[] YES_NO_COMBO =
-    new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
-      "System.Combo.Yes" ) };
+    new String[] { BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG,
+      SYSTEM_COMBO_YES ) };
 
   private CTabFolder wTabFolder;
 
@@ -1841,8 +1843,8 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
           ColumnInfo.COLUMN_TYPE_TEXT, false ), new ColumnInfo( BaseMessages.getString( PKG,
         "TextFileInputDialog.TrimTypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMetaString.trimTypeDesc,
         true ), new ColumnInfo( BaseMessages.getString( PKG, "TextFileInputDialog.RepeatColumn.Column" ),
-        ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, "System.Combo.Yes" ),
-        BaseMessages.getString( PKG, "System.Combo.No" ) }, true ) };
+        ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
+        BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) }, true ) };
 
     colinf[ 12 ].setToolTip( BaseMessages.getString( PKG, "TextFileInputDialog.RepeatColumn.Tooltip" ) );
 
@@ -2092,10 +2094,10 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       if ( filter.getFilterPosition() >= 0 ) {
         item.setText( 2, "" + filter.getFilterPosition() );
       }
-      item.setText( 3, filter.isFilterLastLine() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
-        .getString( PKG, "System.Combo.No" ) );
-      item.setText( 4, filter.isFilterPositive() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
-        .getString( PKG, "System.Combo.No" ) );
+      item.setText( 3, filter.isFilterLastLine() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages
+        .getString( PKG, SYSTEM_COMBO_NO ) );
+      item.setText( 4, filter.isFilterPositive() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages
+        .getString( PKG, SYSTEM_COMBO_NO ) );
     }
 
     // Date locale
@@ -2171,8 +2173,8 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       String ifNull = field.getIfNullValue();
       String trim = field.getTrimTypeDesc();
       String rep =
-        field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG,
-          "System.Combo.No" );
+        field.isRepeated() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString( PKG,
+          SYSTEM_COMBO_NO );
 
       if ( type != null ) {
         item.setText( 2, type );
@@ -2326,7 +2328,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       field.setNullString( item.getText( 10 ) );
       field.setIfNullValue( item.getText( 11 ) );
       field.setTrimType( ValueMetaString.getTrimTypeByDesc( item.getText( 12 ) ) );
-      field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 13 ) ) );
+      field.setRepeated( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 13 ) ) );
 
       // CHECKSTYLE:Indentation:OFF
       meta.inputFields[ i ] = field;
@@ -2340,9 +2342,9 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
 
       filter.setFilterString( item.getText( 1 ) );
       filter.setFilterPosition( Const.toInt( item.getText( 2 ), -1 ) );
-      filter.setFilterLastLine( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText(
+      filter.setFilterLastLine( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText(
         3 ) ) );
-      filter.setFilterPositive( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText(
+      filter.setFilterPositive( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText(
         4 ) ) );
     }
     // Error handling fields...
@@ -2644,8 +2646,8 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
               item.setText( 10, "" + field.getNullString() );
               item.setText( 11, "" + field.getIfNullValue() );
               item.setText( 12, "" + field.getTrimTypeDesc() );
-              item.setText( 13, field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages
-                .getString( PKG, "System.Combo.No" ) );
+              item.setText( 13, field.isRepeated() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages
+                .getString( PKG, SYSTEM_COMBO_NO ) );
             }
 
           }

@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.httppost;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -57,9 +59,9 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
   private static final Class<?> PKG = HttpPostMeta.class; // Needed by Translator
 
   private static final String[] YES_NO_COMBO = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
-  private static final String YES = BaseMessages.getString( PKG, "System.Combo.Yes" );
-  private static final String NO = BaseMessages.getString( PKG, "System.Combo.No" );
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
+  private static final String YES = BaseMessages.getString( PKG, SYSTEM_COMBO_YES );
+  private static final String NO = BaseMessages.getString( PKG, SYSTEM_COMBO_NO );
 
   private Label wlUrl;
   private TextVar wUrl;

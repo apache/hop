@@ -22,6 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.checksum;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -315,7 +317,7 @@ public class CheckSumDialog extends BaseTransformDialog implements ITransformDia
       IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
       if ( r != null ) {
         ITableItemInsertListener insertListener = ( tableItem, v ) -> {
-          tableItem.setText( 2, BaseMessages.getString( PKG, "System.Combo.Yes" ) );
+          tableItem.setText( 2, BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) );
           return true;
         };
         BaseTransformDialog

@@ -22,6 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.calculator;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -192,8 +194,8 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
         new ColumnInfo(
           BaseMessages.getString( PKG, "CalculatorDialog.RemoveColumn.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          BaseMessages.getString( PKG, "System.Combo.No" ),
-          BaseMessages.getString( PKG, "System.Combo.Yes" ) } ),
+          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ),
+          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) } ),
         new ColumnInfo(
           BaseMessages.getString( PKG, "CalculatorDialog.ConversionMask.Column" ),
           ColumnInfo.COLUMN_TYPE_FORMAT, 6 ),
@@ -358,8 +360,8 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
         }
         item
           .setText( 9, fn.isRemovedFromResult()
-            ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-            PKG, "System.Combo.No" ) );
+            ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
+            PKG, SYSTEM_COMBO_NO ) );
         item.setText( 10, Const.NVL( fn.getConversionMask(), "" ) );
         item.setText( 11, Const.NVL( fn.getDecimalSymbol(), "" ) );
         item.setText( 12, Const.NVL( fn.getGroupingSymbol(), "" ) );
@@ -405,7 +407,7 @@ public class CalculatorDialog extends BaseTransformDialog implements ITransformD
       int valueType = ValueMetaFactory.getIdForValueMeta( item.getText( 6 ) );
       int valueLength = Const.toInt( item.getText( 7 ), -1 );
       int valuePrecision = Const.toInt( item.getText( 8 ), -1 );
-      boolean removed = BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 9 ) );
+      boolean removed = BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 9 ) );
       String conversionMask = item.getText( 10 );
       String decimalSymbol = item.getText( 11 );
       String groupingSymbol = item.getText( 12 );

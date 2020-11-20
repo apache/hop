@@ -22,6 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.datagrid;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
@@ -172,8 +174,8 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
         new ColumnInfo(
           BaseMessages.getString( PKG, "DataGridDialog.Value.SetEmptyString" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          BaseMessages.getString( PKG, "System.Combo.Yes" ),
-          BaseMessages.getString( PKG, "System.Combo.No" ) } ),
+          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
+          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } ),
 
       };
 
@@ -455,8 +457,8 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
         item.setText( col++, Const.NVL( group, "" ) );
         item
           .setText( col++, input.isSetEmptyString()[ i ]
-            ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-            PKG, "System.Combo.No" ) );
+            ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
+            PKG, SYSTEM_COMBO_NO ) );
 
       }
     }
@@ -520,7 +522,7 @@ public class DataGridDialog extends BaseTransformDialog implements ITransformDia
         meta.getFieldPrecision()[ i ] = -1;
       }
       meta.isSetEmptyString()[ i ] =
-        BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( col++ ) );
+        BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( col++ ) );
 
       if ( meta.isSetEmptyString()[ i ] ) {
         meta.getFieldType()[ i ] = "String";
