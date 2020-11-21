@@ -19,9 +19,7 @@
 
 name: Hop PR Build
 
-on: 
-  pull_request:
-    branches: ['master']
+on: [push]
 
 
 jobs:
