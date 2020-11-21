@@ -43,4 +43,4 @@ jobs:
       - name: RAT Check
         run: mvn clean apache-rat:check
       - name: Build with Maven
-        run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -o -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -P '!assemblies' -Djacoco.skip=true --file pom.xml
+        run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -P '!assemblies' -Djacoco.skip=true --file pom.xml
