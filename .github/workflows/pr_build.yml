@@ -23,7 +23,6 @@ on:
   pull_request:
     branches: ['master']
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -34,7 +33,13 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
       - name: RAT Check
         run: mvn clean apache-rat:check
       - name: Build with Maven
-        run: mvn clean install -U -B -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -P !assemblies -Djacoco.skip=true --file pom.xml
+        run: MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"; mvn clean install -T 1C -B -C -e -fae -V -Dmaven.compiler.fork=true -Dsurefire.rerunFailingTestsCount=2 -P '!assemblies' -Djacoco.skip=true --file pom.xml
