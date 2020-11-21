@@ -22,6 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.getsubfolders;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -70,7 +72,7 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMe
   private static final Class<?> PKG = GetSubFoldersMeta.class; // Needed by Translator
 
   public static final String[] RequiredFoldersDesc = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
   public static final String[] RequiredFoldersCode = new String[] { "N", "Y" };
 
   public static final String NO = "N";

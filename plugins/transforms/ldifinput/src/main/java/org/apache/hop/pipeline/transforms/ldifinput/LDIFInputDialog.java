@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.ldifinput;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import netscape.ldap.LDAPAttribute;
 import netscape.ldap.util.LDIF;
 import netscape.ldap.util.LDIFAttributeContent;
@@ -775,8 +777,8 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
         new ColumnInfo(
           BaseMessages.getString( PKG, "LDIFInputDialog.FieldsTable.Repeat.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          BaseMessages.getString( PKG, "System.Combo.Yes" ),
-          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
+          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
+          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) }, true ),
 
       };
 
@@ -1241,8 +1243,8 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
         String decim = field.getDecimalSymbol();
         String trim = field.getTrimTypeDesc();
         String rep =
-          field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-            PKG, "System.Combo.No" );
+          field.isRepeated() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
+            PKG, SYSTEM_COMBO_NO );
 
         if ( name != null ) {
           item.setText( 1, name );
@@ -1389,7 +1391,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
       field.setDecimalSymbol( item.getText( 8 ) );
       field.setGroupSymbol( item.getText( 9 ) );
       field.setTrimType( LDIFInputField.getTrimTypeByDesc( item.getText( 10 ) ) );
-      field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 11 ) ) );
+      field.setRepeated( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 11 ) ) );
 
       //CHECKSTYLE:Indentation:OFF
       in.getInputFields()[ i ] = field;

@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.propertyinput;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.ICheckResult;
@@ -69,7 +71,7 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
   private static final Class<?> PKG = PropertyInputMeta.class; // Needed by Translator
 
   public static final String[] RequiredFilesDesc = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
 
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
 

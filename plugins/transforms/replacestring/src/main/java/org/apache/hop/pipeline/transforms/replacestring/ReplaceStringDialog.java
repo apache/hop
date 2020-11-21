@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.replacestring;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -159,7 +161,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
         BaseMessages.getString( PKG, "ReplaceStringDialog.ColumnInfo.SetEmptyString" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {
-          BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } );
+          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } );
 
     ciKey[ 6 ] =
       new ColumnInfo(
@@ -295,8 +297,8 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
         }
         item
           .setText( 6, input.isSetEmptyString()[ i ]
-            ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-            PKG, "System.Combo.No" ) );
+            ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
+            PKG, SYSTEM_COMBO_NO ) );
 
         if ( input.getFieldReplaceByString()[ i ] != null ) {
           item.setText( 7, input.getFieldReplaceByString()[ i ] );
@@ -339,7 +341,7 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
       inf.getReplaceByString()[ i ] = item.getText( 5 );
 
       inf.isSetEmptyString()[ i ] =
-        BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 6 ) );
+        BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 6 ) );
       if ( inf.isSetEmptyString()[ i ] ) {
         inf.getReplaceByString()[ i ] = "";
       }
@@ -374,11 +376,11 @@ public class ReplaceStringDialog extends BaseTransformDialog implements ITransfo
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           if ( v.getType() == IValueMeta.TYPE_STRING ) {
             // Only process strings
-            tableItem.setText( 3, BaseMessages.getString( PKG, "System.Combo.No" ) );
-            tableItem.setText( 6, BaseMessages.getString( PKG, "System.Combo.No" ) );
-            tableItem.setText( 8, BaseMessages.getString( PKG, "System.Combo.No" ) );
-            tableItem.setText( 9, BaseMessages.getString( PKG, "System.Combo.No" ) );
-            tableItem.setText( 10, BaseMessages.getString( PKG, "System.Combo.No" ) );
+            tableItem.setText( 3, BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
+            tableItem.setText( 6, BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
+            tableItem.setText( 8, BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
+            tableItem.setText( 9, BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
+            tableItem.setText( 10, BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
             return true;
           } else {
             return false;

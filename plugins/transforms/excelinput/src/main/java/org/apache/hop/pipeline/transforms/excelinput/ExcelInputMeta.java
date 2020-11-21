@@ -22,6 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.excelinput;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
@@ -75,10 +77,8 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
   private static final Class<?> PKG = ExcelInputMeta.class; // Needed by Translator
 
   public static final String[] RequiredFilesDesc = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
-
-  private static final String NO = "N";
 
   private static final String YES = "Y";
   public static final int TYPE_TRIM_NONE = 0;

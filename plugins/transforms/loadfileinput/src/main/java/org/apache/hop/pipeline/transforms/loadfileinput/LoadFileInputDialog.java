@@ -22,6 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
@@ -76,7 +78,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
   private static final Class<?> PKG = LoadFileInputMeta.class; // Needed by Translator
 
   private static final String[] YES_NO_COMBO = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
 
   private CTabFolder wTabFolder;
 
@@ -789,8 +791,8 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
         new ColumnInfo(
           BaseMessages.getString( PKG, "LoadFileInputDialog.FieldsTable.Repeat.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-          BaseMessages.getString( PKG, "System.Combo.Yes" ),
-          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
+          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
+          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) }, true ),
 
       };
 
@@ -1172,8 +1174,8 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
         String decim = field.getDecimalSymbol();
         String trim = field.getTrimTypeDesc();
         String rep =
-          field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-            PKG, "System.Combo.No" );
+          field.isRepeated() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
+            PKG, SYSTEM_COMBO_NO );
 
         if ( name != null ) {
           item.setText( 1, name );
@@ -1313,7 +1315,7 @@ public class LoadFileInputDialog extends BaseTransformDialog implements ITransfo
       field.setDecimalSymbol( item.getText( 8 ) );
       field.setGroupSymbol( item.getText( 9 ) );
       field.setTrimType( LoadFileInputField.getTrimTypeByDesc( item.getText( 10 ) ) );
-      field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 11 ) ) );
+      field.setRepeated( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 11 ) ) );
 
       //CHECKSTYLE:Indentation:OFF
       in.getInputFields()[ i ] = field;

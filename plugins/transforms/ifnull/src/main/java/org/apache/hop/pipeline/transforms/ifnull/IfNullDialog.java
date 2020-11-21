@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.ifnull;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
@@ -290,7 +292,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
       new ColumnInfo( BaseMessages.getString( PKG, "IfNullDialog.Value.Column" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
       new ColumnInfo( BaseMessages.getString( PKG, "IfNullDialog.Value.ConversionMask" ), ColumnInfo.COLUMN_TYPE_CCOMBO, Const.getDateFormats() ),
       new ColumnInfo( BaseMessages.getString( PKG, "IfNullDialog.Value.SetEmptyString" ), ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] {
-        BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } )
+        BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } )
     };
     colval[ 1 ].setUsingVariables( true );
 
@@ -385,7 +387,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
         BaseMessages.getString( PKG, "IfNullDialog.Value.SetEmptyString" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] {
-          BaseMessages.getString( PKG, "System.Combo.Yes" ), BaseMessages.getString( PKG, "System.Combo.No" ) } );
+          BaseMessages.getString( PKG, SYSTEM_COMBO_YES ), BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } );
 
     wFields =
       new TableView(
@@ -511,8 +513,8 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
       if ( input.getValueTypes()[ i ].getTypereplaceMask() != null ) {
         ti.setText( 3, input.getValueTypes()[ i ].getTypereplaceMask() );
       }
-      ti.setText( 4, input.getValueTypes()[ i ].isSetTypeEmptyString() ? BaseMessages.getString( PKG, "System.Combo.Yes" )
-        : BaseMessages.getString( PKG, "System.Combo.No" ) );
+      ti.setText( 4, input.getValueTypes()[ i ].isSetTypeEmptyString() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES )
+        : BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
 
     }
 
@@ -537,7 +539,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
         ti.setText( 3, input.getFields()[ i ].getReplaceMask() );
       }
       ti.setText( 4, input.getFields()[ i ].isSetEmptyString()
-        ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG, "System.Combo.No" ) );
+        ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) );
     }
 
     wFields.setRowNums();
@@ -586,7 +588,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     for ( int i = 0; i < nrtypes; i++ ) {
       TableItem ti = wValueTypes.getNonEmpty( i );
       input.getValueTypes()[ i ].setTypeName( ti.getText( 1 ) );
-      input.getValueTypes()[ i ].setTypeEmptyString( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase(
+      input.getValueTypes()[ i ].setTypeEmptyString( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase(
         ti.getText( 4 ) ) );
       if ( input.getValueTypes()[ i ].isSetTypeEmptyString() ) {
         input.getValueTypes()[ i ].setTypereplaceValue( "" );
@@ -601,7 +603,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     for ( int i = 0; i < nrFields; i++ ) {
       TableItem ti = wFields.getNonEmpty( i );
       input.getFields()[ i ].setFieldName( ti.getText( 1 ) );
-      input.getFields()[ i ].setEmptyString( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( ti
+      input.getFields()[ i ].setEmptyString( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( ti
         .getText( 4 ) ) );
       if ( input.getFields()[ i ].isSetEmptyString() ) {
         input.getFields()[ i ].setReplaceValue( "" );

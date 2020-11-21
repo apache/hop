@@ -22,6 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.rowgenerator;
 
+
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -259,8 +262,8 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
         new ColumnInfo(
           BaseMessages.getString( PKG, "System.Column.SetEmptyString" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
           new String[] {
-            BaseMessages.getString( PKG, "System.Combo.Yes" ),
-            BaseMessages.getString( PKG, "System.Combo.No" ) } )
+            BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
+            BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) } )
 
       };
 
@@ -370,8 +373,8 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
         item.setText( col++, Const.NVL( def, "" ) );
         item
           .setText( col++, input.isSetEmptyString()[ i ]
-            ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString(
-            PKG, "System.Combo.No" ) );
+            ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString(
+            PKG, SYSTEM_COMBO_NO ) );
 
       }
     }
@@ -432,7 +435,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
       meta.getDecimal()[ i ] = item.getText( 7 );
       meta.getGroup()[ i ] = item.getText( 8 );
       meta.isSetEmptyString()[ i ] =
-        BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 10 ) );
+        BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 10 ) );
 
       meta.getValue()[ i ] = meta.isSetEmptyString()[ i ] ? "" : item.getText( 9 );
       meta.getFieldType()[ i ] = meta.isSetEmptyString()[ i ] ? "String" : item.getText( 2 );

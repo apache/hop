@@ -23,6 +23,8 @@
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
@@ -84,7 +86,7 @@ public class JsonInputMeta
   private static final Class<?> PKG = JsonInputMeta.class; // for i18n purposes, needed by Translator2!!
 
   public static final String[] RequiredFilesDesc = new String[] {
-    BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
+    BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) };
 
   // TextFileInputMeta.Content.includeFilename
   /**

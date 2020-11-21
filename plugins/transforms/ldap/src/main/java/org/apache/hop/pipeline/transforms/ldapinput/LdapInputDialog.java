@@ -22,6 +22,8 @@
  ******************************************************************************/
 package org.apache.hop.pipeline.transforms.ldapinput;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.encryption.Encr;
@@ -1023,8 +1025,8 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
               BaseMessages.getString(PKG, "LdapInputDialog.FieldsTable.IsSortedKey.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, SYSTEM_COMBO_NO)
               },
               true),
           new ColumnInfo(
@@ -1065,8 +1067,8 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
               BaseMessages.getString(PKG, "LdapInputDialog.FieldsTable.Repeat.Column"),
               ColumnInfo.COLUMN_TYPE_CCOMBO,
               new String[] {
-                BaseMessages.getString(PKG, "System.Combo.Yes"),
-                BaseMessages.getString(PKG, "System.Combo.No")
+                BaseMessages.getString(PKG, SYSTEM_COMBO_YES),
+                BaseMessages.getString(PKG, SYSTEM_COMBO_NO)
               },
               true),
         };
@@ -1254,7 +1256,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
         } else {
           item.setText(3, BaseMessages.getString(PKG, "LdapInputField.FetchAttributeAs.String"));
         }
-        item.setText(4, BaseMessages.getString(PKG, "System.Combo.No"));
+        item.setText(4, BaseMessages.getString(PKG, SYSTEM_COMBO_NO));
         item.setText(5, v.getTypeDesc());
       }
       colinf[1].setComboValues(fieldsName);
@@ -1371,8 +1373,8 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
         String path = field.getAttribute();
         String issortedkey =
             field.isSortedKey()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No");
+                ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, SYSTEM_COMBO_NO);
         String returntype = field.getFetchAttributeAsDesc();
         String type = field.getTypeDesc();
         String format = field.getFormat();
@@ -1384,8 +1386,8 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
         String trim = field.getTrimTypeDesc();
         String rep =
             field.isRepeated()
-                ? BaseMessages.getString(PKG, "System.Combo.Yes")
-                : BaseMessages.getString(PKG, "System.Combo.No");
+                ? BaseMessages.getString(PKG, SYSTEM_COMBO_YES)
+                : BaseMessages.getString(PKG, SYSTEM_COMBO_NO);
 
         if (name != null) {
           item.setText(1, name);
@@ -1504,7 +1506,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
       field.setAttribute(item.getText(2));
       field.setFetchAttributeAs(LdapInputField.getFetchAttributeAsByDesc(item.getText(3)));
       field.setSortedKey(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(4)));
+          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(4)));
       field.setType(ValueMetaFactory.getIdForValueMeta(item.getText(5)));
       field.setFormat(item.getText(6));
       field.setLength(Const.toInt(item.getText(7), -1));
@@ -1514,7 +1516,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
       field.setGroupSymbol(item.getText(11));
       field.setTrimType(LdapInputField.getTrimTypeByDesc(item.getText(12)));
       field.setRepeated(
-          BaseMessages.getString(PKG, "System.Combo.Yes").equalsIgnoreCase(item.getText(13)));
+          BaseMessages.getString(PKG, SYSTEM_COMBO_YES).equalsIgnoreCase(item.getText(13)));
 
       // CHECKSTYLE:Indentation:OFF
       in.getInputFields()[i] = field;

@@ -24,6 +24,8 @@
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.RowMetaAndData;
@@ -970,8 +972,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         new ColumnInfo( BaseMessages.getString( PKG, "GetXMLDataDialog.FieldsTable.TrimType.Column" ),
           ColumnInfo.COLUMN_TYPE_CCOMBO, GetXmlDataField.trimTypeDesc, true ),
         new ColumnInfo( BaseMessages.getString( PKG, "GetXMLDataDialog.FieldsTable.Repeat.Column" ),
-          ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, "System.Combo.Yes" ),
-          BaseMessages.getString( PKG, "System.Combo.No" ) }, true ),
+          ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { BaseMessages.getString( PKG, SYSTEM_COMBO_YES ),
+          BaseMessages.getString( PKG, SYSTEM_COMBO_NO ) }, true ),
 
       };
 
@@ -1531,8 +1533,8 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
         String decim = field.getDecimalSymbol();
         String trim = field.getTrimTypeDesc();
         String rep =
-          field.isRepeated() ? BaseMessages.getString( PKG, "System.Combo.Yes" ) : BaseMessages.getString( PKG,
-            "System.Combo.No" );
+          field.isRepeated() ? BaseMessages.getString( PKG, SYSTEM_COMBO_YES ) : BaseMessages.getString( PKG,
+            SYSTEM_COMBO_NO );
 
         if ( name != null ) {
           item.setText( 1, name );
@@ -1683,7 +1685,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
       field.setDecimalSymbol( item.getText( 10 ) );
       field.setGroupSymbol( item.getText( 11 ) );
       field.setTrimType( GetXmlDataField.getTrimTypeByDesc( item.getText( 12 ) ) );
-      field.setRepeated( BaseMessages.getString( PKG, "System.Combo.Yes" ).equalsIgnoreCase( item.getText( 13 ) ) );
+      field.setRepeated( BaseMessages.getString( PKG, SYSTEM_COMBO_YES ).equalsIgnoreCase( item.getText( 13 ) ) );
 
       // CHECKSTYLE:Indentation:OFF
       in.getInputFields()[ i ] = field;

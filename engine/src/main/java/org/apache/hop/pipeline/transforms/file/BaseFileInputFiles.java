@@ -22,6 +22,8 @@
 
 package org.apache.hop.pipeline.transforms.file;
 
+import static org.apache.hop.i18n.ConstMessages.*;
+
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.i18n.BaseMessages;
@@ -47,8 +49,8 @@ public class BaseFileInputFiles implements Cloneable {
 
   public static final String[] RequiredFilesCode = new String[] { "N", "Y" };
   public static final String[] RequiredFilesDesc =
-    new String[] { BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG,
-      "System.Combo.Yes" ) };
+    new String[] { BaseMessages.getString( PKG, SYSTEM_COMBO_NO ), BaseMessages.getString( PKG,
+        SYSTEM_COMBO_YES ) };
 
   /**
    * Array of filenames
