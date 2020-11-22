@@ -24,8 +24,6 @@ package org.apache.hop.run;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.IExecutionConfiguration;
-import org.apache.hop.metadata.api.IHasHopMetadataProvider;
-import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -38,6 +36,7 @@ import org.apache.hop.core.parameters.INamedParams;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
+import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.util.HopMetadataUtil;
@@ -45,6 +44,7 @@ import org.apache.hop.pipeline.PipelineExecutionConfiguration;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineFactory;
+import org.apache.hop.server.HopServer;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -95,6 +95,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   private CommandLine cmd;
   private ILogChannel log;
   private IHopMetadataProvider metadataProvider;
+  private boolean finishedWithoutError;
 
   public void run() {
     validateOptions();
@@ -139,7 +140,6 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
           }
         }
       }
-
       // Picks up these system settings in the variables
       //
       buildVariableSpace();
@@ -190,7 +190,6 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Now run the pipeline using the run configuration
       //
       runPipeline( cmd, log, configuration, pipelineMeta );
-
     } catch ( Exception e ) {
       throw new ExecutionException( cmd, "There was an error during execution of pipeline '" + filename + "'", e );
     }
@@ -227,6 +226,8 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       pipeline.prepareExecution();
       pipeline.startThreads();
       pipeline.waitUntilFinished();
+      //TODO: how to see if a pipeline fails? getresult always return true
+      setFinishedWithoutError(true);
     } catch ( Exception e ) {
       throw new ExecutionException( cmd, "Error running pipeline locally", e );
     }
@@ -287,6 +288,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       workflow.activateParameters();
 
       workflow.startExecution();
+      setFinishedWithoutError(workflow.getResult().getResult());
     } catch ( Exception e ) {
       throw new ExecutionException( cmd, "Error running workflow locally", e );
     }
@@ -322,11 +324,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     }
     if (filename.toLowerCase().endsWith( ".hpl" )) {
       return true;
-    }
-    if (filename.toLowerCase().endsWith( ".hwf" )) {
+    } else {
       return false;
     }
-    return false;
   }
 
   private boolean isWorkflow() {
@@ -335,11 +335,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     }
     if (filename.toLowerCase().endsWith( ".hwf" )) {
       return true;
-    }
-    if (filename.toLowerCase().endsWith( ".hpl" )) {
+    } else {
       return false;
     }
-    return false;
   }
 
 
@@ -673,7 +671,23 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     this.metadataProvider = metadataProvider;
   }
 
-  public static void main( String[] args ) {
+  /**
+   * Gets finished status of pipeline or workflow
+   *
+   * @return boolean indicating no errors
+   */
+  public boolean isFinishedWithoutError() {
+    return finishedWithoutError;
+  }
+
+  /**
+   * @param finishedWithoutError Boolean indicating if pipeline or workflow finished without errors
+   */
+  public void setFinishedWithoutError(boolean finishedWithoutError) {
+    this.finishedWithoutError = finishedWithoutError;
+  }
+
+  public static void main(String[] args ) {
 
     HopRun hopRun = new HopRun();
     try {
@@ -684,7 +698,13 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
         System.exit( 1 );
       } else {
         hopRun.run();
-        System.exit( 0 );
+        System.out.println(hopRun.isFinishedWithoutError());
+        if (hopRun.isFinishedWithoutError()) {
+          System.exit( 0 );
+        } else {
+          System.exit( 1);
+        }
+
       }
     } catch ( ParameterException e ) {
       System.err.println( e.getMessage() );
