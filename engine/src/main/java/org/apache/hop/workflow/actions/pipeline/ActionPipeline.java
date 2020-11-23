@@ -891,7 +891,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   }
 
   public void prepareFieldNamesParameters( String[] parameters, String[] parameterFieldNames, String[] parameterValues,
-                                           INamedParams namedParam, ActionPipeline jobEntryPipeline )
+                                           INamedParams namedParam, ActionPipeline actionPipeline )
     throws UnknownParamException {
     for ( int idx = 0; idx < parameters.length; idx++ ) {
       // Grab the parameter value set in the Pipeline action
@@ -899,7 +899,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       //
       String thisValue = namedParam.getParameterValue( parameters[ idx ] );
       // Set value only if is not empty at namedParam and exists in parameterFieldNames
-      if ( !Utils.isEmpty( thisValue ) && idx < parameterFieldNames.length ) {
+      if ( idx < parameterFieldNames.length ) {
         // If exists then ask if is not empty
         if ( !Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
           // If is not empty then we have to ask if it exists too in parameterValues array, since the values in
@@ -907,11 +907,11 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           if ( idx < parameterValues.length ) {
             // If is empty at parameterValues array, then we can finally add that variable with that value
             if ( Utils.isEmpty( Const.trim( parameterValues[ idx ] ) ) ) {
-              jobEntryPipeline.setVariable( parameters[ idx ], thisValue );
+              actionPipeline.setVariable( parameters[ idx ], Const.NVL(thisValue, "") );
             }
           } else {
             // Or if not in parameterValues then we can add that variable with that value too
-            jobEntryPipeline.setVariable( parameters[ idx ], thisValue );
+            actionPipeline.setVariable( parameters[ idx ], Const.NVL(thisValue, "") );
           }
         }
       }

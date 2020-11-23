@@ -1801,7 +1801,7 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
 
     result.setRows( resultRows );
     if ( !Utils.isEmpty( resultFiles ) ) {
-      result.setResultFiles( new HashMap<String, ResultFile>() );
+      result.setResultFiles( new HashMap<>() );
       for ( ResultFile resultFile : resultFiles ) {
         result.getResultFiles().put( resultFile.toString(), resultFile );
       }
@@ -2785,11 +2785,9 @@ public abstract class Pipeline implements IVariables, INamedParams, IHasLogChann
         defValue = "";
       }
 
-      if ( Utils.isEmpty( value ) ) {
-        setVariable( key, Const.NVL( defValue, "" ) );
-      } else {
-        setVariable( key, Const.NVL( value, "" ) );
-      }
+      // Set the variable of "" if no value or default value was found.
+      //
+      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
     }
   }
 

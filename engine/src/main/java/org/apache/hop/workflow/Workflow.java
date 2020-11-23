@@ -1139,11 +1139,9 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
         defValue = "";
       }
 
-      if ( Utils.isEmpty( value ) ) {
-        setVariable( key, Const.NVL( defValue, "" ) );
-      } else {
-        setVariable( key, Const.NVL( value, "" ) );
-      }
+      // Set the variable of "" if no value or default value was found.
+      //
+      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
     }
   }
 

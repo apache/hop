@@ -1235,11 +1235,9 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
         defValue = "";
       }
 
-      if ( Utils.isEmpty( value ) ) {
-        setVariable( key, defValue );
-      } else {
-        setVariable( key, value );
-      }
+      // Set the variable of "" if no value or default value was found.
+      //
+      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
     }
   }
 

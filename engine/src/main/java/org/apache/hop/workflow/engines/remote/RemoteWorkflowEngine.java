@@ -596,11 +596,9 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         defValue = "";
       }
 
-      if ( Utils.isEmpty( value ) ) {
-        setVariable( key, Const.NVL( defValue, "" ) );
-      } else {
-        setVariable( key, Const.NVL( value, "" ) );
-      }
+      // Set the variable of "" if no value or default value was found.
+      //
+      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
     }
   }
 

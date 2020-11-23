@@ -34,6 +34,7 @@ import org.apache.beam.sdk.metrics.MetricResults;
 import org.apache.beam.sdk.metrics.MetricsFilter;
 import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -1405,11 +1406,9 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
         defValue = "";
       }
 
-      if ( Utils.isEmpty( value ) ) {
-        setVariable( key, defValue );
-      } else {
-        setVariable( key, value );
-      }
+      // Set the variable of "" if no value or default value was found.
+      //
+      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
     }
   }
 
