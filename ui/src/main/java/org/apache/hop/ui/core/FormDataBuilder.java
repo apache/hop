@@ -91,6 +91,10 @@ public class FormDataBuilder implements Cloneable {
     return top( new FormAttachment( control, margin ) );
   }
 
+  public FormDataBuilder top( Control control, int margin, int alignment ) {
+    return top( new FormAttachment( control, margin, alignment ) );
+  }
+
   public FormDataBuilder bottom( Control control, int margin ) {
     return bottom( new FormAttachment( control, margin ) );
   }
