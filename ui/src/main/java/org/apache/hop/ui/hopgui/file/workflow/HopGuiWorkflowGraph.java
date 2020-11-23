@@ -792,7 +792,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // Notes?
           if ( selectedNote != null ) {
             if ( e.button == 1 ) {
-              if ( lastClick.x == e.x && lastClick.y == e.y ) {
+              if ( lastClick.x == real.x && lastClick.y == real.y ) {
                 // Flip selection when control is pressed!
                 if ( control ) {
                   selectedNote.flipSelected();
@@ -1769,16 +1769,26 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     return ni;
   }
 
-  public void editNote() {
+  @GuiContextAction(
+    id = "workflow-graph-10-edit-note",
+    parentId = HopGuiWorkflowNoteContext.CONTEXT_ID,
+    type = GuiActionType.Modify,
+    name = "Edit",
+    tooltip = "Edit the note",
+    image = "ui/images/Edit.svg",
+    category = "Basic",
+    categoryOrder = "1"
+  )
+  public void editNote(HopGuiWorkflowNoteContext context) {
     selectionRegion = null;
-    editNote( getCurrentNote() );
+    editNote( context.getNotePadMeta() );
   }
 
   @GuiContextAction(
-    id = "workflow-graph-delete-note",
+    id = "workflow-graph-20-delete-note",
     parentId = HopGuiWorkflowNoteContext.CONTEXT_ID,
     type = GuiActionType.Delete,
-    name = "Delete the note",
+    name = "Delete",
     tooltip = "Delete the note",
     image = "ui/images/generic-delete.svg",
     category = "Basic",
