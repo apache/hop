@@ -316,7 +316,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     wOk.addListener( SWT.Selection, e -> ok() );
     wPreview = new Button( shell, SWT.PUSH );
     wPreview.setText( BaseMessages.getString( PKG, "TextFileInputDialog.Preview.Button" ) );
-    wPreview.addListener( SWT.Selection, e -> setMinimalWidth() );
+    wPreview.addListener( SWT.Selection, e -> preview() );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
     wCancel.addListener( SWT.Selection, e -> cancel() );
@@ -448,7 +448,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
         BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),
         BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
-      false )
+      true )
     );
 
     // Detect X or ALT-F4 or something that kills this window...
