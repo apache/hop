@@ -2343,10 +2343,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "pipeline-graph-edit-note",
+    id = "pipeline-graph-10-edit-note",
     parentId = HopGuiPipelineNoteContext.CONTEXT_ID,
     type = GuiActionType.Modify,
-    name = "Edit the note",
+    name = "Edit",
     tooltip = "Edit the note",
     image = "ui/images/Edit.svg",
     category = "Basic",
@@ -2358,10 +2358,10 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   }
 
   @GuiContextAction(
-    id = "pipeline-graph-delete-note",
+    id = "pipeline-graph-20-delete-note",
     parentId = HopGuiPipelineNoteContext.CONTEXT_ID,
     type = GuiActionType.Delete,
-    name = "Delete the note",
+    name = "Delete",
     tooltip = "Delete the note",
     image = "ui/images/generic-delete.svg",
     category = "Basic",
