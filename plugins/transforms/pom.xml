@@ -120,6 +120,7 @@
         <module>mergejoin</module>
         <module>mergerows</module>
         <module>metainject</module>
+        <module>mongodb</module>
         <module>multimerge</module>
         <module>normaliser</module>
         <module>nullif</module>
