@@ -24,9 +24,13 @@ package org.apache.hop.core;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.config.HopConfig;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -178,14 +182,16 @@ public class Props implements Cloneable {
     setProperty( STRING_CUSTOM_PARAMETER + parameterName, value );
   }
 
-  public void clearCustomParameters() {
-    Map<String, Object> configMap = HopConfig.getInstance().getConfigMap();
-    for (String key : configMap.keySet() ) {
-      if ( key.startsWith( STRING_CUSTOM_PARAMETER ) ) {
-        // Clear this one
-        configMap.remove( key );
+  public void clearCustomParameters() throws HopException {
+    Map<String, String> configMap = HopConfig.readGuiProperties();
+    Iterator<Map.Entry<String, String>> iterator = configMap.entrySet().iterator();
+    while (iterator.hasNext()) {
+      Map.Entry<String, String> entry = iterator.next();
+      if (entry.getKey().startsWith( STRING_CUSTOM_PARAMETER )) {
+        iterator.remove();
       }
     }
+    HopConfig.getInstance().saveToFile();
   }
 
   public void reset() {
