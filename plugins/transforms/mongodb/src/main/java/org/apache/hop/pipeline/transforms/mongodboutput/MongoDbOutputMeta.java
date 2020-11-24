@@ -52,7 +52,7 @@ import java.util.List;
     image = "MongoDB.svg",
     name = "MongoDB output",
     description = "Writes to a Mongo DB collection",
-    documentationUrl = "Products/MongoDB_Output",
+    documentationUrl = "https://hop.apache.org/manual/latest/plugins/transforms/mongodboutput.html",
     categoryDescription = "Output")
 @InjectionSupported(
     localizationPrefix = "MongoDbOutput.Injection.",
