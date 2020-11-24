@@ -521,7 +521,7 @@ public class HopGitPerspective implements IHopPerspective {
     String repositoryName = combo.getText();
     try {
       MetadataManager<GitRepository> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), GitRepository.class );
-      if ( manager.editMetadata( repositoryName ) ) {
+      if ( manager.editWithDialog( repositoryName ) ) {
         refreshGitRepositoriesList();
         selectRepositoryInList( repositoryName );
       }
@@ -568,7 +568,7 @@ public class HopGitPerspective implements IHopPerspective {
   )
   public void addNewRepository() {
     MetadataManager<GitRepository> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), GitRepository.class );
-    GitRepository gitRepository = manager.newMetadata();
+    GitRepository gitRepository = manager.newWithDialog();
     if ( gitRepository != null ) {
       refreshGitRepositoriesList();
       selectRepositoryInList( gitRepository.getName() );
@@ -583,7 +583,7 @@ public class HopGitPerspective implements IHopPerspective {
   )
   public void deleteSelectedRepository() {
     MetadataManager<GitRepository> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), GitRepository.class );
-    if ( manager.deleteMetadata() ) {
+    if ( manager.delete() ) {
       refreshGitRepositoriesList();
     }
   }

@@ -157,11 +157,11 @@ public class MetadataExplorerDialog {
             MetadataManager<IHopMetadata> manager = new MetadataManager<>( HopGui.getInstance().getVariables(), metadataProvider, metadataClass );
 
             if ( StringUtils.isEmpty( objectName ) ) {
-              if (manager.newMetadata()!=null) {
+              if (manager.newWithDialog()!=null) {
                 refreshTree();
               }
             } else {
-              if (manager.editMetadata(objectName)) {
+              if (manager.editWithDialog(objectName)) {
                 refreshTree();
               }
             }
@@ -203,7 +203,7 @@ public class MetadataExplorerDialog {
             newItem.addSelectionListener( new SelectionAdapter() {
               @Override
               public void widgetSelected( SelectionEvent arg0 ) {
-                if (manager.newMetadata()!=null) {
+                if (manager.newWithDialog()!=null) {
                   refreshTree();
                 }
               }
@@ -216,7 +216,7 @@ public class MetadataExplorerDialog {
               editItem.addSelectionListener( new SelectionAdapter() {
                 @Override
                 public void widgetSelected( SelectionEvent arg0 ) {
-                  if (manager.editMetadata( objectName )) {
+                  if (manager.editWithDialog( objectName )) {
                     refreshTree();
                   }
                 }
@@ -227,7 +227,7 @@ public class MetadataExplorerDialog {
               removeItem.addSelectionListener( new SelectionAdapter() {
                 @Override
                 public void widgetSelected( SelectionEvent arg0 ) {
-                  if (manager.deleteMetadata( objectName )) {
+                  if (manager.delete( objectName )) {
                     refreshTree();
                   }
                 }

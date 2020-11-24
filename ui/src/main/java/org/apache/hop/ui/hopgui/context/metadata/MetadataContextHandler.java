@@ -70,7 +70,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
       hopMetadata.name(),
       "Creates a new " + hopMetadata.name() + " : " + hopMetadata.description(),
       hopMetadata.iconImage(),
-      ( shiftClicked, controlClicked, parameters ) -> metadataManager.newMetadata() );
+      ( shiftClicked, controlClicked, parameters ) -> metadataManager.newWithEditor() );
     newAction.setClassLoader( metadataObjectClass.getClassLoader() );
     newAction.setCategory( "Metadata" );
     newAction.setCategoryOrder( "2" );
@@ -82,7 +82,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
       hopMetadata.name(),
       "Edits a " + hopMetadata.name() + " : " + hopMetadata.description(),
       hopMetadata.iconImage(),
-      ( shiftClicked, controlClicked, parameters ) -> metadataManager.editMetadata() );
+      ( shiftClicked, controlClicked, parameters ) -> metadataManager.edit() );
     editAction.setClassLoader( metadataObjectClass.getClassLoader() );
     editAction.setCategory( "Metadata" );
     editAction.setCategoryOrder( "2" );
@@ -94,7 +94,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
       hopMetadata.name(),
       "After confirmation this deletes a " + hopMetadata.name() + " : " + hopMetadata.description(),
       hopMetadata.iconImage(),
-      ( shiftClicked, controlClicked, parameters ) -> metadataManager.deleteMetadata() );
+      ( shiftClicked, controlClicked, parameters ) -> metadataManager.delete() );
     deleteAction.setClassLoader( metadataObjectClass.getClassLoader() );
     deleteAction.setCategory( "Metadata" );
     deleteAction.setCategoryOrder( "2" );

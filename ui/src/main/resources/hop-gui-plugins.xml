@@ -26,6 +26,11 @@
   </gui-plugin>
 
   <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective</classname>
+    <description>This perspective allows you to see and edit all available metadata</description>
+  </gui-plugin>
+  
+  <gui-plugin>
     <classname>org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph</classname>
     <description>Pipeline Graph tab</description>
   </gui-plugin>
