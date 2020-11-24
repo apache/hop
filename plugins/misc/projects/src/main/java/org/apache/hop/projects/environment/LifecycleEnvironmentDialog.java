@@ -25,6 +25,7 @@ package org.apache.hop.projects.environment;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariablesConfigFile;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.projects.config.ProjectsConfig;
@@ -78,11 +79,15 @@ public class LifecycleEnvironmentDialog extends Dialog {
   private Button wbAdd;
   private Button wbEdit;
 
+  private String originalName;
+
   public LifecycleEnvironmentDialog( Shell parent, LifecycleEnvironment environment, IVariables variables ) {
     super( parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE );
 
     this.environment = environment;
     this.variables = variables;
+
+    this.originalName = environment.getName();
 
     props = PropsUi.getInstance();
   }
@@ -287,10 +292,26 @@ public class LifecycleEnvironmentDialog extends Dialog {
 
 
   private void ok() {
+
+    try {
+      String environmentName = wName.getText();
+      if (StringUtils.isEmpty( environmentName )) {
+        throw new HopException("Please give your environment a name");
+      }
+      if (StringUtils.isNotEmpty( originalName )) {
+        if (!originalName.equals(environmentName)) {
+          wName.setText(originalName);
+          throw new HopException("Sorry, renaming environment '"+originalName+"' is not supported.");
+        }
+      }
+
     getInfo( environment );
     returnValue = environment.getName();
 
     dispose();
+    } catch(Exception e) {
+      new ErrorDialog( shell, "Error", "There is a configuration error in the environment", e );
+    }
   }
 
   private void cancel() {

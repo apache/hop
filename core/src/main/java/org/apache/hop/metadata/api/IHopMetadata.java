@@ -28,4 +28,5 @@ package org.apache.hop.metadata.api;
  */
 public interface IHopMetadata {
   String getName();
+  void setName(String name);
 }

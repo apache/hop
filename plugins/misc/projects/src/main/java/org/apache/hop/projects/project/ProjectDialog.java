@@ -82,6 +82,8 @@ public class ProjectDialog extends Dialog {
 
   private boolean variablesChanged;
 
+  private String originalName;
+
   public ProjectDialog(
       Shell parent, Project project, ProjectConfig projectConfig, IVariables variables) {
     super(parent, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL | SWT.RESIZE);
@@ -93,6 +95,7 @@ public class ProjectDialog extends Dialog {
 
     this.variables = new Variables();
     this.variables.initializeVariablesFrom(null);
+    this.originalName = projectConfig.getProjectName();
     project.modifyVariables(variables, projectConfig, Collections.emptyList(), null);
   }
 
@@ -405,6 +408,19 @@ public class ProjectDialog extends Dialog {
             "Please specify an existing home folder for your project. Folder '"
                 + homeFolder
                 + "' doesn't seem to exist.");
+      }
+
+      // Renaming the project is not supported.
+      //
+      String projectName = wName.getText();
+      if (StringUtils.isEmpty( projectName )) {
+        throw new HopException("Please give your new project a name");
+      }
+      if (StringUtils.isNotEmpty( originalName )) {
+        if (!projectName.equals( originalName )) {
+          wName.setText( originalName );
+          throw new HopException("Sorry, renaming project '"+originalName+"' is not supported");
+        }
       }
 
       getInfo(project, projectConfig);

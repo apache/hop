@@ -273,17 +273,35 @@ public class MetadataManager<T extends IHopMetadata> {
       throw new HopException( "Unable to find dialog class (" + dialogClassName + ") constructor with arguments: Shell, IHopMetadataProvider, T and optionally IVariables" );
     }
 
-    IMetadataDialog dialog = constructor.newInstance( constructorParameters );
-    String name = dialog.open();
-    if ( name != null ) {
-      // Save it in the metadata
-      serializer.save( object );
+    String originalName = object.getName();
+    while (true) {
+      IMetadataDialog dialog = constructor.newInstance(constructorParameters);
+      String name = dialog.open();
+      if (name != null) {
 
-      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetadataObjectUpdated.id, object );
+        // Changing the name of a metadata object is not yet supported.
+        //
+        if (StringUtils.isNotEmpty(originalName) && !originalName.equals(name)) {
+          MessageBox box = new MessageBox( hopGui.getShell(), SWT.ICON_ERROR | SWT.OK );
+          box.setText( "Sorry" );
+          box.setMessage( "Sorry, renaming metadata object '"+originalName+"' is not possible!" );
+          box.open();
+          object.setName( originalName );
+          continue;
+        }
 
-      return true;
-    } else {
-      return false;
+        // Save it in the metadata
+        serializer.save(object);
+
+        ExtensionPointHandler.callExtensionPoint(
+            HopGui.getInstance().getLog(),
+            HopExtensionPoint.HopGuiMetadataObjectUpdated.id,
+            object);
+
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 
