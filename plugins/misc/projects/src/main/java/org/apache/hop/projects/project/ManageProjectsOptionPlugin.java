@@ -126,7 +126,7 @@ public class ManageProjectsOptionPlugin implements IConfigOptions {
     }
   }
 
-  private void logProjectDetails( ILogChannel log, ProjectConfig projectConfig, Project project ) {
+  private void logProjectDetails( ILogChannel log, ProjectConfig projectConfig, Project project ) throws HopException {
     String projectHome = projectConfig.getProjectHome();
     log.logBasic( "  " + projectConfig.getProjectName() + " : " + projectHome );
     log.logBasic( "    Configuration file: " + projectConfig.getActualProjectConfigFilename( Variables.getADefaultVariableSpace() ) );
