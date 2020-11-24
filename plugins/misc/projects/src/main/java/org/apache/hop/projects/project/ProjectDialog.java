@@ -25,11 +25,13 @@ package org.apache.hop.projects.project;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariable;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -372,15 +374,22 @@ public class ProjectDialog extends Dialog {
   private void updateIVariables() {
     Project env = new Project();
     ProjectConfig pc = new ProjectConfig();
-    getInfo( env, pc );
+    try {
+      getInfo( env, pc );
     env.modifyVariables( variables, pc, Collections.emptyList(), null );
+    } catch(HopException e) {
+      new ErrorDialog( shell, "Error", "There is a configuration error in the project:" ,e );
+    }
   }
 
   private void ok() {
+    try {
     getInfo( project, projectConfig );
     returnValue = projectConfig.getProjectName();
-
     dispose();
+    } catch(HopException e) {
+      new ErrorDialog( shell, "Error", "There is a configuration error in the project:" ,e );
+    }
   }
 
   private void cancel() {
@@ -417,7 +426,7 @@ public class ProjectDialog extends Dialog {
     wVariables.optWidth( true );
   }
 
-  private void getInfo( Project project, ProjectConfig projectConfig ) {
+  private void getInfo( Project project, ProjectConfig projectConfig ) throws HopException {
 
     projectConfig.setProjectName( wName.getText() );
     projectConfig.setProjectHome( wHome.getText() );

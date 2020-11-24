@@ -64,14 +64,33 @@ public class ProjectConfig {
     return Objects.hash( projectName );
   }
 
-  public String getActualProjectConfigFilename(  IVariables variables ) {
+  /**
+   * The full path to the project config filename
+   * @param variables
+   * @return The path to the project config filename
+   * @throws HopException In case the home folder doesn't exist or an invalid filename/path is being used.
+   */
+  public String getActualProjectConfigFilename(  IVariables variables ) throws HopException {
     String actualHomeFolder = variables.environmentSubstitute( getProjectHome() );
+    File actualHome = new File( actualHomeFolder );
+    if (!actualHome.exists()) {
+      throw new HopException("Project home folder '"+actualHomeFolder+"' does not exist");
+    }
     String actualConfigFilename = variables.environmentSubstitute( getConfigFilename() );
-    return FilenameUtils.concat( actualHomeFolder, actualConfigFilename );
+    String fullFilename = FilenameUtils.concat( actualHome.getAbsolutePath(), actualConfigFilename );
+    if (fullFilename==null) {
+      throw new HopException("Unable to determine full path to the configuration file '"+actualConfigFilename+"' in home folder '"+actualHomeFolder);
+    }
+    return fullFilename;
   }
 
   public Project loadProject( IVariables variables ) throws HopException {
     String configFilename = getActualProjectConfigFilename( variables );
+    if (configFilename==null) {
+      String projHome = variables.environmentSubstitute( getProjectHome() );
+      String confFile = variables.environmentSubstitute( getConfigFilename() );
+      throw new HopException("Invalid project folder provided: home folder: '"+projHome+"', config file: '"+confFile+"'");
+    }
     Project project = new Project(configFilename);
     if (new File(configFilename).exists()) {
       project.readFromFile();
