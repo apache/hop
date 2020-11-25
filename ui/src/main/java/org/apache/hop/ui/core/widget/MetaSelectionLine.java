@@ -203,7 +203,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
       return false;
     }
 
-    return manager.editWithDialog( selected );
+    return manager.editMetadata( selected );
   }
 //
 //  private void openMetaDialog( T element, IHopMetadataSerializer<T> serializer ) throws Exception {
@@ -214,7 +214,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 //  }
 
   private T newMetadata() {
-    T element = manager.newWithDialog();
+    T element = manager.newMetadata();
     if ( element!=null ) {
       try {
         fillItems();
@@ -249,7 +249,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     }
 
     try {
-      return manager.load(selectedItem);
+      return manager.loadElement(selectedItem);
     } catch(Exception e) {
       LogChannel.UI.logError( "Error loading element '"+selectedItem+"'", e );
       return null;
