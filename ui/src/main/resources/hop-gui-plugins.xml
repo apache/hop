@@ -90,5 +90,9 @@
     <description>This dialog presents you all the actions you can take in a given context</description>
   </gui-plugin>
 
+  <gui-plugin>
+    <classname>org.apache.hop.ui.hopgui.dialog.MetadataExplorerDialog</classname>
+    <description>This dialog allows you to see and edit all available metadata</description>
+  </gui-plugin>
 
 </gui-plugins>
