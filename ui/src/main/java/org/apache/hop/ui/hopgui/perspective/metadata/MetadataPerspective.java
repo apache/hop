@@ -223,25 +223,12 @@ public class MetadataPerspective implements IHopPerspective {
     tree.addListener(
         SWT.DefaultSelection,
         event -> {
-          if (tree.getSelectionCount() < 1) {
-            return;
-          }
-
           TreeItem treeItem = tree.getSelection()[0];
           if (treeItem != null) {
-            final String objectKey;
-            final String objectName;
             if (treeItem.getParentItem() == null) {
-              objectKey = (String) treeItem.getData();
-              objectName = null;
+        	onNewMetadata();
             } else {
-              objectKey = (String) treeItem.getParentItem().getData();
-              objectName = treeItem.getText(0);
-            }
-            if (StringUtils.isEmpty(objectName)) {
-              onNewMetadata(objectKey);
-            } else {
-              onEditMetadata();
+        	onEditMetadata();
             }
           }
         });
@@ -254,52 +241,38 @@ public class MetadataPerspective implements IHopPerspective {
 
           TreeItem treeItem = tree.getSelection()[0];
           if (treeItem != null) {
-            final String objectKey;
-            final String objectName;
-            if (treeItem.getParentItem() == null) {
-              objectKey = (String) treeItem.getData();
-              objectName = null;
-            } else {
-              objectKey = (String) treeItem.getParentItem().getData();
-              objectName = treeItem.getText(0);
+            // Show the menu
+            //
+            Menu menu = new Menu(tree);
+
+            MenuItem menuItem = new MenuItem(menu, SWT.POP_UP);
+            menuItem.setText("New");
+            menuItem.addListener(SWT.Selection, e -> onNewMetadata());
+
+            if (treeItem.getParentItem() != null) {
+              new MenuItem(menu, SWT.SEPARATOR);
+
+              menuItem = new MenuItem(menu, SWT.POP_UP);
+              menuItem.setText("Edit");
+              menuItem.addListener(SWT.Selection, e -> onEditMetadata());
+
+              menuItem = new MenuItem(menu, SWT.POP_UP);
+              menuItem.setText("Rename");
+              menuItem.addListener(SWT.Selection, e -> onRenameMetadata());
+
+              menuItem = new MenuItem(menu, SWT.POP_UP);
+              menuItem.setText("Duplicate");
+              menuItem.addListener(SWT.Selection, e -> duplicateMetadata());
+
+              new MenuItem(menu, SWT.SEPARATOR);
+
+              menuItem = new MenuItem(menu, SWT.POP_UP);
+              menuItem.setText("Delete");
+              menuItem.addListener(SWT.Selection, e -> onDeleteMetadata());
             }
 
-            if (StringUtils.isNotEmpty(objectKey)) {
-
-              // Show the menu
-              //
-              Menu menu = new Menu(tree);
-
-              MenuItem newItem = new MenuItem(menu, SWT.POP_UP);
-              newItem.setText("New");
-              newItem.addListener(SWT.Selection, e -> onNewMetadata(objectKey));
-
-              if (StringUtils.isNotEmpty(objectName)) {
-
-                new MenuItem(menu, SWT.SEPARATOR);
-        	  
-                MenuItem editItem = new MenuItem(menu, SWT.POP_UP);
-                editItem.setText("Edit");
-                editItem.addListener(SWT.Selection, e -> onEditMetadata());
-                                
-                MenuItem renameItem = new MenuItem(menu, SWT.POP_UP);
-                renameItem.setText("Rename");
-                renameItem.addListener(SWT.Selection, e -> onRenameMetadata(objectKey, objectName));
-
-                MenuItem duplicateItem = new MenuItem(menu, SWT.POP_UP);
-                duplicateItem.setText("Duplicate");
-                duplicateItem.addListener(SWT.Selection, e -> duplicateMetadata());
-                
-                new MenuItem(menu, SWT.SEPARATOR);
-                
-                MenuItem removeItem = new MenuItem(menu, SWT.POP_UP);
-                removeItem.setText("Delete");
-                removeItem.addListener(SWT.Selection, e -> onDeleteMetadata());
-              }
-
-              tree.setMenu(menu);
-              menu.setVisible(true);
-            }
+            tree.setMenu(menu);
+            menu.setVisible(true);
           }
         });
     PropsUi.getInstance().setLook(tree);
@@ -507,8 +480,22 @@ public class MetadataPerspective implements IHopPerspective {
     }
   }
 
-  protected void onNewMetadata(String objectKey) {
-    if (StringUtils.isNotEmpty(objectKey))
+  public void onNewMetadata() {
+    if (tree.getSelectionCount() != 1) {
+      return;
+    }
+
+    TreeItem treeItem = tree.getSelection()[0];
+    if (treeItem != null) {
+      String objectKey;
+      if ( treeItem.getParentItem()==null ) {
+	  objectKey = (String) treeItem.getData();
+      }
+      else {
+	  objectKey = (String) treeItem.getParentItem().getData(); 
+      }
+	  
+
       try {
         IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
         Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(objectKey);
@@ -520,13 +507,9 @@ public class MetadataPerspective implements IHopPerspective {
       } catch (Exception e) {
         new ErrorDialog(getShell(), "Error", "Error create metadata", e);
       }
+    }
   }
 
-  @GuiToolbarElement(
-      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-      id = TOOLBAR_ITEM_EDIT,
-      toolTip = "Edit",
-      image = "ui/images/generic-edit.svg")
   public void onEditMetadata() {
 
     if (tree.getSelectionCount() != 1) {
@@ -549,13 +532,19 @@ public class MetadataPerspective implements IHopPerspective {
           new ErrorDialog(getShell(), "Error", "Error editing metadata", e);
         }
       }
+      
+      this.updateSelection();
     }
-    this.updateSelection();
   }
 
-  protected void onRenameMetadata(String objectKey, String name) {
+  @GuiToolbarElement(
+	      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+	      id = TOOLBAR_ITEM_EDIT,
+	      toolTip = "Edit",
+	      image = "ui/images/generic-edit.svg")
+  public void onRenameMetadata() {
 
-    if (StringUtils.isEmpty(name) || tree.getSelectionCount() < 1) {
+    if ( tree.getSelectionCount() < 1) {
       return;
     }
 
@@ -563,15 +552,12 @@ public class MetadataPerspective implements IHopPerspective {
     TreeItem item = tree.getSelection()[0];
     if (item != null) {
       if (item.getParentItem() == null) return;
+      String objectKey = (String) item.getParentItem().getData();
 
       // The control that will be the editor must be a child of the Tree
       Text text = new Text(tree, SWT.BORDER);
       text.setText(item.getText());
-      text.addListener(
-          SWT.FocusOut,
-          event -> {
-            text.dispose();
-          });
+      text.addListener(SWT.FocusOut, event -> text.dispose());
       text.addListener(
           SWT.KeyUp,
           event -> {
@@ -623,53 +609,52 @@ public class MetadataPerspective implements IHopPerspective {
         manager.deleteMetadata(objectName);
 
         refresh();
+        updateSelection();
       } catch (Exception e) {
         new ErrorDialog(getShell(), "Error", "Error delete metadata", e);
       }
     }
   }
 
-  
   @GuiToolbarElement(
-	      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
-	      id = TOOLBAR_ITEM_DUPLICATE,
-	      toolTip = "Create a copy",
-	      image = "ui/images/copy.svg")
-	  public void duplicateMetadata() {
-      
-      if (tree.getSelectionCount() != 1) {
-	      return;
-	    }
+      root = GUI_PLUGIN_TOOLBAR_PARENT_ID,
+      id = TOOLBAR_ITEM_DUPLICATE,
+      toolTip = "Create a copy",
+      image = "ui/images/copy.svg")
+  public void duplicateMetadata() {
 
-	    TreeItem treeItem = tree.getSelection()[0];
-	    if (treeItem != null && treeItem.getParentItem() != null) {
-	      String objectKey = (String) treeItem.getParentItem().getData();
-	      String objectName = treeItem.getText(0);
-      
-	      try {
-		MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
-		IHopMetadata metadata = manager.loadElement(objectName);
+    if (tree.getSelectionCount() != 1) {
+      return;
+    }
 
-	        int copyNr = 2;
-	        while (true) {
-	          String newName = objectName + " " + copyNr;
-	          if (!manager.getSerializer().exists( newName )) {
-	            metadata.setName( newName );
-	            manager.getSerializer().save( metadata );
-	           // manager.editWithEditor(newName);
-	            break;
-	          } else {
-	            copyNr++;
-	          }
-	        }
-	        refresh();
-	      } catch (Exception e) {
-	        new ErrorDialog(getShell(), "Error", "Error duplicating metadata", e);
-	      }
-	    }
-	  }
+    TreeItem treeItem = tree.getSelection()[0];
+    if (treeItem != null && treeItem.getParentItem() != null) {
+      String objectKey = (String) treeItem.getParentItem().getData();
+      String objectName = treeItem.getText(0);
 
-  
+      try {
+        MetadataManager<IHopMetadata> manager = getMetadataManager(objectKey);
+        IHopMetadata metadata = manager.loadElement(objectName);
+
+        int copyNr = 2;
+        while (true) {
+          String newName = objectName + " " + copyNr;
+          if (!manager.getSerializer().exists(newName)) {
+            metadata.setName(newName);
+            manager.getSerializer().save(metadata);
+            // manager.editWithEditor(newName);
+            break;
+          } else {
+            copyNr++;
+          }
+        }
+        refresh();
+      } catch (Exception e) {
+        new ErrorDialog(getShell(), "Error", "Error duplicating metadata", e);
+      }
+    }
+  }
+
   public void updateEditor(MetadataEditor<?> editor) {
 
     if (editor == null) return;
