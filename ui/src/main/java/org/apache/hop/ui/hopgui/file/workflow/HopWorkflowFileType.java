@@ -154,6 +154,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
       //
       WorkflowMeta workflowMeta = new WorkflowMeta();
       workflowMeta.setParentVariableSpace( parentVariableSpace );
+      workflowMeta.initializeVariablesFrom( parentVariableSpace );
       workflowMeta.setName( "New workflow" );
 
       // Pass the MetaStore for reference lookups
