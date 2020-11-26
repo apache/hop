@@ -136,8 +136,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   private final Map<TargetTransformAttribute, SourceTransformField> targetSourceMapping;
 
   // The search bar
-  private ToolItem goSearch, wfilter, expandAll, collapseAll;
-  private Text searchText = null;
+  private ToolItem wSearch, wFilter, wExpandAll, wCollapseAll;
+  private Text wSearchText = null;
   private String filterString = null;
   private boolean isExpandAll = true;
 
@@ -577,12 +577,12 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     ToolBar treeTb = new ToolBar(wInjectComp, SWT.HORIZONTAL | SWT.FLAT);
     props.setLook(treeTb);
 
-    expandAll = new ToolItem(treeTb, SWT.PUSH);
-    expandAll.setImage(GuiResource.getInstance().getImageExpandAll());
-    expandAll.setToolTipText(
+    wExpandAll = new ToolItem(treeTb, SWT.PUSH);
+    wExpandAll.setImage(GuiResource.getInstance().getImageExpandAll());
+    wExpandAll.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.ExpandAll"));
 
-    expandAll.addSelectionListener(
+    wExpandAll.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent event) {
             isExpandAll = true;
@@ -590,12 +590,12 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
           }
         });
 
-    collapseAll = new ToolItem(treeTb, SWT.PUSH);
-    collapseAll.setImage(GuiResource.getInstance().getImageCollapseAll());
-    collapseAll.setToolTipText(
+    wCollapseAll = new ToolItem(treeTb, SWT.PUSH);
+    wCollapseAll.setImage(GuiResource.getInstance().getImageCollapseAll());
+    wCollapseAll.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.CollapseAll"));
 
-    collapseAll.addSelectionListener(
+    wCollapseAll.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent event) {
             isExpandAll = false;
@@ -603,20 +603,20 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
           }
         });
 
-    wfilter = new ToolItem(treeTb, SWT.SEPARATOR);
-    searchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL);
-    props.setLook(searchText);
-    searchText.setToolTipText(
+    wFilter = new ToolItem(treeTb, SWT.SEPARATOR);
+    wSearchText = new Text(treeTb, SWT.SEARCH | SWT.CANCEL);
+    props.setLook( wSearchText );
+    wSearchText.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.ToolTip"));
-    wfilter.setControl(searchText);
-    wfilter.setWidth(120);
+    wFilter.setControl( wSearchText );
+    wFilter.setWidth(120);
 
-    goSearch = new ToolItem(treeTb, SWT.PUSH);
-    goSearch.setImage(GuiResource.getInstance().getImageSearchSmall());
-    goSearch.setToolTipText(
+    wSearch = new ToolItem(treeTb, SWT.PUSH);
+    wSearch.setImage(GuiResource.getInstance().getImageSearchSmall());
+    wSearch.setToolTipText(
         BaseMessages.getString(PKG, "MetaInjectDialog.InjectTab.FilterString.refresh.Label"));
 
-    goSearch.addSelectionListener(
+    wSearch.addSelectionListener(
         new SelectionAdapter() {
           public void widgetSelected(SelectionEvent event) {
             updateTransformationFilter();
@@ -636,7 +636,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fdlFilter.right = new FormAttachment(treeTb, -5);
     wlFilter.setLayoutData(fdlFilter);
 
-    searchText.addSelectionListener(
+    wSearchText.addSelectionListener(
         new SelectionAdapter() {
           public void widgetDefaultSelected(SelectionEvent e) {
             updateTransformationFilter();
@@ -786,7 +786,6 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void selectFileTrans(boolean useVfs) {
-
     try {
       HopPipelineFileType<PipelineMeta> fileType =
           HopGui.getDataOrchestrationPerspective().getPipelineFileType();
@@ -811,9 +810,9 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     }
   }
 
-  private void loadPipelineFile(String fname) throws HopException {
-    String filename = pipelineMeta.environmentSubstitute(fname);
-    injectPipelineMeta = new PipelineMeta(filename, metadataProvider, true, pipelineMeta);
+  private void loadPipelineFile(String filename) throws HopException {
+    String realFilename = pipelineMeta.environmentSubstitute(filename);
+    injectPipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, pipelineMeta);
     injectPipelineMeta.clearChanged();
   }
 
@@ -827,6 +826,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       wPath.setText(filename);
     }
     loadPipelineFile(filename);
+
     return true;
   }
 
@@ -854,16 +854,16 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     wPath.setText(Const.NVL(metaInjectMeta.getFileName(), ""));
 
     wSourceTransform.setText(Const.NVL(metaInjectMeta.getSourceTransformName(), ""));
-    int rowNr = 0;
+    int rownr = 0;
     for (MetaInjectOutputField field : metaInjectMeta.getSourceOutputFields()) {
-      int colnr = 1;
-      wSourceFields.setText(field.getName(), colnr++, rowNr);
-      wSourceFields.setText(field.getTypeDescription(), colnr++, rowNr);
+      int colNr = 1;
+      wSourceFields.setText(field.getName(), colNr++, rownr);
+      wSourceFields.setText(field.getTypeDescription(), colNr++, rownr);
       wSourceFields.setText(
-          field.getLength() < 0 ? "" : Integer.toString(field.getLength()), colnr++, rowNr);
+          field.getLength() < 0 ? "" : Integer.toString(field.getLength()), colNr++, rownr);
       wSourceFields.setText(
-          field.getPrecision() < 0 ? "" : Integer.toString(field.getPrecision()), colnr++, rowNr);
-      rowNr++;
+          field.getPrecision() < 0 ? "" : Integer.toString(field.getPrecision()), colNr++, rownr);
+      rownr++;
     }
 
     wTargetFile.setText(Const.NVL(metaInjectMeta.getTargetFile(), ""));
@@ -892,8 +892,8 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
   protected void updateTransformationFilter() {
     filterString = null;
-    if (searchText != null && !searchText.isDisposed() && !Utils.isEmpty(searchText.getText())) {
-      filterString = searchText.getText().toUpperCase();
+    if ( wSearchText != null && !wSearchText.isDisposed() && !Utils.isEmpty( wSearchText.getText())) {
+      filterString = wSearchText.getText().toUpperCase();
     }
     refreshTree();
   }
@@ -934,9 +934,6 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
         ITransformMeta metaInterface = transformMeta.getTransform();
         if (BeanInjectionInfo.isInjectionSupported(metaInterface.getClass())) {
           processNewMDIDescription(transformMeta, transformItem, metaInterface);
-          //        } else {
-          //          processOldMDIDescription( transformMeta, transformItem,
-          // metaInterface.getTransformMetaInjectionInterface() );
         }
       }
 
@@ -1032,6 +1029,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     }
 
     metaInjectMeta.setFileName(wPath.getText());
+
     metaInjectMeta.setSourceTransformName(wSourceTransform.getText());
     metaInjectMeta.setSourceOutputFields(new ArrayList<>());
     for (int i = 0; i < wSourceFields.nrNonEmpty(); i++) {
