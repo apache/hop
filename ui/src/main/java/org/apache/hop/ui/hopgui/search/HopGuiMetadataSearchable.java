@@ -65,7 +65,7 @@ public class HopGuiMetadataSearchable implements ISearchable<IHopMetadata> {
       // Open the metadata object...
       //
       new MetadataManager( HopGui.getInstance().getVariables(), HopGui.getInstance().getMetadataProvider(), searchable.getClass() )
-        .editWithEditor(searchable.getName());
+        .editMetadata(searchable.getName());
     };
   }
 

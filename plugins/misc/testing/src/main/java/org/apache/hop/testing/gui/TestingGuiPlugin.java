@@ -711,7 +711,7 @@ public class TestingGuiPlugin {
     PipelineUnitTest unitTest = getCurrentUnitTest( pipelineMeta );
 
     MetadataManager<PipelineUnitTest> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
-    if (manager.editWithDialog(unitTest.getName())) {
+    if (manager.editMetadata(unitTest.getName())) {
       // Activate the test
       refreshUnitTestsList();
       selectUnitTest( pipelineMeta, unitTest );
@@ -733,7 +733,7 @@ public class TestingGuiPlugin {
     }
 
     MetadataManager<PipelineUnitTest> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
-    PipelineUnitTest test = manager.newWithEditor();
+    PipelineUnitTest test = manager.newMetadataWithEditor();
     if (test!=null) {
       // Activate the test
       refreshUnitTestsList();
@@ -841,7 +841,7 @@ public class TestingGuiPlugin {
     String unitTestName = combo.getText();
     try {
       MetadataManager<PipelineUnitTest> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class );
-      if ( manager.editWithDialog( unitTestName ) ) {    	
+      if ( manager.editMetadata( unitTestName ) ) {    	
         refreshUnitTestsList();
         selectUnitTestInList( unitTestName );
       }

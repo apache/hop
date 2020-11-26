@@ -70,7 +70,7 @@ public class MetadataContextHandler implements IGuiContextHandler {
       hopMetadata.name(),
       "Creates a new " + hopMetadata.name() + " : " + hopMetadata.description(),
       hopMetadata.iconImage(),
-      ( shiftClicked, controlClicked, parameters ) -> metadataManager.newMetadata() );
+      ( shiftClicked, controlClicked, parameters ) -> metadataManager.newMetadataWithEditor() );
     newAction.setClassLoader( metadataObjectClass.getClassLoader() );
     newAction.setCategory( "Metadata" );
     newAction.setCategoryOrder( "2" );
