@@ -517,11 +517,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdGetParameters.right = new FormAttachment( 100, 0 );
     wGetParameters.setLayoutData( fdGetParameters );
     wGetParameters.setSelection( workflowExecutorMeta.getParameters().isInheritingAllVariables() );
-    wGetParameters.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        getParametersFromWorkflow( null ); // null : reload file
-      }
-    } );
+    wGetParameters.addListener( SWT.Selection, e-> getParametersFromWorkflow( null )); // null : reload file
 
     // Now add a table view with the 3 columns to specify: variable name, input field & optional static input
     //
@@ -594,12 +590,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
       String[] parameters = inputWorkflowMeta.listParameters();
       for ( int i = 0; i < parameters.length; i++ ) {
-        String name = parameters[ i ];
-        String desc = inputWorkflowMeta.getParameterDescription( name );
-
         TableItem item = new TableItem( wWorkflowExecutorParameters.table, SWT.NONE );
-        item.setText( 1, Const.NVL( name, "" ) );
-        item.setText( 3, Const.NVL( desc, "" ) );
+        item.setText( 1, Const.NVL( parameters[ i ], "" ) );
       }
       wWorkflowExecutorParameters.removeEmptyRows();
       wWorkflowExecutorParameters.setRowNums();

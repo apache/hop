@@ -1,29 +1,24 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.workflowexecutor;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.ResultFile;
@@ -34,6 +29,7 @@ import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
+import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaFactory;
@@ -207,7 +203,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     // Pass parameter values
     //
-    passParametersToJob();
+    passParametersToWorkflow();
 
     // keep track for drill down in HopGui...
     //
@@ -323,28 +319,44 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     }
   }
 
-  private void passParametersToJob() throws HopException {
+  private void passParametersToWorkflow() throws HopException {
     // Set parameters, when fields are used take the first row in the set.
     //
     WorkflowExecutorParameters parameters = meta.getParameters();
 
-    String value;
-
     for ( int i = 0; i < parameters.getVariable().length; i++ ) {
+      String variableName = parameters.getVariable()[i];
+      String variableInput = parameters.getInput()[i];
       String fieldName = parameters.getField()[ i ];
-      if ( !Utils.isEmpty( fieldName ) ) {
-        int idx = getInputRowMeta().indexOfValue( fieldName );
-        if ( idx < 0 ) {
-          throw new HopException( BaseMessages.getString(
-            PKG, "JobExecutor.Exception.UnableToFindField", fieldName ) );
+      String variableValue = null;
+      if (StringUtils.isNotEmpty( variableName )) {
+        // The value is provided by a field in an input row
+        //
+        if ( StringUtils.isNotEmpty( fieldName ) ) {
+          int idx = getInputRowMeta().indexOfValue( fieldName );
+          if ( idx < 0 ) {
+            throw new HopException( BaseMessages.getString(
+              PKG, "JobExecutor.Exception.UnableToFindField", fieldName ) );
+          }
+          variableValue = data.groupBuffer.get( 0 ).getString( idx, "" );
+        } else {
+          // The value is provided by a static String or variable expression as an Input value
+          //
+          if (StringUtils.isNotEmpty( variableInput )) {
+            variableValue = this.environmentSubstitute( variableInput );
+          }
         }
-        value = data.groupBuffer.get( 0 ).getString( idx, "" );
-        this.setVariable( parameters.getVariable()[ i ], value );
+
+        try {
+          data.executorWorkflow.setParameterValue( variableName, Const.NVL(variableValue, "") );
+          data.executorWorkflowMeta.setParameterValue( variableName, Const.NVL(variableValue, "") );
+        } catch( UnknownParamException e ) {
+          data.executorWorkflow.setVariable( variableName, Const.NVL(variableValue, "") );
+          data.executorWorkflowMeta.setVariable( variableName, Const.NVL(variableValue, "") );
+        }
+        data.executorWorkflow.activateParameters();
       }
     }
-
-    TransformWithMappingMeta.activateParams( data.executorWorkflow, data.executorWorkflow, this, data.executorWorkflow.listParameters(),
-      parameters.getVariable(), parameters.getInput(), meta.getParameters().isInheritingAllVariables() );
   }
 
   @Override
