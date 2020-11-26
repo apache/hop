@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+
+	<artifactId>hop-databases-cassandra</artifactId>
+
+	<packaging>jar</packaging>
+
+	<name>Hop Plugins Databases Cassandra</name>
+
+	<parent>
+		<groupId>org.apache.hop</groupId>
+		<artifactId>hop-plugins-databases</artifactId>
+		<version>0.50-SNAPSHOT</version>
+	</parent>
+
+	<properties>
+		<!-- Test running configuration -->
+		<maven-surefire-plugin.reuseForks>true</maven-surefire-plugin.reuseForks>
+		<maven-failsafe-plugin.reuseForks>false</maven-failsafe-plugin.reuseForks>
+		<cassandra.version>3.10</cassandra.version>
+		<cassandra-driver.version>3.10.2</cassandra-driver.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.cassandra</groupId>
+			<artifactId>cassandra-all</artifactId>
+			<version>${cassandra.version}</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<!-- Note: The 4.0 driver artifacts have been relocated, please update 
+				your dependencies -->
+			<groupId>com.datastax.cassandra</groupId>
+			<artifactId>cassandra-driver-core</artifactId>
+			<version>${cassandra-driver.version}</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.datastax.cassandra</groupId>
+			<artifactId>cassandra-driver-extras</artifactId>
+			<version>${cassandra-driver.version}</version>
+			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>*</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
