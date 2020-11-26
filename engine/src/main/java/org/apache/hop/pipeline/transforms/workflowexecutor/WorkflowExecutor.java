@@ -348,15 +348,17 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
         }
 
         try {
-          data.executorWorkflow.setParameterValue( variableName, Const.NVL(variableValue, "") );
           data.executorWorkflowMeta.setParameterValue( variableName, Const.NVL(variableValue, "") );
+          data.executorWorkflow.setParameterValue( variableName, Const.NVL(variableValue, "") );
         } catch( UnknownParamException e ) {
-          data.executorWorkflow.setVariable( variableName, Const.NVL(variableValue, "") );
           data.executorWorkflowMeta.setVariable( variableName, Const.NVL(variableValue, "") );
+          data.executorWorkflow.setVariable( variableName, Const.NVL(variableValue, "") );
         }
-        data.executorWorkflow.activateParameters();
       }
     }
+    data.executorWorkflowMeta.activateParameters();
+    data.executorWorkflow.activateParameters();
+
   }
 
   @Override
