@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.pipeline.config;
 
@@ -317,7 +312,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wTabFolder.setLayoutData( fdTabFolder );
 
 
-    getData();
+    setWidgetsContent();
 
     // Some widget set changed
     resetChanged();
@@ -362,7 +357,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     // Capture any information on the widgets
     //
-    getInfo( workingConfiguration );
+    getWidgetsContent( workingConfiguration );
 
     // Save the state of this type so we can switch back and forth
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
@@ -377,25 +372,22 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     // Put the data back
     //
-    getData();
+    setWidgetsContent();
 
   //  shell.layout( true, true );
 
     busyChangingPluginType.set( false );
   }
 
-
   public void save() throws HopException {
     changeWorkingEngineConfiguration( runConfiguration );
-    getInfo( runConfiguration );
+    getWidgetsContent( runConfiguration );
 
     super.save();
   }
 
-  /**
-   * Copy data from the metadata into the dialog.
-   */
-  private void getData() {
+  @Override
+  public void setWidgetsContent() {
 
     wName.setText( Const.NVL( workingConfiguration.getName(), "" ) );
     wDescription.setText( Const.NVL( workingConfiguration.getDescription(), "" ) );
@@ -419,7 +411,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     wVariables.optWidth( true );
   }
 
-  private PipelineRunConfiguration getInfo( PipelineRunConfiguration meta ) {
+  @Override
+  public void getWidgetsContent( PipelineRunConfiguration meta ) {
 
     meta.setName( wName.getText() );
     meta.setDescription( wDescription.getText() );
@@ -440,8 +433,6 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
       String description = item.getText( 3 );
       meta.getConfigurationVariables().add( new VariableValueDescription( name, value, description ) );
     }
-
-    return meta;
   }
 
   private void changeWorkingEngineConfiguration( PipelineRunConfiguration meta ) {

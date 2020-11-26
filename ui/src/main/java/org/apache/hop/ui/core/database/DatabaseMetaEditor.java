@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.core.database;
 
@@ -214,7 +209,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
     fdTabFolder.bottom = new FormAttachment( 100, -15 );
     wTabFolder.setLayoutData( fdTabFolder );
            
-    getData();
+    setWidgetsContent();
     
     // Some widget set changed
     resetChanged();
@@ -396,11 +391,11 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
     }
     busyChangingConnectionType.set( true );
 
-	DatabaseMeta databaseMeta = this.getMetadata();  
+    DatabaseMeta databaseMeta = this.getMetadata();  
     
     // Capture any information on the widgets
     //
-    getInfo( databaseMeta );
+    this.getWidgetsContent( databaseMeta );
 
     // Save the state of this type so we can switch back and forth
     metaMap.put( databaseMeta.getIDatabase().getClass(), databaseMeta.getIDatabase() );
@@ -430,7 +425,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
 
     // Put the data back
     //
-    getData();
+    setWidgetsContent();
 
     wGeneralComp.layout( true, true );
 
@@ -677,7 +672,7 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
   }
 
   public void save( ) throws HopException {
-    getInfo( this.getMetadata() );
+    getWidgetsContent( this.getMetadata() );
 
     super.save();
   }
@@ -685,14 +680,12 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
   private void test() {
     DatabaseMeta meta = new DatabaseMeta();
     meta.initializeVariablesFrom( getMetadata() );
-    getInfo( meta );
+    getWidgetsContent( meta );
     testConnection( getShell(), meta );
   }
 
-  /**
-   * Copy data from the metadata into the dialog.
-   */
-  private void getData() {
+  @Override
+  public void setWidgetsContent() {
 
 	DatabaseMeta databaseMeta = this.getMetadata();
 	
@@ -732,7 +725,8 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
     enableFields();
   }
 
-  private DatabaseMeta getInfo( DatabaseMeta meta ) {
+  @Override
+  public void getWidgetsContent(DatabaseMeta meta) {
 
     meta.setName( wName.getText() );
     meta.setDatabaseType( wConnectionType.getText() );
@@ -761,8 +755,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
       String value = item.getText( 2 );
       meta.addExtraOption( meta.getPluginId(), option, value );
     }
-
-    return meta;
   }
 
 

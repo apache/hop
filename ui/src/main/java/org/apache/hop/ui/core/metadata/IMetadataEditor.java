@@ -23,47 +23,42 @@ import org.eclipse.swt.widgets.Composite;
 
 public interface IMetadataEditor {
 
-	/**
-	 * @return The title of this editor
-	 */
-	public String getTitle();
+  /** 
+   * Return the title of the editor
+   * 
+   * @return The title of this editor */
+  public String getTitle();
 
-	/**
-	 * Returns the title image of this editor
-	 * 
-	 * @return
-	 */
-	public Image getTitleImage();
+  /**
+   * Returns the title image of this editor
+   *
+   * @return
+   */
+  public Image getTitleImage();
 
-	/**
-	 * Returns the title tool tip text of this editor
-	 * 
-	 * @return
-	 */
-	public String getTitleToolTip();
+  /**
+   * Returns the title tool tip text of this editor
+   *
+   * @return
+   */
+  public String getTitleToolTip();
 
-	
-	public void createControl(Composite _parent);
+  public void createControl(Composite _parent);
 
-	/**
-	 * Returns whether the contents of this editor have changed since the last save
-	 * operation.
-	 * 
-	 * @return
-	 */
-	public boolean isChanged();
+  /**
+   * Returns whether the contents of this editor have changed since the last save operation.
+   *
+   * @return
+   */
+  public boolean isChanged();
 
-	/**
-	 * Save the editor input
-	 */
-	public void save() throws HopException;
+  /** Save the editor input */
+  public void save() throws HopException;
 
-	/**
-	 * Save the editor input to file after asking for a filename
-	 */
-	public void saveAs(String filename) throws HopException;
-	
-	public boolean setFocus();
-	
-	public void dispose();
+  /** Save the editor input to file after asking for a filename */
+  public void saveAs(String filename) throws HopException;
+
+  public boolean setFocus();
+
+  public void dispose();
 }

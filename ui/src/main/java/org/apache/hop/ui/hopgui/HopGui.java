@@ -17,6 +17,22 @@
 
 package org.apache.hop.ui.hopgui;
 
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
+
+import javax.swing.UIManager;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+
 import org.apache.commons.io.output.TeeOutputStream;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
@@ -74,7 +90,6 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiAuditDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiContextDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDelegate;
 import org.apache.hop.ui.hopgui.delegates.HopGuiUndoDelegate;
-import org.apache.hop.ui.hopgui.dialog.MetadataExplorerDialog;
 import org.apache.hop.ui.hopgui.file.HopFileTypeRegistry;
 import org.apache.hop.ui.hopgui.file.IHopFileType;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
@@ -107,21 +122,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
 
-import javax.swing.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
-
 @GuiPlugin(
   description = "The main hop graphical user interface"
 )
@@ -136,9 +136,6 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
   public static final String ID_MAIN_MENU_FILE_OPEN_RECENT = "10025-menu-file-open-recent";
   public static final String ID_MAIN_MENU_FILE_SAVE = "10030-menu-file-save";
   public static final String ID_MAIN_MENU_FILE_SAVE_AS = "10040-menu-file-save-as";
-  public static final String ID_MAIN_MENU_FILE_EDIT_METASTORE = "10060-menu-file-edit-metadata";
-  public static final String ID_MAIN_MENU_FILE_DELETE_METASTORE = "10065-menu-file-delete-metadata";
-  public static final String ID_MAIN_MENU_FILE_EXPLORE_METASTORE = "10070-menu-file-explore_metastore";
   public static final String ID_MAIN_MENU_FILE_CLOSE = "10090-menu-file-close";
   public static final String ID_MAIN_MENU_FILE_CLOSE_ALL = "10100-menu-file-close-all";
   public static final String ID_MAIN_MENU_FILE_EXIT = "10900-menu-file-exit";
@@ -173,7 +170,6 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
   public static final String ID_MAIN_TOOLBAR = "HopGui-Toolbar";
   public static final String ID_MAIN_TOOLBAR_NEW = "toolbar-10010-new";
   public static final String ID_MAIN_TOOLBAR_OPEN = "toolbar-10020-open";
-  public static final String ID_MAIN_TOOLBAR_METADATA = "toolbar-10030-metadata";
   public static final String ID_MAIN_TOOLBAR_SAVE = "toolbar-10040-save";
   public static final String ID_MAIN_TOOLBAR_SAVE_AS = "toolbar-10050-save-as";
 

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.workflow.config;
 
@@ -207,7 +202,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     //
     addGuiCompositeWidgets();
 
-    getData();
+    setWidgetsContent();
     
     // Some widget set changed
     resetChanged();
@@ -251,7 +246,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
     // Capture any information on the widgets
     //
-    getInfo( workingConfiguration );
+    getWidgetsContent( workingConfiguration );
 
     // Save the state of this type so we can switch back and forth
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
@@ -266,7 +261,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
     // Put the data back
     //
-    getData();
+    setWidgetsContent();
 
     //shell.layout( true, true );
 
@@ -276,16 +271,14 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
   public void save() throws HopException {
     changeWorkingEngineConfiguration( runConfiguration );
-    getInfo( runConfiguration );
+    getWidgetsContent( runConfiguration );
     
     super.save();
   }
 
 
-  /**
-   * Copy data from the metadata into the dialog.
-   */
-  private void getData() {
+  @Override
+  public void setWidgetsContent() {
 
     wName.setText( Const.NVL( workingConfiguration.getName(), "" ) );
     wDescription.setText( Const.NVL( workingConfiguration.getDescription(), "" ) );
@@ -298,7 +291,8 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     }
   }
 
-  private WorkflowRunConfiguration getInfo( WorkflowRunConfiguration meta ) {
+  @Override
+  public void getWidgetsContent( WorkflowRunConfiguration meta ) {
 
     meta.setName( wName.getText() );
     meta.setDescription( wDescription.getText() );
@@ -308,8 +302,6 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     if ( meta.getEngineRunConfiguration() != null && guiCompositeWidgets != null && !guiCompositeWidgets.getWidgetsMap().isEmpty() ) {
       guiCompositeWidgets.getWidgetsContents( meta.getEngineRunConfiguration(), WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID );
     }
-
-    return meta;
   }
 
   private void changeWorkingEngineConfiguration( WorkflowRunConfiguration meta ) {

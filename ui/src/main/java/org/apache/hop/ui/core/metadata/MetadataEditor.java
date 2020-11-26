@@ -41,216 +41,235 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
-/**
- * Abstract implementation of all metadata editors.
- *
- */
+/** Abstract implementation of all metadata editors. */
 public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFileTypeHandler
-		implements IMetadataEditor {
+    implements IMetadataEditor {
 
-	private static final Class<?> PKG = MetadataEditorDialog.class; // Needed by Translator
+  private static final Class<?> PKG = MetadataEditorDialog.class; // Needed by Translator
 
-	private HopGui hopGui;
-	private MetadataManager<T> manager;
-	private T metadata;
+  private HopGui hopGui;
+  private MetadataManager<T> manager;
+  private T metadata;
 
-	private String title;
-	private String toolTip;
-	private Image titleImage;
-	private Image image;
-	private boolean isChanged = false;
-	private String originalName;
+  private String title;
+  private String toolTip;
+  private Image titleImage;
+  private Image image;
+  private boolean isChanged = false;
+  private String originalName;
 
-	public MetadataEditor(HopGui hopGui, MetadataManager<T> manager, T metadata) {
-		this.hopGui = hopGui;
-		this.manager = manager;
-		this.metadata = metadata;
-		this.originalName = metadata.getName();
+  public MetadataEditor(HopGui hopGui, MetadataManager<T> manager, T metadata) {
+    this.hopGui = hopGui;
+    this.manager = manager;
+    this.metadata = metadata;
+    this.originalName = metadata.getName();
 
-		// Search metadata annotation
-		Type superclass = getClass().getGenericSuperclass();
-		ParameterizedType parameterized = (ParameterizedType) superclass;
-		Class<?> managedClass = (Class<?>) parameterized.getActualTypeArguments()[0];
-		HopMetadata annotation = managedClass.getAnnotation(HopMetadata.class);
+    // Search metadata annotation
+    Type superclass = getClass().getGenericSuperclass();
+    ParameterizedType parameterized = (ParameterizedType) superclass;
+    Class<?> managedClass = (Class<?>) parameterized.getActualTypeArguments()[0];
+    HopMetadata annotation = managedClass.getAnnotation(HopMetadata.class);
 
-		// Initialize editor
-		this.setTitle(metadata.getName());
-		this.setTitleToolTip(annotation.name());
-		this.setTitleImage(GuiResource.getInstance().getImage(annotation.iconImage(), managedClass.getClassLoader(),
-				ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE));
+    // Initialize editor
+    this.setTitle(metadata.getName());
+    this.setTitleToolTip(annotation.name());
+    this.setTitleImage(
+        GuiResource.getInstance()
+            .getImage(
+                annotation.iconImage(),
+                managedClass.getClassLoader(),
+                ConstUi.SMALL_ICON_SIZE,
+                ConstUi.SMALL_ICON_SIZE));
 
-		// Use SwtSvgImageUtil because GuiResource cache have small icon.
-		this.setImage(SwtSvgImageUtil.getImage(hopGui.getDisplay(), managedClass.getClassLoader(),
-				annotation.iconImage(), ConstUi.LARGE_ICON_SIZE, ConstUi.LARGE_ICON_SIZE));
-	}
+    // Use SwtSvgImageUtil because GuiResource cache have small icon.
+    this.setImage(
+        SwtSvgImageUtil.getImage(
+            hopGui.getDisplay(),
+            managedClass.getClassLoader(),
+            annotation.iconImage(),
+            ConstUi.LARGE_ICON_SIZE,
+            ConstUi.LARGE_ICON_SIZE));
+  }
 
-	public Button[] createButtonsForButtonBar(final Composite parent) {
-		return null;
-	}
+  public Button[] createButtonsForButtonBar(final Composite parent) {
+    return null;
+  }
 
-	public HopGui getHopGui() {
-		return hopGui;
-	}
+  public HopGui getHopGui() {
+    return hopGui;
+  }
 
-	public MetadataManager<T> getMetadataManager() {
-		return manager;
-	}
+  public MetadataManager<T> getMetadataManager() {
+    return manager;
+  }
 
-	public T getMetadata() {
-		return metadata;
-	}
+  public T getMetadata() {
+    return metadata;
+  }
 
-	public Shell getShell() {
-		return hopGui.getShell();
-	}
+  public Shell getShell() {
+    return hopGui.getShell();
+  }
 
-	public Image getImage() {
-		return image;
-	}
+  public Image getImage() {
+    return image;
+  }
 
-	protected void setImage(Image image) {
-		this.image = image;
-	}
+  protected void setImage(Image image) {
+    this.image = image;
+  }
 
-	@Override
-	public String getTitle() {
-		return title;
-	}
+  @Override
+  public String getTitle() {
+    return title;
+  }
 
-	protected void setTitle(String title) {
-		this.title = title;
-	}
+  protected void setTitle(String title) {
+    this.title = title;
+  }
 
-	@Override
-	public Image getTitleImage() {
-		return titleImage;
-	}
+  @Override
+  public Image getTitleImage() {
+    return titleImage;
+  }
 
-	protected void setTitleImage(Image image) {
-		this.titleImage = image;
-	}
+  protected void setTitleImage(Image image) {
+    this.titleImage = image;
+  }
 
-	@Override
-	public String getTitleToolTip() {
-		return toolTip;
-	}
+  @Override
+  public String getTitleToolTip() {
+    return toolTip;
+  }
 
-	protected void setTitleToolTip(String toolTip) {
-		this.toolTip = toolTip;
-	}
+  protected void setTitleToolTip(String toolTip) {
+    this.toolTip = toolTip;
+  }
 
-	@Override
-	public boolean isChanged() {
-		return isChanged;
-	}
+  @Override
+  public boolean isChanged() {
+    return isChanged;
+  }
 
-	protected void resetChanged() {
-		this.isChanged = false;
-	}
+  protected void resetChanged() {
+    this.isChanged = false;
+  }
 
-	protected void setChanged() {
-		if (this.isChanged == false) {
-			this.isChanged = true;
-			MetadataPerspective.getInstance().update(this);
-		}
-	}
+  protected void setChanged() {
+    if (this.isChanged == false) {
+      this.isChanged = true;
+      MetadataPerspective.getInstance().updateEditor(this);
+    }
+  }
 
-	@Override
-	public boolean isCloseable() {
+  /** Inline usage: copy information from the metadata onto the various widgets */
+  public abstract void setWidgetsContent();
 
-		// Check if the metadata is saved. If not, ask for it to be saved.
-		//
-		if (isChanged()) {
+  /**
+   * Inline usage: Reads the information or state of the various widgets and modifies the provided
+   * metadata object.
+   *
+   * @param meta The metadata object to populate from the widgets
+   */
+  public abstract void getWidgetsContent(T meta);
 
-			MessageBox messageDialog = new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
-			messageDialog.setText(manager.getManagedName());
-			messageDialog.setMessage(
-					BaseMessages.getString(PKG, "MetadataEditor.WantToSaveBeforeClosing.Message", getTitle()));
+  @Override
+  public boolean isCloseable() {
 
-			int answer = messageDialog.open();
+    // Check if the metadata is saved. If not, ask for it to be saved.
+    //
+    if (isChanged()) {
 
-			if ((answer & SWT.YES) != 0) {
-				try {
-					save();
-				} catch (Exception e) {
-					new ErrorDialog(getShell(), "Error", "Error preparing editor close", e);
-					return false;
-				}
-			}
+      MessageBox messageDialog =
+          new MessageBox(getShell(), SWT.ICON_QUESTION | SWT.YES | SWT.NO | SWT.CANCEL);
+      messageDialog.setText(manager.getManagedName());
+      messageDialog.setMessage(
+          BaseMessages.getString(
+              PKG, "MetadataEditor.WantToSaveBeforeClosing.Message", getTitle()));
 
-			if ((answer & SWT.CANCEL) != 0) {
-				return false;
-			}
-		}
+      int answer = messageDialog.open();
 
-		return true;
-	}
+      if ((answer & SWT.YES) != 0) {
+        try {
+          save();
+        } catch (Exception e) {
+          new ErrorDialog(getShell(), "Error", "Error preparing editor close", e);
+          return false;
+        }
+      }
 
-	@Override
-	public void save() throws HopException {
+      if ((answer & SWT.CANCEL) != 0) {
+        return false;
+      }
+    }
 
-		boolean isCreated = false;
-		boolean isRename = false;
-		String name = metadata.getName();
+    return true;
+  }
 
-		if (StringUtils.isEmpty(name)) {
-			throw new HopException(BaseMessages.getString(PKG, "MetadataEditor.Error.NoName"));
-		}
+  @Override
+  public void save() throws HopException {
 
-		if (originalName == null) {
-			isCreated = true;
-		}
-		// If rename
-		//
-		else if (!originalName.equals(metadata.getName())) {
+    boolean isCreated = false;
+    boolean isRename = false;
+    String name = metadata.getName();
 
-			// See if the name collides with an existing one...
-			// TODO: provide name changes utilities
-			//
-			IHopMetadataSerializer<T> serializer = manager.getSerializer();
+    if (StringUtils.isEmpty(name)) {
+      throw new HopException(BaseMessages.getString(PKG, "MetadataEditor.Error.NoName"));
+    }
 
-			if (serializer.exists(metadata.getName())) {
-				throw new HopException(
-						BaseMessages.getString(PKG, "MetadataEditor.Error.NameAlreadyExists", metadata.getName()));
-			} else {
-				isRename = true;
-			}
-		}
+    if (originalName == null) {
+      isCreated = true;
+    }
+    // If rename
+    //
+    else if (!originalName.equals(metadata.getName())) {
 
-		// Save it in the metadata
-		manager.save(metadata);
+      // See if the name collides with an existing one...
+      // TODO: provide name changes utilities
+      //
+      IHopMetadataSerializer<T> serializer = manager.getSerializer();
 
-		if (isCreated)
-			ExtensionPointHandler.callExtensionPoint(hopGui.getLog(), HopExtensionPoint.HopGuiMetadataObjectCreated.id,
-					metadata);
-		else
-			ExtensionPointHandler.callExtensionPoint(hopGui.getLog(), HopExtensionPoint.HopGuiMetadataObjectUpdated.id,
-					metadata);
+      if (serializer.exists(metadata.getName())) {
+        throw new HopException(
+            BaseMessages.getString(
+                PKG, "MetadataEditor.Error.NameAlreadyExists", metadata.getName()));
+      } else {
+        isRename = true;
+      }
+    }
 
-		// Reset changed flag
-		this.isChanged = false;
-		this.title = metadata.getName();
+    // Save it in the metadata
+    manager.getSerializer().save(metadata);
 
-		if (isRename) {
-			manager.delete(originalName, true);
-			this.originalName = metadata.getName();
-		}
+    if (isCreated)
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(), HopExtensionPoint.HopGuiMetadataObjectCreated.id, metadata);
+    else
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(), HopExtensionPoint.HopGuiMetadataObjectUpdated.id, metadata);
 
-		MetadataPerspective.getInstance().update(this);
-	}
+    // Reset changed flag
+    this.isChanged = false;
+    this.title = metadata.getName();
 
-	@Override
-	public void saveAs(String filename) throws HopException {
-		throw new HopException("Metadata editor doesn't support saveAs");
-	}
+    if (isRename) {
+      manager.getSerializer().delete(originalName);
+      this.originalName = metadata.getName();
+    }
 
-	@Override
-	public boolean setFocus() {
-		return true;
-	}
+    MetadataPerspective.getInstance().updateEditor(this);
+  }
 
-	@Override
-	public void dispose() {
+  @Override
+  public void saveAs(String filename) throws HopException {
+    throw new HopException("Metadata editor doesn't support saveAs");
+  }
 
-	}
+  @Override
+  public boolean setFocus() {
+    return true;
+  }
+
+  @Override
+  public void dispose() {}
 }

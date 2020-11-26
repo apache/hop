@@ -53,8 +53,6 @@ import org.eclipse.swt.widgets.Text;
 public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
   private static final Class<?> PKG = PipelineUnitTestEditor.class; // for i18n purposes, needed by Translator2!!
 
-  private final PipelineUnitTest pipelineUnitTest;
-
   private Text wName;
   private Text wDescription;
   private Combo wTestType;
@@ -70,9 +68,8 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
   protected IHopMetadataProvider metadataProvider;
 
   public PipelineUnitTestEditor(HopGui hopGui, MetadataManager<PipelineUnitTest> manager, PipelineUnitTest metadata) {
-	super(hopGui, manager, metadata);
+    super(hopGui, manager, metadata);
 	  
-    this.pipelineUnitTest = metadata;
     this.metadataProvider = manager.getMetadataProvider();
     props = PropsUi.getInstance();
   }
@@ -80,6 +77,9 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
   @Override
   public void createControl(Composite parent) {
 
+    PipelineUnitTest pipelineUnitTest = this.getMetadata();
+      
+      
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
@@ -285,7 +285,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdVariableValues.bottom = new FormAttachment( 100, -2 * margin );
     wVariableValues.setLayoutData( fdVariableValues );
     
-    getData();
+    setWidgetsContent();
     
     // Add listener to detect change after loading data
 	ModifyListener lsMod = e -> setChanged();
@@ -297,8 +297,10 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     wBasePath.addModifyListener( lsMod );
   }
 
-  public void getData() {
-
+  @Override
+  public void setWidgetsContent() {
+    PipelineUnitTest pipelineUnitTest = this.getMetadata();
+      
     wName.setText( Const.NVL( pipelineUnitTest.getName(), "" ) );
     wDescription.setText( Const.NVL( pipelineUnitTest.getDescription(), "" ) );
     wTestType.setText( Const.NVL( DataSetConst.getTestTypeDescription( pipelineUnitTest.getType() ), "" ) );
@@ -324,10 +326,8 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
   }
 
 
-  /**
-   * @param test The pipeline unit test to load the dialog information into
-   */
-  public void getInfo( PipelineUnitTest test ) {
+  @Override
+  public void getWidgetsContent( PipelineUnitTest test ) {
 
     test.setName( wName.getText() );
     test.setDescription( wDescription.getText() );
@@ -360,7 +360,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
   @Override
   public void save() throws HopException {
 
-    getInfo( pipelineUnitTest );
+    getWidgetsContent(this.getMetadata());
 
     super.save();
   }
