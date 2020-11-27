@@ -35,7 +35,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -53,7 +52,7 @@ public class PDI4910_DenormaliserTest {
   public void init() {
     mockHelper = new TransformMockHelper<DenormaliserMeta, DenormaliserData>( "Denormalizer", DenormaliserMeta.class, DenormaliserData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( mockHelper.logChannelInterface );
+      .thenReturn( mockHelper.iLogChannel );
   }
 
   @After

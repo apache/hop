@@ -80,7 +80,7 @@ public class XMLOutputTest {
     stepMockHelper =
         new TransformMockHelper<XmlOutputMeta, XmlOutputData>( "XML_OUTPUT_TEST", XmlOutputMeta.class, XmlOutputData.class );
     when( stepMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        stepMockHelper.logChannelInterface );
+        stepMockHelper.iLogChannel );
     TransformMeta mockMeta = mock( TransformMeta.class );
     when( stepMockHelper.pipelineMeta.findTransform( Matchers.anyString() ) ).thenReturn( mockMeta );
     when( trans.getLogLevel() ).thenReturn( LogLevel.DEBUG );

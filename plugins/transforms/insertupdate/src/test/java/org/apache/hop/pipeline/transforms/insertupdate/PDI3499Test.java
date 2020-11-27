@@ -59,7 +59,7 @@ public class PDI3499Test {
       new TransformMockHelper<InsertUpdateMeta, InsertUpdateData>( "insertUpdate", InsertUpdateMeta.class,
         InsertUpdateData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
+      smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 

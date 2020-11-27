@@ -131,7 +131,7 @@ public class DatabaseLookupUTest {
       new TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData>( "test DatabaseLookup", DatabaseLookupMeta.class,
         DatabaseLookupData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( mockHelper.logChannelInterface );
+      .thenReturn( mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
     RowMeta inputRowMeta = new RowMeta();
@@ -244,7 +244,7 @@ public class DatabaseLookupUTest {
   @Test
   public void testEqualsAndIsNullAreCached() throws Exception {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( mockHelper.logChannelInterface );
+      .thenReturn( mockHelper.iLogChannel );
 
     DatabaseLookupData data = new DatabaseLookupData();
     data.cache = DefaultCache.newCache( data, 0 );
@@ -294,7 +294,7 @@ public class DatabaseLookupUTest {
   @Test
   public void getRowInCacheTest() throws HopException {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( mockHelper.logChannelInterface );
+      .thenReturn( mockHelper.iLogChannel );
 
     DatabaseLookupData data = new DatabaseLookupData();
     data.cache = DefaultCache.newCache( data, 0 );

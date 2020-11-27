@@ -58,7 +58,7 @@ public class StringOperationsTest {
       new TransformMockHelper<StringOperationsMeta, StringOperationsData>( "StringOperations", StringOperationsMeta.class,
         StringOperationsData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
+      smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 

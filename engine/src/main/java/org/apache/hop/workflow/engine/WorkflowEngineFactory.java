@@ -28,10 +28,6 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
 import org.apache.hop.workflow.config.WorkflowRunConfiguration;
@@ -39,55 +35,78 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 
 public class WorkflowEngineFactory {
 
-  public static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine( String runConfigurationName, IHopMetadataProvider metadataProvider, T workflowMeta, ILoggingObject parentLogging ) throws HopException {
-    if ( StringUtils.isEmpty(runConfigurationName)) {
-      throw new HopException( "You need to specify a workflow run configuration to execute this workflow" );
+  public static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine(
+      String runConfigurationName,
+      IHopMetadataProvider metadataProvider,
+      T workflowMeta,
+      ILoggingObject parentLogging) throws HopException {
+
+    if (StringUtils.isEmpty(runConfigurationName)) {
+      throw new HopException(
+          "You need to specify a workflow run configuration to execute this workflow");
     }
     WorkflowRunConfiguration runConfiguration;
     try {
-      runConfiguration = metadataProvider.getSerializer( WorkflowRunConfiguration.class ).load( runConfigurationName );
-    } catch(Exception e) {
-      throw new HopException( "Error loading workflow run configuration '"+runConfigurationName+"'", e );
+      runConfiguration =
+          metadataProvider.getSerializer(WorkflowRunConfiguration.class).load(runConfigurationName);
+    } catch (Exception e) {
+      throw new HopException(
+          "Error loading workflow run configuration '" + runConfigurationName + "'", e);
     }
-    if (runConfiguration==null) {
-      throw new HopException( "Workflow run configuration '"+runConfigurationName+"' could not be found" );
+    if (runConfiguration == null) {
+      throw new HopException(
+          "Workflow run configuration '" + runConfigurationName + "' could not be found");
     }
-    IWorkflowEngine<T> workflowEngine = createWorkflowEngine( runConfiguration, workflowMeta, parentLogging );
+    IWorkflowEngine<T> workflowEngine = createWorkflowEngine(
+      runConfiguration,
+      workflowMeta,
+      parentLogging
+    );
 
     // Copy the variables from the metadata
     //
-    workflowEngine.initializeVariablesFrom( workflowMeta );
+    workflowEngine.initializeVariablesFrom(workflowMeta);
 
     // Pass the metastores around to make sure
     //
-    workflowEngine.setMetadataProvider( metadataProvider );
-    workflowMeta.setMetadataProvider( metadataProvider );
+    workflowEngine.setMetadataProvider(metadataProvider);
+    workflowMeta.setMetadataProvider(metadataProvider);
 
     return workflowEngine;
   }
 
-  private static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine( WorkflowRunConfiguration workflowRunConfiguration, T workflowMeta, ILoggingObject parentLogging ) throws HopException {
-    IWorkflowEngineRunConfiguration engineRunConfiguration = workflowRunConfiguration.getEngineRunConfiguration();
-    if (engineRunConfiguration==null) {
-      throw new HopException( "There is no pipeline execution engine specified in run configuration '"+workflowRunConfiguration.getName()+"'" );
+  private static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine(
+      WorkflowRunConfiguration workflowRunConfiguration,
+      T workflowMeta,
+      ILoggingObject parentLogging)
+      throws HopException {
+    IWorkflowEngineRunConfiguration engineRunConfiguration =
+        workflowRunConfiguration.getEngineRunConfiguration();
+    if (engineRunConfiguration == null) {
+      throw new HopException(
+          "There is no pipeline execution engine specified in run configuration '"
+              + workflowRunConfiguration.getName()
+              + "'");
     }
     String enginePluginId = engineRunConfiguration.getEnginePluginId();
 
     // Load this engine from the plugin registry
     //
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
-    IPlugin plugin = pluginRegistry.findPluginWithId( WorkflowEnginePluginType.class, enginePluginId );
-    if (plugin==null) {
-      throw new HopException( "Unable to find pipeline engine plugin type with ID '"+enginePluginId+"'" );
+    IPlugin plugin =
+        pluginRegistry.findPluginWithId(WorkflowEnginePluginType.class, enginePluginId);
+    if (plugin == null) {
+      throw new HopException(
+          "Unable to find pipeline engine plugin type with ID '" + enginePluginId + "'");
     }
 
-    IWorkflowEngine<T> workflowEngine = pluginRegistry.loadClass( plugin, IWorkflowEngine.class );
-    workflowEngine.setWorkflowRunConfiguration( workflowRunConfiguration );
+    IWorkflowEngine<T> workflowEngine = pluginRegistry.loadClass(plugin, IWorkflowEngine.class);
+    workflowEngine.setWorkflowRunConfiguration(workflowRunConfiguration);
 
-    if (workflowEngine instanceof LocalWorkflowEngine ) {
-      ((LocalWorkflowEngine)workflowEngine).setParentLoggingObject( parentLogging );
+    if (workflowEngine instanceof LocalWorkflowEngine) {
+      ((LocalWorkflowEngine) workflowEngine).setParentLoggingObject(parentLogging);
     }
-    workflowEngine.setWorkflowMeta( workflowMeta );
+    workflowEngine.setWorkflowMeta(workflowMeta);
 
     return workflowEngine;
   }

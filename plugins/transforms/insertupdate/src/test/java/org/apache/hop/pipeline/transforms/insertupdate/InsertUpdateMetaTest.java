@@ -94,7 +94,7 @@ public class InsertUpdateMetaTest {
     mockHelper =
       new TransformMockHelper<>( "insertUpdate", InsertUpdateMeta.class, InsertUpdateData.class );
     Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( ILoggingObject.class ) ) )
-      .thenReturn( mockHelper.logChannelInterface );
+      .thenReturn( mockHelper.iLogChannel );
     Mockito.when( mockHelper.transformMeta.getTransform() ).thenReturn( new InsertUpdateMeta() );
   }
 
@@ -212,7 +212,7 @@ public class InsertUpdateMetaTest {
   public void testErrorProcessRow() throws HopException {
     Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( ILoggingObject.class ) ) )
       .thenReturn(
-        mockHelper.logChannelInterface );
+        mockHelper.iLogChannel );
     Mockito.when( mockHelper.transformMeta.getTransform() ).thenReturn( new InsertUpdateMeta() );
 
     InsertUpdate insertUpdateTransform =

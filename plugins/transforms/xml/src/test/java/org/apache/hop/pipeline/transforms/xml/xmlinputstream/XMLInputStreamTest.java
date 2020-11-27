@@ -50,8 +50,6 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import javax.sql.RowSet;
-
 
 /**
  * @author Tatsiana_Kasiankova
@@ -88,7 +86,7 @@ public class XMLInputStreamTest {
         new TransformMockHelper<XmlInputStreamMeta, XmlInputStreamData>( "XMLInputStreamTest", XmlInputStreamMeta.class,
             XmlInputStreamData.class );
     when( stepMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        stepMockHelper.logChannelInterface );
+        stepMockHelper.iLogChannel );
     when( stepMockHelper.pipeline.isRunning() ).thenReturn( true );
 
     xmlInputStreamMeta = new XmlInputStreamMeta();

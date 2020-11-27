@@ -55,7 +55,7 @@ public class SetValueConstantTest {
       new TransformMockHelper<SetValueConstantMeta, SetValueConstantData>( "SetValueConstant", SetValueConstantMeta.class,
         SetValueConstantData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
+      smh.iLogChannel );
   }
 
   @After

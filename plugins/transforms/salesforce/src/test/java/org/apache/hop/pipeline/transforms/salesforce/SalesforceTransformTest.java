@@ -64,7 +64,7 @@ public class SalesforceTransformTest {
   @Before
   public void setUp() throws HopException {
     smh = new TransformMockHelper<>( "Salesforce", SalesforceTransformMeta.class, SalesforceTransformData.class );
-    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( smh.logChannelInterface );
+    when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 

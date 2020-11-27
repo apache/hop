@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline.transforms.metainject;
 
 import java.util.*;
@@ -45,36 +40,33 @@ public class MetaInjectMetaLoadSaveTest {
   @Before
   public void setUpLoadSave() throws Exception {
     List<String> attributes =
-            Arrays.asList( "pipelineName", "fileName", "directoryPath", "sourceTransformName", "targetFile",
+            Arrays.asList( "fileName", "sourceTransformName", "targetFile",
                     "noExecution", "streamSourceTransformName", "streamTargetTransformName",
-                    "specificationMethod", "sourceOutputFields" );
+                    "sourceOutputFields" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
-//    attrValidatorMap.put( "transObjectId", new ObjectIdLoadSaveValidator() );
-//    attrValidatorMap.put( "specificationMethod", new ObjectLocationSpecificationMethodLoadSaveValidator() );
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "sourceOutputFields",
-        new ListLoadSaveValidator<MetaInjectOutputField>( new MetaInjectOutputFieldLoadSaveValidator(), 5 ) );
+      new ListLoadSaveValidator<>( new MetaInjectOutputFieldLoadSaveValidator(), 5 ) );
     //
     // Note - these seem to be runtime-built and not persisted.
         attrValidatorMap.put( "metaInjectMapping",
-            new ListLoadSaveValidator<MetaInjectMapping>( new MetaInjectMappingLoadSaveValidator(), 5 ) );
+          new ListLoadSaveValidator<>( new MetaInjectMappingLoadSaveValidator(), 5 ) );
         attrValidatorMap.put( "targetSourceMapping",
-            new MapLoadSaveValidator<TargetTransformAttribute, SourceTransformField>(
-                new TargetTrnsformAttributeLoadSaveValidator(),
-                new SourceTransformFieldLoadSaveValidator(),
-                5 ) );
+          new MapLoadSaveValidator<>(
+            new TargetTransformAttributeLoadSaveValidator(),
+            new SourceTransformFieldLoadSaveValidator(),
+            5 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap,
                 attrValidatorMap, typeValidatorMap );
   }
 
   @Test
-  @Ignore
   public void testSerialization() throws HopException {
     loadSaveTester.testSerialization();
   }
@@ -133,8 +125,8 @@ public class MetaInjectMetaLoadSaveTest {
         .isEquals();
     }
   }
-  // TargetTrnsformAttributeLoadSaveValidator
-  public class TargetTrnsformAttributeLoadSaveValidator implements IFieldLoadSaveValidator<TargetTransformAttribute> {
+  // TargetTransformAttributeLoadSaveValidator
+  public class TargetTransformAttributeLoadSaveValidator implements IFieldLoadSaveValidator<TargetTransformAttribute> {
     final Random rand = new Random();
     @Override
     public TargetTransformAttribute getTestObject() {

@@ -191,10 +191,10 @@ public class TextFileOutputTest {
     transformMockHelper =
       new TransformMockHelper<>( "TEXT FILE OUTPUT TEST", TextFileOutputMeta.class, TextFileOutputData.class );
     Mockito.when( transformMockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( ILoggingObject.class ) ) ).thenReturn(
-      transformMockHelper.logChannelInterface );
-    Mockito.verify( transformMockHelper.logChannelInterface, Mockito.never() ).logError( Mockito.anyString() );
-    Mockito.verify( transformMockHelper.logChannelInterface, Mockito.never() ).logError( Mockito.anyString(), Mockito.any( Object[].class ) );
-    Mockito.verify( transformMockHelper.logChannelInterface, Mockito.never() ).logError( Mockito.anyString(), Mockito.any( Throwable.class ) );
+      transformMockHelper.iLogChannel );
+    Mockito.verify( transformMockHelper.iLogChannel, Mockito.never() ).logError( Mockito.anyString() );
+    Mockito.verify( transformMockHelper.iLogChannel, Mockito.never() ).logError( Mockito.anyString(), Mockito.any( Object[].class ) );
+    Mockito.verify( transformMockHelper.iLogChannel, Mockito.never() ).logError( Mockito.anyString(), Mockito.any( Throwable.class ) );
     Mockito.when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
     Mockito.verify( transformMockHelper.pipeline, Mockito.never() ).stopAll();
     Mockito.when( transformMockHelper.iTransformMeta.getSeparator() ).thenReturn( " " );

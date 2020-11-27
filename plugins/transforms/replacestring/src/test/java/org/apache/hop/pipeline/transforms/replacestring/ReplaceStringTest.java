@@ -69,10 +69,10 @@ public class ReplaceStringTest {
       new TransformMockHelper<ReplaceStringMeta, ReplaceStringData>( "REPLACE STRING TEST", ReplaceStringMeta.class,
         ReplaceStringData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      transformMockHelper.logChannelInterface );
-    verify( transformMockHelper.logChannelInterface, never() ).logError( anyString() );
-    verify( transformMockHelper.logChannelInterface, never() ).logError( anyString(), any( Object[].class ) );
-    verify( transformMockHelper.logChannelInterface, never() ).logError( anyString(), (Throwable) anyObject() );
+      transformMockHelper.iLogChannel );
+    verify( transformMockHelper.iLogChannel, never() ).logError( anyString() );
+    verify( transformMockHelper.iLogChannel, never() ).logError( anyString(), any( Object[].class ) );
+    verify( transformMockHelper.iLogChannel, never() ).logError( anyString(), (Throwable) anyObject() );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
 

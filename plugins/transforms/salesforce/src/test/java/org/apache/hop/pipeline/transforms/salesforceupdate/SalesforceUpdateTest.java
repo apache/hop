@@ -74,7 +74,7 @@ public class SalesforceUpdateTest {
       new TransformMockHelper<>( "SalesforceUpsert", SalesforceUpdateMeta.class,
         SalesforceUpdateData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
+      smh.iLogChannel );
   }
 
   @After

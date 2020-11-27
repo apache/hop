@@ -56,7 +56,7 @@ public class MemoryGroupByNewAggregateTest {
       new TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData>( "Memory Group By", MemoryGroupByMeta.class,
         MemoryGroupByData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      mockHelper.logChannelInterface );
+      mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
     // In this transform we will distinct String aggregations from numeric ones

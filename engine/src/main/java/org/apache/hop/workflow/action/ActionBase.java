@@ -729,29 +729,13 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   }
 
   /**
-   * This returns the expected name for the dialog that edits a action. The expected name is in the org.apache.hop.ui
-   * tree and has a class name that is the name of the action with 'Dialog' added to the end.
-   * <p>
-   * e.g. if the action is org.apache.hop.workflow.actions.zipfile.JobEntryZipFile the dialog would be
-   * org.apache.hop.ui.workflow.actions.zipfile.JobEntryZipFileDialog
-   * <p>
-   * If the dialog class for a action does not match this pattern it should override this method and return the
-   * appropriate class name
+   * You can use this to point to an alternate class for the Dialog.
+   * By default we return null.  This means we simply add Dialog to the Action plugin class name.
    *
-   * @return full class name of the dialog
+   * @return full class name of the action dialog class (null by default)
    */
   public String getDialogClassName() {
-    String className = getClass().getCanonicalName();
-    className += "Dialog";
-
-    try {
-      Class clazz = Class.forName(className.replaceFirst( "\\.hop\\.", ".hop.ui." ));
-      className = clazz.getName();
-    }catch (ClassNotFoundException e){
-      //do nothing and return plugin classname
-    }
-
-    return className;
+    return null;
   }
 
   /**

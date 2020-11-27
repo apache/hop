@@ -51,6 +51,7 @@
         <module>mysqlbulkload</module>
         <module>pgpfiles</module>
         <module>ping</module>
+        <module>repeat</module>
         <module>sendnagiospassivecheck</module>
         <module>setvariables</module>
         <module>shell</module>

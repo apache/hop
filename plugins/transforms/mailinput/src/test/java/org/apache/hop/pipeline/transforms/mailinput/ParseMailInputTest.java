@@ -91,7 +91,7 @@ public class ParseMailInputTest {
       new TransformMockHelper<MailInputMeta, ITransformData>(
         "ABORT TEST", MailInputMeta.class, ITransformData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( transformMockHelper.logChannelInterface );
+      .thenReturn( transformMockHelper.iLogChannel );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
 

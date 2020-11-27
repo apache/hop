@@ -27,23 +27,15 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileFilter;
-import org.apache.hop.pipeline.transforms.fileinput.TextFileInput;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputData;
 import org.apache.hop.pipeline.transforms.fileinput.TextFileInputMeta;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
-import org.junit.Test;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.Date;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -65,7 +57,7 @@ public class PDI_2875_Test {
     smh =
       new TransformMockHelper<TextFileInputMeta, TextFileInputData>( "CsvInputTest", TextFileInputMeta.class, TextFileInputData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( smh.logChannelInterface );
+      .thenReturn( smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 
