@@ -45,6 +45,7 @@ import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ColumnsResizer;
 import org.apache.hop.ui.core.widget.TableView;
@@ -121,6 +122,14 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   private Map<TreeItem, TargetTransformAttribute> treeItemTargetMap;
 
   private final Map<TargetTransformAttribute, SourceTransformField> targetSourceMapping;
+  
+  //The search bar
+  private ToolItem goSearch, wfilter, expandAll, collapseAll;
+  private Text searchText = null;
+  private String filterString = null;
+  private Label wlSelection;
+  private FormData fdlSelection, fdSelection;
+  private boolean isExpandAll = true;
 
   public MetaInjectDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
@@ -502,10 +511,10 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     CTabItem wInjectTab = new CTabItem(wTabFolder, SWT.NONE);
     wInjectTab.setText( BaseMessages.getString( PKG, "MetaInjectDialog.InjectTab.TabTitle" ) );
-
+    
     ScrolledComposite wInjectSComp = new ScrolledComposite(wTabFolder, SWT.V_SCROLL | SWT.H_SCROLL);
     wInjectSComp.setLayout( new FillLayout() );
-
+    
     Composite wInjectComp = new Composite(wInjectSComp, SWT.NONE);
     props.setLook(wInjectComp);
 
@@ -513,11 +522,75 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     fileLayout.marginWidth = 15;
     fileLayout.marginHeight = 15;
     wInjectComp.setLayout( fileLayout );
+    
+    // Add a search bar at the top...
+    ToolBar treeTb = new ToolBar( wInjectComp, SWT.HORIZONTAL | SWT.FLAT );
+    props.setLook( treeTb );
+    
+    expandAll = new ToolItem( treeTb, SWT.PUSH );
+    expandAll.setImage( GuiResource.getInstance().getImageExpandAll() );
+    expandAll.setToolTipText( BaseMessages.getString( PKG, "MetaInjectDialog.InjectTab.FilterString.ExpandAll" ) );
+    
+    expandAll.addSelectionListener( new SelectionAdapter() {
+        public void widgetSelected( SelectionEvent event ) {
+        	isExpandAll = true;
+        	refreshTree();
+        }
+      } );
+    
+    collapseAll = new ToolItem( treeTb, SWT.PUSH );
+    collapseAll.setImage( GuiResource.getInstance().getImageCollapseAll() );
+    collapseAll.setToolTipText( BaseMessages.getString( PKG, "MetaInjectDialog.InjectTab.FilterString.CollapseAll" ) );
+    
+    collapseAll.addSelectionListener( new SelectionAdapter() {
+        public void widgetSelected( SelectionEvent event ) {
+          isExpandAll = false;
+          refreshTree();
+        }
+      } );
 
+    wfilter = new ToolItem( treeTb, SWT.SEPARATOR );
+    searchText = new Text( treeTb, SWT.SEARCH | SWT.CANCEL );
+    props.setLook( searchText );
+    searchText.setToolTipText( BaseMessages.getString( PKG, "MetaInjectDialog.InjectTab.FilterString.ToolTip" ) );
+    wfilter.setControl( searchText );
+    wfilter.setWidth( 120 );
+
+    goSearch = new ToolItem( treeTb, SWT.PUSH );
+    goSearch.setImage( GuiResource.getInstance().getImageSearchSmall() );
+    goSearch.setToolTipText( BaseMessages.getString( PKG, "MetaInjectDialog.InjectTab.FilterString.refresh.Label" ) );
+
+    goSearch.addSelectionListener( new SelectionAdapter() {
+      public void widgetSelected( SelectionEvent event ) {
+        updateTransformationFilter();
+      }
+    } );
+
+    FormData fd = new FormData();
+    fd.right = new FormAttachment( 100 );
+    fd.top = new FormAttachment( 0, 0 );
+    treeTb.setLayoutData( fd );
+
+    Label wlFilter = new Label( wInjectComp, SWT.RIGHT );
+    props.setLook( wlFilter );
+    wlFilter.setText( BaseMessages.getString( PKG, "MetaInjectDialog.InjectTab.FilterString.Label" ) );
+    FormData fdlFilter = new FormData();
+    fdlFilter.top = new FormAttachment( 0, 5 );
+    fdlFilter.right = new FormAttachment( treeTb, -5 );
+    wlFilter.setLayoutData( fdlFilter );
+
+    searchText.addSelectionListener( new SelectionAdapter() {
+      public void widgetDefaultSelected( SelectionEvent e ) {
+        updateTransformationFilter();
+      }
+    } );
+
+    
+    // Transformation list
     wTree = new Tree(wInjectComp, SWT.SINGLE | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER );
     FormData fdTree = new FormData();
     fdTree.left = new FormAttachment( 0, 0 );
-    fdTree.top = new FormAttachment( 0, 0 );
+    fdTree.top = new FormAttachment( wlFilter, 5 );
     fdTree.right = new FormAttachment( 100, 0 );
     fdTree.bottom = new FormAttachment( 100, 0 );
     wTree.setLayoutData( fdTree );
@@ -611,7 +684,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
 
     FormData fdInjectComp = new FormData();
     fdInjectComp.left = new FormAttachment( 0, 0 );
-    fdInjectComp.top = new FormAttachment( 0, 0 );
+    fdInjectComp.top = new FormAttachment( wlFilter, 5 );
     fdInjectComp.right = new FormAttachment( 100, 0 );
     fdInjectComp.bottom = new FormAttachment( 100, 0 );
     wInjectComp.setLayoutData( fdInjectComp );
@@ -777,6 +850,14 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   protected String buildTransformFieldKey(String transformName, String field ) {
     return transformName + " : " + field;
   }
+  
+  protected void updateTransformationFilter() {
+	    filterString = null;
+	    if ( searchText != null && !searchText.isDisposed() && !Utils.isEmpty( searchText.getText() ) ) {
+	      filterString = searchText.getText().toUpperCase();
+	    }
+	    refreshTree();
+  }
 
   private void refreshTree() {
     try {
@@ -793,7 +874,13 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
       for ( TransformMeta transformMeta : injectPipelineMeta.getUsedTransforms() ) {
         ITransformMeta meta = transformMeta.getTransform();
         if ( BeanInjectionInfo.isInjectionSupported( meta.getClass() ) ) {
-          injectTransforms.add( transformMeta );
+          if ( filterString != null ) {
+        	if ( transformMeta.getName().toUpperCase().contains( filterString ) ) {
+        	  injectTransforms.add( transformMeta );
+	        }
+          } else {
+            injectTransforms.add( transformMeta );
+          }
         }
       }
       Collections.sort( injectTransforms );
@@ -816,7 +903,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
     } catch ( Throwable t ) {
       // Ignore errors
     }
-
+    
     for ( TreeItem item : wTree.getItems() ) {
       expandItemAndChildren( item );
     }
@@ -867,11 +954,13 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void expandItemAndChildren( TreeItem item ) {
+	// only expand root item
     item.setExpanded( true );
-    for ( TreeItem item2 : item.getItems() ) {
-      expandItemAndChildren( item2 );
+    if ( isExpandAll ) {
+      for ( TreeItem item2 : item.getItems() ) {
+        expandItemAndChildren( item2 );
+      }
     }
-
   }
 
   private void cancel() {
