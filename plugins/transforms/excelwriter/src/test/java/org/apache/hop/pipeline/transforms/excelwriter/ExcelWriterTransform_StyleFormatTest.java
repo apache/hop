@@ -80,10 +80,10 @@ public class ExcelWriterTransform_StyleFormatTest {
    */
   public void setUp() throws Exception {
     transformMockHelper = new TransformMockHelper<>( "Excel Writer Style Format Test", ExcelWriterTransformMeta.class, ExcelWriterTransformData.class );
-    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
-    verify( transformMockHelper.logChannelInterface, never() ).logError( anyString() );
-    verify( transformMockHelper.logChannelInterface, never() ).logError( anyString(), any( Object[].class ) );
-    verify( transformMockHelper.logChannelInterface, never() ).logError( anyString(), (Throwable) anyObject() );
+    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.iLogChannel );
+    verify( transformMockHelper.iLogChannel, never() ).logError( anyString() );
+    verify( transformMockHelper.iLogChannel, never() ).logError( anyString(), any( Object[].class ) );
+    verify( transformMockHelper.iLogChannel, never() ).logError( anyString(), (Throwable) anyObject() );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
 

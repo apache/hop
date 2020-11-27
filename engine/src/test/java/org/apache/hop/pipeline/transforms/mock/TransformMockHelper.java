@@ -36,7 +36,6 @@ import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.io.OutputStream;
@@ -61,14 +60,14 @@ public class TransformMockHelper<Meta extends ITransformMeta, Data extends ITran
   public final PipelineMeta pipelineMeta;
   public final Pipeline pipeline;
 
-  public final ILogChannel logChannelInterface;
+  public final ILogChannel iLogChannel;
   public final ILogChannelFactory logChannelFactory;
   public final ILogChannelFactory originalLogChannelFactory;
 
   public TransformMockHelper( String transformName, Class<Meta> transformMetaClass, Class<Data> transformDataClass ) {
     originalLogChannelFactory = HopLogStore.getLogChannelFactory();
     logChannelFactory = mock( ILogChannelFactory.class );
-    logChannelInterface = mock( ILogChannel.class );
+    iLogChannel = mock( ILogChannel.class );
     HopLogStore.setLogChannelFactory( logChannelFactory );
     transformMeta = mock( TransformMeta.class );
     when( transformMeta.getName() ).thenReturn( transformName );

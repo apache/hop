@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.pipeline.transforms.workflowexecutor;
 
@@ -517,11 +511,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdGetParameters.right = new FormAttachment( 100, 0 );
     wGetParameters.setLayoutData( fdGetParameters );
     wGetParameters.setSelection( workflowExecutorMeta.getParameters().isInheritingAllVariables() );
-    wGetParameters.addSelectionListener( new SelectionAdapter() {
-      public void widgetSelected( SelectionEvent e ) {
-        getParametersFromWorkflow( null ); // null : reload file
-      }
-    } );
+    wGetParameters.addListener( SWT.Selection, e-> getParametersFromWorkflow( null )); // null : reload file
 
     // Now add a table view with the 3 columns to specify: variable name, input field & optional static input
     //
@@ -594,12 +584,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
       String[] parameters = inputWorkflowMeta.listParameters();
       for ( int i = 0; i < parameters.length; i++ ) {
-        String name = parameters[ i ];
-        String desc = inputWorkflowMeta.getParameterDescription( name );
-
         TableItem item = new TableItem( wWorkflowExecutorParameters.table, SWT.NONE );
-        item.setText( 1, Const.NVL( name, "" ) );
-        item.setText( 3, Const.NVL( desc, "" ) );
+        item.setText( 1, Const.NVL( parameters[ i ], "" ) );
       }
       wWorkflowExecutorParameters.removeEmptyRows();
       wWorkflowExecutorParameters.setRowNums();

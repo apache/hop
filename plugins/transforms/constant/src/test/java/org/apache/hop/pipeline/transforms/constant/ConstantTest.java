@@ -62,7 +62,7 @@ public class ConstantTest {
 
     mockHelper = new TransformMockHelper<>( "Add Constants", ConstantMeta.class, ConstantData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      mockHelper.logChannelInterface );
+      mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
     doReturn( rowMetaAndData ).when( mockHelper.iTransformData ).getConstants();

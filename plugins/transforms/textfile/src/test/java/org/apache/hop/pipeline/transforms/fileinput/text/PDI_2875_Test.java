@@ -58,7 +58,7 @@ public class PDI_2875_Test {
     smh =
       new TransformMockHelper<TextFileInputMeta, TextFileInputData>( "CsvInputTest", TextFileInputMeta.class, TextFileInputData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( smh.logChannelInterface );
+      .thenReturn( smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 

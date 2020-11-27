@@ -51,7 +51,7 @@ public class GetTableNamesTest {
     mockHelper =
       new TransformMockHelper<>( "Get Table Names", GetTableNamesMeta.class, GetTableNamesData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      mockHelper.logChannelInterface );
+      mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
     getTableNamesSpy = Mockito.spy( new GetTableNames( mockHelper.transformMeta, mockHelper.iTransformMeta, mockHelper.iTransformData, 0,

@@ -1,24 +1,20 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Pentaho Data Integration
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
+
 
 package org.apache.hop.pipeline.transforms.metainject;
 
@@ -110,7 +106,7 @@ public class MetaInjectTest {
     meta = new MetaInjectMeta();
     data = new MetaInjectData();
     data.pipelineMeta = pipelineMeta;
-//    metaInject = TransformMockUtil.getTransform( MetaInject.class, MetaInjectMeta.class, MetaInjectData.class, "MetaInjectTest" );
+    metaInject = TransformMockUtil.getTransform( MetaInject.class, MetaInjectMeta.class, MetaInjectData.class, "MetaInjectTest" );
     metaInject = PowerMockito.spy( metaInject );
     metaInject.init();
     metadataProvider = mock( IHopMetadataProvider.class );
@@ -127,50 +123,12 @@ public class MetaInjectTest {
     doReturn( Collections.singletonList( stepMeta ) ).when( internalPipelineMeta ).getUsedTransforms();
     ITransformMeta iTransformMeta = mock( ITransformMeta.class );
     doReturn( iTransformMeta ).when( stepMeta ).getTransform();
-//    metaInjectionInterface = mock( TransformMetaInjectionInterface.class );
-//    doReturn( metaInjectionInterface ).when( iTransformMeta ).getTransformMetaInjectionInterface();
-
     doReturn( internalPipelineMeta ).when( metaInject ).loadPipelineMeta();
   }
 
-  @Test
-  public void testMetastoreIsSet() throws Exception {
-    doReturn( new String[] { } ).when(pipelineMeta).getPrevTransformNames( any( TransformMeta.class ) );
-    data.transformInjectionMetasMap = new HashMap<>();
-
-    data.pipelineMeta = new PipelineMeta();
-
-    meta.setNoExecution( false );
-    doReturn( LogLevel.ERROR ).when( metaInject ).getLogLevel();
-    // don't need to actually run anything to verify this. force it to "stopped"
-    doReturn( true ).when( metaInject ).isStopped();
-    doNothing().when( metaInject ).waitUntilFinished( any( Pipeline.class ) );
-    // make sure the injected tranformation doesn't have a metastore first
-    assertNull( data.pipelineMeta.getMetadataProvider() );
-
-    metaInject.processRow( );
-
-    // now it should be set
-    assertEquals(metadataProvider, data.pipelineMeta.getMetadataProvider() );
-  }
 
   @Test
-  public void testTransWaitsForListenersToFinish() throws Exception {
-    doReturn( new String[] { } ).when(pipelineMeta).getPrevTransformNames( any( TransformMeta.class ) );
-    data.transformInjectionMetasMap = new HashMap<>();
-    data.pipelineMeta = new PipelineMeta();
-    meta.setNoExecution( false );
-    Pipeline injectTrans = mock( Pipeline.class );
-    doReturn( injectTrans ).when( metaInject ).createInjectTrans();
-    when( injectTrans.isFinished() ).thenReturn( true );
-    Result result = mock( Result.class );
-    when( injectTrans.getResult() ).thenReturn( result );
-    metaInject.processRow( );
-    verify( injectTrans ).waitUntilFinished();
-  }
-
-  @Test
-  public void transVariablesPassedToChildPipeline() throws HopException {
+  public void pipelineVariablesPassedToChildPipeline() throws HopException {
     doReturn( new String[] { TEST_VARIABLE } ).when( metaInject ).listVariables();
     doReturn( TEST_VALUE ).when( metaInject ).getVariable( TEST_VARIABLE );
 
@@ -185,12 +143,12 @@ public class MetaInjectTest {
   }
 
   @Test
-  public void transParametersPassedToChildPipeline() throws HopException {
-    Pipeline trans = new LocalPipelineEngine();
-    trans.addParameterDefinition( TEST_PARAMETER, "TEST_DEF_VALUE", "" );
-    trans.setParameterValue( TEST_PARAMETER, TEST_VALUE );
+  public void pipelineParametersPassedToChildPipeline() throws HopException {
+    Pipeline pipeline = new LocalPipelineEngine();
+    pipeline.addParameterDefinition( TEST_PARAMETER, "TEST_DEF_VALUE", "" );
+    pipeline.setParameterValue( TEST_PARAMETER, TEST_VALUE );
 
-    doReturn( trans ).when( metaInject ).getPipeline();
+    doReturn( pipeline ).when( metaInject ).getPipeline();
     PipelineMeta internalPipelineMeta = new PipelineMeta();
     doReturn( internalPipelineMeta ).when( metaInject ).loadPipelineMeta();
 
@@ -233,7 +191,7 @@ public class MetaInjectTest {
 
     Set<SourceTransformField> unavailableSourceTransforms = Collections.singleton(UNAVAILABLE_SOURCE_TRANSFORM);
     MetaInject.removeUnavailableTransformsFromMapping( targetMap, unavailableSourceTransforms, Collections
-        .<TargetTransformAttribute>emptySet() );
+        .emptySet() );
     assertTrue( targetMap.isEmpty() );
   }
 
@@ -245,7 +203,7 @@ public class MetaInjectTest {
     targetMap.put( unavailableTargetTransform, unavailableSourceTransform );
 
     Set<TargetTransformAttribute> unavailableTargetTransforms = Collections.singleton(UNAVAILABLE_TARGET_TRANSFORM);
-    MetaInject.removeUnavailableTransformsFromMapping( targetMap, Collections.<SourceTransformField>emptySet(),
+    MetaInject.removeUnavailableTransformsFromMapping( targetMap, Collections.emptySet(),
         unavailableTargetTransforms );
     assertTrue( targetMap.isEmpty() );
   }
@@ -294,7 +252,7 @@ public class MetaInjectTest {
     ITransformMeta smi = new InjectableTestTransformMeta();
     PipelineMeta pipelineMeta = mockSingleTransformPipelineMeta( targetTransformName, smi );
     Set<TargetTransformAttribute> unavailable =
-        MetaInject.getUnavailableTargetKeys( targetMap, pipelineMeta, Collections.<TargetTransformAttribute>emptySet() );
+        MetaInject.getUnavailableTargetKeys( targetMap, pipelineMeta, Collections.emptySet() );
     assertEquals( 1, unavailable.size() );
     assertTrue( unavailable.contains( unavailableTargetAttr ) );
   }
@@ -341,24 +299,5 @@ public class MetaInjectTest {
     }
   }
 
-  private static RowMetaAndData createRowMetaAndData( IValueMeta valueMeta, Object data ) {
-    RowMetaAndData row = new RowMetaAndData();
-    RowMeta rowMeta = new RowMeta();
-    rowMeta.addValueMeta( valueMeta );
-    row.setRowMeta( rowMeta );
-    row.setData( new Object[] { data } );
-    return row;
-  }
-
-  @Test
-  public void testWriteInjectedKtrNoRepo() throws Exception {
-    PowerMockito.doNothing().when( metaInject, "writeInjectedKtrToRepo", "/home/admin/injected_trans.ktr" );
-    PowerMockito.doNothing().when( metaInject, "writeInjectedKtrToFs", "/home/admin/injected_trans.ktr" );
-    Whitebox.<String>invokeMethod( metaInject, "writeInjectedKtr", "/home/admin/injected_trans.ktr" );
-    PowerMockito.verifyPrivate( metaInject, times( 0 ) ).invoke( "writeInjectedKtrToRepo",
-      "/home/admin/injected_trans.ktr" );
-    PowerMockito.verifyPrivate( metaInject, times( 1 ) ).invoke( "writeInjectedKtrToFs", "/home/admin/injected_trans"
-      + ".ktr" );
-  }
 
 }

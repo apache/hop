@@ -73,7 +73,7 @@ public class SalesforceInsertTest {
   public void setUp() throws Exception {
     smh = new TransformMockHelper<>( "SalesforceInsert", SalesforceInsertMeta.class, SalesforceInsertData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
+      smh.iLogChannel );
   }
 
   @After

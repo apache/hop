@@ -87,7 +87,7 @@ public class CalculatorUnitTest {
   public void setUp() {
     smh = new TransformMockHelper<>( "Calculator", CalculatorMeta.class, CalculatorData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
+      smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 

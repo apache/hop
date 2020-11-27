@@ -123,7 +123,7 @@ public class CalculatorBackwardCompatibilityUnitTest {
       new TransformMockHelper<CalculatorMeta, CalculatorData>( "Calculator", CalculatorMeta.class,
         CalculatorData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
+      smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 

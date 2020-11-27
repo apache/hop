@@ -24,7 +24,6 @@ package org.apache.hop.pipeline.transforms.abort;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +45,7 @@ public class AbortTest {
   public void setup() {
     transformMockHelper = new TransformMockHelper( "ABORT TEST", AbortMeta.class, AbortData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( transformMockHelper.logChannelInterface );
+      .thenReturn( transformMockHelper.iLogChannel );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
 

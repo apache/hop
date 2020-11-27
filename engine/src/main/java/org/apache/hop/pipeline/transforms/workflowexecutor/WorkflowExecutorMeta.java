@@ -494,7 +494,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
     //
     // Don't set internal variables: they belong to the parent thread!
     //
-    mappingWorkflowMeta = new WorkflowMeta( null, realFilename, metadataProvider );
+    mappingWorkflowMeta = new WorkflowMeta( variables, realFilename, metadataProvider );
     LogChannel.GENERAL.logDetailed( "Loaded workflow", "Workflow was loaded from XML file ["
       + realFilename + "]" );
 

@@ -85,7 +85,7 @@ public class PDI5436Test {
       new TransformMockHelper<>( "Database Lookup", DatabaseLookupMeta.class,
         DatabaseLookupData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
+      smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 

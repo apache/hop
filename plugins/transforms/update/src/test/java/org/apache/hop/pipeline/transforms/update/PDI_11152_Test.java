@@ -27,7 +27,6 @@ import junit.framework.Assert;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaDate;
@@ -58,7 +57,7 @@ public class PDI_11152_Test {
   public void setUp() {
     smh = new TransformMockHelper<UpdateMeta, UpdateData>( "Update", UpdateMeta.class, UpdateData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      smh.logChannelInterface );
+      smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 

@@ -48,7 +48,7 @@ public class LdapInputTest {
         new TransformMockHelper<LdapInputMeta, LdapInputData>(
             "LDAP INPUT TEST", LdapInputMeta.class, LdapInputData.class);
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
-        .thenReturn(mockHelper.logChannelInterface);
+        .thenReturn(mockHelper.iLogChannel );
     when(mockHelper.pipeline.isRunning()).thenReturn(true);
   }
 

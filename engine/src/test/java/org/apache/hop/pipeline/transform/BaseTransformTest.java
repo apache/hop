@@ -48,7 +48,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
@@ -88,7 +87,7 @@ public class BaseTransformTest {
       new TransformMockHelper<>( "BASE TRANSFORM", ITransformMeta.class,
         ITransformData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      mockHelper.logChannelInterface );
+      mockHelper.iLogChannel );
   }
 
   @After
@@ -112,7 +111,7 @@ public class BaseTransformTest {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenAnswer(
       (Answer<ILogChannel>) invocation -> {
         ( (BaseTransform) invocation.getArguments()[ 0 ] ).getLogLevel();
-        return mockHelper.logChannelInterface;
+        return mockHelper.iLogChannel;
       } );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
     when( mockHelper.pipelineMeta.findNextTransforms( any( TransformMeta.class ) ) ).thenReturn( transformMetas );
@@ -163,7 +162,7 @@ public class BaseTransformTest {
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenAnswer(
       (Answer<ILogChannel>) invocation -> {
         ( (BaseTransform) invocation.getArguments()[ 0 ] ).getLogLevel();
-        return mockHelper.logChannelInterface;
+        return mockHelper.iLogChannel;
       } );
     new BaseTransform( mockHelper.transformMeta, mockHelper.iTransformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline )
       .getLogLevel();

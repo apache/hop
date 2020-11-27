@@ -24,6 +24,7 @@
 package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
@@ -72,7 +73,7 @@ public class HopGuiWorkflowRunDelegate {
     jobMap = new ArrayList<>();
   }
 
-  public void executeWorkflow( WorkflowMeta workflowMeta, boolean local, boolean remote, boolean safe, String startActionName, int startActionNr ) throws HopException {
+  public void executeWorkflow( WorkflowMeta workflowMeta, String startActionName, int startActionNr ) throws HopException {
 
     if ( workflowMeta == null ) {
       return;
@@ -96,45 +97,12 @@ public class HopGuiWorkflowRunDelegate {
 
       workflowGraph.workflowLogDelegate.addJobLog();
 
-      // Set the variables that where specified...
-      //
-      for ( String varName : executionConfiguration.getVariablesMap().keySet() ) {
-        String varValue = executionConfiguration.getVariablesMap().get( varName );
-        workflowMeta.setVariable( varName, varValue );
-      }
-
-      // Set and activate the parameters...
-      //
-      for ( String paramName : executionConfiguration.getParametersMap().keySet() ) {
-        String paramValue = executionConfiguration.getParametersMap().get( paramName );
-        workflowMeta.setParameterValue( paramName, paramValue );
-      }
-      workflowMeta.activateParameters();
-
-      // Set the log level
-      //
-      if ( executionConfiguration.getLogLevel() != null ) {
-        workflowMeta.setLogLevel( executionConfiguration.getLogLevel() );
-      }
-
-      // Set the start transform name
-      //
-      if ( executionConfiguration.getStartActionName() != null ) {
-        workflowMeta.setStartActionName( executionConfiguration.getStartActionName() );
-      }
-
-      // Set the run options
-      //
-      workflowMeta.setClearingLog( executionConfiguration.isClearingLog() );
-
-      ILogChannel log = workflowGraph.getWorkflowMeta().getLogChannel();
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiWorkflowMetaExecutionStart.id, workflowMeta );
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiJobExecutionConfiguration.id, executionConfiguration );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiJobExecutionConfiguration.id, executionConfiguration );
 
       try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] { executionConfiguration, workflowMeta, workflowMeta } );
+        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] { executionConfiguration, workflowMeta, workflowMeta } );
       } catch ( HopException e ) {
-        log.logError( e.getMessage(), workflowMeta.getFilename() );
+        LogChannel.UI.logError( e.getMessage(), workflowMeta.getFilename() );
         return;
       }
 

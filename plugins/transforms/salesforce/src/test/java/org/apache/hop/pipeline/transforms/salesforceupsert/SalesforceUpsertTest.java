@@ -77,7 +77,7 @@ public class SalesforceUpsertTest {
       new TransformMockHelper<>( "SalesforceUpsert", SalesforceUpsertMeta.class,
         SalesforceUpsertData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+        smh.iLogChannel );
   }
 
   @After

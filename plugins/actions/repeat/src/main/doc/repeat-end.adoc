@@ -1,0 +1,13 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/actions/repeat/src/main/doc/repeat-end.adoc
+= End Repeat
+
+== Description
+
+This action allows you to a end repeating workflow which is executed by the Repeat action.
+It leaves a flag in the parent workflow to signal it can stop repeating at the next opportunity.
+
+*NOTE* The End Repeat action only works against its parent workflow when it's being executed by the Repeat action.
+
+This action has no options.  It works as a "Success" action and clears possible previous errors.

@@ -73,7 +73,7 @@ public class SalesForceDateFieldTest {
   public void init() {
     smh = new TransformMockHelper<>( "SalesforceInsert", SalesforceInsertMeta.class, SalesforceInsertData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+        smh.iLogChannel );
   }
 
   @After

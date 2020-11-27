@@ -44,7 +44,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -93,7 +92,7 @@ public class ExcelWriterTransformTest {
     wb = createWorkbook( xlsFile );
     mockHelper = new TransformMockHelper<>( "Excel Writer Test", ExcelWriterTransformMeta.class, ExcelWriterTransformData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      mockHelper.logChannelInterface );
+      mockHelper.iLogChannel );
 
     metaMock = mock( ExcelWriterTransformMeta.class );
     dataMock = mock( ExcelWriterTransformData.class );
