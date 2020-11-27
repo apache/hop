@@ -56,7 +56,7 @@ public class ExcelOutputTemplateTest {
       new TransformMockHelper<ExcelOutputMeta, ExcelOutputData>( "ExcelOutputTest", ExcelOutputMeta.class,
         ExcelOutputData.class );
     when( helper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      helper.logChannelInterface );
+      helper.iLogChannel );
     when( helper.pipeline.isRunning() ).thenReturn( true );
   }
 

@@ -60,7 +60,7 @@ public class CsvInputDoubleLineEndTest extends CsvInputUnitTestBase {
     transformMockHelper =
       TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "CsvInputDoubleLineEndTest" );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-      .thenReturn( transformMockHelper.logChannelInterface );
+      .thenReturn( transformMockHelper.iLogChannel );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
 

@@ -80,7 +80,7 @@ public class CsvInputUnicodeTest extends CsvInputUnitTestBase {
     transformMockHelper = TransformMockUtil.getTransformMockHelper( CsvInputMeta.class, CsvInputData.class, "CsvInputUnicodeTest" );
     Mockito.when(
       transformMockHelper.logChannelFactory.create( Matchers.any(), Matchers.any( ILoggingObject.class ) ) )
-      .thenReturn( transformMockHelper.logChannelInterface );
+      .thenReturn( transformMockHelper.iLogChannel );
     Mockito.when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
   }
 

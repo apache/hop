@@ -54,8 +54,8 @@ public class TransformMockUtil {
 
   public static <T extends ITransformMeta, V extends BaseTransform, D extends ITransformData> TransformMockHelper<T, D> getTransformMockHelper( Class<T> meta, Class<D> data, String name ) {
     TransformMockHelper<T, D> transformMockHelper = new TransformMockHelper<T, D>( name, meta, data );
-    when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any(), ArgumentMatchers.any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.logChannelInterface );
-    when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any() ) ).thenReturn( transformMockHelper.logChannelInterface );
+    when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any(), ArgumentMatchers.any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.iLogChannel );
+    when( transformMockHelper.logChannelFactory.create( ArgumentMatchers.any() ) ).thenReturn( transformMockHelper.iLogChannel );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
     return transformMockHelper;
   }

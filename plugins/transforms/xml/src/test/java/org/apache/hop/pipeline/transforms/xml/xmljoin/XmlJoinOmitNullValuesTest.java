@@ -56,7 +56,7 @@ public class XmlJoinOmitNullValuesTest {
   public void init() {
     smh = new TransformMockHelper<XmlJoinMeta, XmlJoinData>( "XmlJoin", XmlJoinMeta.class, XmlJoinData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        smh.logChannelInterface );
+        smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
   }
 

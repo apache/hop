@@ -355,7 +355,7 @@ public class JsonOutputTest extends TestCase {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
         new TransformMockHelper<JsonOutputMeta, JsonOutputData>( "jsonOutput", JsonOutputMeta.class, JsonOutputData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        mockHelper.logChannelInterface );
+        mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
     when( mockHelper.transformMeta.getTransform() ).thenReturn( new JsonOutputMeta() );
 
@@ -372,7 +372,7 @@ public class JsonOutputTest extends TestCase {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
             new TransformMockHelper<JsonOutputMeta, JsonOutputData>( "jsonOutput", JsonOutputMeta.class, JsonOutputData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-            mockHelper.logChannelInterface );
+            mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
     when( mockHelper.transformMeta.getTransform() ).thenReturn( new JsonOutputMeta() );
 
@@ -396,7 +396,7 @@ public class JsonOutputTest extends TestCase {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
       new TransformMockHelper<>( "jsonOutput", JsonOutputMeta.class, JsonOutputData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-            mockHelper.logChannelInterface );
+            mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
     when( mockHelper.transformMeta.getTransform() ).thenReturn( new JsonOutputMeta() );
 

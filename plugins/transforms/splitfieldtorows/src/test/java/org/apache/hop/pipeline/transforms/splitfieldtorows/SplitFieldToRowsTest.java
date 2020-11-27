@@ -45,7 +45,7 @@ public class SplitFieldToRowsTest {
 	    transformMockHelper =
 	      new TransformMockHelper<SplitFieldToRowsMeta, SplitFieldToRowsData>( "Test SplitFieldToRows", SplitFieldToRowsMeta.class, SplitFieldToRowsData.class );
 	    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
-	      .thenReturn( transformMockHelper.logChannelInterface );
+	      .thenReturn( transformMockHelper.iLogChannel );
 	    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
 	  }
 

@@ -61,7 +61,7 @@ public class DenormaliserAggregationsTest {
       new TransformMockHelper<DenormaliserMeta, DenormaliserData>( "Denormaliser", DenormaliserMeta.class,
         DenormaliserData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      mockHelper.logChannelInterface );
+      mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
   }
 

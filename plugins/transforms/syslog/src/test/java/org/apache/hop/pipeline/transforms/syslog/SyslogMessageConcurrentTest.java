@@ -62,7 +62,7 @@ public class SyslogMessageConcurrentTest {
     transformMockHelper = new TransformMockHelper<SyslogMessageMeta, SyslogMessageData>( "SYSLOG_MESSAGE TEST", SyslogMessageMeta.class,
       SyslogMessageData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-      transformMockHelper.logChannelInterface );
+      transformMockHelper.iLogChannel );
     when( transformMockHelper.iTransformMeta.getServerName() ).thenReturn( "localhost" );
     when( transformMockHelper.iTransformMeta.getMessageFieldName() ).thenReturn( "message field" );
     when( transformMockHelper.iTransformMeta.getPort() ).thenReturn( "9988" );
