@@ -2791,6 +2791,9 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     if ( workflow.isFinished() ) {
       return false;
     }
+    if (workflow.isStopped()) {
+      return false;
+    }
     if ( workflow.isActive() ) {
       return true;
     }
