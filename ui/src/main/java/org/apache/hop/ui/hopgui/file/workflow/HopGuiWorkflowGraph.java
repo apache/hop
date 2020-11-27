@@ -1302,7 +1302,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
       public void run() {
         getDisplay().asyncExec( () -> {
           try {
-            workflowRunDelegate.executeWorkflow( workflowMeta, true, false, false, null, 0 );
+            workflowRunDelegate.executeWorkflow( workflowMeta, null, 0 );
           } catch ( Exception e ) {
             new ErrorDialog( getShell(), "Execute workflow", "There was an error during workflow execution", e );
           }
@@ -3219,10 +3219,45 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           hopGuiLoggingObject.setContainerObjectId( hopGuiObjectId );
           hopGuiLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 
+          // Set the variables that where specified...
+          //
+          for ( String varName : executionConfiguration.getVariablesMap().keySet() ) {
+            String varValue = executionConfiguration.getVariablesMap().get( varName );
+            workflowMeta.setVariable( varName, varValue );
+          }
+
+          // Set and activate the parameters...
+          //
+          for ( String paramName : executionConfiguration.getParametersMap().keySet() ) {
+            String paramValue = executionConfiguration.getParametersMap().get( paramName );
+            workflowMeta.setParameterValue( paramName, paramValue );
+          }
+          workflowMeta.activateParameters();
+
+          // Set the log level
+          //
+          if ( executionConfiguration.getLogLevel() != null ) {
+            workflowMeta.setLogLevel( executionConfiguration.getLogLevel() );
+          }
+
+          // Set the start transform name
+          //
+          if ( executionConfiguration.getStartActionName() != null ) {
+            workflowMeta.setStartActionName( executionConfiguration.getStartActionName() );
+          }
+
+          // Set the run options
+          //
+          workflowMeta.setClearingLog( executionConfiguration.isClearingLog() );
+
+          // Allow plugins to change the workflow metadata
+          //
+          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiWorkflowMetaExecutionStart.id, workflowMeta );
+
           workflow = WorkflowEngineFactory.createWorkflowEngine( executionConfiguration.getRunConfiguration(), hopGui.getMetadataProvider(), runWorkflowMeta, hopGuiLoggingObject );
 
           workflow.setLogLevel( executionConfiguration.getLogLevel() );
-          workflow.shareVariablesWith( workflowMeta );
+          workflow.initializeVariablesFrom( workflowMeta );
           workflow.setInteractive( true );
           workflow.setGatheringMetrics( executionConfiguration.isGatheringMetrics() );
 

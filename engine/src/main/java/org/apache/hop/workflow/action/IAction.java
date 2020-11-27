@@ -353,12 +353,10 @@ public interface IAction {
   List<SqlStatement> getSqlStatements( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException;
 
   /**
-   * Get the name of the class that implements the dialog for the action ActionBase provides a default
+   * Get the name of the class that implements the dialog for the action. ActionBase provides a default
    *
    * @return the name of the class implementing the dialog for the action
-   * @deprecated As of release 8.1, use annotated-based dialog instead {@see org.apache.hop.core.annotations.PluginDialog}
    */
-  @Deprecated
   String getDialogClassName();
 
   /**
