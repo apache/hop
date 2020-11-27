@@ -346,24 +346,6 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
             variableValue = this.environmentSubstitute( variableInput );
           }
         }
-      String variableValue = null;
-      if (StringUtils.isNotEmpty( variableName )) {
-        // The value is provided by a field in an input row
-        //
-        if ( StringUtils.isNotEmpty( fieldName ) ) {
-          int idx = getInputRowMeta().indexOfValue( fieldName );
-          if ( idx < 0 ) {
-            throw new HopException( BaseMessages.getString(
-              PKG, "JobExecutor.Exception.UnableToFindField", fieldName ) );
-          }
-          variableValue = data.groupBuffer.get( 0 ).getString( idx, "" );
-        } else {
-          // The value is provided by a static String or variable expression as an Input value
-          //
-          if (StringUtils.isNotEmpty( variableInput )) {
-            variableValue = this.environmentSubstitute( variableInput );
-          }
-        }
 
         try {
           data.executorWorkflowMeta.setParameterValue( variableName, Const.NVL(variableValue, "") );
@@ -376,19 +358,6 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     }
     data.executorWorkflowMeta.activateParameters();
     data.executorWorkflow.activateParameters();
-
-        try {
-          data.executorWorkflowMeta.setParameterValue( variableName, Const.NVL(variableValue, "") );
-          data.executorWorkflow.setParameterValue( variableName, Const.NVL(variableValue, "") );
-        } catch( UnknownParamException e ) {
-          data.executorWorkflowMeta.setVariable( variableName, Const.NVL(variableValue, "") );
-          data.executorWorkflow.setVariable( variableName, Const.NVL(variableValue, "") );
-        }
-      }
-    }
-    data.executorWorkflowMeta.activateParameters();
-    data.executorWorkflow.activateParameters();
-
   }
 
   @Override
