@@ -111,7 +111,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
    * Evaluate the result of the execution of previous action.
    *
    * @param result      The result to evaulate.
-   * @param prev_result the previous result
+   * @param prevResult  the previous result
    * @param parentWorkflow   the parent workflow
    * @return The boolean result of the evaluation script.
    */
@@ -146,7 +146,9 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
       scope.put( "exit_status", scope, exitStatus );
       scope.put( "nr", scope, nr );
       scope.put( "is_windows", scope, Boolean.valueOf( Const.isWindows() ) );
-      scope.put( "_entry_", scope, this );
+      scope.put( "_entry_", scope, this ); // Compatible
+      scope.put( "_action_", scope, this );
+      scope.put( "action", scope, this ); // doc issue
 
       Object[] array = null;
       if ( result.getRows() != null ) {
@@ -182,7 +184,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
    * Execute this action and return the result. In this case it means, just set the result boolean in the Result
    * class.
    *
-   * @param prev_result The result of the previous execution
+   * @param prevResult The result of the previous execution
    * @return The Result of the execution.
    */
   public Result execute( Result prevResult, int nr ) {
