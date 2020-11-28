@@ -22,9 +22,14 @@
 
 package org.apache.hop.ui.util;
 
+import org.eclipse.swt.SWT;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,6 +38,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
+@RunWith( PowerMockRunner.class )
+@PrepareForTest( SWT.class )
 public class EnvironmentUtilsTest {
 
   @Test
@@ -77,6 +84,16 @@ public class EnvironmentUtilsTest {
     Assert.assertEquals( mock.getMockedInstance().getBrowserName(), "MSIE" );
     mock = new EnvironmentUtilsMock( Case.WINDOWS_WRONG );
     Assert.assertEquals( mock.getMockedInstance().getBrowserName(), "MSIE" );
+  }
+
+  @Test
+  public void isWeb() {
+    // This should be true as long as the test runs on SWT.
+    assertFalse( EnvironmentUtils.getInstance().isWeb() );
+
+    PowerMockito.mockStatic( SWT.class );
+    when( SWT.getPlatform() ).thenReturn( "rap" );
+    assertTrue( EnvironmentUtils.getInstance().isWeb() );
   }
 
   class EnvironmentUtilsMock extends EnvironmentUtils {
