@@ -26,51 +26,45 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.encryption.Encr;
+import org.apache.hop.core.exception.HopTransformException;
+import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.injection.InjectionSupported;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.xml.XmlHandler;
+import org.apache.hop.databases.cassandra.ConnectionFactory;
+import org.apache.hop.databases.cassandra.spi.Connection;
+import org.apache.hop.databases.cassandra.spi.ITableMetaData;
+import org.apache.hop.databases.cassandra.spi.Keyspace;
+import org.apache.hop.databases.cassandra.util.CQLUtils;
+import org.apache.hop.databases.cassandra.util.CassandraUtils;
+import org.apache.hop.databases.cassandra.util.Selector;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.eclipse.swt.widgets.Shell;
-import org.pentaho.cassandra.util.CassandraUtils;
-import org.pentaho.cassandra.ConnectionFactory;
-import org.pentaho.cassandra.util.CQLUtils;
-import org.pentaho.cassandra.util.Selector;
-import org.pentaho.cassandra.spi.ITableMetaData;
-import org.pentaho.cassandra.spi.Connection;
-import org.pentaho.cassandra.spi.Keyspace;
-import org.pentaho.di.core.Counter;
-import org.pentaho.di.core.annotations.Step;
-import org.pentaho.di.core.database.DatabaseMeta;
-import org.pentaho.di.core.encryption.Encr;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettleStepException;
-import org.pentaho.di.core.exception.KettleXMLException;
-import org.pentaho.di.core.injection.Injection;
-import org.pentaho.di.core.injection.InjectionSupported;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.core.variables.VariableSpace;
-import org.pentaho.di.core.xml.XMLHandler;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.repository.ObjectId;
-import org.pentaho.di.repository.Repository;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.BaseStepMeta;
-import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.step.StepDialogInterface;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepMetaInterface;
 import org.w3c.dom.Node;
 
 /**
  * Class providing an input step for reading data from an Cassandra table
  */
-@Step( id = "CassandraInput", image = "Cassandrain.svg", name = "Cassandra input",
+@Transform( id = "CassandraInput", image = "Cassandrain.svg", name = "Cassandra input",
     description = "Reads data from a Cassandra table",
     documentationUrl = "Products/Cassandra_Input",
     categoryDescription = "Big Data" )
 @InjectionSupported( localizationPrefix = "CassandraInput.Injection." )
-public class CassandraInputMeta extends BaseStepMeta implements StepMetaInterface {
+public class CassandraInputMeta extends BaseTransformMeta implements ITransformMeta<CassandraInput, CassandraInputData> {
 
   protected static final Class<?> PKG = CassandraInputMeta.class;
 
@@ -338,152 +332,82 @@ public class CassandraInputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   @Override
-  public String getXML() {
+  public String getXml() {
     StringBuffer retval = new StringBuffer();
 
     if ( !Utils.isEmpty( m_cassandraHost ) ) {
       retval.append( "\n    " )
-        .append( XMLHandler.addTagValue( "cassandra_host", m_cassandraHost ) ); //$NON-NLS-1$ //$NON-NLS-2$
+        .append( XmlHandler.addTagValue( "cassandra_host", m_cassandraHost ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     if ( !Utils.isEmpty( m_cassandraPort ) ) {
       retval.append( "\n    " )
-        .append( XMLHandler.addTagValue( "cassandra_port", m_cassandraPort ) ); //$NON-NLS-1$ //$NON-NLS-2$
+        .append( XmlHandler.addTagValue( "cassandra_port", m_cassandraPort ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     if ( !Utils.isEmpty( m_username ) ) {
-      retval.append( "\n    " ).append( XMLHandler.addTagValue( "username", m_username ) ); //$NON-NLS-1$ //$NON-NLS-2$
+      retval.append( "\n    " ).append( XmlHandler.addTagValue( "username", m_username ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     if ( !Utils.isEmpty( m_password ) ) {
       retval.append( "\n    " ).append( //$NON-NLS-1$
-        XMLHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( m_password ) ) ); //$NON-NLS-1$
+        XmlHandler.addTagValue( "password", Encr.encryptPasswordIfNotUsingVariables( m_password ) ) ); //$NON-NLS-1$
     }
 
     if ( !Utils.isEmpty( m_cassandraKeyspace ) ) {
       retval.append( "\n    " )
-        .append( XMLHandler.addTagValue( "cassandra_keyspace", m_cassandraKeyspace ) ); //$NON-NLS-1$ //$NON-NLS-2$
+        .append( XmlHandler.addTagValue( "cassandra_keyspace", m_cassandraKeyspace ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     retval.append( "\n    " )
-      .append( XMLHandler.addTagValue( "use_compression", m_useCompression ) ); //$NON-NLS-1$ //$NON-NLS-2$
+      .append( XmlHandler.addTagValue( "use_compression", m_useCompression ) ); //$NON-NLS-1$ //$NON-NLS-2$
 
     if ( !Utils.isEmpty( m_cqlSelectQuery ) ) {
       retval.append( "\n    " )
-        .append( XMLHandler.addTagValue( "cql_select_query", m_cqlSelectQuery ) ); //$NON-NLS-1$ //$NON-NLS-2$
+        .append( XmlHandler.addTagValue( "cql_select_query", m_cqlSelectQuery ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     if ( !Utils.isEmpty( m_socketTimeout ) ) {
       retval.append( "\n    " )
-        .append( XMLHandler.addTagValue( "socket_timeout", m_socketTimeout ) ); //$NON-NLS-1$ //$NON-NLS-2$
+        .append( XmlHandler.addTagValue( "socket_timeout", m_socketTimeout ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     if ( !Utils.isEmpty( m_maxLength ) ) {
       retval.append( "\n    " )
-        .append( XMLHandler.addTagValue( "max_length", m_maxLength ) ); //$NON-NLS-1$ //$NON-NLS-2$
+        .append( XmlHandler.addTagValue( "max_length", m_maxLength ) ); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
     retval.append( "    " ).append( //$NON-NLS-1$
-      XMLHandler.addTagValue( "execute_for_each_row", m_executeForEachIncomingRow ) ); //$NON-NLS-1$
+      XmlHandler.addTagValue( "execute_for_each_row", m_executeForEachIncomingRow ) ); //$NON-NLS-1$
 
     return retval.toString();
   }
 
   @Override
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, Map<String, Counter> counters )
-    throws KettleXMLException {
-    m_cassandraHost = XMLHandler.getTagValue( stepnode, "cassandra_host" ); //$NON-NLS-1$
-    m_cassandraPort = XMLHandler.getTagValue( stepnode, "cassandra_port" ); //$NON-NLS-1$
-    m_username = XMLHandler.getTagValue( stepnode, "username" ); //$NON-NLS-1$
-    m_password = XMLHandler.getTagValue( stepnode, "password" ); //$NON-NLS-1$
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider)
+    throws HopXmlException {
+    
+    m_cassandraHost = XmlHandler.getTagValue( transformNode, "cassandra_host" ); //$NON-NLS-1$
+    m_cassandraPort = XmlHandler.getTagValue( transformNode, "cassandra_port" ); //$NON-NLS-1$
+    m_username = XmlHandler.getTagValue( transformNode, "username" ); //$NON-NLS-1$
+    m_password = XmlHandler.getTagValue( transformNode, "password" ); //$NON-NLS-1$
     if ( !Utils.isEmpty( m_password ) ) {
       m_password = Encr.decryptPasswordOptionallyEncrypted( m_password );
     }
-    m_cassandraKeyspace = XMLHandler.getTagValue( stepnode, "cassandra_keyspace" ); //$NON-NLS-1$
-    m_cqlSelectQuery = XMLHandler.getTagValue( stepnode, "cql_select_query" ); //$NON-NLS-1$
+    m_cassandraKeyspace = XmlHandler.getTagValue( transformNode, "cassandra_keyspace" ); //$NON-NLS-1$
+    m_cqlSelectQuery = XmlHandler.getTagValue( transformNode, "cql_select_query" ); //$NON-NLS-1$
     m_useCompression =
-      XMLHandler.getTagValue( stepnode, "use_compression" ).equalsIgnoreCase( "Y" ); //$NON-NLS-1$ //$NON-NLS-2$
+      XmlHandler.getTagValue( transformNode, "use_compression" ).equalsIgnoreCase( "Y" ); //$NON-NLS-1$ //$NON-NLS-2$
 
-    String executeForEachR = XMLHandler.getTagValue( stepnode, "execute_for_each_row" ); //$NON-NLS-1$
+    String executeForEachR = XmlHandler.getTagValue( transformNode, "execute_for_each_row" ); //$NON-NLS-1$
     if ( !Utils.isEmpty( executeForEachR ) ) {
       m_executeForEachIncomingRow = executeForEachR.equalsIgnoreCase( "Y" ); //$NON-NLS-1$
     }
 
-    m_socketTimeout = XMLHandler.getTagValue( stepnode, "socket_timeout" ); //$NON-NLS-1$
-    m_maxLength = XMLHandler.getTagValue( stepnode, "max_length" ); //$NON-NLS-1$
+    m_socketTimeout = XmlHandler.getTagValue( transformNode, "socket_timeout" ); //$NON-NLS-1$
+    m_maxLength = XmlHandler.getTagValue( transformNode, "max_length" ); //$NON-NLS-1$
   }
 
-  @Override
-  public void readRep( Repository rep, ObjectId id_step, List<DatabaseMeta> databases, Map<String, Counter> counters )
-    throws KettleException {
-    m_cassandraHost = rep.getStepAttributeString( id_step, 0, "cassandra_host" ); //$NON-NLS-1$
-    m_cassandraPort = rep.getStepAttributeString( id_step, 0, "cassandra_port" ); //$NON-NLS-1$
-    m_username = rep.getStepAttributeString( id_step, 0, "username" ); //$NON-NLS-1$
-    m_password = rep.getStepAttributeString( id_step, 0, "password" ); //$NON-NLS-1$
-    if ( !Utils.isEmpty( m_password ) ) {
-      m_password = Encr.decryptPasswordOptionallyEncrypted( m_password );
-    }
-    m_cassandraKeyspace = rep.getStepAttributeString( id_step, 0, "cassandra_keyspace" ); //$NON-NLS-1$
-    m_cqlSelectQuery = rep.getStepAttributeString( id_step, 0, "cql_select_query" ); //$NON-NLS-1$
-    m_useCompression = rep.getStepAttributeBoolean( id_step, 0, "use_compression" ); //$NON-NLS-1$
-    m_executeForEachIncomingRow = rep.getStepAttributeBoolean( id_step, "execute_for_each_row" ); //$NON-NLS-1$
-
-    m_socketTimeout = rep.getStepAttributeString( id_step, 0, "socket_timeout" ); //$NON-NLS-1$
-    m_maxLength = rep.getStepAttributeString( id_step, 0, "max_length" ); //$NON-NLS-1$
-  }
-
-  @Override
-  public void saveRep( Repository rep, ObjectId id_transformation, ObjectId id_step ) throws KettleException {
-    if ( !Utils.isEmpty( m_cassandraHost ) ) {
-      rep.saveStepAttribute( id_transformation, id_step, 0, "cassandra_host", m_cassandraHost ); //$NON-NLS-1$
-    }
-
-    if ( !Utils.isEmpty( m_cassandraPort ) ) {
-      rep.saveStepAttribute( id_transformation, id_step, 0, "cassandra_port", m_cassandraPort ); //$NON-NLS-1$
-    }
-
-    if ( !Utils.isEmpty( m_username ) ) {
-      rep.saveStepAttribute( id_transformation, id_step, 0, "username", m_username ); //$NON-NLS-1$
-    }
-
-    if ( !Utils.isEmpty( m_password ) ) {
-      rep.saveStepAttribute( id_transformation, id_step, 0, "password", Encr //$NON-NLS-1$
-        .encryptPasswordIfNotUsingVariables( m_password ) );
-    }
-
-    if ( !Utils.isEmpty( m_cassandraKeyspace ) ) {
-      rep.saveStepAttribute( id_transformation, id_step, 0, "cassandra_keyspace", m_cassandraKeyspace ); //$NON-NLS-1$
-    }
-
-    rep.saveStepAttribute( id_transformation, id_step, 0, "use_compression", m_useCompression ); //$NON-NLS-1$
-
-    if ( !Utils.isEmpty( m_cqlSelectQuery ) ) {
-      rep.saveStepAttribute( id_transformation, id_step, 0, "cql_select_query", m_cqlSelectQuery ); //$NON-NLS-1$
-    }
-
-    rep.saveStepAttribute( id_transformation, id_step, 0, "execute_for_each_row", //$NON-NLS-1$
-      m_executeForEachIncomingRow );
-
-    if ( !Utils.isEmpty( m_socketTimeout ) ) {
-      rep.saveStepAttribute( id_transformation, id_step, 0, "socket_timeout", m_socketTimeout ); //$NON-NLS-1$
-    }
-
-    if ( !Utils.isEmpty( m_maxLength ) ) {
-      rep.saveStepAttribute( id_transformation, id_step, 0, "max_length", m_maxLength ); //$NON-NLS-1$
-    }
-  }
-
-  @Override
-  public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr,
-                                TransMeta transMeta, Trans trans ) {
-
-    return new CassandraInput( stepMeta, stepDataInterface, copyNr, transMeta, trans );
-  }
-
-  @Override
-  public StepDataInterface getStepData() {
-    return new CassandraInputData();
-  }
 
   @Override
   public void setDefault() {
@@ -496,8 +420,8 @@ public class CassandraInputMeta extends BaseStepMeta implements StepMetaInterfac
   }
 
   @Override
-  public void getFields( RowMetaInterface rowMeta, String origin, RowMetaInterface[] info, StepMeta nextStep,
-                         VariableSpace space ) throws KettleStepException {
+  public void getFields( IRowMeta rowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
+                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     m_specificCols = null;
     m_rowLimit = -1;
@@ -649,8 +573,8 @@ public class CassandraInputMeta extends BaseStepMeta implements StepMetaInterfac
 
         if ( cols == null ) {
           // select * - use all the columns that are defined in the schema
-          List<ValueMetaInterface> vms = colMeta.getValueMetasForSchema();
-          for ( ValueMetaInterface vm : vms ) {
+          List<IValueMeta> vms = colMeta.getValueMetasForSchema();
+          for ( IValueMeta vm : vms ) {
             rowMeta.addValueMeta( vm );
           }
         } else {
@@ -663,7 +587,7 @@ public class CassandraInputMeta extends BaseStepMeta implements StepMetaInterfac
               logBasic(
                 BaseMessages.getString( PKG, "CassandraInput.Info.DefaultColumnValidator", col ) ); //$NON-NLS-1$
             }
-            ValueMetaInterface vm = colMeta.getValueMeta( col );
+            IValueMeta vm = colMeta.getValueMeta( col );
             rowMeta.addValueMeta( vm );
           }
         }
@@ -676,7 +600,7 @@ public class CassandraInputMeta extends BaseStepMeta implements StepMetaInterfac
           try {
             conn.closeConnection();
           } catch ( Exception e ) {
-            throw new KettleStepException( e );
+            throw new HopTransformException( e );
           }
         }
       }
@@ -691,13 +615,25 @@ public class CassandraInputMeta extends BaseStepMeta implements StepMetaInterfac
    * Get the UI for this step.
    *
    * @param shell     a <code>Shell</code> value
-   * @param meta      a <code>StepMetaInterface</code> value
-   * @param transMeta a <code>TransMeta</code> value
+   * @param meta      a <code>ITransformMeta</code> value
+   * @param transMeta a <code>PipelineMeta</code> value
    * @param name      a <code>String</code> value
-   * @return a <code>StepDialogInterface</code> value
+   * @return a <code>ITransformDialog</code> value
    */
-  public StepDialogInterface getDialog( Shell shell, StepMetaInterface meta, TransMeta transMeta, String name ) {
+  public ITransformDialog getDialog( Shell shell, ITransformMeta meta, PipelineMeta transMeta, String name ) {
 
     return new CassandraInputDialog( shell, meta, transMeta, name );
+  }
+
+  @Override
+  public ITransform createTransform(TransformMeta arg0, CassandraInputData arg1, int arg2,
+      PipelineMeta arg3, Pipeline arg4) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public CassandraInputData getTransformData() {
+    return new CassandraInputData();
   }
 }

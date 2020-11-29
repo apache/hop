@@ -20,8 +20,9 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.cassandraoutput;
+package org.apache.hop.di.trans.steps.cassandraoutput;
 
+import org.apache.hop.pipeline.transforms.cassandraoutput.CassandraOutputMeta;
 import org.junit.Assert;
 import org.junit.Test;
 

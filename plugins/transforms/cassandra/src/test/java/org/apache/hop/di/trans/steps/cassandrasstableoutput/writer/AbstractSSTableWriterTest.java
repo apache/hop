@@ -15,13 +15,11 @@
  *
  */
 
-package org.pentaho.di.trans.steps.cassandrasstableoutput.writer;
-
-import org.junit.Test;
-
-import java.util.Map;
+package org.apache.hop.di.trans.steps.cassandrasstableoutput.writer;
 
 import static org.junit.Assert.assertEquals;
+import java.util.Map;
+import org.junit.Test;
 
 public class AbstractSSTableWriterTest extends AbstractSSTableWriter {
 

@@ -20,11 +20,12 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.cassandraoutput;
+package org.apache.hop.di.trans.steps.cassandraoutput;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.pipeline.transforms.cassandraoutput.CassandraOutputMeta;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.injection.BaseMetadataInjectionTest;
 
 public class CassandraOutputMetaInjectionTest extends BaseMetadataInjectionTest<CassandraOutputMeta> {
 

@@ -20,39 +20,29 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.cassandrainput;
+package org.apache.hop.di.trans.steps.cassandrasstableoutput;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.injection.BaseMetadataInjectionTest;
 
-public class CassandraInputMetaInjectionTest extends BaseMetadataInjectionTest<CassandraInputMeta> {
+public class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SSTableOutputMeta> {
 
   @Before
   public void setup() {
-    setup( new CassandraInputMeta() );
+    setup( new SSTableOutputMeta() );
   }
 
   @Test
   public void test() throws Exception {
-    check( "CASSANDRA_HOST", new StringGetter() {
+    check( "YAML_FILE_PATH", new StringGetter() {
       public String get() {
-        return meta.getCassandraHost();
+        return meta.getYamlPath();
       }
     } );
-    check( "CASSANDRA_PORT", new StringGetter() {
+    check( "DIRECTORY", new StringGetter() {
       public String get() {
-        return meta.getCassandraPort();
-      }
-    } );
-    check( "USER_NAME", new StringGetter() {
-      public String get() {
-        return meta.getUsername();
-      }
-    } );
-    check( "PASSWORD", new StringGetter() {
-      public String get() {
-        return meta.getPassword();
+        return meta.getDirectory();
       }
     } );
     check( "CASSANDRA_KEYSPACE", new StringGetter() {
@@ -60,29 +50,19 @@ public class CassandraInputMetaInjectionTest extends BaseMetadataInjectionTest<C
         return meta.getCassandraKeyspace();
       }
     } );
-    check( "USE_QUERY_COMPRESSION", new BooleanGetter() {
-      public boolean get() {
-        return meta.getUseCompression();
-      }
-    } );
-    check( "CQL_QUERY", new StringGetter() {
+    check( "TABLE", new StringGetter() {
       public String get() {
-        return meta.getCQLSelectQuery();
+        return meta.getTableName();
       }
     } );
-    check( "EXECUTE_FOR_EACH_ROW", new BooleanGetter() {
-      public boolean get() {
-        return meta.getExecuteForEachIncomingRow();
-      }
-    } );
-    check( "SOCKET_TIMEOUT", new StringGetter() {
+    check( "KEY_FIELD", new StringGetter() {
       public String get() {
-        return meta.getSocketTimeout();
+        return meta.getKeyField();
       }
     } );
-    check( "TRANSPORT_MAX_LENGTH", new StringGetter() {
+    check( "BUFFER_SIZE", new StringGetter() {
       public String get() {
-        return meta.getMaxLength();
+        return meta.getBufferSize();
       }
     } );
   }
