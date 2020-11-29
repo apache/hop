@@ -1,18 +1,25 @@
 <?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <modelVersion>4.0.0</modelVersion>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.hop</groupId>
-        <artifactId>hop-plugins-transforms</artifactId>
-        <version>0.50-SNAPSHOT</version>
-    </parent>
+	<parent>
+		<groupId>org.apache.hop</groupId>
+		<artifactId>hop-plugins-transforms</artifactId>
+		<version>0.50-SNAPSHOT</version>
+	</parent>
 
-    <artifactId>hop-transform-cassandra</artifactId>
-    <packaging>jar</packaging>
+	<artifactId>hop-transform-cassandra</artifactId>
+	<packaging>jar</packaging>
 
-    <name>Hop Plugins Transforms Cassandra</name>
-
+	<name>Hop Plugins Transforms Cassandra</name>
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.hop</groupId>
+			<artifactId>hop-databases-cassandra</artifactId>
+			<version>0.50-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
 </project>

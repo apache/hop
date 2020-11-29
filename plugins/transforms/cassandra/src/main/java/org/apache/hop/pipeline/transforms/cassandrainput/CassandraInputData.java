@@ -22,9 +22,9 @@
 
 package org.apache.hop.pipeline.transforms.cassandrainput;
 
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.trans.step.BaseStepData;
-import org.pentaho.di.trans.step.StepDataInterface;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.pipeline.transform.BaseTransformData;
+import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Data class for the CassandraInput step. Contains some utility methods for
@@ -34,18 +34,18 @@ import org.pentaho.di.trans.step.StepDataInterface;
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  * @version $Revision$
  */
-public class CassandraInputData extends BaseStepData implements
-    StepDataInterface {
+public class CassandraInputData extends BaseTransformData implements
+    ITransformData {
 
   /** The output data format */
-  protected RowMetaInterface m_outputRowMeta;
+  protected IRowMeta m_outputRowMeta;
 
   /**
    * Get the output row format
    * 
    * @return the output row format
    */
-  public RowMetaInterface getOutputRowMeta() {
+  public IRowMeta getOutputRowMeta() {
     return m_outputRowMeta;
   }
 
@@ -54,7 +54,7 @@ public class CassandraInputData extends BaseStepData implements
    * 
    * @param rmi the output row format
    */
-  public void setOutputRowMeta( RowMetaInterface rmi ) {
+  public void setOutputRowMeta( IRowMeta rmi ) {
     m_outputRowMeta = rmi;
   }
 }

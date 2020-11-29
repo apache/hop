@@ -24,25 +24,22 @@ package org.apache.hop.pipeline.transforms.cassandrainput;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import org.pentaho.cassandra.util.CassandraUtils;
-import org.pentaho.cassandra.ConnectionFactory;
-import org.pentaho.cassandra.spi.CQLRowHandler;
-import org.pentaho.cassandra.spi.ITableMetaData;
-import org.pentaho.cassandra.spi.Connection;
-import org.pentaho.cassandra.spi.Keyspace;
-import org.pentaho.cassandra.util.Compression;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMeta;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.BaseStep;
-import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.step.StepInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepMetaInterface;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.databases.cassandra.ConnectionFactory;
+import org.apache.hop.databases.cassandra.spi.CQLRowHandler;
+import org.apache.hop.databases.cassandra.spi.Connection;
+import org.apache.hop.databases.cassandra.spi.ITableMetaData;
+import org.apache.hop.databases.cassandra.spi.Keyspace;
+import org.apache.hop.databases.cassandra.util.CassandraUtils;
+import org.apache.hop.databases.cassandra.util.Compression;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransform;
+import org.apache.hop.pipeline.transform.ITransform;
+import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
  * Class providing an input step for reading data from a table in Cassandra. Accesses the schema
@@ -51,15 +48,20 @@ import org.pentaho.di.trans.step.StepMetaInterface;
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  * @version $Revision$
  */
-public class CassandraInput extends BaseStep implements StepInterface {
+public class CassandraInput extends BaseTransform<CassandraInputMeta, CassandraInputData> implements ITransform<CassandraInputMeta, CassandraInputData> {
 
   protected CassandraInputMeta m_meta;
   protected CassandraInputData m_data;
 
-  public CassandraInput( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-      Trans trans ) {
+  public CassandraInput( TransformMeta stepMeta, 
+      CassandraInputMeta meta,
+      CassandraInputData data,
+      int copyNr, PipelineMeta transMeta,
+      Pipeline trans ) {
 
-    super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
+    super( stepMeta, meta, data, copyNr, transMeta, trans );
+    this.m_meta = meta;
+    this.m_data = data;
   }
 
   /** Connection to cassandra */
@@ -86,7 +88,7 @@ public class CassandraInput extends BaseStep implements StepInterface {
   protected String m_tableName;
 
   @Override
-  public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
+  public boolean processRow() throws HopException {
 
     if ( !isStopped() ) {
 
@@ -121,7 +123,7 @@ public class CassandraInput extends BaseStep implements StepInterface {
         String keyspaceS = environmentSubstitute( m_meta.getCassandraKeyspace() );
 
         if ( Utils.isEmpty( hostS ) || Utils.isEmpty( portS ) || Utils.isEmpty( keyspaceS ) ) {
-          throw new KettleException( "Some connection details are missing!!" ); //$NON-NLS-1$
+          throw new HopException( "Some connection details are missing!!" ); //$NON-NLS-1$
         }
 
         logBasic( BaseMessages.getString( CassandraInputMeta.PKG,
@@ -156,7 +158,7 @@ public class CassandraInput extends BaseStep implements StepInterface {
           m_keyspace = m_connection.getKeyspace( keyspaceS );
         } catch ( Exception ex ) {
           closeConnection();
-          throw new KettleException( ex.getMessage(), ex );
+          throw new HopException( ex.getMessage(), ex );
         }
 
         // check the source table first
@@ -164,13 +166,13 @@ public class CassandraInput extends BaseStep implements StepInterface {
             CassandraUtils.getTableNameFromCQLSelectQuery( environmentSubstitute( m_meta.getCQLSelectQuery() ) );
 
         if ( Utils.isEmpty( m_tableName ) ) {
-          throw new KettleException( BaseMessages.getString( CassandraInputMeta.PKG,
+          throw new HopException( BaseMessages.getString( CassandraInputMeta.PKG,
               "CassandraInput.Error.NonExistentTable" ) ); //$NON-NLS-1$
         }
 
         try {
           if ( !m_keyspace.tableExists( m_tableName ) ) {
-            throw new KettleException(
+            throw new HopException(
                 BaseMessages
                     .getString(
                         CassandraInputMeta.PKG,
@@ -180,16 +182,16 @@ public class CassandraInput extends BaseStep implements StepInterface {
         } catch ( Exception ex ) {
           closeConnection();
 
-          throw new KettleException( ex.getMessage(), ex );
+          throw new HopException( ex.getMessage(), ex );
         }
 
         // set up the output row meta
         m_data.setOutputRowMeta( new RowMeta() );
-        m_meta.getFields( m_data.getOutputRowMeta(), getStepname(), null, null, this );
+        m_meta.getFields( m_data.getOutputRowMeta(), getTransformName(), null, null, this, null );
 
         // check that there are some outgoing fields!
         if ( m_data.getOutputRowMeta().size() == 0 ) {
-          throw new KettleException( BaseMessages.getString( CassandraInputMeta.PKG,
+          throw new HopException( BaseMessages.getString( CassandraInputMeta.PKG,
               "CassandraInput.Error.QueryWontProduceOutputFields" ) ); //$NON-NLS-1$
         }
 
@@ -207,7 +209,7 @@ public class CassandraInput extends BaseStep implements StepInterface {
           m_cassandraMeta = m_keyspace.getTableMetaData( m_tableName );
         } catch ( Exception e ) {
           closeConnection();
-          throw new KettleException( e.getMessage(), e );
+          throw new HopException( e.getMessage(), e );
         }
 
         initQuery();
@@ -217,7 +219,7 @@ public class CassandraInput extends BaseStep implements StepInterface {
       try {
         outRowData = m_cqlHandler.getNextOutputRow( m_data.getOutputRowMeta(), m_outputFormatMap );
       } catch ( Exception e ) {
-        throw new KettleException( e.getMessage(), e );
+        throw new HopException( e.getMessage(), e );
       }
 
       if ( outRowData != null ) {
@@ -253,17 +255,8 @@ public class CassandraInput extends BaseStep implements StepInterface {
     return true;
   }
 
-  @Override
-  public boolean init( StepMetaInterface stepMeta, StepDataInterface stepData ) {
-    if ( super.init( stepMeta, stepData ) ) {
-      m_data = (CassandraInputData) stepData;
-      m_meta = (CassandraInputMeta) stepMeta;
-    }
 
-    return true;
-  }
-
-  protected void initQuery() throws KettleException {
+  protected void initQuery() throws HopException {
     String queryS = environmentSubstitute( m_meta.getCQLSelectQuery() );
     if ( m_meta.getExecuteForEachIncomingRow() ) {
       queryS = fieldSubstitute( queryS, getInputRowMeta(), m_currentInputRowDrivingQuery );
@@ -280,7 +273,7 @@ public class CassandraInput extends BaseStep implements StepInterface {
     } catch ( Exception e ) {
       closeConnection();
 
-      throw new KettleException( e.getMessage(), e );
+      throw new HopException( e.getMessage(), e );
     }
   }
 
@@ -293,22 +286,22 @@ public class CassandraInput extends BaseStep implements StepInterface {
   }
 
   @Override
-  public void dispose( StepMetaInterface smi, StepDataInterface sdi ) {
+  public void dispose() {
     try {
       closeConnection();
-    } catch ( KettleException e ) {
+    } catch ( HopException e ) {
       e.printStackTrace();
     }
   }
 
-  protected void closeConnection() throws KettleException {
+  protected void closeConnection() throws HopException {
     if ( m_connection != null ) {
       logBasic( BaseMessages.getString( CassandraInputMeta.PKG, "CassandraInput.Info.ClosingConnection" ) ); //$NON-NLS-1$
       try {
         m_connection.closeConnection();
         m_connection = null;
       } catch ( Exception e ) {
-        throw new KettleException( e.getMessage(), e );
+        throw new HopException( e.getMessage(), e );
       }
     }
   }

@@ -15,15 +15,15 @@
  *
  */
 
-package org.pentaho.di.trans.steps.cassandrasstableoutput.writer;
+package org.apache.hop.di.trans.steps.cassandrasstableoutput.writer;
 
 import org.apache.cassandra.io.sstable.CQLSSTableWriter;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaBase;
+import org.apache.hop.di.core.row.IRowMeta;
+import org.apache.hop.di.core.row.IValueMeta;
+import org.apache.hop.di.core.row.value.ValueMetaBase;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,10 +95,10 @@ public class CQL3SSTableWriterTest {
   private CQL3SSTableWriter getCql3SSTableWriter() {
     CQL3SSTableWriter writer = new CQL3SSTableWriterStub();
     writer.setPrimaryKey( KEY_FIELD );
-    RowMetaInterface rmi = mock( RowMetaInterface.class );
-    ValueMetaInterface one = new ValueMetaBase( KEY_FIELD, ValueMetaBase.TYPE_INTEGER );
-    ValueMetaInterface two = new ValueMetaBase( COLUMN, ValueMetaBase.TYPE_STRING );
-    List<ValueMetaInterface> valueMetaList = new ArrayList<ValueMetaInterface>();
+    IRowMeta rmi = mock( IRowMeta.class );
+    IValueMeta one = new ValueMetaBase( KEY_FIELD, ValueMetaBase.TYPE_INTEGER );
+    IValueMeta two = new ValueMetaBase( COLUMN, ValueMetaBase.TYPE_STRING );
+    List<IValueMeta> valueMetaList = new ArrayList<IValueMeta>();
     valueMetaList.add( one );
     valueMetaList.add( two );
     String[] fieldNames = new String[] { "key", "two" };

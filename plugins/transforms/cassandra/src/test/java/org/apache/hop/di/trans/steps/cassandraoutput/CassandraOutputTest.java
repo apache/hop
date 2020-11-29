@@ -20,14 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.cassandraoutput;
-
-import org.junit.Test;
-import org.pentaho.cassandra.driver.datastax.DriverCQLRowHandler;
-import org.pentaho.cassandra.util.CassandraUtils;
-
-
-import java.util.Map;
+package org.apache.hop.di.trans.steps.cassandraoutput;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
@@ -37,6 +30,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import java.util.Map;
+import org.apache.hop.databases.cassandra.driver.datastax.DriverCQLRowHandler;
+import org.apache.hop.databases.cassandra.util.CassandraUtils;
+import org.apache.hop.pipeline.transforms.cassandraoutput.CassandraOutput;
+import org.apache.hop.pipeline.transforms.cassandraoutput.CassandraOutputMeta;
+import org.junit.Test;
 
 
 public class CassandraOutputTest {

@@ -15,30 +15,29 @@
  *
  */
 
-package org.pentaho.di.trans.steps.cassandrasstableoutput;
+package org.apache.hop.di.trans.steps.cassandrasstableoutput;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.when;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.logging.ILoggingObject;
+import org.apache.hop.di.trans.steps.mock.StepMockHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.logging.LoggingObjectInterface;
-import org.pentaho.di.trans.steps.mock.StepMockHelper;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 public class SSTableOutputTest {
   private static StepMockHelper<SSTableOutputMeta, SSTableOutputData> helper;
   private static final SecurityManager sm = System.getSecurityManager();
 
   @BeforeClass
-  public static void setUp() throws KettleException {
+  public static void setUp() throws HopException {
     //KettleEnvironment.init();
     helper =
       new StepMockHelper<SSTableOutputMeta, SSTableOutputData>( "SSTableOutputIT", SSTableOutputMeta.class,
         SSTableOutputData.class );
-    when( helper.logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn(
+    when( helper.logChannelInterfaceFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       helper.logChannelInterface );
     when( helper.trans.isRunning() ).thenReturn( true );
   }
