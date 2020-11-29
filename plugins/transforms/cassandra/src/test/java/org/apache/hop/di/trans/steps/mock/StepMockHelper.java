@@ -15,7 +15,7 @@
  *
  */
 
-package org.pentaho.di.trans.steps.mock;
+package org.apache.hop.di.trans.steps.mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -24,63 +24,61 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
+import javax.sql.RowSet;
+import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.ILogChannelFactory;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.logging.LogLevel;
+import org.apache.hop.di.core.logging.KettleLogStore;
+import org.apache.hop.di.core.logging.LogMessageInterface;
+import org.apache.hop.di.core.logging.ILoggingObject;
+import org.apache.hop.di.trans.step.ITransformMeta;
+import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.TransformMeta;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.pentaho.di.core.RowSet;
-import org.pentaho.di.core.logging.KettleLogStore;
-import org.pentaho.di.core.logging.LogChannel;
-import org.pentaho.di.core.logging.LogChannelInterface;
-import org.pentaho.di.core.logging.LogChannelInterfaceFactory;
-import org.pentaho.di.core.logging.LogLevel;
-import org.pentaho.di.core.logging.LogMessageInterface;
-import org.pentaho.di.core.logging.LoggingObjectInterface;
-import org.pentaho.di.trans.Trans;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.StepDataInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.step.StepMetaInterface;
 
 
 /**
  * Copied from kettle-engine tests. Should be deleted after introducing pentaho-common-tests project
  */
-public class StepMockHelper<Meta extends StepMetaInterface, Data extends StepDataInterface> {
-  public final StepMeta stepMeta;
+public class StepMockHelper<Meta extends ITransformMeta, Data extends ITransformData> {
+  public final TransformMeta stepMeta;
   public final Data stepDataInterface;
-  public final TransMeta transMeta;
-  public final Trans trans;
-  public final Meta initStepMetaInterface;
-  public final Data initStepDataInterface;
-  public final Meta processRowsStepMetaInterface;
-  public final Data processRowsStepDataInterface;
-  public final LogChannelInterface logChannelInterface;
-  public final LogChannelInterfaceFactory logChannelInterfaceFactory;
-  public final LogChannelInterfaceFactory originalLogChannelInterfaceFactory;
+  public final PipelineMeta transMeta;
+  public final Pipeline trans;
+  public final Meta initTransformMetaInterface;
+  public final Data initITransformData;
+  public final Meta processRowsTransformMetaInterface;
+  public final Data processRowsITransformData;
+  public final ILogChannel logChannelInterface;
+  public final ILogChannelFactory logChannelInterfaceFactory;
+  public final ILogChannelFactory originalILogChannelFactory;
 
   public StepMockHelper( String stepName, Class<Meta> stepMetaClass, Class<Data> stepDataClass ) {
-    originalLogChannelInterfaceFactory = KettleLogStore.getLogChannelInterfaceFactory();
-    logChannelInterfaceFactory = mock( LogChannelInterfaceFactory.class );
-    logChannelInterface = mock( LogChannelInterface.class );
-    KettleLogStore.setLogChannelInterfaceFactory( logChannelInterfaceFactory );
-    stepMeta = mock( StepMeta.class );
+    originalILogChannelFactory = KettleLogStore.getILogChannelFactory();
+    logChannelInterfaceFactory = mock( ILogChannelFactory.class );
+    logChannelInterface = mock( ILogChannel.class );
+    KettleLogStore.setILogChannelFactory( logChannelInterfaceFactory );
+    stepMeta = mock( TransformMeta.class );
     when( stepMeta.getName() ).thenReturn( stepName );
     stepDataInterface = mock( stepDataClass );
-    transMeta = mock( TransMeta.class );
+    transMeta = mock( PipelineMeta.class );
     when( transMeta.findStep( stepName ) ).thenReturn( stepMeta );
-    trans = mock( Trans.class );
-    initStepMetaInterface = mock( stepMetaClass );
-    initStepDataInterface = mock( stepDataClass );
-    processRowsStepDataInterface = mock( stepDataClass );
-    processRowsStepMetaInterface = mock( stepMetaClass );
+    trans = mock( Pipeline.class );
+    initTransformMetaInterface = mock( stepMetaClass );
+    initITransformData = mock( stepDataClass );
+    processRowsITransformData = mock( stepDataClass );
+    processRowsTransformMetaInterface = mock( stepMetaClass );
   }
 
   public RowSet getMockInputRowSet( Object[]... rows ) {
@@ -116,7 +114,7 @@ public class StepMockHelper<Meta extends StepMetaInterface, Data extends StepDat
   }
 
   public void cleanUp() {
-    KettleLogStore.setLogChannelInterfaceFactory( originalLogChannelInterfaceFactory );
+    KettleLogStore.setILogChannelFactory( originalILogChannelFactory );
   }
 
   /**
@@ -129,7 +127,7 @@ public class StepMockHelper<Meta extends StepMetaInterface, Data extends StepDat
   public void redirectLog( final OutputStream out, LogLevel channelLogLevel ) {
     final LogChannel log = spy( new LogChannel( this.getClass().getName(), true ) );
     log.setLogLevel( channelLogLevel );
-    when( logChannelInterfaceFactory.create( any(), any( LoggingObjectInterface.class ) ) ).thenReturn( log );
+    when( logChannelInterfaceFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( log );
     doAnswer( new Answer<Object>() {
       @Override
       public Object answer( InvocationOnMock invocation ) throws Throwable {

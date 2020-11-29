@@ -15,11 +15,11 @@
  *
  */
 
-package org.pentaho.di.trans.steps.cassandrasstableoutput.writer;
+package org.apache.hop.di.trans.steps.cassandrasstableoutput.writer;
 
 import org.apache.cassandra.exceptions.ConfigurationException;
 import org.junit.Test;
-import org.pentaho.di.core.row.RowMetaInterface;
+import org.apache.hop.di.core.row.IRowMeta;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -33,7 +33,7 @@ public class SSTableWriterBuilderTest extends SSTableWriterBuilder {
   public static final String CONF_PATH = "some_conf_path";
   public static final String KEYSPACE = "some_keyspace";
   public static final String PARTIONER_CLASS_NAME = "PartionerClassName";
-  public static final RowMetaInterface ROW_META = mock( RowMetaInterface.class );
+  public static final IRowMeta ROW_META = mock( IRowMeta.class );
 
   class CQL3SSTableWriterStub extends CQL3SSTableWriter {
     public CQL3SSTableWriterStub() {
@@ -60,7 +60,7 @@ public class SSTableWriterBuilderTest extends SSTableWriterBuilder {
       assertEquals( BUFFER_SIZE, bufferSize );
     }
 
-    @Override public void setRowMeta( RowMetaInterface rowMeta ) {
+    @Override public void setRowMeta( IRowMeta rowMeta ) {
       assertEquals( ROW_META, rowMeta );
     }
   }

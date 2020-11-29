@@ -24,7 +24,7 @@ package org.apache.hop.databases.cassandra.spi;
 import java.util.Map;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.pipeline.transform.ITransformMeta;
+import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Interface to something that can process rows (read and write) via CQL.
@@ -59,7 +59,7 @@ public interface CQLRowHandler {
    * @throws Exception if a problem occurs
    */
   void commitCQLBatch(
-      ITransformMeta requestingStep,
+      ITransform requestingStep,
       StringBuilder batch,
       String compress,
       String consistencyLevel,
@@ -81,7 +81,7 @@ public interface CQLRowHandler {
    * @throws Exception if a problem occurs
    */
   void newRowQuery(
-      ITransformMeta requestingStep,
+      ITransform requestingStep,
       String tableName,
       String cqlQuery,
       String compress,

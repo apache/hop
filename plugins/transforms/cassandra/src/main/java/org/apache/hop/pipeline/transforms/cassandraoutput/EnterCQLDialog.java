@@ -20,8 +20,17 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.cassandraoutput;
+package org.apache.hop.pipeline.transforms.cassandraoutput;
 
+import org.apache.hop.core.Const;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.core.gui.WindowProperty;
+import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.pipeline.transforms.tableinput.SqlValuesHighlight;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
@@ -39,16 +48,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.ui.core.PropsUI;
-import org.pentaho.di.ui.core.gui.GUIResource;
-import org.pentaho.di.ui.core.gui.WindowProperty;
-import org.pentaho.di.ui.core.widget.StyledTextComp;
-import org.pentaho.di.ui.spoon.job.JobGraph;
-import org.pentaho.di.ui.trans.step.BaseStepDialog;
-import org.pentaho.di.ui.trans.steps.tableinput.SQLValuesHighlight;
 
 /**
  * Provides a popup dialog for editing CQL commands.
@@ -77,22 +76,22 @@ public class EnterCQLDialog extends Dialog {
 
   protected Button m_dontComplainAboutAprioriCQLFailing;
 
-  protected PropsUI m_props;
+  protected PropsUi m_props;
 
   protected StyledTextComp m_cqlText;
 
-  protected TransMeta m_transMeta;
+  protected PipelineMeta m_transMeta;
 
   protected ModifyListener m_lsMod;
 
   protected boolean m_dontComplain;
 
-  public EnterCQLDialog( Shell parent, TransMeta transMeta, ModifyListener lsMod, String title, String cql,
+  public EnterCQLDialog( Shell parent, PipelineMeta transMeta, ModifyListener lsMod, String title, String cql,
       boolean dontComplain ) {
     super( parent, SWT.NONE );
 
     m_parent = parent;
-    m_props = PropsUI.getInstance();
+    m_props = PropsUi.getInstance();
     m_title = title;
     m_originalCQL = cql;
     m_transMeta = transMeta;
@@ -106,7 +105,7 @@ public class EnterCQLDialog extends Dialog {
 
     m_shell = new Shell( m_parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN | SWT.APPLICATION_MODAL );
     m_props.setLook( m_shell );
-    m_shell.setImage( GUIResource.getInstance().getImageSpoon() );
+    m_shell.setImage( GuiResource.getInstance().getImageHopUi() );
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
@@ -163,7 +162,7 @@ public class EnterCQLDialog extends Dialog {
     } );
 
     // Text Highlighting
-    m_cqlText.addLineStyleListener( new SQLValuesHighlight() );
+    m_cqlText.addLineStyleListener( new SqlValuesHighlight() );
 
     // Some buttons
     m_ok = new Button( m_shell, SWT.PUSH );
@@ -171,7 +170,7 @@ public class EnterCQLDialog extends Dialog {
     m_cancel = new Button( m_shell, SWT.PUSH );
     m_cancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) ); //$NON-NLS-1$
 
-    BaseStepDialog.positionBottomButtons( m_shell, new Button[] { m_ok, m_cancel }, margin, null );
+    BaseTransformDialog.positionBottomButtons( m_shell, new Button[] { m_ok, m_cancel }, margin, null );
 
     // Add listeners
     m_lsCancel = new Listener() {
@@ -196,7 +195,7 @@ public class EnterCQLDialog extends Dialog {
       }
     } );
 
-    BaseStepDialog.setSize( m_shell );
+    BaseTransformDialog.setSize( m_shell );
     m_shell.open();
 
     while ( !m_shell.isDisposed() ) {
@@ -230,7 +229,7 @@ public class EnterCQLDialog extends Dialog {
   public void checkCancel( ShellEvent e ) {
     String newText = m_cqlText.getText();
     if ( !newText.equals( m_originalCQL ) ) {
-      int save = JobGraph.showChangedWarning( m_shell, m_title );
+      int save = 0;// TODO FIX BY finding replacement JobGraph.showChangedWarning( m_shell, m_title );
       if ( save == SWT.CANCEL ) {
         e.doit = false;
       } else if ( save == SWT.YES ) {

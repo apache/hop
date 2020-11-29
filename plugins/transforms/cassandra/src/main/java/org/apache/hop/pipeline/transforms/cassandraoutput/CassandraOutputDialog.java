@@ -20,12 +20,33 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.cassandraoutput;
+package org.apache.hop.pipeline.transforms.cassandraoutput;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.util.Utils;
+import org.apache.hop.databases.cassandra.ConnectionFactory;
+import org.apache.hop.databases.cassandra.spi.Connection;
+import org.apache.hop.databases.cassandra.spi.ITableMetaData;
+import org.apache.hop.databases.cassandra.spi.Keyspace;
+import org.apache.hop.databases.cassandra.util.CassandraUtils;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.transform.BaseTransformMeta;
+import org.apache.hop.pipeline.transform.ITransformDialog;
+import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.ui.core.dialog.EnterSelectionDialog;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.dialog.ShowMessageDialog;
+import org.apache.hop.ui.core.widget.PasswordTextVar;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
@@ -48,35 +69,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.pentaho.cassandra.util.CassandraUtils;
-import org.pentaho.cassandra.ConnectionFactory;
-import org.pentaho.cassandra.spi.ITableMetaData;
-import org.pentaho.cassandra.spi.Connection;
-import org.pentaho.cassandra.spi.Keyspace;
-import org.pentaho.di.core.Const;
-import org.pentaho.di.core.Props;
-import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.row.RowMetaInterface;
-import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.util.Utils;
-import org.pentaho.di.i18n.BaseMessages;
-import org.pentaho.di.trans.TransMeta;
-import org.pentaho.di.trans.step.BaseStepMeta;
-import org.pentaho.di.trans.step.StepDialogInterface;
-import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.ui.core.dialog.EnterSelectionDialog;
-import org.pentaho.di.ui.core.dialog.ErrorDialog;
-import org.pentaho.di.ui.core.dialog.ShowMessageDialog;
-import org.pentaho.di.ui.core.widget.PasswordTextVar;
-import org.pentaho.di.ui.core.widget.TextVar;
-import org.pentaho.di.ui.trans.step.BaseStepDialog;
 
 /**
  * Dialog class for the CassandraOutput step
  * 
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  */
-public class CassandraOutputDialog extends BaseStepDialog implements StepDialogInterface {
+public class CassandraOutputDialog extends BaseTransformDialog implements ITransformDialog {
 
   private static final Class<?> PKG = CassandraOutputMeta.class;
 
@@ -84,8 +83,8 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
   private final CassandraOutputMeta m_originalMeta;
 
   /** various UI bits and pieces for the dialog */
-  private Label m_stepnameLabel;
-  private Text m_stepnameText;
+  private Label m_transformNameLabel;
+  private Text m_transformNameText;
 
   private CTabFolder m_wTabFolder;
   private CTabItem m_connectionTab;
@@ -164,9 +163,9 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
   private CCombo m_ttlUnitsCombo;
   private TextVar m_ttlValueText;
 
-  public CassandraOutputDialog( Shell parent, Object in, TransMeta tr, String name ) {
+  public CassandraOutputDialog( Shell parent, Object in, PipelineMeta tr, String name ) {
 
-    super( parent, (BaseStepMeta) in, tr, name );
+    super( parent, (BaseTransformMeta) in, tr, name );
 
     m_currentMeta = (CassandraOutputMeta) in;
     m_originalMeta = (CassandraOutputMeta) m_currentMeta.clone();
@@ -183,7 +182,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     props.setLook( shell );
     setShellImage( shell, m_currentMeta );
 
-    // used to listen to a text field (m_wStepname)
+    // used to listen to a text field (m_wtransformName)
     final ModifyListener lsMod = new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
@@ -203,27 +202,27 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    // Stepname line
-    m_stepnameLabel = new Label( shell, SWT.RIGHT );
-    m_stepnameLabel.setText( BaseMessages.getString( PKG, "CassandraOutputDialog.StepName.Label" ) ); //$NON-NLS-1$
-    props.setLook( m_stepnameLabel );
+    // transformName line
+    m_transformNameLabel = new Label( shell, SWT.RIGHT );
+    m_transformNameLabel.setText( BaseMessages.getString( PKG, "CassandraOutputDialog.transformName.Label" ) ); //$NON-NLS-1$
+    props.setLook( m_transformNameLabel );
 
     FormData fd = new FormData();
     fd.left = new FormAttachment( 0, 0 );
     fd.right = new FormAttachment( middle, -margin );
     fd.top = new FormAttachment( 0, margin );
-    m_stepnameLabel.setLayoutData( fd );
-    m_stepnameText = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    m_stepnameText.setText( stepname );
-    props.setLook( m_stepnameText );
-    m_stepnameText.addModifyListener( lsMod );
+    m_transformNameLabel.setLayoutData( fd );
+    m_transformNameText = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_transformNameText.setText( transformName );
+    props.setLook( m_transformNameText );
+    m_transformNameText.addModifyListener( lsMod );
 
     // format the text field
     fd = new FormData();
     fd.left = new FormAttachment( middle, 0 );
     fd.top = new FormAttachment( 0, margin );
     fd.right = new FormAttachment( 100, 0 );
-    m_stepnameText.setLayoutData( fd );
+    m_transformNameText.setLayoutData( fd );
 
     m_wTabFolder = new CTabFolder( shell, SWT.BORDER );
     props.setLook( m_wTabFolder, Props.WIDGET_STYLE_TAB );
@@ -247,22 +246,22 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     m_hostLab.setText( BaseMessages.getString( PKG, "CassandraOutputDialog.Hostname.Label" ) ); //$NON-NLS-1$
     fd = new FormData();
     fd.left = new FormAttachment( 0, 0 );
-    fd.top = new FormAttachment( m_stepnameText, margin );
+    fd.top = new FormAttachment( m_transformNameText, margin );
     fd.right = new FormAttachment( middle, -margin );
     m_hostLab.setLayoutData( fd );
 
-    m_hostText = new TextVar( transMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_hostText = new TextVar( pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_hostText );
     m_hostText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_hostText.setToolTipText( transMeta.environmentSubstitute( m_hostText.getText() ) );
+        m_hostText.setToolTipText( pipelineMeta.environmentSubstitute( m_hostText.getText() ) );
       }
     } );
     m_hostText.addModifyListener( lsMod );
     fd = new FormData();
     fd.right = new FormAttachment( 100, 0 );
-    fd.top = new FormAttachment( m_stepnameText, margin );
+    fd.top = new FormAttachment( m_transformNameText, margin );
     fd.left = new FormAttachment( middle, 0 );
     m_hostText.setLayoutData( fd );
 
@@ -276,12 +275,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     fd.right = new FormAttachment( middle, -margin );
     m_portLab.setLayoutData( fd );
 
-    m_portText = new TextVar( transMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_portText = new TextVar( pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_portText );
     m_portText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_portText.setToolTipText( transMeta.environmentSubstitute( m_portText.getText() ) );
+        m_portText.setToolTipText( pipelineMeta.environmentSubstitute( m_portText.getText() ) );
       }
     } );
     m_portText.addModifyListener( lsMod );
@@ -301,12 +300,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     fd.right = new FormAttachment( middle, -margin );
     m_socketTimeoutLab.setLayoutData( fd );
 
-    m_socketTimeoutText = new TextVar( transMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_socketTimeoutText = new TextVar( pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_socketTimeoutText );
     m_socketTimeoutText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_socketTimeoutText.setToolTipText( transMeta.environmentSubstitute( m_socketTimeoutText.getText() ) );
+        m_socketTimeoutText.setToolTipText( pipelineMeta.environmentSubstitute( m_socketTimeoutText.getText() ) );
       }
     } );
     m_socketTimeoutText.addModifyListener( lsMod );
@@ -326,7 +325,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     fd.right = new FormAttachment( middle, -margin );
     m_userLab.setLayoutData( fd );
 
-    m_userText = new TextVar( transMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_userText = new TextVar( pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_userText );
     m_userText.addModifyListener( lsMod );
     fd = new FormData();
@@ -345,7 +344,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     fd.right = new FormAttachment( middle, -margin );
     m_passLab.setLayoutData( fd );
 
-    m_passText = new PasswordTextVar( transMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_passText = new PasswordTextVar( pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_passText );
     m_passText.addModifyListener( lsMod );
 
@@ -365,12 +364,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     fd.right = new FormAttachment( middle, -margin );
     m_keyspaceLab.setLayoutData( fd );
 
-    m_keyspaceText = new TextVar( transMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_keyspaceText = new TextVar( pipelineMeta, wConnectionComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_keyspaceText );
     m_keyspaceText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_keyspaceText.setToolTipText( transMeta.environmentSubstitute( m_keyspaceText.getText() ) );
+        m_keyspaceText.setToolTipText( pipelineMeta.environmentSubstitute( m_keyspaceText.getText() ) );
       }
     } );
     m_keyspaceText.addModifyListener( lsMod );
@@ -430,7 +429,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     m_tableCombo.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_tableCombo.setToolTipText( transMeta.environmentSubstitute( m_tableCombo.getText() ) );
+        m_tableCombo.setToolTipText( pipelineMeta.environmentSubstitute( m_tableCombo.getText() ) );
       }
     } );
     m_tableCombo.addModifyListener( lsMod );
@@ -451,12 +450,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     m_consistencyLab.setLayoutData( fd );
     m_consistencyLab.setToolTipText( BaseMessages.getString( PKG, "CassandraOutputDialog.Consistency.Label.TipText" ) ); //$NON-NLS-1$
 
-    m_consistencyText = new TextVar( transMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_consistencyText = new TextVar( pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_consistencyText );
     m_consistencyText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_consistencyText.setToolTipText( transMeta.environmentSubstitute( m_consistencyText.getText() ) );
+        m_consistencyText.setToolTipText( pipelineMeta.environmentSubstitute( m_consistencyText.getText() ) );
       }
     } );
     m_consistencyText.addModifyListener( lsMod );
@@ -477,12 +476,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     m_batchSizeLab.setLayoutData( fd );
     m_batchSizeLab.setToolTipText( BaseMessages.getString( PKG, "CassandraOutputDialog.BatchSize.TipText" ) ); //$NON-NLS-1$
 
-    m_batchSizeText = new TextVar( transMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_batchSizeText = new TextVar( pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_batchSizeText );
     m_batchSizeText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_batchSizeText.setToolTipText( transMeta.environmentSubstitute( m_batchSizeText.getText() ) );
+        m_batchSizeText.setToolTipText( pipelineMeta.environmentSubstitute( m_batchSizeText.getText() ) );
       }
     } );
     m_batchSizeText.addModifyListener( lsMod );
@@ -504,12 +503,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     m_batchInsertTimeoutLab.setToolTipText( BaseMessages.getString( PKG,
         "CassandraOutputDialog.BatchInsertTimeout.TipText" ) ); //$NON-NLS-1$
 
-    m_batchInsertTimeoutText = new TextVar( transMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_batchInsertTimeoutText = new TextVar( pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_batchInsertTimeoutText );
     m_batchInsertTimeoutText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_batchInsertTimeoutText.setToolTipText( transMeta.environmentSubstitute( m_batchInsertTimeoutText.getText() ) );
+        m_batchInsertTimeoutText.setToolTipText( pipelineMeta.environmentSubstitute( m_batchInsertTimeoutText.getText() ) );
       }
     } );
     m_batchInsertTimeoutText.addModifyListener( lsMod );
@@ -530,12 +529,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     fd.right = new FormAttachment( middle, -margin );
     m_subBatchSizeLab.setLayoutData( fd );
 
-    m_subBatchSizeText = new TextVar( transMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_subBatchSizeText = new TextVar( pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_subBatchSizeText );
     m_subBatchSizeText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_subBatchSizeText.setToolTipText( transMeta.environmentSubstitute( m_subBatchSizeText.getText() ) );
+        m_subBatchSizeText.setToolTipText( pipelineMeta.environmentSubstitute( m_subBatchSizeText.getText() ) );
       }
     } );
     m_subBatchSizeText.addModifyListener( lsMod );
@@ -600,7 +599,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
       }
     } );
 
-    m_ttlValueText = new TextVar( transMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_ttlValueText = new TextVar( pipelineMeta, wWriteComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_ttlValueText );
     fd = new FormData();
     fd.right = new FormAttachment( m_ttlUnitsCombo, -margin );
@@ -611,7 +610,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     m_ttlValueText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_ttlValueText.setToolTipText( transMeta.environmentSubstitute( m_ttlValueText.getText() ) );
+        m_ttlValueText.setToolTipText( pipelineMeta.environmentSubstitute( m_ttlValueText.getText() ) );
       }
     } );
 
@@ -646,7 +645,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     m_keyFieldCombo.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_keyFieldCombo.setToolTipText( transMeta.environmentSubstitute( m_keyFieldCombo.getText() ) );
+        m_keyFieldCombo.setToolTipText( pipelineMeta.environmentSubstitute( m_keyFieldCombo.getText() ) );
       }
     } );
     m_keyFieldCombo.addModifyListener( lsMod );
@@ -704,12 +703,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     fd.right = new FormAttachment( middle, -margin );
     m_schemaHostLab.setLayoutData( fd );
 
-    m_schemaHostText = new TextVar( transMeta, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_schemaHostText = new TextVar( pipelineMeta, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_schemaHostText );
     m_schemaHostText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_schemaHostText.setToolTipText( transMeta.environmentSubstitute( m_schemaHostText.getText() ) );
+        m_schemaHostText.setToolTipText( pipelineMeta.environmentSubstitute( m_schemaHostText.getText() ) );
       }
     } );
     m_schemaHostText.addModifyListener( lsMod );
@@ -729,12 +728,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     fd.right = new FormAttachment( middle, -margin );
     m_schemaPortLab.setLayoutData( fd );
 
-    m_schemaPortText = new TextVar( transMeta, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_schemaPortText = new TextVar( pipelineMeta, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_schemaPortText );
     m_schemaPortText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_schemaPortText.setToolTipText( transMeta.environmentSubstitute( m_schemaPortText.getText() ) );
+        m_schemaPortText.setToolTipText( pipelineMeta.environmentSubstitute( m_schemaPortText.getText() ) );
       }
     } );
     m_schemaPortText.addModifyListener( lsMod );
@@ -784,12 +783,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     fd.right = new FormAttachment( middle, -margin );
     m_withClauseLab.setLayoutData( fd );
 
-    m_withClauseText = new TextVar( transMeta, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    m_withClauseText = new TextVar( pipelineMeta, wSchemaComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( m_withClauseText );
     m_withClauseText.addModifyListener( new ModifyListener() {
       @Override
       public void modifyText( ModifyEvent e ) {
-        m_withClauseText.setToolTipText( transMeta.environmentSubstitute( m_withClauseText.getText() ) );
+        m_withClauseText.setToolTipText( pipelineMeta.environmentSubstitute( m_withClauseText.getText() ) );
       }
     } );
     m_withClauseText.addModifyListener( lsMod );
@@ -939,19 +938,19 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
 
     fd = new FormData();
     fd.left = new FormAttachment( 0, 0 );
-    fd.top = new FormAttachment( m_stepnameText, margin );
+    fd.top = new FormAttachment( m_transformNameText, margin );
     fd.right = new FormAttachment( 100, 0 );
     fd.bottom = new FormAttachment( 100, -50 );
     m_wTabFolder.setLayoutData( fd );
 
-    // Buttons inherited from BaseStepDialog
-    wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) ); //$NON-NLS-1$
+    // Buttons inherited from BaseTransformDialog
+    wOk = new Button( shell, SWT.PUSH );
+    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) ); //$NON-NLS-1$
 
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) ); //$NON-NLS-1$
 
-    setButtonPositions( new Button[] { wOK, wCancel }, margin, m_wTabFolder );
+    setButtonPositions( new Button[] { wOk, wCancel }, margin, m_wTabFolder );
 
     // Add listeners
     lsCancel = new Listener() {
@@ -961,7 +960,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
       }
     };
 
-    lsOK = new Listener() {
+    lsOk = new Listener() {
       @Override
       public void handleEvent( Event e ) {
         ok();
@@ -969,7 +968,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     };
 
     wCancel.addListener( SWT.Selection, lsCancel );
-    wOK.addListener( SWT.Selection, lsOK );
+    wOk.addListener( SWT.Selection, lsOk );
 
     lsDef = new SelectionAdapter() {
       @Override
@@ -978,7 +977,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
       }
     };
 
-    m_stepnameText.addSelectionListener( lsDef );
+    m_transformNameText.addSelectionListener( lsDef );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -1000,7 +999,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
       }
     }
 
-    return stepname;
+    return transformName;
   }
 
   protected void setupTablesCombo() {
@@ -1008,15 +1007,15 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     Keyspace kSpace = null;
 
     try {
-      String hostS = transMeta.environmentSubstitute( m_hostText.getText() );
-      String portS = transMeta.environmentSubstitute( m_portText.getText() );
+      String hostS = pipelineMeta.environmentSubstitute( m_hostText.getText() );
+      String portS = pipelineMeta.environmentSubstitute( m_portText.getText() );
       String userS = m_userText.getText();
       String passS = m_passText.getText();
       if ( !Utils.isEmpty( userS ) && !Utils.isEmpty( passS ) ) {
-        userS = transMeta.environmentSubstitute( userS );
-        passS = transMeta.environmentSubstitute( passS );
+        userS = pipelineMeta.environmentSubstitute( userS );
+        passS = pipelineMeta.environmentSubstitute( passS );
       }
-      String keyspaceS = transMeta.environmentSubstitute( m_keyspaceText.getText() );
+      String keyspaceS = pipelineMeta.environmentSubstitute( m_keyspaceText.getText() );
 
       try {
         Map<String, String> opts = new HashMap<String, String>();
@@ -1062,12 +1061,12 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
   }
 
   protected void showEnterSelectionDialog() {
-    StepMeta stepMeta = transMeta.findStep( stepname );
+    TransformMeta stepMeta = pipelineMeta.findTransform( transformName );
 
     String[] choices = null;
     if ( stepMeta != null ) {
       try {
-        RowMetaInterface row = transMeta.getPrevStepFields( stepMeta );
+        IRowMeta row = pipelineMeta.getPrevTransformFields( stepMeta );
 
         if ( row.size() == 0 ) {
           MessageDialog.openError( shell, BaseMessages.getString( PKG,
@@ -1079,7 +1078,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
 
         choices = new String[row.size()];
         for ( int i = 0; i < row.size(); i++ ) {
-          ValueMetaInterface vm = row.getValueMeta( i );
+          IValueMeta vm = row.getValueMeta( i );
           choices[i] = vm.getName();
         }
 
@@ -1120,7 +1119,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
 
           m_keyFieldCombo.setText( newSelection.toString() );
         }
-      } catch ( KettleException ex ) {
+      } catch ( HopException ex ) {
         MessageDialog.openError( shell, BaseMessages.getString( PKG,
             "CassandraOutputData.Message.NoIncomingFields.Title" ), BaseMessages //$NON-NLS-1$
             .getString( PKG, "CassandraOutputData.Message.NoIncomingFields" ) ); //$NON-NLS-1$
@@ -1131,11 +1130,11 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
   protected void setupFieldsCombo() {
     // try and set up from incoming fields from previous step
 
-    StepMeta stepMeta = transMeta.findStep( stepname );
+    TransformMeta stepMeta = pipelineMeta.findTransform( transformName );
 
     if ( stepMeta != null ) {
       try {
-        RowMetaInterface row = transMeta.getPrevStepFields( stepMeta );
+        IRowMeta row = pipelineMeta.getPrevTransformFields( stepMeta );
 
         if ( row.size() == 0 ) {
           MessageDialog.openError( shell, BaseMessages.getString( PKG,
@@ -1147,10 +1146,10 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
 
         m_keyFieldCombo.removeAll();
         for ( int i = 0; i < row.size(); i++ ) {
-          ValueMetaInterface vm = row.getValueMeta( i );
+          IValueMeta vm = row.getValueMeta( i );
           m_keyFieldCombo.add( vm.getName() );
         }
-      } catch ( KettleException ex ) {
+      } catch ( HopException ex ) {
         MessageDialog.openError( shell, BaseMessages.getString( PKG,
             "CassandraOutputData.Message.NoIncomingFields.Title" ), BaseMessages //$NON-NLS-1$
             .getString( PKG, "CassandraOutputData.Message.NoIncomingFields" ) ); //$NON-NLS-1$
@@ -1159,11 +1158,11 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
   }
 
   protected void ok() {
-    if ( Utils.isEmpty( m_stepnameText.getText() ) ) {
+    if ( Utils.isEmpty( m_transformNameText.getText() ) ) {
       return;
     }
 
-    stepname = m_stepnameText.getText();
+    transformName = m_transformNameText.getText();
     m_currentMeta.setCassandraHost( m_hostText.getText() );
     m_currentMeta.setCassandraPort( m_portText.getText() );
     m_currentMeta.setSchemaHost( m_schemaHostText.getText() );
@@ -1201,7 +1200,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
   }
 
   protected void cancel() {
-    stepname = null;
+    transformName = null;
     m_currentMeta.setChanged( changed );
 
     dispose();
@@ -1210,7 +1209,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
   protected void popupCQLEditor( ModifyListener lsMod ) {
 
     EnterCQLDialog ecd =
-        new EnterCQLDialog( shell, transMeta, lsMod, BaseMessages.getString( PKG, "CassandraOutputDialog.CQL.Button" ), //$NON-NLS-1$
+        new EnterCQLDialog( shell, pipelineMeta, lsMod, BaseMessages.getString( PKG, "CassandraOutputDialog.CQL.Button" ), //$NON-NLS-1$
             m_aprioriCQL, m_dontComplain );
 
     m_aprioriCQL = ecd.open();
@@ -1222,15 +1221,15 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
     Connection conn = null;
     Keyspace kSpace = null;
     try {
-      String hostS = transMeta.environmentSubstitute( m_hostText.getText() );
-      String portS = transMeta.environmentSubstitute( m_portText.getText() );
+      String hostS = pipelineMeta.environmentSubstitute( m_hostText.getText() );
+      String portS = pipelineMeta.environmentSubstitute( m_portText.getText() );
       String userS = m_userText.getText();
       String passS = m_passText.getText();
       if ( !Utils.isEmpty( userS ) && !Utils.isEmpty( passS ) ) {
-        userS = transMeta.environmentSubstitute( userS );
-        passS = transMeta.environmentSubstitute( passS );
+        userS = pipelineMeta.environmentSubstitute( userS );
+        passS = pipelineMeta.environmentSubstitute( passS );
       }
-      String keyspaceS = transMeta.environmentSubstitute( m_keyspaceText.getText() );
+      String keyspaceS = pipelineMeta.environmentSubstitute( m_keyspaceText.getText() );
 
       try {
         Map<String, String> opts = new HashMap<String, String>();
@@ -1256,7 +1255,7 @@ public class CassandraOutputDialog extends BaseStepDialog implements StepDialogI
         return;
       }
 
-      String table = transMeta.environmentSubstitute( m_tableCombo.getText() );
+      String table = pipelineMeta.environmentSubstitute( m_tableCombo.getText() );
       if ( Utils.isEmpty( table ) ) {
         throw new Exception( "No table name specified!" ); //$NON-NLS-1$
       }

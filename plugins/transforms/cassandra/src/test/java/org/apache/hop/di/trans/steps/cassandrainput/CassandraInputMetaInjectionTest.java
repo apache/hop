@@ -20,29 +20,40 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.cassandrasstableoutput;
+package org.apache.hop.di.trans.steps.cassandrainput;
 
+import org.apache.hop.core.injection.BaseMetadataInjectionTest;
+import org.apache.hop.pipeline.transforms.cassandrainput.CassandraInputMeta;
 import org.junit.Before;
 import org.junit.Test;
-import org.pentaho.di.core.injection.BaseMetadataInjectionTest;
 
-public class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SSTableOutputMeta> {
+public class CassandraInputMetaInjectionTest extends BaseMetadataInjectionTest<CassandraInputMeta> {
 
   @Before
   public void setup() {
-    setup( new SSTableOutputMeta() );
+    setup( new CassandraInputMeta() );
   }
 
   @Test
   public void test() throws Exception {
-    check( "YAML_FILE_PATH", new StringGetter() {
+    check( "CASSANDRA_HOST", new StringGetter() {
       public String get() {
-        return meta.getYamlPath();
+        return meta.getCassandraHost();
       }
     } );
-    check( "DIRECTORY", new StringGetter() {
+    check( "CASSANDRA_PORT", new StringGetter() {
       public String get() {
-        return meta.getDirectory();
+        return meta.getCassandraPort();
+      }
+    } );
+    check( "USER_NAME", new StringGetter() {
+      public String get() {
+        return meta.getUsername();
+      }
+    } );
+    check( "PASSWORD", new StringGetter() {
+      public String get() {
+        return meta.getPassword();
       }
     } );
     check( "CASSANDRA_KEYSPACE", new StringGetter() {
@@ -50,19 +61,29 @@ public class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SS
         return meta.getCassandraKeyspace();
       }
     } );
-    check( "TABLE", new StringGetter() {
-      public String get() {
-        return meta.getTableName();
+    check( "USE_QUERY_COMPRESSION", new BooleanGetter() {
+      public boolean get() {
+        return meta.getUseCompression();
       }
     } );
-    check( "KEY_FIELD", new StringGetter() {
+    check( "CQL_QUERY", new StringGetter() {
       public String get() {
-        return meta.getKeyField();
+        return meta.getCQLSelectQuery();
       }
     } );
-    check( "BUFFER_SIZE", new StringGetter() {
+    check( "EXECUTE_FOR_EACH_ROW", new BooleanGetter() {
+      public boolean get() {
+        return meta.getExecuteForEachIncomingRow();
+      }
+    } );
+    check( "SOCKET_TIMEOUT", new StringGetter() {
       public String get() {
-        return meta.getBufferSize();
+        return meta.getSocketTimeout();
+      }
+    } );
+    check( "TRANSPORT_MAX_LENGTH", new StringGetter() {
+      public String get() {
+        return meta.getMaxLength();
       }
     } );
   }

@@ -15,11 +15,10 @@
  *
  */
 
-package org.pentaho.di.trans.steps.cassandrasstableoutput;
-
-import org.junit.Test;
+package org.apache.hop.di.trans.steps.cassandrasstableoutput;
 
 import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 public class SSTableOutputMetaTest {
 
