@@ -211,10 +211,10 @@ public class HopGuiPipelineRunDelegate {
       pipelineMeta.setClearingLog( executionConfiguration.isClearingLog() );
 
       ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineMetaExecutionStart.id, pipelineMeta );
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineExecutionConfiguration.id, executionConfiguration );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id, executionConfiguration );
 
       try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiPipelineBeforeStart.id, new Object[] { executionConfiguration, pipelineMeta, pipelineMeta } );
+        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineBeforeStart.id, new Object[] { executionConfiguration, pipelineMeta, pipelineMeta } );
       } catch ( HopException e ) {
         log.logError( e.getMessage(), pipelineMeta.getFilename() );
         return null;

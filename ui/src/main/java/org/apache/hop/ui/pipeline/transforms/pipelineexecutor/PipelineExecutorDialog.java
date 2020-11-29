@@ -400,7 +400,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
       List<String> runConfigurations = metadataProvider.getSerializer( PipelineRunConfiguration.class ).listObjectNames();
 
       try {
-        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[] { runConfigurations, PipelineMeta.XML_TAG } );
+        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiRunConfiguration.id, new Object[] { runConfigurations, PipelineMeta.XML_TAG } );
       } catch ( HopException e ) {
         // Ignore errors
       }
