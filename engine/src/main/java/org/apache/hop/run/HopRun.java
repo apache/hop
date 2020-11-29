@@ -251,7 +251,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
       // Certain Hop plugins rely on this.  Meh.
       //
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiWorkflowBeforeStart.id, new Object[] { configuration, null, workflowMeta, null } );
+      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiWorkflowBeforeStart.id, new Object[] { configuration, null, workflowMeta, null } );
 
       // Before running, do we print the options?
       //

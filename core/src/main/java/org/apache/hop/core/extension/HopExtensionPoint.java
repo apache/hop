@@ -58,7 +58,7 @@ public enum HopExtensionPoint {
   HopUiPipelineExecutionConfiguration( "Right before Hop UI configuration of Pipeline to be executed takes place" ),
   HopUiPipelineBeforeStart( "Right before the Pipeline is started" ),
 
-  HopUiWorkflowBeforeStart( "Right before the workflow is started" ),
+  HopGuiWorkflowBeforeStart( "Right before the workflow is started" ),
   RunConfigurationSelection( "Check when run configuration is selected" ),
   RunConfigurationIsRemote( "Check when run configuration is pointing to a remote server" ),
   HopUiRunConfiguration( "Send the run configuration" ),
@@ -85,7 +85,7 @@ public enum HopExtensionPoint {
   WorkflowGraphMouseDoubleClick( "A left or right button was double-clicked in a workflow" ),
   WorkflowDialogShowRetrieveLogTableFields( "Show or retrieve the contents of the fields of a log channel on the log channel composite" ),
 
-  WorkflowMetaLoaded( "Job metadata was loaded" ),
+  WorkflowMetaLoaded( "Workflow metadata was loaded" ),
   HopUiWorkflowMetaExecutionStart( "Hop UI initiates the execution of a workflow (WorkflowMeta)" ),
   HopUiJobExecutionConfiguration( "Right before Hop UI configuration of workflow to be executed takes place" ),
 
@@ -107,8 +107,8 @@ public enum HopExtensionPoint {
   HopServerShutdown( "Right before the Hop webserver will shut down" ),
 
   HopGuiFileOpenDialog( "Allows you to modify the file dialog before it's shown. If you want to show your own, set doIt to false (" ),
-  HopGuiNewPipelineTab( "Determine the tab name of a Pipeline (HopGuiPipelineGraph)" ),
-  HopGuiNewJobTab( "Determine the tab name of a workflow (HopGuiJobGraph)" ),
+  HopGuiNewPipelineTab( "Determine the tab name of a pipeline (HopGuiPipelineGraph)" ),
+  HopGuiNewWorkflowTab( "Determine the tab name of a workflow (HopGuiWorkflowGraph)" ),
 
   HopGuiMetadataObjectCreateBeforeDialog("A new metadata object is created. Before showing the dialog"),
   HopGuiMetadataObjectCreated("A new metadata object is created"),
