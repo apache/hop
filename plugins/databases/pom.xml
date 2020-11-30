@@ -99,7 +99,8 @@
         <module>sapdb</module>
         <module>sqlite</module>
         <module>googlebigquery</module>
-		<module>snowflake</module>        
+		<module>snowflake</module> 
+		<module>cassandra</module>       
       </modules>
     </profile>
 

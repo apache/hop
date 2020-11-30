@@ -30,15 +30,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import com.datastax.driver.core.ColumnDefinitions;
-import com.datastax.driver.core.ConsistencyLevel;
-import com.datastax.driver.core.DataType;
-import com.datastax.driver.core.LocalDate;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
-import com.datastax.driver.core.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -50,9 +41,18 @@ import org.apache.hop.core.row.value.ValueMetaDate;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
+import com.datastax.driver.core.ColumnDefinitions;
+import com.datastax.driver.core.ConsistencyLevel;
+import com.datastax.driver.core.DataType;
+import com.datastax.driver.core.LocalDate;
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
+import com.datastax.driver.core.Statement;
 
 public class DriverCQLRowHandlerTest {
 
@@ -110,7 +110,7 @@ public class DriverCQLRowHandlerTest {
     rowMeta.addValueMeta(new ValueMetaNumber("c"));
 
     rowHandler.newRowQuery(
-        mock(ITransformMeta.class),
+        mock(ITransform.class),
         "tab",
         "select * from tab",
         null,
@@ -164,7 +164,7 @@ public class DriverCQLRowHandlerTest {
     rowMeta.addValueMeta(new ValueMetaNumber("nums"));
 
     rowHandler.newRowQuery(
-        mock(ITransformMeta.class),
+        mock(ITransform.class),
         "tab",
         "select * from tab",
         null,
