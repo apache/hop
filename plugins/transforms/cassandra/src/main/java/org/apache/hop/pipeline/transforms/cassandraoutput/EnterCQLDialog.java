@@ -29,6 +29,7 @@ import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.StyledTextComp;
+import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transforms.tableinput.SqlValuesHighlight;
 import org.eclipse.swt.SWT;
@@ -229,7 +230,7 @@ public class EnterCQLDialog extends Dialog {
   public void checkCancel( ShellEvent e ) {
     String newText = m_cqlText.getText();
     if ( !newText.equals( m_originalCQL ) ) {
-      int save = 0;// TODO FIX BY finding replacement JobGraph.showChangedWarning( m_shell, m_title );
+      int save = HopGuiWorkflowGraph.showChangedWarning( m_shell, m_title );
       if ( save == SWT.CANCEL ) {
         e.doit = false;
       } else if ( save == SWT.YES ) {

@@ -15,14 +15,13 @@
  *
  */
 
-package org.apache.hop.di.trans.steps.cassandrasstableoutput.writer;
-
-import org.apache.cassandra.exceptions.ConfigurationException;
-import org.junit.Test;
-import org.apache.hop.di.core.row.IRowMeta;
+package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+import org.apache.cassandra.exceptions.ConfigurationException;
+import org.apache.hop.core.row.IRowMeta;
+import org.junit.Test;
 
 public class SSTableWriterBuilderTest extends SSTableWriterBuilder {
 
