@@ -31,13 +31,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.sql.RowSet;
+import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILogChannelFactory;
+import org.apache.hop.core.logging.ILogMessage;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.di.core.logging.KettleLogStore;
-import org.apache.hop.di.core.logging.LogMessageInterface;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -65,15 +65,15 @@ public class StepMockHelper<Meta extends ITransformMeta, Data extends ITransform
   public final ILogChannelFactory originalILogChannelFactory;
 
   public StepMockHelper( String stepName, Class<Meta> stepMetaClass, Class<Data> stepDataClass ) {
-    originalILogChannelFactory = KettleLogStore.getILogChannelFactory();
+    originalILogChannelFactory = HopLogStore.getLogChannelFactory();
     logChannelInterfaceFactory = mock( ILogChannelFactory.class );
     logChannelInterface = mock( ILogChannel.class );
-    KettleLogStore.setILogChannelFactory( logChannelInterfaceFactory );
+    HopLogStore.setLogChannelFactory( logChannelInterfaceFactory );
     stepMeta = mock( TransformMeta.class );
     when( stepMeta.getName() ).thenReturn( stepName );
     stepDataInterface = mock( stepDataClass );
     transMeta = mock( PipelineMeta.class );
-    when( transMeta.findStep( stepName ) ).thenReturn( stepMeta );
+    when( transMeta.findTransform( stepName ) ).thenReturn( stepMeta );
     trans = mock( Pipeline.class );
     initTransformMetaInterface = mock( stepMetaClass );
     initITransformData = mock( stepDataClass );
@@ -114,7 +114,7 @@ public class StepMockHelper<Meta extends ITransformMeta, Data extends ITransform
   }
 
   public void cleanUp() {
-    KettleLogStore.setILogChannelFactory( originalILogChannelFactory );
+    HopLogStore.setILogChannelFactory( originalILogChannelFactory );
   }
 
   /**
@@ -140,7 +140,7 @@ public class StepMockHelper<Meta extends ITransformMeta, Data extends ITransform
           return null; // not for our eyes.
         }
         if ( channelLogLevel.getLevel() >= logLevel.getLevel() ) {
-          LogMessageInterface logMessage = (LogMessageInterface) args[0];
+          ILogMessage logMessage = (ILogMessage) args[0];
           out.write( logMessage.getMessage().getBytes() );
           out.write( '\n' );
           out.write( '\r' );
@@ -149,6 +149,6 @@ public class StepMockHelper<Meta extends ITransformMeta, Data extends ITransform
         }
         return false;
       }
-    } ).when( log ).println( (LogMessageInterface) anyObject(), (LogLevel) anyObject() );
+    } ).when( log ).println( (ILogMessage) anyObject(), (LogLevel) anyObject() );
   }
 }
