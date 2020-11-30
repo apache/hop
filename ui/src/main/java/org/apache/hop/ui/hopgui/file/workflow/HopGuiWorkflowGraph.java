@@ -3255,7 +3255,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
           // Allow plugins to change the workflow metadata
           //
-          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopUiWorkflowMetaExecutionStart.id, workflowMeta );
+          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiWorkflowMetaExecutionStart.id, workflowMeta );
 
           workflow = WorkflowEngineFactory.createWorkflowEngine( executionConfiguration.getRunConfiguration(), hopGui.getMetadataProvider(), runWorkflowMeta, hopGuiLoggingObject );
 

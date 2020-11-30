@@ -296,7 +296,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
             List<String> runConfigurations = this.getMetadataProvider().getSerializer( PipelineRunConfiguration.class).listObjectNames();
 
             try {
-                ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, new Object[]{runConfigurations, PipelineMeta.XML_TAG});
+                ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiRunConfiguration.id, new Object[]{runConfigurations, PipelineMeta.XML_TAG});
             } catch (HopException e) {
                 // Ignore errors
             }

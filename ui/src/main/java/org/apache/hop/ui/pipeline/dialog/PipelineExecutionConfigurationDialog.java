@@ -194,9 +194,9 @@ public class PipelineExecutionConfigurationDialog extends ConfigurationDialog {
     }
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopUiRunConfiguration.id, wRunConfiguration );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopGuiRunConfiguration.id, wRunConfiguration );
     } catch ( HopException e ) {
-      hopGui.getLog().logError( "Error calling extension point with ID '" + HopExtensionPoint.HopUiRunConfiguration.id + "'", e );
+      hopGui.getLog().logError( "Error calling extension point with ID '" + HopExtensionPoint.HopGuiRunConfiguration.id + "'", e );
     }
 
     // If we don't have a run configuration from history or from a plugin,
