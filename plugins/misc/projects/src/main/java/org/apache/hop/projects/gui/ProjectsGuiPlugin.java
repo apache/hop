@@ -21,15 +21,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.config.HopConfig;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElement;
 import org.apache.hop.core.gui.plugin.toolbar.GuiToolbarElementType;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.history.AuditEvent;
 import org.apache.hop.history.AuditManager;
-import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
@@ -587,6 +589,11 @@ public class ProjectsGuiPlugin {
         );
         AuditManager.getActive().storeEvent( envUsedEvent );
       }
+      
+      // Inform the outside world that we're enabled an other project
+      //
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.HopGuiProjectAfterEnabled.name(), project);
+
     } catch ( Exception e ) {
       throw new HopException( "Error enabling project '" + projectName + "' in HopGui", e );
     }
