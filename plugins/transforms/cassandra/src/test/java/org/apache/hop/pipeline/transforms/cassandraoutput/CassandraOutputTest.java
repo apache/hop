@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.di.trans.steps.cassandraoutput;
+package org.apache.hop.pipeline.transforms.cassandraoutput;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;

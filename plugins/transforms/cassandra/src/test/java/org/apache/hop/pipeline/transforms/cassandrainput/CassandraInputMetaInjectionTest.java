@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.di.trans.steps.cassandrainput;
+package org.apache.hop.pipeline.transforms.cassandrainput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.apache.hop.pipeline.transforms.cassandrainput.CassandraInputMeta;

@@ -15,13 +15,13 @@
  *
  */
 
-package org.apache.hop.di.trans.steps.cassandrasstableoutput;
+package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.di.trans.steps.mock.StepMockHelper;
+import org.apache.hop.pipeline.transforms.steps.mock.StepMockHelper;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

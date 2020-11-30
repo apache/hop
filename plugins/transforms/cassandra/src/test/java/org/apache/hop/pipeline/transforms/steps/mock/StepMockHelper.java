@@ -15,7 +15,7 @@
  *
  */
 
-package org.apache.hop.di.trans.steps.mock;
+package org.apache.hop.pipeline.transforms.steps.mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
@@ -33,15 +33,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.sql.RowSet;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILogChannelFactory;
+import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.di.core.logging.KettleLogStore;
 import org.apache.hop.di.core.logging.LogMessageInterface;
-import org.apache.hop.di.core.logging.ILoggingObject;
-import org.apache.hop.di.trans.step.ITransformMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
+import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
