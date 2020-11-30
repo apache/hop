@@ -29,6 +29,7 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
+import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -57,7 +58,7 @@ public class ActionDialog extends Dialog {
   /**
    * The package name, used for internationalization.
    */
-  private static final Class<?> PKG = IAction.class; // Needed by Translator
+  private static final Class<?> PKG = ITransform.class; // Needed by Translator
 
   /**
    * The loggingObject for the dialog
