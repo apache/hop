@@ -15,10 +15,11 @@
  *
  */
 
-package org.apache.hop.di.trans.steps.cassandrasstableoutput.writer;
+package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
 import static org.junit.Assert.assertEquals;
 import java.util.Map;
+import org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer.AbstractSSTableWriter;
 import org.junit.Test;
 
 public class AbstractSSTableWriterTest extends AbstractSSTableWriter {

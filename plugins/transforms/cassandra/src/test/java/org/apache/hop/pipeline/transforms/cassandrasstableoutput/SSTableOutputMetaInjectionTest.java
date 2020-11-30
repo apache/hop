@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.apache.hop.di.trans.steps.cassandrasstableoutput;
+package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
 import org.junit.Before;

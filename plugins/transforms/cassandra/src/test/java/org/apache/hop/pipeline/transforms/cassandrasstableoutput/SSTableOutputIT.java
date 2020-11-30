@@ -15,7 +15,7 @@
  *
  */
 
-package org.apache.hop.di.trans.steps.cassandrasstableoutput;
+package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -33,7 +33,7 @@ import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
-import org.apache.hop.di.trans.steps.mock.StepMockHelper;
+import org.apache.hop.pipeline.transforms.steps.mock.StepMockHelper;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;

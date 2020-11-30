@@ -15,7 +15,7 @@
  *
  */
 
-package org.apache.hop.di.trans.steps.cassandrasstableoutput;
+package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
@@ -23,41 +23,41 @@ import org.junit.Test;
 public class SSTableOutputMetaTest {
 
   @Test
-  public void testGetXMLUseCQL3() throws Exception {
+  public void testgetXmlUseCQL3() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setUseCQL3( true );
     assertTrue( "getXml() does not cover setUseCQL3() ",
-      ssTableOutputMeta.getXML().contains( "<use_cql3>Y</use_cql3>" ) );
+      ssTableOutputMeta.getXml().contains( "<use_cql3>Y</use_cql3>" ) );
 
   }
 
   @Test
-  public void testGetXMLUseCQL2() throws Exception {
+  public void testgetXmlUseCQL2() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setUseCQL3( false );
     assertTrue( "getXml() does not cover setUseCQL3() ",
-      ssTableOutputMeta.getXML().contains( "<use_cql3>N</use_cql3>" ) );
+      ssTableOutputMeta.getXml().contains( "<use_cql3>N</use_cql3>" ) );
   }
 
   @Test
-  public void testGetXMLKeyField() throws Exception {
+  public void testgetXmlKeyField() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setKeyField( "some_key" );
     assertTrue( "getXml() does not cover setKeyField() ",
-      ssTableOutputMeta.getXML().contains( "<key_field>some_key</key_field>" ) );
+      ssTableOutputMeta.getXml().contains( "<key_field>some_key</key_field>" ) );
 
   }
 
   @Test
-  public void testGetXMLTableName() throws Exception {
+  public void testgetXmlTableName() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setTableName( "someTableName" );
     assertTrue( "getXml() does not cover setTableName() ",
-      ssTableOutputMeta.getXML().contains( "<table>someTableName</table>" ) );
+      ssTableOutputMeta.getXml().contains( "<table>someTableName</table>" ) );
   }
 
   @Test
@@ -66,43 +66,43 @@ public class SSTableOutputMetaTest {
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setBufferSize( "some_buffer_size" );
     assertTrue( "getXml() does not cover setBufferSize() ",
-      ssTableOutputMeta.getXML().contains( "<buffer_size_mb>some_buffer_size</buffer_size_mb>" ) );
+      ssTableOutputMeta.getXml().contains( "<buffer_size_mb>some_buffer_size</buffer_size_mb>" ) );
 
   }
 
   @Test
-  public void testGetXMLCassandraKeyspace() throws Exception {
+  public void testgetXmlCassandraKeyspace() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setCassandraKeyspace( "someCassandraKeyspace" );
     assertTrue( "getXml() does not cover setCassandraKeyspace() ",
-      ssTableOutputMeta.getXML().contains( "<cassandra_keyspace>someCassandraKeyspace</cassandra_keyspace>" ) );
+      ssTableOutputMeta.getXml().contains( "<cassandra_keyspace>someCassandraKeyspace</cassandra_keyspace>" ) );
   }
 
   @Test
-  public void testGetXMLYamlPath() throws Exception {
+  public void testgetXmlYamlPath() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setYamlPath( "some_YamlPath" );
     assertTrue( "getXml() does not cover setYamlPath() ",
-      ssTableOutputMeta.getXML().contains( "<yaml_path>some_YamlPath</yaml_path>" ) );
+      ssTableOutputMeta.getXml().contains( "<yaml_path>some_YamlPath</yaml_path>" ) );
 
   }
 
   @Test
-  public void testGetXMLDirectory() throws Exception {
+  public void testgetXmlDirectory() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
     ssTableOutputMeta.setDirectory( "someDirectory" );
     assertTrue( "getXml() does not cover setDirectory() ",
-      ssTableOutputMeta.getXML().contains( "<output_directory>someDirectory</output_directory>" ) );
+      ssTableOutputMeta.getXml().contains( "<output_directory>someDirectory</output_directory>" ) );
   }
 
   @Test
-  public void testGetXMLDefault() throws Exception {
+  public void testgetXmlDefault() throws Exception {
     SSTableOutputMeta ssTableOutputMeta = new SSTableOutputMeta();
     ssTableOutputMeta.setDefault();
-    String xml = ssTableOutputMeta.getXML();
+    String xml = ssTableOutputMeta.getXml();
     assertTrue( "getXml() does not cover defaults ",
       xml.contains( "<use_cql3>Y</use_cql3>" ) );
     assertTrue( "getXml() does not cover defaults ",
