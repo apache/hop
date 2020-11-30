@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.config.DescribedVariable;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -83,7 +84,8 @@ public class HopDescribedVariablesDialog extends Dialog {
     Display display = parent.getDisplay();
 
     shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX );
-    shell.setImage( GuiResource.getInstance().getImagePipelineGraph() );
+    shell.setText( BaseMessages.getString( PKG, "HopDescribedVariablesDialog.Title" ) );
+    shell.setImage( GuiResource.getInstance().getImage("ui/images/variable.svg", ConstUi.SMALL_ICON_SIZE, ConstUi.SMALL_ICON_SIZE) );
     props.setLook( shell );
 
     FormLayout formLayout = new FormLayout();
@@ -91,7 +93,6 @@ public class HopDescribedVariablesDialog extends Dialog {
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "HopDescribedVariablesDialog.Title" ) );
 
     int margin = props.getMargin();
 

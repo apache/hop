@@ -2090,46 +2090,61 @@ public class GuiResource {
   }
 
   /**
-   * Loads an image from a location once. The second time, the image comes from a cache. Because of this, it's important
-   * to never dispose of the image you get from here. (easy!) The images are automatically disposed when the application
-   * ends.
+   * Loads an image from a location once. The second time, the image comes from a cache. Because of
+   * this, it's important to never dispose of the image you get from here. (easy!) The images are
+   * automatically disposed when the application ends.
    *
    * @param location the location of the image resource to load
-   * @param width    The height to resize the image to
-   * @param height   The width to resize the image to
+   * @param width The height to resize the image to
+   * @param height The width to resize the image to
    * @return the loaded image
    */
-  public Image getImage( String location, int width, int height ) {
-    Image image = imageMap.get( location );
-    if ( image == null ) {
-      SwtUniversalImage svg = SwtSvgImageUtil.getImage( display, location );
-      int realWidth = (int) Math.round( zoomFactor * width );
-      int realHeight = (int) Math.round( zoomFactor * height );
-      image = new Image( display, svg.getAsBitmapForSize( display, realWidth, realHeight ), SWT.IMAGE_COPY );
+  public Image getImage(String location, int width, int height) {
+    StringBuilder builder = new StringBuilder(location);
+    builder.append('|');
+    builder.append(width);
+    builder.append('|');
+    builder.append(height);
+    String key = builder.toString();
+
+    Image image = imageMap.get(key);
+    if (image == null) {
+      SwtUniversalImage svg = SwtSvgImageUtil.getImage(display, location);
+      int realWidth = (int) Math.round(zoomFactor * width);
+      int realHeight = (int) Math.round(zoomFactor * height);
+      image = new Image(display, svg.getAsBitmapForSize(display, realWidth, realHeight), SWT.IMAGE_COPY);
       svg.dispose();
-      imageMap.put( location, image );
+      imageMap.put(key, image);
     }
     return image;
   }
 
   /**
-   * Loads an image from a location once. The second time, the image comes from a cache. Because of this, it's important
-   * to never dispose of the image you get from here. (easy!) The images are automatically disposed when the application
-   * ends.
+   * Loads an image from a location once. The second time, the image comes from a cache. Because of
+   * this, it's important to never dispose of the image you get from here. (easy!) The images are
+   * automatically disposed when the application ends.
    *
-   * @param location    the location of the image resource to load
+   * @param location the location of the image resource to load
    * @param classLoader the ClassLoader to use to locate resources
-   * @param width       The height to resize the image to
-   * @param height      The width to resize the image to
+   * @param width The height to resize the image to
+   * @param height The width to resize the image to
    * @return the loaded image
    */
-  public Image getImage( String location, ClassLoader classLoader, int width, int height ) {
-    Image image = imageMap.get( location );
-    if ( image == null ) {
-      SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage( display, classLoader, location );
-      image = new Image( display, getZoomedImaged( svg, display, width, height ), SWT.IMAGE_COPY );
+  public Image getImage(String location, ClassLoader classLoader, int width, int height) {
+    // Build image key for a specific size
+    StringBuilder builder = new StringBuilder(location);
+    builder.append('|');
+    builder.append(width);
+    builder.append('|');
+    builder.append(height);
+    String key = builder.toString();
+    
+    Image image = imageMap.get(key);
+    if (image == null) {
+      SwtUniversalImage svg = SwtSvgImageUtil.getUniversalImage(display, classLoader, location);
+      image = new Image(display, getZoomedImaged(svg, display, width, height), SWT.IMAGE_COPY);
       svg.dispose();
-      imageMap.put( location, image );
+      imageMap.put(location, image);
     }
     return image;
   }
