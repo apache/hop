@@ -30,7 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.sql.RowSet;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILogChannelFactory;
@@ -81,13 +81,13 @@ public class StepMockHelper<Meta extends ITransformMeta, Data extends ITransform
     processRowsTransformMetaInterface = mock( stepMetaClass );
   }
 
-  public RowSet getMockInputRowSet( Object[]... rows ) {
+  public IRowSet getMockInputRowSet( Object[]... rows ) {
     return getMockInputRowSet( asList( rows ) );
   }
 
-  public RowSet getMockInputRowSet( final List<Object[]> rows ) {
+  public IRowSet getMockInputRowSet( final List<Object[]> rows ) {
     final AtomicInteger index = new AtomicInteger( 0 );
-    RowSet rowSet = mock( RowSet.class, Mockito.RETURNS_MOCKS );
+    IRowSet rowSet = mock( IRowSet.class, Mockito.RETURNS_MOCKS );
     Answer<Object[]> answer = new Answer<Object[]>() {
       @Override
       public Object[] answer( InvocationOnMock invocation ) throws Throwable {
@@ -103,7 +103,8 @@ public class StepMockHelper<Meta extends ITransformMeta, Data extends ITransform
       public Boolean answer( InvocationOnMock invocation ) throws Throwable {
         return index.get() >= rows.size();
       }
-    } );
+    } 
+    );
     return rowSet;
   }
 
@@ -114,7 +115,7 @@ public class StepMockHelper<Meta extends ITransformMeta, Data extends ITransform
   }
 
   public void cleanUp() {
-    HopLogStore.setILogChannelFactory( originalILogChannelFactory );
+    HopLogStore.setLogChannelFactory( originalILogChannelFactory );
   }
 
   /**

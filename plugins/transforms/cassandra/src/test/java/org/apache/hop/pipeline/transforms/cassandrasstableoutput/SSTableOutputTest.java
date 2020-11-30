@@ -59,7 +59,7 @@ public class SSTableOutputTest {
   @Test( expected = SecurityException.class )
   public void testDisableSystemExit() throws Exception {
     SSTableOutput ssTableOutput =
-      new SSTableOutput( helper.stepMeta, helper.stepDataInterface, 0, helper.transMeta, helper.trans );
+      new SSTableOutput( helper.stepMeta, null, helper.stepDataInterface, 0, helper.transMeta, helper.trans );
     ssTableOutput.disableSystemExit( sm, helper.logChannelInterface );
     System.exit( 1 );
   }

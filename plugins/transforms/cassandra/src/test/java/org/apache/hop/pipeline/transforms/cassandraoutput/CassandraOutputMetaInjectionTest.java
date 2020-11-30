@@ -30,133 +30,133 @@ import org.junit.Test;
 public class CassandraOutputMetaInjectionTest extends BaseMetadataInjectionTest<CassandraOutputMeta> {
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new CassandraOutputMeta() );
   }
 
   @Test
   public void test() throws Exception {
-    check( "CASSANDRA_HOST", new StringGetter() {
+    check( "CASSANDRA_HOST", new IStringGetter() {
       public String get() {
         return meta.getCassandraHost();
       }
     } );
-    check( "CASSANDRA_PORT", new StringGetter() {
+    check( "CASSANDRA_PORT", new IStringGetter() {
       public String get() {
         return meta.getCassandraPort();
       }
     } );
-    check( "USER_NAME", new StringGetter() {
+    check( "USER_NAME", new IStringGetter() {
       public String get() {
         return meta.getUsername();
       }
     } );
-    check( "PASSWORD", new StringGetter() {
+    check( "PASSWORD", new IStringGetter() {
       public String get() {
         return meta.getPassword();
       }
     } );
-    check( "CASSANDRA_KEYSPACE", new StringGetter() {
+    check( "CASSANDRA_KEYSPACE", new IStringGetter() {
       public String get() {
         return meta.getCassandraKeyspace();
       }
     } );
-    check( "SCHEMA_HOST", new StringGetter() {
+    check( "SCHEMA_HOST", new IStringGetter() {
       public String get() {
         return meta.getSchemaHost();
       }
     } );
-    check( "SCHEMA_PORT", new StringGetter() {
+    check( "SCHEMA_PORT", new IStringGetter() {
       public String get() {
         return meta.getSchemaPort();
       }
     } );
-    check( "TABLE", new StringGetter() {
+    check( "TABLE", new IStringGetter() {
       public String get() {
         return meta.getTableName();
       }
     } );
-    check( "CONSISTENCY_LEVEL", new StringGetter() {
+    check( "CONSISTENCY_LEVEL", new IStringGetter() {
       public String get() {
         return meta.getConsistency();
       }
     } );
-    check( "BATCH_SIZE", new StringGetter() {
+    check( "BATCH_SIZE", new IStringGetter() {
       public String get() {
         return meta.getBatchSize();
       }
     } );
-    check( "USE_UNLOGGED_BATCH", new BooleanGetter() {
+    check( "USE_UNLOGGED_BATCH", new IBooleanGetter() {
       public boolean get() {
         return meta.getUseUnloggedBatch();
       }
     } );
-    check( "USE_QUERY_COMPRESSION", new BooleanGetter() {
+    check( "USE_QUERY_COMPRESSION", new IBooleanGetter() {
       public boolean get() {
         return meta.getUseCompression();
       }
     } );
-    check( "CREATE_TABLE", new BooleanGetter() {
+    check( "CREATE_TABLE", new IBooleanGetter() {
       public boolean get() {
         return meta.getCreateTable();
       }
     } );
-    check( "CREATE_TABLE_WITH_CLAUSE", new StringGetter() {
+    check( "CREATE_TABLE_WITH_CLAUSE", new IStringGetter() {
       public String get() {
         return meta.getCreateTableWithClause();
       }
     } );
-    check( "KEY_FIELD", new StringGetter() {
+    check( "KEY_FIELD", new IStringGetter() {
       public String get() {
         return meta.getKeyField();
       }
     } );
-    check( "BATCH_TIMEOUT", new StringGetter() {
+    check( "BATCH_TIMEOUT", new IStringGetter() {
       public String get() {
         return meta.getCQLBatchInsertTimeout();
       }
     } );
-    check( "SUB_BATCH_SIZE", new StringGetter() {
+    check( "SUB_BATCH_SIZE", new IStringGetter() {
       public String get() {
         return meta.getCQLSubBatchSize();
       }
     } );
-    check( "INSERT_FIELDS_NOT_IN_META", new BooleanGetter() {
+    check( "INSERT_FIELDS_NOT_IN_META", new IBooleanGetter() {
       public boolean get() {
         return meta.getInsertFieldsNotInMeta();
       }
     } );
-    check( "UPDATE_CASSANDRA_META", new BooleanGetter() {
+    check( "UPDATE_CASSANDRA_META", new IBooleanGetter() {
       public boolean get() {
         return meta.getUpdateCassandraMeta();
       }
     } );
-    check( "TRUNCATE_TABLE", new BooleanGetter() {
+    check( "TRUNCATE_TABLE", new IBooleanGetter() {
       public boolean get() {
         return meta.getTruncateTable();
       }
     } );
-    check( "APRIORI_CQL", new StringGetter() {
+    check( "APRIORI_CQL", new IStringGetter() {
       public String get() {
         return meta.getAprioriCQL();
       }
     } );
-    check( "DONT_COMPLAIN_IF_APRIORI_CQL_FAILS", new BooleanGetter() {
+    check( "DONT_COMPLAIN_IF_APRIORI_CQL_FAILS", new IBooleanGetter() {
       public boolean get() {
         return meta.getDontComplainAboutAprioriCQLFailing();
       }
     } );
-    check( "SOCKET_TIMEOUT", new StringGetter() {
+    check( "SOCKET_TIMEOUT", new IStringGetter() {
       public String get() {
         return meta.getSocketTimeout();
       }
     } );
-    check( "TTL", new StringGetter() {
+    check( "TTL", new IStringGetter() {
       public String get() {
         return meta.getTTL();
       }
     } );
-    check( "TTL_UNIT", new StringGetter() {
+    check( "TTL_UNIT", new IStringGetter() {
       public String get() {
         return meta.getTTLUnit();
       }

@@ -29,38 +29,38 @@ import org.junit.Test;
 public class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SSTableOutputMeta> {
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new SSTableOutputMeta() );
   }
 
   @Test
   public void test() throws Exception {
-    check( "YAML_FILE_PATH", new StringGetter() {
+    check( "YAML_FILE_PATH", new IStringGetter() {
       public String get() {
         return meta.getYamlPath();
       }
     } );
-    check( "DIRECTORY", new StringGetter() {
+    check( "DIRECTORY", new IStringGetter() {
       public String get() {
         return meta.getDirectory();
       }
     } );
-    check( "CASSANDRA_KEYSPACE", new StringGetter() {
+    check( "CASSANDRA_KEYSPACE", new IStringGetter() {
       public String get() {
         return meta.getCassandraKeyspace();
       }
     } );
-    check( "TABLE", new StringGetter() {
+    check( "TABLE", new IStringGetter() {
       public String get() {
         return meta.getTableName();
       }
     } );
-    check( "KEY_FIELD", new StringGetter() {
+    check( "KEY_FIELD", new IStringGetter() {
       public String get() {
         return meta.getKeyField();
       }
     } );
-    check( "BUFFER_SIZE", new StringGetter() {
+    check( "BUFFER_SIZE", new IStringGetter() {
       public String get() {
         return meta.getBufferSize();
       }

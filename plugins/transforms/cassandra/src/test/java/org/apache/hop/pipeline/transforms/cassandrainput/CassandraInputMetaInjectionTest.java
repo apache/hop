@@ -23,65 +23,64 @@
 package org.apache.hop.pipeline.transforms.cassandrainput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
-import org.apache.hop.pipeline.transforms.cassandrainput.CassandraInputMeta;
 import org.junit.Before;
 import org.junit.Test;
 
 public class CassandraInputMetaInjectionTest extends BaseMetadataInjectionTest<CassandraInputMeta> {
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     setup( new CassandraInputMeta() );
   }
 
   @Test
   public void test() throws Exception {
-    check( "CASSANDRA_HOST", new StringGetter() {
+    check( "CASSANDRA_HOST", new IStringGetter() {
       public String get() {
         return meta.getCassandraHost();
       }
     } );
-    check( "CASSANDRA_PORT", new StringGetter() {
+    check( "CASSANDRA_PORT", new IStringGetter() {
       public String get() {
         return meta.getCassandraPort();
       }
     } );
-    check( "USER_NAME", new StringGetter() {
+    check( "USER_NAME", new IStringGetter() {
       public String get() {
         return meta.getUsername();
       }
     } );
-    check( "PASSWORD", new StringGetter() {
+    check( "PASSWORD", new IStringGetter() {
       public String get() {
         return meta.getPassword();
       }
     } );
-    check( "CASSANDRA_KEYSPACE", new StringGetter() {
+    check( "CASSANDRA_KEYSPACE", new IStringGetter() {
       public String get() {
         return meta.getCassandraKeyspace();
       }
     } );
-    check( "USE_QUERY_COMPRESSION", new BooleanGetter() {
+    check( "USE_QUERY_COMPRESSION", new IBooleanGetter() {
       public boolean get() {
         return meta.getUseCompression();
       }
     } );
-    check( "CQL_QUERY", new StringGetter() {
+    check( "CQL_QUERY", new IStringGetter() {
       public String get() {
         return meta.getCQLSelectQuery();
       }
     } );
-    check( "EXECUTE_FOR_EACH_ROW", new BooleanGetter() {
+    check( "EXECUTE_FOR_EACH_ROW", new IBooleanGetter() {
       public boolean get() {
         return meta.getExecuteForEachIncomingRow();
       }
     } );
-    check( "SOCKET_TIMEOUT", new StringGetter() {
+    check( "SOCKET_TIMEOUT", new IStringGetter() {
       public String get() {
         return meta.getSocketTimeout();
       }
     } );
-    check( "TRANSPORT_MAX_LENGTH", new StringGetter() {
+    check( "TRANSPORT_MAX_LENGTH", new IStringGetter() {
       public String get() {
         return meta.getMaxLength();
       }

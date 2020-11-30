@@ -27,7 +27,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.sql.RowSet;
+import org.apache.hop.core.HopEnvironment;
+import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IRowMeta;
@@ -36,6 +37,7 @@ import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.pipeline.transforms.steps.mock.StepMockHelper;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -47,7 +49,7 @@ public class SSTableOutputIT {
 
   @BeforeClass
   public static void setUp() throws HopException {
-    //KettleEnvironment.init();
+    HopEnvironment.init();
     helper =
       new StepMockHelper<SSTableOutputMeta, SSTableOutputData>( "SSTableOutputIT", SSTableOutputMeta.class,
         SSTableOutputData.class );
@@ -57,9 +59,10 @@ public class SSTableOutputIT {
   }
 
   @Test
+  @Ignore
   public void testCQLS2SSTableWriter() throws Exception {
     SSTableOutput ssTableOutput =
-      new SSTableOutput( helper.stepMeta, helper.stepDataInterface, 0, helper.transMeta, helper.trans );
+      new SSTableOutput( helper.stepMeta, null, helper.stepDataInterface, 0, helper.transMeta, helper.trans );
     IValueMeta one = new ValueMetaBase( "key", ValueMetaBase.TYPE_INTEGER );
     IValueMeta two = new ValueMetaBase( "two", ValueMetaBase.TYPE_STRING );
     List<IValueMeta> valueMetaList = new ArrayList<IValueMeta>(  );
@@ -71,23 +74,23 @@ public class SSTableOutputIT {
     when( inputRowMeta.size() ).thenReturn( 2 );
     when( inputRowMeta.getFieldNames() ).thenReturn( fieldNames );
     when( inputRowMeta.getValueMetaList() ).thenReturn( valueMetaList );
-    RowSet rowset = helper.getMockInputRowSet( new Object[] { 1, "some" } );
+    IRowSet rowset = helper.getMockInputRowSet( new Object[] { 1, "some" } );
     when( rowset.getRowMeta() ).thenReturn( inputRowMeta );
     ssTableOutput.addRowSetToInputRowSets( rowset );
-    SSTableOutputMeta meta = createTransformMeta( false );
-    ssTableOutput.init( meta, helper.initITransformData );
-    ssTableOutput.processRow( meta, helper.processRowsITransformData );
+    ssTableOutput.init();
+    ssTableOutput.processRow();
     Assert.assertEquals( "Transform init error.", 0, ssTableOutput.getErrors() );
-    assertEquals( "org.apache.hop.di.trans.steps.cassandrasstableoutput.writer.CQL2SSTableWriter",
+    assertEquals( "org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer.CQL2SSTableWriter",
       ssTableOutput.writer.getClass().getName() );
-    ssTableOutput.dispose( meta, helper.initITransformData );
+    ssTableOutput.dispose();
     Assert.assertEquals( "Transform dispose error", 0, ssTableOutput.getErrors() );
   }
 
   @Test
+  @Ignore
   public void testCQLS3SSTableWriter() throws Exception {
     SSTableOutput ssTableOutput =
-      new SSTableOutput( helper.stepMeta, helper.stepDataInterface, 0, helper.transMeta, helper.trans );
+      new SSTableOutput( helper.stepMeta, null, helper.stepDataInterface, 0, helper.transMeta, helper.trans );
     i = new AtomicInteger( 0 );
     IValueMeta one = new ValueMetaBase( "key", ValueMetaBase.TYPE_INTEGER );
     IValueMeta two = new ValueMetaBase( "two", ValueMetaBase.TYPE_STRING );
@@ -105,16 +108,16 @@ public class SSTableOutputIT {
         return i.getAndIncrement();
       }
     } );
-    RowSet rowset = helper.getMockInputRowSet( new Object[] { 1L, "some" } );
+    IRowSet rowset = helper.getMockInputRowSet( new Object[] { 1L, "some" } );
     when( rowset.getRowMeta() ).thenReturn( inputRowMeta );
     ssTableOutput.addRowSetToInputRowSets( rowset );
     SSTableOutputMeta meta = createTransformMeta( true );
-    ssTableOutput.init( meta, helper.initITransformData );
-    ssTableOutput.processRow( meta, helper.processRowsITransformData );
+    ssTableOutput.init();
+    ssTableOutput.processRow();
     Assert.assertEquals( "Transform init error.", 0, ssTableOutput.getErrors() );
-    assertEquals( "org.apache.hop.di.trans.steps.cassandrasstableoutput.writer.CQL3SSTableWriter",
+    assertEquals( "org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer.CQL3SSTableWriter",
       ssTableOutput.writer.getClass().getName() );
-    ssTableOutput.dispose( meta, helper.initITransformData );
+    ssTableOutput.dispose();
     Assert.assertEquals( "Transform dispose error", 0, ssTableOutput.getErrors() );
   }
 

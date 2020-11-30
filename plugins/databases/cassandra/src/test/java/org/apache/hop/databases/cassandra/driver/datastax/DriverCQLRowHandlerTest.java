@@ -42,7 +42,6 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import com.datastax.driver.core.ColumnDefinitions;

@@ -58,65 +58,13 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
-			<dependency>
-				<groupId>pentaho-kettle</groupId>
-				<artifactId>kettle-engine</artifactId>
-				<version>${pdi.version}</version>
-				<scope>compile</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>pentaho-kettle</groupId>
-				<artifactId>kettle-core</artifactId>
-				<version>${pdi.version}</version>
-				<scope>compile</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>pentaho-kettle</groupId>
-				<artifactId>kettle-ui-swt</artifactId>
-				<version>${pdi.version}</version>
-				<scope>compile</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.pentaho</groupId>
-				<artifactId>commons-xul-core</artifactId>
-				<version>${commons-xul.version}</version>
-				<scope>compile</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
+
 			<dependency>
 				<groupId>org.apache.cassandra</groupId>
 				<artifactId>cassandra-all</artifactId>
 				<version>${cassandra.version}</version>
 				<scope>compile</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
+
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
@@ -135,24 +83,12 @@
 				<artifactId>cassandra-driver-core</artifactId>
 				<version>${cassandra-driver.version}</version>
 				<scope>compile</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.datastax.cassandra</groupId>
 				<artifactId>cassandra-driver-extras</artifactId>
 				<version>${cassandra-driver.version}</version>
 				<scope>compile</scope>
-				<exclusions>
-					<exclusion>
-						<groupId>*</groupId>
-						<artifactId>*</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>commons-lang</groupId>
