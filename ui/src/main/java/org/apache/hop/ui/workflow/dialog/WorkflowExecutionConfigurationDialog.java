@@ -228,7 +228,7 @@ public class WorkflowExecutionConfigurationDialog extends ConfigurationDialog {
       wRunConfiguration.getComboWidget().setToolTipText( BaseMessages.getString( PKG, "WorkflowExecutionConfigurationDialog.VerifyRunConfigurationName.Warning" ) );
     }
     try {
-      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopUiRunConfiguration.id, wRunConfiguration );
+      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiRunConfiguration.id, wRunConfiguration );
     } catch ( HopException e ) {
       // Ignore errors
     }
