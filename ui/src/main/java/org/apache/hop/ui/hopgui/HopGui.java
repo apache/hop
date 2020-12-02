@@ -247,12 +247,17 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     //
     metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider( variables );
 
-    databaseMetaManager = new MetadataManager<>( variables, metadataProvider, DatabaseMeta.class );
-    hopServerManager = new MetadataManager<>( variables, metadataProvider, HopServer.class );
-    partitionManager = new MetadataManager<>( variables, metadataProvider, PartitionSchema.class );
+    updateMetadataManagers();
 
     HopNamespace.setNamespace( DEFAULT_HOP_GUI_NAMESPACE );
   }
+
+  private void updateMetadataManagers() {
+    databaseMetaManager = new MetadataManager<>( variables, metadataProvider, DatabaseMeta.class );
+    hopServerManager = new MetadataManager<>( variables, metadataProvider, HopServer.class );
+    partitionManager = new MetadataManager<>( variables, metadataProvider, PartitionSchema.class );
+  }
+
 
   public static final HopGui getInstance() {
     return hopGui;
@@ -877,6 +882,7 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
    */
   public void setMetadataProvider( IHopMetadataProvider metadataProvider ) {
     this.metadataProvider = metadataProvider;
+    updateMetadataManagers();
   }
 
   /**
