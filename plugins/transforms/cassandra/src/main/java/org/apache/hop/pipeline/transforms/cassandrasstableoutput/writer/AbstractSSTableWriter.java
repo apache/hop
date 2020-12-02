@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -19,17 +19,15 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
-import org.apache.hop.databases.cassandra.util.CassandraUtils;
-
 import java.util.Map;
+import org.apache.hop.databases.cassandra.util.CassandraUtils;
 
 public abstract class AbstractSSTableWriter {
   private static final int DEFAULT_BUFFER_SIZE_MB = 16;
   private int bufferSize = DEFAULT_BUFFER_SIZE_MB;
-  private String directory = System.getProperty( "java.io.tmpdir" );
+  private String directory = System.getProperty("java.io.tmpdir");
   private String keyspace;
   private String table;
   private String primaryKey;
@@ -37,7 +35,7 @@ public abstract class AbstractSSTableWriter {
 
   public abstract void init() throws Exception;
 
-  public abstract void processRow( Map<String, Object> record ) throws Exception;
+  public abstract void processRow(Map<String, Object> record) throws Exception;
 
   public abstract void close() throws Exception;
 
@@ -48,10 +46,9 @@ public abstract class AbstractSSTableWriter {
   /**
    * Set the directory to read the sstables from
    *
-   * @param directory
-   *          the directory to read the sstables from
+   * @param directory the directory to read the sstables from
    */
-  public void setDirectory( String directory ) {
+  public void setDirectory(String directory) {
     this.directory = directory;
   }
 
@@ -62,10 +59,9 @@ public abstract class AbstractSSTableWriter {
   /**
    * Set the target keyspace
    *
-   * @param keyspace
-   *          the keyspace to use
+   * @param keyspace the keyspace to use
    */
-  public void setKeyspace( String keyspace ) {
+  public void setKeyspace(String keyspace) {
     this.keyspace = keyspace;
   }
 
@@ -74,13 +70,11 @@ public abstract class AbstractSSTableWriter {
   }
 
   /**
-   * Set the table to load to. Note: it is assumed that this table exists in the keyspace
-   * apriori.
+   * Set the table to load to. Note: it is assumed that this table exists in the keyspace apriori.
    *
-   * @param table
-   *          the table to load to.
+   * @param table the table to load to.
    */
-  public void setTable( String table ) {
+  public void setTable(String table) {
     this.table = table;
   }
 
@@ -91,10 +85,9 @@ public abstract class AbstractSSTableWriter {
   /**
    * Set the buffer size (Mb) to use. A new table file is written every time the buffer is full.
    *
-   * @param bufferSize
-   *          the size of the buffer to use
+   * @param bufferSize the size of the buffer to use
    */
-  public void setBufferSize( int bufferSize ) {
+  public void setBufferSize(int bufferSize) {
     this.bufferSize = bufferSize;
   }
 
@@ -102,19 +95,19 @@ public abstract class AbstractSSTableWriter {
     return primaryKey;
   }
 
-  public void setPrimaryKey( String primaryKey ) {
+  public void setPrimaryKey(String primaryKey) {
     this.primaryKey = primaryKey;
   }
 
-  protected String getPartitionerClass( ) {
+  protected String getPartitionerClass() {
     return partitionerClass;
   }
 
-  public void setPartitionerClass( String partitionerClass ) {
+  public void setPartitionerClass(String partitionerClass) {
     this.partitionerClass = partitionerClass;
   }
 
-  protected String getPartitionKey( ) {
-    return CassandraUtils.getPartitionKey( primaryKey );
+  protected String getPartitionKey() {
+    return CassandraUtils.getPartitionKey(primaryKey);
   }
 }

@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ******************************************************************************
  *
- * Pentaho Big Data
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -28,7 +28,6 @@ import org.apache.hop.core.Counter;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.injection.InjectionSupported;
@@ -43,49 +42,48 @@ import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transforms.cassandraoutput.CassandraOutput;
-import org.apache.hop.pipeline.transforms.cassandraoutput.CassandraOutputData;
 import org.w3c.dom.Node;
 
-/**
- * Provides metadata for the Cassandra SSTable output step.
- */
-@Transform( id = "SSTableOutput", image = "Cassandra.svg", name = "SSTable output",
+/** Provides metadata for the Cassandra SSTable output step. */
+@Transform(
+    id = "SSTableOutput",
+    image = "Cassandra.svg",
+    name = "SSTable output",
     documentationUrl = "Products/SSTable_Output",
-    description = "Writes to a filesystem directory as a Cassandra SSTable", categoryDescription = "Big Data" )
-@InjectionSupported( localizationPrefix = "SSTableOutput.Injection." )
-@ParentFirst( patterns = { ".*" } )
-public class SSTableOutputMeta extends BaseTransformMeta implements ITransformMeta<SSTableOutput, SSTableOutputData> {
+    description = "Writes to a filesystem directory as a Cassandra SSTable",
+    categoryDescription = "Big Data")
+@InjectionSupported(localizationPrefix = "SSTableOutput.Injection.")
+@ParentFirst(patterns = {".*"})
+public class SSTableOutputMeta extends BaseTransformMeta
+    implements ITransformMeta<SSTableOutput, SSTableOutputData> {
 
   protected static final Class<?> PKG = SSTableOutputMeta.class;
 
   /** The path to the yaml file */
-  @Injection( name = "YAML_FILE_PATH" )
+  @Injection(name = "YAML_FILE_PATH")
   protected String m_yamlPath;
 
   /** The directory to output to */
-  @Injection( name = "DIRECTORY" )
+  @Injection(name = "DIRECTORY")
   protected String directory;
 
   /** The keyspace (database) to use */
-  @Injection( name = "CASSANDRA_KEYSPACE" )
+  @Injection(name = "CASSANDRA_KEYSPACE")
   protected String cassandraKeyspace;
 
   /** The table to write to */
-  @Injection( name = "TABLE" )
+  @Injection(name = "TABLE")
   protected String table = "";
 
   /** The field in the incoming data to use as the key for inserts */
-  @Injection( name = "KEY_FIELD" )
+  @Injection(name = "KEY_FIELD")
   protected String keyField = "";
 
   /** Size (MB) of write buffer */
-  @Injection( name = "BUFFER_SIZE" )
+  @Injection(name = "BUFFER_SIZE")
   protected String bufferSize = "16";
 
-  /**
-   * Whether to use CQL version 3
-   */
+  /** Whether to use CQL version 3 */
   protected boolean m_useCQL3 = true;
 
   /**
@@ -100,10 +98,9 @@ public class SSTableOutputMeta extends BaseTransformMeta implements ITransformMe
   /**
    * Set the path the the yaml file
    *
-   * @param path
-   *          the path to the yaml file
+   * @param path the path to the yaml file
    */
-  public void setYamlPath( String path ) {
+  public void setYamlPath(String path) {
     m_yamlPath = path;
   }
 
@@ -119,20 +116,18 @@ public class SSTableOutputMeta extends BaseTransformMeta implements ITransformMe
   /**
    * Where the SSTables are written to
    *
-   * @param directory
-   *          String
+   * @param directory String
    */
-  public void setDirectory( String directory ) {
+  public void setDirectory(String directory) {
     this.directory = directory;
   }
 
   /**
    * Set the keyspace (db) to use
    *
-   * @param keyspace
-   *          the keyspace to use
+   * @param keyspace the keyspace to use
    */
-  public void setCassandraKeyspace( String keyspace ) {
+  public void setCassandraKeyspace(String keyspace) {
     cassandraKeyspace = keyspace;
   }
 
@@ -148,10 +143,9 @@ public class SSTableOutputMeta extends BaseTransformMeta implements ITransformMe
   /**
    * Set the table to write to
    *
-   * @param table
-   *          the name of the table to write to
+   * @param table the name of the table to write to
    */
-  public void setTableName( String table ) {
+  public void setTableName(String table) {
     this.table = table;
   }
 
@@ -167,10 +161,9 @@ public class SSTableOutputMeta extends BaseTransformMeta implements ITransformMe
   /**
    * Set the incoming field to use as the key for inserts
    *
-   * @param keyField
-   *          the name of the incoming field to use as the key
+   * @param keyField the name of the incoming field to use as the key
    */
-  public void setKeyField( String keyField ) {
+  public void setKeyField(String keyField) {
     this.keyField = keyField;
   }
 
@@ -195,10 +188,9 @@ public class SSTableOutputMeta extends BaseTransformMeta implements ITransformMe
   /**
    * Size (MB) of write buffer
    *
-   * @param bufferSize
-   *          String
+   * @param bufferSize String
    */
-  public void setBufferSize( String bufferSize ) {
+  public void setBufferSize(String bufferSize) {
     this.bufferSize = bufferSize;
   }
 
@@ -207,7 +199,7 @@ public class SSTableOutputMeta extends BaseTransformMeta implements ITransformMe
    *
    * @param cql3 true if CQL version 3 is to be used
    */
-  public void setUseCQL3( boolean cql3 ) {
+  public void setUseCQL3(boolean cql3) {
     m_useCQL3 = cql3;
   }
 
@@ -230,95 +222,104 @@ public class SSTableOutputMeta extends BaseTransformMeta implements ITransformMe
   public String getXml() {
     StringBuffer retval = new StringBuffer();
 
-    if ( !Utils.isEmpty( m_yamlPath ) ) {
-      retval.append( "\n    " ).append(
-        XmlHandler.addTagValue( "yaml_path", m_yamlPath ) );
+    if (!Utils.isEmpty(m_yamlPath)) {
+      retval.append("\n    ").append(XmlHandler.addTagValue("yaml_path", m_yamlPath));
     }
 
-    if ( !Utils.isEmpty( directory ) ) {
-      retval.append( "\n    " ).append(
-        XmlHandler.addTagValue( "output_directory", directory ) );
+    if (!Utils.isEmpty(directory)) {
+      retval.append("\n    ").append(XmlHandler.addTagValue("output_directory", directory));
     }
 
-    if ( !Utils.isEmpty( cassandraKeyspace ) ) {
-      retval.append( "\n    " ).append(
-        XmlHandler.addTagValue( "cassandra_keyspace", cassandraKeyspace ) );
+    if (!Utils.isEmpty(cassandraKeyspace)) {
+      retval
+          .append("\n    ")
+          .append(XmlHandler.addTagValue("cassandra_keyspace", cassandraKeyspace));
     }
 
-    if ( !Utils.isEmpty( table ) ) {
-      retval.append( "\n    " ).append(
-        XmlHandler.addTagValue( "table", table ) );
+    if (!Utils.isEmpty(table)) {
+      retval.append("\n    ").append(XmlHandler.addTagValue("table", table));
     }
 
-    if ( !Utils.isEmpty( keyField ) ) {
-      retval.append( "\n    " ).append(
-        XmlHandler.addTagValue( "key_field", keyField ) );
+    if (!Utils.isEmpty(keyField)) {
+      retval.append("\n    ").append(XmlHandler.addTagValue("key_field", keyField));
     }
 
-    if ( !Utils.isEmpty( bufferSize ) ) {
-      retval.append( "\n    " ).append(
-        XmlHandler.addTagValue( "buffer_size_mb", bufferSize ) );
+    if (!Utils.isEmpty(bufferSize)) {
+      retval.append("\n    ").append(XmlHandler.addTagValue("buffer_size_mb", bufferSize));
     }
 
-    retval.append( "\n    " ).append( //$NON-NLS-1$
-      XmlHandler.addTagValue( "use_cql3", m_useCQL3 ) ); //$NON-NLS-1$
+    retval
+        .append("\n    ")
+        .append( //$NON-NLS-1$
+            XmlHandler.addTagValue("use_cql3", m_useCQL3)); // $NON-NLS-1$
 
     return retval.toString();
   }
 
-  public void loadXml( Node stepnode, List<DatabaseMeta> databases,
-                       Map<String, Counter> counters ) throws HopXmlException {
-    m_yamlPath = XmlHandler.getTagValue( stepnode, "yaml_path" );
-    directory = XmlHandler.getTagValue( stepnode, "output_directory" );
-    cassandraKeyspace = XmlHandler.getTagValue( stepnode, "cassandra_keyspace" );
-    table = XmlHandler.getTagValue( stepnode, "table" );
-    keyField = XmlHandler.getTagValue( stepnode, "key_field" );
-    bufferSize = XmlHandler.getTagValue( stepnode, "buffer_size_mb" );
+  public void loadXml(Node stepnode, List<DatabaseMeta> databases, Map<String, Counter> counters)
+      throws HopXmlException {
+    m_yamlPath = XmlHandler.getTagValue(stepnode, "yaml_path");
+    directory = XmlHandler.getTagValue(stepnode, "output_directory");
+    cassandraKeyspace = XmlHandler.getTagValue(stepnode, "cassandra_keyspace");
+    table = XmlHandler.getTagValue(stepnode, "table");
+    keyField = XmlHandler.getTagValue(stepnode, "key_field");
+    bufferSize = XmlHandler.getTagValue(stepnode, "buffer_size_mb");
 
-    String useCQL3 = XmlHandler.getTagValue( stepnode, "use_cql3" ); //$NON-NLS-1$
-    if ( !Utils.isEmpty( useCQL3 ) ) {
-      m_useCQL3 = useCQL3.equalsIgnoreCase( "Y" ); //$NON-NLS-1$
+    String useCQL3 = XmlHandler.getTagValue(stepnode, "use_cql3"); // $NON-NLS-1$
+    if (!Utils.isEmpty(useCQL3)) {
+      m_useCQL3 = useCQL3.equalsIgnoreCase("Y"); // $NON-NLS-1$
     }
   }
 
-  
-  
-  public void check( List<ICheckResult> remarks, PipelineMeta transMeta,
-                     TransformMeta stepMeta, IRowMeta prev, String[] input,
-                     String[] output, IRowMeta info ) {
+  public void check(
+      List<ICheckResult> remarks,
+      PipelineMeta transMeta,
+      TransformMeta stepMeta,
+      IRowMeta prev,
+      String[] input,
+      String[] output,
+      IRowMeta info) {
 
     CheckResult cr;
 
-    if ( ( prev == null ) || ( prev.size() == 0 ) ) {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_WARNING,
-        "Not receiving any fields from previous steps!", stepMeta );
-      remarks.add( cr );
+    if ((prev == null) || (prev.size() == 0)) {
+      cr =
+          new CheckResult(
+              CheckResult.TYPE_RESULT_WARNING,
+              "Not receiving any fields from previous steps!",
+              stepMeta);
+      remarks.add(cr);
     } else {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK,
-        "Transform is connected to previous one, receiving " + prev.size()
-          + " fields", stepMeta );
-      remarks.add( cr );
+      cr =
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              "Transform is connected to previous one, receiving " + prev.size() + " fields",
+              stepMeta);
+      remarks.add(cr);
     }
 
     // See if we have input streams leading to this step!
-    if ( input.length > 0 ) {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_OK,
-        "Transform is receiving info from other steps.", stepMeta );
-      remarks.add( cr );
+    if (input.length > 0) {
+      cr =
+          new CheckResult(
+              CheckResult.TYPE_RESULT_OK,
+              "Transform is receiving info from other steps.",
+              stepMeta);
+      remarks.add(cr);
     } else {
-      cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR,
-        "No input received from other steps!", stepMeta );
-      remarks.add( cr );
+      cr =
+          new CheckResult(
+              CheckResult.TYPE_RESULT_ERROR, "No input received from other steps!", stepMeta);
+      remarks.add(cr);
     }
   }
 
-  
   public ITransformData getStepData() {
     return new SSTableOutputData();
   }
 
   public void setDefault() {
-    directory = System.getProperty( "java.io.tmpdir" );
+    directory = System.getProperty("java.io.tmpdir");
     bufferSize = "16";
     table = "";
   }
@@ -332,10 +333,14 @@ public class SSTableOutputMeta extends BaseTransformMeta implements ITransformMe
   public String getDialogClassName() {
     return "org.apache.hop.di.trans.steps.cassandrasstableoutput.SSTableOutputDialog";
   }
-  
+
   @Override
-  public ITransform createTransform(TransformMeta transMeta, SSTableOutputData data, int copyNr,
-      PipelineMeta pipelineMeta, Pipeline pipeline) {
+  public ITransform createTransform(
+      TransformMeta transMeta,
+      SSTableOutputData data,
+      int copyNr,
+      PipelineMeta pipelineMeta,
+      Pipeline pipeline) {
     // TODO Auto-generated method stub
     return new SSTableOutput(transMeta, null, data, copyNr, pipelineMeta, pipeline);
   }

@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2020 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -19,7 +19,6 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.cassandraoutput;
 
 import static org.mockito.Matchers.any;
@@ -30,169 +29,160 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 import java.util.Map;
 import org.apache.hop.databases.cassandra.driver.datastax.DriverCQLRowHandler;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
-import org.apache.hop.pipeline.transforms.cassandraoutput.CassandraOutput;
-import org.apache.hop.pipeline.transforms.cassandraoutput.CassandraOutputMeta;
 import org.junit.Test;
-
 
 public class CassandraOutputTest {
 
   @Test
   public void validateInvalidTtlFieldTest() {
-    DriverCQLRowHandler handler = mock( DriverCQLRowHandler.class );
-    CassandraOutput co = mock( CassandraOutput.class );
+    DriverCQLRowHandler handler = mock(DriverCQLRowHandler.class);
+    CassandraOutput co = mock(CassandraOutput.class);
 
-    doCallRealMethod().when( co ).validateTtlField( any(), any() );
-    doCallRealMethod().when( handler ).setTtlSec( anyInt() );
+    doCallRealMethod().when(co).validateTtlField(any(), any());
+    doCallRealMethod().when(handler).setTtlSec(anyInt());
 
     String ttl = "a";
 
-    co.validateTtlField( handler, ttl );
+    co.validateTtlField(handler, ttl);
 
-    verify( handler, times(0) ).setTtlSec( anyInt() );
-    verify( co, times(1) ).logDebug( any() );
+    verify(handler, times(0)).setTtlSec(anyInt());
+    verify(co, times(1)).logDebug(any());
   }
 
   @Test
   public void validateEmptyTtlFieldTest() {
-    DriverCQLRowHandler handler = mock( DriverCQLRowHandler.class );
-    CassandraOutput co = mock( CassandraOutput.class );
+    DriverCQLRowHandler handler = mock(DriverCQLRowHandler.class);
+    CassandraOutput co = mock(CassandraOutput.class);
 
-    doCallRealMethod().when( co ).validateTtlField( any(), any() );
-    doCallRealMethod().when( handler ).setTtlSec( anyInt() );
+    doCallRealMethod().when(co).validateTtlField(any(), any());
+    doCallRealMethod().when(handler).setTtlSec(anyInt());
 
     String ttl = "";
 
-    co.validateTtlField( handler, ttl );
+    co.validateTtlField(handler, ttl);
 
-    verify( handler, times(0) ).setTtlSec( anyInt() );
-    verify( co, times(0) ).logDebug( any() );
+    verify(handler, times(0)).setTtlSec(anyInt());
+    verify(co, times(0)).logDebug(any());
   }
 
   @Test
   public void validateCorrectTtlFieldTest() {
-    DriverCQLRowHandler handler = mock( DriverCQLRowHandler.class );
-    CassandraOutput co = mock( CassandraOutput.class );
+    DriverCQLRowHandler handler = mock(DriverCQLRowHandler.class);
+    CassandraOutput co = mock(CassandraOutput.class);
 
-    doCallRealMethod().when( co ).validateTtlField( any(), any() );
-    doCallRealMethod().when( handler ).setTtlSec( anyInt() );
+    doCallRealMethod().when(co).validateTtlField(any(), any());
+    doCallRealMethod().when(handler).setTtlSec(anyInt());
 
     String ttl = "120";
 
-    co.validateTtlField( handler, ttl );
+    co.validateTtlField(handler, ttl);
 
-    verify( handler, times(1) ).setTtlSec( anyInt() );
-    verify( co, times(0) ).logDebug( any() );
+    verify(handler, times(1)).setTtlSec(anyInt());
+    verify(co, times(0)).logDebug(any());
   }
 
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionNone() {
-    CassandraOutput co = mock( CassandraOutput.class );
-    co.m_meta = mock( CassandraOutputMeta.class );
-    co.m_opts = mock( Map.class );
+    CassandraOutput co = mock(CassandraOutput.class);
+    co.m_meta = mock(CassandraOutputMeta.class);
+    co.m_opts = mock(Map.class);
 
-
-    String ttlEnvironmentSubstituteValue= "1"; // none option, this value is ignored default will be -1
-    String ttlOption =  "None";
+    String ttlEnvironmentSubstituteValue =
+        "1"; // none option, this value is ignored default will be -1
+    String ttlOption = "None";
     int expectedValue = -1;
 
-    when( co.environmentSubstitute( anyString() ) ).thenReturn( ttlEnvironmentSubstituteValue );
-    when( co.m_meta.getTTLUnit() ).thenReturn( ttlOption );
-    when( co.m_opts.put( anyString(), anyString()) ).thenReturn( "dummy" );
+    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
+    when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 
-
-    doCallRealMethod().when( co ).setTTLIfSpecified();
+    doCallRealMethod().when(co).setTTLIfSpecified();
     co.setTTLIfSpecified();
 
-    verify( co.m_opts, times(1)).put( CassandraUtils.BatchOptions.TTL, "" + expectedValue );
+    verify(co.m_opts, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionSeconds() {
-    CassandraOutput co = mock( CassandraOutput.class );
-    co.m_meta = mock( CassandraOutputMeta.class );
-    co.m_opts = mock( Map.class );
+    CassandraOutput co = mock(CassandraOutput.class);
+    co.m_meta = mock(CassandraOutputMeta.class);
+    co.m_opts = mock(Map.class);
 
-    String ttlEnvironmentSubstituteValue= "1"; // 1 second
-    String ttlOption =  "Seconds";
+    String ttlEnvironmentSubstituteValue = "1"; // 1 second
+    String ttlOption = "Seconds";
     int expectedValue = 1;
 
-    when( co.environmentSubstitute( anyString() ) ).thenReturn( ttlEnvironmentSubstituteValue );
-    when( co.m_meta.getTTLUnit() ).thenReturn( ttlOption );
-    when( co.m_opts.put( anyString(), anyString()) ).thenReturn( "dummy" );
+    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
+    when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 
-
-    doCallRealMethod().when( co ).setTTLIfSpecified();
+    doCallRealMethod().when(co).setTTLIfSpecified();
     co.setTTLIfSpecified();
 
-    verify( co.m_opts, times(1)).put( CassandraUtils.BatchOptions.TTL, "" + expectedValue );
+    verify(co.m_opts, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionMinutes() {
-    CassandraOutput co = mock( CassandraOutput.class );
-    co.m_meta = mock( CassandraOutputMeta.class );
-    co.m_opts = mock( Map.class );
+    CassandraOutput co = mock(CassandraOutput.class);
+    co.m_meta = mock(CassandraOutputMeta.class);
+    co.m_opts = mock(Map.class);
 
-    String ttlEnvironmentSubstituteValue= "1"; //1 minute
-    String ttlOption =  "Minutes";
+    String ttlEnvironmentSubstituteValue = "1"; // 1 minute
+    String ttlOption = "Minutes";
     int expectedValue = 60;
 
-    when( co.environmentSubstitute( anyString() ) ).thenReturn( ttlEnvironmentSubstituteValue );
-    when( co.m_meta.getTTLUnit() ).thenReturn( ttlOption );
-    when( co.m_opts.put( anyString(), anyString()) ).thenReturn( "dummy" );
+    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
+    when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 
-
-    doCallRealMethod().when( co ).setTTLIfSpecified();
+    doCallRealMethod().when(co).setTTLIfSpecified();
     co.setTTLIfSpecified();
 
-    verify( co.m_opts, times(1)).put( CassandraUtils.BatchOptions.TTL, "" + expectedValue );
+    verify(co.m_opts, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionHours() {
-    CassandraOutput co = mock( CassandraOutput.class );
-    co.m_meta = mock( CassandraOutputMeta.class );
-    co.m_opts = mock( Map.class );
+    CassandraOutput co = mock(CassandraOutput.class);
+    co.m_meta = mock(CassandraOutputMeta.class);
+    co.m_opts = mock(Map.class);
 
-    String ttlEnvironmentSubstituteValue= "1"; //1 hour
-    String ttlOption =  "Hours";
+    String ttlEnvironmentSubstituteValue = "1"; // 1 hour
+    String ttlOption = "Hours";
     int expectedValue = 3600;
 
-    when( co.environmentSubstitute( anyString() ) ).thenReturn( ttlEnvironmentSubstituteValue );
-    when( co.m_meta.getTTLUnit() ).thenReturn( ttlOption );
-    when( co.m_opts.put( anyString(), anyString()) ).thenReturn( "dummy" );
+    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
+    when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 
-
-    doCallRealMethod().when( co ).setTTLIfSpecified();
+    doCallRealMethod().when(co).setTTLIfSpecified();
     co.setTTLIfSpecified();
 
-    verify( co.m_opts, times(1)).put( CassandraUtils.BatchOptions.TTL, "" + expectedValue );
+    verify(co.m_opts, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
 
   @Test
   public void validateSetTTLIfSpecifiedTestWithOptionDays() {
-    CassandraOutput co = mock( CassandraOutput.class );
-    co.m_meta = mock( CassandraOutputMeta.class );
-    co.m_opts = mock( Map.class );
+    CassandraOutput co = mock(CassandraOutput.class);
+    co.m_meta = mock(CassandraOutputMeta.class);
+    co.m_opts = mock(Map.class);
 
-    String ttlEnvironmentSubstituteValue= "1"; // 1 day
-    String ttlOption =  "Days";
+    String ttlEnvironmentSubstituteValue = "1"; // 1 day
+    String ttlOption = "Days";
     int expectedValue = 86400;
 
-    when( co.environmentSubstitute( anyString() ) ).thenReturn( ttlEnvironmentSubstituteValue );
-    when( co.m_meta.getTTLUnit() ).thenReturn( ttlOption );
-    when( co.m_opts.put( anyString(), anyString()) ).thenReturn( "dummy" );
+    when(co.environmentSubstitute(anyString())).thenReturn(ttlEnvironmentSubstituteValue);
+    when(co.m_meta.getTTLUnit()).thenReturn(ttlOption);
+    when(co.m_opts.put(anyString(), anyString())).thenReturn("dummy");
 
-
-    doCallRealMethod().when( co ).setTTLIfSpecified();
+    doCallRealMethod().when(co).setTTLIfSpecified();
     co.setTTLIfSpecified();
 
-    verify( co.m_opts, times(1)).put( CassandraUtils.BatchOptions.TTL, "" + expectedValue );
+    verify(co.m_opts, times(1)).put(CassandraUtils.BatchOptions.TTL, "" + expectedValue);
   }
-
-
 }

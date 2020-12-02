@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -19,7 +19,6 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.cassandrainput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
@@ -30,61 +29,80 @@ public class CassandraInputMetaInjectionTest extends BaseMetadataInjectionTest<C
 
   @Before
   public void setup() throws Exception {
-    setup( new CassandraInputMeta() );
+    setup(new CassandraInputMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "CASSANDRA_HOST", new IStringGetter() {
-      public String get() {
-        return meta.getCassandraHost();
-      }
-    } );
-    check( "CASSANDRA_PORT", new IStringGetter() {
-      public String get() {
-        return meta.getCassandraPort();
-      }
-    } );
-    check( "USER_NAME", new IStringGetter() {
-      public String get() {
-        return meta.getUsername();
-      }
-    } );
-    check( "PASSWORD", new IStringGetter() {
-      public String get() {
-        return meta.getPassword();
-      }
-    } );
-    check( "CASSANDRA_KEYSPACE", new IStringGetter() {
-      public String get() {
-        return meta.getCassandraKeyspace();
-      }
-    } );
-    check( "USE_QUERY_COMPRESSION", new IBooleanGetter() {
-      public boolean get() {
-        return meta.getUseCompression();
-      }
-    } );
-    check( "CQL_QUERY", new IStringGetter() {
-      public String get() {
-        return meta.getCQLSelectQuery();
-      }
-    } );
-    check( "EXECUTE_FOR_EACH_ROW", new IBooleanGetter() {
-      public boolean get() {
-        return meta.getExecuteForEachIncomingRow();
-      }
-    } );
-    check( "SOCKET_TIMEOUT", new IStringGetter() {
-      public String get() {
-        return meta.getSocketTimeout();
-      }
-    } );
-    check( "TRANSPORT_MAX_LENGTH", new IStringGetter() {
-      public String get() {
-        return meta.getMaxLength();
-      }
-    } );
+    check(
+        "CASSANDRA_HOST",
+        new IStringGetter() {
+          public String get() {
+            return meta.getCassandraHost();
+          }
+        });
+    check(
+        "CASSANDRA_PORT",
+        new IStringGetter() {
+          public String get() {
+            return meta.getCassandraPort();
+          }
+        });
+    check(
+        "USER_NAME",
+        new IStringGetter() {
+          public String get() {
+            return meta.getUsername();
+          }
+        });
+    check(
+        "PASSWORD",
+        new IStringGetter() {
+          public String get() {
+            return meta.getPassword();
+          }
+        });
+    check(
+        "CASSANDRA_KEYSPACE",
+        new IStringGetter() {
+          public String get() {
+            return meta.getCassandraKeyspace();
+          }
+        });
+    check(
+        "USE_QUERY_COMPRESSION",
+        new IBooleanGetter() {
+          public boolean get() {
+            return meta.getUseCompression();
+          }
+        });
+    check(
+        "CQL_QUERY",
+        new IStringGetter() {
+          public String get() {
+            return meta.getCQLSelectQuery();
+          }
+        });
+    check(
+        "EXECUTE_FOR_EACH_ROW",
+        new IBooleanGetter() {
+          public boolean get() {
+            return meta.getExecuteForEachIncomingRow();
+          }
+        });
+    check(
+        "SOCKET_TIMEOUT",
+        new IStringGetter() {
+          public String get() {
+            return meta.getSocketTimeout();
+          }
+        });
+    check(
+        "TRANSPORT_MAX_LENGTH",
+        new IStringGetter() {
+          public String get() {
+            return meta.getMaxLength();
+          }
+        });
   }
-
 }

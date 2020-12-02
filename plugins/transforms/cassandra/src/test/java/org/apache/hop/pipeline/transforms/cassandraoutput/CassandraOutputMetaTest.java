@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2020 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -19,10 +19,8 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.cassandraoutput;
 
-import org.apache.hop.pipeline.transforms.cassandraoutput.CassandraOutputMeta;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,49 +29,44 @@ public class CassandraOutputMetaTest {
   public void validateConvertToSecondsWithNONETTLUnits() {
     CassandraOutputMeta.TTLUnits ttlUnit = CassandraOutputMeta.TTLUnits.NONE;
     int value = 1;
-    value = ttlUnit.convertToSeconds( value );
+    value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals( -1, value );
-
+    Assert.assertEquals(-1, value);
   }
 
   @Test
   public void validateConvertToSecondsWithSecondsTTLUnits() {
     CassandraOutputMeta.TTLUnits ttlUnit = CassandraOutputMeta.TTLUnits.SECONDS;
     int value = 1;
-    value = ttlUnit.convertToSeconds( value );
+    value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals( 1, value );
-
+    Assert.assertEquals(1, value);
   }
 
   @Test
   public void validateConvertToSecondsWithMinutesTTLUnits() {
     CassandraOutputMeta.TTLUnits ttlUnit = CassandraOutputMeta.TTLUnits.MINUTES;
     int value = 1;
-    value = ttlUnit.convertToSeconds( value );
+    value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals( 60, value );
-
+    Assert.assertEquals(60, value);
   }
 
   @Test
   public void validateConvertToSecondsWithHOURSTTLUnits() {
     CassandraOutputMeta.TTLUnits ttlUnit = CassandraOutputMeta.TTLUnits.HOURS;
     int value = 1;
-    value = ttlUnit.convertToSeconds( value );
+    value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals( 3600, value );
-
+    Assert.assertEquals(3600, value);
   }
 
   @Test
   public void validateConvertToSecondsWithDAYSTTLUnits() {
     CassandraOutputMeta.TTLUnits ttlUnit = CassandraOutputMeta.TTLUnits.DAYS;
     int value = 1;
-    value = ttlUnit.convertToSeconds( value );
+    value = ttlUnit.convertToSeconds(value);
 
-    Assert.assertEquals( 86400, value );
-
+    Assert.assertEquals(86400, value);
   }
 }

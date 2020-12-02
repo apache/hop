@@ -1,11 +1,16 @@
-/*!
- * Copyright 2018 Hitachi Vantara.  All rights reserved.
+/*! ******************************************************************************
+ *
+ * Hop : The Hop Orchestration Platform
+ *
+ * http://www.project-hop.org
+ *
+ *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,8 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */
-
+ ******************************************************************************/
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
 import static org.junit.Assert.assertEquals;
@@ -25,6 +29,7 @@ import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,7 +44,6 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-
 public class CQL3SSTableWriterTest {
 
   public static final String KEY_FIELD = "KEY_FIELD";
@@ -47,37 +51,46 @@ public class CQL3SSTableWriterTest {
   public static final String KEY_SPACE = "KEY_SPACE";
   public static final String DIRECTORY_PATH = "directory_path";
   public static final int BUFFER_SIZE = 10;
-  public static final AtomicBoolean checker = new AtomicBoolean( true );
+  public static final AtomicBoolean checker = new AtomicBoolean(true);
   public static final String COLUMN = "someColumn";
 
   class CQL3SSTableWriterStub extends CQL3SSTableWriter {
-    @Override CQLSSTableWriter getCQLSSTableWriter() {
-      assertEquals( DIRECTORY_PATH, getDirectory() );
-      assertEquals( KEY_SPACE, getKeyspace() );
-      assertEquals( TABLE, getTable() );
-      assertEquals( BUFFER_SIZE, getBufferSize() );
-      assertEquals( KEY_FIELD, getPrimaryKey() );
-      CQLSSTableWriter ssWriter = mock( CQLSSTableWriter.class );
+    @Override
+    CQLSSTableWriter getCQLSSTableWriter() {
+      assertEquals(DIRECTORY_PATH, getDirectory());
+      assertEquals(KEY_SPACE, getKeyspace());
+      assertEquals(TABLE, getTable());
+      assertEquals(BUFFER_SIZE, getBufferSize());
+      assertEquals(KEY_FIELD, getPrimaryKey());
+      CQLSSTableWriter ssWriter = mock(CQLSSTableWriter.class);
       try {
-        doAnswer( new Answer<Void>() {
-          @Override public Void answer( InvocationOnMock invocation ) throws Throwable {
-            checker.set( false );
-            return null;
-          }
-        } ).when( ssWriter ).close();
-      } catch ( IOException e ) {
-        fail( e.toString() );
+        doAnswer(
+                new Answer<Void>() {
+                  @Override
+                  public Void answer(InvocationOnMock invocation) throws Throwable {
+                    checker.set(false);
+                    return null;
+                  }
+                })
+            .when(ssWriter)
+            .close();
+      } catch (IOException e) {
+        fail(e.toString());
       }
 
       try {
-        doAnswer( new Answer<Void>() {
-          @Override public Void answer( InvocationOnMock invocation ) throws Throwable {
-            checker.set( true );
-            return null;
-          }
-        } ).when( ssWriter ).addRow( anyMapOf( String.class, Object.class ) );
-      } catch ( Exception e ) {
-        fail( e.toString() );
+        doAnswer(
+                new Answer<Void>() {
+                  @Override
+                  public Void answer(InvocationOnMock invocation) throws Throwable {
+                    checker.set(true);
+                    return null;
+                  }
+                })
+            .when(ssWriter)
+            .addRow(anyMapOf(String.class, Object.class));
+      } catch (Exception e) {
+        fail(e.toString());
       }
 
       return ssWriter;
@@ -92,22 +105,22 @@ public class CQL3SSTableWriterTest {
 
   private CQL3SSTableWriter getCql3SSTableWriter() {
     CQL3SSTableWriter writer = new CQL3SSTableWriterStub();
-    writer.setPrimaryKey( KEY_FIELD );
-    IRowMeta rmi = mock( IRowMeta.class );
-    IValueMeta one = new ValueMetaBase( KEY_FIELD, ValueMetaBase.TYPE_INTEGER );
-    IValueMeta two = new ValueMetaBase( COLUMN, ValueMetaBase.TYPE_STRING );
+    writer.setPrimaryKey(KEY_FIELD);
+    IRowMeta rmi = mock(IRowMeta.class);
+    IValueMeta one = new ValueMetaBase(KEY_FIELD, ValueMetaBase.TYPE_INTEGER);
+    IValueMeta two = new ValueMetaBase(COLUMN, ValueMetaBase.TYPE_STRING);
     List<IValueMeta> valueMetaList = new ArrayList<IValueMeta>();
-    valueMetaList.add( one );
-    valueMetaList.add( two );
-    String[] fieldNames = new String[] { "key", "two" };
-    doReturn( valueMetaList ).when( rmi ).getValueMetaList();
-    doReturn( fieldNames ).when( rmi ).getFieldNames();
-    writer.setRowMeta( rmi );
-    writer.setBufferSize( BUFFER_SIZE );
-    writer.setTable( TABLE );
-    writer.setKeyspace( KEY_SPACE );
-    writer.setDirectory( DIRECTORY_PATH );
-    writer.setPartitionerClass( "org.apache.cassandra.dht.Murmur3Partitioner" );
+    valueMetaList.add(one);
+    valueMetaList.add(two);
+    String[] fieldNames = new String[] {"key", "two"};
+    doReturn(valueMetaList).when(rmi).getValueMetaList();
+    doReturn(fieldNames).when(rmi).getFieldNames();
+    writer.setRowMeta(rmi);
+    writer.setBufferSize(BUFFER_SIZE);
+    writer.setTable(TABLE);
+    writer.setKeyspace(KEY_SPACE);
+    writer.setDirectory(DIRECTORY_PATH);
+    writer.setPartitionerClass("org.apache.cassandra.dht.Murmur3Partitioner");
     return writer;
   }
 
@@ -116,34 +129,38 @@ public class CQL3SSTableWriterTest {
     CQL3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
     Map<String, Object> input = new HashMap<String, Object>();
-    input.put( KEY_FIELD, 1 );
-    input.put( COLUMN, "someColumnValue" );
-    checker.set( false );
-    writer.processRow( input );
-    assertTrue( checker.get() );
+    input.put(KEY_FIELD, 1);
+    input.put(COLUMN, "someColumnValue");
+    checker.set(false);
+    writer.processRow(input);
+    assertTrue(checker.get());
   }
 
   @Test
   public void testClose() throws Exception {
     CQL3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
-    checker.set( true );
+    checker.set(true);
     writer.close();
-    assertFalse( checker.get() );
+    assertFalse(checker.get());
   }
 
   @Test
   public void testBuildCreateTableCQLStatement() throws Exception {
     CQL3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
-    assertEquals( "CREATE TABLE KEY_SPACE.TABLE (\"KEY_FIELD\" bigint,\"someColumn\" varchar,PRIMARY KEY "
-      + "(\"KEY_FIELD\" ));", writer.buildCreateTableCQLStatement() );
+    assertEquals(
+        "CREATE TABLE KEY_SPACE.TABLE (\"KEY_FIELD\" bigint,\"someColumn\" varchar,PRIMARY KEY "
+            + "(\"KEY_FIELD\" ));",
+        writer.buildCreateTableCQLStatement());
   }
 
   @Test
   public void testBuildInsertCQLStatement() throws Exception {
     CQL3SSTableWriter writer = getCql3SSTableWriter();
     writer.init();
-    assertEquals( "INSERT INTO KEY_SPACE.TABLE (\"key\",\"two\") VALUES (?,?);", writer.buildInsertCQLStatement() );
+    assertEquals(
+        "INSERT INTO KEY_SPACE.TABLE (\"key\",\"two\") VALUES (?,?);",
+        writer.buildInsertCQLStatement());
   }
 }

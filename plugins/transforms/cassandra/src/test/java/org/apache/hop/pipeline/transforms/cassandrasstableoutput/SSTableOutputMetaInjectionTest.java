@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -19,7 +19,6 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
 import org.apache.hop.core.injection.BaseMetadataInjectionTest;
@@ -30,41 +29,52 @@ public class SSTableOutputMetaInjectionTest extends BaseMetadataInjectionTest<SS
 
   @Before
   public void setup() throws Exception {
-    setup( new SSTableOutputMeta() );
+    setup(new SSTableOutputMeta());
   }
 
   @Test
   public void test() throws Exception {
-    check( "YAML_FILE_PATH", new IStringGetter() {
-      public String get() {
-        return meta.getYamlPath();
-      }
-    } );
-    check( "DIRECTORY", new IStringGetter() {
-      public String get() {
-        return meta.getDirectory();
-      }
-    } );
-    check( "CASSANDRA_KEYSPACE", new IStringGetter() {
-      public String get() {
-        return meta.getCassandraKeyspace();
-      }
-    } );
-    check( "TABLE", new IStringGetter() {
-      public String get() {
-        return meta.getTableName();
-      }
-    } );
-    check( "KEY_FIELD", new IStringGetter() {
-      public String get() {
-        return meta.getKeyField();
-      }
-    } );
-    check( "BUFFER_SIZE", new IStringGetter() {
-      public String get() {
-        return meta.getBufferSize();
-      }
-    } );
+    check(
+        "YAML_FILE_PATH",
+        new IStringGetter() {
+          public String get() {
+            return meta.getYamlPath();
+          }
+        });
+    check(
+        "DIRECTORY",
+        new IStringGetter() {
+          public String get() {
+            return meta.getDirectory();
+          }
+        });
+    check(
+        "CASSANDRA_KEYSPACE",
+        new IStringGetter() {
+          public String get() {
+            return meta.getCassandraKeyspace();
+          }
+        });
+    check(
+        "TABLE",
+        new IStringGetter() {
+          public String get() {
+            return meta.getTableName();
+          }
+        });
+    check(
+        "KEY_FIELD",
+        new IStringGetter() {
+          public String get() {
+            return meta.getKeyField();
+          }
+        });
+    check(
+        "BUFFER_SIZE",
+        new IStringGetter() {
+          public String get() {
+            return meta.getBufferSize();
+          }
+        });
   }
-
 }

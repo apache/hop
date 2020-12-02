@@ -1,11 +1,16 @@
-/*!
- * Copyright 2018 Hitachi Vantara.  All rights reserved.
+/*! ******************************************************************************
+ *
+ * Hop : The Hop Orchestration Platform
+ *
+ * http://www.project-hop.org
+ *
+ *******************************************************************************
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,8 +18,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- */
-
+ ******************************************************************************/
 package org.apache.hop.pipeline.transforms.steps.mock;
 
 import static org.mockito.Matchers.any;
@@ -24,6 +28,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
+
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,7 +52,6 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-
 /**
  * Copied from kettle-engine tests. Should be deleted after introducing pentaho-common-tests project
  */
@@ -64,92 +68,95 @@ public class StepMockHelper<Meta extends ITransformMeta, Data extends ITransform
   public final ILogChannelFactory logChannelInterfaceFactory;
   public final ILogChannelFactory originalILogChannelFactory;
 
-  public StepMockHelper( String stepName, Class<Meta> stepMetaClass, Class<Data> stepDataClass ) {
+  public StepMockHelper(String stepName, Class<Meta> stepMetaClass, Class<Data> stepDataClass) {
     originalILogChannelFactory = HopLogStore.getLogChannelFactory();
-    logChannelInterfaceFactory = mock( ILogChannelFactory.class );
-    logChannelInterface = mock( ILogChannel.class );
-    HopLogStore.setLogChannelFactory( logChannelInterfaceFactory );
-    stepMeta = mock( TransformMeta.class );
-    when( stepMeta.getName() ).thenReturn( stepName );
-    stepDataInterface = mock( stepDataClass );
-    transMeta = mock( PipelineMeta.class );
-    when( transMeta.findTransform( stepName ) ).thenReturn( stepMeta );
-    trans = mock( Pipeline.class );
-    initTransformMetaInterface = mock( stepMetaClass );
-    initITransformData = mock( stepDataClass );
-    processRowsITransformData = mock( stepDataClass );
-    processRowsTransformMetaInterface = mock( stepMetaClass );
+    logChannelInterfaceFactory = mock(ILogChannelFactory.class);
+    logChannelInterface = mock(ILogChannel.class);
+    HopLogStore.setLogChannelFactory(logChannelInterfaceFactory);
+    stepMeta = mock(TransformMeta.class);
+    when(stepMeta.getName()).thenReturn(stepName);
+    stepDataInterface = mock(stepDataClass);
+    transMeta = mock(PipelineMeta.class);
+    when(transMeta.findTransform(stepName)).thenReturn(stepMeta);
+    trans = mock(Pipeline.class);
+    initTransformMetaInterface = mock(stepMetaClass);
+    initITransformData = mock(stepDataClass);
+    processRowsITransformData = mock(stepDataClass);
+    processRowsTransformMetaInterface = mock(stepMetaClass);
   }
 
-  public IRowSet getMockInputRowSet( Object[]... rows ) {
-    return getMockInputRowSet( asList( rows ) );
+  public IRowSet getMockInputRowSet(Object[]... rows) {
+    return getMockInputRowSet(asList(rows));
   }
 
-  public IRowSet getMockInputRowSet( final List<Object[]> rows ) {
-    final AtomicInteger index = new AtomicInteger( 0 );
-    IRowSet rowSet = mock( IRowSet.class, Mockito.RETURNS_MOCKS );
-    Answer<Object[]> answer = new Answer<Object[]>() {
-      @Override
-      public Object[] answer( InvocationOnMock invocation ) throws Throwable {
-        int i = index.getAndIncrement();
-        return i < rows.size() ? rows.get( i ) : null;
-      }
-    };
-    when( rowSet.getRowWait( anyLong(), any( TimeUnit.class ) ) ).thenAnswer( answer );
-    when( rowSet.getRow() ).thenAnswer( answer );
-    when( rowSet.isDone() ).thenAnswer( new Answer<Boolean>() {
+  public IRowSet getMockInputRowSet(final List<Object[]> rows) {
+    final AtomicInteger index = new AtomicInteger(0);
+    IRowSet rowSet = mock(IRowSet.class, Mockito.RETURNS_MOCKS);
+    Answer<Object[]> answer =
+        new Answer<Object[]>() {
+          @Override
+          public Object[] answer(InvocationOnMock invocation) throws Throwable {
+            int i = index.getAndIncrement();
+            return i < rows.size() ? rows.get(i) : null;
+          }
+        };
+    when(rowSet.getRowWait(anyLong(), any(TimeUnit.class))).thenAnswer(answer);
+    when(rowSet.getRow()).thenAnswer(answer);
+    when(rowSet.isDone())
+        .thenAnswer(
+            new Answer<Boolean>() {
 
-      @Override
-      public Boolean answer( InvocationOnMock invocation ) throws Throwable {
-        return index.get() >= rows.size();
-      }
-    } 
-    );
+              @Override
+              public Boolean answer(InvocationOnMock invocation) throws Throwable {
+                return index.get() >= rows.size();
+              }
+            });
     return rowSet;
   }
 
-  public static List<Object[]> asList( Object[]... objects ) {
+  public static List<Object[]> asList(Object[]... objects) {
     List<Object[]> result = new ArrayList<Object[]>();
-    Collections.addAll( result, objects );
+    Collections.addAll(result, objects);
     return result;
   }
 
   public void cleanUp() {
-    HopLogStore.setLogChannelFactory( originalILogChannelFactory );
+    HopLogStore.setLogChannelFactory(originalILogChannelFactory);
   }
 
   /**
-   *  In case you need to use log methods during the tests
-   *  use redirectLog method after creating new StepMockHelper object.
-   *  Examples:
-   *    stepMockHelper.redirectLog( System.out, LogLevel.ROWLEVEL );
-   *    stepMockHelper.redirectLog( new FileOutputStream("log.txt"), LogLevel.BASIC );
+   * In case you need to use log methods during the tests use redirectLog method after creating new
+   * StepMockHelper object. Examples: stepMockHelper.redirectLog( System.out, LogLevel.ROWLEVEL );
+   * stepMockHelper.redirectLog( new FileOutputStream("log.txt"), LogLevel.BASIC );
    */
-  public void redirectLog( final OutputStream out, LogLevel channelLogLevel ) {
-    final LogChannel log = spy( new LogChannel( this.getClass().getName(), true ) );
-    log.setLogLevel( channelLogLevel );
-    when( logChannelInterfaceFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( log );
-    doAnswer( new Answer<Object>() {
-      @Override
-      public Object answer( InvocationOnMock invocation ) throws Throwable {
-        Object[] args = invocation.getArguments();
+  public void redirectLog(final OutputStream out, LogLevel channelLogLevel) {
+    final LogChannel log = spy(new LogChannel(this.getClass().getName(), true));
+    log.setLogLevel(channelLogLevel);
+    when(logChannelInterfaceFactory.create(any(), any(ILoggingObject.class))).thenReturn(log);
+    doAnswer(
+            new Answer<Object>() {
+              @Override
+              public Object answer(InvocationOnMock invocation) throws Throwable {
+                Object[] args = invocation.getArguments();
 
-        LogLevel logLevel = (LogLevel) args[1];
-        LogLevel channelLogLevel = log.getLogLevel();
+                LogLevel logLevel = (LogLevel) args[1];
+                LogLevel channelLogLevel = log.getLogLevel();
 
-        if ( !logLevel.isVisible( channelLogLevel ) ) {
-          return null; // not for our eyes.
-        }
-        if ( channelLogLevel.getLevel() >= logLevel.getLevel() ) {
-          ILogMessage logMessage = (ILogMessage) args[0];
-          out.write( logMessage.getMessage().getBytes() );
-          out.write( '\n' );
-          out.write( '\r' );
-          out.flush();
-          return true;
-        }
-        return false;
-      }
-    } ).when( log ).println( (ILogMessage) anyObject(), (LogLevel) anyObject() );
+                if (!logLevel.isVisible(channelLogLevel)) {
+                  return null; // not for our eyes.
+                }
+                if (channelLogLevel.getLevel() >= logLevel.getLevel()) {
+                  ILogMessage logMessage = (ILogMessage) args[0];
+                  out.write(logMessage.getMessage().getBytes());
+                  out.write('\n');
+                  out.write('\r');
+                  out.flush();
+                  return true;
+                }
+                return false;
+              }
+            })
+        .when(log)
+        .println((ILogMessage) anyObject(), (LogLevel) anyObject());
   }
 }

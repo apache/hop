@@ -1,8 +1,8 @@
-/*******************************************************************************
+/*! ******************************************************************************
  *
- * Pentaho Big Data
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -19,7 +19,6 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput;
 
 import org.apache.hop.core.row.IRowMeta;
@@ -28,7 +27,7 @@ import org.apache.hop.pipeline.transform.ITransformData;
 
 /**
  * Data class for SSTablesOutput step.
- * 
+ *
  * @author Rob Turner (robert{[at]}robertturner{[dot]}com{[dot]}au)
  * @author Mark Hall (mhall{[at]}pentaho{[dot]}com)
  */
@@ -39,7 +38,7 @@ public class SSTableOutputData extends BaseTransformData implements ITransformDa
 
   /**
    * Get the output row format
-   * 
+   *
    * @return the output row format
    */
   public IRowMeta getOutputRowMeta() {
@@ -48,11 +47,10 @@ public class SSTableOutputData extends BaseTransformData implements ITransformDa
 
   /**
    * Set the output row format
-   * 
-   * @param rmi
-   *          the output row format
+   *
+   * @param rmi the output row format
    */
-  public void setOutputRowMeta( IRowMeta rmi ) {
+  public void setOutputRowMeta(IRowMeta rmi) {
     outputRowMeta = rmi;
   }
 }

@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -19,7 +19,6 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
 import org.apache.cassandra.config.YamlConfigurationLoader;
@@ -32,48 +31,32 @@ import org.apache.hop.core.row.IRowMeta;
  * @author Pavel Sakun
  */
 public class SSTableWriterBuilder {
-  /**
-   * Path to cassandra YAML config
-   */
+  /** Path to cassandra YAML config */
   private String configFilePath;
 
-  /**
-   * CQL Version
-   */
+  /** CQL Version */
   private int cqlVersion;
 
-  /**
-   * The directory to output to
-   */
+  /** The directory to output to */
   private String directory;
 
-  /**
-   * The keyspace to use
-   */
+  /** The keyspace to use */
   private String keyspace;
 
-  /**
-   * The name of the table to write to
-   */
+  /** The name of the table to write to */
   private String table;
 
-  /**
-   * The primary key used to determine unique keys (IDs) for rows
-   */
+  /** The primary key used to determine unique keys (IDs) for rows */
   private String primaryKey;
 
-  /**
-   * Size (MB) of write buffer
-   */
+  /** Size (MB) of write buffer */
   private int bufferSize;
 
-  /**
-   * Input row meta
-   */
+  /** Input row meta */
   private IRowMeta rowMeta;
 
-  public SSTableWriterBuilder withConfig( String configFilePath ) {
-    if ( !configFilePath.startsWith( "file:" ) ) {
+  public SSTableWriterBuilder withConfig(String configFilePath) {
+    if (!configFilePath.startsWith("file:")) {
       this.configFilePath = "file:" + configFilePath;
     } else {
       this.configFilePath = configFilePath;
@@ -81,54 +64,54 @@ public class SSTableWriterBuilder {
     return this;
   }
 
-  public SSTableWriterBuilder withDirectory( String outputDirectoryPath ) {
+  public SSTableWriterBuilder withDirectory(String outputDirectoryPath) {
     this.directory = outputDirectoryPath;
     return this;
   }
 
-  public SSTableWriterBuilder withKeyspace( String keyspaceName ) {
+  public SSTableWriterBuilder withKeyspace(String keyspaceName) {
     this.keyspace = keyspaceName;
     return this;
   }
 
-  public SSTableWriterBuilder withTable( String tableName ) {
+  public SSTableWriterBuilder withTable(String tableName) {
     this.table = tableName;
     return this;
   }
 
-  public SSTableWriterBuilder withPrimaryKey( String primaryKey ) {
+  public SSTableWriterBuilder withPrimaryKey(String primaryKey) {
     this.primaryKey = primaryKey;
     return this;
   }
 
-  public SSTableWriterBuilder withBufferSize( int bufferSize ) {
+  public SSTableWriterBuilder withBufferSize(int bufferSize) {
     this.bufferSize = bufferSize;
     return this;
   }
 
-  public SSTableWriterBuilder withRowMeta( IRowMeta rowMeta ) {
+  public SSTableWriterBuilder withRowMeta(IRowMeta rowMeta) {
     this.rowMeta = rowMeta;
     return this;
   }
 
-  public SSTableWriterBuilder withCqlVersion( int cqlVersion ) {
+  public SSTableWriterBuilder withCqlVersion(int cqlVersion) {
     this.cqlVersion = cqlVersion;
     return this;
   }
 
   public AbstractSSTableWriter build() throws Exception {
-    System.setProperty( "cassandra.config", configFilePath );
+    System.setProperty("cassandra.config", configFilePath);
     AbstractSSTableWriter result;
 
     CQL3SSTableWriter writer = getCql3SSTableWriter();
-    writer.setRowMeta( rowMeta );
+    writer.setRowMeta(rowMeta);
     result = writer;
-    result.setDirectory( directory );
-    result.setKeyspace( keyspace );
-    result.setTable( table );
-    result.setPrimaryKey( primaryKey );
-    result.setBufferSize( bufferSize );
-    result.setPartitionerClass( getPartitionerClass() );
+    result.setDirectory(directory);
+    result.setKeyspace(keyspace);
+    result.setTable(table);
+    result.setPrimaryKey(primaryKey);
+    result.setBufferSize(bufferSize);
+    result.setPartitionerClass(getPartitionerClass());
 
     return result;
   }

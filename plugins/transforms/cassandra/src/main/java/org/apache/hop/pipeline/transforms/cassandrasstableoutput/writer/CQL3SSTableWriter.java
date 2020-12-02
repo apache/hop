@@ -1,8 +1,8 @@
 /*! ******************************************************************************
  *
- * Pentaho Data Integration
+ * Hop : The Hop Orchestration Platform
  *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
+ * http://www.project-hop.org
  *
  *******************************************************************************
  *
@@ -19,9 +19,9 @@
  * limitations under the License.
  *
  ******************************************************************************/
-
 package org.apache.hop.pipeline.transforms.cassandrasstableoutput.writer;
 
+import com.google.common.base.Joiner;
 import java.util.Arrays;
 import java.util.Map;
 import org.apache.cassandra.config.CFMetaData;
@@ -31,7 +31,6 @@ import org.apache.cassandra.io.sstable.CQLSSTableWriter;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.databases.cassandra.util.CassandraUtils;
-import com.google.common.base.Joiner;
 
 class CQL3SSTableWriter extends AbstractSSTableWriter {
   private CQLSSTableWriter writer;
@@ -39,7 +38,7 @@ class CQL3SSTableWriter extends AbstractSSTableWriter {
 
   @Override
   public void init() throws Exception {
-    //Allow table to be reloaded
+    // Allow table to be reloaded
     purgeSchemaInstance();
     writer = getCQLSSTableWriter();
   }
@@ -48,53 +47,69 @@ class CQL3SSTableWriter extends AbstractSSTableWriter {
     // Since the unload function only cares about the keyspace and table name,
     // the partition key and class don't matter (however, creating the CFMetaData
     // will fail unless something is passed in
-    CFMetaData cfm = CFMetaData.Builder.create( getKeyspace(), getTable() ).withPartitioner(
-        CassandraUtils.getPartitionerClassInstance( getPartitionerClass() ) ).addPartitionKey(
-            getPartitionKey(), UTF8Type.instance ).build();
-    Schema.instance.unload( cfm );
+    CFMetaData cfm =
+        CFMetaData.Builder.create(getKeyspace(), getTable())
+            .withPartitioner(CassandraUtils.getPartitionerClassInstance(getPartitionerClass()))
+            .addPartitionKey(getPartitionKey(), UTF8Type.instance)
+            .build();
+    Schema.instance.unload(cfm);
   }
 
   CQLSSTableWriter getCQLSSTableWriter() {
-    return CQLSSTableWriter.builder().inDirectory( getDirectory() ).forTable( buildCreateTableCQLStatement() )
-      .using( buildInsertCQLStatement() ).withBufferSizeInMB( getBufferSize() ).build();
+    return CQLSSTableWriter.builder()
+        .inDirectory(getDirectory())
+        .forTable(buildCreateTableCQLStatement())
+        .using(buildInsertCQLStatement())
+        .withBufferSizeInMB(getBufferSize())
+        .build();
   }
 
   @Override
-  public void processRow( Map<String, Object> record ) throws Exception {
-    writer.addRow( record );
+  public void processRow(Map<String, Object> record) throws Exception {
+    writer.addRow(record);
   }
 
   @Override
   public void close() throws Exception {
-    if ( writer != null ) {
+    if (writer != null) {
       writer.close();
     }
   }
 
-  public void setRowMeta( IRowMeta rowMeta ) {
+  public void setRowMeta(IRowMeta rowMeta) {
     this.rowMeta = rowMeta;
   }
 
   String buildCreateTableCQLStatement() {
     StringBuilder tableColumnsSpecification = new StringBuilder();
-    for ( IValueMeta valueMeta : rowMeta.getValueMetaList() ) {
-      tableColumnsSpecification.append( CassandraUtils.cql3MixedCaseQuote( valueMeta.getName() ) ).append( " " )
-          .append( CassandraUtils.getCQLTypeForValueMeta( valueMeta ) ).append( "," );
+    for (IValueMeta valueMeta : rowMeta.getValueMetaList()) {
+      tableColumnsSpecification
+          .append(CassandraUtils.cql3MixedCaseQuote(valueMeta.getName()))
+          .append(" ")
+          .append(CassandraUtils.getCQLTypeForValueMeta(valueMeta))
+          .append(",");
     }
 
-    tableColumnsSpecification.append( "PRIMARY KEY (\"" ).append( getPrimaryKey().replaceAll( ",", "\",\"" ) ).append(
-        "\" )" );
+    tableColumnsSpecification
+        .append("PRIMARY KEY (\"")
+        .append(getPrimaryKey().replaceAll(",", "\",\""))
+        .append("\" )");
 
-    return String.format( "CREATE TABLE %s.%s (%s);", getKeyspace(), getTable(), tableColumnsSpecification );
+    return String.format(
+        "CREATE TABLE %s.%s (%s);", getKeyspace(), getTable(), tableColumnsSpecification);
   }
 
   String buildInsertCQLStatement() {
-    Joiner columnsJoiner = Joiner.on( "\",\"" ).skipNulls();
-    Joiner valuesJoiner = Joiner.on( "," ).skipNulls();
+    Joiner columnsJoiner = Joiner.on("\",\"").skipNulls();
+    Joiner valuesJoiner = Joiner.on(",").skipNulls();
     String[] columnNames = rowMeta.getFieldNames();
     String[] valuePlaceholders = new String[columnNames.length];
-    Arrays.fill( valuePlaceholders, "?" );
-    return String.format( "INSERT INTO %s.%s (\"%s\") VALUES (%s);", getKeyspace(), getTable(), columnsJoiner
-        .join( columnNames ), valuesJoiner.join( valuePlaceholders ) );
+    Arrays.fill(valuePlaceholders, "?");
+    return String.format(
+        "INSERT INTO %s.%s (\"%s\") VALUES (%s);",
+        getKeyspace(),
+        getTable(),
+        columnsJoiner.join(columnNames),
+        valuesJoiner.join(valuePlaceholders));
   }
 }
