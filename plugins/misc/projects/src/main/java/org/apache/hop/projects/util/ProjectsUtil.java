@@ -30,6 +30,7 @@ import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
+import org.apache.hop.history.AuditManager;
 import org.apache.hop.metadata.api.IHasHopMetadataProvider;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.projects.config.ProjectsConfig;
@@ -37,6 +38,7 @@ import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.Project;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.gui.HopNamespace;
+import org.apache.hop.ui.hopgui.HopGui;
 
 import java.util.List;
 
@@ -86,6 +88,15 @@ public class ProjectsUtil {
     // We store the project in the namespace singleton (used mainly in the GUI)
     //
     HopNamespace.setNamespace( projectName );
+
+    // Save some history concerning the usage of the project...
+    //
+    AuditManager.registerEvent(
+      HopGui.DEFAULT_HOP_GUI_NAMESPACE,
+      STRING_PROJECT_AUDIT_TYPE,
+      projectName,
+      "open"
+      );
 
     // Signal others that we have a new active project
     //
