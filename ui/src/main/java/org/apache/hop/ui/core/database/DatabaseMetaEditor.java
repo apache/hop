@@ -33,7 +33,6 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.database.DatabaseTestResults;
 import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
@@ -671,12 +670,6 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
     guiCompositeWidgets.enableWidgets( getMetadata().getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !manualUrl );
   }
 
-  public void save( ) throws HopException {
-    getWidgetsContent( this.getMetadata() );
-
-    super.save();
-  }
-
   private void test() {
     DatabaseMeta meta = new DatabaseMeta();
     meta.initializeVariablesFrom( getMetadata() );
@@ -813,4 +806,11 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
     return new Button[] { wTest };	
   }
 
+  @Override
+  public boolean setFocus() {
+    if (wName == null || wName.isDisposed()) {
+      return false;
+    }
+    return wName.setFocus();
+  }
 }

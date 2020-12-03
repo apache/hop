@@ -47,14 +47,15 @@ public class MetadataEditorDialog extends Dialog implements IMetadataDialog {
 	private MetadataEditor<?> editor;
 	private String result;
 
+	
 	public MetadataEditorDialog(Shell parent, MetadataEditor<?> editor) {
 		super(parent);
 		this.editor = editor;
 	}
-
+	
 	public String open() {
 		PropsUi props = PropsUi.getInstance();
-				
+		
 		Shell parent = getParent();
 		shell = new Shell(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN);
 		shell.setText(editor.getTitle());

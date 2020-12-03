@@ -33,7 +33,6 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -130,11 +129,9 @@ public class PipelineDialog extends Dialog {
 
   private Tabs currentTab = null;
 
-  private String[] connectionNames;
-
   protected boolean changed;
 
-  private DatabaseDialog databaseDialog;
+  //private DatabaseDialog databaseDialog;
   private SelectionAdapter lsModSel;
   private TextVar wTransformPerfMaxSize;
 
@@ -256,14 +253,6 @@ public class PipelineDialog extends Dialog {
       }
     }
     return pipelineMeta;
-  }
-
-  private DatabaseDialog getDatabaseDialog() {
-    if ( databaseDialog != null ) {
-      return databaseDialog;
-    }
-    databaseDialog = new DatabaseDialog( shell );
-    return databaseDialog;
   }
 
   private void addPipelineTab() {

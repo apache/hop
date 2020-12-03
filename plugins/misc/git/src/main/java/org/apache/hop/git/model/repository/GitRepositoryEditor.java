@@ -17,7 +17,6 @@
 package org.apache.hop.git.model.repository;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.dialog.BaseDialog;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
@@ -157,12 +156,6 @@ public class GitRepositoryEditor extends MetadataEditor<GitRepository> {
     fdDirectoryText.top = new FormAttachment(directoryLabel, props.getMargin());
     directoryText.setLayoutData(fdDirectoryText);
     props.setLook(directoryText);
-  }
-
-  @Override
-  public void save() throws HopException {
-    this.getWidgetsContent(getMetadata());
-    super.save();
   }
 
   @Override

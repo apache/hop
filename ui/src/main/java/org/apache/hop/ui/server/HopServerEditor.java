@@ -394,12 +394,6 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
   }
 
   @Override
-  public void save() throws HopException {
-    getWidgetsContent(getMetadata());
-    super.save();
-  }
-
-  @Override
   public void getWidgetsContent(HopServer server) {
     server.setName(wName.getText());
     server.setHostname(wHostname.getText());
@@ -415,6 +409,9 @@ public class HopServerEditor extends MetadataEditor<HopServer> {
 
   @Override
   public boolean setFocus() {
+    if (wName == null || wName.isDisposed()) {
+      return false;
+    }
     return wName.setFocus();
   }
 

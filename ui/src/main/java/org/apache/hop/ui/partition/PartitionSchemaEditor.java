@@ -21,10 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
-import org.apache.hop.server.HopServer;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.metadata.MetadataEditor;
 import org.apache.hop.ui.core.metadata.MetadataManager;
@@ -235,12 +233,6 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     wPartitions.optWidth(true);
   }
 
-  public void save() throws HopException {
-    getWidgetsContent(getMetadata());
-
-    super.save();
-  }
-
   @Override
   public void getWidgetsContent(PartitionSchema partitionSchema) {
     partitionSchema.setName(wName.getText());
@@ -256,6 +248,9 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
 
   @Override
   public boolean setFocus() {
+    if (wName == null || wName.isDisposed()) {
+      return false;
+    }
     return wName.setFocus();
   }
 }

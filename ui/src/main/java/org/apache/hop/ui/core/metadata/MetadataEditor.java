@@ -209,6 +209,8 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
   @Override
   public void save() throws HopException {
 
+    getWidgetsContent(this.getMetadata());
+      
     boolean isCreated = false;
     boolean isRename = false;
     String name = metadata.getName();
@@ -225,7 +227,6 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
     else if (!originalName.equals(metadata.getName())) {
 
       // See if the name collides with an existing one...
-      // TODO: provide name changes utilities
       //
       IHopMetadataSerializer<T> serializer = manager.getSerializer();
 

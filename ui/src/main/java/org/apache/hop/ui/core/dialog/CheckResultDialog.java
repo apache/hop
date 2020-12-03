@@ -28,7 +28,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
@@ -60,7 +59,7 @@ import java.util.List;
  */
 
 public class CheckResultDialog extends Dialog {
-  private static final Class<?> PKG = DatabaseDialog.class; // Needed by Translator
+  private static final Class<?> PKG = CheckResultDialog.class; // Needed by Translator
 
   private static final String STRING_HIDE_SUCESSFUL = BaseMessages.getString(
     PKG, "CheckResultDialog.HideSuccessful.Label" );

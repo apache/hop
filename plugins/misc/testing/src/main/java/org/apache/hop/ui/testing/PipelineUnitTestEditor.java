@@ -356,12 +356,4 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
       test.getVariableValues().add( variableValue );
     }
   }
-
-  @Override
-  public void save() throws HopException {
-
-    getWidgetsContent(this.getMetadata());
-
-    super.save();
-  }
 }

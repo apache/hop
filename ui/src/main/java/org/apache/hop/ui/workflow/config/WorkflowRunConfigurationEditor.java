@@ -271,7 +271,6 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
   public void save() throws HopException {
     changeWorkingEngineConfiguration( runConfiguration );
-    getWidgetsContent( runConfiguration );
     
     super.save();
   }

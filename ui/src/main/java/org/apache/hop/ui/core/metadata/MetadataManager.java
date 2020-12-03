@@ -213,7 +213,7 @@ public class MetadataManager<T extends IHopMetadata> {
       new ErrorDialog(hopGui.getShell(), "Error", "Error editing metadata", e);
     }
   }
-
+  
   private void initializeElementVariables( T element ) {
     if ( element instanceof IVariables ) {
       ( (IVariables) element ).initializeVariablesFrom( variables );
@@ -359,27 +359,37 @@ public class MetadataManager<T extends IHopMetadata> {
       // Create a new instance of the managed class
       //
       T element = managedClass.newInstance();
-      initializeElementVariables( element );
+      initializeElementVariables(element);
 
-      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetadataObjectCreateBeforeDialog.id, element );
-
-	MetadataEditor<T> editor = this.createEditor(element);
-	editor.setTitle(getManagedName());
-
-	MetadataEditorDialog dialog = new MetadataEditorDialog(HopGui.getInstance().getShell(), editor);
-
-	String name = dialog.open();
-	if (name != null) {
-		ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(),
-				HopExtensionPoint.HopGuiMetadataObjectCreated.id, element);
-	}
-	return element;
-    } catch ( Exception e ) {
-      new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error creating new metadata element", e );
+      return newMetadata(element);
+    } catch (Exception e) {
+      new ErrorDialog(HopGui.getInstance().getShell(), "Error", "Error creating new metadata element", e);
       return null;
     }
   }
 
+  public T newMetadata(T element) {
+      try {
+
+        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetadataObjectCreateBeforeDialog.id, element );
+
+  	MetadataEditor<T> editor = this.createEditor(element);
+  	editor.setTitle(getManagedName());
+
+  	MetadataEditorDialog dialog = new MetadataEditorDialog(HopGui.getInstance().getShell(), editor);
+
+  	String name = dialog.open();
+  	if (name != null) {
+  		ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(),
+  				HopExtensionPoint.HopGuiMetadataObjectCreated.id, element);
+  	}
+  	return element;
+      } catch ( Exception e ) {
+        new ErrorDialog( HopGui.getInstance().getShell(), "Error", "Error editing new metadata element", e );
+        return null;
+      }
+    }
+  
   public T newMetadataWithEditor() {
     HopGui hopGui = HopGui.getInstance();
 
@@ -404,7 +414,7 @@ public class MetadataManager<T extends IHopMetadata> {
       return null;
     }
   }
-
+  
   public List<String> getNames() throws HopException {
     try {
       List<String> names = getSerializer().listObjectNames();

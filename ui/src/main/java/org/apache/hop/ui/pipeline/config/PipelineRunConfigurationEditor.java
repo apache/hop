@@ -381,8 +381,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
   public void save() throws HopException {
     changeWorkingEngineConfiguration( runConfiguration );
-    getWidgetsContent( runConfiguration );
-
+   
     super.save();
   }
 

@@ -19,7 +19,6 @@ package org.apache.hop.beam.metadata;
 import java.util.List;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
@@ -40,8 +39,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
 
-  private static final Class<?> PKG =
-      FileDefinitionEditor.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG = FileDefinitionEditor.class; // for i18n purposes, needed by Translator2!!
 
   // Connection properties
   //
@@ -51,8 +49,7 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
   private Text wEnclosure;
   private TableView wFields;
 
-  public FileDefinitionEditor(
-      HopGui hopGui, MetadataManager<FileDefinition> manager, FileDefinition metadata) {
+  public FileDefinitionEditor(HopGui hopGui, MetadataManager<FileDefinition> manager, FileDefinition metadata) {
     super(hopGui, manager, metadata);
   }
 
@@ -225,13 +222,6 @@ public class FileDefinitionEditor extends MetadataEditor<FileDefinition> {
       item.setText(4, field.getLength() < 0 ? "" : Integer.toString(field.getLength()));
       item.setText(5, field.getPrecision() < 0 ? "" : Integer.toString(field.getPrecision()));
     }
-  }
-
-  @Override
-  public void save() throws HopException {
-    getWidgetsContent(this.getMetadata());
-
-    super.save();
   }
 
   @Override
