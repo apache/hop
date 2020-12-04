@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.logging;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -52,26 +51,6 @@ public class LoggingPluginType extends BasePluginType<LoggingPlugin> implements 
       loggingPluginType = new LoggingPluginType();
     }
     return loggingPluginType;
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_LOGGING_PLUGINS;
-  }
-
-  @Override
-  protected String getAlternativePluginFile() {
-    return Const.HOP_LOGGING_PLUGINS_FILE;
-  }
-
-  @Override
-  protected String getMainTag() {
-    return "logging-plugins";
-  }
-
-  @Override
-  protected String getSubTag() {
-    return "logging-plugin";
   }
 
   @Override

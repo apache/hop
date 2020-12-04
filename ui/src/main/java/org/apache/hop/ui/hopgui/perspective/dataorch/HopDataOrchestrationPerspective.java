@@ -75,7 +75,7 @@ import org.eclipse.swt.widgets.MenuItem;
   image = "ui/images/pipeline.svg",
   description = "The Hop Data Orchestration Perspective for pipelines and workflows"
 )
-@GuiPlugin
+@GuiPlugin (description="Hop Data Orchestration Perspective GUI" )
 public class HopDataOrchestrationPerspective implements IHopPerspective {
 
   public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20010-perspective-data-orchestration";

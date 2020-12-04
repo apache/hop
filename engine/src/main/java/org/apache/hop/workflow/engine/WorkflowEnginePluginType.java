@@ -22,8 +22,6 @@
 
 package org.apache.hop.workflow.engine;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -49,31 +47,6 @@ public class WorkflowEnginePluginType extends BasePluginType<WorkflowEnginePlugi
       pluginType = new WorkflowEnginePluginType();
     }
     return pluginType;
-  }
-
-  @Override
-  protected void registerNatives() throws HopPluginException {
-    super.registerNatives();
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_WORKFLOW_ENGINES;
-  }
-
-  @Override
-  public String getMainTag() {
-    return "hop-workflow-engines";
-  }
-
-  @Override
-  public String getSubTag() {
-    return "hop-workflow-engine";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   @Override

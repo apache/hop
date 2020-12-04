@@ -49,6 +49,12 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+@ValueMetaPlugin(
+  id = "9",
+  name = "Timestamp",
+  description = "Timestamp",
+  image = "images/timestamp.svg"
+)
 public class ValueMetaTimestamp extends ValueMetaDate {
 
   public ValueMetaTimestamp() {

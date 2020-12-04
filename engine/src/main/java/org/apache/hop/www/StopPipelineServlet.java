@@ -23,6 +23,7 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -37,7 +38,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 
-
+@HopServerServlet(id="stopPipeline", name = "Stop a pipeline")
 public class StopPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = StopPipelineServlet.class; // Needed by Translator
 

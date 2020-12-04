@@ -22,8 +22,6 @@
 
 package org.apache.hop.pipeline.engine;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -49,29 +47,6 @@ public class PipelineEnginePluginType extends BasePluginType<PipelineEnginePlugi
       pluginType = new PipelineEnginePluginType();
     }
     return pluginType;
-  }
-
-  @Override
-  protected void registerNatives() throws HopPluginException {
-    super.registerNatives();
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_PIPELINE_ENGINES;
-  }
-
-  @Override public String getMainTag() {
-    return "hop-pipeline-engines";
-  }
-
-  @Override public String getSubTag() {
-    return "hop-pipeline-engine";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   @Override

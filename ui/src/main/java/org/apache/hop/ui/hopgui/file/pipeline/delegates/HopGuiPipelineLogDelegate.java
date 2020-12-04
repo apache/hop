@@ -41,8 +41,6 @@ import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -53,7 +51,7 @@ import org.eclipse.swt.widgets.ToolItem;
 import java.util.ArrayList;
 import java.util.Map;
 
-@GuiPlugin
+@GuiPlugin(description = "Pipeline Graph Log Delegate")
 public class HopGuiPipelineLogDelegate {
   private static final Class<?> PKG = HopGui.class; // Needed by Translator
 

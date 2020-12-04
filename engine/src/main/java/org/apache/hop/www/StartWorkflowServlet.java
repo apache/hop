@@ -25,6 +25,7 @@ package org.apache.hop.www;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObjectType;
@@ -47,7 +48,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.UUID;
 
-
+@HopServerServlet(id="startWorkflow", name = "Start a workflow")
 public class StartWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = StartWorkflowServlet.class; // for i18n purposes,
   // needed by

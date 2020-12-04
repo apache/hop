@@ -26,6 +26,7 @@ package org.apache.hop.www;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.server.HttpUtil;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.HopLogStore;
@@ -47,7 +48,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 
-
+@HopServerServlet(id="workflowStatus", name = "Get the status of a workflow")
 public class GetWorkflowStatusServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = GetWorkflowStatusServlet.class; // Needed by Translator
 

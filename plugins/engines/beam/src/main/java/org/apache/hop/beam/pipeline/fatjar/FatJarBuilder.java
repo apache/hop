@@ -22,43 +22,12 @@
 
 package org.apache.hop.beam.pipeline.fatjar;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.database.DatabasePluginType;
-import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.encryption.ITwoWayPasswordEncoder;
-import org.apache.hop.core.encryption.TwoWayPasswordEncoderPluginType;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.extension.ExtensionPointPluginType;
-import org.apache.hop.core.extension.IExtensionPoint;
-import org.apache.hop.core.plugins.ActionPluginType;
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.IPluginType;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.core.plugins.TransformPluginType;
-import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.value.ValueMetaPluginType;
-import org.apache.hop.core.search.ISearchableAnalyser;
-import org.apache.hop.core.search.SearchableAnalyserPluginType;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.vfs.plugin.IVfs;
-import org.apache.hop.core.vfs.plugin.VfsPluginType;
-import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.metadata.plugin.MetadataPluginType;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
-import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.workflow.action.IAction;
-import org.apache.hop.workflow.engine.IWorkflowEngine;
-import org.apache.hop.workflow.engine.WorkflowEnginePluginType;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,6 +38,16 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.JarFileCache;
+import org.apache.hop.core.variables.IVariables;
+import org.jboss.jandex.IndexWriter;
+import org.jboss.jandex.Indexer;
 
 public class FatJarBuilder {
 
@@ -95,56 +74,67 @@ public class FatJarBuilder {
 
   public void buildTargetJar() throws HopException {
 
-    List<String> systemXmlFiles = Arrays.asList( Const.XML_FILE_HOP_TRANSFORMS, Const.XML_FILE_HOP_EXTENSION_POINTS,
-      Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_DATABASE_TYPES, Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS,
-      Const.XML_FILE_HOP_VALUEMETA_PLUGINS, Const.XML_FILE_HOP_PIPELINE_ENGINES, Const.XML_FILE_HOP_TRANSFORMS,
-      Const.XML_FILE_HOP_WORKFLOW_ENGINES, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, Const.XML_FILE_HOP_EXTENSION_POINTS,
-      Const.XML_FILE_HOP_VFS_PLUGINS, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS, Const.XML_FILE_HOP_METADATA_PLUGINS );
     fileContentMap = new HashMap<>();
 
     // The real target file to write to...
     //
     String realTargetJarFile = variables.environmentSubstitute(targetJarFile);
 
+    JarFileCache cache = JarFileCache.getInstance();
+    Indexer indexer = new Indexer();
+    
     try {
       byte[] buffer = new byte[ 1024 ];
       ZipOutputStream zipOutputStream = new ZipOutputStream( new FileOutputStream( realTargetJarFile ) );
 
-      boolean fileSystemWritten = false;
       for ( String jarFile : jarFiles ) {
-
-        ZipInputStream zipInputStream = new ZipInputStream( new FileInputStream( jarFile ) );
+	
+	// Index only already indexed jar
+	boolean jarIndexed = false;	
+ 	if ( cache.getIndex(new File(jarFile))!=null ) { 	   
+ 	    jarIndexed = true;
+ 	}
+	
+        ZipInputStream zipInputStream = new ZipInputStream( new FileInputStream( jarFile ) );        
         ZipEntry zipEntry = zipInputStream.getNextEntry();
         while ( zipEntry != null ) {
 
           boolean skip = false;
           boolean merge = false;
+          boolean index = false;
 
           String entryName = zipEntry.getName();
 
+          if ( zipEntry.isDirectory() ) {
+              skip = true;
+          }
           if ( entryName.contains( "META-INF/INDEX.LIST" ) ) {
             skip = true;
           }
-          if ( entryName.contains( "META-INF/MANIFEST.MF" ) ) {
+          else if ( entryName.contains( "META-INF/MANIFEST.MF" ) ) {
             skip = true;
           }
-          if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".SF" ) ) {
+          else if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".SF" ) ) {
             skip = true;
           }
-          if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".DSA" ) ) {
+          else if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".DSA" ) ) {
             skip = true;
           }
-          if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".RSA" ) ) {
+          else if ( entryName.startsWith( "META-INF" ) && entryName.endsWith( ".RSA" ) ) {
             skip = true;
           }
-          if ( systemXmlFiles.contains( entryName ) ) {
-            skip = true;
-          }
-          if ( entryName.startsWith( "META-INF/services/" ) ) {
+          else if ( entryName.startsWith( "META-INF/services/" ) ) {
             merge = true;
             skip = true;
+          }          
+          // Skip because we rebuild a new one from cache
+          else if ( entryName.endsWith( "META-INF/jandex.idx" ) ) {
+            skip = true;
+          }        
+          else if (jarIndexed && entryName.endsWith(".class")) {
+            index = true;
           }
-
+          
           if ( !skip ) {
             try {
               zipOutputStream.putNextEntry( new ZipEntry( zipEntry.getName() ) );
@@ -163,12 +153,19 @@ public class FatJarBuilder {
             } else {
               fileContentMap.put( entryName, previousContent + Const.CR + fileContent );
             }
-          } else {
+          } 
+          else if ( !skip ) {
             int len;
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
             while ( ( len = zipInputStream.read( buffer ) ) > 0 ) {
-              if ( !skip ) {
-                zipOutputStream.write( buffer, 0, len );
+              zipOutputStream.write( buffer, 0, len );
+              if (index) {
+        	  baos.write(buffer, 0, len);
               }
+            }
+
+            if (index) {
+                indexer.index(new ByteArrayInputStream(baos.toByteArray()));
             }
           }
 
@@ -181,6 +178,7 @@ public class FatJarBuilder {
           zipEntry = zipInputStream.getNextEntry();
 
         }
+                
         zipInputStream.close();
       }
 
@@ -194,32 +192,14 @@ public class FatJarBuilder {
         zipOutputStream.closeEntry();
       }
 
-      // The system XML files
-      // Core plugins
-      DatabasePluginType dbPluginType = DatabasePluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_DATABASE_TYPES, dbPluginType.getMainTag(), dbPluginType.getSubTag(), DatabasePluginType.class, IDatabase.class, null );
-      TwoWayPasswordEncoderPluginType pwPluginType = TwoWayPasswordEncoderPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS, pwPluginType.getMainTag(), pwPluginType.getSubTag(), TwoWayPasswordEncoderPluginType.class, ITwoWayPasswordEncoder.class, null );
-      ValueMetaPluginType valuePluginType = ValueMetaPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_VALUEMETA_PLUGINS, valuePluginType.getMainTag(), valuePluginType.getSubTag(), ValueMetaPluginType.class, IValueMeta.class, null );
-      // engine plugins
-      PipelineEnginePluginType pePluginType = PipelineEnginePluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_PIPELINE_ENGINES, pePluginType.getMainTag(), pePluginType.getSubTag(), PipelineEnginePluginType.class, IPipelineEngine.class, null );
-      TransformPluginType transformPluginType = TransformPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_TRANSFORMS, transformPluginType.getMainTag(), transformPluginType.getSubTag(), TransformPluginType.class, ITransformMeta.class, extraTransformPluginClasses );
-      WorkflowEnginePluginType wePluginType = WorkflowEnginePluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_WORKFLOW_ENGINES, wePluginType.getMainTag(), wePluginType.getSubTag(), WorkflowEnginePluginType.class, IWorkflowEngine.class, null );
-      ActionPluginType actionPluginType = ActionPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_WORKFLOW_ACTIONS, actionPluginType.getMainTag(), actionPluginType.getSubTag(), ActionPluginType.class, IAction.class, null );
-      ExtensionPointPluginType xpPluginType = ExtensionPointPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_EXTENSION_POINTS, xpPluginType.getMainTag(), xpPluginType.getSubTag(), ExtensionPointPluginType.class, IExtensionPoint.class, extraXpPluginClasses );
-      SearchableAnalyserPluginType saPluginType = SearchableAnalyserPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS, saPluginType.getMainTag(), saPluginType.getSubTag(), SearchableAnalyserPluginType.class, ISearchableAnalyser.class, null );
-      MetadataPluginType mdPluginType = MetadataPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_METADATA_PLUGINS, mdPluginType.getMainTag(), mdPluginType.getSubTag(), MetadataPluginType.class, IHopMetadata.class, null );
-      VfsPluginType vfsPluginType = VfsPluginType.getInstance();
-      addPluginsXmlFile( zipOutputStream, Const.XML_FILE_HOP_VFS_PLUGINS, vfsPluginType.getMainTag(), vfsPluginType.getSubTag(), VfsPluginType.class, IVfs.class, null );
-
+      // Add META-INF/jandex.idx file
+      //
+      zipOutputStream.putNextEntry( new ZipEntry( JarFileCache.ANNOTATION_INDEX_LOCATION ) );
+      IndexWriter indexWriter = new IndexWriter(zipOutputStream); 
+      indexWriter.write(indexer.complete());      
+      zipOutputStream.closeEntry();
+  
+      // Close FatJar
       zipOutputStream.close();
     } catch ( Exception e ) {
       throw new HopException( "Unable to build far jar file '" + realTargetJarFile + "'", e );
@@ -227,61 +207,6 @@ public class FatJarBuilder {
       fileContentMap.clear();
     }
 
-  }
-
-  private void addPluginsXmlFile( ZipOutputStream zipOutputStream, String filename, String mainTag, String pluginTag, Class<? extends IPluginType> pluginTypeClass, Class<?> mainPluginClass,
-                                  String extraClasses ) throws Exception {
-
-    // Write all the internal transforms plus the selected classes...
-    //
-    StringBuilder xml = new StringBuilder();
-    xml.append( XmlHandler.openTag( mainTag ) );
-    PluginRegistry registry = PluginRegistry.getInstance();
-    List<IPlugin> plugins = registry.getPlugins( pluginTypeClass );
-    for ( IPlugin plugin : plugins ) {
-      addPluginToXml( xml, pluginTag, plugin, mainPluginClass );
-    }
-    if ( StringUtils.isNotEmpty( extraClasses ) ) {
-      for ( String extraPluginClass : extraClasses.split( "," ) ) {
-        IPlugin plugin = findPluginWithMainClass( extraPluginClass, pluginTypeClass, mainPluginClass );
-        if ( plugin != null ) {
-          addPluginToXml( xml, pluginTag, plugin, mainPluginClass );
-        }
-      }
-    }
-
-    xml.append( XmlHandler.closeTag( mainTag ) );
-
-    zipOutputStream.putNextEntry( new ZipEntry( filename ) );
-    zipOutputStream.write( xml.toString().getBytes( "UTF-8" ) );
-    zipOutputStream.closeEntry();
-  }
-
-  private IPlugin findPluginWithMainClass( String extraPluginClass, Class<? extends IPluginType> pluginTypeClass, Class<?> mainClass ) {
-    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( pluginTypeClass );
-    for ( IPlugin plugin : plugins ) {
-      String check = plugin.getClassMap().get( mainClass );
-      if ( check != null && check.equals( extraPluginClass ) ) {
-        return plugin;
-      }
-    }
-    return null;
-
-  }
-
-  private void addPluginToXml( StringBuilder xml, String pluginTag, IPlugin plugin, Class<?> mainClass ) {
-    xml.append( "<" ).append( pluginTag ).append( " id=\"" );
-    xml.append( plugin.getIds()[ 0 ] );
-    xml.append( "\">" );
-    xml.append( XmlHandler.addTagValue( "description", plugin.getName() ) );
-    xml.append( XmlHandler.addTagValue( "tooltip", plugin.getDescription() ) );
-    xml.append( XmlHandler.addTagValue( "classname", plugin.getClassMap().get( mainClass ) ) );
-    xml.append( XmlHandler.addTagValue( "category", plugin.getCategory() ) );
-    xml.append( XmlHandler.addTagValue( "iconfile", plugin.getImageFile() ) );
-    xml.append( XmlHandler.addTagValue( "documentation_url", plugin.getDocumentationUrl() ) );
-    xml.append( XmlHandler.addTagValue( "cases_url", plugin.getCasesUrl() ) );
-    xml.append( XmlHandler.addTagValue( "forum_url", plugin.getForumUrl() ) );
-    xml.append( XmlHandler.closeTag( pluginTag ) );
   }
 
   public static String findPluginClasses( String pluginClassName, String pluginsToInclude ) throws HopException {

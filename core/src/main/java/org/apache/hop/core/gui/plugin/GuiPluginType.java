@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.gui.plugin;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -49,30 +47,6 @@ public class GuiPluginType extends BasePluginType<GuiPlugin> implements IPluginT
       pluginType = new GuiPluginType();
     }
     return pluginType;
-  }
-
-  protected void registerNatives() throws HopPluginException {
-    super.registerNatives();
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_GUI_PLUGINS;
-  }
-
-  @Override
-  protected String getMainTag() {
-    return "gui-plugins";
-  }
-
-  @Override
-  protected String getSubTag() {
-    return "gui-plugin";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   public String[] getNaturalCategoriesOrder() {

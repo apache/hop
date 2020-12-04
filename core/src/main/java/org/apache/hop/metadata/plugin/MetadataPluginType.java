@@ -23,7 +23,6 @@
 package org.apache.hop.metadata.plugin;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -51,34 +50,6 @@ public class MetadataPluginType extends BasePluginType<HopMetadata> implements I
       pluginType = new MetadataPluginType();
     }
     return pluginType;
-  }
-
-  @Override protected void registerNatives() throws HopPluginException {
-    super.registerNatives();
-  }
-
-  protected void registerPluginJars() throws HopPluginException {
-    super.registerPluginJars();
-  }
-
-  @Override
-  public String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_METADATA_PLUGINS;
-  }
-
-  @Override
-  public String getMainTag() {
-    return "metadata-plugins";
-  }
-
-  @Override
-  public String getSubTag() {
-    return "metadata-plugin";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   public String[] getNaturalCategoriesOrder() {

@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.compress;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -49,27 +48,7 @@ public class CompressionPluginType extends BasePluginType<CompressionPlugin> imp
     }
     return pluginType;
   }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_COMPRESSION_PROVIDERS;
-  }
-
-  @Override
-  protected String getMainTag() {
-    return "compression-providers";
-  }
-
-  @Override
-  protected String getSubTag() {
-    return "compression-provider";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
-  }
-
+  
   public String[] getNaturalCategoriesOrder() {
     return new String[ 0 ];
   }

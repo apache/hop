@@ -37,6 +37,7 @@ import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.IRedrawable;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SnapAllignDistribute;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.IGuiRefresher;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
@@ -154,6 +155,8 @@ import java.util.UUID;
  *
  * @author Matt Created on 17-may-2003
  */
+
+@GuiPlugin(description = "Workflow Graph tab")
 public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   implements IRedrawable, MouseListener, MouseMoveListener, MouseTrackListener, MouseWheelListener,
   IHasLogChannel, ILogParentProvided,

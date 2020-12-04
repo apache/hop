@@ -25,6 +25,7 @@ package org.apache.hop.core.database;
 import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.row.IValueMeta;
 
+@DatabaseMetaPlugin(type = "NONE", typeDescription = "No connection type")
 public class NoneDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   @Override public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoInc, boolean addFieldname, boolean addCr ) {
     return null;

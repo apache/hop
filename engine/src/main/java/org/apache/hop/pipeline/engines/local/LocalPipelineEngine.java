@@ -34,9 +34,15 @@ import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
+import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 
 import java.util.ArrayList;
 
+@PipelineEnginePlugin(
+  id = "Local",
+  name = "Hop local pipeline engine",
+  description = "Executes your pipeline locally in a multi-threaded fashion"
+)
 public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<PipelineMeta> {
 
   private PipelineEngineCapabilities engineCapabilities = new LocalPipelineEngineCapabilities();

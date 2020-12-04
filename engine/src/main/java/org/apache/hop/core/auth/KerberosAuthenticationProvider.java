@@ -24,6 +24,11 @@ package org.apache.hop.core.auth;
 
 import org.apache.hop.core.auth.core.IAuthenticationProvider;
 
+@AuthenticationProviderPlugin (
+  id = "Kerberos", 
+  name = "Kerberos",
+  description = "Kerberos"
+)
 public class KerberosAuthenticationProvider implements IAuthenticationProvider {
   public static class KerberosAuthenticationProviderType implements IAuthenticationProviderType {
 

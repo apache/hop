@@ -36,7 +36,7 @@ import org.apache.hop.pipeline.engines.EmptyPipelineRunConfiguration;
 import java.util.ArrayList;
 import java.util.List;
 
-@GuiPlugin
+@GuiPlugin(description = "Local pipeline run configuration widgets")
 public class LocalPipelineRunConfiguration extends EmptyPipelineRunConfiguration implements IPipelineEngineRunConfiguration {
 
   @GuiWidgetElement(

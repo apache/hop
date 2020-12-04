@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.hopgui.perspective;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
 import org.apache.hop.core.plugins.PluginFolder;
@@ -46,21 +45,6 @@ public class HopPerspectivePluginType extends BasePluginType<HopPerspectivePlugi
       pluginType = new HopPerspectivePluginType();
     }
     return pluginType;
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_PERSPECTIVE_PLUGINS;
-  }
-
-  @Override
-  protected String getMainTag() {
-    return "hop-perspective-plugins";
-  }
-
-  @Override
-  protected String getSubTag() {
-    return "hop-perspective-plugin";
   }
 
   @Override

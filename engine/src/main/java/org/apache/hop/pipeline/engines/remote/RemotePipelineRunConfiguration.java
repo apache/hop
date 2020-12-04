@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-@GuiPlugin
+@GuiPlugin(description = "Remote pipeline run configuration widgets")
 public class RemotePipelineRunConfiguration extends EmptyPipelineRunConfiguration implements IPipelineEngineRunConfiguration {
 
   @GuiWidgetElement(

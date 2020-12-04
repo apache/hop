@@ -40,6 +40,11 @@ import java.util.List;
  * @author Matt
  * @since 17-12-2003
  */
+@TwoWayPasswordEncoderPlugin(
+  id = "Hop",
+  name = "Hop Password Encoder",
+  description = "Hop Password Encoder"
+)
 public class HopTwoWayPasswordEncoder implements ITwoWayPasswordEncoder {
   private static final HopTwoWayPasswordEncoder instance = new HopTwoWayPasswordEncoder();
   private static final int RADIX = 16;

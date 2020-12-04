@@ -26,6 +26,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@CompressionPlugin(
+  id = "None",
+  name = "None",
+  description = "None"
+)
 public class NoneCompressionProvider implements ICompressionProvider {
 
   @Override

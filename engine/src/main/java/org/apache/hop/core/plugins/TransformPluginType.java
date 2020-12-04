@@ -52,26 +52,6 @@ public class TransformPluginType extends BasePluginType<Transform> implements IP
   }
 
   @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_TRANSFORMS;
-  }
-
-  @Override
-  protected String getAlternativePluginFile() {
-    return Const.HOP_CORE_TRANSFORMS_FILE;
-  }
-
-  @Override
-  public String getMainTag() {
-    return "transforms";
-  }
-
-  @Override
-  public String getSubTag() {
-    return "transform";
-  }
-
-  @Override
   protected String extractCategory( Transform annotation ) {
     return annotation.categoryDescription();
   }

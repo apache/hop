@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.tableinput;
 import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopDatabaseException;
@@ -63,6 +64,15 @@ import java.util.List;
  * Created on 2-jun-2003
  *
  */
+@Transform(
+  id = "TableInput",
+  image = "ui/images/TIP.svg",
+  i18nPackageName = "org.apache.hop.pipeline.transform",
+  name = "BaseTransform.TypeLongDesc.TableInput",
+  description = "BaseTransform.TypeTooltipDesc.TableInput",
+  categoryDescription = "BaseTransform.Category.Input",
+  keywords = "input, sql"
+)
 @InjectionSupported( localizationPrefix = "TableInputMeta.Injection." )
 public class TableInputMeta
   extends BaseTransformMeta

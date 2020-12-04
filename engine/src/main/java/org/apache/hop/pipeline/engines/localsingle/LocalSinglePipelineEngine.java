@@ -33,7 +33,13 @@ import org.apache.hop.pipeline.SingleThreadedPipelineExecutor;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
+import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 
+//@PipelineEnginePlugin(
+//  id = "LocalSingle",
+//  name = "Hop local single threaded pipeline engine",
+//  description = "Executes your pipeline locally in a single-threaded fashion"
+//)
 public class LocalSinglePipelineEngine extends Pipeline implements IPipelineEngine<PipelineMeta> {
 
   public LocalSinglePipelineEngine() {

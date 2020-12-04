@@ -24,6 +24,7 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
@@ -46,6 +47,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.UUID;
 
+@HopServerServlet(id="addWorkflow", name = "Add a workflow to the server")
 public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final long serialVersionUID = -6850701762586992604L;
 
