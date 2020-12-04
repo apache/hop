@@ -25,21 +25,35 @@ package org.apache.hop.ui.hopgui.file.workflow.delegates;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.NotePadMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.config.PipelineRunConfiguration;
+import org.apache.hop.ui.core.ConstUi;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.ui.hopgui.HopGuiExtensionPoint;
+import org.apache.hop.ui.hopgui.delegates.HopGuiFileOpenedExtension;
+import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
+import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
 import org.apache.hop.workflow.WorkflowHopMeta;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.ui.core.dialog.ErrorDialog;
-import org.apache.hop.ui.hopgui.HopGui;
+import org.apache.hop.workflow.actions.pipeline.ActionPipeline;
+import org.apache.hop.workflow.actions.workflow.ActionWorkflow;
+import org.apache.hop.workflow.config.WorkflowRunConfiguration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -80,10 +94,10 @@ public class HopGuiWorkflowClipboardDelegate {
     }
   }
 
-  public void pasteXml(WorkflowMeta workflowMeta, String clipcontent, Point loc ) {
+  public void pasteXml(WorkflowMeta workflowMeta, String clipboardContent, Point locaction ) {
 
     try {
-      Document doc = XmlHandler.loadXmlString( clipcontent );
+      Document doc = XmlHandler.loadXmlString( clipboardContent );
       Node workflowNode = XmlHandler.getSubNode( doc, XML_TAG_WORKFLOW_ACTIONS );
       // De-select all, re-select pasted transforms...
       workflowMeta.unselectAll();
@@ -93,7 +107,7 @@ public class HopGuiWorkflowClipboardDelegate {
       ActionMeta[] actions = new ActionMeta[ nr ];
       ArrayList<String> actionsOldNames = new ArrayList<>( nr );
 
-      // Point min = new Point(loc.x, loc.y);
+      // Point min = new Point(locaction.x, locaction.y);
       Point min = new Point( 99999999, 99999999 );
 
       // Load the entries...
@@ -101,7 +115,7 @@ public class HopGuiWorkflowClipboardDelegate {
         Node actionNode = XmlHandler.getSubNodeByNr( actionsNode, ActionMeta.XML_TAG, i );
         actions[ i ] = new ActionMeta( actionNode, hopGui.getMetadataProvider() );
 
-        if ( loc != null ) {
+        if ( locaction != null ) {
           Point p = actions[ i ].getLocation();
 
           if ( min.x > p.x ) {
@@ -124,7 +138,7 @@ public class HopGuiWorkflowClipboardDelegate {
       }
 
       // This is the offset:
-      Point offset = new Point( loc.x - min.x, loc.y - min.y );
+      Point offset = new Point( locaction.x - min.x, locaction.y - min.y );
 
       // Undo/redo object positions...
       int[] position = new int[ actions.length ];
@@ -182,14 +196,153 @@ public class HopGuiWorkflowClipboardDelegate {
       hopGui.undoDelegate.addUndoNew( workflowMeta, notes, notePos, true );
 
     } catch ( HopException e ) {
+      // See if this was different (non-XML) content
+      //
+      pasteNoXmlContent(workflowMeta, clipboardContent, locaction);
+    }
+
+    workflowGraph.redraw();
+  }
+
+  private void pasteNoXmlContent( WorkflowMeta workflowMeta, String clipboardContent, Point location ) {
+    try {
+      // Are we pasting filenames?
+      //
+      if (clipboardContent.startsWith( "file:///" )) {
+        String[] filenames = clipboardContent.split( Const.CR );
+
+        for (String filename : filenames) {
+
+          String cleanFilename = HopVfs.getFilename(HopVfs.getFileObject(filename));
+
+          // See if the filename needs to be treated somehow...
+          // We don't have a file dialog so we pass in null.
+          //
+          HopGuiFileOpenedExtension ext =
+              new HopGuiFileOpenedExtension(null, hopGui.getVariables(), cleanFilename);
+          ExtensionPointHandler.callExtensionPoint(
+              LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, ext);
+          if (ext.filename != null) {
+            cleanFilename = ext.filename;
+          }
+          File file = new File(cleanFilename);
+
+          // Pipeline?
+          //
+          HopPipelineFileType pipelineFileType = new HopPipelineFileType();
+          if (filename.endsWith(pipelineFileType.getDefaultFileExtension())) {
+
+            // Add a new Pipeline action...
+            //
+            String name = getUniqueName(workflowMeta, file.getName());
+
+            ActionPipeline actionPipeline = new ActionPipeline(name);
+            actionPipeline.setFileName(cleanFilename);
+
+            // Pick the first run configuration available...
+            //
+            List<String> names = hopGui.getMetadataProvider().getSerializer( PipelineRunConfiguration.class ).listObjectNames();
+            if (!names.isEmpty()) {
+              actionPipeline.setRunConfiguration( names.get(0) );
+            }
+
+            ActionMeta actionMeta = new ActionMeta(actionPipeline);
+            actionMeta.setLocation(new Point(location));
+            workflowMeta.addAction(actionMeta);
+
+            hopGui.undoDelegate.addUndoNew(
+              workflowMeta,
+              new ActionMeta[] {actionMeta},
+              new int[] {workflowMeta.indexOfAction(actionMeta)}
+              );
+
+            // Shift the location for the next action
+            //
+            shiftLocation( location );
+          }
+
+          // Workflow?
+          //
+          HopWorkflowFileType workflowFileType = new HopWorkflowFileType<>();
+          if (filename.endsWith(workflowFileType.getDefaultFileExtension())) {
+
+            // Add a new Workflow action...
+            //
+            String name = getUniqueName(workflowMeta, file.getName());
+
+            ActionWorkflow actionWorkflow = new ActionWorkflow(name);
+            actionWorkflow.setFileName(cleanFilename);
+
+            // Pick the first run configuration available...
+            //
+            List<String> names = hopGui.getMetadataProvider().getSerializer( WorkflowRunConfiguration.class ).listObjectNames();
+            if (!names.isEmpty()) {
+              actionWorkflow.setRunConfiguration( names.get(0) );
+            }
+
+            ActionMeta actionMeta = new ActionMeta(actionWorkflow);
+            actionMeta.setLocation(new Point(location) );
+
+            workflowMeta.addAction(actionMeta);
+
+            hopGui.undoDelegate.addUndoNew(
+              workflowMeta,
+              new ActionMeta[] {actionMeta},
+              new int[] {workflowMeta.indexOfAction(actionMeta)}
+            );
+
+            // Shift the location for the next action
+            //
+            shiftLocation( location );
+          }
+        }
+      } else {
+        // Add a notepad
+        //
+        NotePadMeta notePadMeta = new NotePadMeta(clipboardContent, location.x, location.y, ConstUi.NOTE_MIN_SIZE, ConstUi.NOTE_MIN_SIZE);
+        workflowMeta.addNote( notePadMeta );
+        hopGui.undoDelegate.addUndoNew(
+          workflowMeta,
+          new NotePadMeta[] {notePadMeta},
+          new int[] {workflowMeta.indexOfNote(notePadMeta)}
+        );
+        shiftLocation( location );
+      }
+
+    } catch(Exception e) {
       // "Error pasting transforms...",
       // "I was unable to paste transforms to this pipeline"
       new ErrorDialog( hopGui.getShell(),
         BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Title" ),
         BaseMessages.getString( PKG, "HopGui.Dialog.UnablePasteEntries.Message" ), e );
     }
-    workflowGraph.redraw();
   }
+
+  private void shiftLocation( Point location ) {
+    location.x = location.x+(int)(10* PropsUi.getInstance().getZoomFactor());
+    location.y = location.y+(int)( 5* PropsUi.getInstance().getZoomFactor());
+  }
+
+  private String getUniqueName( WorkflowMeta meta, String name ) {
+    String uniqueName = name;
+    int nr = 2;
+    while (meta.findAction( uniqueName )!=null) {
+      uniqueName = name + " "+nr;
+      nr++;
+    }
+    return uniqueName;
+  }
+
+  private String getUniqueName( PipelineMeta meta, String name ) {
+    String uniqueName = name;
+    int nr = 2;
+    while (meta.findTransform( uniqueName )!=null) {
+      uniqueName = name + " "+nr;
+      nr++;
+    }
+    return uniqueName;
+  }
+
 
   public void copySelected( WorkflowMeta workflowMeta, List<ActionMeta> actions, List<NotePadMeta> notes ) {
     if ( actions == null || actions.size() == 0 ) {

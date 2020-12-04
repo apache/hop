@@ -65,7 +65,7 @@ public class GenerateFatJarConfigPlugin implements IConfigOptions {
     List<String> installedJarFilenames = HopBeamGuiPlugin.findInstalledJarFilenames();
     log.logBasic( "Found " + installedJarFilenames.size()+" jar files to combine into one fat jar file.");
 
-    FatJarBuilder fatJarBuilder = new FatJarBuilder( realFatJarFilename, installedJarFilenames );
+    FatJarBuilder fatJarBuilder = new FatJarBuilder( variables, realFatJarFilename, installedJarFilenames );
     fatJarBuilder.setExtraTransformPluginClasses( null );
     fatJarBuilder.setExtraXpPluginClasses( null );
     fatJarBuilder.buildTargetJar();

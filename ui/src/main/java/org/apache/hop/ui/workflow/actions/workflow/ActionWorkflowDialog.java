@@ -118,10 +118,6 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
     BaseTransformDialog.setSize( shell );
 
-    int width = 750;
-    int height = Const.isWindows() ? 730 : 718;
-
-    shell.setSize( width, height );
     shell.open();
     while ( !shell.isDisposed() ) {
       if ( !display.readAndDispatch() ) {
@@ -246,8 +242,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
   }
 
   public void dispose() {
-    WindowProperty windowProperty = new WindowProperty( shell );
-    props.setScreen( windowProperty );
+    props.setScreen( new WindowProperty( shell ) );
     shell.dispose();
   }
 

@@ -432,7 +432,7 @@ public class ProjectsGuiPlugin {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();
       String projectName = getProjectsCombo().getText(); // The default is the active project
 
-      LifecycleEnvironment environment = new LifecycleEnvironment( projectName, "", projectName, new ArrayList<>() );
+      LifecycleEnvironment environment = new LifecycleEnvironment( null, "", projectName, new ArrayList<>() );
       LifecycleEnvironmentDialog dialog = new LifecycleEnvironmentDialog( hopGui.getShell(), environment, hopGui.getVariables() );
       String environmentName = dialog.open();
       if ( environmentName != null ) {
