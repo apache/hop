@@ -75,13 +75,13 @@ import java.util.UUID;
  * @since 01-10-2003, Rewritten on 18-06-2004
  */
 @Action(
-        id = "PIPELINE",
-        image = "PPL.svg",
-        i18nPackageName = "i18n:org.apache.hop.workflow.action",
-        name = "Action.Workflow.TypeDesc",
-        description = "Action.Workflow.Tooltip",
-        categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
-        documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/workflow.html"
+  id = "WORKFLOW",
+  image = "workflow3.svg",
+  i18nPackageName = "org.apache.hop.workflow.actions.workflow",
+  name = "ActionWorkflow.Name",
+  description = "ActionWorkflow.Description",
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/workflow.html"
 )
 public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   private static final Class<?> PKG = ActionWorkflow.class; // Needed by Translator

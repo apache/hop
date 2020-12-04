@@ -24,6 +24,7 @@ package org.apache.hop.www;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
@@ -39,7 +40,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-
+@HopServerServlet(id="removePipeline", name = "Remove a pipeline")
 public class RemovePipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = RemovePipelineServlet.class; // Needed by Translator
 

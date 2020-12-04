@@ -63,6 +63,7 @@ import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineComponentRowsReceived;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
+import org.apache.hop.pipeline.engine.PipelineEnginePlugin;
 import org.apache.hop.pipeline.transform.TransformStatus;
 import org.apache.hop.resource.ResourceUtil;
 import org.apache.hop.resource.TopLevelResource;
@@ -87,6 +88,11 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@PipelineEnginePlugin(
+  id = "Remote",
+  name = "Hop remote pipeline engine",
+  description = "Executes your pipeline on a remote Hop server"
+)
 public class RemotePipelineEngine extends Variables implements IPipelineEngine<PipelineMeta> {
 
   /**

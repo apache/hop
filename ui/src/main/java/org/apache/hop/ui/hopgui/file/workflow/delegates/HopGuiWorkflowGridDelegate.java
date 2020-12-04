@@ -26,6 +26,7 @@ package org.apache.hop.ui.hopgui.file.workflow.delegates;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.gui.WorkflowTracker;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.GuiResource;
@@ -35,8 +36,6 @@ import org.apache.hop.ui.core.widget.TreeMemory;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Display;
@@ -49,6 +48,7 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+@GuiPlugin(description = "Workflow Graph Grid Delegate")
 public class HopGuiWorkflowGridDelegate {
 
   private static final Class<?> PKG = HopGuiWorkflowGraph.class; // Needed by Translator

@@ -22,12 +22,18 @@
 
 package org.apache.hop.core.compress.snappy;
 
+import org.apache.hop.core.compress.CompressionPlugin;
 import org.apache.hop.core.compress.ICompressionProvider;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+@CompressionPlugin(
+  id = "SNAPPY",
+  name = "Snappy",
+  description = "Snappy compression"
+)
 public class SnappyCompressionProvider implements ICompressionProvider {
 
   @Override

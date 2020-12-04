@@ -25,6 +25,7 @@ package org.apache.hop.www;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObjectType;
@@ -45,7 +46,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.UUID;
 
-
+@HopServerServlet(id="startPipeline", name = "Prepare and start the execution of a pipeline")
 public class StartPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final Class<?> PKG = StartPipelineServlet.class;

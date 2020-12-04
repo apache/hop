@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.annotations.PartitionerPlugin;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.pipeline.IPartitioner;
@@ -41,7 +40,7 @@ public class PartitionerPluginType extends BasePluginType<PartitionerPlugin> imp
   private static PartitionerPluginType pluginType;
 
   private PartitionerPluginType() {
-    super( PartitionerPlugin.class, "PARTITIONER", "IPartitioner" );
+    super( PartitionerPlugin.class, "PARTITIONER", "Partitioner" );
     populateFolders( "transforms" );
   }
 
@@ -50,29 +49,6 @@ public class PartitionerPluginType extends BasePluginType<PartitionerPlugin> imp
       pluginType = new PartitionerPluginType();
     }
     return pluginType;
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_PARTITION_PLUGINS;
-  }
-
-  @Override
-  protected String getMainTag() {
-    return "plugins";
-  }
-
-  @Override
-  protected String getSubTag() {
-    return "plugin-partitioner";
-  }
-
-  /**
-   * Scan & register internal transform plugins
-   */
-  protected void registerAnnotations() throws HopPluginException {
-    // This is no longer done because it was deemed too slow. Only jar files in the plugins/ folders are scanned for
-    // annotations.
   }
 
   @Override

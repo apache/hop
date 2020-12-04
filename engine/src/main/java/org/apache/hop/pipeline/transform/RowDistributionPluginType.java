@@ -22,7 +22,6 @@
 
 package org.apache.hop.pipeline.transform;
 
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -50,13 +49,6 @@ public class RowDistributionPluginType extends BasePluginType<RowDistributionPlu
       instance = new RowDistributionPluginType();
     }
     return instance;
-  }
-
-  /**
-   * Scan & register internal row distribution plugins
-   */
-  protected void registerNatives() throws HopPluginException {
-    // None at this moment
   }
 
   @Override

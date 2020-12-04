@@ -22,6 +22,7 @@
 
 package org.apache.hop.www;
 
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.SvgGc;
 import org.apache.hop.core.svg.HopSvgGraphics2D;
@@ -39,6 +40,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+@HopServerServlet(id="pipelineImage", name = "Generate a PNG image of a pipeline")
 public class GetPipelineImageServlet extends BaseHttpServlet implements IHopServerPlugin {
 
   private static final long serialVersionUID = -4365372274638005929L;

@@ -26,6 +26,7 @@ package org.apache.hop.workflow.actions.special;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -46,7 +47,14 @@ import java.util.List;
  * @author Matt
  * @since 05-11-2003
  */
-
+@Action(
+  id = "SPECIAL",
+  i18nPackageName = "org.apache.hop.workflow.action",
+  name = "Action.Special.TypeDesc",
+  description = "Action.Special.Tooltip",
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/pipeline.html"
+)
 public class ActionSpecial extends ActionBase implements Cloneable, IAction {
   public static final int NOSCHEDULING = 0;
   public static final int INTERVAL = 1;

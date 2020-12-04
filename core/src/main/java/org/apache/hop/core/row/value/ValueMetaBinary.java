@@ -25,6 +25,12 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
+@ValueMetaPlugin(
+  id = "8",
+  name = "Binary",
+  description = "Binary",
+  image = "images/binary.svg"
+)
 public class ValueMetaBinary extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaBinary() {

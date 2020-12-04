@@ -23,7 +23,11 @@
 package org.apache.hop.core.auth;
 
 import org.apache.hop.core.auth.core.IAuthenticationProvider;
-
+@AuthenticationProviderPlugin (
+  id = "UsernameAndPassword", 
+  name = "UsernameAndPassword",
+  description = "Username And Password"
+)
 public class UsernamePasswordAuthenticationProvider implements IAuthenticationProvider {
   public static class UsernamePasswordAuthenticationProviderType implements IAuthenticationProviderType {
 

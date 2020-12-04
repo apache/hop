@@ -40,6 +40,12 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Date;
 
+@ValueMetaPlugin(
+  id = "10",
+  name = "Internet Address",
+  description = "Internet Address",
+  image = "images/inet.svg"
+)
 public class ValueMetaInternetAddress extends ValueMetaDate {
 
   @Override

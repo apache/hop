@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.auth;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -39,32 +38,12 @@ public class AuthenticationProviderPluginType extends BasePluginType<Authenticat
   protected static AuthenticationProviderPluginType pluginType = new AuthenticationProviderPluginType();
 
   private AuthenticationProviderPluginType() {
-    super( AuthenticationProviderPlugin.class, "AUTHENTICATION_PROVIDER", "IAuthenticationProvider" );
+    super( AuthenticationProviderPlugin.class, "AUTHENTICATION_PROVIDER", "Authentication Provider" );
     populateFolders( "authentication" );
   }
 
   public static AuthenticationProviderPluginType getInstance() {
     return pluginType;
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_AUTHENTICATION_PROVIDERS;
-  }
-
-  @Override
-  protected String getMainTag() {
-    return "authentication-providers";
-  }
-
-  @Override
-  protected String getSubTag() {
-    return "authentication-provider";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   public String[] getNaturalCategoriesOrder() {

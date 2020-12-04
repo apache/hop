@@ -24,7 +24,7 @@ package org.apache.hop.core.plugins;
 
 import java.net.URL;
 
-public class JarFileAnnotationPlugin {
+public class JarFilePlugin {
   private URL jarFile;
   private URL pluginFolder;
   private String className;
@@ -34,7 +34,7 @@ public class JarFileAnnotationPlugin {
    * @param jarFile
    * @param pluginFolder
    */
-  public JarFileAnnotationPlugin( String className, URL jarFile, URL pluginFolder ) {
+  public JarFilePlugin( String className, URL jarFile, URL pluginFolder ) {
     this.className = className;
     this.jarFile = jarFile;
     this.pluginFolder = pluginFolder;

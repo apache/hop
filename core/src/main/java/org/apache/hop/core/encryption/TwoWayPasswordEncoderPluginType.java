@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.encryption;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -52,24 +51,6 @@ public class TwoWayPasswordEncoderPluginType extends BasePluginType<TwoWayPasswo
       twoWayPasswordEncoderPluginType = new TwoWayPasswordEncoderPluginType();
     }
     return twoWayPasswordEncoderPluginType;
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_PASSWORD_ENCODER_PLUGINS;
-  }
-
-  @Override
-  protected String getAlternativePluginFile() {
-    return Const.HOP_PASSWORD_ENCODER_PLUGINS_FILE;
-  }
-
-  @Override public String getMainTag() {
-    return "password-encoder-plugins";
-  }
-
-  @Override public String getSubTag() {
-    return "password-encoder-plugin";
   }
 
   @Override

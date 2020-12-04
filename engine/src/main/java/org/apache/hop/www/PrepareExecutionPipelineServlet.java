@@ -23,6 +23,7 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.xml.XmlHandler;
@@ -41,7 +42,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URLEncoder;
 
-
+@HopServerServlet(id="prepareExec", name = "Prepare the execution of a pipeline")
 public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = PrepareExecutionPipelineServlet.class; // Needed by Translator
 

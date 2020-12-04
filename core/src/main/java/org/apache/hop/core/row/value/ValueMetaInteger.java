@@ -25,6 +25,12 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
+@ValueMetaPlugin(
+  id = "5",
+  name = "Integer",
+  description = "Integer",
+  image = "images/number.svg"
+)
 public class ValueMetaInteger extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaInteger() {

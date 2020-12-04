@@ -23,6 +23,7 @@
 package org.apache.hop.www;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.annotations.HopServerServlet;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
@@ -44,7 +45,7 @@ import java.io.PrintWriter;
 import java.net.URLEncoder;
 import java.util.List;
 
-
+@HopServerServlet(id="sniffTransform", name = "Sniff test a pipeline transform")
 public class SniffTransformServlet extends BaseHttpServlet implements IHopServerPlugin {
   private static final Class<?> PKG = GetPipelineStatusServlet.class; // Needed by Translator
 

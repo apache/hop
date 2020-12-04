@@ -71,7 +71,7 @@ import java.util.Map;
 	description = "The Hop Plugin Explorer Perspective",
 	image = "ui/images/Plugin.svg"
 )
-@GuiPlugin
+@GuiPlugin(description="Hop Plugin Explorer Perspective GUI")
 public class HopPluginExplorePerspective implements IHopPerspective {
 
 	public static final String ID_PERSPECTIVE_TOOLBAR_ITEM = "20030-perspective-plugins";

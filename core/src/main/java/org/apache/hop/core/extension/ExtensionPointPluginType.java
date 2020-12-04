@@ -22,7 +22,6 @@
 
 package org.apache.hop.core.extension;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -50,24 +49,6 @@ public class ExtensionPointPluginType extends BasePluginType<ExtensionPoint> imp
       pluginType = new ExtensionPointPluginType();
     }
     return pluginType;
-  }
-
-  @Override
-  protected String getXmlPluginFile() {
-    return Const.XML_FILE_HOP_EXTENSION_POINTS;
-  }
-
-  @Override public String getMainTag() {
-    return "extension-points";
-  }
-
-  @Override public String getSubTag() {
-    return "extension-point";
-  }
-
-  @Override
-  protected String getPath() {
-    return "./";
   }
 
   public String[] getNaturalCategoriesOrder() {

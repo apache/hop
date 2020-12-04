@@ -53,13 +53,6 @@ public class PipelineDialogPluginType extends BasePluginType<PipelineDialogPlugi
     return pluginType;
   }
 
-  /**
-   * Scan & register internal pipeline dialog plugins
-   */
-  protected void registerNatives() throws HopPluginException {
-    // No native plugins
-  }
-
   @Override
   protected String extractCategory( PipelineDialogPlugin annotation ) {
     return null;

@@ -22,8 +22,6 @@
 
 package org.apache.hop.core.plugins;
 
-import org.apache.hop.core.exception.HopPluginException;
-
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -76,9 +74,6 @@ public abstract class BaseFragmentType<T extends Annotation> extends BasePluginT
 
   @Override protected URLClassLoader createUrlClassLoader( URL jarFileUrl, ClassLoader classLoader ) {
     return new HopURLClassLoader( new URL[] { jarFileUrl }, classLoader );
-  }
-
-  @Override protected void registerNatives() throws HopPluginException {
   }
 
   @Override

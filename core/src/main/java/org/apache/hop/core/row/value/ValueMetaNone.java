@@ -25,6 +25,11 @@ package org.apache.hop.core.row.value;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 
+@ValueMetaPlugin(
+  id = "0",
+  name = "None",
+  description = "None"
+)
 public class ValueMetaNone extends ValueMetaBase implements IValueMeta {
 
   public ValueMetaNone() {

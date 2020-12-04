@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.ToolItem;
 
 import java.util.ArrayList;
 
-@GuiPlugin
+@GuiPlugin(description = "Workflow Graph Log Delegate")
 public class HopGuiWorkflowLogDelegate {
   private static final Class<?> PKG = HopGuiWorkflowGraph.class; // Needed by Translator
 

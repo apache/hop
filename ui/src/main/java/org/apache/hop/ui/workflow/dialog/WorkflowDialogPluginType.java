@@ -23,7 +23,6 @@
 
 package org.apache.hop.ui.workflow.dialog;
 
-import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.plugins.BasePluginType;
 import org.apache.hop.core.plugins.IPluginType;
 import org.apache.hop.core.plugins.PluginAnnotationType;
@@ -53,13 +52,6 @@ public class WorkflowDialogPluginType extends BasePluginType<WorkflowDialogPlugi
       pluginType = new WorkflowDialogPluginType();
     }
     return pluginType;
-  }
-
-  /**
-   * Scan & register internal transform plugins
-   */
-  protected void registerNatives() throws HopPluginException {
-    // No native plugins
   }
 
   @Override
