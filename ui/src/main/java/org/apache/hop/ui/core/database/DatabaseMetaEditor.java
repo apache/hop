@@ -68,16 +68,13 @@ import org.eclipse.swt.widgets.Text;
   description = "This is the editor for database connection metadata"
 )
 /**
- * The dialog for DatabaseMeta
+ * The metadata editor for DatabaseMeta
  * Don't move this class around as it's sync'ed with the DatabaseMeta package to find the dialog.
  *
  */
 public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
   private static final Class<?> PKG = DatabaseMetaEditor.class; // Needed by Translator
   
-//  private DatabaseMeta databaseMeta;
-//  private DatabaseMeta workingMeta;
-
   private CTabFolder wTabFolder;
 
   private Composite wGeneralComp;
@@ -112,16 +109,12 @@ public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
   private Map<Class<? extends IDatabase>, IDatabase> metaMap;
 
   /**
-   * @param parent           The parent shell
-   * @param metadataProvider metadataProvider
-   * @param databaseMeta     The object to edit
+   * @param hopGui The hop GUI
+   * @param manager The metadata
+   * @param databaseMeta The object to edit
    */  
   public DatabaseMetaEditor(HopGui hopGui, MetadataManager<DatabaseMeta> manager, DatabaseMeta databaseMeta ) {
-	super(hopGui, manager, databaseMeta);
-	  
-    //this.databaseMeta = databaseMeta;
-   // this.workingMeta = new DatabaseMeta( databaseMeta );
-  //  this.workingMeta.initializeVariablesFrom( this.databaseMeta );
+	  super(hopGui, manager, databaseMeta);
     props = PropsUi.getInstance();
     metaMap = populateMetaMap();
     metaMap.put( databaseMeta.getIDatabase().getClass(), databaseMeta.getIDatabase() );

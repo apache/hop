@@ -47,16 +47,16 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
   private static final Class<?> PKG = MetadataEditorDialog.class; // Needed by Translator
 
-  private HopGui hopGui;
-  private MetadataManager<T> manager;
-  private T metadata;
+  protected HopGui hopGui;
+  protected MetadataManager<T> manager;
+  protected T metadata;
 
-  private String title;
-  private String toolTip;
-  private Image titleImage;
-  private Image image;
-  private boolean isChanged = false;
-  private String originalName;
+  protected String title;
+  protected String toolTip;
+  protected Image titleImage;
+  protected Image image;
+  protected boolean isChanged = false;
+  protected String originalName;
 
   public MetadataEditor(HopGui hopGui, MetadataManager<T> manager, T metadata) {
     this.hopGui = hopGui;

@@ -85,8 +85,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   private Listener modifyListener =  e -> setChanged();
   
   /**
-   * @param parent           The parent shell
-   * @param metadataProvider metadataProvider
+   * @param hopGui
+   * @param manager
    * @param runConfiguration The object to edit
    */
   public PipelineRunConfigurationEditor(HopGui hopGui,  MetadataManager<PipelineRunConfiguration> manager, PipelineRunConfiguration runConfiguration ) {
