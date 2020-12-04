@@ -67,7 +67,7 @@ public class MetadataManager<T extends IHopMetadata> {
   }
 
   public void openMetaStoreExplorer() {
-    MetadataExplorerDialog dialog = new MetadataExplorerDialog( HopGui.getInstance().getShell(), metadataProvider );
+    MetadataExplorerDialog dialog = new MetadataExplorerDialog( HopGui.getInstance().getShell());
     dialog.open();
   }
 
