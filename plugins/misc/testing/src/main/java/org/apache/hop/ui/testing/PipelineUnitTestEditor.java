@@ -1,26 +1,24 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.testing;
+
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -34,40 +32,26 @@ import org.apache.hop.testing.PipelineUnitTestDatabaseReplacement;
 import org.apache.hop.testing.VariableValue;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.metadata.IMetadataDialog;
+import org.apache.hop.ui.core.metadata.MetadataEditor;
+import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import java.util.Collections;
-import java.util.List;
-
-public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
-  private static final Class<?> PKG = PipelineUnitTestDialog.class; // for i18n purposes, needed by Translator2!!
-
-  private final PipelineUnitTest pipelineUnitTest;
-
-  private Shell shell;
+public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
+  private static final Class<?> PKG = PipelineUnitTestEditor.class; // for i18n purposes, needed by Translator2!!
 
   private Text wName;
   private Text wDescription;
@@ -76,53 +60,40 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
   private TextVar wFilename;
   private TextVar wBasePath;
   private Button wAutoOpen;
-
   private TableView wDbReplacements;
   private TableView wVariableValues;
 
-
   private final PropsUi props;
-
-  private String testName;
 
   protected IHopMetadataProvider metadataProvider;
 
-  public PipelineUnitTestDialog( Shell parent, IHopMetadataProvider metadataProvider, PipelineUnitTest pipelineUnitTest ) {
-    super( parent, SWT.NONE );
-    this.metadataProvider = metadataProvider;
-    this.pipelineUnitTest = pipelineUnitTest;
+  public PipelineUnitTestEditor(HopGui hopGui, MetadataManager<PipelineUnitTest> manager, PipelineUnitTest metadata) {
+    super(hopGui, manager, metadata);
+	  
+    this.metadataProvider = manager.getMetadataProvider();
     props = PropsUi.getInstance();
-    testName = null;
-
   }
 
-  public String open() {
-    Shell parent = getParent();
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
-    props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImageTable() );
+  @Override
+  public void createControl(Composite parent) {
 
+    PipelineUnitTest pipelineUnitTest = this.getMetadata();
+      
+      
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
-
-    shell.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.Shell.Title" ) );
-    shell.setLayout( formLayout );
-
     // The name of the unit test...
     //
-    Label wlName = new Label( shell, SWT.RIGHT );
+    Label wlName = new Label( parent, SWT.RIGHT );
     props.setLook( wlName );
     wlName.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.Name.Label" ) );
     FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment( 0, 0 );
+    fdlName.top = new FormAttachment( 0, margin );
     fdlName.left = new FormAttachment( 0, 0 );
     fdlName.right = new FormAttachment( middle, -margin );
     wlName.setLayoutData( fdlName );
-    wName = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wName = new Text( parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wName );
     FormData fdName = new FormData();
     fdName.top = new FormAttachment( wlName, 0, SWT.CENTER );
@@ -133,7 +104,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
 
     // The description of the test...
     //
-    Label wlDescription = new Label( shell, SWT.RIGHT );
+    Label wlDescription = new Label( parent, SWT.RIGHT );
     props.setLook( wlDescription );
     wlDescription.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.Description.Label" ) );
     FormData fdlDescription = new FormData();
@@ -141,7 +112,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     fdlDescription.left = new FormAttachment( 0, 0 );
     fdlDescription.right = new FormAttachment( middle, -margin );
     wlDescription.setLayoutData( fdlDescription );
-    wDescription = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDescription = new Text( parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDescription );
     FormData fdDescription = new FormData();
     fdDescription.top = new FormAttachment( wlDescription, 0, SWT.CENTER );
@@ -152,7 +123,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
 
     // The type of test...
     //
-    Label wlTestType = new Label( shell, SWT.RIGHT );
+    Label wlTestType = new Label( parent, SWT.RIGHT );
     props.setLook( wlTestType );
     wlTestType.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.TestType.Label" ) );
     FormData fdlTestType = new FormData();
@@ -160,7 +131,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     fdlTestType.left = new FormAttachment( 0, 0 );
     fdlTestType.right = new FormAttachment( middle, -margin );
     wlTestType.setLayoutData( fdlTestType );
-    wTestType = new Combo( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTestType = new Combo( parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     FormData fdTestType = new FormData();
     fdTestType.top = new FormAttachment( wlTestType, 0, SWT.CENTER );
     fdTestType.left = new FormAttachment( middle, 0 );
@@ -171,7 +142,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
 
     // The filename of the pipeline to test
     //
-    Label wlPipelineFilename = new Label( shell, SWT.RIGHT );
+    Label wlPipelineFilename = new Label( parent, SWT.RIGHT );
     props.setLook( wlPipelineFilename );
     wlPipelineFilename.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.PipelineFilename.Label" ) );
     FormData fdlPipelineFilename = new FormData();
@@ -179,7 +150,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     fdlPipelineFilename.left = new FormAttachment( 0, 0 );
     fdlPipelineFilename.right = new FormAttachment( middle, -margin );
     wlPipelineFilename.setLayoutData( fdlPipelineFilename );
-    wPipelineFilename = new Text( shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPipelineFilename = new Text( parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPipelineFilename );
     FormData fdPipelineFilename = new FormData();
     fdPipelineFilename.top = new FormAttachment( wlPipelineFilename, 0, SWT.CENTER );
@@ -190,7 +161,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
 
     // The optional filename of the test result...
     //
-    Label wlFilename = new Label( shell, SWT.RIGHT );
+    Label wlFilename = new Label( parent, SWT.RIGHT );
     props.setLook( wlFilename );
     wlFilename.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.Filename.Label" ) );
     FormData fdlFilename = new FormData();
@@ -198,7 +169,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     fdlFilename.left = new FormAttachment( 0, 0 );
     fdlFilename.right = new FormAttachment( middle, -margin );
     wlFilename.setLayoutData( fdlFilename );
-    wFilename = new TextVar( pipelineUnitTest, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( pipelineUnitTest, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     FormData fdFilename = new FormData();
     fdFilename.top = new FormAttachment( wlFilename, 0, SWT.CENTER );
@@ -209,7 +180,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
 
     // The base path for relative test path resolution
     //
-    Label wlBasePath = new Label( shell, SWT.RIGHT );
+    Label wlBasePath = new Label( parent, SWT.RIGHT );
     props.setLook( wlBasePath );
     wlBasePath.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.BasePath.Label" ) );
     FormData fdlBasePath = new FormData();
@@ -217,7 +188,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     fdlBasePath.left = new FormAttachment( 0, 0 );
     fdlBasePath.right = new FormAttachment( middle, -margin );
     wlBasePath.setLayoutData( fdlBasePath );
-    wBasePath = new TextVar( pipelineUnitTest, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBasePath = new TextVar( pipelineUnitTest, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBasePath );
     FormData fdBasePath = new FormData();
     fdBasePath.top = new FormAttachment( wlBasePath, 0, SWT.CENTER );
@@ -228,7 +199,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
 
     // The base path for relative test path resolution
     //
-    Label wlAutoOpen = new Label( shell, SWT.RIGHT );
+    Label wlAutoOpen = new Label( parent, SWT.RIGHT );
     props.setLook( wlAutoOpen );
     wlAutoOpen.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.AutoOpen.Label" ) );
     FormData fdlAutoOpen = new FormData();
@@ -236,7 +207,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     fdlAutoOpen.left = new FormAttachment( 0, 0 );
     fdlAutoOpen.right = new FormAttachment( middle, -margin );
     wlAutoOpen.setLayoutData( fdlAutoOpen );
-    wAutoOpen = new Button( shell, SWT.CHECK );
+    wAutoOpen = new Button( parent, SWT.CHECK );
     props.setLook( wAutoOpen );
     FormData fdAutoOpen = new FormData();
     fdAutoOpen.top = new FormAttachment( wlAutoOpen, 0, SWT.CENTER );
@@ -247,7 +218,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
 
     // The list of database replacements in the unit test pipeline
     //
-    Label wlFieldMapping = new Label( shell, SWT.NONE );
+    Label wlFieldMapping = new Label( parent, SWT.NONE );
     wlFieldMapping.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.DbReplacements.Label" ) );
     props.setLook( wlFieldMapping );
     FormData fdlUpIns = new FormData();
@@ -256,17 +227,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     wlFieldMapping.setLayoutData( fdlUpIns );
     lastControl = wlFieldMapping;
 
-    // Buttons at the bottom...
-    //
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-
-    Button wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-
-    Button[] buttons = new Button[] { wOK, wCancel };
-    BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
-
+    
     // the database replacements
     //
     List<String> dbNames;
@@ -285,7 +246,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     columns[ 0 ].setUsingVariables( true );
     columns[ 1 ].setUsingVariables( true );
 
-    wDbReplacements = new TableView( new Variables(), shell,
+    wDbReplacements = new TableView( new Variables(), parent,
       SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, columns,
       pipelineUnitTest.getTweaks().size(), null, props );
 
@@ -297,7 +258,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     wDbReplacements.setLayoutData( fdDbReplacements );
     lastControl = wDbReplacements;
 
-    Label wlVariableValues = new Label( shell, SWT.NONE );
+    Label wlVariableValues = new Label( parent, SWT.NONE );
     wlVariableValues.setText( BaseMessages.getString( PKG, "PipelineUnitTestDialog.VariableValues.Label" ) );
     props.setLook( wlVariableValues );
     FormData fdlVariableValues = new FormData();
@@ -313,7 +274,7 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     varValColumns[ 0 ].setUsingVariables( true );
     varValColumns[ 1 ].setUsingVariables( true );
 
-    wVariableValues = new TableView( new Variables(), shell,
+    wVariableValues = new TableView( new Variables(), parent,
       SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, varValColumns,
       pipelineUnitTest.getVariableValues().size(), null, props );
 
@@ -321,53 +282,25 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
     fdVariableValues.left = new FormAttachment( 0, 0 );
     fdVariableValues.top = new FormAttachment( lastControl, margin );
     fdVariableValues.right = new FormAttachment( 100, 0 );
-    fdVariableValues.bottom = new FormAttachment( wOK, -2 * margin );
+    fdVariableValues.bottom = new FormAttachment( 100, -2 * margin );
     wVariableValues.setLayoutData( fdVariableValues );
-
-    // Add listeners
-    wOK.addListener( SWT.Selection, e -> ok() );
-    wCancel.addListener( SWT.Selection, e -> cancel() );
-
-    SelectionAdapter selAdapter = new SelectionAdapter() {
-      public void widgetDefaultSelected( SelectionEvent e ) {
-        ok();
-      }
-    };
-    wName.addSelectionListener( selAdapter );
-    wDescription.addSelectionListener( selAdapter );
-    wTestType.addSelectionListener( selAdapter );
-    wPipelineFilename.addSelectionListener( selAdapter );
-    wFilename.addSelectionListener( selAdapter );
-    wBasePath.addSelectionListener( selAdapter );
-
-    // Detect X or ALT-F4 or something that kills this window...
-    shell.addShellListener( new ShellAdapter() {
-      public void shellClosed( ShellEvent e ) {
-        cancel();
-      }
-    } );
-
-    getData();
-
-    BaseTransformDialog.setSize( shell );
-
-    shell.open();
-    Display display = parent.getDisplay();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
-    return testName;
+    
+    setWidgetsContent();
+    
+    // Add listener to detect change after loading data
+	ModifyListener lsMod = e -> setChanged();
+    wName.addModifyListener( lsMod );
+    wDescription.addModifyListener( lsMod );
+    wTestType.addModifyListener( lsMod );
+    wPipelineFilename.addModifyListener( lsMod );
+    wFilename.addModifyListener( lsMod );
+    wBasePath.addModifyListener( lsMod );
   }
 
-  public void dispose() {
-    props.setScreen( new WindowProperty( shell ) );
-    shell.dispose();
-  }
-
-  public void getData() {
-
+  @Override
+  public void setWidgetsContent() {
+    PipelineUnitTest pipelineUnitTest = this.getMetadata();
+      
     wName.setText( Const.NVL( pipelineUnitTest.getName(), "" ) );
     wDescription.setText( Const.NVL( pipelineUnitTest.getDescription(), "" ) );
     wTestType.setText( Const.NVL( DataSetConst.getTestTypeDescription( pipelineUnitTest.getType() ), "" ) );
@@ -390,19 +323,11 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
 
     wDbReplacements.removeEmptyRows();
     wDbReplacements.setRowNums();
-
-    wName.setFocus();
   }
 
-  private void cancel() {
-    testName = null;
-    dispose();
-  }
 
-  /**
-   * @param test The pipeline unit test to load the dialog information into
-   */
-  public void getInfo( PipelineUnitTest test ) {
+  @Override
+  public void getWidgetsContent( PipelineUnitTest test ) {
 
     test.setName( wName.getText() );
     test.setDescription( wDescription.getText() );
@@ -431,15 +356,4 @@ public class PipelineUnitTestDialog extends Dialog implements IMetadataDialog {
       test.getVariableValues().add( variableValue );
     }
   }
-
-  public void ok() {
-
-    getInfo( pipelineUnitTest );
-
-    testName = pipelineUnitTest.getName();
-    dispose();
-
-  }
-
-
 }

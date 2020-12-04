@@ -25,7 +25,6 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
@@ -38,7 +37,6 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
@@ -49,7 +47,7 @@ import org.eclipse.swt.widgets.Shell;
  * @since 22-12-2005
  */
 public class ShowBrowserDialog extends Dialog {
-  private static final Class<?> PKG = DatabaseDialog.class; // Needed by Translator
+  private static final Class<?> PKG = ShowBrowserDialog.class; // Needed by Translator
 
   private String dialogTitle;
   private String content;

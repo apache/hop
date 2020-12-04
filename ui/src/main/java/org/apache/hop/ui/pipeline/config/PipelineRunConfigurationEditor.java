@@ -1,52 +1,47 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.pipeline.config;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apache.hop.core.Const;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.variables.VariableValueDescription;
 import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
 import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engine.PipelineEnginePluginType;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.metadata.IMetadataDialog;
+import org.apache.hop.ui.core.metadata.MetadataEditor;
+import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.hopgui.HopGuiEnvironment;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -56,39 +51,24 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @GuiPlugin(
   description = "This dialog allows you to configure the various pipeline run configurations"
 )
 /**
- * The dialog for metadata object PipelineRunConfiguration
+ * The editor for metadata object PipelineRunConfiguration
  * Don't move this class around as it's sync'ed with the PipelineRunConfiguration package to find the dialog.
  */
-public class PipelineRunConfigurationDialog extends Dialog implements IMetadataDialog {
+public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunConfiguration> {
 
-  private static final Class<?> PKG = PipelineRunConfigurationDialog.class; // Needed by Translator
-
-  private Shell parent;
-  private Shell shell;
-  private IHopMetadataProvider metadataProvider;
+  private static final Class<?> PKG = PipelineRunConfigurationEditor.class; // Needed by Translator
+  
   private PipelineRunConfiguration runConfiguration;
   private PipelineRunConfiguration workingConfiguration;
 
@@ -99,32 +79,26 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
   private Composite wPluginSpecificComp;
   private GuiCompositeWidgets guiCompositeWidgets;
 
-  private final PropsUi props;
-  private int middle;
-  private int margin;
-
-  private String returnValue;
-
   private Map<String, IPipelineEngineRunConfiguration> metaMap;
   private TableView wVariables;
 
+  private Listener modifyListener =  e -> setChanged();
+  
   /**
    * @param parent           The parent shell
    * @param metadataProvider metadataProvider
    * @param runConfiguration The object to edit
    */
-  public PipelineRunConfigurationDialog( Shell parent, IHopMetadataProvider metadataProvider, PipelineRunConfiguration runConfiguration ) {
-    super( parent, SWT.NONE );
-    this.parent = parent;
-    this.metadataProvider = metadataProvider;
+  public PipelineRunConfigurationEditor(HopGui hopGui,  MetadataManager<PipelineRunConfiguration> manager, PipelineRunConfiguration runConfiguration ) {
+	super(hopGui, manager, runConfiguration);
+    
     this.runConfiguration = runConfiguration;
     this.workingConfiguration = new PipelineRunConfiguration( runConfiguration );
-    props = PropsUi.getInstance();
     metaMap = populateMetaMap();
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
       metaMap.put( workingConfiguration.getEngineRunConfiguration().getEnginePluginName(), workingConfiguration.getEngineRunConfiguration() );
     }
-    returnValue = null;
+
   }
 
   private Map<String, IPipelineEngineRunConfiguration> populateMetaMap() {
@@ -132,7 +106,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
     List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( PipelineEnginePluginType.class );
     for ( IPlugin plugin : plugins ) {
       try {
-        IPipelineEngine engine = PluginRegistry.getInstance().loadClass( plugin, IPipelineEngine.class );
+        IPipelineEngine<?> engine = PluginRegistry.getInstance().loadClass( plugin, IPipelineEngine.class );
 
         // Get the default run configuration for the engine.
         //
@@ -149,37 +123,21 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
     return metaMap;
   }
 
-  public String open() {
+  @Override
+  public void createControl(Composite parent) {
+	PropsUi props = PropsUi.getInstance();
+	  
     // Create a tabbed interface instead of the confusing left hand side options
     // This will make it more conforming the rest.
     //
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
-    props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImageToolbarRun() );
-
-    middle = props.getMiddlePct();
-    margin = props.getMargin();
+    int middle = props.getMiddlePct();
+    int margin = props.getMargin();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = Const.FORM_MARGIN;
     formLayout.marginHeight = Const.FORM_MARGIN;
 
-    shell.setText( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.Shell.title" ) );
-    shell.setLayout( formLayout );
-
-    // Add buttons at the bottom
-    Button wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, this::ok );
-
-    Button wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, this::cancel );
-
-    Button[] buttons = new Button[] { wOk, wCancel };
-    BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
-
-    CTabFolder wTabFolder = new CTabFolder( shell, SWT.BORDER );
+    CTabFolder wTabFolder = new CTabFolder( parent, SWT.BORDER );
     props.setLook( wTabFolder );
     wTabFolder.setSimple( false );
 
@@ -308,8 +266,8 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
     props.setLook( wVariablesComp );
 
     FormLayout variablesLayout = new FormLayout();
-    variablesLayout.marginWidth = 3;
-    variablesLayout.marginHeight = 3;
+    variablesLayout.marginWidth = 0;
+    variablesLayout.marginHeight = 0;
     wVariablesComp.setLayout( variablesLayout );
 
 
@@ -346,46 +304,36 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
 
     wVariablesTab.setControl( wVariablesSComp );
 
-
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
     fdTabFolder.top = new FormAttachment( 0, 0 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( wOk, -margin * 2 );
+    fdTabFolder.bottom = new FormAttachment( 100, -margin * 2 );
     wTabFolder.setLayoutData( fdTabFolder );
 
 
-    getData();
+    setWidgetsContent();
 
+    // Some widget set changed
+    resetChanged();
+    
     wTabFolder.setSelection( 0 );
 
     // Add listeners...
-    //
-    wPluginType.addModifyListener( e -> changeConnectionType() );
-
-    wName.addListener( SWT.DefaultSelection, this::ok );
-    wDescription.addListener( SWT.DefaultSelection, this::ok );
-
-    BaseTransformDialog.setSize( shell );
-
-    shell.open();
-    Display display = parent.getDisplay();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
-    return returnValue;
+    //   
+    wName.addListener( SWT.Modify, modifyListener );
+    wDescription.addListener( SWT.Modify, modifyListener );
+    wPluginType.addListener( SWT.Modify, modifyListener );
+    wPluginType.addListener( SWT.Modify, e -> changeConnectionType() );
+    
   }
-
-  private Listener okListener = this::ok;
 
   private void addGuiCompositeWidgets() {
 
     // Remove existing children
     //
     for ( Control child : wPluginSpecificComp.getChildren() ) {
-      child.removeListener( SWT.DefaultSelection, okListener );
+      child.removeListener( SWT.Modify, modifyListener );
       child.dispose();
     }
 
@@ -393,7 +341,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
       guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 25 );
       guiCompositeWidgets.createCompositeWidgets( workingConfiguration.getEngineRunConfiguration(), null, wPluginSpecificComp, PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
       for ( Control control : guiCompositeWidgets.getWidgetsMap().values() ) {
-        control.addListener( SWT.DefaultSelection, okListener );
+        control.addListener( SWT.Modify, modifyListener );
       }
     }
   }
@@ -409,7 +357,7 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
 
     // Capture any information on the widgets
     //
-    getInfo( workingConfiguration );
+    getWidgetsContent( workingConfiguration );
 
     // Save the state of this type so we can switch back and forth
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
@@ -424,34 +372,21 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
 
     // Put the data back
     //
-    getData();
+    setWidgetsContent();
 
-    shell.layout( true, true );
+  //  shell.layout( true, true );
 
     busyChangingPluginType.set( false );
   }
 
-
-  private void ok( Event event ) {
+  public void save() throws HopException {
     changeWorkingEngineConfiguration( runConfiguration );
-    getInfo( runConfiguration );
-    returnValue = runConfiguration.getName();
-    dispose();
+   
+    super.save();
   }
 
-  private void cancel( Event event ) {
-    dispose();
-  }
-
-  private void dispose() {
-    props.setScreen( new WindowProperty( shell ) );
-    shell.dispose();
-  }
-
-  /**
-   * Copy data from the metadata into the dialog.
-   */
-  private void getData() {
+  @Override
+  public void setWidgetsContent() {
 
     wName.setText( Const.NVL( workingConfiguration.getName(), "" ) );
     wDescription.setText( Const.NVL( workingConfiguration.getDescription(), "" ) );
@@ -475,7 +410,8 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
     wVariables.optWidth( true );
   }
 
-  private PipelineRunConfiguration getInfo( PipelineRunConfiguration meta ) {
+  @Override
+  public void getWidgetsContent( PipelineRunConfiguration meta ) {
 
     meta.setName( wName.getText() );
     meta.setDescription( wDescription.getText() );
@@ -496,8 +432,6 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
       String description = item.getText( 3 );
       meta.getConfigurationVariables().add( new VariableValueDescription( name, value, description ) );
     }
-
-    return meta;
   }
 
   private void changeWorkingEngineConfiguration( PipelineRunConfiguration meta ) {
@@ -523,24 +457,4 @@ public class PipelineRunConfigurationDialog extends Dialog implements IMetadataD
     return types;
   }
 
-  public static void main( String[] args ) throws HopException {
-    Display display = new Display();
-    Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
-
-    HopClientEnvironment.init();
-    HopEnvironment.init();
-    HopGuiEnvironment.init();
-    // LocalWorkflowRunConfiguration localConfig = new LocalWorkflonConfiguration( "Local", "Local pipeline engine", "5000" );
-    PipelineRunConfiguration configuration = new PipelineRunConfiguration( "test", "A test run config", new ArrayList<>(), null );
-    PipelineRunConfigurationDialog dialog = new PipelineRunConfigurationDialog( shell, null, configuration );
-    String name = dialog.open();
-    if ( name != null ) {
-      // Re-open with a new dialog...
-      //
-      PipelineRunConfigurationDialog newDialog = new PipelineRunConfigurationDialog( shell, null, configuration );
-      newDialog.open();
-    }
-
-    display.dispose();
-  }
 }

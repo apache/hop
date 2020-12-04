@@ -39,10 +39,10 @@ import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
+import org.apache.hop.ui.core.metadata.MetadataManager;
 import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
-import org.apache.hop.ui.testing.DataSetDialog;
 import org.apache.hop.ui.testing.PipelineUnitTestSetLocationDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -136,32 +136,8 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
   private void openDataSet( String dataSetName ) {
 
     HopGui hopGui = HopGui.getInstance();
-
-    IHopMetadataProvider metadataProvider = hopGui.getMetadataProvider();
-    try {
-      IHopMetadataSerializer<DataSet> setSerializer = hopGui.getMetadataProvider().getSerializer( DataSet.class );
-      DataSet dataSet = setSerializer.load( dataSetName );
-      dataSet.initializeVariablesFrom( hopGui.getVariables() );
-
-      DataSetDialog dataSetDialog = new DataSetDialog( hopGui.getShell(), metadataProvider, dataSet );
-      while ( dataSetDialog.open() != null ) {
-        String message = TestingGuiPlugin.validateDataSet( dataSet, dataSetName, setSerializer.listObjectNames() );
-
-        // Save the data set...
-        //
-        if ( message == null ) {
-          setSerializer.save( dataSet );
-          break;
-        } else {
-          MessageBox box = new MessageBox( hopGui.getShell(), SWT.OK );
-          box.setText( "Error" );
-          box.setMessage( message );
-          box.open();
-        }
-
-      }
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error editing data set '" + dataSetName + "'", e );
-    }
+    
+    MetadataManager<DataSet> manager = new MetadataManager<>(hopGui.getVariables(),  hopGui.getMetadataProvider(), DataSet.class);
+    manager.editMetadata(dataSetName); 
   }
 }

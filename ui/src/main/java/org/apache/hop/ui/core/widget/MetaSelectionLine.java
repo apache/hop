@@ -35,7 +35,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -140,10 +139,10 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
     MenuItem itemEdit = new MenuItem (menu, SWT.PUSH);
     itemEdit.setText( BaseMessages.getString( PKG, "System.Button.Edit" ) );
     itemEdit.addListener( SWT.Selection, e -> editMetadata() );
-    MenuItem itemManage = new MenuItem (menu, SWT.PUSH);
-    itemManage.setText( BaseMessages.getString( PKG, "System.Button.Manage" ) );
-    itemManage.addListener( SWT.Selection, e -> manageMetadata() );
-        
+//    MenuItem itemManage = new MenuItem (menu, SWT.PUSH);
+//    itemManage.setText( BaseMessages.getString( PKG, "System.Button.Manage" ) );
+//    itemManage.addListener( SWT.Selection, e -> manageMetadata() );
+//        
     wToolBar = new ToolBar(this, SWT.FLAT | SWT.HORIZONTAL );    
     FormData fdToolBar = new FormData();
     fdToolBar.right = new FormAttachment( 100, 0 );
@@ -192,7 +191,7 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
 
   protected void manageMetadata() {
-    manager.openMetaStoreExplorer();
+   // manager.openMetaStoreExplorer();
   }
 
   /**
@@ -206,13 +205,13 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
 
     return manager.editMetadata( selected );
   }
-
-  private void openMetaDialog( T element, IHopMetadataSerializer<T> serializer ) throws Exception {
-    if ( manager.openMetaDialog( element, serializer ) ) {
-      fillItems();
-      wCombo.setText( element.getName() );
-    }
-  }
+//
+//  private void openMetaDialog( T element, IHopMetadataSerializer<T> serializer ) throws Exception {
+//    if ( manager.openMetaDialog( element, serializer ) ) {
+//      fillItems();
+//      wCombo.setText( element.getName() );
+//    }
+//  }
 
   private T newMetadata() {
     T element = manager.newMetadata();

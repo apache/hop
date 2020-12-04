@@ -25,7 +25,6 @@ package org.apache.hop.ui.core.dialog;
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -44,7 +43,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 public class EnterSearchDialog {
-  private static final Class<?> PKG = DatabaseDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterSearchDialog.class; // Needed by Translator
 
   private static final PropsUi props = PropsUi.getInstance();
   private Shell parentShell;

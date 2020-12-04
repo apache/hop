@@ -26,7 +26,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.SourceToTargetMapping;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
@@ -41,16 +40,14 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Dialog;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
+
 
 
 /**
@@ -60,7 +57,7 @@ import java.util.Comparator;
  * @since 23-03-2006
  */
 public class EnterMappingDialog extends Dialog {
-  private static final Class<?> PKG = DatabaseDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterMappingDialog.class; // Needed by Translator
 
   public class GuessPair {
     private int _srcIndex = -1;

@@ -31,7 +31,6 @@ import org.apache.hop.i18n.GlobalMessages;
 import org.apache.hop.i18n.LanguageChoice;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.database.dialog.DatabaseDialog;
 import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -83,7 +82,7 @@ import java.util.List;
  * @since 15-12-2003
  */
 public class EnterOptionsDialog extends Dialog {
-  private static final Class<?> PKG = DatabaseDialog.class; // Needed by Translator
+  private static final Class<?> PKG = EnterOptionsDialog.class; // Needed by Translator
 
   public static final String GUI_WIDGETS_PARENT_ID = "EnterOptionsDialog-GuiWidgetsParent";
 

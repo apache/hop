@@ -18,4 +18,10 @@
     <iconfile>ui/images/Plugin.svg</iconfile>
   </hop-perspective-plugin>
 
+  <hop-perspective-plugin id="Hop-Metadata-Perspective">
+    <description>Hop Metadata</description>
+    <classname>org.apache.hop.ui.hopgui.perspective.metadata.MetadataPerspective</classname>
+    <iconfile>ui/images/metadata.svg</iconfile>
+  </hop-perspective-plugin>
+
 </hop-perspective-plugins>

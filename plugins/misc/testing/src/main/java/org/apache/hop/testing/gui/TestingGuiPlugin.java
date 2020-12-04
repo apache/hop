@@ -90,7 +90,6 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.IHopFileTypeHandler;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.context.HopGuiPipelineTransformContext;
-import org.apache.hop.ui.testing.DataSetDialog;
 import org.apache.hop.ui.testing.EditRowsDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Combo;
@@ -533,10 +532,8 @@ public class TestingGuiPlugin {
         dataSet.getFields().add( field );
       }
 
-      DataSetDialog dataSetDialog = new DataSetDialog( hopGui.getShell(), metadataProvider, dataSet );
-      String dataSetName = dataSetDialog.open();
-      if ( dataSetName != null ) {
-        setSerializer.save( dataSet );
+      MetadataManager<DataSet> manager = new MetadataManager<>(hopGui.getVariables(), hopGui.getMetadataProvider(), DataSet.class);     
+      if ( manager.newMetadata(dataSet)!=null ) {
 
         PipelineUnitTest unitTest = getCurrentUnitTest( pipelineMeta );
         if ( unitTest == null ) {
@@ -733,7 +730,7 @@ public class TestingGuiPlugin {
     }
 
     MetadataManager<PipelineUnitTest> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class);
-    PipelineUnitTest test = manager.newMetadata();
+    PipelineUnitTest test = manager.newMetadataWithEditor();
     if (test!=null) {
       // Activate the test
       refreshUnitTestsList();
@@ -841,7 +838,7 @@ public class TestingGuiPlugin {
     String unitTestName = combo.getText();
     try {
       MetadataManager<PipelineUnitTest> manager = new MetadataManager<>( hopGui.getVariables(), hopGui.getMetadataProvider(), PipelineUnitTest.class );
-      if ( manager.editMetadata( unitTestName ) ) {
+      if ( manager.editMetadata( unitTestName ) ) {    	
         refreshUnitTestsList();
         selectUnitTestInList( unitTestName );
       }

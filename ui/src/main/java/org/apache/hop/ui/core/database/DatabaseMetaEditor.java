@@ -1,72 +1,21 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.core.database;
-
-import org.apache.commons.lang.StringUtils;
-import org.apache.hop.core.Const;
-import org.apache.hop.core.HopClientEnvironment;
-import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.Props;
-import org.apache.hop.core.database.BaseDatabaseMeta;
-import org.apache.hop.core.database.DatabaseMeta;
-import org.apache.hop.core.database.DatabasePluginType;
-import org.apache.hop.core.database.DatabaseTestResults;
-import org.apache.hop.core.database.IDatabase;
-import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.gui.plugin.GuiPlugin;
-import org.apache.hop.core.plugins.IPlugin;
-import org.apache.hop.core.plugins.PluginRegistry;
-import org.apache.hop.i18n.BaseMessages;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.ui.core.PropsUi;
-import org.apache.hop.ui.core.dialog.ShowMessageDialog;
-import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
-import org.apache.hop.ui.core.gui.GuiResource;
-import org.apache.hop.ui.core.gui.WindowProperty;
-import org.apache.hop.ui.core.metadata.IMetadataDialog;
-import org.apache.hop.ui.core.widget.ColumnInfo;
-import org.apache.hop.ui.core.widget.ComboVar;
-import org.apache.hop.ui.core.widget.TableView;
-import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.HopGui;
-import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CTabFolder;
-import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.layout.FormAttachment;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Dialog;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -76,28 +25,62 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.Props;
+import org.apache.hop.core.database.BaseDatabaseMeta;
+import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabasePluginType;
+import org.apache.hop.core.database.DatabaseTestResults;
+import org.apache.hop.core.database.IDatabase;
+import org.apache.hop.core.gui.plugin.GuiPlugin;
+import org.apache.hop.core.plugins.IPlugin;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.dialog.ShowMessageDialog;
+import org.apache.hop.ui.core.gui.GuiCompositeWidgets;
+import org.apache.hop.ui.core.gui.IGuiPluginCompositeWidgetsListener;
+import org.apache.hop.ui.core.metadata.MetadataEditor;
+import org.apache.hop.ui.core.metadata.MetadataManager;
+import org.apache.hop.ui.core.widget.ColumnInfo;
+import org.apache.hop.ui.core.widget.ComboVar;
+import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CTabFolder;
+import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.layout.FormAttachment;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
+
 @GuiPlugin(
-  description = "This is the dialog for database connection metadata"
+  description = "This is the editor for database connection metadata"
 )
 /**
  * The dialog for DatabaseMeta
  * Don't move this class around as it's sync'ed with the DatabaseMeta package to find the dialog.
  *
  */
-public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
-  private static final Class<?> PKG = DatabaseMetaDialog.class; // Needed by Translator
-
-  private Shell parent;
-  private Shell shell;
-  private IHopMetadataProvider metadataProvider;
-  private DatabaseMeta databaseMeta;
-  private DatabaseMeta workingMeta;
+public class DatabaseMetaEditor extends MetadataEditor<DatabaseMeta>  {
+  private static final Class<?> PKG = DatabaseMetaEditor.class; // Needed by Translator
+  
+//  private DatabaseMeta databaseMeta;
+//  private DatabaseMeta workingMeta;
 
   private CTabFolder wTabFolder;
 
-  private CTabItem wGeneralTab;
   private Composite wGeneralComp;
-  private FormData fdGeneralComp;
   private Text wName;
   private ComboVar wConnectionType;
   private Label wlManualUrl;
@@ -110,9 +93,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
   private Composite wDatabaseSpecificComp;
   private GuiCompositeWidgets guiCompositeWidgets;
 
-  private CTabItem wAdvancedTab;
-  private Composite wAdvancedComp;
-  private FormData fdAdvancedComp;
   private Button wSupportsBoolean;
   private Button wSupportsTimestamp;
   private Button wQuoteAll;
@@ -122,16 +102,12 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
   private TextVar wPreferredSchema;
   private TextVar wSqlStatements;
 
-  private CTabItem wOptionsTab;
-  private Composite wOptionsComp;
-  private FormData fdOptionsComp;
   private TableView wOptions;
 
-  private final PropsUi props;
+  private PropsUi props;
   private int middle;
   private int margin;
 
-  private String returnValue;
 
   private Map<Class<? extends IDatabase>, IDatabase> metaMap;
 
@@ -139,18 +115,16 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
    * @param parent           The parent shell
    * @param metadataProvider metadataProvider
    * @param databaseMeta     The object to edit
-   */
-  public DatabaseMetaDialog( Shell parent, IHopMetadataProvider metadataProvider, DatabaseMeta databaseMeta ) {
-    super( parent, SWT.NONE );
-    this.parent = parent;
-    this.metadataProvider = metadataProvider;
-    this.databaseMeta = databaseMeta;
-    this.workingMeta = new DatabaseMeta( databaseMeta );
-    this.workingMeta.initializeVariablesFrom( this.databaseMeta );
+   */  
+  public DatabaseMetaEditor(HopGui hopGui, MetadataManager<DatabaseMeta> manager, DatabaseMeta databaseMeta ) {
+	super(hopGui, manager, databaseMeta);
+	  
+    //this.databaseMeta = databaseMeta;
+   // this.workingMeta = new DatabaseMeta( databaseMeta );
+  //  this.workingMeta.initializeVariablesFrom( this.databaseMeta );
     props = PropsUi.getInstance();
     metaMap = populateMetaMap();
-    metaMap.put( workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase() );
-    returnValue = null;
+    metaMap.put( databaseMeta.getIDatabase().getClass(), databaseMeta.getIDatabase() );
   }
 
   private Map<Class<? extends IDatabase>, IDatabase> populateMetaMap() {
@@ -158,14 +132,14 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
     for ( IPlugin plugin : plugins ) {
       try {
-        IDatabase iDatabase = (IDatabase) PluginRegistry.getInstance().loadClass( plugin );
-        if ( iDatabase.getDefaultDatabasePort() > 0 ) {
-          iDatabase.setPort( Integer.toString( iDatabase.getDefaultDatabasePort() ) );
+        IDatabase database = (IDatabase) PluginRegistry.getInstance().loadClass( plugin );
+        if ( database.getDefaultDatabasePort() > 0 ) {
+          database.setPort( Integer.toString( database.getDefaultDatabasePort() ) );
         }
-        iDatabase.setPluginId( plugin.getIds()[ 0 ] );
-        iDatabase.setPluginName( plugin.getName() );
+        database.setPluginId( plugin.getIds()[ 0 ] );
+        database.setPluginName( plugin.getName() );
 
-        metaMap.put( iDatabase.getClass(), iDatabase );
+        metaMap.put( database.getClass(), database );
       } catch ( Exception e ) {
         HopGui.getInstance().getLog().logError( "Error instantiating database metadata", e );
       }
@@ -174,78 +148,110 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     return metaMap;
   }
 
-  public String open() {
+  @Override
+  public void createControl(Composite parent) {
     // Create a tabbed interface instead of the confusing left hand side options
     // This will make it more conforming the rest.
     //
-    shell = new Shell( parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.MIN );
-    props.setLook( shell );
-    shell.setImage( GuiResource.getInstance().getImageConnection() );
-
+    
     middle = props.getMiddlePct();
     margin = props.getMargin();
 
-    FormLayout formLayout = new FormLayout();
-    formLayout.marginWidth = Const.FORM_MARGIN;
-    formLayout.marginHeight = Const.FORM_MARGIN;
+    
+    Label wIcon = new Label( parent, SWT.RIGHT );
+    wIcon.setImage( getImage() );
+    FormData fdlicon = new FormData();
+    fdlicon.top = new FormAttachment( 0, 0 );
+    fdlicon.right = new FormAttachment( 100, 0 );
+    wIcon.setLayoutData( fdlicon );
+    props.setLook( wIcon );
+    
+    // What's the name
+    Label wlName = new Label( parent, SWT.RIGHT );
+    props.setLook( wlName );
+    wlName.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionName" ) );
+    FormData fdlName = new FormData();
+    fdlName.top = new FormAttachment( 0, 0 );
+    fdlName.left = new FormAttachment( 0, 0 ); 
+    wlName.setLayoutData( fdlName );
 
-    shell.setText( BaseMessages.getString( PKG, "DatabaseDialog.Shell.title" ) );
-    shell.setLayout( formLayout );
-
-    // Add buttons at the bottom
-    Button wOk = new Button( shell, SWT.PUSH );
-    wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOk.addListener( SWT.Selection, this::ok );
-
-    Button wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, this::cancel );
-
-    Button wTest = new Button( shell, SWT.PUSH );
-    wTest.setText( BaseMessages.getString( PKG, "System.Button.Test" ) );
-    wTest.addListener( SWT.Selection, this::test );
-
-    Button[] buttons = new Button[] { wOk, wTest, wCancel };
-    BaseTransformDialog.positionBottomButtons( shell, buttons, margin, null );
-
+    wName = new Text( parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    props.setLook( wName );
+    FormData fdName = new FormData();
+    fdName.top = new FormAttachment( wlName, margin );
+    fdName.left = new FormAttachment( 0, 0 ); 
+    fdName.right = new FormAttachment( wIcon, -margin );
+    wName.setLayoutData( fdName );
+    
+    Label spacer = new Label( parent, SWT.HORIZONTAL | SWT.SEPARATOR );
+    FormData fdSpacer = new FormData();
+    fdSpacer.left = new FormAttachment( 0, 0 );
+    fdSpacer.top = new FormAttachment( wName, 15 );
+    fdSpacer.right = new FormAttachment( 100, 0 );
+    spacer.setLayoutData( fdSpacer );    
+        
     // Now create the tabs above the buttons...
-
-    wTabFolder = new CTabFolder( shell, SWT.BORDER );
+    wTabFolder = new CTabFolder( parent, SWT.BORDER );
     props.setLook( wTabFolder, Props.WIDGET_STYLE_TAB );
 
     addGeneralTab();
     addAdvancedTab();
     addOptionsTab();
 
-    getData();
-
-    wConnectionType.addModifyListener( e -> changeConnectionType() );
-
     // Select the general tab
     //
     wTabFolder.setSelection( 0 );
     FormData fdTabFolder = new FormData();
     fdTabFolder.left = new FormAttachment( 0, 0 );
-    fdTabFolder.top = new FormAttachment( 0, 0 );
+    fdTabFolder.top = new FormAttachment( spacer, 15 );
     fdTabFolder.right = new FormAttachment( 100, 0 );
-    fdTabFolder.bottom = new FormAttachment( wOk, -margin * 3 );
+    fdTabFolder.bottom = new FormAttachment( 100, -15 );
     wTabFolder.setLayoutData( fdTabFolder );
+           
+    setWidgetsContent();
+    
+    // Some widget set changed
+    resetChanged();
 
-    BaseTransformDialog.setSize( shell );
+    // Add listener to detect change after loading data
+ 	Listener modifyListener = event -> setChanged();
+    wName.addListener(SWT.Modify, modifyListener);
+    wConnectionType.addListener(SWT.Modify, modifyListener);
+    wConnectionType.addListener(SWT.Modify, event -> changeConnectionType() );
+    wUsername.addListener(SWT.Modify, modifyListener);
+    wPassword.addListener(SWT.Modify, modifyListener);
+    wManualUrl.addListener(SWT.Modify, modifyListener);        
+    wSupportsBoolean.addListener(SWT.Selection, modifyListener);
+    wSupportsTimestamp.addListener(SWT.Selection, modifyListener);
+    wQuoteAll.addListener(SWT.Selection, modifyListener);
+    wForceLowercase.addListener(SWT.Selection, modifyListener);
+    wForceUppercase.addListener(SWT.Selection, modifyListener);
+    wPreserveCase.addListener(SWT.Selection, modifyListener);    
+    wPreferredSchema.addListener(SWT.Modify, modifyListener);
+    wSqlStatements.addListener(SWT.Modify, modifyListener);
+    wOptions.addListener(SWT.Modify, modifyListener);
+    
+    IGuiPluginCompositeWidgetsListener l = new IGuiPluginCompositeWidgetsListener () {
 
-    shell.open();
-    Display display = parent.getDisplay();
-    while ( !shell.isDisposed() ) {
-      if ( !display.readAndDispatch() ) {
-        display.sleep();
-      }
-    }
-    return returnValue;
+		@Override
+		public void widgetsCreated(GuiCompositeWidgets compositeWidgets) {
+		}
+
+		@Override
+		public void widgetsPopulated(GuiCompositeWidgets compositeWidgets) {
+		}
+
+		@Override
+		public void widgetModified(GuiCompositeWidgets compositeWidgets, Control changedWidget) {
+			setChanged();			
+		}};
   }
 
   private void addGeneralTab() {
 
-    wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
+	DatabaseMeta databaseMeta = this.getMetadata();  
+	  
+	CTabItem wGeneralTab = new CTabItem( wTabFolder, SWT.NONE );
     wGeneralTab.setText( "   " + BaseMessages.getString( PKG, "DatabaseDialog.DbTab.title" ) + "   " );
 
     wGeneralComp = new Composite( wTabFolder, SWT.NONE );
@@ -256,32 +262,13 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     genLayout.marginHeight = Const.FORM_MARGIN * 2;
     wGeneralComp.setLayout( genLayout );
 
-    // What's the name
-    //
-    Label wlName = new Label( wGeneralComp, SWT.RIGHT );
-    props.setLook( wlName );
-    wlName.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionName" ) );
-    FormData fdlName = new FormData();
-    fdlName.top = new FormAttachment( 0, 0 );
-    fdlName.left = new FormAttachment( 0, 0 ); // First one in the left top corner
-    fdlName.right = new FormAttachment( middle, 0 );
-    wlName.setLayoutData( fdlName );
-    wName = new Text( wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    props.setLook( wName );
-    FormData fdName = new FormData();
-    fdName.top = new FormAttachment( wlName, 0, SWT.CENTER );
-    fdName.left = new FormAttachment( middle, margin ); // To the right of the label
-    fdName.right = new FormAttachment( 100, 0 );
-    wName.setLayoutData( fdName );
-    Control lastControl = wName;
-
     // What's the type of database access?
     //
     Label wlConnectionType = new Label( wGeneralComp, SWT.RIGHT );
     props.setLook( wlConnectionType );
     wlConnectionType.setText( BaseMessages.getString( PKG, "DatabaseDialog.label.ConnectionType" ) );
     FormData fdlConnectionType = new FormData();
-    fdlConnectionType.top = new FormAttachment( lastControl, margin );
+    fdlConnectionType.top = new FormAttachment( 0, margin );
     fdlConnectionType.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlConnectionType.right = new FormAttachment( middle, 0 );
     wlConnectionType.setLayoutData( fdlConnectionType );
@@ -289,12 +276,13 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     props.setLook( wConnectionType );
     wConnectionType.setEditable( true );
     wConnectionType.setItems( getConnectionTypes() );
+
     FormData fdConnectionType = new FormData();
     fdConnectionType.top = new FormAttachment( wlConnectionType, 0, SWT.CENTER );
     fdConnectionType.left = new FormAttachment( middle, margin ); // To the right of the label
     fdConnectionType.right = new FormAttachment( 100, 0 );
     wConnectionType.setLayoutData( fdConnectionType );
-    lastControl = wConnectionType;
+    Control lastControl = wConnectionType;
 
     // Username field
     //
@@ -349,9 +337,9 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
 
     // Now add the database plugin specific widgets
     //
-    guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta, 8 ); // max 6 lines
-    guiCompositeWidgets.createCompositeWidgets( workingMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
-
+    guiCompositeWidgets = new GuiCompositeWidgets( getMetadata(), 8 ); // max 6 lines
+    guiCompositeWidgets.createCompositeWidgets( getMetadata().getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+  
     addCompositeWidgetsUsernamePassword();
 
     // manual URL field
@@ -371,11 +359,9 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     fdManualUrl.left = new FormAttachment( middle, margin ); // To the right of the label
     fdManualUrl.right = new FormAttachment( 100, 0 );
     wManualUrl.setLayoutData( fdManualUrl );
-    wManualUrl.addModifyListener( e -> {
-      enableFields();
-    } );
+    wManualUrl.addListener(SWT.Modify, e -> enableFields() );
 
-    fdGeneralComp = new FormData();
+    FormData fdGeneralComp = new FormData();
     fdGeneralComp.left = new FormAttachment( 0, 0 );
     fdGeneralComp.top = new FormAttachment( 0, 0 );
     fdGeneralComp.right = new FormAttachment( 100, 0 );
@@ -404,20 +390,22 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     }
     busyChangingConnectionType.set( true );
 
+    DatabaseMeta databaseMeta = this.getMetadata();  
+    
     // Capture any information on the widgets
     //
-    getInfo( workingMeta );
+    this.getWidgetsContent( databaseMeta );
 
     // Save the state of this type so we can switch back and forth
-    metaMap.put( workingMeta.getIDatabase().getClass(), workingMeta.getIDatabase() );
+    metaMap.put( databaseMeta.getIDatabase().getClass(), databaseMeta.getIDatabase() );
 
     // Now change the data type
     //
-    workingMeta.setDatabaseType( wConnectionType.getText() );
+    databaseMeta.setDatabaseType( wConnectionType.getText() );
 
     // Get possible information from the metadata map (from previous work)
     //
-    workingMeta.setIDatabase( metaMap.get( workingMeta.getIDatabase().getClass() ) );
+    databaseMeta.setIDatabase( metaMap.get( databaseMeta.getIDatabase().getClass() ) );
 
     // Remove existing children
     //
@@ -429,14 +417,14 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     // Re-add the widgets
     //
     guiCompositeWidgets = new GuiCompositeWidgets( databaseMeta );
-    guiCompositeWidgets.createCompositeWidgets( workingMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
+    guiCompositeWidgets.createCompositeWidgets( databaseMeta.getIDatabase(), null, wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
 
     // System.out.println( "---- widgets created for class: " + workingMeta.getIDatabase().getClass().getName() );
     addCompositeWidgetsUsernamePassword();
 
     // Put the data back
     //
-    getData();
+    setWidgetsContent();
 
     wGeneralComp.layout( true, true );
 
@@ -445,10 +433,12 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
 
   private void addAdvancedTab() {
 
-    wAdvancedTab = new CTabItem( wTabFolder, SWT.NONE );
+	DatabaseMeta databaseMeta = this.getMetadata();  
+	  
+	CTabItem wAdvancedTab = new CTabItem( wTabFolder, SWT.NONE );
     wAdvancedTab.setText( "   " + BaseMessages.getString( PKG, "DatabaseDialog.AdvancedTab.title" ) + "   " );
 
-    wAdvancedComp = new Composite( wTabFolder, SWT.NONE );
+    Composite wAdvancedComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wAdvancedComp );
 
     FormLayout advancedLayout = new FormLayout();
@@ -609,7 +599,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     wSqlStatements.setLayoutData( fdSqlStatements );
     // lastControl = wSqlStatements;
 
-    fdAdvancedComp = new FormData();
+    FormData fdAdvancedComp = new FormData();
     fdAdvancedComp.left = new FormAttachment( 0, 0 );
     fdAdvancedComp.top = new FormAttachment( 0, 0 );
     fdAdvancedComp.right = new FormAttachment( 100, 0 );
@@ -622,10 +612,12 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
 
   private void addOptionsTab() {
 
-    wOptionsTab = new CTabItem( wTabFolder, SWT.NONE );
+	DatabaseMeta databaseMeta = this.getMetadata();  
+	  
+	CTabItem wOptionsTab = new CTabItem( wTabFolder, SWT.NONE );
     wOptionsTab.setText( "   " + BaseMessages.getString( PKG, "DatabaseDialog.OptionsTab.title" ) + "   " );
 
-    wOptionsComp = new Composite( wTabFolder, SWT.NONE );
+    Composite wOptionsComp = new Composite( wTabFolder, SWT.NONE );
     props.setLook( wOptionsComp );
 
     FormLayout optionsLayout = new FormLayout();
@@ -650,7 +642,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     fdlOptions.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlOptions.right = new FormAttachment( 100, 0 );
     wlOptions.setLayoutData( fdlOptions );
-    wOptions = new TableView( databaseMeta, wOptionsComp, SWT.NONE, optionsColumns, workingMeta.getExtraOptions().size(), null, props );
+    wOptions = new TableView( databaseMeta, wOptionsComp, SWT.NONE, optionsColumns, databaseMeta.getExtraOptions().size(), null, props );
     props.setLook( wOptions );
     FormData fdOptions = new FormData();
     fdOptions.top = new FormAttachment( wlOptions, margin * 2 );
@@ -659,7 +651,7 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     fdOptions.right = new FormAttachment( 100, 0 );
     wOptions.setLayoutData( fdOptions );
 
-    fdOptionsComp = new FormData();
+    FormData fdOptionsComp = new FormData();
     fdOptionsComp.left = new FormAttachment( 0, 0 );
     fdOptionsComp.top = new FormAttachment( 0, 0 );
     fdOptionsComp.right = new FormAttachment( 100, 0 );
@@ -675,57 +667,42 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
 
     // Also enable/disable the custom native fields
     //
-    guiCompositeWidgets.enableWidgets( workingMeta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !manualUrl );
+    guiCompositeWidgets.enableWidgets( getMetadata().getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID, !manualUrl );
   }
 
-  private void ok( Event event ) {
-    getInfo( databaseMeta );
-    returnValue = databaseMeta.getName();
-    dispose();
-  }
-
-  private void cancel( Event event ) {
-    dispose();
-  }
-
-  private void dispose() {
-    props.setScreen( new WindowProperty( shell ) );
-    shell.dispose();
-  }
-
-  private void test( Event event ) {
+  private void test() {
     DatabaseMeta meta = new DatabaseMeta();
-    meta.initializeVariablesFrom( this.databaseMeta );
-    getInfo( meta );
-    testConnection( shell, meta );
+    meta.initializeVariablesFrom( getMetadata() );
+    getWidgetsContent( meta );
+    testConnection( getShell(), meta );
   }
 
-  /**
-   * Copy data from the metadata into the dialog.
-   */
-  private void getData() {
+  @Override
+  public void setWidgetsContent() {
 
-    wName.setText( Const.NVL( workingMeta.getName(), "" ) );
-    wConnectionType.setText( Const.NVL( workingMeta.getPluginName(), "" ) );
+	DatabaseMeta databaseMeta = this.getMetadata();
+	
+    wName.setText( Const.NVL( databaseMeta.getName(), "" ) );
+    wConnectionType.setText( Const.NVL( databaseMeta.getPluginName(), "" ) );
 
-    wUsername.setText( Const.NVL( workingMeta.getUsername(), "" ) );
-    wPassword.setText( Const.NVL( workingMeta.getPassword(), "" ) );
+    wUsername.setText( Const.NVL( databaseMeta.getUsername(), "" ) );
+    wPassword.setText( Const.NVL( databaseMeta.getPassword(), "" ) );
 
-    guiCompositeWidgets.setWidgetsContents( workingMeta.getIDatabase(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
+    guiCompositeWidgets.setWidgetsContents( databaseMeta.getIDatabase(), wDatabaseSpecificComp, DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
     // System.out.println( "---- widgets populated for class: " + workingMeta.getIDatabase().getClass().getName() );
 
-    wManualUrl.setText( Const.NVL( workingMeta.getManualUrl(), "" ) );
-    wSupportsBoolean.setSelection( workingMeta.supportsBooleanDataType() );
-    wSupportsTimestamp.setSelection( workingMeta.supportsTimestampDataType() );
-    wQuoteAll.setSelection( workingMeta.isQuoteAllFields() );
-    wForceLowercase.setSelection( workingMeta.isForcingIdentifiersToLowerCase() );
-    wForceUppercase.setSelection( workingMeta.isForcingIdentifiersToUpperCase() );
-    wPreserveCase.setSelection( workingMeta.preserveReservedCase() );
-    wPreferredSchema.setText( Const.NVL( workingMeta.getPreferredSchemaName(), "" ) );
-    wSqlStatements.setText( Const.NVL( workingMeta.getConnectSql(), "" ) );
+    wManualUrl.setText( Const.NVL( databaseMeta.getManualUrl(), "" ) );
+    wSupportsBoolean.setSelection( databaseMeta.supportsBooleanDataType() );
+    wSupportsTimestamp.setSelection( databaseMeta.supportsTimestampDataType() );
+    wQuoteAll.setSelection( databaseMeta.isQuoteAllFields() );
+    wForceLowercase.setSelection( databaseMeta.isForcingIdentifiersToLowerCase() );
+    wForceUppercase.setSelection( databaseMeta.isForcingIdentifiersToUpperCase() );
+    wPreserveCase.setSelection( databaseMeta.preserveReservedCase() );
+    wPreferredSchema.setText( Const.NVL( databaseMeta.getPreferredSchemaName(), "" ) );
+    wSqlStatements.setText( Const.NVL( databaseMeta.getConnectSql(), "" ) );
 
     wOptions.clearAll( false );
-    Map<String, String> optionsMap = workingMeta.getExtraOptionsMap();
+    Map<String, String> optionsMap = databaseMeta.getExtraOptionsMap();
     List<String> options = new ArrayList<>( optionsMap.keySet() );
     Collections.sort( options );
     for ( String option : options ) {
@@ -741,7 +718,8 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     enableFields();
   }
 
-  private DatabaseMeta getInfo( DatabaseMeta meta ) {
+  @Override
+  public void getWidgetsContent(DatabaseMeta meta) {
 
     meta.setName( wName.getText() );
     meta.setDatabaseType( wConnectionType.getText() );
@@ -751,11 +729,9 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     guiCompositeWidgets.getWidgetsContents( meta.getIDatabase(), DatabaseMeta.GUI_PLUGIN_ELEMENT_PARENT_ID );
 
     meta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
-
     meta.setManualUrl( wManualUrl.getText() );
     meta.setUsername( wUsername.getText() );
     meta.setPassword( wPassword.getText() );
-
     meta.setSupportsBooleanDataType( wSupportsBoolean.getSelection() );
     meta.setSupportsTimestampDataType( wSupportsTimestamp.getSelection() );
     meta.setQuoteAllFields( wQuoteAll.getSelection() );
@@ -772,8 +748,6 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
       String value = item.getText( 2 );
       meta.addExtraOption( meta.getPluginId(), option, value );
     }
-
-    return meta;
   }
 
 
@@ -823,45 +797,20 @@ public class DatabaseMetaDialog extends Dialog implements IMetadataDialog {
     return types;
   }
 
-  /**
-   * Gets databaseMeta
-   *
-   * @return value of databaseMeta
-   */
-  public DatabaseMeta getDatabaseMeta() {
-    return databaseMeta;
+  @Override
+  public Button[] createButtonsForButtonBar(Composite parent) {
+    Button wTest = new Button( parent, SWT.PUSH );
+    wTest.setText( BaseMessages.getString( PKG, "System.Button.Test" ) );
+    wTest.addListener( SWT.Selection, e -> test() );
+	
+    return new Button[] { wTest };	
   }
 
-  /**
-   * @param databaseMeta The databaseMeta to set
-   */
-  public void setDatabaseMeta( DatabaseMeta databaseMeta ) {
-    this.databaseMeta = databaseMeta;
-  }
-
-  public static void main( String[] args ) throws HopException {
-    Display display = new Display();
-    Shell shell = new Shell( display, SWT.MIN | SWT.MAX | SWT.RESIZE );
-    // shell.setSize( 500, 500 );
-    // shell.open();
-
-    HopClientEnvironment.init();
-    List<IPlugin> plugins = PluginRegistry.getInstance().getPlugins( DatabasePluginType.class );
-    HopEnvironment.init();
-    DatabaseMeta databaseMeta = new DatabaseMeta( "Test", "MYSQL", "Native", "localhost", "samples", "3306", "username", "password" );
-    DatabaseMetaDialog dialog = new DatabaseMetaDialog( shell, null, databaseMeta );
-    String name = dialog.open();
-
-    // Re-open with a new dialog...
-    //
-    DatabaseMetaDialog newDialog = new DatabaseMetaDialog( shell, null, databaseMeta );
-    newDialog.open();
-
-    // while ( shell != null && !shell.isDisposed() ) {
-    //   if ( !display.readAndDispatch() ) {
-    //    display.sleep();
-    //  }
-    // }
-    display.dispose();
+  @Override
+  public boolean setFocus() {
+    if (wName == null || wName.isDisposed()) {
+      return false;
+    }
+    return wName.setFocus();
   }
 }
