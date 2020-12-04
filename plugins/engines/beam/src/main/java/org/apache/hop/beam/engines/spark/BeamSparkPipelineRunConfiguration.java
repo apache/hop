@@ -240,7 +240,7 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     }
 
     if (StringUtils.isNotEmpty( getFatJar() )) {
-      options.setFilesToStage( Arrays.asList(fatJar) );
+      options.setFilesToStage( Arrays.asList(environmentSubstitute(fatJar)) );
     }
 
 
