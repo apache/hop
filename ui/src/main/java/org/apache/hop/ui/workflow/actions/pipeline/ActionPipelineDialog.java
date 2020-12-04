@@ -114,10 +114,6 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
 
         BaseTransformDialog.setSize(shell);
 
-        int width = 750;
-        int height = Const.isWindows() ? 730 : 720;
-
-        shell.setSize(width, height);
         shell.open();
         while (!shell.isDisposed()) {
             if (!display.readAndDispatch()) {
@@ -242,8 +238,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     }
 
     public void dispose() {
-        WindowProperty winprop = new WindowProperty(shell);
-        props.setScreen(winprop);
+        props.setScreen(new WindowProperty(shell));
         shell.dispose();
     }
 
