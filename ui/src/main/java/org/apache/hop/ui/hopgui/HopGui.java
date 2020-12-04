@@ -73,6 +73,7 @@ import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEventsHandler;
 import org.apache.hop.ui.core.dialog.EnterOptionsDialog;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.dialog.HopDescribedVariablesDialog;
@@ -187,6 +188,8 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
 
   private IHopMetadataProvider metadataProvider;
 
+  private HopGuiEventsHandler eventsHandler;
+
   private ILoggingObject loggingObject;
   private ILogChannel log;
 
@@ -242,6 +245,8 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     // TODO: create metadata plugin system
     //
     metadataProvider = HopMetadataUtil.getStandardHopMetadataProvider( variables );
+
+    eventsHandler = new HopGuiEventsHandler();
 
     updateMetadataManagers();
 
@@ -1319,4 +1324,19 @@ public class HopGui implements IActionContextHandlersProvider, ISearchableProvid
     return getInstance().id;
   }
 
+  /**
+   * Gets eventsHandler
+   *
+   * @return value of eventsHandler
+   */
+  public HopGuiEventsHandler getEventsHandler() {
+    return eventsHandler;
+  }
+
+  /**
+   * @param eventsHandler The eventsHandler to set
+   */
+  public void setEventsHandler( HopGuiEventsHandler eventsHandler ) {
+    this.eventsHandler = eventsHandler;
+  }
 }
