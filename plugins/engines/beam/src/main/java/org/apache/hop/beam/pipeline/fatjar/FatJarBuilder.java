@@ -42,6 +42,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.search.ISearchableAnalyser;
 import org.apache.hop.core.search.SearchableAnalyserPluginType;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.plugin.IVfs;
 import org.apache.hop.core.vfs.plugin.VfsPluginType;
 import org.apache.hop.core.xml.XmlHandler;
@@ -71,6 +72,7 @@ import java.util.zip.ZipOutputStream;
 
 public class FatJarBuilder {
 
+  private IVariables variables;
   private String targetJarFile;
   private List<String> jarFiles;
   private String extraTransformPluginClasses;
@@ -84,8 +86,9 @@ public class FatJarBuilder {
     extraXpPluginClasses = null;
   }
 
-  public FatJarBuilder( String targetJarFile, List<String> jarFiles ) {
+  public FatJarBuilder( IVariables variables, String targetJarFile, List<String> jarFiles ) {
     this();
+    this.variables = variables;
     this.targetJarFile = targetJarFile;
     this.jarFiles = jarFiles;
   }
@@ -99,9 +102,13 @@ public class FatJarBuilder {
       Const.XML_FILE_HOP_VFS_PLUGINS, Const.XML_FILE_HOP_SEARCH_ANALYSER_PLUGINS, Const.XML_FILE_HOP_METADATA_PLUGINS );
     fileContentMap = new HashMap<>();
 
+    // The real target file to write to...
+    //
+    String realTargetJarFile = variables.environmentSubstitute(targetJarFile);
+
     try {
       byte[] buffer = new byte[ 1024 ];
-      ZipOutputStream zipOutputStream = new ZipOutputStream( new FileOutputStream( targetJarFile ) );
+      ZipOutputStream zipOutputStream = new ZipOutputStream( new FileOutputStream( realTargetJarFile ) );
 
       boolean fileSystemWritten = false;
       for ( String jarFile : jarFiles ) {
@@ -215,7 +222,7 @@ public class FatJarBuilder {
 
       zipOutputStream.close();
     } catch ( Exception e ) {
-      throw new HopException( "Unable to build far jar file '" + targetJarFile + "'", e );
+      throw new HopException( "Unable to build far jar file '" + realTargetJarFile + "'", e );
     } finally {
       fileContentMap.clear();
     }

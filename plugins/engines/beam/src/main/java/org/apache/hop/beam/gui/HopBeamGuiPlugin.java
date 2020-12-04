@@ -100,7 +100,7 @@ public class HopBeamGuiPlugin {
       IRunnableWithProgress op = monitor -> {
         try {
           monitor.setTaskName( "Building a Hop fat jar..." );
-          FatJarBuilder fatJarBuilder = new FatJarBuilder( filename, jarFilenames );
+          FatJarBuilder fatJarBuilder = new FatJarBuilder( hopGui.getVariables(), filename, jarFilenames );
           fatJarBuilder.setExtraTransformPluginClasses( null );
           fatJarBuilder.setExtraXpPluginClasses( null );
           fatJarBuilder.buildTargetJar();
