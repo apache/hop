@@ -1701,7 +1701,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   @GuiKeyboardShortcut( control = true, key = 'v' )
   @GuiOsxKeyboardShortcut( command = true, key = 'v' )
   @Override public void pasteFromClipboard() {
-    workflowClipboardDelegate.pasteXml( workflowMeta, workflowClipboardDelegate.fromClipboard(), new Point( 50, 50 ) );
+    workflowClipboardDelegate.pasteXml( workflowMeta, workflowClipboardDelegate.fromClipboard(), lastMove==null ? new Point( 50, 50 ) : lastMove );
   }
 
   @GuiContextAction(

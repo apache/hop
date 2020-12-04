@@ -22,17 +22,41 @@
 
 package org.apache.hop.core.gui;
 
+import java.util.Objects;
+
 public class Point {
-  public Point( int x, int y ) {
+  public Point(int x, int y) {
     this.x = x;
     this.y = y;
+  }
+
+  public Point(Point p) {
+    this.x = p.x;
+    this.y = p.y;
   }
 
   public int x;
   public int y;
 
-  public void multiply( float factor ) {
-    x = Math.round( x * factor );
-    y = Math.round( y * factor );
+  public void multiply(float factor) {
+    x = Math.round(x * factor);
+    y = Math.round(y * factor);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    Point point = (Point) o;
+    return x == point.x && y == point.y;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(x, y);
   }
 }
