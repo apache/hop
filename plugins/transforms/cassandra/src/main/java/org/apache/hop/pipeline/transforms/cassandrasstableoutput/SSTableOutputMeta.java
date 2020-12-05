@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
     name = "SSTable output",
     documentationUrl = "Products/SSTable_Output",
     description = "Writes to a filesystem directory as a Cassandra SSTable",
-    categoryDescription = "Big Data")
+    categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "SSTableOutput.Injection.")
 @ParentFirst(patterns = {".*"})
 public class SSTableOutputMeta extends BaseTransformMeta
@@ -317,16 +317,6 @@ public class SSTableOutputMeta extends BaseTransformMeta
     directory = System.getProperty("java.io.tmpdir");
     bufferSize = "16";
     table = "";
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.di.trans.step.BaseTransformMeta#getDialogClassName()
-   */
-  @Override
-  public String getDialogClassName() {
-    return "org.apache.hop.di.trans.steps.cassandrasstableoutput.SSTableOutputDialog";
   }
 
   @Override

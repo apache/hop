@@ -57,7 +57,7 @@ import org.w3c.dom.Node;
     name = "Cassandra input",
     description = "Reads data from a Cassandra table",
     documentationUrl = "Products/Cassandra_Input",
-    categoryDescription = "Big Data")
+    categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraInput.Injection.")
 public class CassandraInputMeta extends BaseTransformMeta
     implements ITransformMeta<CassandraInput, CassandraInputData> {

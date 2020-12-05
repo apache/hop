@@ -43,7 +43,7 @@ import org.w3c.dom.Node;
     name = "Cassandra output",
     description = "Writes to a Cassandra table",
     documentationUrl = "Products/Cassandra_Output",
-    categoryDescription = "Big Data")
+    categoryDescription = "Cassandra")
 @InjectionSupported(localizationPrefix = "CassandraOutput.Injection.")
 public class CassandraOutputMeta extends BaseTransformMeta
     implements ITransformMeta<CassandraOutput, CassandraOutputData> {
@@ -928,16 +928,6 @@ public class CassandraOutputMeta extends BaseTransformMeta
     m_updateCassandraMeta = false;
     m_truncateTable = false;
     m_aprioriCQL = ""; // $NON-NLS-1$
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.di.trans.step.BaseTransformMeta#getDialogClassName()
-   */
-  @Override
-  public String getDialogClassName() {
-    return "org.apache.hop.di.trans.steps.cassandraoutput.CassandraOutputDialog"; //$NON-NLS-1$
   }
 
   @Override
