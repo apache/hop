@@ -87,32 +87,41 @@ pipeline {
         //         }
         //     }
         // }
-        stage('Create Docker image'){
+        stage('Create Docker image & Run Tests'){
             steps {
                 script {
                     dockerImage = docker.build(imagename, "-f Dockerfile.unit-tests .")
-                }
-            }
-        }
-        stage('Run Integration Tests'){
-            agent {
-                docker { 
-                    image 'hop:latest' 
-                    args "-v $WORKSPACE/integration-tests:/files"
+                    dockerImage.inside("-v $WORKSPACE/integration-tests:/files"){
+                        echo 'Run tests'
+                        echo 'ls /files'
                     }
-            }
-            steps {
-                script {
-                    echo 'Run tests'
-                    echo 'ls /files'
                 }
-            }            
+            }
             post {
                 always {
                     junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
                 }
             }
         }
+        // stage('Run Integration Tests'){
+        //     agent {
+        //         docker { 
+        //             image 'hop:latest' 
+        //             args "-v $WORKSPACE/integration-tests:/files"
+        //             }
+        //     }
+        //     steps {
+        //         script {
+        //             echo 'Run tests'
+        //             echo 'ls /files'
+        //         }
+        //     }            
+        //     post {
+        //         always {
+        //             junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
+        //         }
+        //     }
+        // }
         stage('Remove docker image'){
             steps {
                 sh "docker rmi $imagename:latest"
