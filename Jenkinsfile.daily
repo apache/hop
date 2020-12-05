@@ -95,9 +95,16 @@ pipeline {
             }
         }
         stage('Run Integration Tests'){
+            agent {
+                docker { 
+                    image 'hop:latest' 
+                    args "-v $WORKSPACE/integration-tests:/files"
+                    }
+            }
             steps {
                 script {
                     echo 'Run tests'
+                    echo 'ls /files'
                 }
             }            
             post {
@@ -108,7 +115,6 @@ pipeline {
         }
         stage('Remove docker image'){
             steps {
-                sh "docker rmi $imagename:$BUILD_NUMBER"
                 sh "docker rmi $imagename:latest"
             }
         }
