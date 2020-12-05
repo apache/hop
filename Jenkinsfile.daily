@@ -36,8 +36,6 @@ pipeline {
 
     environment {
         MAVEN_SKIP_RC = true
-        dockerImage = ''
-        imagename = 'hop'
     }
 
     options {
@@ -70,36 +68,19 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Build & Test') {
+        stage('Build') {
             when {
                 branch 'integration-tests'
             }
             steps {
-                echo 'Build & Test'
+                echo 'Build'
+
+                dir("local-snapshots-dir/") {
+                    deleteDir()
+                }
+
                 sh "mvn $MAVEN_PARAMS clean install"
             }
-        }
-        // stage('Code Quality') {
-        //     steps {
-        //         echo 'Checking Code Quality on SonarCloud'
-        //         withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
-        //             sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
-        //         }
-        //     }
-        // }
-        stage('Create Docker image'){
-            steps {
-                script {
-                    dockerImage = docker.build -f 'Dockerfile.unit-tests' imagename
-                }
-            }
-        }
-        stage('Run Integration Tests'){
-            steps {
-                script {
-                    echo 'Run tests'
-                }
-            }            
             post {
                 always {
                     junit(testResults: '**/surefire-reports/*.xml', allowEmptyResults: true)
@@ -107,9 +88,13 @@ pipeline {
                 }
             }
         }
-        stage('Remove docker image'){
-            sh "docker rmi $iamgename:$BUILD_NUMBER"
-            sh "docker rmi $iamgename:latest"
+        stage('Code Quality') {
+            steps {
+                echo 'Checking Code Quality on SonarCloud'
+                withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
+                    sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
+                }
+            }
         }
         
 
