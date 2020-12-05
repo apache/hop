@@ -76,7 +76,7 @@ pipeline {
             }
             steps {
                 echo 'Build & Test'
-                sh "mvn $MAVEN_PARAMS clean install"
+                sh "mvn $MAVEN_PARAMS clean install -DskipTests=true"
             }
         }
         // stage('Code Quality') {
@@ -102,15 +102,14 @@ pipeline {
             }            
             post {
                 always {
-                    junit(testResults: '**/surefire-reports/*.xml', allowEmptyResults: true)
-                    junit(testResults: '**/failsafe-reports/*.xml', allowEmptyResults: true)
+                    junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
                 }
             }
         }
         stage('Remove docker image'){
             steps {
-                sh "docker rmi $iamgename:$BUILD_NUMBER"
-                sh "docker rmi $iamgename:latest"
+                sh "docker rmi $imagename:$BUILD_NUMBER"
+                sh "docker rmi $imagename:latest"
             }
         }
         
