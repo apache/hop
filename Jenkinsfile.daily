@@ -90,7 +90,7 @@ pipeline {
         stage('Create Docker image'){
             steps {
                 script {
-                    dockerImage = docker.build -f 'Dockerfile.unit-tests' imagename
+                    dockerImage = docker.build(imagename, "-f Dockerfile.unit-tests .")
                 }
             }
         }
