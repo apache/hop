@@ -108,8 +108,10 @@ pipeline {
             }
         }
         stage('Remove docker image'){
-            sh "docker rmi $iamgename:$BUILD_NUMBER"
-            sh "docker rmi $iamgename:latest"
+            steps {
+                sh "docker rmi $iamgename:$BUILD_NUMBER"
+                sh "docker rmi $iamgename:latest"
+            }
         }
         
 
