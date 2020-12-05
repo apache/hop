@@ -39,4 +39,4 @@ USER hop
 ENV PATH=$PATH:${DEPLOYMENT_PATH}/hop
 WORKDIR /home/hop
 # CMD ["/bin/bash"]
-ENTRYPOINT ["/bin/bash", "/files/scripts/run-tests.sh"]
+ENTRYPOINT ["/bin/bash"]
