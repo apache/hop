@@ -312,8 +312,6 @@
         <include>org.scala-lang:scala-library</include>
         <include>org.slf4j:jcl-over-slf4j</include>
         <include>org.slf4j:jul-to-slf4j</include>
-        <include>org.slf4j:slf4j-api</include>
-        <include>org.slf4j:slf4j-log4j12</include>
         <include>org.spark-project.spark:unused</include>
         <include>org.springframework:spring-core</include>
         <include>org.springframework:spring-expression</include>
