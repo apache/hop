@@ -114,7 +114,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
   }
 
   public List<String> calculatePartitionIds() {
-    int nrPartitions = Const.toInt( environmentSubstitute( numberOfPartitions ), -1 );
+    int nrPartitions = Const.toInt( environmentSubstitute( numberOfPartitions ), 0 );
     if ( dynamicallyDefined ) {
       List<String> list = new ArrayList<>();
       for ( int i = 0; i < nrPartitions; i++ ) {

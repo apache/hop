@@ -498,6 +498,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       int partitionNr = copyNr;
       String partitionNrString = new DecimalFormat( "000" ).format( partitionNr );
       setVariable( Const.INTERNAL_VARIABLE_TRANSFORM_PARTITION_NR, partitionNrString );
+      transformMeta.getTransformPartitioningMeta().getPartitionSchema().initializeVariablesFrom( this );
       final List<String> partitionIdList = transformMeta.getTransformPartitioningMeta().getPartitionSchema().calculatePartitionIds();
 
       if ( partitionIdList.size() > 0 ) {
