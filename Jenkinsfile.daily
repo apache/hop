@@ -42,7 +42,7 @@ pipeline {
         MAVEN_SKIP_RC = true
         dockerImage = ''
         imagename = 'hop'
-        jenkins_user = ${USER}
+        jenkins_user = "${USER}"
         jenkins_uid = sh(script: "id -u ${USER}", returnStdout: true).trim()
         jenkins_gid = sh(script: "id -g ${USER}", returnStdout: true).trim()
         jenkins_group = sh(script: "id -gn ${USER}", returnStdout: true).trim()
