@@ -83,9 +83,6 @@ pipeline {
             }
         }
         stage('Build & Test') {
-            when {
-                branch 'master'
-            }
             steps {
                 echo 'Build & Test'
                 sh "mvn $MAVEN_PARAMS clean install"
@@ -95,9 +92,6 @@ pipeline {
             tools{
                 jdk 'jdk_11_latest'
             }
-            when {
-                branch 'master'
-            }
             steps {
                 echo 'Checking Code Quality on SonarCloud'
                 withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
@@ -106,9 +100,6 @@ pipeline {
             }
         }
         stage('Create Docker image & Run Tests'){
-            when {
-                branch 'master'
-            }
             steps {
                 script {
                     dockerImage = docker.build(imagename, "--build-arg JENKINS_USER=${jenkins_user} --build-arg JENKINS_UID=${jenkins_uid} --build-arg JENKINS_GROUP=${jenkins_group} --build-arg JENKINS_GID=${jenkins_gid} -f Dockerfile.unit-tests .")
@@ -125,9 +116,6 @@ pipeline {
             }
         }
         stage('Remove docker image'){
-            when {
-                branch 'master'
-            }
             steps {
                 sh "docker rmi $imagename:latest"
             }
