@@ -80,28 +80,28 @@ pipeline {
             }
             steps {
                 echo 'Build & Test'
-                sh "mvn $MAVEN_PARAMS clean install"
+                sh "mvn $MAVEN_PARAMS clean install -DskipTests=true"
             }
         }
-        stage('Code Quality') {
-            when {
-                branch 'integration-tests'
-            }
-            steps {
-                echo 'Checking Code Quality on SonarCloud'
-                withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
-                    sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
-                }
-            }
-        }
+        // stage('Code Quality') {
+        //     when {
+        //         branch 'integration-tests'
+        //     }
+        //     steps {
+        //         echo 'Checking Code Quality on SonarCloud'
+        //         withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
+        //             sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
+        //         }
+        //     }
+        // }
         stage('Create Docker image & Run Tests'){
             when {
                 branch 'integration-tests'
             }
             steps {
                 script {
-                    dockerImage = docker.build(imagename, "-f Dockerfile.unit-tests .")
-                    dockerImage.inside("-v $WORKSPACE/integration-tests:/files -u hop:hop"){
+                    dockerImage = docker.build(imagename, "-f Dockerfile.unit-tests -build-arg JENKINS_USER=$(JENKINS_USER) --build-arg JENKINS_UID=$(JENKINS_UID) --build-arg JENKINS_GROUP=$(JENKINS_GROUP) --build-arg JENKINS_GID=$(JENKINS_GID) .")
+                    dockerImage.inside("-v $WORKSPACE/integration-tests:/files"){
                         echo 'Run tests'
                         sh 'ls /files'
                         sh 'cd /files/scripts && ./run-tests.sh'
