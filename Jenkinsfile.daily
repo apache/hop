@@ -42,7 +42,10 @@ pipeline {
         MAVEN_SKIP_RC = true
         dockerImage = ''
         imagename = 'hop'
-        jenkins_user = $(JENKINS_USER)
+        jenkins_user = ${USER}
+        jenkins_uid = sh(script: "id -u ${USER}", returnStdout: true).trim()
+        jenkins_gid = sh(script: "id -g ${USER}", returnStdout: true).trim()
+        jenkins_group = sh(script: "id -gn ${USER}", returnStdout: true).trim()
     }
 
     options {
@@ -62,6 +65,9 @@ pipeline {
                   echo 'Building Branch: ' + env.BRANCH_NAME
                   echo 'Using PATH = ' + env.PATH
                   echo 'Using Jenkins user = ' + jenkins_user
+                  echo 'Using Jenkins userid = ' + jenkins_uid
+                  echo 'Using Jenkins group = ' + jenkins_group
+                  echo 'Using Jenkins groupid = ' + jenkins_gid
               }
          }
          stage('Cleanup') {
