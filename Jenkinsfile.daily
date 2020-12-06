@@ -100,7 +100,7 @@ pipeline {
             }
             steps {
                 script {
-                    dockerImage = docker.build(imagename, "-f Dockerfile.unit-tests -build-arg JENKINS_USER=$(JENKINS_USER) --build-arg JENKINS_UID=$(JENKINS_UID) --build-arg JENKINS_GROUP=$(JENKINS_GROUP) --build-arg JENKINS_GID=$(JENKINS_GID) .")
+                    dockerImage = docker.build(imagename, "-f Dockerfile.unit-tests --build-arg JENKINS_USER=$(JENKINS_USER) --build-arg JENKINS_UID=$(JENKINS_UID) --build-arg JENKINS_GROUP=$(JENKINS_GROUP) --build-arg JENKINS_GID=$(JENKINS_GID) .")
                     dockerImage.inside("-v $WORKSPACE/integration-tests:/files"){
                         echo 'Run tests'
                         sh 'ls /files'
