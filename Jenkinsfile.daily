@@ -102,34 +102,34 @@ pipeline {
         //         }
         //     }
         // }
-        // stage('Create Docker image & Run Tests'){
-        //     when {
-        //         branch 'integration-tests'
-        //     }
-        //     steps {
-        //         script {
-        //             dockerImage = docker.build(imagename, "--build-arg JENKINS_USER=$(JENKINS_USER) --build-arg JENKINS_UID=$(JENKINS_UID) --build-arg JENKINS_GROUP=$(JENKINS_GROUP) --build-arg JENKINS_GID=$(JENKINS_GID) -f Dockerfile.unit-tests .")
-        //             dockerImage.inside("-v $WORKSPACE/integration-tests:/files"){
-        //                 echo 'Run tests'
-        //                 sh 'ls /files'
-        //                 sh 'cd /files/scripts && ./run-tests.sh'
-        //             }
-        //         }
-        //     }
-        //     post {
-        //         always {
-        //             junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
-        //         }
-        //     }
-        // }
-        // stage('Remove docker image'){
-        //     when {
-        //         branch 'integration-tests'
-        //     }
-        //     steps {
-        //         sh "docker rmi $imagename:latest"
-        //     }
-        // }
+        stage('Create Docker image & Run Tests'){
+            when {
+                branch 'integration-tests'
+            }
+            steps {
+                script {
+                    dockerImage = docker.build(imagename, "--build-arg JENKINS_USER=${jenkins_user} --build-arg JENKINS_UID=${jenkins_uid} --build-arg JENKINS_GROUP=${jenkins_group} --build-arg JENKINS_GID=${jenkins_gid} -f Dockerfile.unit-tests .")
+                    dockerImage.inside("-v $WORKSPACE/integration-tests:/files"){
+                        echo 'Run tests'
+                        sh 'ls /files'
+                        sh 'cd /files/scripts && ./run-tests.sh'
+                    }
+                }
+            }
+            post {
+                always {
+                    junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
+                }
+            }
+        }
+        stage('Remove docker image'){
+            when {
+                branch 'integration-tests'
+            }
+            steps {
+                sh "docker rmi $imagename:latest"
+            }
+        }
         
 
     }
