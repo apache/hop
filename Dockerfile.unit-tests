@@ -9,10 +9,10 @@ ENV DEPLOYMENT_PATH=/opt
 # volume mount point
 ENV VOLUME_MOUNT_POINT=/files
 #Jenkins user an group
-ENV JENKINS_USER=hop
-ENV JENKINS_GROUP=hop
-ENV JENKINS_UID=1000
-ENV JENKINS_GID=1000
+ARG JENKINS_USER=hop
+ARG JENKINS_GROUP=hop
+ARG JENKINS_UID=1000
+ARG JENKINS_GID=1000
 
 # any JRE settings you want to pass on
 # The “-XX:+AggressiveHeap” tells the container to use all memory assigned to the container. 
