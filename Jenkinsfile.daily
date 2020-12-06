@@ -84,7 +84,7 @@ pipeline {
         }
         stage('Build & Test') {
             when {
-                branch 'integration-tests'
+                branch 'master'
             }
             steps {
                 echo 'Build & Test'
@@ -96,7 +96,7 @@ pipeline {
                 jdk 'jdk_11_latest'
             }
             when {
-                branch 'integration-tests'
+                branch 'master'
             }
             steps {
                 echo 'Checking Code Quality on SonarCloud'
@@ -107,7 +107,7 @@ pipeline {
         }
         stage('Create Docker image & Run Tests'){
             when {
-                branch 'integration-tests'
+                branch 'master'
             }
             steps {
                 script {
@@ -126,7 +126,7 @@ pipeline {
         }
         stage('Remove docker image'){
             when {
-                branch 'integration-tests'
+                branch 'master'
             }
             steps {
                 sh "docker rmi $imagename:latest"
