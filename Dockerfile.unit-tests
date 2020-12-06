@@ -43,6 +43,8 @@ RUN unzip ${DEPLOYMENT_PATH}/hop.zip -d ${DEPLOYMENT_PATH} \
 VOLUME ["/files"]
 USER ${JENKINS_USER}
 ENV PATH=$PATH:${DEPLOYMENT_PATH}/hop
+#SET HOP_JAVA_HOME
+ENV HOP_JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
 WORKDIR /home/${JENKINS_USER}
 # CMD ["/bin/bash"]
 ENTRYPOINT []
