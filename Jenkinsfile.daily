@@ -88,20 +88,23 @@ pipeline {
             }
             steps {
                 echo 'Build & Test'
-                sh "mvn $MAVEN_PARAMS clean install -DskipTests=true"
+                sh "mvn $MAVEN_PARAMS clean install"
             }
         }
-        // stage('Code Quality') {
-        //     when {
-        //         branch 'integration-tests'
-        //     }
-        //     steps {
-        //         echo 'Checking Code Quality on SonarCloud'
-        //         withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
-        //             sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
-        //         }
-        //     }
-        // }
+        stage('Code Quality') {
+            tools{
+                jdk 'jdk_11_latest'
+            }
+            when {
+                branch 'integration-tests'
+            }
+            steps {
+                echo 'Checking Code Quality on SonarCloud'
+                withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
+                    sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
+                }
+            }
+        }
         stage('Create Docker image & Run Tests'){
             when {
                 branch 'integration-tests'
@@ -128,9 +131,7 @@ pipeline {
             steps {
                 sh "docker rmi $imagename:latest"
             }
-        }
-        
-
+        }       
     }
     post {
         always {
