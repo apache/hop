@@ -29,6 +29,10 @@ pipeline {
         label AGENT_LABEL
     }
 
+    triggers {
+        cron('H H(2-7) * * *')
+    }
+
     tools {
         jdk JDK_NAME
         maven MAVEN_NAME
@@ -38,6 +42,10 @@ pipeline {
         MAVEN_SKIP_RC = true
         dockerImage = ''
         imagename = 'hop'
+        jenkins_user = "${USER}"
+        jenkins_uid = sh(script: "id -u ${USER}", returnStdout: true).trim()
+        jenkins_gid = sh(script: "id -g ${USER}", returnStdout: true).trim()
+        jenkins_group = sh(script: "id -gn ${USER}", returnStdout: true).trim()
     }
 
     options {
@@ -56,6 +64,10 @@ pipeline {
               steps {
                   echo 'Building Branch: ' + env.BRANCH_NAME
                   echo 'Using PATH = ' + env.PATH
+                  echo 'Using Jenkins user = ' + jenkins_user
+                  echo 'Using Jenkins userid = ' + jenkins_uid
+                  echo 'Using Jenkins group = ' + jenkins_group
+                  echo 'Using Jenkins groupid = ' + jenkins_gid
               }
          }
          stage('Cleanup') {
@@ -72,47 +84,54 @@ pipeline {
         }
         stage('Build & Test') {
             when {
-                branch 'integration-tests'
+                branch 'master'
             }
             steps {
                 echo 'Build & Test'
                 sh "mvn $MAVEN_PARAMS clean install"
             }
         }
-        // stage('Code Quality') {
-        //     steps {
-        //         echo 'Checking Code Quality on SonarCloud'
-        //         withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
-        //             sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
-        //         }
-        //     }
-        // }
-        stage('Create Docker image'){
+        stage('Code Quality') {
+            tools{
+                jdk 'jdk_11_latest'
+            }
+            when {
+                branch 'master'
+            }
             steps {
-                script {
-                    dockerImage = docker.build -f 'Dockerfile.unit-tests' imagename
+                echo 'Checking Code Quality on SonarCloud'
+                withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
+                    sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
                 }
             }
         }
-        stage('Run Integration Tests'){
+        stage('Create Docker image & Run Tests'){
+            when {
+                branch 'master'
+            }
             steps {
                 script {
-                    echo 'Run tests'
+                    dockerImage = docker.build(imagename, "--build-arg JENKINS_USER=${jenkins_user} --build-arg JENKINS_UID=${jenkins_uid} --build-arg JENKINS_GROUP=${jenkins_group} --build-arg JENKINS_GID=${jenkins_gid} -f Dockerfile.unit-tests .")
+                    dockerImage.inside("-v $WORKSPACE/integration-tests:/files"){
+                        echo 'Run tests'
+                        sh 'cd /files/scripts && ./run-tests.sh'
+                    }
                 }
-            }            
+            }
             post {
                 always {
-                    junit(testResults: '**/surefire-reports/*.xml', allowEmptyResults: true)
-                    junit(testResults: '**/failsafe-reports/*.xml', allowEmptyResults: true)
+                    junit(testResults: 'integration-tests/**/surefire-reports/*.xml', allowEmptyResults: true)
                 }
             }
         }
         stage('Remove docker image'){
-            sh "docker rmi $iamgename:$BUILD_NUMBER"
-            sh "docker rmi $iamgename:latest"
-        }
-        
-
+            when {
+                branch 'master'
+            }
+            steps {
+                sh "docker rmi $imagename:latest"
+            }
+        }       
     }
     post {
         always {

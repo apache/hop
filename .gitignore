@@ -27,4 +27,4 @@ Workflow Run Configuration/
 Hop Server/
 Relational Database Connection/
 \.temp-beam-*/
-
+integration-tests/surefire-reports

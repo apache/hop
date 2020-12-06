@@ -98,14 +98,6 @@ pipeline {
                 }
             }
         }
-        stage('Code Quality') {
-            steps {
-                echo 'Checking Code Quality on SonarCloud'
-                withCredentials([string(credentialsId: 'sonarcloud-key-apache-hop', variable: 'SONAR_TOKEN')]) {
-                    sh 'mvn sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=apache -Dsonar.projectKey=apache_incubator-hop -Dsonar.branch.name=${BRANCH_NAME} -Dsonar.login=${SONAR_TOKEN}'
-                }
-            }
-        }
         stage('Deploy'){
             when {
                 branch 'master'
