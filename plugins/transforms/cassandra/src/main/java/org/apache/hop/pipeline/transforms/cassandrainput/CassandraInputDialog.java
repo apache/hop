@@ -166,7 +166,7 @@ public class CassandraInputDialog extends BaseTransformDialog implements ITransf
     fd.top = new FormAttachment(0, margin);
     m_transformNameLabel.setLayoutData(fd);
     m_transformNameText = new Text(shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
-    // m_transformNameText.setText( transformName );
+    m_transformNameText.setText( transformName );
     props.setLook(m_transformNameText);
     m_transformNameText.addModifyListener(lsMod);
 
