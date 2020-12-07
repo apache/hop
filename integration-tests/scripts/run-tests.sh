@@ -16,7 +16,6 @@ spacer="==========================================="
 
 #cleanup Temp
 echo "" > /tmp/testcases
-echo "" > /tmp/surefire_report.xml
 
 #Loop over project folders
 for d in $current_dir/../*/ ; do
