@@ -6,9 +6,9 @@
   <extended_description/>
   <workflow_version/>
   <created_user>-</created_user>
-  <created_date>2020/12/05 14:11:58.724</created_date>
+  <created_date>2020/12/07 13:00:01.606</created_date>
   <modified_user>-</modified_user>
-  <modified_date>2020/12/05 14:11:58.724</modified_date>
+  <modified_date>2020/12/07 13:00:01.607</modified_date>
   <parameters>
     </parameters>
   <pass_batchid>N</pass_batchid>
@@ -30,16 +30,16 @@
       <DayOfMonth>1</DayOfMonth>
       <parallel>N</parallel>
       <nr>0</nr>
-      <xloc>327</xloc>
-      <yloc>139</yloc>
+      <xloc>240</xloc>
+      <yloc>128</yloc>
       <attributes_hac/>
     </action>
     <action>
-      <name>Pipeline</name>
+      <name>testcase</name>
       <description/>
       <type>PIPELINE</type>
       <attributes/>
-      <filename>${PROJECT_HOME}/main.hpl</filename>
+      <filename>${PROJECT_HOME}/testcase.hpl</filename>
       <params_from_previous>N</params_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -60,8 +60,8 @@
       </parameters>
       <parallel>N</parallel>
       <nr>0</nr>
-      <xloc>517</xloc>
-      <yloc>140</yloc>
+      <xloc>419</xloc>
+      <yloc>128</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -71,8 +71,8 @@
       <attributes/>
       <parallel>N</parallel>
       <nr>0</nr>
-      <xloc>744</xloc>
-      <yloc>138</yloc>
+      <xloc>551</xloc>
+      <yloc>128</yloc>
       <attributes_hac/>
     </action>
     <action>
@@ -83,15 +83,15 @@
       <message/>
       <parallel>N</parallel>
       <nr>0</nr>
-      <xloc>512</xloc>
-      <yloc>256</yloc>
+      <xloc>419</xloc>
+      <yloc>261</yloc>
       <attributes_hac/>
     </action>
   </actions>
   <hops>
     <hop>
       <from>START</from>
-      <to>Pipeline</to>
+      <to>testcase</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -99,21 +99,21 @@
       <unconditional>Y</unconditional>
     </hop>
     <hop>
-      <from>Pipeline</from>
-      <to>Success</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Pipeline</from>
+      <from>testcase</from>
       <to>Abort workflow</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>testcase</from>
+      <to>Success</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
     </hop>
   </hops>
