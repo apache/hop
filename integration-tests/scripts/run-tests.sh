@@ -14,7 +14,11 @@ skipped_counter=0
 failures_counter=0
 spacer="==========================================="
 
+#cleanup Temp
+echo "" > /tmp/testcases
+echo "" > /tmp/surefire_report.xml
 
+#Loop over project folders
 for d in $current_dir/../*/ ; do
     if [[ "$d" != *"scripts/" ]]; then
 
@@ -56,10 +60,14 @@ for d in $current_dir/../*/ ; do
             echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >> /tmp/testcases
             echo "<failure type=\"$test_name\"></failure>" >> /tmp/testcases
             echo "<system-out>" >> /tmp/testcases
+            echo "<![CDATA["  >> /tmp/testcases
             cat /tmp/test_output >> /tmp/testcases
+            echo "]]>"  >> /tmp/testcases
             echo "</system-out>" >> /tmp/testcases
             echo "<system-err>" >> /tmp/testcases
+            echo "<![CDATA["  >> /tmp/testcases
             cat /tmp/test_output_err >> /tmp/testcases
+            echo "]]>"  >> /tmp/testcases
             echo "</system-err>" >> /tmp/testcases
             echo "</testcase>" >> /tmp/testcases
 
@@ -67,7 +75,9 @@ for d in $current_dir/../*/ ; do
             #Create surefire xml success
             echo "<testcase name=\"$test_name\" time=\"$test_duration\">" >> /tmp/testcases
             echo "<system-out>" >> /tmp/testcases
+            echo "<![CDATA["  >> /tmp/testcases
             cat /tmp/test_output >> /tmp/testcases
+            echo "]]>"  >> /tmp/testcases
             echo "</system-out>" >> /tmp/testcases
             echo "</testcase>" >> /tmp/testcases
         fi
