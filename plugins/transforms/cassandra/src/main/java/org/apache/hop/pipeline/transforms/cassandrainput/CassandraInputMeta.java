@@ -666,9 +666,8 @@ public class CassandraInputMeta extends BaseTransformMeta
 
   @Override
   public ITransform createTransform(
-      TransformMeta arg0, CassandraInputData arg1, int arg2, PipelineMeta arg3, Pipeline arg4) {
-    // TODO Auto-generated method stub
-    return null;
+      TransformMeta transMeta, CassandraInputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline) {
+    return new CassandraInput( transMeta, this, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

@@ -942,8 +942,7 @@ public class CassandraOutputMeta extends BaseTransformMeta
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
-    // TODO Auto-generated method stub
-    return new CassandraOutput(transMeta, null, data, copyNr, pipelineMeta, pipeline);
+    return new CassandraOutput(transMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override

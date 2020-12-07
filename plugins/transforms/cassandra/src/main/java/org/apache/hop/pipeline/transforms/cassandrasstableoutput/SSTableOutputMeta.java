@@ -326,8 +326,7 @@ public class SSTableOutputMeta extends BaseTransformMeta
       int copyNr,
       PipelineMeta pipelineMeta,
       Pipeline pipeline) {
-    // TODO Auto-generated method stub
-    return new SSTableOutput(transMeta, null, data, copyNr, pipelineMeta, pipeline);
+    return new SSTableOutput(transMeta, this, data, copyNr, pipelineMeta, pipeline);
   }
 
   @Override
