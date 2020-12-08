@@ -159,6 +159,7 @@ public class ActionEval extends ActionBase implements Cloneable, IAction {
       scope.put( "parent_job", scope, parentWorkflow ); // migration
       scope.put( "parent_workflow", scope, parentWorkflow );
       scope.put( "previous_result", scope, prevResult );
+      scope.put( "log", scope, getLogChannel() );
 
       try {
         Object res = cx.evaluateString( scope, this.script, "<cmd>", 1, null );
