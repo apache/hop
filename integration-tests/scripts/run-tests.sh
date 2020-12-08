@@ -16,6 +16,9 @@ mkdir -p $current_dir/../surefire-reports/
 
 #Loop over project folders
 for d in $current_dir/../*/ ; do
+    #cleanup project testcases
+    rm -f /tmp/testcases
+
     if [[ "$d" != *"scripts/" ]] && [[ "$d" != *"surefire-reports/" ]]; then
 
         #set test variables
