@@ -121,7 +121,7 @@ public class ExtensionPointIntegrationTest {
     ctClass.addInterface( pool.get( IExtensionPoint.class.getCanonicalName() ) );
     ctClass.addField( CtField.make( "public boolean " + EXECUTED_FIELD_NAME + ";", ctClass ) );
     ctClass.addMethod( CtNewMethod.make(
-      "public void callExtensionPoint( org.apache.hop.core.logging.ILogChannel log, Object object ) "
+      "public void callExtensionPoint( org.apache.hop.core.logging.ILogChannel log, org.apache.hop.core.variables.IVariables variables, Object object ) "
         + "throws org.apache.hop.core.exception.HopException { " + EXECUTED_FIELD_NAME + " = true; }",
       ctClass ) );
     return ctClass.toClass();
@@ -134,9 +134,9 @@ public class ExtensionPointIntegrationTest {
     List<Runnable> parallelTasksList = new ArrayList<>( TOTAL_THREADS_TO_RUN );
     for ( int i = 0; i < TOTAL_THREADS_TO_RUN; i++ ) {
       parallelTasksList.add( () -> {
-        HopExtensionPoint kettleExtensionPoint = getRandomHopExtensionPoint();
+        HopExtensionPoint hopExtensionPoint = getRandomHopExtensionPoint();
         IPlugin pluginInterface = PluginRegistry.getInstance().getPlugin( ExtensionPointPluginType.class,
-          "id" + kettleExtensionPoint.id );
+          "id" + hopExtensionPoint.id );
 
         try {
           PluginRegistry.getInstance().removePlugin( ExtensionPointPluginType.class, pluginInterface );
@@ -150,7 +150,7 @@ public class ExtensionPointIntegrationTest {
         ExtensionPointMap.getInstance().reInitialize();
 
         try {
-          ExtensionPointMap.getInstance().callExtensionPoint( log, null, kettleExtensionPoint.id, null );
+          ExtensionPointMap.getInstance().callExtensionPoint( log, null, hopExtensionPoint.id, null );
         } catch ( HopException e ) {
           e.printStackTrace();
         }
@@ -161,9 +161,9 @@ public class ExtensionPointIntegrationTest {
   }
 
   private static HopExtensionPoint getRandomHopExtensionPoint() {
-    HopExtensionPoint[] kettleExtensionPoints = HopExtensionPoint.values();
-    int randomInd = ThreadLocalRandom.current().nextInt( 0, kettleExtensionPoints.length );
-    return kettleExtensionPoints[ randomInd ];
+    HopExtensionPoint[] hopExtensionPoints = HopExtensionPoint.values();
+    int randomInd = ThreadLocalRandom.current().nextInt( 0, hopExtensionPoints.length );
+    return hopExtensionPoints[ randomInd ];
   }
 
   private static void assertConcurrent( final List<? extends Runnable> runnables ) throws InterruptedException {
