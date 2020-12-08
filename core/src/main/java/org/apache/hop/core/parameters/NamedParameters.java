@@ -135,7 +135,7 @@ public class NamedParameters implements INamedParameters {
   public void activateParameters(IVariables variables) {
     for (NamedParameter param : params.values()) {
       if (StringUtils.isNotEmpty(param.key)) {
-        variables.setVariable(param.key, Const.NVL(param.value, param.defaultValue));
+        variables.setVariable(param.key, Const.NVL(param.value, Const.NVL(param.defaultValue, "")));
       }
     }
   }
