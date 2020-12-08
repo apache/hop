@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -203,15 +202,8 @@ public class HopGuiPipelineRunDelegate {
       // Set the run options
       pipelineMeta.setClearingLog( executionConfiguration.isClearingLog() );
 
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineMetaExecutionStart.id, pipelineMeta );
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id, executionConfiguration );
-
-      try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineBeforeStart.id, new Object[] { executionConfiguration, pipelineMeta, pipelineMeta } );
-      } catch ( HopException e ) {
-        log.logError( e.getMessage(), pipelineMeta.getFilename() );
-        return null;
-      }
+      ExtensionPointHandler.callExtensionPoint( log, pipelineGraph.getVariables(), HopExtensionPoint.HopGuiPipelineMetaExecutionStart.id, pipelineMeta );
+      ExtensionPointHandler.callExtensionPoint( log, pipelineGraph.getVariables(), HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id, executionConfiguration );
 
       // Verify if there is at least one transform specified to debug or preview...
       // TODO: Is this a local preview or debugging execution? We might want to get rid of the distinction

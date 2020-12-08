@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -40,7 +41,7 @@ import org.apache.hop.pipeline.engine.IPipelineEngine;
  */
 public class PipelineStartCheckProjectExtensionPoint implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
-  @Override public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
 
     String filename = pipeline.getFilename();
 

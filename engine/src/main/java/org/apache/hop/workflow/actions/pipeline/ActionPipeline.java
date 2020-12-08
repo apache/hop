@@ -262,8 +262,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
 

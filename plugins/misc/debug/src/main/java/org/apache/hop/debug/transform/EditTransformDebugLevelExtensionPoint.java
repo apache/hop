@@ -42,7 +42,7 @@ import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExten
   description = "Edit the custom transform debug level with a single click"
 )
 public class EditTransformDebugLevelExtensionPoint implements IExtensionPoint<HopGuiPipelineGraphExtension> {
-  @Override public void callExtensionPoint( ILogChannel log, HopGuiPipelineGraphExtension ext ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiPipelineGraphExtension ext ) throws HopException {
     try {
       if ( ext.getAreaOwner() == null || ext.getAreaOwner().getOwner() == null ) {
         return;
@@ -53,7 +53,6 @@ public class EditTransformDebugLevelExtensionPoint implements IExtensionPoint<Ho
       TransformDebugLevel debugLevel = (TransformDebugLevel) ext.getAreaOwner().getOwner();
       PipelineMeta pipelineMeta = ext.getPipelineGraph().getPipelineMeta();
       TransformMeta transformMeta = (TransformMeta) ext.getAreaOwner().getParent();
-      IVariables variables = ext.getPipelineGraph().getVariables();
       IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
       TransformDebugLevelDialog dialog = new TransformDebugLevelDialog( HopGui.getInstance().getShell(), debugLevel, inputRowMeta );

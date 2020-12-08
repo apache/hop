@@ -23,6 +23,7 @@ import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -41,7 +42,7 @@ import static org.apache.hop.git.PdiDiff.REMOVED;
 public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
 
   @Override
-  public void callExtensionPoint(ILogChannel log, Object object) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
     if (!(object instanceof WorkflowPainter)) {
       return;
     }

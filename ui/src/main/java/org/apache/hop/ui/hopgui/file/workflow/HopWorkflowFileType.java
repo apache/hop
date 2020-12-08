@@ -133,7 +133,7 @@ public class HopWorkflowFileType<T extends WorkflowMeta> extends HopFileTypeBase
 
       // Inform those that want to know about it that we loaded a pipeline
       //
-      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), "WorkflowAfterOpen", workflowMeta );
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), parentVariableSpace, "WorkflowAfterOpen", workflowMeta );
 
       // Show it in the perspective
       //

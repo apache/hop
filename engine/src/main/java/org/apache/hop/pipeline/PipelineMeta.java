@@ -2299,7 +2299,7 @@ public class PipelineMeta extends AbstractMeta
         throw new HopXmlException(e);
       } finally {
         ExtensionPointHandler.callExtensionPoint(
-            log, HopExtensionPoint.PipelineMetaLoaded.id, this);
+            log, variables, HopExtensionPoint.PipelineMetaLoaded.id, this );
       }
     } catch (Exception e) {
       // See if we have missing plugins to report, those take precedence!
@@ -3186,9 +3186,8 @@ public class PipelineMeta extends AbstractMeta
       }
 
       ExtensionPointHandler.callExtensionPoint(
-          getLogChannel(),
-          HopExtensionPoint.BeforeCheckTransforms.id,
-          new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
+          getLogChannel(), variables,
+        HopExtensionPoint.BeforeCheckTransforms.id, new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider) );
 
       boolean stop_checking = false;
 
@@ -3262,17 +3261,15 @@ public class PipelineMeta extends AbstractMeta
 
           // Check transform specific info...
           ExtensionPointHandler.callExtensionPoint(
-              getLogChannel(),
-              HopExtensionPoint.BeforeCheckTransform.id,
-              new CheckTransformsExtension(
-                  remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
+              getLogChannel(), variables,
+            HopExtensionPoint.BeforeCheckTransform.id, new CheckTransformsExtension(
+                remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider) );
           transformMeta.check(
               remarks, this, prev, input, output, info, variables, metadataProvider);
           ExtensionPointHandler.callExtensionPoint(
-              getLogChannel(),
-              HopExtensionPoint.AfterCheckTransform.id,
-              new CheckTransformsExtension(
-                  remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider));
+              getLogChannel(), variables,
+            HopExtensionPoint.AfterCheckTransform.id, new CheckTransformsExtension(
+                remarks, variables, this, new TransformMeta[] {transformMeta}, metadataProvider) );
 
           // See if illegal characters etc. were used in field-names...
           if (prev != null) {
@@ -3405,9 +3402,8 @@ public class PipelineMeta extends AbstractMeta
         monitor.worked(1);
       }
       ExtensionPointHandler.callExtensionPoint(
-          getLogChannel(),
-          HopExtensionPoint.AfterCheckTransforms.id,
-          new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider));
+          getLogChannel(), variables,
+        HopExtensionPoint.AfterCheckTransforms.id, new CheckTransformsExtension(remarks, variables, this, transforms, metadataProvider) );
     } catch (Exception e) {
       log.logError(Const.getStackTracker(e));
       throw new RuntimeException(e);

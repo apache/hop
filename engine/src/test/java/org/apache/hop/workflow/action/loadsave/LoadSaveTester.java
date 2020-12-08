@@ -25,6 +25,8 @@ package org.apache.hop.workflow.action.loadsave;
 
 import org.apache.hop.base.LoadSaveBase;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.pipeline.transforms.loadsave.initializer.ActionInitializer;
@@ -100,7 +102,8 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
     T metaLoaded = createMeta();
     String xml = "<transform>" + metaToSave.getXml() + "</transform>";
     InputStream is = new ByteArrayInputStream( xml.getBytes() );
-    metaLoaded.loadXml( XmlHandler.getSubNode( XmlHandler.loadXmlFile( is, null, false, false ), "transform" ), metadataProvider );
+    IVariables variables = new Variables();
+    metaLoaded.loadXml( XmlHandler.getSubNode( XmlHandler.loadXmlFile( is, null, false, false ), "transform" ), metadataProvider, variables);
     validateLoadedMeta( xmlAttributes, validatorMap, metaToSave, metaLoaded );
   }
 

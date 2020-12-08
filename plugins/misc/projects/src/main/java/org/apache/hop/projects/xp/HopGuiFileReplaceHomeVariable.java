@@ -28,6 +28,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
@@ -45,7 +46,7 @@ public class HopGuiFileReplaceHomeVariable implements IExtensionPoint<HopGuiFile
 
   // TODO make this optional
 
-  @Override public void callExtensionPoint( ILogChannel log, HopGuiFileOpenedExtension ext ) {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiFileOpenedExtension ext ) {
 
     // Is there an active project?
     //

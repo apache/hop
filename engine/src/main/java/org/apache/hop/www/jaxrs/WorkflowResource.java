@@ -162,7 +162,8 @@ public class WorkflowResource {
     //
     WorkflowConfiguration workflowConfiguration;
     try {
-      workflowConfiguration = WorkflowConfiguration.fromXML( xml );
+      IVariables variables = Variables.getADefaultVariableSpace(); // TODO
+      workflowConfiguration = WorkflowConfiguration.fromXml( xml, variables);
       IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
@@ -176,7 +177,6 @@ public class WorkflowResource {
       // Create the workflow and store in the list...
       //
       String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
-      IVariables variables = Variables.getADefaultVariableSpace();
       final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
       // Setting variables

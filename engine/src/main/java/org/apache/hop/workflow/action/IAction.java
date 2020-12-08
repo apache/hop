@@ -240,9 +240,10 @@ public interface IAction {
    *
    * @param entrynode the top-level XML node
    * @param metadataProvider The metadataProvider to optionally load from.
+   * @param variables
    * @throws HopXmlException if any errors occur during the loading of the XML
    */
-  void loadXml( Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException;
+  void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException;
 
   /**
    * This method is called by PDI whenever a action needs to serialize its settings to XML. It is called when saving

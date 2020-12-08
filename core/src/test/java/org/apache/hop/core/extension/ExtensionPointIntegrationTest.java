@@ -82,7 +82,7 @@ public class ExtensionPointIntegrationTest {
     for ( HopExtensionPoint ep : HopExtensionPoint.values() ) {
       final IExtensionPoint currentEP = ExtensionPointMap.getInstance().getTableValue( ep.id, "id" + ep.id );
       assertFalse( currentEP.getClass().getField( EXECUTED_FIELD_NAME ).getBoolean( currentEP ) );
-      ExtensionPointHandler.callExtensionPoint( log, ep.id, null );
+      ExtensionPointHandler.callExtensionPoint( log, null, ep.id, null );
       assertTrue( currentEP.getClass().getField( EXECUTED_FIELD_NAME ).getBoolean( currentEP ) );
     }
 
@@ -150,7 +150,7 @@ public class ExtensionPointIntegrationTest {
         ExtensionPointMap.getInstance().reInitialize();
 
         try {
-          ExtensionPointMap.getInstance().callExtensionPoint( log, kettleExtensionPoint.id, null );
+          ExtensionPointMap.getInstance().callExtensionPoint( log, null, kettleExtensionPoint.id, null );
         } catch ( HopException e ) {
           e.printStackTrace();
         }

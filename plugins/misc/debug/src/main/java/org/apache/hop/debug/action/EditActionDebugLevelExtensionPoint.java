@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -40,7 +41,7 @@ import org.apache.hop.workflow.action.ActionMeta;
   description = "Edit the custom action debug level with a single click"
 )
 public class EditActionDebugLevelExtensionPoint implements IExtensionPoint<HopGuiWorkflowGraphExtension> {
-  @Override public void callExtensionPoint( ILogChannel log, HopGuiWorkflowGraphExtension ext ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiWorkflowGraphExtension ext ) throws HopException {
     try {
       if ( ext.getAreaOwner() == null || ext.getAreaOwner().getOwner() == null ) {
         return;

@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.TestType;
@@ -39,7 +40,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 )
 public class HopGuiUnitTestCreateBeforeDialog extends HopGuiUnitTestChanged implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel log, Object object ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
 
     // Ignore all other metadata object changes
     //

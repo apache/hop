@@ -28,6 +28,7 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
@@ -36,40 +37,33 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 
 @ExtensionPoint(
-  extensionPointId = "HopGuiPipelineMetaExecutionStart",
-  id = "HopGuiFlagUnitTestExtensionPoint",
+  extensionPointId = "HopGuiPipelineBeforeStart",
+  id = "HopGuiFlagPipelineForUnitTestExtensionPoint",
   description = "Change the pipeline variables prior to execution but only in HopGui"
 )
 /**
- * Sets the __UnitTest_Run__ and __UnitTest_Name__ variables
- * in the variables of the Hop GUI pipeline graph.
+ * Pick up the __UnitTest_Run__ and __UnitTest_Name__ variables
+ * in the variables of the Hop GUI pipeline graph.  Set them in the pipeline
  *
  * These can then be picked up later by the other XP plugins.
  */
-public class HopGuiFlagUnitTestExtensionPoint implements IExtensionPoint<PipelineMeta> {
+public class HopGuiFlagPipelineForUnitTestExtensionPoint implements IExtensionPoint<Pipeline> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IVariables variables, PipelineMeta pipelineMeta ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, Pipeline pipeline ) throws HopException {
 
-    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest( pipelineMeta );
+    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest( pipeline.getPipelineMeta() );
     if ( unitTest == null ) {
-      return;
-    }
-
-    // Look up the variables of the current active pipeline graph...
-    //
-    HopGuiPipelineGraph activePipelineGraph = HopGui.getActivePipelineGraph();
-    if (activePipelineGraph==null) {
       return;
     }
 
     String unitTestName = unitTest.getName();
 
     if ( !StringUtil.isEmpty( unitTestName ) ) {
-      // We're running in HopGui and there's a unit test selected : test it
+      // We found the variables in the GUI and pass them to the pipeline right before (prepare) execution
       //
-      variables.setVariable( DataSetConst.VAR_RUN_UNIT_TEST, "Y" );
-      variables.setVariable( DataSetConst.VAR_UNIT_TEST_NAME, unitTestName );
+      pipeline.setVariable( DataSetConst.VAR_RUN_UNIT_TEST, variables.getVariable(DataSetConst.VAR_RUN_UNIT_TEST) );
+      pipeline.setVariable( DataSetConst.VAR_UNIT_TEST_NAME, variables.getVariable( DataSetConst.VAR_UNIT_TEST_NAME ) );
     }
   }
 

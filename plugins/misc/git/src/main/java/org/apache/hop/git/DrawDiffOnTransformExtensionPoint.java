@@ -23,6 +23,7 @@ import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.svg.SvgFile;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainter;
 import org.apache.hop.ui.core.ConstUi;
@@ -41,7 +42,7 @@ import static org.apache.hop.git.PdiDiff.REMOVED;
 public class DrawDiffOnTransformExtensionPoint implements IExtensionPoint {
 
   @Override
-  public void callExtensionPoint(ILogChannel log, Object object) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
     if (!(object instanceof PipelinePainter)) {
       return;
     }

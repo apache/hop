@@ -25,6 +25,7 @@ package org.apache.hop.testing.xp;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 
@@ -33,7 +34,7 @@ import org.apache.hop.testing.gui.TestingGuiPlugin;
  */
 public class HopGuiUnitTestChanged implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel log, Object object ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
     // We only respond to pipeline unit test changes
     //
     if (!(object instanceof PipelineUnitTest)) {

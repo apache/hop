@@ -30,6 +30,7 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -52,7 +53,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class SetTransformDebugLevelExtensionPoint implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
-  @Override public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
     Map<String, String> transformLevelMap = pipeline.getPipelineMeta().getAttributesMap().get( Defaults.DEBUG_GROUP );
 
     if ( transformLevelMap != null ) {

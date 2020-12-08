@@ -289,7 +289,7 @@ public class HopGui
 
       try {
         ExtensionPointHandler.callExtensionPoint(
-            hopGui.getLog(), HopExtensionPoint.HopGuiInit.id, hopGui);
+            hopGui.getLog(), hopGui.variables, HopExtensionPoint.HopGuiInit.id, hopGui );
       } catch (Exception e) {
         hopGui.getLog().logError("Error calling extension point plugin(s) for HopGuiInit", e);
       }
@@ -343,7 +343,7 @@ public class HopGui
     openingLastFiles = true; // TODO: make this configurable.
 
     try {
-      ExtensionPointHandler.callExtensionPoint(log, HopExtensionPoint.HopGuiStart.id, this);
+      ExtensionPointHandler.callExtensionPoint(log, variables, HopExtensionPoint.HopGuiStart.id, this );
     } catch (Exception e) {
       new ErrorDialog(
           shell,
@@ -1357,7 +1357,7 @@ public class HopGui
     //
     try {
       ExtensionPointHandler.callExtensionPoint(
-          log, HopExtensionPoint.HopGuiGetSearchablesLocations.name(), locations);
+          log, variables, HopExtensionPoint.HopGuiGetSearchablesLocations.name(), locations );
     } catch (Exception e) {
       log.logError("Error adding to the list of searchables locations", e);
     }

@@ -138,7 +138,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       
       // Inform those that want to know about it that we loaded a pipeline
       //
-      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.PipelineAfterOpen.id, pipelineMeta );
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), parentVariableSpace, HopExtensionPoint.PipelineAfterOpen.id, pipelineMeta );
 
       return typeHandler;
     } catch ( Exception e ) {

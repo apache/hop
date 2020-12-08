@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.git.HopGitPerspective;
 import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 
@@ -38,7 +39,7 @@ import org.apache.hop.ui.hopgui.shared.AuditManagerGuiUtil;
 public class HopGuiEnvironmentActivated implements IExtensionPoint<String> {
 
   @Override
-  public void callExtensionPoint(ILogChannel log, String environmentName) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, String environmentName ) throws HopException {
     HopGitPerspective gitPerspective = HopGitPerspective.getInstance();
     gitPerspective.refreshGitRepositoriesList();
     gitPerspective.clearRepository();

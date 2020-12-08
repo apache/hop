@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.util.ReflectionUtil;
 import org.apache.hop.projects.util.ProjectsUtil;
 
@@ -36,7 +37,7 @@ import org.apache.hop.projects.util.ProjectsUtil;
 )
 public class GitRepositoryCreateExtensionPoint implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel log, Object project ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, Object project ) throws HopException {
     ReflectionUtil.setFieldValue( project, "name", String.class, "git");
     ReflectionUtil.setFieldValue( project, "directory", String.class, "${"+ ProjectsUtil.VARIABLE_PROJECT_HOME+"}");
   }

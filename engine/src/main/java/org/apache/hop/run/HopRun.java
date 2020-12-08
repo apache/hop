@@ -125,7 +125,9 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     validateOptions();
 
     try {
-      ExtensionPointHandler.callExtensionPoint(log, HopExtensionPoint.HopRunInit.id, this);
+      variables = new Variables();
+
+      ExtensionPointHandler.callExtensionPoint(log, variables, HopExtensionPoint.HopRunInit.id, this );
 
       initialize(cmd);
 
@@ -136,7 +138,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Allow plugins to modify the elements loaded so far, before a pipeline or workflow is even
       // loaded
       //
-      ExtensionPointHandler.callExtensionPoint(log, HopExtensionPoint.HopRunStart.id, this);
+      ExtensionPointHandler.callExtensionPoint(log, variables, HopExtensionPoint.HopRunStart.id, this );
 
       if (isPipeline()) {
         runPipeline(cmd, log);
@@ -145,7 +147,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
         runWorkflow(cmd, log);
       }
 
-      ExtensionPointHandler.callExtensionPoint(log, HopExtensionPoint.HopRunEnd.id, this);
+      ExtensionPointHandler.callExtensionPoint(log, variables, HopExtensionPoint.HopRunEnd.id, this );
     } catch (Exception e) {
       throw new ExecutionException(
           cmd, "There was an error during execution of file '" + filename + "'", e);
@@ -224,7 +226,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
     realFilename = variables.environmentSubstitute(filename);
 
     ExtensionPointHandler.callExtensionPoint(
-        log, HopExtensionPoint.HopRunCalculateFilename.id, this);
+        log, variables, HopExtensionPoint.HopRunCalculateFilename.id, this );
   }
 
   private void runPipeline(
@@ -283,9 +285,8 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       // Certain Hop plugins rely on this.  Meh.
       //
       ExtensionPointHandler.callExtensionPoint(
-          log,
-          HopExtensionPoint.HopGuiWorkflowBeforeStart.id,
-          new Object[] {configuration, null, workflowMeta, null});
+          log, variables,
+        HopExtensionPoint.HopGuiWorkflowBeforeStart.id, new Object[] {configuration, null, workflowMeta, null} );
 
       // Before running, do we print the options?
       //

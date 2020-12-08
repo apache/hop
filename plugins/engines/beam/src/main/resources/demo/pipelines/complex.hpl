@@ -150,8 +150,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>896</xloc>
-      <yloc>80</yloc>
+      <xloc>864</xloc>
+      <yloc>32</yloc>
     </GUI>
   </transform>
   <transform>
@@ -167,8 +167,8 @@
     </partitioning>
     <attributes/>
     <GUI>
-      <xloc>1040</xloc>
-      <yloc>176</yloc>
+      <xloc>1008</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
@@ -186,8 +186,8 @@
     <file_description_name>Customers</file_description_name>
     <attributes/>
     <GUI>
-      <xloc>176</xloc>
-      <yloc>176</yloc>
+      <xloc>144</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
@@ -217,8 +217,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>896</xloc>
-      <yloc>272</yloc>
+      <xloc>864</xloc>
+      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform>
@@ -248,8 +248,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>896</xloc>
-      <yloc>144</yloc>
+      <xloc>864</xloc>
+      <yloc>96</yloc>
     </GUI>
   </transform>
   <transform>
@@ -279,8 +279,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>640</xloc>
-      <yloc>80</yloc>
+      <xloc>608</xloc>
+      <yloc>32</yloc>
     </GUI>
   </transform>
   <transform>
@@ -310,8 +310,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>640</xloc>
-      <yloc>272</yloc>
+      <xloc>608</xloc>
+      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform>
@@ -344,8 +344,8 @@
     </lookup>
     <attributes/>
     <GUI>
-      <xloc>432</xloc>
-      <yloc>176</yloc>
+      <xloc>400</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
@@ -370,8 +370,8 @@
     </keys_2>
     <attributes/>
     <GUI>
-      <xloc>320</xloc>
-      <yloc>176</yloc>
+      <xloc>288</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
@@ -401,8 +401,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>896</xloc>
-      <yloc>208</yloc>
+      <xloc>864</xloc>
+      <yloc>160</yloc>
     </GUI>
   </transform>
   <transform>
@@ -420,8 +420,8 @@
     <file_description_name>State population data</file_description_name>
     <attributes/>
     <GUI>
-      <xloc>176</xloc>
-      <yloc>272</yloc>
+      <xloc>144</xloc>
+      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform>
@@ -458,8 +458,8 @@
     </cases>
     <attributes/>
     <GUI>
-      <xloc>736</xloc>
-      <yloc>176</yloc>
+      <xloc>704</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
@@ -480,8 +480,8 @@
     <windowed>N</windowed>
     <attributes/>
     <GUI>
-      <xloc>1184</xloc>
-      <yloc>176</yloc>
+      <xloc>1152</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
@@ -511,8 +511,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>320</xloc>
-      <yloc>64</yloc>
+      <xloc>288</xloc>
+      <yloc>16</yloc>
     </GUI>
   </transform>
   <transform>
@@ -547,8 +547,8 @@
     </compare>
     <attributes/>
     <GUI>
-      <xloc>544</xloc>
-      <yloc>176</yloc>
+      <xloc>512</xloc>
+      <yloc>128</yloc>
     </GUI>
   </transform>
   <transform>
@@ -579,8 +579,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>320</xloc>
-      <yloc>272</yloc>
+      <xloc>288</xloc>
+      <yloc>224</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

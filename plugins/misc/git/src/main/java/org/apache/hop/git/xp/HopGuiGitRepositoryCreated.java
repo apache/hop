@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 
 @ExtensionPoint(
     id = "HopGuiGitRepositoryCreated",
@@ -35,7 +36,7 @@ public class HopGuiGitRepositoryCreated extends HopGuiGitRepositoryChanged
     implements IExtensionPoint {
 
   @Override
-  public void callExtensionPoint(ILogChannel log, Object o) throws HopException {
-    super.callExtensionPoint(log, o);
+  public void callExtensionPoint( ILogChannel log, IVariables variables, Object o ) throws HopException {
+    super.callExtensionPoint(log, variables, o);
   }
 }

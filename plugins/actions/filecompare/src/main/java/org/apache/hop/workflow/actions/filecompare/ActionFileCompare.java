@@ -107,7 +107,7 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       filename1 = XmlHandler.getTagValue( entrynode, "filename1" );

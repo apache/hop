@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.projects.util.ProjectsUtil;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
 
@@ -36,7 +37,7 @@ import org.apache.hop.workflow.engine.IWorkflowEngine;
 )
 public class WorkflowStartCheckProjectExtensionPoint implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel log, Object object ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, Object object ) throws HopException {
 
     if ( !( object instanceof IWorkflowEngine ) ) {
       return;

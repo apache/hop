@@ -196,7 +196,7 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
   }
 
   @Override
-  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       Node fields = XmlHandler.getSubNode( entrynode, "connections" );

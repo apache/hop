@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -43,7 +44,7 @@ import java.util.Date;
  */
 public class LogWorkflowExecutionTimeExtensionPoint implements IExtensionPoint<IWorkflowEngine<WorkflowMeta>> {
 
-  @Override public void callExtensionPoint( ILogChannel log, IWorkflowEngine<WorkflowMeta> workflow ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow ) throws HopException {
 
 
     // If the HOP_DEBUG_DURATION variable is set to N or FALSE, we don't log duration

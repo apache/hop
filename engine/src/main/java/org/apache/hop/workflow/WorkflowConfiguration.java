@@ -22,6 +22,7 @@
 
 package org.apache.hop.workflow;
 
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.server.HttpUtil;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
@@ -64,19 +65,19 @@ public class WorkflowConfiguration {
     return xml.toString();
   }
 
-  public WorkflowConfiguration( Node configNode ) throws HopException, HopException, ParseException, IOException {
+  public WorkflowConfiguration( Node configNode, IVariables variables ) throws HopException, HopException, ParseException, IOException {
     Node workflowNode = XmlHandler.getSubNode( configNode, WorkflowMeta.XML_TAG );
     Node trecNode = XmlHandler.getSubNode( configNode, WorkflowExecutionConfiguration.XML_TAG );
     workflowExecutionConfiguration = new WorkflowExecutionConfiguration( trecNode );
     String metaStoreJson = HttpUtil.decodeBase64ZippedString(XmlHandler.getTagValue( configNode, "metastore_json" ));
     metadataProvider = new SerializableMetadataProvider( metaStoreJson );
-    workflowMeta = new WorkflowMeta( workflowNode, metadataProvider );
+    workflowMeta = new WorkflowMeta( workflowNode, metadataProvider, variables );
   }
 
-  public static final WorkflowConfiguration fromXML( String xml ) throws HopException, HopException, ParseException, IOException {
+  public static final WorkflowConfiguration fromXml( String xml, IVariables variables ) throws HopException, HopException, ParseException, IOException {
     Document document = XmlHandler.loadXmlString( xml );
     Node configNode = XmlHandler.getSubNode( document, XML_TAG );
-    return new WorkflowConfiguration( configNode );
+    return new WorkflowConfiguration( configNode, variables);
   }
 
   /**

@@ -150,7 +150,7 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       smtpCheck = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "smtpCheck" ) );

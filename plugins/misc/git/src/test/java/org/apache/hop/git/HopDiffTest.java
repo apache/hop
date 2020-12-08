@@ -76,11 +76,11 @@ public class HopDiffTest {
   public void diffWorkflowTest() throws Exception {
     File file = new File( "src/test/resources/r1.hwf" );
     InputStream xmlStream = new FileInputStream( file );
-    WorkflowMeta jobMeta = new WorkflowMeta( xmlStream, metadataProvider);
+    WorkflowMeta jobMeta = new WorkflowMeta( xmlStream, metadataProvider, new Variables());
 
     File file2 = new File( "src/test/resources/r2.hwf" );
     InputStream xmlStream2 = new FileInputStream( file2 );
-    WorkflowMeta jobMeta2 = new WorkflowMeta( xmlStream2, metadataProvider );
+    WorkflowMeta jobMeta2 = new WorkflowMeta( xmlStream2, metadataProvider, new Variables());
 
     jobMeta = compareJobEntries( jobMeta, jobMeta2, true );
     jobMeta2 = compareJobEntries( jobMeta2, jobMeta, false );

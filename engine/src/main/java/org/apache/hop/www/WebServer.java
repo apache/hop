@@ -23,7 +23,6 @@
 package org.apache.hop.www;
 
 import com.sun.jersey.spi.container.servlet.ServletContainer;
-import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
@@ -34,7 +33,10 @@ import org.apache.hop.core.plugins.HopServerPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
+import org.apache.hop.server.HopServer;
 import org.eclipse.jetty.jaas.JAASLoginService;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
@@ -70,7 +72,7 @@ public class WebServer {
   private static final Class<?> PKG = WebServer.class; // Needed by Translator
 
   private ILogChannel log;
-
+  private IVariables variables;
   public static final int PORT = 80;
 
   private Server server;
@@ -99,6 +101,13 @@ public class WebServer {
     this.log = log;
     this.pipelineMap = pipelineMap;
     this.workflowMap = workflowMap;
+    if (pipelineMap!=null) {
+      variables = pipelineMap.getHopServerConfig().getVariables();
+    } else if (workflowMap!=null) {
+      variables = workflowMap.getHopServerConfig().getVariables();
+    } else {
+      variables = Variables.getADefaultVariableSpace();
+    }
     this.hostname = hostname;
     this.port = port;
     this.passwordFile = passwordFile;
@@ -110,7 +119,7 @@ public class WebServer {
     Runtime.getRuntime().addShutdownHook( webServerShutdownHook );
 
     try {
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopServerStartup.id, this );
+      ExtensionPointHandler.callExtensionPoint( log, variables, HopExtensionPoint.HopServerStartup.id, this );
     } catch ( HopException e ) {
       // Log error but continue regular operations to make sure HopServer continues to run properly
       //
@@ -267,7 +276,7 @@ public class WebServer {
     webServerShutdownHook.setShuttingDown( true );
 
     try {
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopServerShutdown.id, this );
+      ExtensionPointHandler.callExtensionPoint( log, variables, HopExtensionPoint.HopServerShutdown.id, this );
     } catch ( HopException e ) {
       // Log error but continue regular operations to make sure HopServer can be shut down properly.
       //
@@ -424,6 +433,22 @@ public class WebServer {
 
   public void setServer( Server server ) {
     this.server = server;
+  }
+
+  /**
+   * Gets variables
+   *
+   * @return value of variables
+   */
+  public IVariables getVariables() {
+    return variables;
+  }
+
+  /**
+   * @param variables The variables to set
+   */
+  public void setVariables( IVariables variables ) {
+    this.variables = variables;
   }
 
   /**

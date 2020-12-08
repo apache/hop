@@ -97,14 +97,7 @@ public class HopGuiWorkflowRunDelegate {
 
       workflowGraph.workflowLogDelegate.addJobLog();
 
-      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopGuiWorkflowExecutionConfiguration.id, executionConfiguration );
-
-      try {
-        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopExtensionPoint.HopGuiPipelineBeforeStart.id, new Object[] { executionConfiguration, workflowMeta, workflowMeta } );
-      } catch ( HopException e ) {
-        LogChannel.UI.logError( e.getMessage(), workflowMeta.getFilename() );
-        return;
-      }
+      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, workflowGraph.getVariables(), HopExtensionPoint.HopGuiWorkflowExecutionConfiguration.id, executionConfiguration );
 
       workflowGraph.start( executionConfiguration );
     }

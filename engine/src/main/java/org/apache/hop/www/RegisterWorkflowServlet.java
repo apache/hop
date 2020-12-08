@@ -24,6 +24,7 @@ package org.apache.hop.www;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.engine.IWorkflowEngine;
@@ -44,12 +45,12 @@ public class RegisterWorkflowServlet extends BaseWorkflowServlet {
   }
 
   @Override
-  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML ) throws IOException, HopException, HopException, ParseException {
+  WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXml, IVariables variables ) throws IOException, HopException, HopException, ParseException {
 
     final String xml = IOUtils.toString( request.getInputStream() );
 
     // Parse the XML, create a workflow configuration
-    WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXML( xml );
+    WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXml( xml, variables);
 
     IWorkflowEngine<WorkflowMeta> workflow = createWorkflow( workflowConfiguration );
 

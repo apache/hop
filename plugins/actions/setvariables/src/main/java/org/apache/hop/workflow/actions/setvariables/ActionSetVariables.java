@@ -154,7 +154,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       replaceVars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "replacevars" ) );

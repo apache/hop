@@ -189,7 +189,7 @@ public class ActionCopyFiles extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       copyEmptyFolders = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "copy_empty_folders" ) );

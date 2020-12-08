@@ -98,7 +98,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
       // Parse the XML, create a workflow configuration
       //
-      WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXML( xml.toString() );
+      WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXml( xml.toString(), variables);
       IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();

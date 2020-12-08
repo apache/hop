@@ -107,7 +107,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       folderName = XmlHandler.getTagValue( entrynode, "foldername" );

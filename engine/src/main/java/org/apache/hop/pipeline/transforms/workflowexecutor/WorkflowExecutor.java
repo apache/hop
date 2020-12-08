@@ -37,7 +37,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -211,7 +210,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     //
     getPipeline().addActiveSubWorkflow( getTransformName(), data.executorWorkflow );
 
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowStart.id, data.executorWorkflow );
+    ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.WorkflowStart.id, data.executorWorkflow );
 
     Result result = data.executorWorkflow.startExecution();
 

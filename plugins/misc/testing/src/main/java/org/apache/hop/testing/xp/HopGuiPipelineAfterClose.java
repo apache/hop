@@ -26,6 +26,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.pipeline.PipelineMeta;
 
@@ -36,7 +37,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 )
 public class HopGuiPipelineAfterClose implements IExtensionPoint<PipelineMeta> {
 
-  @Override public void callExtensionPoint( ILogChannel log, PipelineMeta pipelineMeta ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, PipelineMeta pipelineMeta ) throws HopException {
     TestingGuiPlugin.getInstance().getActiveTests().remove( pipelineMeta );
   }
 }

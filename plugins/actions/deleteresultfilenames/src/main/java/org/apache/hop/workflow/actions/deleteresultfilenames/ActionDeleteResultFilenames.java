@@ -103,7 +103,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       folderName = XmlHandler.getTagValue( entrynode, "foldername" );

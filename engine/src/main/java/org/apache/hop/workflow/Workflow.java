@@ -326,7 +326,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       setStopped( false );
     } finally {
       try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowFinish.id, this );
+        ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.WorkflowFinish.id, this );
 
         executionEndDate = new Date();
 
@@ -373,7 +373,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
 
       log.logMinimal( BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ) );
 
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowStart.id, this );
+      ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.WorkflowStart.id, this );
 
       // Start the tracking...
       ActionResult jerStart =
@@ -543,7 +543,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     }
 
     WorkflowExecutionExtension extension = new WorkflowExecutionExtension( this, prevResult, actionMeta, true );
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowBeforeActionExecution.id, extension );
+    ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.WorkflowBeforeActionExecution.id, extension );
 
     if ( extension.result != null ) {
       prevResult = extension.result;
@@ -643,7 +643,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     }
 
     extension = new WorkflowExecutionExtension( this, prevResult, actionMeta, extension.executeAction );
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowAfterActionExecution.id, extension );
+    ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.WorkflowAfterActionExecution.id, extension );
 
     // Try all next actions.
     //
@@ -836,7 +836,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     resetErrors();
 
     WorkflowExecutionExtension extension = new WorkflowExecutionExtension( this, result, null, false );
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowBeginProcessing.id, extension );
+    ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.WorkflowBeginProcessing.id, extension );
 
     return true;
   }

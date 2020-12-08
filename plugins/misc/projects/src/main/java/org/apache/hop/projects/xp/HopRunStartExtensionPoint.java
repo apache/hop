@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.environment.LifecycleEnvironment;
@@ -44,7 +45,7 @@ import java.util.List;
 )
 public class HopRunStartExtensionPoint implements IExtensionPoint<HopRun> {
 
-  @Override public void callExtensionPoint( ILogChannel log, HopRun hopRun ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopRun hopRun ) throws HopException {
 
     ProjectsConfig config = ProjectsConfigSingleton.getConfig();
     ProjectConfig projectConfig = null;

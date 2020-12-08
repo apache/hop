@@ -226,7 +226,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       gpgLocation = XmlHandler.getTagValue( entrynode, "gpglocation" );

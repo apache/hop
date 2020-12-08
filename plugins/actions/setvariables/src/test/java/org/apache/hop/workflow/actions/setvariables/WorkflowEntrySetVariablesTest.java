@@ -25,8 +25,8 @@ package org.apache.hop.workflow.actions.setvariables;
 
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
-import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.ActionMeta;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -182,7 +182,7 @@ public class WorkflowEntrySetVariablesTest {
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_NullVariable() throws Exception {
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-    action.loadXml( getEntryNode( "nullVariable", null, "JVM" ), metadataProvider );
+    action.loadXml( getEntryNode( "nullVariable", null, "JVM" ), metadataProvider, new Variables() );
     Result result = action.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertNull( System.getProperty( "nullVariable" ) );
@@ -191,7 +191,7 @@ public class WorkflowEntrySetVariablesTest {
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_NullVariable() throws Exception {
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-    action.loadXml( getEntryNode( "nullVariable", null, "CURRENT_WORKFLOW" ), metadataProvider );
+    action.loadXml( getEntryNode( "nullVariable", null, "CURRENT_WORKFLOW" ), metadataProvider, new Variables());
     Result result = action.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
     assertNull( action.getVariable( "nullVariable" ) );
@@ -200,7 +200,7 @@ public class WorkflowEntrySetVariablesTest {
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_JVM_VariableNotNull() throws Exception {
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-    action.loadXml( getEntryNode( "variableNotNull", "someValue", "JVM" ), metadataProvider );
+    action.loadXml( getEntryNode( "variableNotNull", "someValue", "JVM" ), metadataProvider, new Variables());
     assertNull( System.getProperty( "variableNotNull" ) );
     Result result = action.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );
@@ -210,7 +210,7 @@ public class WorkflowEntrySetVariablesTest {
   @Test
   public void testJobEntrySetVariablesExecute_VARIABLE_TYPE_CURRENT_WORKFLOW_VariableNotNull() throws Exception {
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
-    action.loadXml( getEntryNode( "variableNotNull", "someValue", "CURRENT_WORKFLOW" ), metadataProvider );
+    action.loadXml( getEntryNode( "variableNotNull", "someValue", "CURRENT_WORKFLOW" ), metadataProvider, new Variables());
     assertNull( System.getProperty( "variableNotNull" ) );
     Result result = action.execute( new Result(), 0 );
     assertTrue( "Result should be true", result.getResult() );

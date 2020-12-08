@@ -53,10 +53,9 @@ import java.util.List;
  */
 public class HopGuiStartProjectLoad implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel logChannelInterface, Object o ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel logChannelInterface, IVariables variables, Object o ) throws HopException {
 
     HopGui hopGui = HopGui.getInstance();
-    IVariables variables = hopGui.getVariables();
 
     try {
       ProjectsConfig config = ProjectsConfigSingleton.getConfig();

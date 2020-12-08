@@ -31,6 +31,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.IPluginTypeListener;
+import org.apache.hop.core.variables.IVariables;
 
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -138,17 +139,17 @@ public class ExtensionPointMap {
    * Call the extension point(s) corresponding to the given id
    * <p>
    * This iteration was isolated here to protect against ConcurrentModificationException using PluginRegistry's lock
-   *
-   * @param log    log channel to pass to extension point call
+   *  @param log    log channel to pass to extension point call
+   * @param variables
    * @param id     the id of the extension point interface
    * @param object object to pass to extension point call
    */
-  public void callExtensionPoint( ILogChannel log, String id, Object object ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, String id, Object object ) throws HopException {
     lock.readLock().lock();
     try {
       if ( extensionPointPluginMap.containsRow( id ) && !extensionPointPluginMap.rowMap().get( id ).values().isEmpty() ) {
         for ( Supplier<IExtensionPoint> extensionPoint : extensionPointPluginMap.row( id ).values() ) {
-          extensionPoint.get().callExtensionPoint( log, object );
+          extensionPoint.get().callExtensionPoint( log, variables, object );
         }
       }
     } finally {

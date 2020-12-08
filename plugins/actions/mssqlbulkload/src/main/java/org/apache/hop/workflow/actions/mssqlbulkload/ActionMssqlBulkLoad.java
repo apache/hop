@@ -183,7 +183,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );

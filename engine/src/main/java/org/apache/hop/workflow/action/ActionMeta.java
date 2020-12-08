@@ -35,6 +35,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -110,7 +111,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
   }
 
 
-  public ActionMeta( Node actionNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public ActionMeta( Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       String stype = XmlHandler.getTagValue( actionNode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
@@ -127,7 +128,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
           action.setPluginId( jobPlugin.getIds()[ 0 ] );
         }
         action.setMetadataProvider( metadataProvider ); // inject metadata
-        action.loadXml( actionNode, metadataProvider );
+        action.loadXml( actionNode, metadataProvider, variables);
 
         // Handle GUI information: nr & location?
         setNr( Const.toInt( XmlHandler.getTagValue( actionNode, "nr" ), 0 ) );

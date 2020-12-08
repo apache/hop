@@ -96,7 +96,7 @@ public class ProjectsUtil {
 
     // Signal others that we have a new active project
     //
-    ExtensionPointHandler.callExtensionPoint( log, Defaults.EXTENSION_POINT_PROJECT_ACTIVATED, projectName );
+    ExtensionPointHandler.callExtensionPoint( log, variables, Defaults.EXTENSION_POINT_PROJECT_ACTIVATED, projectName );
   }
 
   public static void validateFileInProject( ILogChannel log, String filename, ProjectConfig projectConfig, IVariables variables ) throws HopException, FileSystemException {

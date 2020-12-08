@@ -24,6 +24,7 @@ package org.apache.hop.workflow.actions.copyfiles;
 
 import org.apache.hop.core.Result;
 import org.apache.hop.core.logging.HopLogStore;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -135,7 +136,7 @@ public class WorkflowActionCopyFilesTest {
         false,
         false ),
       "entry" ),
-      null );
+      null, new Variables() );
     assertTrue( loadedentry.destinationFileFolder[ 0 ].equals( destPath[ 0 ] ) );
     assertTrue( loadedentry.sourceFileFolder[ 0 ].equals( srcPath[ 0 ] ) );
   }

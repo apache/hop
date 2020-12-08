@@ -673,7 +673,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
 
     log.logBasic("Executing this pipeline using the Local Pipeline Engine with run configuration '"+pipelineRunConfiguration.getName()+"'");
 
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelinePrepareExecution.id, this );
+    ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.PipelinePrepareExecution.id, this );
 
     activateParameters(this);
 
@@ -1066,7 +1066,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
       threads[ i ] = new Thread( initThreads[ i ] );
       threads[ i ].setName( "init of " + sid.transformName + "." + sid.copy + " (" + threads[ i ].getName() + ")" );
 
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformBeforeInitialize.id, initThreads[ i ] );
+      ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.TransformBeforeInitialize.id, initThreads[ i ] );
 
       threads[ i ].start();
     }
@@ -1074,7 +1074,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
     for ( int i = 0; i < threads.length; i++ ) {
       try {
         threads[ i ].join();
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformAfterInitialize.id, initThreads[ i ] );
+        ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.TransformAfterInitialize.id, initThreads[ i ] );
       } catch ( Exception ex ) {
         log.logError( "Error with init thread: " + ex.getMessage(), ex.getMessage() );
         log.logError( Const.getStackTracker( ex ) );
@@ -1162,7 +1162,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
     //
     nrOfFinishedTransforms = 0;
 
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineStartThreads.id, this );
+    ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.PipelineStartThreads.id, this );
 
     firePipelineExecutionStartedListeners();
 
@@ -1261,7 +1261,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
     IExecutionFinishedListener<IPipelineEngine<PipelineMeta>> executionListener = pipeline -> {
 
       try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineFinish.id, pipeline );
+        ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.PipelineFinish.id, pipeline );
       } catch ( HopException e ) {
         throw new RuntimeException( "Error calling extension point at end of pipeline", e );
       }
@@ -1297,12 +1297,12 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
           RunThread runThread = new RunThread( combi );
           Thread thread = new Thread( runThread );
           thread.setName( getName() + " - " + combi.transformName );
-          ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformBeforeStart.id, combi );
+          ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.TransformBeforeStart.id, combi );
           // Call an extension point at the end of the transform
           //
           combi.transform.addTransformFinishedListener( ( pipeline, transformMeta, transform ) -> {
             try {
-              ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.TransformFinished.id, combi );
+              ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.TransformFinished.id, combi );
             } catch ( HopException e ) {
               throw new RuntimeException( "Unexpected error in calling extension point upon transform finish", e );
             }
@@ -1322,7 +1322,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
 
     }
 
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.PipelineStart.id, this );
+    ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.PipelineStart.id, this );
 
     // If there are no transforms we don't catch the number of active transforms dropping to zero
     // So we fire the execution finished listeners here.

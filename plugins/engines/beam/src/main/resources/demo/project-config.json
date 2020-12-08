@@ -4,6 +4,9 @@
   "dataSetsCsvFolder" : "${PROJECT_HOME}/datasets",
   "enforcingExecutionInHome" : true,
   "config" : {
-    "variables" : [ ]
+    "variables" : [ {
+      "name" : "DATA_OUTPUT",
+      "value" : "/tmp/"
+    } ]
   }
 }

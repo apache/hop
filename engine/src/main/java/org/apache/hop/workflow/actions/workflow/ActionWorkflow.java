@@ -268,7 +268,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider)
+  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables )
       throws HopXmlException {
     try {
       super.loadXml(entrynode);

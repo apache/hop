@@ -113,7 +113,8 @@ public class HopGuiWorkflowClipboardDelegate {
       // Load the entries...
       for ( int i = 0; i < nr; i++ ) {
         Node actionNode = XmlHandler.getSubNodeByNr( actionsNode, ActionMeta.XML_TAG, i );
-        actions[ i ] = new ActionMeta( actionNode, hopGui.getMetadataProvider() );
+        actions[i] =
+            new ActionMeta(actionNode, hopGui.getMetadataProvider(), workflowGraph.getVariables() );
 
         if ( locaction != null ) {
           Point p = actions[ i ].getLocation();
@@ -221,7 +222,10 @@ public class HopGuiWorkflowClipboardDelegate {
           HopGuiFileOpenedExtension ext =
               new HopGuiFileOpenedExtension(null, hopGui.getVariables(), cleanFilename);
           ExtensionPointHandler.callExtensionPoint(
-              LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, ext);
+              LogChannel.UI,
+              workflowGraph.getVariables(),
+              HopGuiExtensionPoint.HopGuiFileOpenedDialog.id,
+              ext);
           if (ext.filename != null) {
             cleanFilename = ext.filename;
           }

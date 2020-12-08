@@ -368,7 +368,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     tabSelectionIndex = tabSelectionHistory.size() - 1;
 
     try {
-      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewPipelineTab.id, pipelineGraph );
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), pipelineGraph.getVariables(), HopExtensionPoint.HopGuiNewPipelineTab.id, pipelineGraph );
     } catch ( Exception e ) {
       throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewPipelineTab.id + " trying to handle a new pipeline tab", e );
     }
@@ -394,8 +394,8 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
   public IHopFileTypeHandler addWorkflow( HopGui hopGui, WorkflowMeta workflowMeta, HopWorkflowFileType workflowFile ) throws HopException {
     CTabItem tabItem = new CTabItem( tabFolder, SWT.CLOSE );
     tabItem.setImage( GuiResource.getInstance().getImageToolbarWorkflow() );
-    HopGuiWorkflowGraph jobGraph = new HopGuiWorkflowGraph( tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile );
-    tabItem.setControl( jobGraph );
+    HopGuiWorkflowGraph workflowGraph = new HopGuiWorkflowGraph( tabFolder, hopGui, tabItem, this, workflowMeta, workflowFile );
+    tabItem.setControl( workflowGraph );
 
     // Set the tab name
     //
@@ -403,7 +403,7 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
 
     // Switch to the tab
     tabFolder.setSelection( tabItem );
-    activeItem = new TabItemHandler( tabItem, jobGraph );
+    activeItem = new TabItemHandler( tabItem, workflowGraph );
     items.add( activeItem );
 
     // Remove all the history above the current tabSelectionIndex
@@ -416,14 +416,14 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
     tabSelectionIndex = tabSelectionHistory.size() - 1;
 
     try {
-      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiNewWorkflowTab.id, jobGraph );
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), workflowGraph.getVariables(), HopExtensionPoint.HopGuiNewWorkflowTab.id, workflowGraph );
     } catch ( Exception e ) {
       throw new HopException( "Error calling extension point plugin for plugin id " + HopExtensionPoint.HopGuiNewWorkflowTab.id + " trying to handle a new workflow tab", e );
     }
 
-    jobGraph.setFocus();
+    workflowGraph.setFocus();
 
-    return jobGraph;
+    return workflowGraph;
   }
 
   /**
@@ -454,13 +454,13 @@ public class HopDataOrchestrationPerspective implements IHopPerspective {
       if ( typeHandler.getSubject() != null ) {
         if ( typeHandler.getSubject() instanceof PipelineMeta ) {
           try {
-            ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiPipelineAfterClose.id, typeHandler.getSubject() );
+            ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), hopGui.getVariables(), HopExtensionPoint.HopGuiPipelineAfterClose.id, typeHandler.getSubject() );
           } catch ( Exception e ) {
             hopGui.getLog().logError( "Error calling extension point 'HopGuiPipelineAfterClose'", e );
           }
         } else if ( typeHandler.getSubject() instanceof WorkflowMeta ) {
           try {
-            ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.HopGuiWorkflowAfterClose.id, typeHandler.getSubject() );
+            ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), hopGui.getVariables(), HopExtensionPoint.HopGuiWorkflowAfterClose.id, typeHandler.getSubject() );
           } catch ( Exception e ) {
             hopGui.getLog().logError( "Error calling extension point 'HopGuiWorkflowAfterClose'", e );
           }

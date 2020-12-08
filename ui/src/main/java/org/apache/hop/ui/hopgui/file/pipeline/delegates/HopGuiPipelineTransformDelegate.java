@@ -443,7 +443,7 @@ public class HopGuiPipelineTransformDelegate {
       return; // nothing to do
     }
     try {
-      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.PipelineBeforeDeleteTransforms.id, transforms );
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), pipelineGraph.getVariables(), HopExtensionPoint.PipelineBeforeDeleteTransforms.id, transforms );
     } catch ( HopException e ) {
       return;
     }

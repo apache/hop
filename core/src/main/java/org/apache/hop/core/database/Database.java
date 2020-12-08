@@ -351,7 +351,7 @@ public class Database implements IVariables, ILoggingObject {
       }
 
       try {
-        ExtensionPointHandler.callExtensionPoint(log, HopExtensionPoint.DatabaseConnected.id, this);
+        ExtensionPointHandler.callExtensionPoint(log, this, HopExtensionPoint.DatabaseConnected.id, this );
       } catch (HopException e) {
         throw new HopDatabaseException(e);
       }
@@ -603,7 +603,7 @@ public class Database implements IVariables, ILoggingObject {
     }
     try {
       ExtensionPointHandler.callExtensionPoint(
-          log, HopExtensionPoint.DatabaseDisconnected.id, this);
+          log, this, HopExtensionPoint.DatabaseDisconnected.id, this );
     } catch (HopException e) {
       log.logError("Error disconnecting from database:" + Const.CR + e.getMessage());
       log.logError(Const.getStackTracker(e));

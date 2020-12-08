@@ -540,7 +540,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   @Override
-  public void loadXml(Node entryNode, IHopMetadataProvider metadataProvider)
+  public void loadXml( Node entryNode, IHopMetadataProvider metadataProvider, IVariables variables )
       throws HopXmlException {
     super.loadXml(entryNode);
 

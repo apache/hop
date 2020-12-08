@@ -43,7 +43,7 @@ public class GitRepository extends HopMetadataBase implements Cloneable, IHopMet
   public GitRepository() {
     try {
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, EXTENSION_POINT_ID_GIT_REPOSITORY_CREATION, this);
+          LogChannel.GENERAL, null, EXTENSION_POINT_ID_GIT_REPOSITORY_CREATION, this );
     } catch (Exception e) {
       throw new RuntimeException(
           "Error calling extension point " + EXTENSION_POINT_ID_GIT_REPOSITORY_CREATION, e);

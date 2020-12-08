@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.BeePainter;
 import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.debug.util.Defaults;
@@ -45,7 +46,7 @@ public class DrawActionDebugLevelBeeExtensionPoint extends BeePainter implements
 
   private static BufferedImage beeImage;
 
-  @Override public void callExtensionPoint( ILogChannel log, WorkflowPainterExtension ext ) {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, WorkflowPainterExtension ext ) {
 
     try {
       // The next statement sometimes causes an exception in WebSpoon

@@ -210,7 +210,7 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       zipFilename = XmlHandler.getTagValue( entrynode, "zipfilename" );

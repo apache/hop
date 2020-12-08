@@ -31,12 +31,11 @@ import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.dialog.IFileDialog;
 import org.apache.hop.ui.core.gui.HopNamespace;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.delegates.HopGuiFileDialogExtension;
 
 public class HopGuiFileDefaultFolder implements IExtensionPoint<HopGuiFileDialogExtension> {
 
-  @Override public void callExtensionPoint( ILogChannel log, HopGuiFileDialogExtension ext ) {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiFileDialogExtension ext ) {
 
     // Is there an active project?
     //

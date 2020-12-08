@@ -1047,7 +1047,8 @@ public class HopGitPerspective implements IHopPerspective {
                   // A workflow...
                   //
                   WorkflowMeta workflowMeta =
-                      new WorkflowMeta(xmlStream, hopGui.getMetadataProvider());
+                      new WorkflowMeta(
+                          xmlStream, hopGui.getMetadataProvider(), hopGui.getVariables() );
                   meta = workflowMeta;
                   IHopFileTypeHandler typeHandler =
                       doPerspective.addWorkflow(hopGui, workflowMeta, workflowFileType);

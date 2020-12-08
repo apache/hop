@@ -42,7 +42,7 @@ public class ActionEmpty extends ActionBase implements IAction {
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
 
   }
 

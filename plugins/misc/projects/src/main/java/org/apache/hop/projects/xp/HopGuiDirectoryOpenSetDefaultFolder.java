@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.projects.config.ProjectsConfig;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
@@ -41,7 +42,7 @@ import org.apache.hop.ui.hopgui.delegates.HopGuiDirectoryDialogExtension;
 )
 public class HopGuiDirectoryOpenSetDefaultFolder implements IExtensionPoint<HopGuiDirectoryDialogExtension> {
 
-  @Override public void callExtensionPoint( ILogChannel log, HopGuiDirectoryDialogExtension ext ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiDirectoryDialogExtension ext ) throws HopException {
     String projectName = HopNamespace.getNamespace();
     if ( StringUtil.isEmpty(projectName)) {
       return;

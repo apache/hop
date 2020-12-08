@@ -227,7 +227,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     try {
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.PipelinePainterStart.id, this);
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterStart.id, this );
     } catch (HopException e) {
       LogChannel.GENERAL.logError("Error in PipelinePainterStart extension point", e);
     }
@@ -358,7 +358,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     try {
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.PipelinePainterEnd.id, this);
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterEnd.id, this );
     } catch (HopException e) {
       LogChannel.GENERAL.logError("Error in PipelinePainterEnd extension point", e);
     }
@@ -883,7 +883,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             gc, areaOwners, pipelineMeta, transformMeta, null, x, y, 0, 0, 0, 0, offset, iconSize);
     try {
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.PipelinePainterTransform.id, extension);
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterTransform.id, extension );
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
           "Error calling extension point(s) for the pipeline painter transform", e);
@@ -1165,7 +1165,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
             iconSize);
     try {
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.PipelinePainterArrow.id, extension);
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelinePainterArrow.id, extension );
     } catch (Exception e) {
       LogChannel.GENERAL.logError(
           "Error calling extension point(s) for the pipeline painter arrow", e);

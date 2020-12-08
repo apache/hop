@@ -638,7 +638,7 @@ public class ProjectsGuiPlugin {
       // Inform the outside world that we're enabled an other project
       //
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.HopGuiProjectAfterEnabled.name(), project);
+          LogChannel.GENERAL, hopGuiVariables, HopExtensionPoint.HopGuiProjectAfterEnabled.name(), project );
 
     } catch (Exception e) {
       throw new HopException("Error enabling project '" + projectName + "' in HopGui", e);

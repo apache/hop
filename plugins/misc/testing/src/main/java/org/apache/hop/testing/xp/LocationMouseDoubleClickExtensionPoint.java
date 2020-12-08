@@ -29,8 +29,7 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.metadata.api.IHopMetadataSerializer;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.DataSet;
@@ -44,9 +43,7 @@ import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopGuiPipelineGraph;
 import org.apache.hop.ui.hopgui.file.pipeline.extension.HopGuiPipelineGraphExtension;
 import org.apache.hop.ui.testing.PipelineUnitTestSetLocationDialog;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.widgets.MessageBox;
 
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +57,7 @@ import java.util.Map;
 public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<HopGuiPipelineGraphExtension> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, HopGuiPipelineGraphExtension pipelineGraphExtension ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiPipelineGraphExtension pipelineGraphExtension ) throws HopException {
     HopGuiPipelineGraph pipelineGraph = pipelineGraphExtension.getPipelineGraph();
     PipelineMeta pipelineMeta = pipelineGraph.getPipelineMeta();
 

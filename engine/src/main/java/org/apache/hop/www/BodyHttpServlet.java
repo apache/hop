@@ -24,6 +24,7 @@ package org.apache.hop.www;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.PackageMessages;
 import org.owasp.encoder.Encode;
@@ -67,7 +68,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
         beginHtml( response, out );
       }
 
-      WebResult result = generateBody( request, response, useXML );
+      WebResult result = generateBody( request, response, useXML, variables);
       if ( result != null ) {
         out.println( result.getXml() );
       }
@@ -114,7 +115,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
   }
 
-  abstract WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML )
+  abstract WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML, IVariables variables )
     throws Exception;
 
   @Override

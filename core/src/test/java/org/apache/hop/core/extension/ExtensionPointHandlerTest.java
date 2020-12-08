@@ -54,10 +54,10 @@ public class ExtensionPointHandlerTest {
 
     final ILogChannel log = mock( ILogChannel.class );
 
-    ExtensionPointHandler.callExtensionPoint( log, "noPoint", null );
-    verify( extensionPoint, never() ).callExtensionPoint( any( ILogChannel.class ), any() );
+    ExtensionPointHandler.callExtensionPoint( log, null, "noPoint", null );
+    verify( extensionPoint, never() ).callExtensionPoint( any( ILogChannel.class ), any(), any() );
 
-    ExtensionPointHandler.callExtensionPoint( log, TEST_NAME, null );
-    verify( extensionPoint, times( 1 ) ).callExtensionPoint( eq( log ), isNull() );
+    ExtensionPointHandler.callExtensionPoint( log, null, TEST_NAME, null );
+    verify( extensionPoint, times( 1 ) ).callExtensionPoint( eq( log ), any(), isNull() );
   }
 }

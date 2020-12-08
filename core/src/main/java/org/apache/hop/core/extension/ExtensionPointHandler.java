@@ -24,6 +24,7 @@ package org.apache.hop.core.extension;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 
 public class ExtensionPointHandler {
 
@@ -32,12 +33,13 @@ public class ExtensionPointHandler {
    * found, their corresponding interfaces are instantiated and the callExtensionPoint() method is invoked.
    *
    * @param log    the logging channel to write debugging information to
+   * @param variables
    * @param id     The ID of the extension point to call
    * @param object The parent object that is passed to the plugin
    * @throws HopException In case something goes wrong in the plugin and we need to stop what we're doing.
    */
-  public static void callExtensionPoint( final ILogChannel log, final String id, final Object object )
+  public static void callExtensionPoint( final ILogChannel log, IVariables variables, final String id, final Object object )
     throws HopException {
-    ExtensionPointMap.getInstance().callExtensionPoint( log, id, object );
+    ExtensionPointMap.getInstance().callExtensionPoint( log, variables, id, object );
   }
 }

@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.search.ISearchablesLocation;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.projects.config.ProjectsConfigSingleton;
 import org.apache.hop.projects.project.ProjectConfig;
 import org.apache.hop.ui.core.gui.HopNamespace;
@@ -39,7 +40,7 @@ import java.util.List;
   extensionPointId = "HopGuiGetSearchablesLocations"
 )
 public class AddProjectsSearchablesLocationExtensionPoint implements IExtensionPoint<List<ISearchablesLocation>> {
-  @Override public void callExtensionPoint( ILogChannel log, List<ISearchablesLocation> searchablesLocations ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, List<ISearchablesLocation> searchablesLocations ) throws HopException {
 
     // The location to add is the currently active project and the files in the home folder
     //

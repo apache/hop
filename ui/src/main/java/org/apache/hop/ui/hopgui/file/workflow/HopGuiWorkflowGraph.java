@@ -458,7 +458,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     try {
       HopGuiWorkflowGraphExtension ext = new HopGuiWorkflowGraphExtension(this, e, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.WorkflowGraphMouseDoubleClick.id, ext);
+          LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowGraphMouseDoubleClick.id, ext );
       if (ext.isPreventingDefault()) {
         return;
       }
@@ -519,7 +519,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     try {
       HopGuiWorkflowGraphExtension ext = new HopGuiWorkflowGraphExtension(this, e, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.WorkflowGraphMouseDown.id, ext);
+          LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowGraphMouseDown.id, ext );
       if (ext.isPreventingDefault()) {
         return;
       }
@@ -2450,7 +2450,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             HopGuiTooltipExtension tooltipExt =
                 new HopGuiTooltipExtension(x, y, screenX, screenY, areaOwner, tip);
             ExtensionPointHandler.callExtensionPoint(
-                hopGui.getLog(), HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(), tooltipExt);
+                hopGui.getLog(), variables, HopExtensionPoint.HopGuiWorkflowGraphAreaHover.name(), tooltipExt );
             tipImage = tooltipExt.tooltipImage;
           } catch (Exception ex) {
             hopGui
@@ -3123,7 +3123,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
   public void save() throws HopException {
     try {
       ExtensionPointHandler.callExtensionPoint(
-          log, HopExtensionPoint.WorkflowBeforeSave.id, workflowMeta);
+          log, variables, HopExtensionPoint.WorkflowBeforeSave.id, workflowMeta );
 
       if (StringUtils.isEmpty(workflowMeta.getFilename())) {
         throw new HopException("No filename: please specify a filename for this workflow");
@@ -3147,7 +3147,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
         out.close();
 
         ExtensionPointHandler.callExtensionPoint(
-            log, HopExtensionPoint.WorkflowAfterSave.id, workflowMeta);
+            log, variables, HopExtensionPoint.WorkflowAfterSave.id, workflowMeta );
       }
     } catch (Exception e) {
       throw new HopException(
@@ -3499,7 +3499,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
           // Allow plugins to change the workflow metadata
           //
           ExtensionPointHandler.callExtensionPoint(
-              log, HopExtensionPoint.HopGuiWorkflowMetaExecutionStart.id, workflowMeta);
+              log, variables, HopExtensionPoint.HopGuiWorkflowMetaExecutionStart.id, workflowMeta );
 
           workflow =
               WorkflowEngineFactory.createWorkflowEngine(
@@ -3553,6 +3553,13 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
             workflow.setParameterValue(key, Const.NVL(paramMap.get(key), ""));
           }
           workflow.activateParameters(workflow);
+
+          try {
+            ExtensionPointHandler.callExtensionPoint( LogChannel.UI, variables, HopExtensionPoint.HopGuiWorkflowBeforeStart.id, workflow );
+          } catch ( HopException e ) {
+            LogChannel.UI.logError( e.getMessage(), workflowMeta.getFilename() );
+            return;
+          }
 
           log.logMinimal(BaseMessages.getString(PKG, "WorkflowLog.Log.StartingWorkflow"));
           workflowThread = new Thread(() -> workflow.startExecution());

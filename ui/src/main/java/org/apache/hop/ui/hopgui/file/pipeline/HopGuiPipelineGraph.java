@@ -584,7 +584,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension(this, e, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.PipelineGraphMouseDoubleClick.id, ext);
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelineGraphMouseDoubleClick.id, ext );
       if (ext.isPreventingDefault()) {
         return;
       }
@@ -650,7 +650,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension(this, e, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.PipelineGraphMouseDown.id, ext);
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelineGraphMouseDown.id, ext );
       if (ext.isPreventingDefault()) {
         return;
       }
@@ -828,7 +828,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension(this, e, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.PipelineGraphMouseUp.id, ext);
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelineGraphMouseUp.id, ext );
       if (ext.isPreventingDefault()) {
         redraw();
         clearSettings();
@@ -1335,7 +1335,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     try {
       HopGuiPipelineGraphExtension ext = new HopGuiPipelineGraphExtension(this, e, real, areaOwner);
       ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.PipelineGraphMouseMoved.id, ext);
+          LogChannel.GENERAL, variables, HopExtensionPoint.PipelineGraphMouseMoved.id, ext );
       if (ext.isPreventingDefault()) {
         return;
       }
@@ -2857,7 +2857,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             HopGuiTooltipExtension tooltipExt =
                 new HopGuiTooltipExtension(x, y, screenX, screenY, areaOwner, tip);
             ExtensionPointHandler.callExtensionPoint(
-                hopGui.getLog(), HopExtensionPoint.HopGuiPipelineGraphAreaHover.name(), tooltipExt);
+                hopGui.getLog(), variables, HopExtensionPoint.HopGuiPipelineGraphAreaHover.name(), tooltipExt );
             tipImage = tooltipExt.tooltipImage;
           } catch (Exception ex) {
             hopGui
@@ -3585,7 +3585,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void save() throws HopException {
     try {
       ExtensionPointHandler.callExtensionPoint(
-          log, HopExtensionPoint.PipelineBeforeSave.id, pipelineMeta);
+          log, variables, HopExtensionPoint.PipelineBeforeSave.id, pipelineMeta );
 
       if (StringUtils.isEmpty(pipelineMeta.getFilename())) {
         throw new HopException("No filename: please specify a filename for this pipeline");
@@ -3609,7 +3609,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         out.close();
 
         ExtensionPointHandler.callExtensionPoint(
-            log, HopExtensionPoint.PipelineAfterSave.id, pipelineMeta);
+            log, variables, HopExtensionPoint.PipelineAfterSave.id, pipelineMeta );
       }
     } catch (Exception e) {
       throw new HopException(
@@ -3995,6 +3995,12 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           pipeline.setLogLevel(executionConfiguration.getLogLevel());
           log.logBasic(BaseMessages.getString(PKG, "PipelineLog.Log.PipelineOpened"));
 
+          try {
+            ExtensionPointHandler.callExtensionPoint( log, variables, HopExtensionPoint.HopGuiPipelineBeforeStart.id, pipeline );
+          } catch ( HopException e ) {
+            log.logError( e.getMessage(), pipelineMeta.getFilename() );
+          }
+
         } catch (HopException e) {
           pipeline = null;
           new ErrorDialog(
@@ -4200,6 +4206,13 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         pipeline = new LocalPipelineEngine(pipelineMeta);
         pipeline.setPreview(true);
         pipeline.setMetadataProvider(hopGui.getMetadataProvider());
+
+        try {
+          ExtensionPointHandler.callExtensionPoint( log, variables, HopExtensionPoint.HopGuiPipelineBeforeStart.id, pipeline );
+        } catch ( HopException e ) {
+          log.logError( e.getMessage(), pipelineMeta.getFilename() );
+        }
+
         pipeline.prepareExecution();
 
         // Add the row listeners to the allocated threads

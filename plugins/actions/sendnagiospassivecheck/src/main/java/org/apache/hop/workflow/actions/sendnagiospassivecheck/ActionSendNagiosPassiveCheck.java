@@ -250,7 +250,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       port = XmlHandler.getTagValue( entrynode, "port" );

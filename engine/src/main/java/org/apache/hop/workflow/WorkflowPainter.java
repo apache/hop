@@ -108,7 +108,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     }
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowPainterStart.id, this );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowPainterStart.id, this );
     } catch ( HopException e ) {
       LogChannel.GENERAL.logError( "Error in JobPainterStart extension point", e );
     }
@@ -189,7 +189,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     }
 
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowPainterEnd.id, this );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowPainterEnd.id, this );
     } catch ( HopException e ) {
       LogChannel.GENERAL.logError( "Error in JobPainterEnd extension point", e );
     }
@@ -279,7 +279,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
 
     WorkflowPainterExtension extension = new WorkflowPainterExtension( gc, areaOwners, workflowMeta, null, actionMeta, x, y, 0, 0, 0, 0, offset, iconSize );
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowPainterAction.id, extension );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowPainterAction.id, extension );
     } catch ( Exception e ) {
       LogChannel.GENERAL.logError( "Error calling extension point(s) for the workflow painter action", e );
     }
@@ -455,7 +455,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       WorkflowPainterExtension extension = new WorkflowPainterExtension( gc, areaOwners, workflowMeta, jobHop, null, x1, y1, x2, y2, mx, my, offset, iconSize );
       try {
         ExtensionPointHandler.callExtensionPoint(
-          LogChannel.GENERAL, HopExtensionPoint.WorkflowPainterArrow.id, extension );
+          LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowPainterArrow.id, extension );
       } catch ( Exception e ) {
         LogChannel.GENERAL.logError( "Error calling extension point(s) for the workflow painter arrow", e );
       }

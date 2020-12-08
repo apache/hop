@@ -25,6 +25,7 @@ package org.apache.hop.git.xp;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.git.HopGitPerspective;
 import org.apache.hop.git.model.repository.GitRepository;
 
@@ -32,7 +33,7 @@ import org.apache.hop.git.model.repository.GitRepository;
 public class HopGuiGitRepositoryChanged implements IExtensionPoint {
 
   @Override
-  public void callExtensionPoint(ILogChannel log, Object o) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, Object o ) throws HopException {
     if (!(o instanceof GitRepository)) {
       return;
     }

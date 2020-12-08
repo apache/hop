@@ -100,7 +100,7 @@ public class ActionSpecial extends ActionBase implements Cloneable, IAction {
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       start = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "start" ) );

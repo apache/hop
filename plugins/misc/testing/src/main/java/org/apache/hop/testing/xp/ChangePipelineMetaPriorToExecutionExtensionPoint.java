@@ -29,6 +29,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -43,15 +44,15 @@ import java.util.List;
 @ExtensionPoint(
   extensionPointId = "PipelinePrepareExecution",
   id = "ChangePipelineMetaPriorToExecutionExtensionPoint",
-  description = "Change the pipeline metadata in prior to execution preperation but only during execution in HopGui"
+  description = "Change the pipeline metadata in prior to execution preparation but only during execution in HopGui"
 )
 public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
     PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
 
-    boolean runUnitTest = "Y".equalsIgnoreCase( pipeline.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
+    boolean runUnitTest = "Y".equalsIgnoreCase( variables.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
     if ( !runUnitTest ) {
       // No business here...
       if ( log.isDetailed() ) {

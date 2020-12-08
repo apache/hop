@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelinePainterExtension;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.testing.PipelineUnitTest;
@@ -41,7 +42,7 @@ import org.apache.hop.testing.gui.TestingGuiPlugin;
 public class DrawTweakOnTransformExtensionPoint implements IExtensionPoint<PipelinePainterExtension> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, PipelinePainterExtension ext ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, PipelinePainterExtension ext ) throws HopException {
     TransformMeta transformMeta = ext.transformMeta;
     PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest( ext.pipelineMeta );
     if ( unitTest == null ) {

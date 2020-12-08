@@ -1371,7 +1371,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
         }
         GetFieldsDialogOperation getFieldsDialogOperation = new GetFieldsDialogOperation( shell, 540, 588, filename,
           BaseMessages.getString( PKG, "JsonInput.GetFields.Dialog.Title" ), paths );
-        ExtensionPointHandler.callExtensionPoint( null, HopExtensionPoint.GetFieldsExtension.id, getFieldsDialogOperation );
+        ExtensionPointHandler.callExtensionPoint( null, variables, HopExtensionPoint.GetFieldsExtension.id, getFieldsDialogOperation );
 
         int numRows = getFieldsDialogOperation.getPaths().size();
         if ( numRows > 0 ) {

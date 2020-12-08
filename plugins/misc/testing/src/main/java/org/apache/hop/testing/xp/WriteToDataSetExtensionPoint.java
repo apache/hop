@@ -30,8 +30,8 @@ import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowDataUtil;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.IExecutionFinishedListener;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IEngineComponent;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
@@ -63,7 +63,7 @@ public class WriteToDataSetExtensionPoint implements IExtensionPoint<IPipelineEn
   public static Map<String, DataSet> setsMap = new HashMap<String, DataSet>();
 
   @Override
-  public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
 
     final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
     boolean writeToDataSet = "Y".equalsIgnoreCase( pipeline.getVariable( DataSetConst.VAR_WRITE_TO_DATASET ) );

@@ -23,6 +23,7 @@
 package org.apache.hop.projects.xp;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.run.HopRun;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
@@ -36,7 +37,7 @@ import org.apache.hop.core.vfs.HopVfs;
 )
 public class HopRunCalculateFilenameExtensionPoint implements IExtensionPoint<HopRun> {
 
-  @Override public void callExtensionPoint( ILogChannel log, HopRun hopRun ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopRun hopRun ) throws HopException {
 
     try {
       FileObject fileObject = HopVfs.getFileObject( hopRun.getRealFilename() );

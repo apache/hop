@@ -30,6 +30,7 @@ import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.gui.IGc;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.PipelinePainterExtension;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -48,7 +49,7 @@ import java.util.List;
 public class DrawGoldenDataSetOnTransformExtensionPoint implements IExtensionPoint<PipelinePainterExtension> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, PipelinePainterExtension ext ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, PipelinePainterExtension ext ) throws HopException {
     TransformMeta transformMeta = ext.transformMeta;
     PipelineMeta pipelineMeta = ext.pipelineMeta;
     PipelineUnitTest unitTest = TestingGuiPlugin.getInstance().getActiveTests().get( pipelineMeta );

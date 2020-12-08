@@ -491,12 +491,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Load the workflow from the XML file specified
    *
-   * @param parentSpace
+   * @param variables
    * @param fname
    * @param metadataProvider
    * @throws HopXmlException
    */
-  public WorkflowMeta( IVariables parentSpace, String fname, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public WorkflowMeta( IVariables variables, String fname, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     this.metadataProvider = metadataProvider;
     try {
       // OK, try to load using the VFS stuff...
@@ -505,7 +505,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
         // The workflowNode
         Node workflowNode = XmlHandler.getSubNode( doc, XML_TAG );
 
-        loadXml( workflowNode, fname, metadataProvider );
+        loadXml( workflowNode, fname, metadataProvider, variables);
       } else {
         throw new HopXmlException(
           BaseMessages.getString( PKG, "WorkflowMeta.Exception.ErrorReadingFromXMLFile" ) + fname );
@@ -520,39 +520,28 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * Instantiates a new workflow meta.
    *
    * @param inputStream the input stream
+   * @param variables
    * @throws HopXmlException the hop xml exception
    */
-  public WorkflowMeta( InputStream inputStream, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public WorkflowMeta( InputStream inputStream, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     this();
     this.metadataProvider = metadataProvider;
     Document doc = XmlHandler.loadXmlFile( inputStream, null, false, false );
     Node subNode = XmlHandler.getSubNode( doc, WorkflowMeta.XML_TAG );
-    loadXml( subNode, null );
+    loadXml( subNode, null, metadataProvider, variables );
   }
 
   /**
    * Create a new WorkflowMeta object by loading it from a a DOM node.
    *
    * @param workflowNode The node to load from
+   * @param variables
    * @throws HopXmlException
    */
-  public WorkflowMeta( Node workflowNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public WorkflowMeta( Node workflowNode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     this();
     this.metadataProvider = metadataProvider;
-    loadXml( workflowNode, null, metadataProvider );
-  }
-
-
-  /**
-   * Load xml.
-   *
-   * @param workflowNode the workflowNode
-   * @param fname   The filename
-   * @throws HopXmlException the hop xml exception
-   */
-  public void loadXml( Node workflowNode, String fname )
-    throws HopXmlException {
-    loadXml( workflowNode, fname, metadataProvider );
+    loadXml( workflowNode, null, metadataProvider, variables);
   }
 
   /**
@@ -561,9 +550,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param workflowNode   The node to load from
    * @param filename     The filename
    * @param metadataProvider the MetaStore to use
+   * @param variables
    * @throws HopXmlException
    */
-  public void loadXml( Node workflowNode, String filename, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml( Node workflowNode, String filename, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       // clear the workflows;
       clear();
@@ -621,7 +611,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       Node actionsNode = XmlHandler.getSubNode( workflowNode, "actions" );
       List<Node> actionNodes = XmlHandler.getNodes( actionsNode, ActionMeta.XML_TAG );
       for ( Node actionNode : actionNodes ) {
-        ActionMeta ac = new ActionMeta( actionNode, metadataProvider );
+        ActionMeta ac = new ActionMeta( actionNode, metadataProvider, variables);
 
         if ( ac.isSpecial() && ac.isMissing() ) {
           addMissingAction( (MissingAction) ac.getAction() );
@@ -677,7 +667,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       //
       attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( workflowNode, AttributesUtil.XML_TAG ) );
 
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowMetaLoaded.id, this );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowMetaLoaded.id, this );
 
       clearChanged();
     } catch ( Exception e ) {

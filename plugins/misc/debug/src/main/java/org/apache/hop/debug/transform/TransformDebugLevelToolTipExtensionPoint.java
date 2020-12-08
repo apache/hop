@@ -26,6 +26,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.gui.AreaOwner;
 import org.apache.hop.core.logging.ILogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.BeePainter;
 import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 
@@ -36,7 +37,7 @@ import org.apache.hop.ui.hopgui.file.shared.HopGuiTooltipExtension;
 )
 public class TransformDebugLevelToolTipExtensionPoint extends BeePainter implements IExtensionPoint<HopGuiTooltipExtension> {
 
-  @Override public void callExtensionPoint( ILogChannel log, HopGuiTooltipExtension ext ) {
+  @Override public void callExtensionPoint( ILogChannel log, IVariables variables, HopGuiTooltipExtension ext ) {
 
     AreaOwner areaOwner = ext.areaOwner;
     try {

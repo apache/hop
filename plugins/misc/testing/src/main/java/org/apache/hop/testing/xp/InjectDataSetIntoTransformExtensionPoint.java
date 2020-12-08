@@ -34,6 +34,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.RowProducer;
@@ -65,7 +66,7 @@ import java.util.Map;
 public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint<IPipelineEngine<PipelineMeta>> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, final IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, IVariables variables, final IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
 
     if (!(pipeline instanceof LocalPipelineEngine)) {
       throw new HopPluginException( "Unit tests can only run using a local pipeline engine type" );

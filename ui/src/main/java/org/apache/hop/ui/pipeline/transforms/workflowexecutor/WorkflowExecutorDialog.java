@@ -391,7 +391,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
       List<String> runConfigurations = metadataProvider.getSerializer( WorkflowRunConfiguration.class ).listObjectNames();
 
       try {
-        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiRunConfiguration.id, new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );
+        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), variables, HopExtensionPoint.HopGuiRunConfiguration.id, new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );
       } catch ( HopException e ) {
         // Ignore errors
       }

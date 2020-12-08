@@ -187,8 +187,8 @@ public abstract class BaseDialog extends Dialog {
 
     AtomicBoolean doIt = new AtomicBoolean( true );
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenDialog.id,
-        new HopGuiFileDialogExtension( doIt, dialog ) );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, variables,
+        HopGuiExtensionPoint.HopGuiFileOpenDialog.id, new HopGuiFileDialogExtension( doIt, dialog ) );
     } catch ( Exception xe ) {
       LogChannel.UI.logError( "Error handling extension point 'HopGuiFileOpenDialog'", xe );
     }
@@ -203,7 +203,7 @@ public abstract class BaseDialog extends Dialog {
 
       try {
         HopGuiFileOpenedExtension openedExtension = new HopGuiFileOpenedExtension( dialog, variables, filename );
-        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, openedExtension );
+        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, variables, HopGuiExtensionPoint.HopGuiFileOpenedDialog.id, openedExtension );
         if ( openedExtension.filename != null ) {
           filename = openedExtension.filename;
         }
@@ -248,8 +248,8 @@ public abstract class BaseDialog extends Dialog {
 
     AtomicBoolean doIt = new AtomicBoolean( true );
     try {
-      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiFileDirectoryDialog.id,
-        new HopGuiDirectoryDialogExtension( doIt, directoryDialog ) );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.UI, variables,
+        HopGuiExtensionPoint.HopGuiFileDirectoryDialog.id, new HopGuiDirectoryDialogExtension( doIt, directoryDialog ) );
     } catch ( Exception xe ) {
       LogChannel.UI.logError( "Error handling extension point 'HopGuiFileDirectoryDialog'", xe );
     }
@@ -258,7 +258,7 @@ public abstract class BaseDialog extends Dialog {
       directoryName = directoryDialog.getFilterPath();
       try {
         HopGuiDirectorySelectedExtension ext = new HopGuiDirectorySelectedExtension( directoryDialog, variables, directoryName );
-        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, HopGuiExtensionPoint.HopGuiDirectorySelected.id, ext );
+        ExtensionPointHandler.callExtensionPoint( LogChannel.UI, variables, HopGuiExtensionPoint.HopGuiDirectorySelected.id, ext );
         if ( ext.folderName != null ) {
           directoryName = ext.folderName;
         }

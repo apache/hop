@@ -56,7 +56,7 @@ public enum HopExtensionPoint {
 
   HopGuiPipelineMetaExecutionStart( "Hop GUI initiates the execution of a pipeline (PipelineMeta)" ),
   HopGuiPipelineExecutionConfiguration( "Right before Hop UI configuration of Pipeline to be executed takes place" ),
-  HopGuiPipelineBeforeStart( "Right before the Pipeline is started" ),
+  HopGuiPipelineBeforeStart( "Right before the Pipeline is started (Pipeline)" ),
 
   HopGuiWorkflowBeforeStart( "Right before the workflow is started" ),
   RunConfigurationSelection( "Check when run configuration is selected" ),

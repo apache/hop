@@ -244,10 +244,10 @@ public abstract class MetadataEditor<T extends IHopMetadata> extends MetadataFil
 
     if (isCreated)
       ExtensionPointHandler.callExtensionPoint(
-          hopGui.getLog(), HopExtensionPoint.HopGuiMetadataObjectCreated.id, metadata);
+          hopGui.getLog(), manager.getVariables(), HopExtensionPoint.HopGuiMetadataObjectCreated.id, metadata );
     else
       ExtensionPointHandler.callExtensionPoint(
-          hopGui.getLog(), HopExtensionPoint.HopGuiMetadataObjectUpdated.id, metadata);
+          hopGui.getLog(), manager.getVariables(), HopExtensionPoint.HopGuiMetadataObjectUpdated.id, metadata );
 
     // Reset changed flag
     this.isChanged = false;

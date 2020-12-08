@@ -55,7 +55,7 @@ public class ModifyActionLogLevelExtensionPoint implements IExtensionPoint<IWork
   public static final String STRING_REFERENCE_VARIABLE_SPACE = "REFERENCE_VARIABLE_SPACE";
 
 
-  @Override public void callExtensionPoint( ILogChannel jobLog, IWorkflowEngine<WorkflowMeta> workflow ) throws HopException {
+  @Override public void callExtensionPoint( ILogChannel jobLog, IVariables variables, IWorkflowEngine<WorkflowMeta> workflow ) throws HopException {
 
     IWorkflowEngine<WorkflowMeta> rootWorkflow = workflow;
     IPipelineEngine<PipelineMeta> rootPipeline = null;
@@ -87,13 +87,13 @@ public class ModifyActionLogLevelExtensionPoint implements IExtensionPoint<IWork
     //
     final IVariables referenceSpace;
     synchronized ( rootDataMap ) {
-      IVariables variables = (IVariables) rootDataMap.get( STRING_REFERENCE_VARIABLE_SPACE );
-      if ( variables == null ) {
-        variables = new Variables();
-        variables.initializeVariablesFrom( workflow );
-        rootDataMap.put( STRING_REFERENCE_VARIABLE_SPACE, variables );
+      IVariables referenceVariables = (IVariables) rootDataMap.get( STRING_REFERENCE_VARIABLE_SPACE );
+      if ( referenceVariables == null ) {
+        referenceVariables = new Variables();
+        referenceVariables.initializeVariablesFrom( workflow );
+        rootDataMap.put( STRING_REFERENCE_VARIABLE_SPACE, referenceVariables );
       }
-      referenceSpace = variables;
+      referenceSpace = referenceVariables;
     }
 
     // Find the debug info in the workflow metadata
