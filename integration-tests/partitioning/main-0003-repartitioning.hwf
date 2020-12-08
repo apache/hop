@@ -5,12 +5,18 @@
   <description/>
   <extended_description/>
   <workflow_version/>
+  <workflow_status>0</workflow_status>
   <created_user>-</created_user>
   <created_date>2020/12/08 22:48:28.325</created_date>
   <modified_user>-</modified_user>
   <modified_date>2020/12/08 22:48:28.325</modified_date>
   <parameters>
-    </parameters>
+    <parameter>
+      <name>NR_PARTITIONS</name>
+      <default_value/>
+      <description/>
+    </parameter>
+  </parameters>
   <actions>
     <action>
       <name>START</name>
@@ -56,6 +62,11 @@
       <run_configuration>local</run_configuration>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
+        <parameter>
+          <name>NR_PARTITIONS</name>
+          <stream_name/>
+          <value>3</value>
+        </parameter>
       </parameters>
       <parallel>N</parallel>
       <nr>0</nr>

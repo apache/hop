@@ -7,7 +7,13 @@
     <extended_description/>
     <pipeline_version/>
     <pipeline_type>Normal</pipeline_type>
+    <pipeline_status>0</pipeline_status>
     <parameters>
+      <parameter>
+        <name>NR_PARTITIONS</name>
+        <default_value/>
+        <description>Number of dynamic partitions</description>
+      </parameter>
     </parameters>
     <capture_transform_performance>N</capture_transform_performance>
     <transform_performance_capturing_delay>1000</transform_performance_capturing_delay>
