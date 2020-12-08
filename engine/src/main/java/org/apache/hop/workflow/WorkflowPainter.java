@@ -251,7 +251,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
       gc.setForeground( EColor.BLACK );
     }
 
-    ActionResult actionResult = findJobEntryResult( actionMeta );
+    ActionResult actionResult = findActionResult( actionMeta );
     if ( actionResult != null ) {
       Result result = actionResult.getResult();
       int iconX = ( x + iconSize ) - ( miniIconSize / 2 );
@@ -288,7 +288,7 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
     gc.setAlpha( alpha );
   }
 
-  private ActionResult findJobEntryResult( ActionMeta actionCopy ) {
+  private ActionResult findActionResult( ActionMeta actionCopy ) {
     if ( actionResults == null ) {
       return null;
     }

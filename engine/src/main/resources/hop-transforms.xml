@@ -5,7 +5,7 @@
     <classname>org.apache.hop.pipeline.transforms.dummy.DummyMeta</classname>
     <category>i18n:org.apache.hop.pipeline.transform:BaseTransform.Category.Flow</category>
     <tooltip>i18n:org.apache.hop.pipeline.transform:BaseTransform.TypeTooltipDesc.Dummy</tooltip>
-    <iconfile>ui/images/DUM.svg</iconfile>
+    <iconfile>ui/images/dummy.svg</iconfile>
     <cases_url/>
     <forum_url/>
   </transform>

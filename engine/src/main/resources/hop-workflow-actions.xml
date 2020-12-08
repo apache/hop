@@ -15,10 +15,17 @@
     <iconfile>ui/images/toolbar/workflow3.svg</iconfile>
   </workflow-action>
   <workflow-action id="SPECIAL">
-    <description>i18n:org.apache.hop.workflow.action:Action.Special.TypeDesc</description>
-    <classname>org.apache.hop.workflow.actions.special.ActionSpecial</classname>
+    <description>i18n:org.apache.hop.workflow.actions.start:ActionStart.Name</description>
+    <classname>org.apache.hop.workflow.actions.start.ActionStart</classname>
     <category>i18n:org.apache.hop.workflow:ActionCategory.Category.General</category>
-    <tooltip>i18n:org.apache.hop.workflow.action:Action.Special.Tooltip</tooltip>
-    <iconfile/>
+    <tooltip>i18n:org.apache.hop.workflow.actions.start:ActionStart.Description</tooltip>
+    <iconfile>ui/images/start.svg</iconfile>
   </workflow-action>
+  <workflow-action id="DUMMY">
+    <description>i18n:org.apache.hop.workflow.actions.dummy:ActionDummy.Name</description>
+    <classname>org.apache.hop.workflow.actions.dummy.ActionDummy</classname>
+    <category>i18n:org.apache.hop.workflow:ActionCategory.Category.General</category>
+    <tooltip>i18n:org.apache.hop.workflow.actions.dummy:ActionDummy.Description</tooltip>
+    <iconfile>ui/images/dummy.svg</iconfile>
+  </workflow-action>  
 </workflow-actions>

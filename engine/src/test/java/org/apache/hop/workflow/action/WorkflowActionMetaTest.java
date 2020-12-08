@@ -24,7 +24,7 @@
 package org.apache.hop.workflow.action;
 
 import org.apache.hop.workflow.WorkflowMeta;
-import org.apache.hop.workflow.actions.special.ActionSpecial;
+import org.apache.hop.workflow.actions.start.ActionStart;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -47,7 +47,7 @@ public class WorkflowActionMetaTest {
     originActionMeta = new ActionMeta();
     copyActionMeta = new ActionMeta();
 
-    originAction = new ActionSpecial( "EntrySpecial", false, false );
+    originAction = new ActionStart( "EntrySpecial" );
     originAction.setChanged( false );
 
     originActionMeta.setAction( originAction );

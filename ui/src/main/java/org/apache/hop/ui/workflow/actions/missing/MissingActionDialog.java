@@ -23,15 +23,17 @@
 
 package org.apache.hop.ui.workflow.actions.missing;
 
+import java.util.List;
+
 import org.apache.hop.core.Const;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.workflow.WorkflowMeta;
+import org.apache.hop.workflow.action.IAction;
 import org.apache.hop.workflow.action.IActionDialog;
 import org.apache.hop.workflow.actions.missing.MissingAction;
-import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -43,8 +45,6 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
-import java.util.List;
 
 public class MissingActionDialog extends ActionDialog implements IActionDialog {
   private static final Class<?> PKG = MissingActionDialog.class;
@@ -79,11 +79,11 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
     String message = "";
     if ( mode == MISSING_ACTIONS ) {
       StringBuilder entries = new StringBuilder();
-      for ( MissingAction entry : missingEntries ) {
-        if ( missingEntries.indexOf( entry ) == missingEntries.size() - 1 ) {
-          entries.append( "- " + entry.getName() + " - " + entry.getMissingPluginId() + "\n\n" );
+      for ( MissingAction action : missingEntries ) {
+        if ( missingEntries.indexOf( action ) == missingEntries.size() - 1 ) {
+          entries.append( "- " + action.getName() + " - " + action.getMissingPluginId() + "\n\n" );
         } else {
-          entries.append( "- " + entry.getName() + " - " + entry.getMissingPluginId() + "\n" );
+          entries.append( "- " + action.getName() + " - " + action.getMissingPluginId() + "\n" );
         }
       }
       message = BaseMessages.getString( PKG, "MissingActionDialog.MissingActions", entries.toString() );
@@ -185,6 +185,7 @@ public class MissingActionDialog extends ActionDialog implements IActionDialog {
     props.setLook( searchButton );
     searchButton.setText( BaseMessages.getString( PKG, "MissingActionDialog.SearchMarketplace" ) );
     searchButton.setLayoutData( fdSearch );
+    searchButton.setEnabled(false);
     searchButton.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         try {

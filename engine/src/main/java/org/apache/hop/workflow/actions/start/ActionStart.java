@@ -1,31 +1,26 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
-package org.apache.hop.workflow.actions.special;
+package org.apache.hop.workflow.actions.start;
 
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
+import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.exception.HopXmlException;
@@ -41,21 +36,29 @@ import java.util.Calendar;
 import java.util.List;
 
 /**
- * This class can contain a few special actions such as Start and Dummy.
- *
- * @author Matt
- * @since 05-11-2003
+ * The start action is starting point for workflow execution.
  */
 
-public class ActionSpecial extends ActionBase implements Cloneable, IAction {
+@Action(
+  id = ActionStart.ID,
+  image = "ui/images/start.sv",
+  i18nPackageName = "org.apache.hop.workflow.actions.start",
+  name = "ActionStart.Name",
+  description = "ActionStart.Description",
+  categoryDescription = "i18n:org.apache.hop.workflow:ActionCategory.Category.General",
+  documentationUrl = "https://hop.apache.org/manual/latest/plugins/actions/start.html"
+)
+public class ActionStart extends ActionBase implements Cloneable, IAction {
+
+  /** Action unique identifier" */
+  public static final String ID = "SPECIAL";
+
   public static final int NOSCHEDULING = 0;
   public static final int INTERVAL = 1;
   public static final int DAILY = 2;
   public static final int WEEKLY = 3;
   public static final int MONTHLY = 4;
 
-  private boolean start;
-  private boolean dummy;
   private boolean repeat = false;
   private int schedulerType = NOSCHEDULING;
   private int intervalSeconds = 0;
@@ -65,18 +68,16 @@ public class ActionSpecial extends ActionBase implements Cloneable, IAction {
   private int minutes = 0;
   private int hour = 12;
 
-  public ActionSpecial() {
-    this( null, false, false );
+  public ActionStart() {
+    this( null );
   }
 
-  public ActionSpecial( String name, boolean start, boolean dummy ) {
+  public ActionStart( String name ) {
     super( name, "" );
-    this.start = start;
-    this.dummy = dummy;
   }
 
   public Object clone() {
-    ActionSpecial je = (ActionSpecial) super.clone();
+    ActionStart je = (ActionStart) super.clone();
     return je;
   }
 
@@ -84,9 +85,6 @@ public class ActionSpecial extends ActionBase implements Cloneable, IAction {
     StringBuilder retval = new StringBuilder( 200 );
 
     retval.append( super.getXml() );
-
-    retval.append( "      " ).append( XmlHandler.addTagValue( "start", start ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "dummy", dummy ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "repeat", repeat ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "schedulerType", schedulerType ) );
     retval.append( "      " ).append( XmlHandler.addTagValue( "intervalSeconds", intervalSeconds ) );
@@ -103,8 +101,6 @@ public class ActionSpecial extends ActionBase implements Cloneable, IAction {
                        IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
-      start = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "start" ) );
-      dummy = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "dummy" ) );
       repeat = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "repeat" ) );
       setSchedulerType( Const.toInt( XmlHandler.getTagValue( entrynode, "schedulerType" ), NOSCHEDULING ) );
       setIntervalSeconds( Const.toInt( XmlHandler.getTagValue( entrynode, "intervalSeconds" ), 0 ) );
@@ -116,14 +112,6 @@ public class ActionSpecial extends ActionBase implements Cloneable, IAction {
     } catch ( HopException e ) {
       throw new HopXmlException( "Unable to load action of type 'special' from XML node", e );
     }
-  }
-
-  public boolean isStart() {
-    return start;
-  }
-
-  public boolean isDummy() {
-    return dummy;
   }
 
   public Result execute( Result previousResult, int nr ) throws HopWorkflowException {
@@ -282,6 +270,11 @@ public class ActionSpecial extends ActionBase implements Cloneable, IAction {
     this.schedulerType = schedulerType;
   }
 
+  @Override
+  public boolean isStart() {
+      return true;
+  }
+  
   public boolean isRepeat() {
     return repeat;
   }
@@ -304,20 +297,6 @@ public class ActionSpecial extends ActionBase implements Cloneable, IAction {
 
   public void setIntervalMinutes( int intervalMinutes ) {
     this.intervalMinutes = intervalMinutes;
-  }
-
-  /**
-   * @param dummy the dummy to set
-   */
-  public void setDummy( boolean dummy ) {
-    this.dummy = dummy;
-  }
-
-  /**
-   * @param start the start to set
-   */
-  public void setStart( boolean start ) {
-    this.start = start;
   }
 
   @Override

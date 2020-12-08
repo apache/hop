@@ -1,0 +1,8 @@
+:documentationPath: /plugins/actions/
+:language: en_US
+:page-alternativeEditUrl: https://github.com/apache/incubator-hop/edit/master/plugins/actions/dummy/src/main/doc/dummy.adoc
+= Pipeline
+
+== Description
+
+The Dummy action does nothing.

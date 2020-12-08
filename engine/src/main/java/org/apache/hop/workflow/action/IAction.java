@@ -255,18 +255,11 @@ public interface IAction {
   String getXml();
 
   /**
-   * Checks if the action has started
+   * Checks if the action is a starting point
    *
-   * @return true if started, false otherwise
+   * @return true if starting point, false otherwise
    */
   boolean isStart();
-
-  /**
-   * Checks if this action is a dummy entry
-   *
-   * @return true if this action is a dummy entry, false otherwise
-   */
-  boolean isDummy();
 
   /**
    * This method is called when a action is duplicated in HopGui. It needs to return a deep copy of this action
@@ -334,13 +327,6 @@ public interface IAction {
    * @return true if the action sends email, false otherwise
    */
   boolean isMail();
-
-  /**
-   * Checks if the action is of a special type (Start, Dummy, etc.)
-   *
-   * @return true if the action is of a special type, false otherwise
-   */
-  boolean isSpecial();
 
   /**
    * Gets the SQL statements needed by this action to execute successfully, given a set of variables.
