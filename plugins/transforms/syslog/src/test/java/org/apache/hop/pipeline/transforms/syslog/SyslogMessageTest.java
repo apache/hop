@@ -51,7 +51,7 @@ public class SyslogMessageTest {
   @Before
   public void setUp() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<SyslogMessageMeta, SyslogMessageData>( "SYSLOG_MESSAGE TEST", SyslogMessageMeta.class,
+      new TransformMockHelper<>( "SYSLOG_MESSAGE TEST", SyslogMessageMeta.class,
         SyslogMessageData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       transformMockHelper.iLogChannel );

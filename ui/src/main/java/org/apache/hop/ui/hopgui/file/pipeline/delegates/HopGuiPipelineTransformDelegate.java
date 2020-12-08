@@ -71,61 +71,85 @@ public class HopGuiPipelineTransformDelegate {
   // TODO: move i18n package to HopGui
   private static final Class<?> PKG = HopGui.class; // Needed by Translator
 
-
   private HopGui hopGui;
   private HopGuiPipelineGraph pipelineGraph;
 
-  public HopGuiPipelineTransformDelegate( HopGui hopGui, HopGuiPipelineGraph pipelineGraph ) {
+  public HopGuiPipelineTransformDelegate(HopGui hopGui, HopGuiPipelineGraph pipelineGraph) {
     this.hopGui = hopGui;
     this.pipelineGraph = pipelineGraph;
   }
 
-  public ITransformDialog getTransformDialog( ITransformMeta transformMeta, PipelineMeta pipelineMeta, String transformName ) throws HopException {
-    Class<?>[] paramClasses = new Class<?>[] { Shell.class, IVariables.class, Object.class, PipelineMeta.class, String.class };
-    Object[] paramArgs = new Object[] { hopGui.getShell(), pipelineGraph.getVariables(), transformMeta, pipelineMeta, transformName };
+  public ITransformDialog getTransformDialog(
+      ITransformMeta transformMeta, PipelineMeta pipelineMeta, String transformName)
+      throws HopException {
+    Class<?>[] paramClasses =
+        new Class<?>[] {
+          Shell.class, IVariables.class, Object.class, PipelineMeta.class, String.class
+        };
+    Object[] paramArgs =
+        new Object[] {
+          hopGui.getShell(),
+          pipelineGraph.getVariables(),
+          transformMeta,
+          pipelineMeta,
+          transformName
+        };
 
     PluginRegistry registry = PluginRegistry.getInstance();
-    IPlugin plugin = registry.getPlugin( TransformPluginType.class, transformMeta );
-    if ( plugin==null ) {    	
-        throw new HopException( "Missing transform plugin for '" +  transformName  + "'");
-    }    
-        
-    String dialogClassName = plugin.getClassMap().get( ITransformDialog.class );
+    IPlugin plugin = registry.getPlugin(TransformPluginType.class, transformMeta);
+    if (plugin == null) {
+      throw new HopException("Missing transform plugin for '" + transformName + "'");
+    }
 
-    if ( dialogClassName == null ) {
+    String dialogClassName = plugin.getClassMap().get(ITransformDialog.class);
+
+    if (dialogClassName == null) {
       // Calculate it from the base meta class...
       //
       dialogClassName = transformMeta.getDialogClassName();
     }
 
-    if ( dialogClassName == null ) {
-      throw new HopException( "Unable to find dialog class for plugin '" + plugin.getIds()[ 0 ] + "' : " + plugin.getName() );
+    if (dialogClassName == null) {
+      throw new HopException(
+          "Unable to find dialog class for plugin '"
+              + plugin.getIds()[0]
+              + "' : "
+              + plugin.getName());
     }
 
     try {
-      Class<ITransformDialog> dialogClass = registry.getClass( plugin, dialogClassName );
-      Constructor<ITransformDialog> dialogConstructor = dialogClass.getConstructor( paramClasses );
-      return dialogConstructor.newInstance( paramArgs );
-    } catch ( Exception e ) {
+      Class<ITransformDialog> dialogClass = registry.getClass(plugin, dialogClassName);
+      Constructor<ITransformDialog> dialogConstructor = dialogClass.getConstructor(paramClasses);
+      return dialogConstructor.newInstance(paramArgs);
+    } catch (Exception e) {
       // try the old way for compatibility
       try {
-        Class<?>[] sig = new Class<?>[] { Shell.class, IVariables.class, ITransformMeta.class, PipelineMeta.class, String.class };
-        Method method = transformMeta.getClass().getDeclaredMethod( "getDialog", sig );
-        if ( method != null ) {
-          hopGui.getLog().logDebug( "Use of ITransformMeta#getDialog is deprecated, use PluginDialog annotation instead." );
-          return (ITransformDialog) method.invoke( transformMeta, paramArgs );
+        Class<?>[] sig =
+            new Class<?>[] {
+              Shell.class, IVariables.class, ITransformMeta.class, PipelineMeta.class, String.class
+            };
+        Method method = transformMeta.getClass().getDeclaredMethod("getDialog", sig);
+        if (method != null) {
+          hopGui
+              .getLog()
+              .logDebug(
+                  "Use of ITransformMeta#getDialog is deprecated, use PluginDialog annotation instead.");
+          return (ITransformDialog) method.invoke(transformMeta, paramArgs);
         }
-      } catch ( Throwable ignored ) {
+      } catch (Throwable ignored) {
       }
 
-      String errorTitle = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingTransformDialog.Title" );
-      String errorMsg = BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingTransformDialog.Message", dialogClassName );
-      new ErrorDialog( hopGui.getShell(), errorTitle, errorMsg, e );
-      throw new HopException( e );
+      String errorTitle =
+          BaseMessages.getString(PKG, "HopGui.Dialog.ErrorCreatingTransformDialog.Title");
+      String errorMsg =
+          BaseMessages.getString(
+              PKG, "HopGui.Dialog.ErrorCreatingTransformDialog.Message", dialogClassName);
+      new ErrorDialog(hopGui.getShell(), errorTitle, errorMsg, e);
+      throw new HopException(e);
     }
   }
 
-  public String editTransform( PipelineMeta pipelineMeta, TransformMeta transformMeta ) {
+  public String editTransform(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
     boolean refresh = false;
     String transformName = null;
     try {
@@ -135,13 +159,14 @@ public class HopGuiPipelineTransformDelegate {
       // was...
       //
       TransformMeta before = (TransformMeta) transformMeta.clone();
-      ITransformDialog dialog = getTransformDialog( transformMeta.getTransform(), pipelineMeta, name );
-      if ( dialog != null ) {
-        dialog.setMetadataProvider( hopGui.getMetadataProvider() );
+      ITransformDialog dialog =
+          getTransformDialog(transformMeta.getTransform(), pipelineMeta, name);
+      if (dialog != null) {
+        dialog.setMetadataProvider(hopGui.getMetadataProvider());
         transformName = dialog.open();
       }
 
-      if ( !Utils.isEmpty( transformName ) ) {
+      if (!Utils.isEmpty(transformName)) {
         // Force the recreation of the transform IO metadata object. (cached by default)
         //
         transformMeta.getTransform().resetTransformIoMeta();
@@ -152,30 +177,32 @@ public class HopGuiPipelineTransformDelegate {
         // If so, change the transformName and warn the user!
         //
         String newname = transformName;
-        TransformMeta smeta = pipelineMeta.findTransform( newname, transformMeta );
+        TransformMeta smeta = pipelineMeta.findTransform(newname, transformMeta);
         int nr = 2;
-        while ( smeta != null ) {
+        while (smeta != null) {
           newname = transformName + " " + nr;
-          smeta = pipelineMeta.findTransform( newname );
+          smeta = pipelineMeta.findTransform(newname);
           nr++;
         }
-        if ( nr > 2 ) {
+        if (nr > 2) {
           transformName = newname;
-          MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-          mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.TransformnameExists.Message", transformName ) );
-          mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.TransformnameExists.Title" ) );
+          MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+          mb.setMessage(
+              BaseMessages.getString(
+                  PKG, "HopGui.Dialog.TransformnameExists.Message", transformName));
+          mb.setText(BaseMessages.getString(PKG, "HopGui.Dialog.TransformnameExists.Title"));
           mb.open();
         }
 
-        if ( !transformName.equals( name ) ) {
+        if (!transformName.equals(name)) {
           refresh = true;
         }
 
         TransformMeta newTransformMeta = (TransformMeta) transformMeta.clone();
-        newTransformMeta.setName( transformName );
+        newTransformMeta.setName(transformName);
         pipelineMeta.clearCaches();
-        pipelineMeta.notifyAllListeners( transformMeta, newTransformMeta );
-        transformMeta.setName( transformName );
+        pipelineMeta.notifyAllListeners(transformMeta, newTransformMeta);
+        transformMeta.setName(transformName);
 
         //
         // OK, so the transform has changed...
@@ -183,9 +210,9 @@ public class HopGuiPipelineTransformDelegate {
         //
         TransformMeta after = (TransformMeta) transformMeta.clone();
         /**
-         * TODO: Create new Undo/Redo system
-         hopGui.addUndoChange( pipelineMeta, new TransformMeta[] { before }, new TransformMeta[] { after }, new int[] { pipelineMeta
-         .indexOfTransform( transformMeta ) } );
+         * TODO: Create new Undo/Redo system hopGui.addUndoChange( pipelineMeta, new TransformMeta[]
+         * { before }, new TransformMeta[] { after }, new int[] { pipelineMeta .indexOfTransform(
+         * transformMeta ) } );
          */
       }
       pipelineGraph.redraw(); // name is displayed on the graph too.
@@ -194,38 +221,46 @@ public class HopGuiPipelineTransformDelegate {
       // After the transform was edited we can complain about the possible
       // deadlock here.
       //
-    } catch ( Throwable e ) {
-      if ( hopGui.getShell().isDisposed() ) {
+    } catch (Throwable e) {
+      if (hopGui.getShell().isDisposed()) {
         return null;
       }
       new ErrorDialog(
-        hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.UnableOpenDialog.Title" ), BaseMessages
-        .getString( PKG, "HopGui.Dialog.UnableOpenDialog.Message" ), e );
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "HopGui.Dialog.UnableOpenDialog.Title"),
+          BaseMessages.getString(PKG, "HopGui.Dialog.UnableOpenDialog.Message"),
+          e);
     }
 
     return transformName;
   }
 
-
   /**
    * Allocate new transform, optionally open and rename it.
    *
-   * @param id          Id of the new transform
-   * @param name        Name of the new transform
+   * @param id Id of the new transform
+   * @param name Name of the new transform
    * @param description Description of the type of transform
-   * @param openit      Open the dialog for this transform?
-   * @param rename      Rename this transform?
+   * @param openit Open the dialog for this transform?
+   * @param rename Rename this transform?
    * @return The newly created TransformMeta object.
    */
-  public TransformMeta newTransform( PipelineMeta pipelineMeta, String id, String name, String description, boolean openit, boolean rename, Point location ) {
+  public TransformMeta newTransform(
+      PipelineMeta pipelineMeta,
+      String id,
+      String name,
+      String description,
+      boolean openit,
+      boolean rename,
+      Point location) {
     try {
       TransformMeta transformMeta = null;
 
       // See if we need to rename the transform to avoid doubles!
-      if ( rename && pipelineMeta.findTransform( name ) != null ) {
+      if (rename && pipelineMeta.findTransform(name) != null) {
         int i = 2;
         String newName = name + " " + i;
-        while ( pipelineMeta.findTransform( newName ) != null ) {
+        while (pipelineMeta.findTransform(newName) != null) {
           i++;
           newName = name + " " + i;
         }
@@ -233,97 +268,117 @@ public class HopGuiPipelineTransformDelegate {
       }
 
       PluginRegistry registry = PluginRegistry.getInstance();
-      IPlugin transformPlugin = id != null ? registry.findPluginWithId( TransformPluginType.class, id )
-        : registry.findPluginWithName( TransformPluginType.class, description );
+      IPlugin transformPlugin =
+          id != null
+              ? registry.findPluginWithId(TransformPluginType.class, id)
+              : registry.findPluginWithName(TransformPluginType.class, description);
 
       try {
-        if ( transformPlugin != null ) {
-          ITransformMeta info = (ITransformMeta) registry.loadClass( transformPlugin );
+        if (transformPlugin != null) {
+          ITransformMeta info = (ITransformMeta) registry.loadClass(transformPlugin);
 
           info.setDefault();
 
-          if ( openit ) {
-            ITransformDialog dialog = this.getTransformDialog( info, pipelineMeta, name );
-            if ( dialog != null ) {
+          if (openit) {
+            ITransformDialog dialog = this.getTransformDialog(info, pipelineMeta, name);
+            if (dialog != null) {
               name = dialog.open();
             }
           }
-          transformMeta = new TransformMeta( transformPlugin.getIds()[ 0 ], name, info );
+          transformMeta = new TransformMeta(transformPlugin.getIds()[0], name, info);
 
-          if ( name != null ) {
+          if (name != null) {
             // OK pressed in the dialog: we have a transform-name
             String newName = name;
-            TransformMeta candiateTransformMeta = pipelineMeta.findTransform( newName );
+            TransformMeta candiateTransformMeta = pipelineMeta.findTransform(newName);
             int nr = 2;
-            while ( candiateTransformMeta != null ) {
+            while (candiateTransformMeta != null) {
               newName = name + " " + nr;
-              candiateTransformMeta = pipelineMeta.findTransform( newName );
+              candiateTransformMeta = pipelineMeta.findTransform(newName);
               nr++;
             }
-            if ( nr > 2 ) {
-              transformMeta.setName( newName );
-              MessageBox mb = new MessageBox( hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION );
-              // "This transformName already exists.  HopGui changed the transformName to ["+newName+"]"
-              mb.setMessage( BaseMessages.getString( PKG, "HopGui.Dialog.ChangeTransformname.Message", newName ) );
-              mb.setText( BaseMessages.getString( PKG, "HopGui.Dialog.ChangeTransformname.Title" ) );
+            if (nr > 2) {
+              transformMeta.setName(newName);
+              MessageBox mb = new MessageBox(hopGui.getShell(), SWT.OK | SWT.ICON_INFORMATION);
+              // "This transformName already exists.  HopGui changed the transformName to
+              // ["+newName+"]"
+              mb.setMessage(
+                  BaseMessages.getString(
+                      PKG, "HopGui.Dialog.ChangeTransformname.Message", newName));
+              mb.setText(BaseMessages.getString(PKG, "HopGui.Dialog.ChangeTransformname.Title"));
               mb.open();
             }
-            PropsUi.setLocation(transformMeta, location.x, location.y );
-            transformMeta.setLocation( location.x, location.y );
-            pipelineMeta.addTransform( transformMeta );
-            hopGui.undoDelegate.addUndoNew( pipelineMeta, new TransformMeta[] { transformMeta }, new int[] { pipelineMeta.indexOfTransform( transformMeta ) } );
+            PropsUi.setLocation(transformMeta, location.x, location.y);
+            transformMeta.setLocation(location.x, location.y);
+            pipelineMeta.addTransform(transformMeta);
+            hopGui.undoDelegate.addUndoNew(
+                pipelineMeta,
+                new TransformMeta[] {transformMeta},
+                new int[] {pipelineMeta.indexOfTransform(transformMeta)});
 
             // Also store the event in the plugin history list...
-            AuditManager.registerEvent( HopNamespace.getNamespace(), "transform", transformPlugin.getIds()[ 0 ], "create" );
+            AuditManager.registerEvent(
+                HopNamespace.getNamespace(), "transform", transformPlugin.getIds()[0], "create");
           } else {
             return null; // Cancel pressed in dialog.
           }
           pipelineGraph.updateGui();
         }
-      } catch ( HopException e ) {
+      } catch (HopException e) {
         String filename = transformPlugin.getErrorHelpFile();
-        if ( !Utils.isEmpty( filename ) ) {
+        if (!Utils.isEmpty(filename)) {
           // OK, in stead of a normal error message, we give back the
           // content of the error help file... (HTML)
           FileInputStream fis = null;
           try {
             StringBuilder content = new StringBuilder();
 
-            fis = new FileInputStream( new File( filename ) );
+            fis = new FileInputStream(new File(filename));
             int ch = fis.read();
-            while ( ch >= 0 ) {
-              content.append( (char) ch );
+            while (ch >= 0) {
+              content.append((char) ch);
               ch = fis.read();
             }
 
-            ShowBrowserDialog sbd = new ShowBrowserDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ErrorHelpText.Title" ), content.toString() );
+            ShowBrowserDialog sbd =
+                new ShowBrowserDialog(
+                    hopGui.getShell(),
+                    BaseMessages.getString(PKG, "HopGui.Dialog.ErrorHelpText.Title"),
+                    content.toString());
             sbd.open();
-          } catch ( Exception ex ) {
-            new ErrorDialog( hopGui.getShell(), BaseMessages.getString( PKG, "HopGui.Dialog.ErrorShowingHelpText.Title" ),
-              BaseMessages.getString( PKG, "HopGui.Dialog.ErrorShowingHelpText.Message" ), ex );
+          } catch (Exception ex) {
+            new ErrorDialog(
+                hopGui.getShell(),
+                BaseMessages.getString(PKG, "HopGui.Dialog.ErrorShowingHelpText.Title"),
+                BaseMessages.getString(PKG, "HopGui.Dialog.ErrorShowingHelpText.Message"),
+                ex);
           } finally {
-            if ( fis != null ) {
+            if (fis != null) {
               try {
                 fis.close();
-              } catch ( Exception ex ) {
-                hopGui.getLog().logError( "Error closing plugin help file", ex );
+              } catch (Exception ex) {
+                hopGui.getLog().logError("Error closing plugin help file", ex);
               }
             }
           }
         } else {
-          new ErrorDialog( hopGui.getShell(),
-            // "Error creating transform"
-            // "I was unable to create a new transform"
-            BaseMessages.getString( PKG, "HopGui.Dialog.UnableCreateNewTransform.Title" ), BaseMessages.getString(
-            PKG, "HopGui.Dialog.UnableCreateNewTransform.Message" ), e );
+          new ErrorDialog(
+              hopGui.getShell(),
+              // "Error creating transform"
+              // "I was unable to create a new transform"
+              BaseMessages.getString(PKG, "HopGui.Dialog.UnableCreateNewTransform.Title"),
+              BaseMessages.getString(PKG, "HopGui.Dialog.UnableCreateNewTransform.Message"),
+              e);
         }
         return null;
-      } catch ( Throwable e ) {
-        if ( !hopGui.getShell().isDisposed() ) {
-          new ErrorDialog( hopGui.getShell(),
-            // "Error creating transform"
-            BaseMessages.getString( PKG, "HopGui.Dialog.ErrorCreatingTransform.Title" ), BaseMessages.getString(
-            PKG, "HopGui.Dialog.UnableCreateNewTransform.Message" ), e );
+      } catch (Throwable e) {
+        if (!hopGui.getShell().isDisposed()) {
+          new ErrorDialog(
+              hopGui.getShell(),
+              // "Error creating transform"
+              BaseMessages.getString(PKG, "HopGui.Dialog.ErrorCreatingTransform.Title"),
+              BaseMessages.getString(PKG, "HopGui.Dialog.UnableCreateNewTransform.Message"),
+              e);
         }
         return null;
       }
@@ -334,155 +389,201 @@ public class HopGuiPipelineTransformDelegate {
     }
   }
 
-  public void editTransformPartitioning( PipelineMeta pipelineMeta, TransformMeta transformMeta ) {
+  public void editTransformPartitioning(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
     String[] schemaNames;
     try {
       schemaNames = hopGui.partitionManager.getNamesArray();
-    } catch ( HopException e ) {
-      new ErrorDialog( hopGui.getShell(),
-        BaseMessages.getString( PKG, "HopGui.ErrorDialog.Title" ),
-        BaseMessages.getString( PKG, "HopGui.ErrorDialog.ErrorFetchingFromRepo.PartitioningSchemas" ),
-        e
-      );
+    } catch (HopException e) {
+      new ErrorDialog(
+          hopGui.getShell(),
+          BaseMessages.getString(PKG, "HopGui.ErrorDialog.Title"),
+          BaseMessages.getString(
+              PKG, "HopGui.ErrorDialog.ErrorFetchingFromRepo.PartitioningSchemas"),
+          e);
       return;
     }
     try {
       /*Check if Partition schema has already defined*/
-      if ( isDefinedSchemaExist( schemaNames ) ) {
+      if (isDefinedSchemaExist(schemaNames)) {
 
         /*Prepare settings for Method selection*/
         PluginRegistry registry = PluginRegistry.getInstance();
-        List<IPlugin> plugins = registry.getPlugins( PartitionerPluginType.class );
+        List<IPlugin> plugins = registry.getPlugins(PartitionerPluginType.class);
         int exactSize = TransformPartitioningMeta.methodDescriptions.length + plugins.size();
-        PartitionSettings partitionSettings = new PartitionSettings( exactSize, pipelineMeta, transformMeta, hopGui.partitionManager );
-        partitionSettings.fillOptionsAndCodesByPlugins( plugins );
+        PartitionSettings partitionSettings =
+            new PartitionSettings(exactSize, pipelineMeta, transformMeta, hopGui.partitionManager);
+        partitionSettings.fillOptionsAndCodesByPlugins(plugins);
 
         /*Method selection*/
         PartitionMethodSelector methodSelector = new PartitionMethodSelector();
-        String partitionMethodDescription = methodSelector.askForPartitionMethod( hopGui.getShell(), partitionSettings );
-        if ( !StringUtil.isEmpty( partitionMethodDescription ) ) {
-          String method = partitionSettings.getMethodByMethodDescription( partitionMethodDescription );
-          int methodType = TransformPartitioningMeta.getMethodType( method );
+        String partitionMethodDescription =
+            methodSelector.askForPartitionMethod(hopGui.getShell(), partitionSettings);
+        if (!StringUtil.isEmpty(partitionMethodDescription)) {
+          String method =
+              partitionSettings.getMethodByMethodDescription(partitionMethodDescription);
+          int methodType = TransformPartitioningMeta.getMethodType(method);
 
-          partitionSettings.updateMethodType( methodType );
-          partitionSettings.updateMethod( method );
+          partitionSettings.updateMethodType(methodType);
+          partitionSettings.updateMethod(method);
 
           /*Schema selection*/
-          IMethodProcessor methodProcessor = MethodProcessorFactory.create( methodType );
-          methodProcessor.schemaSelection( partitionSettings, hopGui.getShell(), ( shell, settings ) -> {
-            TransformPartitioningMeta partitioningMeta = settings.getTransformMeta().getTransformPartitioningMeta();
-            ITransformDialog dialog = getPartitionerDialog( shell, settings.getTransformMeta(), partitioningMeta, settings.getPipelineMeta() );
-            return dialog.open();
-          } );
+          IMethodProcessor methodProcessor = MethodProcessorFactory.create(methodType);
+          methodProcessor.schemaSelection(
+              partitionSettings,
+              hopGui.getShell(),
+              (shell, settings) -> {
+                TransformPartitioningMeta partitioningMeta =
+                    settings.getTransformMeta().getTransformPartitioningMeta();
+                ITransformDialog dialog =
+                    getPartitionerDialog(
+                        shell,
+                        pipelineGraph.getVariables(),
+                        settings.getTransformMeta(),
+                        partitioningMeta,
+                        settings.getPipelineMeta());
+                return dialog.open();
+              });
         }
         transformMeta.setChanged();
-        hopGui.undoDelegate.addUndoChange( partitionSettings.getPipelineMeta(), new TransformMeta[] { partitionSettings.getBefore() },
-         new TransformMeta[] { partitionSettings.getAfter() }, new int[] { partitionSettings.getPipelineMeta()
-         .indexOfTransform( partitionSettings.getTransformMeta() ) }
-         );
+        hopGui.undoDelegate.addUndoChange(
+            partitionSettings.getPipelineMeta(),
+            new TransformMeta[] {partitionSettings.getBefore()},
+            new TransformMeta[] {partitionSettings.getAfter()},
+            new int[] {
+              partitionSettings
+                  .getPipelineMeta()
+                  .indexOfTransform(partitionSettings.getTransformMeta())
+            });
         pipelineGraph.redraw();
       }
-    } catch ( Exception e ) {
+    } catch (Exception e) {
       new ErrorDialog(
-        hopGui.getShell(), "Error",
-        "There was an unexpected error while editing the partitioning method specifics:", e );
+          hopGui.getShell(),
+          "Error",
+          "There was an unexpected error while editing the partitioning method specifics:",
+          e);
     }
   }
 
-  public boolean isDefinedSchemaExist( String[] schemaNames ) {
+  public boolean isDefinedSchemaExist(String[] schemaNames) {
     // Before we start, check if there are any partition schemas defined...
-    if ( ( schemaNames == null ) || ( schemaNames.length == 0 ) ) {
-      MessageBox box = new MessageBox( hopGui.getShell(), SWT.ICON_ERROR | SWT.OK );
-      box.setText( "Create a partition schema" );
-      box.setMessage( "You first need to create one or more partition schemas before you can select one!" );
+    if ((schemaNames == null) || (schemaNames.length == 0)) {
+      MessageBox box = new MessageBox(hopGui.getShell(), SWT.ICON_ERROR | SWT.OK);
+      box.setText("Create a partition schema");
+      box.setMessage(
+          "You first need to create one or more partition schemas before you can select one!");
       box.open();
       return false;
     }
     return true;
   }
 
-  public ITransformDialog getPartitionerDialog( Shell shell, TransformMeta transformMeta, TransformPartitioningMeta partitioningMeta,
-                                                PipelineMeta pipelineMeta ) throws HopException {
+  public ITransformDialog getPartitionerDialog(
+      Shell shell,
+      IVariables variables,
+      TransformMeta transformMeta,
+      TransformPartitioningMeta partitioningMeta,
+      PipelineMeta pipelineMeta)
+      throws HopException {
     IPartitioner partitioner = partitioningMeta.getPartitioner();
     String dialogClassName = partitioner.getDialogClassName();
 
     Class<?> dialogClass;
-    Class<?>[] paramClasses = new Class<?>[] { Shell.class, TransformMeta.class, TransformPartitioningMeta.class, PipelineMeta.class };
-    Object[] paramArgs = new Object[] { shell, transformMeta, partitioningMeta, pipelineMeta };
+    Class<?>[] paramClasses =
+        new Class<?>[] {
+          Shell.class,
+          IVariables.class,
+          TransformMeta.class,
+          TransformPartitioningMeta.class,
+          PipelineMeta.class
+        };
+    Object[] paramArgs =
+        new Object[] {shell, variables, transformMeta, partitioningMeta, pipelineMeta};
     Constructor<?> dialogConstructor;
     try {
-      dialogClass = partitioner.getClass().getClassLoader().loadClass( dialogClassName );
-      dialogConstructor = dialogClass.getConstructor( paramClasses );
-      return (ITransformDialog) dialogConstructor.newInstance( paramArgs );
-    } catch ( Exception e ) {
-      throw new HopException( "Unable to open dialog of partitioning method", e );
+      dialogClass = partitioner.getClass().getClassLoader().loadClass(dialogClassName);
+      dialogConstructor = dialogClass.getConstructor(paramClasses);
+      return (ITransformDialog) dialogConstructor.newInstance(paramArgs);
+    } catch (Exception e) {
+      throw new HopException("Unable to open dialog of partitioning method", e);
     }
   }
 
-  public void editTransformErrorHandling( PipelineMeta pipelineMeta, TransformMeta transformMeta ) {
-    if ( transformMeta != null && transformMeta.supportsErrorHandling() ) {
+  public void editTransformErrorHandling(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
+    if (transformMeta != null && transformMeta.supportsErrorHandling()) {
       TransformErrorMeta transformErrorMeta = transformMeta.getTransformErrorMeta();
-      if ( transformErrorMeta == null ) {
-        transformErrorMeta = new TransformErrorMeta( transformMeta );
+      if (transformErrorMeta == null) {
+        transformErrorMeta = new TransformErrorMeta(transformMeta);
       }
-      List<TransformMeta> targetTransforms = pipelineMeta.findNextTransforms( transformMeta );
+      List<TransformMeta> targetTransforms = pipelineMeta.findNextTransforms(transformMeta);
 
       // now edit this transformErrorMeta object:
       TransformErrorMetaDialog dialog =
-        new TransformErrorMetaDialog( hopGui.getShell(), pipelineGraph.getVariables(), transformErrorMeta, pipelineMeta, targetTransforms );
-      if ( dialog.open() ) {
-        transformMeta.setTransformErrorMeta( transformErrorMeta );
+          new TransformErrorMetaDialog(
+              hopGui.getShell(),
+              pipelineGraph.getVariables(),
+              transformErrorMeta,
+              pipelineMeta,
+              targetTransforms);
+      if (dialog.open()) {
+        transformMeta.setTransformErrorMeta(transformErrorMeta);
         transformMeta.setChanged();
         pipelineGraph.redraw();
       }
     }
   }
 
-  public void delTransforms( PipelineMeta pipelineMeta, List<TransformMeta> transforms ) {
-    if ( transforms == null || transforms.size() == 0 ) {
+  public void delTransforms(PipelineMeta pipelineMeta, List<TransformMeta> transforms) {
+    if (transforms == null || transforms.size() == 0) {
       return; // nothing to do
     }
     try {
-      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), pipelineGraph.getVariables(), HopExtensionPoint.PipelineBeforeDeleteTransforms.id, transforms );
-    } catch ( HopException e ) {
+      ExtensionPointHandler.callExtensionPoint(
+          hopGui.getLog(),
+          pipelineGraph.getVariables(),
+          HopExtensionPoint.PipelineBeforeDeleteTransforms.id,
+          transforms);
+    } catch (HopException e) {
       return;
     }
 
     // Hops belonging to the deleting transforms are placed in a single transaction and removed.
     List<PipelineHopMeta> pipelineHops = new ArrayList<>();
-    int[] hopIndexes = new int[ pipelineMeta.nrPipelineHops() ];
+    int[] hopIndexes = new int[pipelineMeta.nrPipelineHops()];
     int hopIndex = 0;
-    for ( int i = pipelineMeta.nrPipelineHops() - 1; i >= 0; i-- ) {
-      PipelineHopMeta hi = pipelineMeta.getPipelineHop( i );
-      for ( int j = 0; j < transforms.size() && hopIndex < hopIndexes.length; j++ ) {
-        if ( hi.getFromTransform().equals( transforms.get( j ) ) || hi.getToTransform().equals( transforms.get( j ) ) ) {
-          int idx = pipelineMeta.indexOfPipelineHop( hi );
-          pipelineHops.add( (PipelineHopMeta) hi.clone() );
-          hopIndexes[ hopIndex ] = idx;
-          pipelineMeta.removePipelineHop( idx );
+    for (int i = pipelineMeta.nrPipelineHops() - 1; i >= 0; i--) {
+      PipelineHopMeta hi = pipelineMeta.getPipelineHop(i);
+      for (int j = 0; j < transforms.size() && hopIndex < hopIndexes.length; j++) {
+        if (hi.getFromTransform().equals(transforms.get(j))
+            || hi.getToTransform().equals(transforms.get(j))) {
+          int idx = pipelineMeta.indexOfPipelineHop(hi);
+          pipelineHops.add((PipelineHopMeta) hi.clone());
+          hopIndexes[hopIndex] = idx;
+          pipelineMeta.removePipelineHop(idx);
           hopIndex++;
           break;
         }
       }
     }
-    if ( !pipelineHops.isEmpty() ) {
-      PipelineHopMeta[] hops = pipelineHops.toArray( new PipelineHopMeta[ pipelineHops.size() ] );
-      hopGui.undoDelegate.addUndoDelete( pipelineMeta, hops, hopIndexes );
+    if (!pipelineHops.isEmpty()) {
+      PipelineHopMeta[] hops = pipelineHops.toArray(new PipelineHopMeta[pipelineHops.size()]);
+      hopGui.undoDelegate.addUndoDelete(pipelineMeta, hops, hopIndexes);
     }
 
     // Deleting transforms are placed all in a single transaction and removed.
-    int[] positions = new int[ transforms.size() ];
-    for ( int i = 0; i < transforms.size(); i++ ) {
-      int pos = pipelineMeta.indexOfTransform( transforms.get( i ) );
-      pipelineMeta.removeTransform( pos );
-      positions[ i ] = pos;
+    int[] positions = new int[transforms.size()];
+    for (int i = 0; i < transforms.size(); i++) {
+      int pos = pipelineMeta.indexOfTransform(transforms.get(i));
+      pipelineMeta.removeTransform(pos);
+      positions[i] = pos;
     }
-    hopGui.undoDelegate.addUndoDelete( pipelineMeta, transforms.toArray( new TransformMeta[ 0 ] ), positions );
+    hopGui.undoDelegate.addUndoDelete(
+        pipelineMeta, transforms.toArray(new TransformMeta[0]), positions);
 
     pipelineGraph.redraw();
   }
 
-  public void delTransform( PipelineMeta pipelineMeta, TransformMeta transformMeta ) {
-    delTransforms( pipelineMeta, Arrays.asList( transformMeta ) );
+  public void delTransform(PipelineMeta pipelineMeta, TransformMeta transformMeta) {
+    delTransforms(pipelineMeta, Arrays.asList(transformMeta));
   }
 }

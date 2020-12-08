@@ -129,7 +129,7 @@ public class PreviewRowsDialog {
     this.variables = variables;
     this.parentShell = parent;
     this.style = ( style != SWT.None ) ? style : this.style;
-    this.dialogClosedListeners = new ArrayList<IDialogClosedListener>();
+    this.dialogClosedListeners = new ArrayList<>();
 
     bounds = null;
     hscroll = -1;
@@ -174,7 +174,7 @@ public class PreviewRowsDialog {
       return;
     }
 
-    List<Button> buttons = new ArrayList<Button>();
+    List<Button> buttons = new ArrayList<>();
 
     Button wClose = new Button( shell, SWT.PUSH );
     wClose.setText( BaseMessages.getString( PKG, "System.Button.Close" ) );

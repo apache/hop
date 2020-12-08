@@ -41,7 +41,7 @@ public class GlobalMessages extends AbstractMessageHandler {
   protected static final String BUNDLE_NAME = "messages.messages";
 
   protected static final Map<String, ResourceBundle> locales = Collections
-    .synchronizedMap( new HashMap<String, ResourceBundle>() );
+    .synchronizedMap( new HashMap<>() );
 
   protected static final ILogChannel log = new LogChannel( "i18n" );
 

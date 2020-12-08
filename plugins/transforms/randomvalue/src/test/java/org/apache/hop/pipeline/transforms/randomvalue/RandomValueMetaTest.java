@@ -53,9 +53,9 @@ public class RandomValueMetaTest {
     setterMap.put("type", "setFieldType");
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-        new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
     fieldLoadSaveValidatorAttributeMap.put(
-        "name", new ArrayLoadSaveValidator<String>(new StringLoadSaveValidator(), 25));
+        "name", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 ));
     fieldLoadSaveValidatorAttributeMap.put(
         "type",
         new PrimitiveIntArrayLoadSaveValidator(
@@ -68,7 +68,7 @@ public class RandomValueMetaTest {
             getterMap,
             setterMap,
             fieldLoadSaveValidatorAttributeMap,
-            new HashMap<String, IFieldLoadSaveValidator<?>>());
+          new HashMap<>());
     loadSaveTester.testSerialization();
   }
 }

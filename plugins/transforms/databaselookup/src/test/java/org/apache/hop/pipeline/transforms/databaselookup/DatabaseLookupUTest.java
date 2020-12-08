@@ -128,7 +128,7 @@ public class DatabaseLookupUTest {
 
   private TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> createMockHelper() {
     TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData> mockHelper =
-      new TransformMockHelper<DatabaseLookupMeta, DatabaseLookupData>( "test DatabaseLookup", DatabaseLookupMeta.class,
+      new TransformMockHelper<>( "test DatabaseLookup", DatabaseLookupMeta.class,
         DatabaseLookupData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( mockHelper.iLogChannel );
@@ -138,6 +138,8 @@ public class DatabaseLookupUTest {
     IRowSet rowSet = mock( IRowSet.class );
     when( rowSet.getRowWait( anyLong(), any( TimeUnit.class ) ) ).thenReturn( new Object[ 0 ] ).thenReturn( null );
     when( rowSet.getRowMeta() ).thenReturn( inputRowMeta );
+
+    Mockito.doReturn( rowSet ).when( mockHelper.pipeline ).findRowSet( anyString(), anyInt(), anyString(), anyInt() );
 
     when( mockHelper.pipeline.findRowSet( anyString(), anyInt(), anyString(), anyInt() ) ).thenReturn( rowSet );
 

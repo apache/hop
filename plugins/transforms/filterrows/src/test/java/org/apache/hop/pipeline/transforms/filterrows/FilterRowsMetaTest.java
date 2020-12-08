@@ -60,7 +60,7 @@ public class FilterRowsMetaTest {
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "condition", new ConditionLoadSaveValidator() );
     attrValidatorMap.put( "trueTransformName", new StringLoadSaveValidator() );
     attrValidatorMap.put( "falseTransformName", new StringLoadSaveValidator() );
@@ -70,7 +70,7 @@ public class FilterRowsMetaTest {
     getterMap.put( "send_false_to", "getFalseTransformName" );
     setterMap.put( "send_false_to", "setFalseTransformName" );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }

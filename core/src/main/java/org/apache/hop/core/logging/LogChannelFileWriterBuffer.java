@@ -34,7 +34,7 @@ public class LogChannelFileWriterBuffer {
 
   private String logChannelId;
 
-  private final List<HopLoggingEvent> buffer = Collections.synchronizedList( new LinkedList<HopLoggingEvent>() );
+  private final List<HopLoggingEvent> buffer = Collections.synchronizedList( new LinkedList<>() );
 
   public LogChannelFileWriterBuffer( String logChannelId ) {
     this.logChannelId = logChannelId;

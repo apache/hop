@@ -83,7 +83,7 @@ public class InfobrightDatabaseMetaTest {
 
   @Test
   public void testfindDatabase() throws HopDatabaseException {
-    List<DatabaseMeta> databases = new ArrayList<DatabaseMeta>();
+    List<DatabaseMeta> databases = new ArrayList<>();
     databases.add( new DatabaseMeta( "  1", "Infobright", "JDBC", null, "stub:stub", null, null, null ) );
     databases.add( new DatabaseMeta( "  1  ", "Infobright", "JDBC", null, "stub:stub", null, null, null ) );
     databases.add( new DatabaseMeta( "1  ", "Infobright", "JDBC", null, "stub:stub", null, null, null ) );

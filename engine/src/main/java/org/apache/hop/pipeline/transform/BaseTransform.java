@@ -425,7 +425,10 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     }
 
     if (pipeline != null) {
-      shareVariablesWith(pipeline);
+      // We need a full copy of the variables to take into account internal variables
+      // Like Internal.Transform.CopyNr, Internal.Transform.Partition.ID, ...
+      //
+      initializeVariablesFrom(pipeline);
     }
 
     log = HopLogStore.getLogChannelFactory().create( this, pipeline );
@@ -2958,7 +2961,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
     ReentrantReadWriteLock.ReadLock lock = resultFilesLock.readLock();
     lock.lock();
     try {
-      return new HashMap<String, ResultFile>( this.resultFiles );
+      return new HashMap<>( this.resultFiles );
     } finally {
       lock.unlock();
     }

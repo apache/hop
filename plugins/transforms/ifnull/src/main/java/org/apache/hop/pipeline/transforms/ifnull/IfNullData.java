@@ -47,7 +47,7 @@ public class IfNullData extends BaseTransformData implements ITransformData {
 
   public IfNullData() {
     super();
-    ListTypes = new HashMap<String, Integer>();
+    ListTypes = new HashMap<>();
   }
 
 }

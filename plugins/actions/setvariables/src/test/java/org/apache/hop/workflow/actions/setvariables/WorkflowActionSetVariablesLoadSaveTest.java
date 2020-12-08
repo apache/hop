@@ -54,13 +54,13 @@ public class WorkflowActionSetVariablesLoadSaveTest extends WorkflowActionLoadSa
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     validators.put( "fileVariableType", new IntLoadSaveValidator( ActionSetVariables.variableTypeCode.length ) );
 
     int count = new Random().nextInt( 50 ) + 1;
 
-    validators.put( "variableName", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
-    validators.put( "variableValue", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
+    validators.put( "variableName", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
+    validators.put( "variableValue", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
     validators.put( "variableType", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 3 ), count ) );
 
     return validators;

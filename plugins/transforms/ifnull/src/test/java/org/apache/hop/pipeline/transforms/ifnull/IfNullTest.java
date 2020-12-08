@@ -67,7 +67,7 @@ public class IfNullTest {
 
   @Before
   public void setUp() {
-    smh = new TransformMockHelper<IfNullMeta, IfNullData>( "Field IfNull processor", IfNullMeta.class, IfNullData.class );
+    smh = new TransformMockHelper<>( "Field IfNull processor", IfNullMeta.class, IfNullData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );

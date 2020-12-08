@@ -73,7 +73,7 @@ import static org.mockito.Mockito.when;
 public class DimensionLookupMetaTest implements IInitializer<ITransformMeta> {
   LoadSaveTester loadSaveTester;
   Class<DimensionLookupMeta> testMetaClass = DimensionLookupMeta.class;
-  private ThreadLocal<DimensionLookupMeta> holdTestingMeta = new ThreadLocal<DimensionLookupMeta>();
+  private ThreadLocal<DimensionLookupMeta> holdTestingMeta = new ThreadLocal<>();
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
@@ -97,9 +97,9 @@ public class DimensionLookupMetaTest implements IInitializer<ITransformMeta> {
     Map<String, String> setterMap = new HashMap<>();
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "keyStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyLookup", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldStream", stringArrayLoadSaveValidator );
@@ -115,7 +115,7 @@ public class DimensionLookupMetaTest implements IInitializer<ITransformMeta> {
     attrValidatorMap.put( "startDateAlternative", new IntLoadSaveValidator( DimensionLookupMeta.getStartDateAlternativeCodes().length ) );
     attrValidatorMap.put( "sequenceName", new SequenceNameLoadSaveValidator() );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester = new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );

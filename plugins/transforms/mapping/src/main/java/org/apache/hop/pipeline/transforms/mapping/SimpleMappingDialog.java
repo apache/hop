@@ -172,7 +172,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     inputMapping = (MappingIODefinition) mappingMeta.getInputMapping().clone();
     outputMapping = (MappingIODefinition) mappingMeta.getOutputMapping().clone();
 
-    changeList = new ArrayList<ApplyChanges>();
+    changeList = new ArrayList<>();
   }
 
   public String open() {
@@ -500,7 +500,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
 
   public static String[] getMappingTransforms(
       PipelineMeta mappingPipelineMeta, boolean mappingInput) {
-    List<TransformMeta> transforms = new ArrayList<TransformMeta>();
+    List<TransformMeta> transforms = new ArrayList<>();
     for (TransformMeta transformMeta : mappingPipelineMeta.getTransforms()) {
       if (mappingInput && transformMeta.getTransformPluginId().equals("MappingInput")) {
         transforms.add(transformMeta);

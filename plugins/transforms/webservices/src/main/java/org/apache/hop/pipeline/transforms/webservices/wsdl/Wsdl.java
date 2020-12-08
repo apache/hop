@@ -105,7 +105,7 @@ public final class Wsdl implements java.io.Serializable {
     }
 
     _wsdlTypes = new WsdlTypes( _wsdlDefinition );
-    _operationCache = new HashMap<String, WsdlOperation>();
+    _operationCache = new HashMap<>();
   }
 
   /**
@@ -163,7 +163,7 @@ public final class Wsdl implements java.io.Serializable {
     }
 
     _wsdlTypes = new WsdlTypes( _wsdlDefinition );
-    _operationCache = new HashMap<String, WsdlOperation>();
+    _operationCache = new HashMap<>();
   }
 
   /**
@@ -215,7 +215,7 @@ public final class Wsdl implements java.io.Serializable {
   @SuppressWarnings( "unchecked" )
   public List<WsdlOperation> getOperations() throws HopTransformException {
 
-    List<WsdlOperation> opList = new ArrayList<WsdlOperation>();
+    List<WsdlOperation> opList = new ArrayList<>();
     PortType pt = _port.getBinding().getPortType();
 
     List<Operation> operations = pt.getOperations();

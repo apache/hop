@@ -77,7 +77,7 @@ public class LoopNodesImportProgressDialog {
     this.Xpaths = null;
     this.filename = filename;
     this.encoding = encoding;
-    this.listpath = new ArrayList<String>();
+    this.listpath = new ArrayList<>();
     this.nr = 0;
     this.xml = null;
     this.url = null;
@@ -89,7 +89,7 @@ public class LoopNodesImportProgressDialog {
     this.Xpaths = null;
     this.filename = null;
     this.encoding = null;
-    this.listpath = new ArrayList<String>();
+    this.listpath = new ArrayList<>();
     this.nr = 0;
     if ( useUrl ) {
       this.xml = null;

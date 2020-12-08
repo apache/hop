@@ -172,7 +172,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
       // targetTable
       this.tableRowMeta = this.meta.getRequiredFields( this );
       IRowMeta streamRowMeta = this.getPipelineMeta().getPrevTransformFields( this, this.getTransformMeta() );
-      this.columnSortOrder = new ArrayList<Integer>( this.tableRowMeta.size() );
+      this.columnSortOrder = new ArrayList<>( this.tableRowMeta.size() );
       for ( int i = 0; i < this.tableRowMeta.size(); i++ ) {
         IValueMeta column = this.tableRowMeta.getValueMeta( i );
         int tableIndex = this.meta.getTableFieldList().getValue().indexOf( column.getName() );

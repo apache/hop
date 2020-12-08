@@ -79,7 +79,7 @@ public class BlockingBatchingRowSetTest {
 
     IRowMeta rm = createRowMetaInterface();
 
-    List<Object[]> rows = new ArrayList<Object[]>();
+    List<Object[]> rows = new ArrayList<>();
     for ( int i = 0; i < 5; i++ ) {
       rows.add( new Object[] { new Long( i ), } );
     }

@@ -55,7 +55,7 @@ public class SourceStore {
     this.sourceFolder = sourceFolder;
     this.sourcePackageOccurrences = sourcePackageOccurrences;
 
-    messagesMap = new HashMap<String, MessagesStore>();
+    messagesMap = new HashMap<>();
   }
 
   public void read( List<String> directories ) throws HopException {

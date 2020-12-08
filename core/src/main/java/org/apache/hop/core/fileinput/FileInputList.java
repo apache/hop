@@ -44,9 +44,9 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class FileInputList {
-  private List<FileObject> files = new ArrayList<FileObject>();
-  private List<FileObject> nonExistantFiles = new ArrayList<FileObject>( 1 );
-  private List<FileObject> nonAccessibleFiles = new ArrayList<FileObject>( 1 );
+  private List<FileObject> files = new ArrayList<>();
+  private List<FileObject> nonExistantFiles = new ArrayList<>( 1 );
+  private List<FileObject> nonAccessibleFiles = new ArrayList<>( 1 );
 
   private static ILogChannel log = new LogChannel( "FileInputList" );
 

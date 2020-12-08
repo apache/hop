@@ -139,19 +139,19 @@ public class PropertyInputMetaTest implements IInitializer<ITransformMeta> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
     IFieldLoadSaveValidator<PropertyInputField[]> pifArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<PropertyInputField>( new PropertyInputFieldLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new PropertyInputFieldLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "excludeFileMask", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileRequired", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "includeSubFolders", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "inputFields", pifArrayLoadSaveValidator );
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
     // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 1 ) );
 
     loadSaveTester =

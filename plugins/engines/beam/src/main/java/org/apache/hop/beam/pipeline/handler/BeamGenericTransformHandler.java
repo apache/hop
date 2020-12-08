@@ -111,7 +111,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     // Find out all the target transforms for this transform...
     //
     ITransformIOMeta ioMeta = transformMeta.getTransform().getTransformIOMeta();
-    List<String> targetTransforms = new ArrayList<String>();
+    List<String> targetTransforms = new ArrayList<>();
     for ( IStream targetStream : ioMeta.getTargetStreams() ) {
       if ( targetStream.getTransformMeta() != null ) {
         targetTransforms.add( targetStream.getTransformMeta().getName() );
@@ -189,7 +189,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
     // The main collection
     //
-    PCollection<HopRow> mainPCollection = tuple.get( new TupleTag<HopRow>( HopBeamUtil.createMainOutputTupleId( transformMeta.getName() ) ) );
+    PCollection<HopRow> mainPCollection = tuple.get( new TupleTag<>( HopBeamUtil.createMainOutputTupleId( transformMeta.getName() ) ) );
 
     // Save this in the map
     //
@@ -199,7 +199,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     //
     for ( String targetTransform : targetTransforms ) {
       String tupleId = HopBeamUtil.createTargetTupleId( transformMeta.getName(), targetTransform );
-      PCollection<HopRow> targetPCollection = tuple.get( new TupleTag<HopRow>( tupleId ) );
+      PCollection<HopRow> targetPCollection = tuple.get( new TupleTag<>( tupleId ) );
 
       // Store this in the map as well
       //

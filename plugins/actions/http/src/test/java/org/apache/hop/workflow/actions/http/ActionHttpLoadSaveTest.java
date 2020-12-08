@@ -54,10 +54,10 @@ public class ActionHttpLoadSaveTest extends WorkflowActionLoadSaveTestSupport<Ac
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     int entries = new Random().nextInt( 20 ) + 1;
-    validators.put( "headerName", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
-    validators.put( "headerValue", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
+    validators.put( "headerName", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
+    validators.put( "headerValue", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
     return validators;
   }
 

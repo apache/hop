@@ -118,7 +118,7 @@ public class DatabaseConnectionPoolParameter {
     rowMeta.addValueMeta( new ValueMetaString( titleDefaultValue ) );
     rowMeta.addValueMeta( new ValueMetaString( titleDescription ) );
 
-    List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> list = new ArrayList<>();
 
     for ( int i = 0; i < poolParameters.length; i++ ) {
       DatabaseConnectionPoolParameter p = poolParameters[ i ];

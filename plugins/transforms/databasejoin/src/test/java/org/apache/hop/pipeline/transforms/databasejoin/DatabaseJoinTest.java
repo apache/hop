@@ -26,6 +26,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
@@ -58,7 +59,7 @@ public class DatabaseJoinTest {
 
     TransformMeta mockTransformMeta = mock( TransformMeta.class );
     PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
-    Pipeline mockPipeline = mock( Pipeline.class );
+    Pipeline mockPipeline = spy( new LocalPipelineEngine() );
     TransformPartitioningMeta mockTransformPartitioningMeta = mock( TransformPartitioningMeta.class );
 
     when( mockTransformMeta.getName() ).thenReturn( "MockTransform" );

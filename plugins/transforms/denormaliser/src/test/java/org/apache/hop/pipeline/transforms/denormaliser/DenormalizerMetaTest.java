@@ -69,14 +69,14 @@ public class DenormalizerMetaTest implements IInitializer<ITransformMeta> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "groupField", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "denormaliserTargetField",
-      new ArrayLoadSaveValidator<DenormaliserTargetField>( new DenormaliserTargetFieldLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new DenormaliserTargetFieldLoadSaveValidator(), 5 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

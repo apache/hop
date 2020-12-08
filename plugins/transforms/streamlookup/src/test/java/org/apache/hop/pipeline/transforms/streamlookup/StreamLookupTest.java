@@ -66,7 +66,7 @@ public class StreamLookupTest {
   @Before
   public void setUp() {
     smh =
-      new TransformMockHelper<StreamLookupMeta, StreamLookupData>( "StreamLookup", StreamLookupMeta.class,
+      new TransformMockHelper<>( "StreamLookup", StreamLookupMeta.class,
         StreamLookupData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       smh.iLogChannel );

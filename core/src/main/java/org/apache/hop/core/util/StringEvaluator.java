@@ -99,8 +99,8 @@ public class StringEvaluator {
   public StringEvaluator( boolean tryTrimming, String[] numberFormats, String[] dateFormats ) {
     this.tryTrimming = tryTrimming;
 
-    values = new HashSet<String>();
-    evaluationResults = new ArrayList<StringEvaluationResult>();
+    values = new HashSet<>();
+    evaluationResults = new ArrayList<>();
     count = 0;
 
     stringMeta = new ValueMetaString( "string" );
@@ -125,7 +125,7 @@ public class StringEvaluator {
   }
 
   private void challengeConversions( String value ) {
-    List<StringEvaluationResult> all = new ArrayList<StringEvaluationResult>( evaluationResults );
+    List<StringEvaluationResult> all = new ArrayList<>( evaluationResults );
     IValueMeta stringMetaClone = null;
     for ( StringEvaluationResult cmm : all ) {
       if ( cmm.getConversionMeta().isBoolean() ) {

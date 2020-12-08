@@ -60,11 +60,11 @@ public class HttpPostMetaTest {
         "queryParameter", "fieldName", "resultCodeFieldName", "responseTimeFieldName", "responseHeaderFieldName" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     //Arrays need to be consistent length
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
     IFieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
       new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 25 );
     fieldLoadSaveValidatorAttributeMap.put( "argumentField", stringArrayLoadSaveValidator );
@@ -74,7 +74,7 @@ public class HttpPostMetaTest {
     fieldLoadSaveValidatorAttributeMap.put( "queryParameter", stringArrayLoadSaveValidator );
 
     loadSaveTester = new LoadSaveTester( HttpPostMeta.class, attributes, new HashMap<>(),
-      new HashMap<>(), fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      new HashMap<>(), fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
   }
 
   @Test

@@ -44,7 +44,7 @@ public class ListLoadSaveValidator<ObjectType> implements
   @Override
   public List<ObjectType> getTestObject() {
     int max = elements == null ? new Random().nextInt( 100 ) + 50 : elements;
-    List<ObjectType> result = new ArrayList<ObjectType>( max );
+    List<ObjectType> result = new ArrayList<>( max );
     for ( int i = 0; i < max; i++ ) {
       result.add( validator.getTestObject() );
     }

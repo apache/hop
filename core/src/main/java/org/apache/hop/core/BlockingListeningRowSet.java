@@ -52,7 +52,7 @@ public class BlockingListeningRowSet extends BaseRowSet implements Comparable<IR
     super();
 
     // create an empty queue
-    queArray = new ArrayBlockingQueue<Object[]>( maxSize, false );
+    queArray = new ArrayBlockingQueue<>( maxSize, false );
     blocking = new AtomicBoolean( false );
   }
 

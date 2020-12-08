@@ -124,7 +124,7 @@ public class LdapOutputMetaTest {
     attrValidatorMap.put("operationType", new IntLoadSaveValidator(5));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap =
-        new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     loadSaveTester =
         new LoadSaveTester<>(

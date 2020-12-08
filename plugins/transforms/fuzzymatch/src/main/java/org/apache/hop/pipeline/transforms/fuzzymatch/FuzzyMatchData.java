@@ -75,7 +75,7 @@ public class FuzzyMatchData extends BaseTransformData implements ITransformData 
 
   public FuzzyMatchData() {
     super();
-    this.look = new HashSet<Object[]>();
+    this.look = new HashSet<>();
     this.indexOfMainField = -1;
     this.addValueFieldName = false;
     this.valueSeparator = "";

@@ -83,7 +83,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> im
       data.setCalcRowMeta( meta.getAllFields( getInputRowMeta() ) );
 
       data.setFieldIndexes( new FieldIndexes[ meta.getCalculation().length ] );
-      List<Integer> tempIndexes = new ArrayList<Integer>();
+      List<Integer> tempIndexes = new ArrayList<>();
 
       // Calculate the indexes of the values and arguments in the target data or temporary data
       // We do this in advance to save time later on.

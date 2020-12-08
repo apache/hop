@@ -33,6 +33,7 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.zipfile.ZipFileMeta;
 import org.junit.Test;
@@ -42,6 +43,7 @@ import java.util.ArrayList;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /**
@@ -135,7 +137,7 @@ public class ZipFileMetaTest {
     ZipFileData transformData = mock( ZipFileData.class );
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     when( pipelineMeta.findTransform( "Zip Transform Name" ) ).thenReturn( transformMeta );
-    Pipeline pipeline = mock( Pipeline.class );
+    Pipeline pipeline = spy( new LocalPipelineEngine() );
 
     ZipFileMeta zipFileMeta = new ZipFileMeta();
     ZipFile zipFile = new ZipFile( transformMeta, zipFileMeta,transformData, 0, pipelineMeta, pipeline );

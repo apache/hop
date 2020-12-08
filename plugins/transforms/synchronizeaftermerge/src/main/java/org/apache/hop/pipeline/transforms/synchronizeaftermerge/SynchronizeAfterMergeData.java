@@ -114,7 +114,7 @@ public class SynchronizeAfterMergeData extends BaseTransformData implements ITra
     indexOfTableNameField = -1;
 
     db = null;
-    preparedStatements = new Hashtable<String, PreparedStatement>();
+    preparedStatements = new Hashtable<>();
     realTableName = null;
     realSchemaName = null;
     batchMode = false;
@@ -124,8 +124,8 @@ public class SynchronizeAfterMergeData extends BaseTransformData implements ITra
     indexOfOperationOrderField = -1;
     lookupFailure = false;
     realSchemaTable = null;
-    commitCounterMap = new HashMap<String, Integer>();
-    batchBuffer = new ArrayList<Object[]>();
+    commitCounterMap = new HashMap<>();
+    batchBuffer = new ArrayList<>();
     releaseSavepoint = true;
 
   }

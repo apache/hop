@@ -94,7 +94,7 @@ public class SniffTransformServletTest {
     Pipeline mockPipeline = mock( Pipeline.class );
     PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
     ITransform mockTransformInterface = mock( ITransform.class );
-    List<ITransform> transformInterfaces = new ArrayList<ITransform>();
+    List<ITransform> transformInterfaces = new ArrayList<>();
     transformInterfaces.add( mockTransformInterface );
     ILogChannel mockChannelInterface = mock( ILogChannel.class );
     StringWriter out = new StringWriter();

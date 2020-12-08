@@ -88,12 +88,12 @@ public class ScriptValuesMetaModTest implements IInitializer<ITransformMeta> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
     IFieldLoadSaveValidator<ScriptValuesScript[]> svsArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<ScriptValuesScript>( new ScriptValuesScriptLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new ScriptValuesScriptLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldname", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "rename", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "type", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 9 ), 5 ) );
@@ -103,7 +103,7 @@ public class ScriptValuesMetaModTest implements IInitializer<ITransformMeta> {
       new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "jsScripts", svsArrayLoadSaveValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

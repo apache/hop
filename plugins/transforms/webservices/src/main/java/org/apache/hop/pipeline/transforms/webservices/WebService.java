@@ -208,7 +208,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
   private void defineIndexList( IRowMeta rowMeta, Object[] vCurrentRow ) throws HopException {
     // Create an index list for the input fields
     //
-    indexList = new ArrayList<Integer>();
+    indexList = new ArrayList<>();
     if ( rowMeta != null ) {
       for ( WebServiceField curField : meta.getFieldsIn() ) {
         int index = rowMeta.indexOfValue( curField.getName() );
@@ -496,7 +496,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
 
   public boolean init() {
 
-    data.indexMap = new Hashtable<String, Integer>();
+    data.indexMap = new Hashtable<>();
     data.realUrl = environmentSubstitute( meta.getUrl() );
 
     return super.init();

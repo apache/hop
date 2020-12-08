@@ -113,9 +113,9 @@ public class ReplaceStringMetaTest {
     setterMap.put( "is_unicode", "setIsUnicode" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
     IFieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
       new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 25 );
     IFieldLoadSaveValidator<int[]> useRegExArrayLoadSaveValidator =
@@ -144,7 +144,7 @@ public class ReplaceStringMetaTest {
 
     LoadSaveTester loadSaveTester =
       new LoadSaveTester( ReplaceStringMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
 
     loadSaveTester.testSerialization();
   }

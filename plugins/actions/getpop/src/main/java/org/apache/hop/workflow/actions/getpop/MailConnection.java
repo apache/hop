@@ -1112,7 +1112,7 @@ public class MailConnection {
   }
 
   private HashSet<String> returnSubfolders( Folder folder ) throws HopException {
-    HashSet<String> list = new HashSet<String>();
+    HashSet<String> list = new HashSet<>();
     try {
       if ( ( folder.getType() & Folder.HOLDS_FOLDERS ) != 0 ) {
         Folder[] f = folder.list();
@@ -1137,7 +1137,7 @@ public class MailConnection {
    * @return sub folders
    */
   public String[] returnAllFolders( Folder folder ) throws HopException {
-    HashSet<String> list = new HashSet<String>();
+    HashSet<String> list = new HashSet<>();
     list = returnSubfolders( folder );
     return list.toArray( new String[ list.size() ] );
   }

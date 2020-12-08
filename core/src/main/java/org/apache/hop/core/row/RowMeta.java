@@ -62,7 +62,7 @@ public class RowMeta implements IRowMeta {
   List<Integer> needRealClone;
 
   public RowMeta() {
-    this( new ArrayList<IValueMeta>(), new RowMetaCache() );
+    this( new ArrayList<>(), new RowMetaCache() );
   }
 
   /**
@@ -72,7 +72,7 @@ public class RowMeta implements IRowMeta {
    * @throws HopPluginException
    */
   private RowMeta( RowMeta rowMeta, Integer targetType ) throws HopPluginException {
-    this( new ArrayList<IValueMeta>( rowMeta.valueMetaList.size() ), new RowMetaCache( rowMeta.cache ) );
+    this( new ArrayList<>( rowMeta.valueMetaList.size() ), new RowMetaCache( rowMeta.cache ) );
     for ( IValueMeta iValueMeta : rowMeta.valueMetaList ) {
       valueMetaList.add( ValueMetaFactory
         .cloneValueMeta( iValueMeta, targetType == null ? iValueMeta.getType() : targetType ) );
@@ -1247,7 +1247,7 @@ public class RowMeta implements IRowMeta {
     @VisibleForTesting final Map<String, Integer> mapping;
 
     RowMetaCache() {
-      this( new ConcurrentHashMap<String, Integer>() );
+      this( new ConcurrentHashMap<>() );
     }
 
     /**

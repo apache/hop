@@ -137,7 +137,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /**
    * A flat list of results in THIS workflow, in the order of execution of actions
    */
-  protected final LinkedList<ActionResult> actionResults = new LinkedList<ActionResult>();
+  protected final LinkedList<ActionResult> actionResults = new LinkedList<>();
 
   protected Date executionStartDate;
 
@@ -217,7 +217,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     activeActionPipeline = new ConcurrentHashMap<>();
     activeActionWorkflows = new ConcurrentHashMap<>();
 
-    extensionDataMap = new HashMap<String, Object>();
+    extensionDataMap = new HashMap<>();
 
     workflowTracker = new WorkflowTracker( workflowMeta );
     synchronized ( actionResults ) {
@@ -650,11 +650,11 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     // Keep track of all the threads we fired in case of parallel execution...
     // Keep track of the results of these executions too.
     //
-    final List<Thread> threads = new ArrayList<Thread>();
+    final List<Thread> threads = new ArrayList<>();
     // next 2 lists is being modified concurrently so must be synchronized for this case.
-    final Queue<Result> threadResults = new ConcurrentLinkedQueue<Result>();
-    final Queue<HopException> threadExceptions = new ConcurrentLinkedQueue<HopException>();
-    final List<ActionMeta> threadActions = new ArrayList<ActionMeta>();
+    final Queue<Result> threadResults = new ConcurrentLinkedQueue<>();
+    final Queue<HopException> threadExceptions = new ConcurrentLinkedQueue<>();
+    final List<ActionMeta> threadActions = new ArrayList<>();
 
     // Launch only those where the hop indicates true or false
     //
@@ -1258,7 +1258,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    */
   public List<ActionResult> getActionResults() {
     synchronized ( actionResults ) {
-      return new ArrayList<ActionResult>( actionResults );
+      return new ArrayList<>( actionResults );
     }
   }
 

@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.junit.Before;
@@ -91,7 +92,7 @@ public class TableOutputTest {
 
   private void setupTableOutputSpy() throws Exception {
 
-    tableOutput = new TableOutput( transformMeta, tableOutputMeta, tableOutputData, 1, pipelineMeta, mock( Pipeline.class ) );
+    tableOutput = new TableOutput( transformMeta, tableOutputMeta, tableOutputData, 1, pipelineMeta, spy( new LocalPipelineEngine() ) );
     tableOutputSpy = spy( tableOutput );
     doReturn( transformMeta ).when( tableOutputSpy ).getTransformMeta();
     doReturn( false ).when( tableOutputSpy ).isRowLevel();

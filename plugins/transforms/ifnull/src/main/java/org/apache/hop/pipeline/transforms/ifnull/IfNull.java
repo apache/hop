@@ -111,7 +111,7 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
           data.setEmptyString = new boolean[ typeLength ];
 
           // return all type codes
-          HashSet<String> AlllistTypes = new HashSet<String>();
+          HashSet<String> AlllistTypes = new HashSet<>();
           for ( int i = 0; i < IValueMeta.typeCodes.length; i++ ) {
             AlllistTypes.add( IValueMeta.typeCodes[ i ] );
           }
@@ -128,7 +128,7 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
             data.setEmptyString[ i ] = meta.getValueTypes()[ i ].isSetTypeEmptyString();
           }
 
-          HashSet<Integer> fieldsSelectedIndex = new HashSet<Integer>();
+          HashSet<Integer> fieldsSelectedIndex = new HashSet<>();
           for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {
             IValueMeta fieldMeta = data.outputRowMeta.getValueMeta( i );
             if ( data.ListTypes.containsKey( fieldMeta.getTypeDesc() ) ) {
@@ -136,7 +136,7 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
             }
           }
           data.fieldnrs = new int[ fieldsSelectedIndex.size() ];
-          List<Integer> entries = new ArrayList<Integer>( fieldsSelectedIndex );
+          List<Integer> entries = new ArrayList<>( fieldsSelectedIndex );
           Integer[] fieldnr = entries.toArray( new Integer[ entries.size() ] );
           for ( int i = 0; i < fieldnr.length; i++ ) {
             data.fieldnrs[ i ] = fieldnr[ i ];

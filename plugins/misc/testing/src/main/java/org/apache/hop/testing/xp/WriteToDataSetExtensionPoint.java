@@ -59,8 +59,8 @@ public class WriteToDataSetExtensionPoint implements IExtensionPoint<IPipelineEn
   // These maps have the name of the pipeline as key
   //
   public static Map<String, TransformMeta> transformsMap = new HashMap<>();
-  public static Map<String, List<SourceToTargetMapping>> mappingsMap = new HashMap<String, List<SourceToTargetMapping>>();
-  public static Map<String, DataSet> setsMap = new HashMap<String, DataSet>();
+  public static Map<String, List<SourceToTargetMapping>> mappingsMap = new HashMap<>();
+  public static Map<String, DataSet> setsMap = new HashMap<>();
 
   @Override
   public void callExtensionPoint( ILogChannel log, IVariables variables, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {

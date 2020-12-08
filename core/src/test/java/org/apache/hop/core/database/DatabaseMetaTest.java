@@ -191,7 +191,7 @@ public class DatabaseMetaTest {
     databaseMeta.setIDatabase( odbm );
     databaseMeta.setName( "test" );
 
-    List<DatabaseMeta> list = new ArrayList<DatabaseMeta>();
+    List<DatabaseMeta> list = new ArrayList<>();
     list.add( databaseMeta );
 
     DatabaseMeta databaseMeta2 = mock( DatabaseMeta.class );

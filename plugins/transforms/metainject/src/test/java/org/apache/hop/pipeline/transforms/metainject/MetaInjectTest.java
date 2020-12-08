@@ -155,7 +155,7 @@ public class MetaInjectTest {
   public void removeUnavailableTransformsFromMapping_unavailable_source_transform() {
     TargetTransformAttribute unavailableTargetTransform = new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false );
     SourceTransformField unavailableSourceTransform = new SourceTransformField(UNAVAILABLE_TRANSFORM, TEST_FIELD );
-    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<TargetTransformAttribute, SourceTransformField>();
+    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<>();
     targetMap.put( unavailableTargetTransform, unavailableSourceTransform );
 
     Set<SourceTransformField> unavailableSourceTransforms = Collections.singleton(UNAVAILABLE_SOURCE_TRANSFORM);
@@ -168,7 +168,7 @@ public class MetaInjectTest {
   public void removeUnavailableTransformsFromMapping_unavailable_target_transform() {
     TargetTransformAttribute unavailableTargetTransform = new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false );
     SourceTransformField unavailableSourceTransform = new SourceTransformField(UNAVAILABLE_TRANSFORM, TEST_FIELD );
-    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<TargetTransformAttribute, SourceTransformField>();
+    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<>();
     targetMap.put( unavailableTargetTransform, unavailableSourceTransform );
 
     Set<TargetTransformAttribute> unavailableTargetTransforms = Collections.singleton(UNAVAILABLE_TARGET_TRANSFORM);
@@ -181,7 +181,7 @@ public class MetaInjectTest {
   public void removeUnavailableTransformsFromMapping_unavailable_source_target_transform() {
     TargetTransformAttribute unavailableTargetTransform = new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false );
     SourceTransformField unavailableSourceTransform = new SourceTransformField(UNAVAILABLE_TRANSFORM, TEST_FIELD );
-    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<TargetTransformAttribute, SourceTransformField>();
+    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<>();
     targetMap.put( unavailableTargetTransform, unavailableSourceTransform );
 
     Set<TargetTransformAttribute> unavailableTargetTransforms = Collections.singleton(UNAVAILABLE_TARGET_TRANSFORM);

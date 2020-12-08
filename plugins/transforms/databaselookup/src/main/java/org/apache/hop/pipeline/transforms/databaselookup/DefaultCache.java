@@ -166,8 +166,8 @@ public class DefaultCache implements DatabaseLookupData.ICache {
     // DEinspanjer 2009-02-01: If you had previously set a cache size and then turned on load all, this
     // method would throw out entries if the previous cache size wasn't big enough.
     if ( !meta.isLoadingAllDataInCache() && meta.getCacheSize() > 0 && map.size() > meta.getCacheSize() ) {
-      List<RowMetaAndData> keys = new ArrayList<RowMetaAndData>( map.keySet() );
-      List<Date> samples = new ArrayList<Date>();
+      List<RowMetaAndData> keys = new ArrayList<>( map.keySet() );
+      List<Date> samples = new ArrayList<>();
       int incr = keys.size() / 10;
       if ( incr == 0 ) {
         incr = 1;

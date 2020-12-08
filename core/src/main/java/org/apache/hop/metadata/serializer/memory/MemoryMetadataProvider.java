@@ -65,7 +65,7 @@ public class MemoryMetadataProvider extends BaseMetadataProvider implements IHop
       if (hopMetadata!=null) {
         description = hopMetadata.name();
       }
-      serializer = (IHopMetadataSerializer<IHopMetadata>) new MemoryMetadataSerializer<T>( this, managedClass, variables, description );
+      serializer = (IHopMetadataSerializer<IHopMetadata>) new MemoryMetadataSerializer<>( this, managedClass, variables, description );
       serializerMap.put( managedClass.getName(), serializer);
     }
 

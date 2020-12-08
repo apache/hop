@@ -48,7 +48,7 @@ public class CloneRowTest {
   @Before
   public void setup() {
     transformMockHelper =
-      new TransformMockHelper<CloneRowMeta, CloneRowData>( "Test CloneRow", CloneRowMeta.class, CloneRowData.class );
+      new TransformMockHelper<>( "Test CloneRow", CloneRowMeta.class, CloneRowData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( transformMockHelper.iLogChannel );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );

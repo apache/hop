@@ -455,8 +455,8 @@ public class GuiResource {
   private void getResources() {
     PropsUi props = PropsUi.getInstance();
     zoomFactor = props.getZoomFactor();
-    imageMap = new HashMap<String, Image>();
-    colorMap = new HashMap<RGB, Color>();
+    imageMap = new HashMap<>();
+    colorMap = new HashMap<>();
 
     colorBackground = new ManagedColor( display, props.getBackgroundRGB() );
     colorGraph = new ManagedColor( display, props.getGraphColorRGB() );

@@ -35,7 +35,7 @@ import java.util.List;
 public final class WsdlComplexTypes implements java.io.Serializable {
 
   private static final long serialVersionUID = 1L;
-  private HashMap<String, ComplexType> complexTypes = new HashMap<String, ComplexType>();
+  private HashMap<String, ComplexType> complexTypes = new HashMap<>();
 
   /**
    * Create a new instance, parse the WSDL file for named complex types.

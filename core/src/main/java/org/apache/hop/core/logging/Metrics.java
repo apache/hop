@@ -196,7 +196,7 @@ public class Metrics implements IMetrics {
   }
 
   public static List<IMetrics> getDefaultMetrics() {
-    List<IMetrics> metrics = new ArrayList<IMetrics>();
+    List<IMetrics> metrics = new ArrayList<>();
 
     for ( Field field : Metrics.class.getDeclaredFields() ) {
       if ( field.getType().equals( Metrics.class ) && field.getName().startsWith( "METRIC_" ) ) {

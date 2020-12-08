@@ -55,7 +55,7 @@ public class StringOperationsTest {
   @Before
   public void setup() throws Exception {
     smh =
-      new TransformMockHelper<StringOperationsMeta, StringOperationsData>( "StringOperations", StringOperationsMeta.class,
+      new TransformMockHelper<>( "StringOperations", StringOperationsMeta.class,
         StringOperationsData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       smh.iLogChannel );

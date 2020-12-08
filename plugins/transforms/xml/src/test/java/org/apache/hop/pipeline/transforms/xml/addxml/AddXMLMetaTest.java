@@ -46,7 +46,7 @@ public class AddXMLMetaTest {
     xmlField.setType( 0 );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
-        new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
     fieldLoadSaveValidatorTypeMap.put( XmlField[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
         new XMLFieldLoadSaveValidator( xmlField ), 1 ) );
 

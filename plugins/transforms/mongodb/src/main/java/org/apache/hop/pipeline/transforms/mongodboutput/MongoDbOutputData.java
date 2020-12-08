@@ -79,7 +79,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
    * = dot path to array name; value = DBObject specifying array to set to
    */
   protected Map<String, List<MongoDbOutputMeta.MongoField>> m_setComplexArrays =
-      new HashMap<String, List<MongoDbOutputMeta.MongoField>>();
+    new HashMap<>();
 
   /**
    * Map for grouping together $push operations that involve complex objects. Use [] to indicate the
@@ -87,10 +87,10 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
    * DBObject specifying the complex object to push
    */
   protected Map<String, List<MongoDbOutputMeta.MongoField>> m_pushComplexStructures =
-      new HashMap<String, List<MongoDbOutputMeta.MongoField>>();
+    new HashMap<>();
 
   /** all other modifier updates that involve primitive leaf fields */
-  protected Map<String, Object[]> m_primitiveLeafModifiers = new LinkedHashMap<String, Object[]>();
+  protected Map<String, Object[]> m_primitiveLeafModifiers = new LinkedHashMap<>();
 
   /**
    * True if the list of paths specifies an incoming Hop field that contains a JSON doc that is
@@ -145,7 +145,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
    */
   public void setMongoFields(List<MongoDbOutputMeta.MongoField> fields) {
     // copy this list
-    m_userFields = new ArrayList<MongoDbOutputMeta.MongoField>();
+    m_userFields = new ArrayList<>();
 
     for (MongoDbOutputMeta.MongoField f : fields) {
       m_userFields.add(f.copy());
@@ -441,7 +441,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             a.init(vars, false);
             List<MongoDbOutputMeta.MongoField> fds = m_setComplexArrays.get(arrayPath);
             if (fds == null) {
-              fds = new ArrayList<MongoDbOutputMeta.MongoField>();
+              fds = new ArrayList<>();
               m_setComplexArrays.put(arrayPath, fds);
             }
             fds.add(a);
@@ -471,7 +471,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
             a.init(vars, false);
             List<MongoDbOutputMeta.MongoField> fds = m_pushComplexStructures.get(arrayPath);
             if (fds == null) {
-              fds = new ArrayList<MongoDbOutputMeta.MongoField>();
+              fds = new ArrayList<>();
               m_pushComplexStructures.put(arrayPath, fds);
             }
             fds.add(a);

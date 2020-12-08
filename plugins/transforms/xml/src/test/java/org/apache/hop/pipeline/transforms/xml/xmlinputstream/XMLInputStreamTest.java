@@ -83,8 +83,8 @@ public class XMLInputStreamTest {
   @Before
   public void setUp() throws HopException {
     stepMockHelper =
-        new TransformMockHelper<XmlInputStreamMeta, XmlInputStreamData>( "XMLInputStreamTest", XmlInputStreamMeta.class,
-            XmlInputStreamData.class );
+      new TransformMockHelper<>( "XMLInputStreamTest", XmlInputStreamMeta.class,
+        XmlInputStreamData.class );
     when( stepMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
         stepMockHelper.iLogChannel );
     when( stepMockHelper.pipeline.isRunning() ).thenReturn( true );
@@ -423,7 +423,7 @@ public class XMLInputStreamTest {
   }
 
   private class TestRowListener extends RowAdapter {
-    private List<Object[]> written = new ArrayList<Object[]>();
+    private List<Object[]> written = new ArrayList<>();
 
     public List<Object[]> getWritten() {
       return written;

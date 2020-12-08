@@ -92,7 +92,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   List<Object[]> outputRowData;
 
   private List<MongoDbOutputMeta.MongoField> mongoFields =
-      new ArrayList<MongoDbOutputMeta.MongoField>();
+    new ArrayList<>();
 
   @Before
   public void before() throws MongoDbException {
@@ -156,7 +156,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   @Test(expected = HopException.class)
   public void testCheckTopLevelConsistencyNoFieldsDefined() throws Exception {
     MongoDbOutputData.checkTopLevelConsistency(
-        new ArrayList<MongoDbOutputMeta.MongoField>(0), new Variables());
+      new ArrayList<>( 0 ), new Variables());
   }
 
   /**
@@ -168,7 +168,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
    */
   @Test
   public void testUpdateObjectContainsQueryFields() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     mf.m_updateMatchField = true;
@@ -205,7 +205,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
    */
   @Test
   public void testUpdateObjectBackwardsCompatibility() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     mf.m_updateMatchField = true;
@@ -334,7 +334,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testTopLevelArrayStructureContainingObjectWithArray() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = new MongoDbOutputMeta.MongoField();
     mf.m_incomingFieldName = "field1";
@@ -394,7 +394,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testTopLevelObjectStructureTwoLevelNested() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = new MongoDbOutputMeta.MongoField();
     mf.m_incomingFieldName = "field1";
@@ -430,7 +430,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testModifierUpdateWithMultipleModifiersOfSameType() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();
@@ -467,7 +467,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testModifierSetComplexArrayGrouping() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();
@@ -512,7 +512,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testModifierPushComplexObject() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();
@@ -557,7 +557,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testModifierPushComplexObjectWithJsonNestedDoc() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();
@@ -613,7 +613,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testInsertHopFieldThatContainsJsonIntoTopLevelRecord() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     paths.add(mf);
@@ -660,7 +660,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   public void testForInsertTopLevelJSONDocAsIsWithOneJSONMatchPathAndOneJSONInsertPath()
       throws Exception {
 
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = mf("", false, "");
     mf.m_JSON = true;
@@ -678,7 +678,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   public void
       testScanForInsertTopLevelJSONDocAsIsWithMoreThanOnePathSpecifyingATopLevelJSONDocToInsert()
           throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = mf("", false, "");
     mf.m_JSON = true;
@@ -696,7 +696,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testInsertHopFieldThatContainsJsonIntoOneLevelNestedDoc() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     paths.add(mf);
@@ -733,7 +733,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testInsertHopFieldThatContainsJsonIntoTopLevelArray() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "[0]");
     paths.add(mf);
@@ -769,7 +769,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testGetQueryObjectThatContainsJsonNestedDoc() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     mf.m_updateMatchField = true;
@@ -938,7 +938,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   private void setupRowMeta() {
     rowData = new Object[] {"foo", "bar", "baz"};
-    outputRowData = new ArrayList<Object[]>();
+    outputRowData = new ArrayList<>();
     rowMeta.addValueMeta(new ValueMetaString("foo"));
     rowMeta.addValueMeta(new ValueMetaString("bar"));
     rowMeta.addValueMeta(new ValueMetaString("baz"));
@@ -1006,10 +1006,10 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   public void doBatchWithRetry() throws Exception {
     setupReturns();
     setupRowMeta();
-    dbOutput.m_batch = new ArrayList<DBObject>();
+    dbOutput.m_batch = new ArrayList<>();
     dbOutput.m_batch.add(
         new BasicDBObject(ImmutableMap.of("foo", "fooval", "bar", "barval", "baz", "bazval")));
-    List<Object[]> batchRows = new ArrayList<Object[]>();
+    List<Object[]> batchRows = new ArrayList<>();
     batchRows.add(rowData);
 
     List<DBObject> batchCopy = new ArrayList(dbOutput.m_batch);
@@ -1055,7 +1055,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
     final String[] metaNames = new String[] {"a1", "a2", "a3"};
     String[] mongoNames = new String[] {"a1", "a2"};
-    Capture<String> loggerCapture = new Capture<String>(CaptureType.ALL);
+    Capture<String> loggerCapture = new Capture<>( CaptureType.ALL );
     output.logBasic(EasyMock.capture(loggerCapture));
     EasyMock.replay(output);
     IRowMeta rmi = getStubRowMetaInterface(metaNames);
@@ -1172,7 +1172,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   private List<MongoDbOutputMeta.MongoField> getMongoFields(String[] names) {
     List<MongoDbOutputMeta.MongoField> ret =
-        new ArrayList<MongoDbOutputMeta.MongoField>(names.length);
+      new ArrayList<>( names.length );
     for (String name : names) {
       MongoDbOutputMeta.MongoField field = new MongoDbOutputMeta.MongoField();
       field.m_incomingFieldName = name;
@@ -1263,7 +1263,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
    */
   @Test
   public void testModifierPushObjectWithEnvironmentSubstitution() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();

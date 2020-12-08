@@ -64,7 +64,7 @@ public class DenormaliserData extends BaseTransformData implements ITransformDat
     super();
 
     previous = null;
-    keyValue = new Hashtable<String, List<Integer>>();
+    keyValue = new Hashtable<>();
   }
 
 }

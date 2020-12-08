@@ -64,7 +64,7 @@ class UsernamePasswordMongoClientWrapper
    */
   @Override
   public List<MongoCredential> getCredentialList() {
-    List<MongoCredential> credList = new ArrayList<MongoCredential>();
+    List<MongoCredential> credList = new ArrayList<>();
     String authDatabase = props.get(MongoProp.AUTH_DATABASE);
     String authMecha = props.get(MongoProp.AUTH_MECHA);
     // if not value on AUTH_MECHA set "MONGODB-CR" default authentication mechanism

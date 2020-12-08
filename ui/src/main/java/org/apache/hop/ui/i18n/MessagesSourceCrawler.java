@@ -143,7 +143,7 @@ public class MessagesSourceCrawler {
     //
     Map<String, List<KeyOccurrence>> packageOccurrences = sourcePackageOccurrences.get( sourceFolder );
     if ( packageOccurrences == null ) {
-      packageOccurrences = new HashMap<String, List<KeyOccurrence>>();
+      packageOccurrences = new HashMap<>();
       sourcePackageOccurrences.put( sourceFolder, packageOccurrences );
     }
 
@@ -152,7 +152,7 @@ public class MessagesSourceCrawler {
     //
     List<KeyOccurrence> occurrences = packageOccurrences.get( messagesPackage );
     if ( occurrences == null ) {
-      occurrences = new ArrayList<KeyOccurrence>();
+      occurrences = new ArrayList<>();
       occurrences.add( occ );
       packageOccurrences.put( messagesPackage, occurrences );
     } else {
@@ -222,7 +222,7 @@ public class MessagesSourceCrawler {
     int row = 0;
     String classPackage = null;
 
-    Map<String, String> importedClasses = new Hashtable<String, String>(); // Remember the imports we do...
+    Map<String, String> importedClasses = new Hashtable<>(); // Remember the imports we do...
 
     String line = reader.readLine();
     while ( line != null ) {
@@ -451,7 +451,7 @@ public class MessagesSourceCrawler {
    * @return all the key occurrences for a certain messages package.
    */
   public List<KeyOccurrence> getOccurrencesForPackage( String messagesPackage ) {
-    List<KeyOccurrence> list = new ArrayList<KeyOccurrence>();
+    List<KeyOccurrence> list = new ArrayList<>();
 
     for ( String sourceFolder : sourcePackageOccurrences.keySet() ) {
       Map<String, List<KeyOccurrence>> po = sourcePackageOccurrences.get( sourceFolder );
@@ -487,7 +487,7 @@ public class MessagesSourceCrawler {
    * @param sourceFolder
    */
   public List<KeyOccurrence> getKeyOccurrences( String sourceFolder ) {
-    Map<String, KeyOccurrence> map = new HashMap<String, KeyOccurrence>();
+    Map<String, KeyOccurrence> map = new HashMap<>();
     Map<String, List<KeyOccurrence>> po = sourcePackageOccurrences.get( sourceFolder );
     if ( po != null ) {
       for ( List<KeyOccurrence> keyOccurrences : po.values() ) {
@@ -498,7 +498,7 @@ public class MessagesSourceCrawler {
       }
     }
 
-    return new ArrayList<KeyOccurrence>( map.values() );
+    return new ArrayList<>( map.values() );
   }
 
 

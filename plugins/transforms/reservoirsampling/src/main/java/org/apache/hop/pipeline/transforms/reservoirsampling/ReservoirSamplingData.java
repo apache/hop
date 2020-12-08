@@ -110,7 +110,7 @@ public class ReservoirSamplingData extends BaseTransformData implements ITransfo
       m_state = PROC_MODE.SAMPLING;
     }
 
-    m_sample = ( m_k > 0 ) ? new ArrayList<Object[]>( m_k ) : new ArrayList<Object[]>();
+    m_sample = ( m_k > 0 ) ? new ArrayList<>( m_k ) : new ArrayList<>();
     m_currentRow = 0;
     m_random = new Random( seed );
 

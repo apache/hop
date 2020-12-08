@@ -46,7 +46,7 @@ public class DisplayInvocationHandler<T> implements InvocationHandler {
   public static <T> T forObject( Class<T> iface, T delegate, Display display, ILogChannel log,
                                  boolean asyncForVoid ) {
     return (T) Proxy.newProxyInstance( delegate.getClass().getClassLoader(), (Class<?>[]) ClassUtils.getAllInterfaces(
-      delegate.getClass() ).toArray( new Class<?>[] {} ), new DisplayInvocationHandler<T>( display, delegate, log,
+      delegate.getClass() ).toArray( new Class<?>[] {} ), new DisplayInvocationHandler<>( display, delegate, log,
       asyncForVoid ) );
   }
 

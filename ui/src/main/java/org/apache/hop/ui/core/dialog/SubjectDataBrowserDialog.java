@@ -195,7 +195,7 @@ public class SubjectDataBrowserDialog {
     // Mmm, if we don't get any rows in the buffer: show a dialog box.
     //
     if ( buffer == null ) {
-      buffer = new ArrayList<Object[]>();
+      buffer = new ArrayList<>();
     }
 
     // ColumnInfo[] colinf = new ColumnInfo[rowMeta==null ? 0 : rowMeta.size()];

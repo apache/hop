@@ -62,7 +62,7 @@ public class CheckBoxToolTip extends ToolTip {
   public CheckBoxToolTip( Control control ) {
     super( control, ToolTip.RECREATE, true );
     image = control.getDisplay().getSystemImage( SWT.ICON_INFORMATION );
-    listeners = new ArrayList<ICheckBoxToolTipListener>();
+    listeners = new ArrayList<>();
     visible = false;
     display = control.getDisplay();
 

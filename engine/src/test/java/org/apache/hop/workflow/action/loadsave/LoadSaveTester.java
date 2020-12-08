@@ -72,13 +72,13 @@ public class LoadSaveTester<T extends IAction> extends LoadSaveBase<T> {
                          List<String> xmlAttributes, Map<String, String> getterMap,
                          Map<String, String> setterMap ) {
     this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
-      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      new HashMap<>(), new HashMap<>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
     this( clazz, commonAttributes, Arrays.<String>asList(), getterMap, setterMap,
-      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      new HashMap<>(), new HashMap<>() );
   }
 
   protected void validateLoadedMeta( List<String> attributes, Map<String, IFieldLoadSaveValidator<?>> validatorMap,

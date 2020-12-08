@@ -193,7 +193,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
           putRow( data.outputRowMeta, row );
         }
 
-        List<UnitTestResult> testResults = new ArrayList<UnitTestResult>();
+        List<UnitTestResult> testResults = new ArrayList<>();
         DataSetConst.validateTransResultAgainstUnitTest( testPipeline, test, metadataProvider, testResults );
 
         for ( UnitTestResult testResult : testResults ) {

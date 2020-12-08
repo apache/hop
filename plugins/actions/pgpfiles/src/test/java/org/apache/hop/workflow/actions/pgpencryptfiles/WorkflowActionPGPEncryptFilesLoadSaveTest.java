@@ -59,7 +59,7 @@ public class WorkflowActionPGPEncryptFilesLoadSaveTest extends WorkflowActionLoa
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     int count = new Random().nextInt( 50 ) + 1;
 
     validators.put( "actionType", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( ActionPGPEncryptFiles.actionTypeCodes.length ), count ) );

@@ -247,7 +247,7 @@ public class PipelineTestFactory {
     }
 
     // Return the result from the dummy step...
-    Map<String, RowTransformCollector> ret = new HashMap<String, RowTransformCollector>();
+    Map<String, RowTransformCollector> ret = new HashMap<>();
     ret.put( dummyTransformName, dummyRc );
     ret.put( errorTransformName, erColl );
     ret.put( testTransformName, dummyJu );

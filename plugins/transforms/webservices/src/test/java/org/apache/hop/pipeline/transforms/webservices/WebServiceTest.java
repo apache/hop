@@ -56,7 +56,7 @@ public class WebServiceTest {
   @Before
   public void setUpBefore() {
     mockHelper =
-      new TransformMockHelper<WebServiceMeta, WebServiceData>( "WebService", WebServiceMeta.class, WebServiceData.class );
+      new TransformMockHelper<>( "WebService", WebServiceMeta.class, WebServiceData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );

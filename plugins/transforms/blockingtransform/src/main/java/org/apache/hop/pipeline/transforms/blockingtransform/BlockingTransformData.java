@@ -49,11 +49,11 @@ public class BlockingTransformData extends BaseTransformData implements ITransfo
   public BlockingTransformData() {
     super();
 
-    buffer = new ArrayList<Object[]>( BlockingTransformMeta.CACHE_SIZE );
-    files = new ArrayList<FileObject>();
-    fis = new ArrayList<InputStream>();
-    dis = new ArrayList<DataInputStream>();
-    gzis = new ArrayList<GZIPInputStream>();
-    rowbuffer = new ArrayList<Object[]>();
+    buffer = new ArrayList<>( BlockingTransformMeta.CACHE_SIZE );
+    files = new ArrayList<>();
+    fis = new ArrayList<>();
+    dis = new ArrayList<>();
+    gzis = new ArrayList<>();
+    rowbuffer = new ArrayList<>();
   }
 }

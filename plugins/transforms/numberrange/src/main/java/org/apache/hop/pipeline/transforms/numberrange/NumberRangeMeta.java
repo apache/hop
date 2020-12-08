@@ -70,7 +70,7 @@ public class NumberRangeMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public void emptyRules() {
-    rules = new LinkedList<NumberRangeRule>();
+    rules = new LinkedList<>();
   }
 
   public NumberRangeMeta( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {

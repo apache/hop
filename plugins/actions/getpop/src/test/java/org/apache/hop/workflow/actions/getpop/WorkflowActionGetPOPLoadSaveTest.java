@@ -56,7 +56,7 @@ public class WorkflowActionGetPOPLoadSaveTest extends WorkflowActionLoadSaveTest
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     validators.put( "valueImapList", new IntLoadSaveValidator( MailConnectionMeta.valueIMAPListCode.length ) );
     validators.put( "conditionReceivedDate", new IntLoadSaveValidator( MailConnectionMeta.conditionDateCode.length ) );
     validators.put( "actiontype", new IntLoadSaveValidator( MailConnectionMeta.actionTypeCode.length ) );

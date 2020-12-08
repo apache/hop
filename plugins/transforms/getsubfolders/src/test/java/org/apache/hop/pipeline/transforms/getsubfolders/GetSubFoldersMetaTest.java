@@ -119,13 +119,13 @@ public class GetSubFoldersMetaTest {
     setterMap.put( "file_required", "setFolderRequired" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
     fieldLoadSaveValidatorAttributeMap.put( "file_required",
-      new ArrayLoadSaveValidator<String>( new FileRequiredFieldLoadSaveValidator(), 50 ) );
+      new ArrayLoadSaveValidator<>( new FileRequiredFieldLoadSaveValidator(), 50 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap = new HashMap<>();
     fieldLoadSaveValidatorTypeMap.put( String[].class.getCanonicalName(),
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 50 ) );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
 
     LoadSaveTester tester = new LoadSaveTester( GetSubFoldersMeta.class, attributes, getterMap, setterMap,
       fieldLoadSaveValidatorAttributeMap, fieldLoadSaveValidatorTypeMap );

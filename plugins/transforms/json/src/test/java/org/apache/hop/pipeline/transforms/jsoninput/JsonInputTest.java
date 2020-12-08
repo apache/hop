@@ -163,7 +163,7 @@ public class JsonInputTest {
   @Before
   public void setUp() {
     helper =
-      new TransformMockHelper<JsonInputMeta, JsonInputData>( "json input test", JsonInputMeta.class, JsonInputData.class );
+      new TransformMockHelper<>( "json input test", JsonInputMeta.class, JsonInputData.class );
     when( helper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       helper.iLogChannel );
     when( helper.pipeline.isRunning() ).thenReturn( true );

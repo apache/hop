@@ -245,7 +245,7 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
     System.arraycopy( setEmptyString, 0, retval.setEmptyString, 0, nrFields );
 
     if ( dataLines != null ) {
-      retval.setDataLines( new ArrayList<List<String>>() );
+      retval.setDataLines( new ArrayList<>() );
       for ( List<String> line : dataLines ) {
         List<String> newLine = new ArrayList<>();
         newLine.addAll( line );
@@ -284,7 +284,7 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
 
       Node datanode = XmlHandler.getSubNode( transformNode, "data" );
       // NodeList childNodes = datanode.getChildNodes();
-      dataLines = new ArrayList<List<String>>();
+      dataLines = new ArrayList<>();
 
       Node lineNode = datanode.getFirstChild();
       while ( lineNode != null ) {
@@ -333,7 +333,7 @@ public class DataGridMeta extends BaseTransformMeta implements ITransformMeta<Da
       setEmptyString[ i ] = false;
     }
 
-    dataLines = new ArrayList<List<String>>();
+    dataLines = new ArrayList<>();
   }
 
   @Override

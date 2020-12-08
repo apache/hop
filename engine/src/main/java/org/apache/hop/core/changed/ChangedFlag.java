@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ChangedFlag implements IChanged {
 
   @JsonIgnore
-  private Set<IHopObserver> obs = Collections.newSetFromMap( new ConcurrentHashMap<IHopObserver, Boolean>() );
+  private Set<IHopObserver> obs = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
   @JsonIgnore
   private AtomicBoolean changed = new AtomicBoolean();

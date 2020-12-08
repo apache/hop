@@ -27,6 +27,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.junit.Before;
@@ -78,7 +79,7 @@ public class CombinationLookupTest {
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     doReturn( transformMeta ).when( pipelineMeta ).findTransform( anyString() );
 
-    Pipeline pipeline = mock( Pipeline.class );
+    Pipeline pipeline = spy( new LocalPipelineEngine() );
     combinationLookup = spy( new CombinationLookup( transformMeta, combinationLookupMeta, combinationLookupData, 1, pipelineMeta, pipeline ) );
     doReturn( false ).when( combinationLookup ).isRowLevel();
     doReturn( true ).when( combinationLookup ).isAutoIncrement();

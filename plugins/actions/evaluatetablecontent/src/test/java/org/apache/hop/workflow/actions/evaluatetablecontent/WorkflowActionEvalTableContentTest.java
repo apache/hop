@@ -64,7 +64,7 @@ import static org.mockito.Mockito.when;
  * PDI Server logs with error from Quartz even though the workflow finishes successfully.
  */
 public class WorkflowActionEvalTableContentTest {
-  private static final Map<Class<?>, String> dbMap = new HashMap<Class<?>, String>();
+  private static final Map<Class<?>, String> dbMap = new HashMap<>();
   private ActionEvalTableContent action;
   private static IPlugin mockDbPlugin;
 

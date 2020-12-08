@@ -115,7 +115,7 @@ public class AuthenticationManagerTest {
       manager.getSupportedAuthenticationPerformers( Object.class, IAuthenticationConsumer.class );
     assertEquals( 3, performers.size() );
     Set<String> ids =
-      new HashSet<String>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID,
+      new HashSet<>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID,
         usernamePasswordAuthenticationProvider.getId(), kerberosAuthenticationProvider.getId() ) );
     for ( IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers ) {
       ids.remove( performer.getAuthenticationProvider().getId() );
@@ -131,7 +131,7 @@ public class AuthenticationManagerTest {
     List<IAuthenticationPerformer<Object, IAuthenticationConsumer>> performers =
       manager.getSupportedAuthenticationPerformers( Object.class, IAuthenticationConsumer.class );
     assertEquals( 1, performers.size() );
-    Set<String> ids = new HashSet<String>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID ) );
+    Set<String> ids = new HashSet<>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID ) );
     for ( IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers ) {
       ids.remove( performer.getAuthenticationProvider().getId() );
     }
@@ -142,7 +142,7 @@ public class AuthenticationManagerTest {
     performers = manager.getSupportedAuthenticationPerformers( Object.class, IAuthenticationConsumer.class );
     assertEquals( 2, performers.size() );
     ids =
-      new HashSet<String>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID,
+      new HashSet<>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID,
         usernamePasswordAuthenticationProvider.getId() ) );
     for ( IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers ) {
       ids.remove( performer.getAuthenticationProvider().getId() );
@@ -151,7 +151,7 @@ public class AuthenticationManagerTest {
     manager.unregisterAuthenticationProvider( usernamePasswordAuthenticationProvider );
     performers = manager.getSupportedAuthenticationPerformers( Object.class, IAuthenticationConsumer.class );
     assertEquals( 1, performers.size() );
-    ids = new HashSet<String>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID ) );
+    ids = new HashSet<>( Arrays.asList( NoAuthenticationAuthenticationProvider.NO_AUTH_ID ) );
     for ( IAuthenticationPerformer<Object, IAuthenticationConsumer> performer : performers ) {
       ids.remove( performer.getAuthenticationProvider().getId() );
     }
@@ -189,7 +189,7 @@ public class AuthenticationManagerTest {
         IAuthenticationConsumerFactory<ReturnType, CreateArgType, ConsumedType> authenticationConsumer ) {
         if ( AuthenticationConsumerInvocationHandler.isCompatible( authenticationConsumer.getConsumedType(),
           authenticationProvider ) ) {
-          return new ClassloaderBridgingAuthenticationPerformer<ReturnType, CreateArgType, ConsumedType>(
+          return new ClassloaderBridgingAuthenticationPerformer<>(
             authenticationProvider, authenticationConsumer );
         }
         return null;

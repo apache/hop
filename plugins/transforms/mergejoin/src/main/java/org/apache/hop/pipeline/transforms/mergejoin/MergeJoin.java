@@ -208,12 +208,12 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
         if ( compare1 == 0 || compare2 == 0 ) { // Duplicate keys
 
           if ( data.ones == null ) {
-            data.ones = new ArrayList<Object[]>();
+            data.ones = new ArrayList<>();
           } else {
             data.ones.clear();
           }
           if ( data.twos == null ) {
-            data.twos = new ArrayList<Object[]>();
+            data.twos = new ArrayList<>();
           } else {
             data.twos.clear();
           }

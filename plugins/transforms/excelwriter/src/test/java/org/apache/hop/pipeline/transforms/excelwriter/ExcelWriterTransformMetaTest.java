@@ -132,13 +132,13 @@ public class ExcelWriterTransformMetaTest {
     setterMap.put( "outputfields", "setOutputFields" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     fieldLoadSaveValidatorTypeMap.put( ExcelWriterTransformField[].class.getCanonicalName(),
       new ArrayLoadSaveValidator<>( new ExcelWriterFieldLoadSaveValidator() ) );
 
     LoadSaveTester<ExcelWriterTransformMeta> loadSaveTester =
-      new LoadSaveTester<ExcelWriterTransformMeta>( ExcelWriterTransformMeta.class, attributes, getterMap, setterMap,
+      new LoadSaveTester<>( ExcelWriterTransformMeta.class, attributes, getterMap, setterMap,
         new HashMap<>(), fieldLoadSaveValidatorTypeMap );
 
     loadSaveTester.testSerialization();

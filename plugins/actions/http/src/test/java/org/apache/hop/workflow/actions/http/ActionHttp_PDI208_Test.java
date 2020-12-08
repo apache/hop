@@ -86,7 +86,7 @@ public class ActionHttp_PDI208_Test {
     rowMetaDefault.addValueMeta( new ValueMetaString( "URL" ) );
     rowMetaDefault.addValueMeta( new ValueMetaString( "UPLOAD" ) );
     rowMetaDefault.addValueMeta( new ValueMetaString( "DESTINATION" ) );
-    List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> rows = new ArrayList<>();
     rows.add( new RowMetaAndData( rowMetaDefault, r ) );
     Result previousResult = new Result();
     previousResult.setRows( rows );
@@ -112,7 +112,7 @@ public class ActionHttp_PDI208_Test {
     rowMetaDefault.addValueMeta( new ValueMetaString( "MyURL" ) );
     rowMetaDefault.addValueMeta( new ValueMetaString( "MyUpload" ) );
     rowMetaDefault.addValueMeta( new ValueMetaString( "MyDestination" ) );
-    List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> rows = new ArrayList<>();
     rows.add( new RowMetaAndData( rowMetaDefault, r ) );
     Result previousResult = new Result();
     previousResult.setRows( rows );

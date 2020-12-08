@@ -165,7 +165,7 @@ public class SerializationHelper {
           Class<?> clazz = Class.forName( fieldClassName );
 
           // create a new, appropriately sized array
-          List<Object> list = new ArrayList<Object>();
+          List<Object> list = new ArrayList<>();
           field.set( object, list );
 
           // iterate over all of the array elements and add them one by one as encountered

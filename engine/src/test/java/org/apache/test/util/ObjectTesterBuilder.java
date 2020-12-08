@@ -43,18 +43,18 @@ public class ObjectTesterBuilder<T> {
     IObjectProvider<T> provider = this.provider;
     if ( provider == null ) {
       if ( objects != null ) {
-        provider = new CollectionObjectProvider<T>( objects );
+        provider = new CollectionObjectProvider<>( objects );
       }
     }
     IObjectValidator<T> validator = this.validator;
     if ( validator == null ) {
       if ( useEqualsEquals ) {
-        validator = new EqualsEqualsValidator<T>();
+        validator = new EqualsEqualsValidator<>();
       } else {
-        validator = new DotEqualsValidator<T>();
+        validator = new DotEqualsValidator<>();
       }
     }
-    return new DefaultObjectTester<T>( provider, validator );
+    return new DefaultObjectTester<>( provider, validator );
   }
 
   public ObjectTesterBuilder<T> setObjects( Collection<T> objects ) {
@@ -64,7 +64,7 @@ public class ObjectTesterBuilder<T> {
 
   public ObjectTesterBuilder<T> addObject( T object ) {
     if ( this.objects == null ) {
-      this.objects = new ArrayList<T>();
+      this.objects = new ArrayList<>();
     }
     this.objects.add( object );
     return this;

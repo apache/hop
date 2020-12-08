@@ -126,7 +126,7 @@ public class EnterMappingDialog extends Dialog {
    * @param target the target values
    */
   public EnterMappingDialog( Shell parent, String[] source, String[] target ) {
-    this( parent, source, target, new ArrayList<SourceToTargetMapping>() );
+    this( parent, source, target, new ArrayList<>() );
   }
 
   /**
@@ -366,7 +366,7 @@ public class EnterMappingDialog extends Dialog {
     // Sort Longest to Shortest string - makes matching better
     Arrays.sort( sortedSourceList, ( s1, s2 ) -> s2.length() - s1.length() );
     // Look for matches using longest field name to shortest
-    ArrayList<GuessPair> pList = new ArrayList<GuessPair>();
+    ArrayList<GuessPair> pList = new ArrayList<>();
     for ( int i = 0; i < sourceList.length; i++ ) {
       int idx = Const.indexOfString( sortedSourceList[ i ], wSource.getItems() );
       if ( idx >= 0 ) {

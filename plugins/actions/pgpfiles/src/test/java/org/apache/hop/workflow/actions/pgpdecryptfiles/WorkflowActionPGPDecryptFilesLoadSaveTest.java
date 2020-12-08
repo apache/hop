@@ -78,12 +78,12 @@ public class WorkflowActionPGPDecryptFilesLoadSaveTest extends WorkflowActionLoa
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     int count = new Random().nextInt( 50 ) + 1;
-    validators.put( "sourceFileFolder", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
-    validators.put( "passphrase", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
-    validators.put( "destinationFileFolder", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
-    validators.put( "wildcard", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), count ) );
+    validators.put( "sourceFileFolder", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
+    validators.put( "passphrase", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
+    validators.put( "destinationFileFolder", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
+    validators.put( "wildcard", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), count ) );
 
     return validators;
   }

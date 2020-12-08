@@ -2525,7 +2525,7 @@ public class PipelineMeta extends AbstractMeta
   /** @deprecated use {@link #hasLoop(TransformMeta, TransformMeta)}} */
   @Deprecated
   public boolean hasLoop(TransformMeta transformMeta, TransformMeta lookup, boolean info) {
-    return hasLoop(transformMeta, lookup, new HashSet<TransformMeta>());
+    return hasLoop(transformMeta, lookup, new HashSet<>());
   }
 
   /**
@@ -2536,7 +2536,7 @@ public class PipelineMeta extends AbstractMeta
    * @return true, if successful
    */
   public boolean hasLoop(TransformMeta transformMeta, TransformMeta lookup) {
-    return hasLoop(transformMeta, lookup, new HashSet<TransformMeta>());
+    return hasLoop(transformMeta, lookup, new HashSet<>());
   }
 
   /**

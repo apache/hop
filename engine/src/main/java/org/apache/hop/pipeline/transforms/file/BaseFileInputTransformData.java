@@ -71,7 +71,7 @@ public class BaseFileInputTransformData extends BaseTransformData {
   public int nr_repeats;
   // public boolean isLastFile;
 
-  public Map<String, Boolean> rejectedFiles = new HashMap<String, Boolean>();
+  public Map<String, Boolean> rejectedFiles = new HashMap<>();
 
   /**
    * File-dependent data for fill additional fields.

@@ -989,7 +989,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    */
   @Override
   public Map<String, String> getExtraOptions() {
-    Map<String, String> map = new Hashtable<String, String>();
+    Map<String, String> map = new Hashtable<>();
 
     for ( String attribute : attributes.keySet() ) {
       if ( attribute.startsWith( ATTRIBUTE_PREFIX_EXTRA_OPTION ) ) {
@@ -1452,7 +1452,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    */
   @Override
   public List<SqlScriptStatement> getSqlScriptStatements( String sqlScript ) {
-    List<SqlScriptStatement> statements = new ArrayList<SqlScriptStatement>();
+    List<SqlScriptStatement> statements = new ArrayList<>();
     String all = sqlScript;
     int from = 0;
     int to = 0;

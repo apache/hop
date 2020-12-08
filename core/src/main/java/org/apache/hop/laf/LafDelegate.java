@@ -39,7 +39,7 @@ public class LafDelegate<E extends IHandler> {
   Class<E> defaultHandlerClass = null;
 
   // Set of Listeners for a concrete handler - intended use... getListeners for a given class
-  private HashSet<ILafChangeListener<E>> registry = new HashSet<ILafChangeListener<E>>();
+  private HashSet<ILafChangeListener<E>> registry = new HashSet<>();
 
   /**
    *

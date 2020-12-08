@@ -56,7 +56,7 @@ public class MailValidation {
    * verify if there is a mail server registered to the domain name. and return the email servers count
    */
   public static int mailServersCount( String hostName ) throws NamingException {
-    Hashtable<String, String> env = new Hashtable<String, String>();
+    Hashtable<String, String> env = new Hashtable<>();
     env.put( "java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory" );
     DirContext ictx = new InitialDirContext( env );
     Attributes attrs = ictx.getAttributes( hostName, new String[] { "MX" } );
@@ -99,7 +99,7 @@ public class MailValidation {
 
   private static ArrayList<String> getMX( String hostName ) throws NamingException {
     // Perform a DNS lookup for MX records in the domain
-    Hashtable<String, String> env = new Hashtable<String, String>();
+    Hashtable<String, String> env = new Hashtable<>();
     env.put( "java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory" );
     DirContext ictx = new InitialDirContext( env );
     Attributes attrs = ictx.getAttributes( hostName, new String[] { "MX" } );
@@ -117,7 +117,7 @@ public class MailValidation {
     // Huzzah! we have machines to try. Return them as an array list
     // NOTE: We SHOULD take the preference into account to be absolutely
     // correct. This is left as an exercise for anyone who cares.
-    ArrayList<String> res = new ArrayList<String>();
+    ArrayList<String> res = new ArrayList<>();
     NamingEnumeration<?> en = attr.getAll();
 
     while ( en.hasMore() ) {
@@ -166,7 +166,7 @@ public class MailValidation {
     // In that case, we will ignore the domain
     // extracted from email address
 
-    ArrayList<String> mxList = new ArrayList<String>();
+    ArrayList<String> mxList = new ArrayList<>();
     if ( Utils.isEmpty( defaultSMTPServer ) ) {
       try {
         mxList = getMX( domain );

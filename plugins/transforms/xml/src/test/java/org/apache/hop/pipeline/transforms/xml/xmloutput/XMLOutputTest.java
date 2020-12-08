@@ -78,7 +78,7 @@ public class XMLOutputTest {
   public void setup() throws Exception {
 
     stepMockHelper =
-        new TransformMockHelper<XmlOutputMeta, XmlOutputData>( "XML_OUTPUT_TEST", XmlOutputMeta.class, XmlOutputData.class );
+      new TransformMockHelper<>( "XML_OUTPUT_TEST", XmlOutputMeta.class, XmlOutputData.class );
     when( stepMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
         stepMockHelper.iLogChannel );
     TransformMeta mockMeta = mock( TransformMeta.class );

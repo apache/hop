@@ -223,8 +223,8 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> implements ITr
         logDetailed( BaseMessages.getString( PKG, "Update.Log.CheckingRow" ) + getInputRowMeta().getString( r ) );
       }
 
-      ArrayList<Integer> keynrs = new ArrayList<Integer>( meta.getKeyStream().length );
-      ArrayList<Integer> keynrs2 = new ArrayList<Integer>( meta.getKeyStream().length );
+      ArrayList<Integer> keynrs = new ArrayList<>( meta.getKeyStream().length );
+      ArrayList<Integer> keynrs2 = new ArrayList<>( meta.getKeyStream().length );
 
       for ( int i = 0; i < meta.getKeyStream().length; i++ ) {
         int keynr = getInputRowMeta().indexOfValue( meta.getKeyStream()[ i ] );

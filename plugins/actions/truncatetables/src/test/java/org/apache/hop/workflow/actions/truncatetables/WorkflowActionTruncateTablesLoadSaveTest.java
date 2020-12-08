@@ -51,10 +51,10 @@ public class WorkflowActionTruncateTablesLoadSaveTest extends WorkflowActionLoad
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     int entries = new Random().nextInt( 20 ) + 1;
-    validators.put( "tableNames", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
-    validators.put( "schemaNames", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
+    validators.put( "tableNames", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
+    validators.put( "schemaNames", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
     return validators;
   }
 

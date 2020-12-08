@@ -110,7 +110,7 @@ public class PipelineDebugDialog extends Dialog {
 
     // Keep our own map of transform debugging information...
     //
-    transformDebugMetaMap = new Hashtable<TransformMeta, TransformDebugMeta>();
+    transformDebugMetaMap = new Hashtable<>();
     transformDebugMetaMap.putAll( pipelineDebugMeta.getTransformDebugMetaMap() );
 
     previousIndex = -1;

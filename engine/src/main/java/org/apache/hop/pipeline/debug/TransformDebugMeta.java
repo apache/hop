@@ -56,8 +56,8 @@ public class TransformDebugMeta {
   private int numberOfHits;
 
   public TransformDebugMeta() {
-    rowBuffer = new ArrayList<Object[]>();
-    breakPointListers = new ArrayList<IBreakPointListener>();
+    rowBuffer = new ArrayList<>();
+    breakPointListers = new ArrayList<>();
     numberOfHits = 0;
     readingFirstRows = true;
   }

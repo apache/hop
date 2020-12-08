@@ -45,7 +45,7 @@ public class PropertyOutputMetaTest {
       // MB - 5/2016
       "DateInFilename", "TimeInFilename", "CreateParentFolder", "AddToResult", "Append" );
 
-    LoadSaveTester<PropertyOutputMeta> tester = new LoadSaveTester<PropertyOutputMeta>(
+    LoadSaveTester<PropertyOutputMeta> tester = new LoadSaveTester<>(
       PropertyOutputMeta.class, attributes );
 
     tester.testSerialization();

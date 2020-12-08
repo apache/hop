@@ -114,7 +114,7 @@ public class SalesforceUpdate extends SalesforceTransform<SalesforceUpdateMeta, 
       // if there is room in the buffer
       if ( data.iBufferPos < meta.getBatchSizeInt() ) {
         // Reserve for empty fields
-        ArrayList<String> fieldsToNull = new ArrayList<String>();
+        ArrayList<String> fieldsToNull = new ArrayList<>();
         ArrayList<XmlObject> updatefields = new ArrayList<>();
 
         // Add fields to update

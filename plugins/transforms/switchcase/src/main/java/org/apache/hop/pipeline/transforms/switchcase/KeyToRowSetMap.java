@@ -35,7 +35,7 @@ public class KeyToRowSetMap {
   protected Map<Object, Set<IRowSet>> map;
 
   protected KeyToRowSetMap() {
-    map = new HashMap<Object, Set<IRowSet>>();
+    map = new HashMap<>();
   }
 
   /**
@@ -54,7 +54,7 @@ public class KeyToRowSetMap {
   protected void put( Object key, IRowSet rowSet ) {
     Set<IRowSet> existing = map.get( key );
     if ( existing == null ) {
-      existing = new HashSet<IRowSet>();
+      existing = new HashSet<>();
       map.put( key, existing );
     }
     existing.add( rowSet );

@@ -124,8 +124,8 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
       if (!StringUtils.isEmpty(batchInsert)) {
         m_batchInsertSize = Integer.parseInt(batchInsert);
       }
-      m_batch = new ArrayList<DBObject>(m_batchInsertSize);
-      m_batchRows = new ArrayList<Object[]>();
+      m_batch = new ArrayList<>( m_batchInsertSize );
+      m_batchRows = new ArrayList<>();
 
       // output the same as the input
       data.setOutputRowMeta(getInputRowMeta());
@@ -357,7 +357,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
   }
 
   private static <T> List<T> copyExceptFirst(int amount, List<T> list) {
-    return new ArrayList<T>(list.subList(amount, list.size()));
+    return new ArrayList<>( list.subList( amount, list.size() ) );
   }
 
   protected void doBatch() throws HopException, MongoDbException {
@@ -525,8 +525,8 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
 
   final void checkInputFieldsMatch(IRowMeta rmi, List<MongoDbOutputMeta.MongoField> mongoFields)
       throws HopException {
-    Set<String> expected = new HashSet<String>(mongoFields.size(), 1);
-    Set<String> actual = new HashSet<String>(rmi.getFieldNames().length, 1);
+    Set<String> expected = new HashSet<>( mongoFields.size(), 1 );
+    Set<String> actual = new HashSet<>( rmi.getFieldNames().length, 1 );
     for (MongoDbOutputMeta.MongoField field : mongoFields) {
       String mongoMatch = environmentSubstitute(field.m_incomingFieldName);
       expected.add(mongoMatch);

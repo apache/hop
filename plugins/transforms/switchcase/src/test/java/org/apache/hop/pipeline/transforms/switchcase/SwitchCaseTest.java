@@ -79,7 +79,7 @@ public class SwitchCaseTest {
   @Before
   public void setUp() throws Exception {
     mockHelper =
-      new TransformMockHelper<SwitchCaseMeta, SwitchCaseData>(
+      new TransformMockHelper<>(
         "Switch Case", SwitchCaseMeta.class, SwitchCaseData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       mockHelper.iLogChannel );
@@ -159,9 +159,9 @@ public class SwitchCaseTest {
   private boolean isRowSetContainsValue( IRowSet rowSet, Object[] allowed, Object[] illegal ) {
     boolean ok = true;
 
-    Set<Object> yes = new HashSet<Object>();
+    Set<Object> yes = new HashSet<>();
     yes.addAll( Arrays.asList( allowed ) );
-    Set<Object> no = new HashSet<Object>();
+    Set<Object> no = new HashSet<>();
     no.addAll( Arrays.asList( illegal ) );
 
     for ( int i = 0; i < rowSet.size(); i++ ) {
@@ -192,11 +192,11 @@ public class SwitchCaseTest {
     SwitchCaseCustom krasavez = new SwitchCaseCustom( mockHelper );
 
     // load transform info value-case mapping from xml.
-    List<DatabaseMeta> emptyList = new ArrayList<DatabaseMeta>();
+    List<DatabaseMeta> emptyList = new ArrayList<>();
     krasavez.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseTest.xml" ), mock( IHopMetadataProvider.class ) );
 
     KeyToRowSetMap expectedNN = new KeyToRowSetMap();
-    Set<IRowSet> nulls = new HashSet<IRowSet>();
+    Set<IRowSet> nulls = new HashSet<>();
 
     // create real transforms for all targets
     List<SwitchCaseTarget> list = krasavez.meta.getCaseTargets();
@@ -261,11 +261,11 @@ public class SwitchCaseTest {
     SwitchCaseCustom krasavez = new SwitchCaseCustom( mockHelper );
 
     // load transform info value-case mapping from xml.
-    List<DatabaseMeta> emptyList = new ArrayList<DatabaseMeta>();
+    List<DatabaseMeta> emptyList = new ArrayList<>();
     krasavez.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseBinaryTest.xml" ), mock( IHopMetadataProvider.class ) );
 
     KeyToRowSetMap expectedNN = new KeyToRowSetMap();
-    Set<IRowSet> nulls = new HashSet<IRowSet>();
+    Set<IRowSet> nulls = new HashSet<>();
 
     // create real transforms for all targets
     List<SwitchCaseTarget> list = krasavez.meta.getCaseTargets();
@@ -352,7 +352,7 @@ public class SwitchCaseTest {
     SwitchCaseCustom transform = new SwitchCaseCustom( mockHelper );
     transform.meta.loadXml( loadTransformXmlMetadata( "SwitchCaseTest_PDI-12671.xml" ), mock( IHopMetadataProvider.class ) );
 
-    List<IRowSet> outputRowSets = new LinkedList<IRowSet>();
+    List<IRowSet> outputRowSets = new LinkedList<>();
     for ( SwitchCaseTarget item : transform.meta.getCaseTargets() ) {
       DummyMeta smInt = new DummyMeta();
       item.caseTargetTransform = new TransformMeta( item.caseTargetTransformName, smInt );
@@ -418,14 +418,14 @@ public class SwitchCaseTest {
    */
   private static class SwitchCaseCustom extends SwitchCase {
 
-    Queue<Object[]> input = new LinkedList<Object[]>();
+    Queue<Object[]> input = new LinkedList<>();
     IRowMeta iRowMeta;
 
     // we will use real data and meta.
     SwitchCaseData data = new SwitchCaseData();
     SwitchCaseMeta meta = new SwitchCaseMeta();
 
-    Map<String, IRowSet> map = new HashMap<String, IRowSet>();
+    Map<String, IRowSet> map = new HashMap<>();
 
     SwitchCaseCustom( TransformMockHelper<SwitchCaseMeta, SwitchCaseData> mockHelper ) throws HopValueException {
       super( mockHelper.transformMeta, mockHelper.iTransformMeta, mockHelper.iTransformData, 0, mockHelper.pipelineMeta, mockHelper.pipeline );

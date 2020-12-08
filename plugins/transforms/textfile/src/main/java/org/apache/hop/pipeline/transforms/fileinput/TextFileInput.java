@@ -869,7 +869,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           IRowMeta prevInfoFields = data.rowSet.getRowMeta();
           if ( idx < 0 ) {
             if ( meta.isPassingThruFields() ) {
-              data.passThruFields = new HashMap<FileObject, Object[]>();
+              data.passThruFields = new HashMap<>();
               infoTransform = new IRowMeta[] { prevInfoFields };
               data.nrPassThruFields = prevInfoFields.size();
             }
@@ -1586,7 +1586,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
   }
 
   private void initErrorHandling() {
-    List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<IFileErrorHandler>( 2 );
+    List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<>( 2 );
     if ( meta.getLineNumberFilesDestinationDirectory() != null ) {
       dataErrorLineHandlers
         .add( new FileErrorHandlerContentLineNumber( getPipeline().getExecutionStartDate(), environmentSubstitute( meta

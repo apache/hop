@@ -53,7 +53,7 @@ public class ExcelOutputTemplateTest {
   public static void setUp() throws HopException {
     HopEnvironment.init();
     helper =
-      new TransformMockHelper<ExcelOutputMeta, ExcelOutputData>( "ExcelOutputTest", ExcelOutputMeta.class,
+      new TransformMockHelper<>( "ExcelOutputTest", ExcelOutputMeta.class,
         ExcelOutputData.class );
     when( helper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       helper.iLogChannel );

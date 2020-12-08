@@ -521,7 +521,7 @@ public class TableDraw extends Canvas {
   }
 
   public void clearFields() {
-    fields = new Vector<ITextFileInputField>();
+    fields = new Vector<>();
   }
 
 }

@@ -66,9 +66,9 @@ public class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
         "keylookup", "value", "valueName", "valueDefault", "valueDefaultType" );
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "keystream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keylookup", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "value", stringArrayLoadSaveValidator );
@@ -76,7 +76,7 @@ public class StreamLookupMetaTest implements IInitializer<ITransformMeta> {
     attrValidatorMap.put( "valueDefault", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "valueDefaultType", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 7 ), 5 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

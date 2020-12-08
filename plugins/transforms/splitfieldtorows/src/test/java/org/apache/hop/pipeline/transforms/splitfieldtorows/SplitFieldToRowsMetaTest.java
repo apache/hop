@@ -57,11 +57,11 @@ public class SplitFieldToRowsMetaTest {
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-    	      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
     
     LoadSaveTester loadSaveTester = new LoadSaveTester(
       SplitFieldToRowsMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
     
     loadSaveTester.testSerialization();
   }

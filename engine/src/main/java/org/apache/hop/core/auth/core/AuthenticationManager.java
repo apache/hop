@@ -37,9 +37,9 @@ import java.util.Map.Entry;
 public class AuthenticationManager {
   private static final Class<?> PKG = AuthenticationManager.class;
   private final Map<Class<?>, Map<Class<?>, Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>>> factoryMap =
-    new HashMap<Class<?>, Map<Class<?>, Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>>>();
+    new HashMap<>();
   private IAuthenticationPerformerFactory authenticationPerformerFactory = new DefaultAuthenticationPerformerFactory();
-  private final List<IAuthenticationProvider> authenticationProviders = new ArrayList<IAuthenticationProvider>();
+  private final List<IAuthenticationProvider> authenticationProviders = new ArrayList<>();
 
   public void registerAuthenticationProvider( IAuthenticationProvider authenticationProvider ) {
     synchronized ( authenticationProviders ) {
@@ -78,16 +78,16 @@ public class AuthenticationManager {
     Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>> createTypeMap =
       getRelevantConsumerFactoryMap( returnType, createArgType );
     synchronized ( createTypeMap ) {
-      createTypeMap = new HashMap<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>( createTypeMap );
+      createTypeMap = new HashMap<>( createTypeMap );
     }
 
     List<IAuthenticationProvider> authenticationProviders;
     synchronized ( this.authenticationProviders ) {
-      authenticationProviders = new ArrayList<IAuthenticationProvider>( this.authenticationProviders );
+      authenticationProviders = new ArrayList<>( this.authenticationProviders );
     }
 
     List<IAuthenticationPerformer<ReturnType, CreateArgType>> result =
-      new ArrayList<IAuthenticationPerformer<ReturnType, CreateArgType>>();
+      new ArrayList<>();
 
     for ( Entry<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>> entry : createTypeMap.entrySet() ) {
       for ( IAuthenticationProvider provider : authenticationProviders ) {
@@ -123,13 +123,13 @@ public class AuthenticationManager {
     synchronized ( factoryMap ) {
       Map<Class<?>, Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>> returnTypeMap = factoryMap.get( returnType );
       if ( returnTypeMap == null ) {
-        returnTypeMap = new HashMap<Class<?>, Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>>();
+        returnTypeMap = new HashMap<>();
         factoryMap.put( returnType, returnTypeMap );
       }
 
       Map<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>> createTypeMap = returnTypeMap.get( createArgType );
       if ( createTypeMap == null ) {
-        createTypeMap = new HashMap<Class<?>, IAuthenticationConsumerFactory<?, ?, ?>>();
+        createTypeMap = new HashMap<>();
         returnTypeMap.put( createArgType, createTypeMap );
       }
 

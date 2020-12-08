@@ -48,7 +48,7 @@ public class GetTableNamesMetaTest {
       "includeView", "includeProcedure", "includeSynonym", "AddSchemaInOut", "DynamicSchema", "SchemaFieldName" );
 
     LoadSaveTester<GetTableNamesMeta> loadSaveTester =
-      new LoadSaveTester<GetTableNamesMeta>( GetTableNamesMeta.class, attributes );
+      new LoadSaveTester<>( GetTableNamesMeta.class, attributes );
 
     loadSaveTester.testSerialization();
   }

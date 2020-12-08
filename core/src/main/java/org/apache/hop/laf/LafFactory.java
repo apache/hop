@@ -41,11 +41,11 @@ public class LafFactory {
 
   // Registry of Delegates that know how to load the appropriate handlers
   private static HashMap<Class<? extends IHandler>, LafDelegate<? extends IHandler>> delegateRegistry =
-    new HashMap<Class<? extends IHandler>, LafDelegate<? extends IHandler>>();
+    new HashMap<>();
 
   // Map an abstract ClassName (by String) to an implementing Class
   private static HashMap<String, Class<? extends IHandler>> handlerRef =
-    new HashMap<String, Class<? extends IHandler>>();
+    new HashMap<>();
 
   static {
     // handlers.put(IMessageHandler.class.), (IHandler)_defMessageHandler.newInstance());
@@ -59,7 +59,7 @@ public class LafFactory {
     if ( l == null ) {
       // TODO: check subclasses
       Class<V> defaultHandler = (Class<V>) handlerRef.get( handler.getName() );
-      l = new LafDelegate<V>( handler, defaultHandler );
+      l = new LafDelegate<>( handler, defaultHandler );
       delegateRegistry.put( handler, l );
     }
     return l;

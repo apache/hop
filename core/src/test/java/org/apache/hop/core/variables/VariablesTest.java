@@ -106,7 +106,7 @@ public class VariablesTest {
   public void testConcurrentModification() throws Exception {
 
     int threads = 20;
-    List<Callable<Boolean>> callables = new ArrayList<Callable<Boolean>>();
+    List<Callable<Boolean>> callables = new ArrayList<>();
     for ( int i = 0; i < threads; i++ ) {
       callables.add( newCallable() );
     }

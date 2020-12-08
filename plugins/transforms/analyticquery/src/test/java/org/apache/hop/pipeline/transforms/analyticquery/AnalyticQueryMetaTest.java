@@ -55,10 +55,10 @@ public class AnalyticQueryMetaTest {
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    Map<String, IFieldLoadSaveValidator<?>> fieldValidators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    fieldValidators.put( "aggregateField", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 50 ) );
-    fieldValidators.put( "subjectField", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 50 ) );
+    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldValidators = new HashMap<>();
+    fieldValidators.put( "aggregateField", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
+    fieldValidators.put( "subjectField", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );
     fieldValidators.put( "aggregateType", new PrimitiveIntArrayLoadSaveValidator(
       new IntLoadSaveValidator( AnalyticQueryMeta.typeGroupCode.length ), 50 ) );
     fieldValidators.put( "valueField", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 50 ) );
@@ -72,7 +72,7 @@ public class AnalyticQueryMetaTest {
   @Test
   public void testPDI16559() throws Exception {
     TransformMockHelper<AnalyticQueryMeta, AnalyticQueryData> mockHelper =
-      new TransformMockHelper<AnalyticQueryMeta, AnalyticQueryData>( "analyticQuery", AnalyticQueryMeta.class, AnalyticQueryData.class );
+      new TransformMockHelper<>( "analyticQuery", AnalyticQueryMeta.class, AnalyticQueryData.class );
 
     AnalyticQueryMeta analyticQuery = new AnalyticQueryMeta();
     analyticQuery.setGroupField( new String[] { "group1", "group2" } );

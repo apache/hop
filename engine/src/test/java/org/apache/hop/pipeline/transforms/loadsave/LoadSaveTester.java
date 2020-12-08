@@ -85,13 +85,13 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
                          List<String> xmlAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
     this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
-      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      new HashMap<>(), new HashMap<>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
     this( clazz, commonAttributes, new ArrayList<>(), getterMap, setterMap,
-      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      new HashMap<>(), new HashMap<>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes ) {
@@ -106,7 +106,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
   @SuppressWarnings( "unchecked" )
   protected Map<String, IFieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
                                                                                         T metaToSave ) {
-    Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<>();
     for ( String attribute : attributes ) {
       IGetter<?> getter = manipulator.getGetter( attribute );
       @SuppressWarnings( "rawtypes" )

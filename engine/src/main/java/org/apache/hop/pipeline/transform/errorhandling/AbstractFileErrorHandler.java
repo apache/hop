@@ -141,7 +141,7 @@ public abstract class AbstractFileErrorHandler implements IFileErrorHandler {
     for ( Iterator<Writer> iter = writers.values().iterator(); iter.hasNext(); ) {
       close( iter.next() );
     }
-    writers = new HashMap<Object, Writer>();
+    writers = new HashMap<>();
 
   }
 

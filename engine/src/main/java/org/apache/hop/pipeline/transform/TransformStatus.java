@@ -69,7 +69,7 @@ public class TransformStatus {
   private final DecimalFormat speedDf = new DecimalFormat( "#,###,###,###,##0" );
 
   public TransformStatus() {
-    sampleRows = Collections.synchronizedList( new LinkedList<Object[]>() );
+    sampleRows = Collections.synchronizedList( new LinkedList<>() );
   }
 
   public TransformStatus( IEngineComponent component ) {
@@ -198,7 +198,7 @@ public class TransformStatus {
       Node rowMetaNode = XmlHandler.getSubNode( samplesNode, RowMeta.XML_META_TAG );
       if ( rowMetaNode != null ) {
         sampleRowMeta = new RowMeta( rowMetaNode );
-        sampleRows = new ArrayList<Object[]>();
+        sampleRows = new ArrayList<>();
         List<Node> dataNodes = XmlHandler.getNodes( samplesNode, RowMeta.XML_DATA_TAG );
         for ( Node dataNode : dataNodes ) {
           Object[] sampleRow = sampleRowMeta.getRow( dataNode );

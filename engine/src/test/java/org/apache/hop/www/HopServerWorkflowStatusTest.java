@@ -102,7 +102,7 @@ public class HopServerWorkflowStatusTest {
     List<String> attributes = Arrays.asList( "WorkflowName", "Id", "StatusDescription", "ErrorDescription",
       "LogDate", "LoggingString", "FirstLoggingLineNr", "LastLoggingLineNr" );
 
-    Map<String, IFieldLoadSaveValidator<?>> attributeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attributeMap = new HashMap<>();
     attributeMap.put( "LoggingString", new LoggingStringLoadSaveValidator() );
 
     HopServerWorkflowStatusLoadSaveTester tester =

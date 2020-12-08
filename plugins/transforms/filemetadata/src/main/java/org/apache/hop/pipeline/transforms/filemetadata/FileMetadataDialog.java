@@ -119,7 +119,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
       gotEncodings = true;
 
       wDefaultCharset.removeAll();
-      List<Charset> values = new ArrayList<Charset>( Charset.availableCharsets().values() );
+      List<Charset> values = new ArrayList<>( Charset.availableCharsets().values() );
       for ( int i = 0; i < values.size(); i++ ) {
         Charset charSet = values.get( i );
         wDefaultCharset.add(charSet.displayName());

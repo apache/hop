@@ -55,7 +55,7 @@ public class XmlHandlerCache {
   private AtomicInteger cacheHits;
 
   private XmlHandlerCache() {
-    cache = Collections.synchronizedMap( new WeakHashMap<XMlHandlerCacheEntry, Integer>() );
+    cache = Collections.synchronizedMap( new WeakHashMap<>() );
     cacheHits = new AtomicInteger();
   }
 

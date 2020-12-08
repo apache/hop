@@ -52,12 +52,12 @@ public class SimpleMappingMetaTest {
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "inputMapping", new MappingIODefinitionLoadSaveValidator() );
     attrValidatorMap.put( "outputMapping", new MappingIODefinitionLoadSaveValidator() );
     attrValidatorMap.put( "mappingParameters", new MappingParametersLoadSaveValidator() );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );
   }

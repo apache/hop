@@ -645,7 +645,7 @@ public class BaseTransformMeta implements Cloneable {
    * "New target transform"
    */
   public List<IStream> getOptionalStreams() {
-    List<IStream> list = new ArrayList<IStream>();
+    List<IStream> list = new ArrayList<>();
     return list;
   }
 

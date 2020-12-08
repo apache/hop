@@ -75,15 +75,15 @@ public class MailInputMetaTest implements IInitializer<ITransformMeta> {
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "inputFields",
-      new ArrayLoadSaveValidator<MailInputField>( new MailInputFieldLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new MailInputFieldLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "batchSize", new IntLoadSaveValidator( 1000 ) );
     attrValidatorMap.put( "conditionReceivedDate", new IntLoadSaveValidator( MailConnectionMeta.conditionDateCode.length ) );
     attrValidatorMap.put( "valueimaplist", new IntLoadSaveValidator( MailConnectionMeta.valueIMAPListCode.length ) );
     attrValidatorMap.put( "port", new StringIntLoadSaveValidator( 65534 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

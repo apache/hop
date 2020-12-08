@@ -23,6 +23,7 @@ import org.apache.hop.core.row.value.ValueMetaBinary;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Assert;
 import org.junit.Test;
@@ -38,7 +39,7 @@ public class SalesforceInputTest {
     transformMeta.setName( name );
     int copyNr = 0;
     PipelineMeta pipelineMeta = Mockito.mock( PipelineMeta.class );
-    Pipeline pipeline = Mockito.mock( Pipeline.class );
+    Pipeline pipeline = Mockito.spy( new LocalPipelineEngine() );
     Mockito.when( pipelineMeta.findTransform( Mockito.eq( name ) ) ).thenReturn( transformMeta );
 
     SalesforceInputMeta meta = new SalesforceInputMeta();

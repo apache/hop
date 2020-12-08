@@ -69,12 +69,12 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
     PrimitiveIntArrayLoadSaveValidator intArrayLoadSaveValidator = new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 5 );
     PrimitiveBooleanArrayLoadSaveValidator booleanArrayLoadSaveValidator = new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "currency", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "decimal", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "group", stringArrayLoadSaveValidator );
@@ -88,7 +88,7 @@ public class ConstantMetaTest implements IInitializer<ConstantMeta> {
     attrValidatorMap.put( "setEmptyString", booleanArrayLoadSaveValidator );
 
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester = new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );

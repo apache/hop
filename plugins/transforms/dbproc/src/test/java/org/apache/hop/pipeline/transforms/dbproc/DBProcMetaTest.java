@@ -60,9 +60,9 @@ public class DBProcMetaTest implements IInitializer<ITransformMeta> {
     Map<String, String> setterMap = new HashMap<>();
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "argument", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "argumentDirection", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "argumentType",
@@ -70,7 +70,7 @@ public class DBProcMetaTest implements IInitializer<ITransformMeta> {
     attrValidatorMap.put( "database", new DatabaseMetaLoadSaveValidator() );
     attrValidatorMap.put( "resultType", new IntLoadSaveValidator( 7 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

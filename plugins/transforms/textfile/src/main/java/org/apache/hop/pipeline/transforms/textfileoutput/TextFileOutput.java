@@ -682,7 +682,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         }
         if ( found ) {
           if ( positions == null ) {
-            positions = new ArrayList<Integer>();
+            positions = new ArrayList<>();
           }
           positions.add( i );
         }

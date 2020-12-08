@@ -167,7 +167,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
         environUpdateMongoDocPath = vars.environmentSubstitute(m_mongoDocPath);
         environUpdateModifierOperation = vars.environmentSubstitute(m_modifierUpdateOperation);
       }
-      m_pathList = new ArrayList<String>();
+      m_pathList = new ArrayList<>();
 
       if (!StringUtils.isEmpty(environUpdateMongoDocPath)) {
         String[] parts = environUpdateMongoDocPath.split("\\.");
@@ -175,7 +175,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
           m_pathList.add(p);
         }
       }
-      m_tempPathList = new ArrayList<String>(m_pathList);
+      m_tempPathList = new ArrayList<>( m_pathList );
     }
 
     public void reset() {
@@ -718,7 +718,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     Node fields = XmlHandler.getSubNode(stepnode, "mongo_fields");
     if (fields != null && XmlHandler.countNodes(fields, "mongo_field") > 0) {
       int nrfields = XmlHandler.countNodes(fields, "mongo_field");
-      m_mongoFields = new ArrayList<MongoField>();
+      m_mongoFields = new ArrayList<>();
 
       for (int i = 0; i < nrfields; i++) {
         Node fieldNode = XmlHandler.getSubNodeByNr(fields, "mongo_field", i);
@@ -753,7 +753,7 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
     if (fields != null && XmlHandler.countNodes(fields, "mongo_index") > 0) {
       int nrfields = XmlHandler.countNodes(fields, "mongo_index");
 
-      m_mongoIndexes = new ArrayList<MongoIndex>();
+      m_mongoIndexes = new ArrayList<>();
 
       for (int i = 0; i < nrfields; i++) {
         Node fieldNode = XmlHandler.getSubNodeByNr(fields, "mongo_index", i);

@@ -77,8 +77,8 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     // but not $.person[*].first, $.person[*].address[*].street.
 
     String expansion = null;
-    List<MongoField> normalList = new ArrayList<MongoField>();
-    List<MongoField> expansionList = new ArrayList<MongoField>();
+    List<MongoField> normalList = new ArrayList<>();
+    List<MongoField> expansionList = new ArrayList<>();
 
     for (MongoField f : normalFields) {
       String path = f.fieldPath;
@@ -118,7 +118,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
 
     if (expansionList.size() > 0) {
 
-      List<MongoField> subFields = new ArrayList<MongoField>();
+      List<MongoField> subFields = new ArrayList<>();
 
       for (MongoField ef : expansionList) {
         MongoField subField = new MongoField();
@@ -281,7 +281,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    */
   public void setMongoFields(List<MongoField> fields) {
     // copy this list
-    m_userFields = new ArrayList<MongoField>();
+    m_userFields = new ArrayList<>();
 
     for (MongoField f : fields) {
       m_userFields.add(f.copy());
@@ -317,7 +317,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
   public static List<String> indexedValsList(String indexedVals) {
 
     String[] parts = indexedVals.split(",");
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     for (String s : parts) {
       list.add(s.trim());
     }

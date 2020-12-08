@@ -100,8 +100,8 @@ class ConcurrencyTestRunner<M, B> {
     this.condition = condition;
     this.timeout = timeout;
 
-    this.monitoredResults = new HashMap<Callable<? extends M>, ExecutionResult<M>>( monitoredTasks.size() );
-    this.backgroundResults = new HashMap<Callable<? extends B>, ExecutionResult<B>>( backgroundTasks.size() );
+    this.monitoredResults = new HashMap<>( monitoredTasks.size() );
+    this.backgroundResults = new HashMap<>( backgroundTasks.size() );
   }
 
   void runConcurrentTest() throws Exception {
@@ -110,12 +110,12 @@ class ConcurrencyTestRunner<M, B> {
     final int tasksAmount = monitoredTasks.size() + backgroundTasks.size();
     final ExecutorService executors = Executors.newFixedThreadPool( tasksAmount );
     try {
-      List<Future<? extends B>> background = new ArrayList<Future<? extends B>>( backgroundTasks.size() );
+      List<Future<? extends B>> background = new ArrayList<>( backgroundTasks.size() );
       for ( Callable<? extends B> task : backgroundTasks ) {
         background.add( executors.submit( task ) );
       }
 
-      List<Future<? extends M>> monitored = new ArrayList<Future<? extends M>>( monitoredTasks.size() );
+      List<Future<? extends M>> monitored = new ArrayList<>( monitoredTasks.size() );
       for ( Callable<? extends M> task : monitoredTasks ) {
         monitored.add( executors.submit( task ) );
       }
@@ -172,14 +172,14 @@ class ConcurrencyTestRunner<M, B> {
   }
 
   List<Throwable> getTasksErrors() {
-    List<Throwable> errors = new ArrayList<Throwable>();
+    List<Throwable> errors = new ArrayList<>();
     errors.addAll( pickupErrors( monitoredResults.values() ) );
     errors.addAll( pickupErrors( backgroundResults.values() ) );
     return errors;
   }
 
   private List<Throwable> pickupErrors( Collection<? extends ExecutionResult<?>> collection ) {
-    List<Throwable> errors = new ArrayList<Throwable>( collection.size() );
+    List<Throwable> errors = new ArrayList<>( collection.size() );
     for ( ExecutionResult<?> result : collection ) {
       if ( result.isError() ) {
         errors.add( result.getThrowable() );
@@ -210,7 +210,7 @@ class ConcurrencyTestRunner<M, B> {
   }
 
   private <T> List<T> pickupResults( Collection<? extends ExecutionResult<T>> collection ) {
-    List<T> errors = new ArrayList<T>( collection.size() );
+    List<T> errors = new ArrayList<>( collection.size() );
     for ( ExecutionResult<T> result : collection ) {
       if ( !result.isError() ) {
         errors.add( result.getResult() );

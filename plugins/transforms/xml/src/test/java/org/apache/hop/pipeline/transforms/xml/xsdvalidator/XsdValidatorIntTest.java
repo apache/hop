@@ -143,7 +143,7 @@ public class XsdValidatorIntTest {
     IRowMeta inputRowMeta = new RowMeta();
     inputRowMeta.addValueMeta( new ValueMetaString( "DataFile" ) );
     inputRowMeta.addValueMeta( new ValueMetaString( "SchemaFile" ) );
-    List<RowMetaAndData> inputData = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> inputData = new ArrayList<>();
     inputData.add( new RowMetaAndData( inputRowMeta, new Object[] { dataFilename, schemaFilename } ) );
 
     String TransformName = "XSD Validator";

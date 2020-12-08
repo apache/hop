@@ -53,19 +53,19 @@ public class MemoryGroupByNewAggregateTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
-      new TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData>( "Memory Group By", MemoryGroupByMeta.class,
+      new TransformMockHelper<>( "Memory Group By", MemoryGroupByMeta.class,
         MemoryGroupByData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
     // In this transform we will distinct String aggregations from numeric ones
-    strings = new ArrayList<Integer>();
+    strings = new ArrayList<>();
     strings.add( MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA );
     strings.add( MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING );
 
     // Statistics will be initialized with collections...
-    statistics = new ArrayList<Integer>();
+    statistics = new ArrayList<>();
     statistics.add( MemoryGroupByMeta.TYPE_GROUP_MEDIAN );
     statistics.add( MemoryGroupByMeta.TYPE_GROUP_PERCENTILE );
   }

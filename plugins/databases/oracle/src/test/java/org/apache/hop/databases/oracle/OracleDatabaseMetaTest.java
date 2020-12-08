@@ -27,6 +27,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 
 import java.sql.ResultSet;
 
@@ -281,7 +283,7 @@ public class OracleDatabaseMetaTest {
     IRowMeta rm = Mockito.mock( IRowMeta.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
-    Mockito.when( dm.getQuotedSchemaTableCombination( variables, "", "FOO" ) ).thenReturn( "FOO" );
+    Mockito.when( dm.getQuotedSchemaTableCombination( any(IVariables.class), eq(""), eq("FOO") ) ).thenReturn( "FOO" );
     Mockito.when( rs.next() ).thenReturn( rowCnt < 2 );
     Mockito.when( db.openQuery( expectedSql ) ).thenReturn( rs );
     Mockito.when( db.getReturnRowMeta() ).thenReturn( rm );

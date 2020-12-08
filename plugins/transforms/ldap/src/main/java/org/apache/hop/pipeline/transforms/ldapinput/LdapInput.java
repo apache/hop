@@ -343,7 +343,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     // Limit returned attributes to user selection
     data.attrReturned = new String[meta.getInputFields().length];
 
-    data.attributesBinary = new HashSet<String>();
+    data.attributesBinary = new HashSet<>();
     // Get user selection attributes
     for (int i = 0; i < meta.getInputFields().length; i++) {
       LdapInputField field = meta.getInputFields()[i];

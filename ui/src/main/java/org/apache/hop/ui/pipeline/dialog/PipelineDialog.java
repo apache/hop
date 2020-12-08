@@ -187,7 +187,7 @@ public class PipelineDialog extends Dialog {
     addMonitoringTab();
 
     // See if there are any other tabs to be added...
-    extraTabs = new ArrayList<IPipelineDialogPlugin>();
+    extraTabs = new ArrayList<>();
     java.util.List<IPlugin> pipelineDialogPlugins =
       PluginRegistry.getInstance().getPlugins( PipelineDialogPluginType.class );
     for ( IPlugin pipelineDialogPlugin : pipelineDialogPlugins ) {

@@ -133,7 +133,7 @@ public class TextFileOutputMetaTest {
   }
 
   public static Map<String, IFieldLoadSaveValidator<?>> getTypeValidators() {
-    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<>();
     typeValidators.put( TextFileField[].class.getCanonicalName(), new ArrayLoadSaveValidator<>( new TextFileFieldLoadSaveValidator() ) );
     return typeValidators;
   }
@@ -141,7 +141,7 @@ public class TextFileOutputMetaTest {
   @Test
   public void testRoundTrip() throws HopException {
     LoadSaveTester<TextFileOutputMeta> loadSaveTester =
-      new LoadSaveTester<TextFileOutputMeta>( TextFileOutputMeta.class, getMetaAttributes(),
+      new LoadSaveTester<>( TextFileOutputMeta.class, getMetaAttributes(),
         getGetterMap(), getSetterMap(), getAttributeValidators(), getTypeValidators() );
 
     loadSaveTester.testSerialization();

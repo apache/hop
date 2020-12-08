@@ -41,7 +41,7 @@ public class RowsToResultData extends BaseTransformData implements ITransformDat
   public RowsToResultData() {
     super();
 
-    rows = new ArrayList<RowMetaAndData>();
+    rows = new ArrayList<>();
   }
 
 }

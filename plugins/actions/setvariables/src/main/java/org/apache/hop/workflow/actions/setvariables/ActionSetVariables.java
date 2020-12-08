@@ -189,7 +189,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
 
       List<String> variables = new ArrayList<>();
       List<String> variableValues = new ArrayList<>();
-      List<Integer> variableTypes = new ArrayList<Integer>();
+      List<Integer> variableTypes = new ArrayList<>();
 
       String realFilename = environmentSubstitute( filename );
       if ( !Utils.isEmpty( realFilename ) ) {

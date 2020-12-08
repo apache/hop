@@ -52,13 +52,13 @@ public class FilesToResultMetaTest {
     setterMap.put( "file_type", "setFileType" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
     fieldLoadSaveValidatorAttributeMap.put( "file_type",
       new IntLoadSaveValidator( ResultFile.fileTypeCode.length ) );
 
     LoadSaveTester loadSaveTester =
       new LoadSaveTester( FilesToResultMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
     loadSaveTester.testSerialization();
   }
 }

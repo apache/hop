@@ -42,7 +42,7 @@ public class MailValidatorMetaTest {
       "DefaultSMTPField", "DynamicDefaultSMTP" );
 
     LoadSaveTester<MailValidatorMeta> loadSaveTester =
-      new LoadSaveTester<MailValidatorMeta>( MailValidatorMeta.class, attributes );
+      new LoadSaveTester<>( MailValidatorMeta.class, attributes );
 
     loadSaveTester.testSerialization();
   }

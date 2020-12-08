@@ -2363,7 +2363,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
       gotEncodings = true;
 
       wEncoding.removeAll();
-      List<Charset> values = new ArrayList<Charset>( Charset.availableCharsets().values() );
+      List<Charset> values = new ArrayList<>( Charset.availableCharsets().values() );
       for ( Charset charSet : values ) {
         wEncoding.add( charSet.displayName() );
       }
@@ -2943,7 +2943,7 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
   }
 
   private Vector<ITextFileInputField> getFields( TextFileInputMeta info, List<String> rows ) {
-    Vector<ITextFileInputField> fields = new Vector<ITextFileInputField>();
+    Vector<ITextFileInputField> fields = new Vector<>();
 
     int maxsize = 0;
     for ( String row : rows ) {

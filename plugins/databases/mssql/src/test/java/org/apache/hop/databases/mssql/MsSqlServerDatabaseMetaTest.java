@@ -45,6 +45,8 @@ import org.mockito.stubbing.Answer;
 import java.sql.ResultSet;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
@@ -253,7 +255,7 @@ public class MsSqlServerDatabaseMetaTest {
     IRowMeta rm = Mockito.mock( IRowMeta.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
-    Mockito.when( dm.getQuotedSchemaTableCombination( variables, "", "FOO" ) ).thenReturn( "FOO" );
+    Mockito.when( dm.getQuotedSchemaTableCombination( any(IVariables.class), eq(""), eq("FOO") ) ).thenReturn( "FOO" );
     Mockito.when( rs.next() ).thenReturn( rowCnt < 2 );
     Mockito.when( db.openQuery( expectedSQL ) ).thenReturn( rs );
     Mockito.when( db.getReturnRowMeta() ).thenReturn( rm );

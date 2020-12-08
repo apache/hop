@@ -40,7 +40,7 @@ public class OdfWorkbook implements IKWorkbook {
   private String filename;
   private String encoding;
   private OdfDocument document;
-  private Map<String, OdfSheet> openSheetsMap = new HashMap<String, OdfSheet>();
+  private Map<String, OdfSheet> openSheetsMap = new HashMap<>();
 
   public OdfWorkbook( String filename, String encoding ) throws HopException {
     this.filename = filename;

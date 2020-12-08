@@ -47,7 +47,7 @@ public class CreditCardValidatorMetaTest {
     List<String> attributes =
       Arrays.asList( "DynamicField", "ResultFieldName", "CardType", "OnlyDigits", "NotValidMsg" );
     LoadSaveTester<CreditCardValidatorMeta> loadSaveTester =
-      new LoadSaveTester<CreditCardValidatorMeta>( CreditCardValidatorMeta.class, attributes );
+      new LoadSaveTester<>( CreditCardValidatorMeta.class, attributes );
 
     loadSaveTester.testSerialization();
   }

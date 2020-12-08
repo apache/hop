@@ -57,10 +57,10 @@ public class ZipFileMetaLoadSaveTest {
     Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "addResultFilenames", "setaddTargetFileNametoResult" );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "operationType", new IntLoadSaveValidator( ZipFileMeta.operationTypeCode.length ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );

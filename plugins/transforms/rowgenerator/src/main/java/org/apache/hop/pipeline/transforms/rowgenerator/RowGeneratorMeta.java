@@ -216,7 +216,7 @@ public class RowGeneratorMeta extends BaseTransformMeta
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
     try {
-      List<ICheckResult> remarks = new ArrayList<ICheckResult>();
+      List<ICheckResult> remarks = new ArrayList<>();
       RowMetaAndData rowMetaAndData = RowGenerator.buildRow(this, remarks, origin);
       if (!remarks.isEmpty()) {
         StringBuilder stringRemarks = new StringBuilder();

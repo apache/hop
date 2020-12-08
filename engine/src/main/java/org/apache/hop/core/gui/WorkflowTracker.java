@@ -150,7 +150,7 @@ public class WorkflowTracker<T extends WorkflowMeta> {
   public List<WorkflowTracker> getWorkflowTrackers() {
     lock.readLock().lock();
     try {
-      return new ArrayList<WorkflowTracker>( workflowTrackers );
+      return new ArrayList<>( workflowTrackers );
     } finally {
       lock.readLock().unlock();
     }

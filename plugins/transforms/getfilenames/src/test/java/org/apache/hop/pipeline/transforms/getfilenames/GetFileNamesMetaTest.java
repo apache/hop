@@ -85,13 +85,13 @@ public class GetFileNamesMetaTest {
     setterMap.put( "include_subfolders", "setIncludeSubFolders" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     //Arrays need to be consistent length
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
     IFieldLoadSaveValidator<String[]> fileRequiredArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new FileRequiredLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<>( new FileRequiredLoadSaveValidator(), 25 );
 
     fieldLoadSaveValidatorAttributeMap.put( "filterfiletype", new FileTypeFilterLoadSaveValidator() );
     fieldLoadSaveValidatorAttributeMap.put( "name", stringArrayLoadSaveValidator );
@@ -103,7 +103,7 @@ public class GetFileNamesMetaTest {
 
     LoadSaveTester<GetFileNamesMeta> loadSaveTester =
       new LoadSaveTester<>( GetFileNamesMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
 
     loadSaveTester.testSerialization();
   }

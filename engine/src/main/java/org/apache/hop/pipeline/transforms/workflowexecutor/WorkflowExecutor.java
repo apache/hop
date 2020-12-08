@@ -370,7 +370,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
         // Do we have a workflow at all?
         //
         if ( data.executorWorkflowMeta != null ) {
-          data.groupBuffer = new ArrayList<RowMetaAndData>();
+          data.groupBuffer = new ArrayList<>();
 
           // How many rows do we group together for the workflow?
           //

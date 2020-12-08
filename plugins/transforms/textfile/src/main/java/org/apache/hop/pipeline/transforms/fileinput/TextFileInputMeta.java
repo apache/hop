@@ -1817,7 +1817,7 @@ public class TextFileInputMeta
   }
 
   @Override public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
-    List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
+    List<ResourceReference> references = new ArrayList<>( 5 );
     ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 

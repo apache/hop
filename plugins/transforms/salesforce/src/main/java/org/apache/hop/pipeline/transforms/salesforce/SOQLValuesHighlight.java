@@ -46,7 +46,7 @@ public class SOQLValuesHighlight implements LineStyleListener {
   JavaScanner scanner = new JavaScanner();
   int[] tokenColors;
   Color[] colors;
-  Vector<int[]> blockComments = new Vector<int[]>();
+  Vector<int[]> blockComments = new Vector<>();
 
   public static final int EOF = -1;
   public static final int EOL = 10;
@@ -123,7 +123,7 @@ public class SOQLValuesHighlight implements LineStyleListener {
    * StyleRanges, need to be in order. (output) LineStyleEvent.background line background color (output)
    */
   public void lineGetStyle( LineStyleEvent event ) {
-    Vector<StyleRange> styles = new Vector<StyleRange>();
+    Vector<StyleRange> styles = new Vector<>();
     int token;
     StyleRange lastStyle;
 
@@ -179,7 +179,7 @@ public class SOQLValuesHighlight implements LineStyleListener {
   }
 
   public void parseBlockComments( String text ) {
-    blockComments = new Vector<int[]>();
+    blockComments = new Vector<>();
     StringReader buffer = new StringReader( text );
     int ch;
     boolean blkComment = false;
@@ -275,7 +275,7 @@ public class SOQLValuesHighlight implements LineStyleListener {
      * Initialize the lookup table.
      */
     void initialize() {
-      fgKeys = new Hashtable<String, Integer>();
+      fgKeys = new Hashtable<>();
       Integer k = new Integer( KEY );
       for ( int i = 0; i < fgKeywords.length; i++ ) {
         fgKeys.put( fgKeywords[i], k );
@@ -287,7 +287,7 @@ public class SOQLValuesHighlight implements LineStyleListener {
     }
 
     void initializeMDXFunctions() {
-      kfKeys = new Hashtable<String, Integer>();
+      kfKeys = new Hashtable<>();
       Integer k = new Integer( FUNCTIONS );
       for ( int i = 0; i < kfKeywords.length; i++ ) {
         kfKeys.put( kfKeywords[i], k );

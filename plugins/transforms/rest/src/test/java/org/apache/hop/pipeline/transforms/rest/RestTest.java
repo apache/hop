@@ -31,6 +31,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Test;
@@ -47,6 +48,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,7 +67,7 @@ public class RestTest {
     pipelineMeta.setName( "TestRest" );
     pipelineMeta.addTransform( transformMeta );
     Rest rest = new Rest( transformMeta, mock(RestMeta.class),  mock( RestData.class ),
-      1, pipelineMeta, mock( Pipeline.class ) );
+      1, pipelineMeta, spy( new LocalPipelineEngine() ) );
     MultivaluedMapImpl map = rest.createMultivalueMap( "param1", "{a:{[val1]}}" );
     String val1 = map.getFirst( "param1" );
     assertTrue( val1.contains( "%7D" ) );

@@ -53,7 +53,7 @@ public class TreeMemory {
   }
 
   private TreeMemory() {
-    map = new Hashtable<TreeMemoryEntry, Boolean>( 100 );
+    map = new Hashtable<>( 100 );
   }
 
   private class TreeMemoryEntry {

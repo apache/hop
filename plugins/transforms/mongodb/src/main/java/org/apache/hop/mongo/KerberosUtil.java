@@ -212,7 +212,7 @@ public class KerberosUtil {
     // Extend the default keytab config properties and set the necessary
     // overrides for this invocation
     Map<String, String> keytabConfig =
-        new HashMap<String, String>(LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB);
+      new HashMap<>( LOGIN_CONFIG_OPTS_KERBEROS_KEYTAB );
     keytabConfig.put("keyTab", keytabFile);
     keytabConfig.put("principal", principal);
 

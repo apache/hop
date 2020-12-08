@@ -75,9 +75,9 @@ public class MemoryGroupByMetaTest implements IInitializer<MemoryGroupByMeta> {
       Arrays.asList( "alwaysGivingBackOneRow", "groupField", "aggregateField", "subjectField", "aggregateType", "valueField" );
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "groupField", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "aggregateField", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "subjectField", stringArrayLoadSaveValidator );
@@ -85,10 +85,10 @@ public class MemoryGroupByMetaTest implements IInitializer<MemoryGroupByMeta> {
     attrValidatorMap.put( "aggregateType", new PrimitiveIntArrayLoadSaveValidator(
       new IntLoadSaveValidator( MemoryGroupByMeta.typeGroupCode.length ), 5 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
-    loadSaveTester = new LoadSaveTester<MemoryGroupByMeta>( testMetaClass, attributes, new ArrayList<>(),
-        new HashMap<>(), new HashMap<>(), attrValidatorMap, typeValidatorMap, this );
+    loadSaveTester = new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(),
+      new HashMap<>(), new HashMap<>(), attrValidatorMap, typeValidatorMap, this );
   }
 
   // Call the allocate method on the LoadSaveTester meta class

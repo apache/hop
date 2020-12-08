@@ -106,7 +106,7 @@ public class SalesforceUpdateMetaTest {
   public void testCheck() {
     SalesforceUpdateMeta meta = new SalesforceUpdateMeta();
     meta.setDefault();
-    List<ICheckResult> remarks = new ArrayList<ICheckResult>();
+    List<ICheckResult> remarks = new ArrayList<>();
     meta.check( remarks, null, null, null, null, null, null, null, null );
     boolean hasError = false;
     for ( ICheckResult cr : remarks ) {
@@ -136,12 +136,12 @@ public class SalesforceUpdateMetaTest {
 
   @Test
   public void testSalesforceUpdateMeta() throws HopException {
-    List<String> attributes = new ArrayList<String>();
+    List<String> attributes = new ArrayList<>();
     attributes.addAll( SalesforceMetaTest.getDefaultAttributes() );
     attributes.addAll( Arrays.asList( "batchSize", "updateLookup", "updateStream", "useExternalId",
       "rollbackAllChangesOnError" ) );
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidators = new HashMap<>();
     fieldLoadSaveValidators.put( "updateLookup",
       new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 50 ) );

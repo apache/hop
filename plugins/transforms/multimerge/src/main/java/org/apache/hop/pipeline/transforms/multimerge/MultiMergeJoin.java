@@ -116,8 +116,8 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
     data.metas = new IRowMeta[ streamSize ];
     data.rowLengths = new int[ streamSize ];
     MultiMergeJoinData.QueueComparator comparator = new MultiMergeJoinData.QueueComparator( data );
-    data.queue = new PriorityQueue<MultiMergeJoinData.QueueEntry>( streamSize, comparator );
-    data.results = new ArrayList<List<Object[]>>( streamSize );
+    data.queue = new PriorityQueue<>( streamSize, comparator );
+    data.results = new ArrayList<>( streamSize );
     MultiMergeJoinData.QueueEntry queueEntry;
     data.queueEntries = new MultiMergeJoinData.QueueEntry[ streamSize ];
     data.drainIndices = new int[ streamSize ];
@@ -137,7 +137,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
       queueEntry.index = j;
       data.queueEntries[ j ] = queueEntry;
 
-      data.results.add( new ArrayList<Object[]>() );
+      data.results.add( new ArrayList<>() );
 
       rowSet = findInputRowSet( inputTransformName );
       if ( rowSet == null ) {
@@ -421,7 +421,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
       // check:2 No of keys are same for each stream
       int prevCount = 0;
 
-      List<String[]> keyList = new ArrayList<String[]>();
+      List<String[]> keyList = new ArrayList<>();
       for ( int i = 0; i < keyFields.length; i++ ) {
         String[] keys = keyFields[ i ].split( "," );
         keyList.add( keys );

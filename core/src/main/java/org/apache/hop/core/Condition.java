@@ -122,7 +122,7 @@ public class Condition implements Cloneable, IXml {
   private String[] inList;
 
   public Condition() {
-    list = new ArrayList<Condition>();
+    list = new ArrayList<>();
     this.operator = OPERATOR_NONE;
     this.negate = false;
 
@@ -795,7 +795,7 @@ public class Condition implements Cloneable, IXml {
   public Condition( Node condnode ) throws HopXmlException {
     this();
 
-    list = new ArrayList<Condition>();
+    list = new ArrayList<>();
     try {
       String strNegated = XmlHandler.getTagValue( condnode, "negated" );
       setNegated( "Y".equalsIgnoreCase( strNegated ) );

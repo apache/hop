@@ -61,8 +61,8 @@ public class HopServerStatus {
   private String osArchitecture;
 
   public HopServerStatus() {
-    pipelineStatusList = new ArrayList<HopServerPipelineStatus>();
-    jobStatusList = new ArrayList<HopServerWorkflowStatus>();
+    pipelineStatusList = new ArrayList<>();
+    jobStatusList = new ArrayList<>();
   }
 
   public HopServerStatus( String statusDescription ) {

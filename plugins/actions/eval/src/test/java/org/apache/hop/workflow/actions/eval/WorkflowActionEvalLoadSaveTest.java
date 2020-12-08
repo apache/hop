@@ -51,7 +51,7 @@ public class WorkflowActionEvalLoadSaveTest extends WorkflowActionLoadSaveTestSu
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     validators.put( "script", new MultiLineStringFieldLoadSaveValidator() );
     return validators;
   }

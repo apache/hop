@@ -49,7 +49,7 @@ public class MapLoadSaveValidator<KeyObjectType, ValueObjectType> implements
   @Override
   public Map<KeyObjectType, ValueObjectType> getTestObject() {
     int max = elements == null ? new Random().nextInt( 100 ) + 50 : elements;
-    Map<KeyObjectType, ValueObjectType> result = new LinkedHashMap<KeyObjectType, ValueObjectType>();
+    Map<KeyObjectType, ValueObjectType> result = new LinkedHashMap<>();
     for ( int i = 0; i < max; i++ ) {
       result.put( keyValidator.getTestObject(), valueValidator.getTestObject() );
     }

@@ -63,7 +63,7 @@ public class WorkflowActionShellLoadSaveTest extends WorkflowActionLoadSaveTestS
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createTypeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     validators.put( LogLevel.class.getName(), new EnumLoadSaveValidator<LogLevel>( LogLevel.class ) );
     return validators;
   }

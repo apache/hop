@@ -379,7 +379,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
       // check embedded images
       if ( meta.getEmbeddedImages() != null && meta.getEmbeddedImages().length > 0 ) {
         FileObject image = null;
-        data.embeddedMimePart = new HashSet<MimeBodyPart>();
+        data.embeddedMimePart = new HashSet<>();
         try {
           for ( int i = 0; i < meta.getEmbeddedImages().length; i++ ) {
             String imageFile = environmentSubstitute( meta.getEmbeddedImages()[ i ] );

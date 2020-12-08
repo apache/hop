@@ -174,7 +174,7 @@ public class ValueMapper extends BaseTransform<ValueMapperMeta, ValueMapperData>
   public boolean init() {
 
     if ( super.init() ) {
-      data.hashtable = new Hashtable<String, String>();
+      data.hashtable = new Hashtable<>();
       data.emptyFieldIndex = -1;
 
       if ( !Utils.isEmpty( meta.getNonMatchDefault() ) ) {

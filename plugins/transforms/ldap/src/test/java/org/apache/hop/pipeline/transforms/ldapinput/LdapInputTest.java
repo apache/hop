@@ -45,8 +45,8 @@ public class LdapInputTest {
   @BeforeClass
   public static void setup() {
     mockHelper =
-        new TransformMockHelper<LdapInputMeta, LdapInputData>(
-            "LDAP INPUT TEST", LdapInputMeta.class, LdapInputData.class);
+      new TransformMockHelper<>(
+        "LDAP INPUT TEST", LdapInputMeta.class, LdapInputData.class );
     when(mockHelper.logChannelFactory.create(any(), any(ILoggingObject.class)))
         .thenReturn(mockHelper.iLogChannel );
     when(mockHelper.pipeline.isRunning()).thenReturn(true);

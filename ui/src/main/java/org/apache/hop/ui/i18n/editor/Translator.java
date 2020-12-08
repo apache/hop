@@ -205,8 +205,8 @@ public class Translator {
 
       // Keep some statistics
       //
-      Map<String, int[]> folderKeyCounts = new HashMap<String, int[]>();
-      Map<String, Integer> nrKeysPerFolder = new HashMap<String, Integer>();
+      Map<String, int[]> folderKeyCounts = new HashMap<>();
+      Map<String, Integer> nrKeysPerFolder = new HashMap<>();
 
       for ( String sourceFolder : sourceDirectories ) {
         folderKeyCounts.put( sourceFolder, new int[ localeList.size() ] );
@@ -1099,7 +1099,7 @@ public class Translator {
     // Get the list of keys that need a translation...
     //
     java.util.List<KeyOccurrence> keys = crawler.getOccurrencesForPackage( messagesPackage );
-    java.util.List<KeyOccurrence> todo = new ArrayList<KeyOccurrence>();
+    java.util.List<KeyOccurrence> todo = new ArrayList<>();
     for ( KeyOccurrence keyOccurrence : keys ) {
       // Avoid the System keys. Those are taken care off in a different package
       //

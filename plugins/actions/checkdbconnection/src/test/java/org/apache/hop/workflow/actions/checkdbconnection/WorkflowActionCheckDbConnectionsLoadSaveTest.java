@@ -54,11 +54,11 @@ public class WorkflowActionCheckDbConnectionsLoadSaveTest extends WorkflowAction
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     int entries = new Random().nextInt( 10 ) + 1;
-    validators.put( "connections", new ArrayLoadSaveValidator<DatabaseMeta>(
+    validators.put( "connections", new ArrayLoadSaveValidator<>(
       new DatabaseMetaLoadSaveValidator(), entries ) );
-    validators.put( "waitfors", new ArrayLoadSaveValidator<String>(
+    validators.put( "waitfors", new ArrayLoadSaveValidator<>(
       new StringLoadSaveValidator(), entries ) );
     validators.put( "waittimes", new PrimitiveIntArrayLoadSaveValidator(
       new IntLoadSaveValidator( ActionCheckDbConnections.unitTimeCode.length ), entries ) );

@@ -579,7 +579,7 @@ public class CalculatorUnitTest {
     final String msg = getHopTypeName( valueDataType ) + "->" + getHopTypeName( functionDataType ) + " ";
 
     final RowMeta inputRowMeta = new RowMeta();
-    final List<Object> inputValues = new ArrayList<Object>( 3 );
+    final List<Object> inputValues = new ArrayList<>( 3 );
 
     final String fieldValue = "Value";
     final IValueMeta valueMeta;

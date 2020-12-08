@@ -103,12 +103,12 @@ public class WorkflowTrackerConcurrencyTest {
   public void readAndUpdateTrackerConcurrently() throws Exception {
     final AtomicBoolean condition = new AtomicBoolean( true );
 
-    List<Getter> getters = new ArrayList<Getter>( gettersAmount );
+    List<Getter> getters = new ArrayList<>( gettersAmount );
     for ( int i = 0; i < gettersAmount; i++ ) {
       getters.add( new Getter( condition, tracker ) );
     }
 
-    List<Searcher> searchers = new ArrayList<Searcher>( searchersAmount );
+    List<Searcher> searchers = new ArrayList<>( searchersAmount );
     for ( int i = 0; i < searchersAmount; i++ ) {
       int lookingFor = updatersAmount * updatersCycles / 2 + i;
       assertTrue( "We are looking for reachable index", lookingFor < updatersAmount * updatersCycles );
@@ -116,7 +116,7 @@ public class WorkflowTrackerConcurrencyTest {
     }
 
     final AtomicInteger generator = new AtomicInteger( 0 );
-    List<Updater> updaters = new ArrayList<Updater>( updatersAmount );
+    List<Updater> updaters = new ArrayList<>( updatersAmount );
     for ( int i = 0; i < updatersAmount; i++ ) {
       updaters.add( new Updater( tracker, updatersCycles, generator, "workflow-action-%d" ) );
     }

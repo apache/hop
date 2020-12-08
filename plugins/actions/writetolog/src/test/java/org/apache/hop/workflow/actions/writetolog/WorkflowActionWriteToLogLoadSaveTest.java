@@ -72,6 +72,6 @@ public class WorkflowActionWriteToLogLoadSaveTest extends WorkflowActionLoadSave
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
     EnumSet<LogLevel> logLevels = EnumSet.allOf( LogLevel.class );
     LogLevel random = (LogLevel) logLevels.toArray()[ new Random().nextInt( logLevels.size() ) ];
-    return toMap( "loglevel", new EnumLoadSaveValidator<LogLevel>( random ) );
+    return toMap( "loglevel", new EnumLoadSaveValidator<>( random ) );
   }
 }

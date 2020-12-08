@@ -389,7 +389,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> implemen
       //
       if ( data.size[ data.filenr ] <= meta.getCacheSize() ) {
         if ( data.cache[ data.filenr ] == null ) {
-          data.cache[ data.filenr ] = new ArrayList<Object[]>();
+          data.cache[ data.filenr ] = new ArrayList<>();
         }
 
         // Add this row to the cache!

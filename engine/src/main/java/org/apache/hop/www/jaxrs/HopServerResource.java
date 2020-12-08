@@ -84,7 +84,7 @@ public class HopServerResource {
   @Produces( { MediaType.APPLICATION_JSON } )
   public List<NVPair> getConfigDetails() {
     HopServerConfig serverConfig = HopServerSingleton.getInstance().getPipelineMap().getHopServerConfig();
-    List<NVPair> list = new ArrayList<NVPair>();
+    List<NVPair> list = new ArrayList<>();
     list.add( new NVPair( "maxLogLines", "" + serverConfig.getMaxLogLines() ) );
     list.add( new NVPair( "maxLogLinesAge", "" + serverConfig.getMaxLogTimeoutMinutes() ) );
     list.add( new NVPair( "maxObjectsAge", "" + serverConfig.getObjectTimeoutMinutes() ) );
@@ -107,7 +107,7 @@ public class HopServerResource {
     List<HopServerObjectEntry> pipelineEntries =
       HopServerSingleton.getInstance().getPipelineMap().getPipelineObjects();
 
-    List<PipelineStatus> details = new ArrayList<PipelineStatus>();
+    List<PipelineStatus> details = new ArrayList<>();
 
     PipelineResource pipelineRes = new PipelineResource();
     for ( HopServerObjectEntry entry : pipelineEntries ) {
@@ -130,7 +130,7 @@ public class HopServerResource {
   public List<WorkflowStatus> getWorkflowsDetails() {
     List<HopServerObjectEntry> actions = HopServerSingleton.getInstance().getWorkflowMap().getWorkflowObjects();
 
-    List<WorkflowStatus> details = new ArrayList<WorkflowStatus>();
+    List<WorkflowStatus> details = new ArrayList<>();
 
     WorkflowResource jobRes = new WorkflowResource();
     for ( HopServerObjectEntry entry : actions ) {

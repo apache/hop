@@ -73,7 +73,7 @@ public class SortedMerge extends BaseTransform<SortedMergeMeta, SortedMergeData>
 
       // Read one row from all rowsets...
       //
-      data.sortedBuffer = new ArrayList<RowSetRow>();
+      data.sortedBuffer = new ArrayList<>();
       data.rowMeta = null;
 
       // PDI-1212:

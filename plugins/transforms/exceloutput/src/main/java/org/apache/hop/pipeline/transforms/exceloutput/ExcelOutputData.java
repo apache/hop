@@ -98,7 +98,7 @@ public class ExcelOutputData extends BaseTransformData implements ITransformData
   public ExcelOutputData() {
     super();
 
-    formats = new Hashtable<String, WritableCellFormat>();
+    formats = new Hashtable<>();
     oneFileOpened = false;
     file = null;
     realSheetname = null;

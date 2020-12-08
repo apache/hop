@@ -60,13 +60,13 @@ public class WebServiceMetaLoadSaveTest {
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldsIn",
-      new ListLoadSaveValidator<WebServiceField>( new WebServiceFieldLoadSaveValidator(), 5 ) );
+      new ListLoadSaveValidator<>( new WebServiceFieldLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "fieldsOut",
-      new ListLoadSaveValidator<WebServiceField>( new WebServiceFieldLoadSaveValidator(), 5 ) );
+      new ListLoadSaveValidator<>( new WebServiceFieldLoadSaveValidator(), 5 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );

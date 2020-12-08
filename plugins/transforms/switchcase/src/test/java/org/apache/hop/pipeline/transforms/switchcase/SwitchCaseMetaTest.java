@@ -68,10 +68,10 @@ public class SwitchCaseMetaTest {
     setterMap.put( "isContains", "setContains" );
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     this.loadSaveTester = new LoadSaveTester<>( SwitchCaseMeta.class,
       attributes,
@@ -103,7 +103,7 @@ public class SwitchCaseMetaTest {
 
     validatorFactory.registerValidator( validatorFactory.getName( SwitchCaseTarget.class ), targetValidator );
     validatorFactory.registerValidator( validatorFactory.getName( List.class, SwitchCaseTarget.class ),
-      new ListLoadSaveValidator<SwitchCaseTarget>( targetValidator ) );
+      new ListLoadSaveValidator<>( targetValidator ) );
   }
 
   @Test

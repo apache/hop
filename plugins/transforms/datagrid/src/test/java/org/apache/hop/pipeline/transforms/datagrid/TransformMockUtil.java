@@ -53,7 +53,7 @@ import static org.mockito.Mockito.when;
 public class TransformMockUtil {
 
   public static <T extends ITransformMeta, V extends BaseTransform> TransformMockHelper<T, ITransformData> getTransformMockHelper( Class<T> meta, String name ) {
-    TransformMockHelper<T, ITransformData> transformMockHelper = new TransformMockHelper<T, ITransformData>( name, meta, ITransformData.class );
+    TransformMockHelper<T, ITransformData> transformMockHelper = new TransformMockHelper<>( name, meta, ITransformData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn( transformMockHelper.iLogChannel );
     when( transformMockHelper.logChannelFactory.create( any() ) ).thenReturn( transformMockHelper.iLogChannel );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );

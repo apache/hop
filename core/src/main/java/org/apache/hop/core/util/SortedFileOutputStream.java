@@ -116,7 +116,7 @@ public class SortedFileOutputStream extends FileOutputStream {
     iPos[ 0 ] = 0;
     String sLine = nextLine( iPos );
 
-    Vector<String> lines = new Vector<String>();
+    Vector<String> lines = new Vector<>();
     while ( sLine != null ) {
       // Length 0 -> do nothing
       if ( sLine.length() == 0 ) {

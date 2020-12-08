@@ -69,13 +69,13 @@ public class SelectValuesMetaTest {
     selectField.setPrecision( 2 );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorTypeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
-    fieldLoadSaveValidatorTypeMap.put( SelectField[].class.getCanonicalName(), new ArrayLoadSaveValidator<SelectField>(
+      new HashMap<>();
+    fieldLoadSaveValidatorTypeMap.put( SelectField[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
       new SelectFieldLoadSaveValidator( selectField ), 2 ) );
 
     LoadSaveTester tester =
       new LoadSaveTester( SelectValuesMeta.class, attributes, new HashMap<>(),
-        new HashMap<>(), new HashMap<String, IFieldLoadSaveValidator<?>>(),
+        new HashMap<>(), new HashMap<>(),
         fieldLoadSaveValidatorTypeMap );
 
     tester.testSerialization();

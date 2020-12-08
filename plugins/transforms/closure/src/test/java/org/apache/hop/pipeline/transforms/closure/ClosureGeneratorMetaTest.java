@@ -44,7 +44,7 @@ public class ClosureGeneratorMetaTest {
     List<String> attributes =
       Arrays.asList( "rootIdZero", "parentIdFieldName", "childIdFieldName", "distanceFieldName" );
 
-    loadSaveTester = new LoadSaveTester<ClosureGeneratorMeta>( testMetaClass, attributes );
+    loadSaveTester = new LoadSaveTester<>( testMetaClass, attributes );
   }
 
   @Test

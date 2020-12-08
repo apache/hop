@@ -64,12 +64,12 @@ public class CalculatorMetaTest implements IInitializer<CalculatorMeta> {
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
     IFieldLoadSaveValidator<CalculatorMetaFunction[]> calculationMetaFunctionArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<CalculatorMetaFunction>( new CalculatorMetaFunctionLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new CalculatorMetaFunctionLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "Calculation", calculationMetaFunctionArrayLoadSaveValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester = new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(), getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }

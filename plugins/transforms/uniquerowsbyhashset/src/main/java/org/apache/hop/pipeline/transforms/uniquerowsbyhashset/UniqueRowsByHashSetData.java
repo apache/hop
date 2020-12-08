@@ -37,7 +37,7 @@ public class UniqueRowsByHashSetData extends BaseTransformData implements ITrans
   public String realErrorDescription;
   boolean sendDuplicateRows;
 
-  public HashSet<RowKey> seen = new HashSet<RowKey>();
+  public HashSet<RowKey> seen = new HashSet<>();
 
   public UniqueRowsByHashSetData() {
     super();

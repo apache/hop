@@ -33,7 +33,7 @@ public class LdapProtocolFactory {
   protected static final List<Class<? extends LdapProtocol>> protocols = initProtocols();
 
   private static List<Class<? extends LdapProtocol>> initProtocols() {
-    List<Class<? extends LdapProtocol>> protocols = new ArrayList<Class<? extends LdapProtocol>>();
+    List<Class<? extends LdapProtocol>> protocols = new ArrayList<>();
     protocols.add(LdapProtocol.class);
     protocols.add(LdapSslProtocol.class);
     protocols.add(LdapTlsProtocol.class);

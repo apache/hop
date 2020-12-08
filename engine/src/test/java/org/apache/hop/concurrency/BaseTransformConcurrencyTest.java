@@ -26,6 +26,7 @@ import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.IRowListener;
 import org.apache.hop.pipeline.transform.ITransformData;
@@ -39,6 +40,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class BaseTransformConcurrencyTest {
@@ -63,7 +65,7 @@ public class BaseTransformConcurrencyTest {
     when( pipelineMeta.findTransform( TRANSFORM_META ) ).thenReturn( transformMeta );
     when( transformMeta.getTargetTransformPartitioningMeta() ).thenReturn( mock( TransformPartitioningMeta.class ) );
 
-    baseTransform = new BaseTransform( transformMeta, null, null, 0, pipelineMeta, mock( Pipeline.class ) );
+    baseTransform = new BaseTransform( transformMeta, null, null, 0, pipelineMeta, spy( new LocalPipelineEngine() ) );
 
     AtomicBoolean condition = new AtomicBoolean( true );
 
@@ -100,7 +102,7 @@ public class BaseTransformConcurrencyTest {
     when( pipelineMeta.findTransform( TRANSFORM_META ) ).thenReturn( transformMeta );
     when( transformMeta.getTargetTransformPartitioningMeta() ).thenReturn( mock( TransformPartitioningMeta.class ) );
 
-    baseTransform = new BaseTransform( transformMeta, null, null, 0, pipelineMeta, mock( Pipeline.class ) );
+    baseTransform = new BaseTransform( transformMeta, null, null, 0, pipelineMeta, spy( new LocalPipelineEngine() ) );
 
     AtomicBoolean condition = new AtomicBoolean( true );
 

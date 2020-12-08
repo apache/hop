@@ -103,7 +103,7 @@ public class XsltTest extends TestCase {
   }
 
   public List<RowMetaAndData> createData( String fileName ) {
-    List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> list = new ArrayList<>();
 
     IRowMeta rm = createRowMetaInterface();
 
@@ -134,7 +134,7 @@ public class XsltTest extends TestCase {
    * @return list of metadata/data couples of how the result should look like.
    */
   public List<RowMetaAndData> createResultData1() {
-    List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> list = new ArrayList<>();
 
     IRowMeta rm = createResultRowMetaInterface();
 

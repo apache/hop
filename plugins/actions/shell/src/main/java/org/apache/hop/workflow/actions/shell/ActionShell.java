@@ -353,7 +353,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           }
         } else {
           // Just pass a single row
-          List<RowMetaAndData> newList = new ArrayList<RowMetaAndData>();
+          List<RowMetaAndData> newList = new ArrayList<>();
           newList.add( resultRow );
           cmdRows = newList;
         }

@@ -116,7 +116,7 @@ public class GoogleDriveFileObject extends AbstractFileObject {
       id = id == null ? "root" : id;
       String fileQuery = "'" + id + "' in parents and trashed=false";
       FileList files = driveService.files().list().setQ(fileQuery).execute();
-      List<String> fileNames = new ArrayList<String>();
+      List<String> fileNames = new ArrayList<>();
       for (File file : files.getFiles()) {
         fileNames.add(file.getName());
       }

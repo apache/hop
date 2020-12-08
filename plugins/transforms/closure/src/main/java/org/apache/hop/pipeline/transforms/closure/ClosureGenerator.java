@@ -93,7 +93,7 @@ public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, Closur
       // Writing the rows back...
       //
       for ( Object current : data.map.keySet() ) {
-        data.parents = new HashMap<Object, Long>();
+        data.parents = new HashMap<>();
 
         // add self as distance 0
         //
@@ -137,7 +137,7 @@ public class ClosureGenerator extends BaseTransform<ClosureGeneratorMeta, Closur
 
     if ( super.init() ) {
       data.reading = true;
-      data.map = new HashMap<Object, Object>();
+      data.map = new HashMap<>();
 
       data.topLevel = null;
       if ( meta.isRootIdZero() ) {

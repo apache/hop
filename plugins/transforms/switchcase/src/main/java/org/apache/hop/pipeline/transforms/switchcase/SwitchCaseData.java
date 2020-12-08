@@ -41,11 +41,11 @@ public class SwitchCaseData extends BaseTransformData implements ITransformData 
   public IRowMeta outputRowMeta;
   public KeyToRowSetMap outputMap;
   public IValueMeta valueMeta;
-  public final Set<IRowSet> nullRowSetSet = new HashSet<IRowSet>();
+  public final Set<IRowSet> nullRowSetSet = new HashSet<>();
   public int fieldIndex;
   public IValueMeta inputValueMeta;
   // we expect only one default set for now
-  public final Set<IRowSet> defaultRowSetSet = new HashSet<IRowSet>( 1, 1 );
+  public final Set<IRowSet> defaultRowSetSet = new HashSet<>( 1, 1 );
   public IValueMeta stringValueMeta;
 
   public SwitchCaseData() {

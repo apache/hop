@@ -68,7 +68,7 @@ public class PropertyOutputData extends BaseTransformData implements ITransformD
     indexOfFieldfilename = -1;
     file = null;
     previousFileName = "";
-    KeySet = new HashSet<String>();
+    KeySet = new HashSet<>();
     filename = null;
   }
 

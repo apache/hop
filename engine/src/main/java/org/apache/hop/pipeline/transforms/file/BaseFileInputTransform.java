@@ -236,7 +236,7 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
    * TODO: should we set charset for error files from content meta ? What about case for automatic charset ?
    */
   private void initErrorHandling() {
-    List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<IFileErrorHandler>( 2 );
+    List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<>( 2 );
     if ( meta.errorHandling.lineNumberFilesDestinationDirectory != null ) {
       dataErrorLineHandlers.add( new FileErrorHandlerContentLineNumber( getPipeline().getExecutionStartDate(),
         environmentSubstitute( meta.errorHandling.lineNumberFilesDestinationDirectory ),
@@ -265,7 +265,7 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
       IRowMeta prevInfoFields = rowSet.getRowMeta();
       if ( idx < 0 ) {
         if ( meta.inputFiles.passingThruFields ) {
-          data.passThruFields = new HashMap<String, Object[]>();
+          data.passThruFields = new HashMap<>();
           infoTransform = new IRowMeta[] { prevInfoFields };
           data.nrPassThruFields = prevInfoFields.size();
         }

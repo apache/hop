@@ -166,7 +166,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
       if (mongo_fields != null && XmlHandler.countNodes(mongo_fields, "mongo_field") > 0) {
         int nrfields = XmlHandler.countNodes(mongo_fields, "mongo_field");
 
-        m_fields = new ArrayList<MongoField>();
+        m_fields = new ArrayList<>();
         for (int i = 0; i < nrfields; i++) {
           Node fieldNode = XmlHandler.getSubNodeByNr(mongo_fields, "mongo_field", i);
 
@@ -185,7 +185,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
 
       String tags = XmlHandler.getTagValue(stepnode, "tag_sets");
       if (!StringUtils.isEmpty(tags)) {
-        setReadPrefTagSets(new ArrayList<String>());
+        setReadPrefTagSets( new ArrayList<>());
 
         String[] parts = tags.split("#@#");
         for (String p : parts) {

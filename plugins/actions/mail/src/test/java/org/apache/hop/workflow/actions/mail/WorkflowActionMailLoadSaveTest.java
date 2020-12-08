@@ -59,13 +59,13 @@ public class WorkflowActionMailLoadSaveTest extends WorkflowActionLoadSaveTestSu
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     validators.put( "fileType", new PrimitiveIntArrayLoadSaveValidator(
       new IntLoadSaveValidator( ResultFile.fileTypeCode.length ) ) );
 
     int entries = new Random().nextInt( 20 ) + 1;
-    validators.put( "embeddedimages", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
-    validators.put( "contentids", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), entries ) );
+    validators.put( "embeddedimages", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
+    validators.put( "contentids", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), entries ) );
     return validators;
   }
 

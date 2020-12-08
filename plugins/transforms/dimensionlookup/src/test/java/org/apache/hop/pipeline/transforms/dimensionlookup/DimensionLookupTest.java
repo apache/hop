@@ -27,6 +27,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.junit.Before;
@@ -80,7 +81,7 @@ public class DimensionLookupTest {
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     doReturn( transformMeta ).when( pipelineMeta ).findTransform( anyString() );
 
-    dimensionLookup = new DimensionLookup( transformMeta, dimensionLookupMeta, dimensionLookupData, 1, pipelineMeta, mock( Pipeline.class ) );
+    dimensionLookup = new DimensionLookup( transformMeta, dimensionLookupMeta, dimensionLookupData, 1, pipelineMeta, spy( new LocalPipelineEngine() ) );
     // dimensionLookup.setData( dimensionLookupData );
     // dimensionLookup.setMeta( dimensionLookupMeta );
     dimensionLookupSpy = spy( dimensionLookup );

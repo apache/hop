@@ -44,7 +44,7 @@ public class SchemaMapper {
         // do set up
         mapping = new int[info.length][];
         IRowMeta base = info[0].clone();
-        HashSet<String> fieldNames = new HashSet<String>();
+        HashSet<String> fieldNames = new HashSet<>();
         Collections.addAll(fieldNames, base.getFieldNames());
 
         // do merge

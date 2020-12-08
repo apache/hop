@@ -56,12 +56,12 @@ public class SingleThreadedPipelineExecutor {
     done = new boolean[ transforms.size() ];
     nrDone = 0;
 
-    transformInfoStreams = new ArrayList<List<IStream>>();
-    transformInfoRowSets = new ArrayList<List<IRowSet>>();
+    transformInfoStreams = new ArrayList<>();
+    transformInfoRowSets = new ArrayList<>();
     for ( TransformMetaDataCombi combi : transforms ) {
       List<IStream> infoStreams = combi.transformMeta.getTransform().getTransformIOMeta().getInfoStreams();
       transformInfoStreams.add( infoStreams );
-      List<IRowSet> infoRowSets = new ArrayList<IRowSet>();
+      List<IRowSet> infoRowSets = new ArrayList<>();
       for ( IStream infoStream : infoStreams ) {
         IRowSet infoRowSet = pipeline.findRowSet( infoStream.getTransformName(), 0, combi.transformName, 0 );
         if ( infoRowSet != null ) {

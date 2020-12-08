@@ -59,9 +59,9 @@ public class NormaliserMetaTest implements IInitializer<NormaliserMeta> {
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
-    attrValidatorMap.put( "normaliserFields", new ArrayLoadSaveValidator<NormaliserMeta.NormaliserField>( new NormaliserFieldLoadSaveValidator(), 5 ) );
+    attrValidatorMap.put( "normaliserFields", new ArrayLoadSaveValidator<>( new NormaliserFieldLoadSaveValidator(), 5 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =  new LoadSaveTester<>( testMetaClass, attributes, new ArrayList<>(), getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );
   }

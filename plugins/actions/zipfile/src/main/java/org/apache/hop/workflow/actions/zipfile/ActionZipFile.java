@@ -412,7 +412,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
             buff = new BufferedOutputStreamWithCloseDetection( dest );
             out = new ZipOutputStream( buff );
 
-            HashSet<String> fileSet = new HashSet<String>();
+            HashSet<String> fileSet = new HashSet<>();
 
             if ( renameOk ) {
               // User want to append files to existing Zip file

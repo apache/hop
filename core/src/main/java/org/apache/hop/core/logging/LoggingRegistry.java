@@ -49,8 +49,8 @@ public class LoggingRegistry {
   private final Object syncObject = new Object();
 
   private LoggingRegistry() {
-    this.map = new ConcurrentHashMap<String, ILoggingObject>();
-    this.childrenMap = new ConcurrentHashMap<String, List<String>>();
+    this.map = new ConcurrentHashMap<>();
+    this.childrenMap = new ConcurrentHashMap<>();
     this.fileWriterBuffers = new ConcurrentHashMap<>();
 
     this.lastModificationTime = new Date();
@@ -106,7 +106,7 @@ public class LoggingRegistry {
       loggingSource.setRegistrationDate( this.lastModificationTime );
 
       if ( ( this.maxSize > 0 ) && ( this.map.size() > this.maxSize ) ) {
-        List<ILoggingObject> all = new ArrayList<ILoggingObject>( this.map.values() );
+        List<ILoggingObject> all = new ArrayList<>( this.map.values() );
         Collections.sort( all, ( o1, o2 ) -> {
           if ( ( o1 == null ) && ( o2 != null ) ) {
             return -1;

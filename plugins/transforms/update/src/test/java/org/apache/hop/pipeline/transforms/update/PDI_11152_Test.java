@@ -55,7 +55,7 @@ public class PDI_11152_Test {
 
   @Before
   public void setUp() {
-    smh = new TransformMockHelper<UpdateMeta, UpdateData>( "Update", UpdateMeta.class, UpdateData.class );
+    smh = new TransformMockHelper<>( "Update", UpdateMeta.class, UpdateData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );

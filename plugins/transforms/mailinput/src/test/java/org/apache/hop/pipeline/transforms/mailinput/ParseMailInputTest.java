@@ -88,7 +88,7 @@ public class ParseMailInputTest {
   @BeforeClass
   public static void setup() {
     transformMockHelper =
-      new TransformMockHelper<MailInputMeta, ITransformData>(
+      new TransformMockHelper<>(
         "ABORT TEST", MailInputMeta.class, ITransformData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( transformMockHelper.iLogChannel );

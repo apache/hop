@@ -39,7 +39,7 @@ public class DefaultAuthenticationPerformerFactory implements IAuthenticationPer
       return new DefaultAuthenticationPerformer( authenticationProvider, authenticationConsumerFactory );
     } else if ( AuthenticationConsumerInvocationHandler.isCompatible( authenticationConsumerFactory.getConsumedType(),
       authenticationProvider ) ) {
-      return new ClassloaderBridgingAuthenticationPerformer<ReturnType, CreateArgType, ConsumedType>(
+      return new ClassloaderBridgingAuthenticationPerformer<>(
         authenticationProvider, authenticationConsumerFactory );
     }
     return null;

@@ -59,9 +59,9 @@ public class MergeJoinMetaTest {
     //SwitchCaseMeta bean-like attributes
     List<String> attributes = Arrays.asList( "joinType", "keyFields1", "keyFields2" );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "joinType", "getJoinType" );

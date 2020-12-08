@@ -58,17 +58,17 @@ public class UniqueRowsByHashSetMetaTest {
     setterMap.put( "name", "setCompareFields" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     //Arrays need to be consistent length
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
 
     fieldLoadSaveValidatorAttributeMap.put( "name", stringArrayLoadSaveValidator );
 
     LoadSaveTester loadSaveTester =
       new LoadSaveTester( UniqueRowsByHashSetMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
 
     loadSaveTester.testSerialization();
   }

@@ -60,7 +60,7 @@ public class NullIfTest {
 
   @Before
   public void setUp() {
-    smh = new TransformMockHelper<NullIfMeta, NullIfData>( "Field NullIf processor", NullIfMeta.class, NullIfData.class );
+    smh = new TransformMockHelper<>( "Field NullIf processor", NullIfMeta.class, NullIfData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );

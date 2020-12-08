@@ -56,7 +56,7 @@ public class PipelineDebugMeta {
 
   public PipelineDebugMeta( PipelineMeta pipelineMeta ) {
     this.pipelineMeta = pipelineMeta;
-    transformDebugMetaMap = new HashMap<TransformMeta, TransformDebugMeta>();
+    transformDebugMetaMap = new HashMap<>();
   }
 
   /**

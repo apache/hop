@@ -93,7 +93,7 @@ public class RowMetaTest {
   }
 
   private List<IValueMeta> generateVList( String[] names, int[] types ) throws HopPluginException {
-    List<IValueMeta> list = new ArrayList<IValueMeta>();
+    List<IValueMeta> list = new ArrayList<>();
     for ( int i = 0; i < names.length; i++ ) {
       IValueMeta vm = ValueMetaFactory.createValueMeta( names[ i ], types[ i ] );
       vm.setOrigin( "originTransform" );
@@ -420,7 +420,7 @@ public class RowMetaTest {
     rowMeta = new RowMeta();
 
     // create pre-existed rom meta list
-    List<IValueMeta> pre = new ArrayList<IValueMeta>( 100000 );
+    List<IValueMeta> pre = new ArrayList<>( 100000 );
     for ( int i = 0; i < 100000; i++ ) {
       IValueMeta vm =
         ValueMetaFactory.createValueMeta( UUID.randomUUID().toString(), IValueMeta.TYPE_STRING );
@@ -432,7 +432,7 @@ public class RowMetaTest {
     long start, stop, time1, time2;
     start = System.nanoTime();
     // this is when filling regular array like in prev implementation
-    List<IValueMeta> prev = new ArrayList<IValueMeta>();
+    List<IValueMeta> prev = new ArrayList<>();
     for ( IValueMeta item : pre ) {
       prev.add( item );
     }

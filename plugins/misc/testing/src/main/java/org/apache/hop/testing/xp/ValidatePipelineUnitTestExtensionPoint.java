@@ -77,7 +77,7 @@ public class ValidatePipelineUnitTestExtensionPoint implements IExtensionPoint<I
       //
       PipelineUnitTest unitTest = metadataProvider.getSerializer( PipelineUnitTest.class).load( unitTestName );
 
-      final List<UnitTestResult> results = new ArrayList<UnitTestResult>();
+      final List<UnitTestResult> results = new ArrayList<>();
       pipeline.getExtensionDataMap().put( DataSetConst.UNIT_TEST_RESULTS, results );
 
       // Validate execution results with what's in the data sets...

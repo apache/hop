@@ -1121,7 +1121,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
 
     // indexes
     int numNonEmpty = wMongoIndexes.nrNonEmpty();
-    List<MongoDbOutputMeta.MongoIndex> mongoIndexes = new ArrayList<MongoDbOutputMeta.MongoIndex>();
+    List<MongoDbOutputMeta.MongoIndex> mongoIndexes = new ArrayList<>();
     if (numNonEmpty > 0) {
       for (int i = 0; i < numNonEmpty; i++) {
         TableItem item = wMongoIndexes.getNonEmpty(i);
@@ -1147,7 +1147,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     int numNonEmpty = wMongoFields.nrNonEmpty();
     if (numNonEmpty > 0) {
       List<MongoDbOutputMeta.MongoField> mongoFields =
-          new ArrayList<MongoDbOutputMeta.MongoField>(numNonEmpty);
+        new ArrayList<>( numNonEmpty );
 
       for (int i = 0; i < numNonEmpty; i++) {
         TableItem item = wMongoFields.getNonEmpty(i);
@@ -1296,7 +1296,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
       try {
         MongoClientWrapper clientWrapper =
             MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
-        Set<String> collections = new HashSet<String>();
+        Set<String> collections = new HashSet<>();
         try {
           collections = clientWrapper.getCollectionsNames(dB);
         } finally {
@@ -1355,7 +1355,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
       try {
         MongoClientWrapper wrapper =
             MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
-        List<String> custom = new ArrayList<String>();
+        List<String> custom = new ArrayList<>();
         try {
           custom = wrapper.getLastErrorModes();
         } finally {
@@ -1407,7 +1407,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
       try {
         final MongoDbOutputMeta meta = new MongoDbOutputMeta();
         getInfo(meta);
-        List<String> dbNames = new ArrayList<String>();
+        List<String> dbNames = new ArrayList<>();
         MongoClientWrapper wrapper =
             MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
         try {

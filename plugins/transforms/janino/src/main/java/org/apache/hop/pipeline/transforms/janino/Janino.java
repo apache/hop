@@ -125,17 +125,17 @@ public class Janino extends BaseTransform<JaninoMeta, JaninoData> implements ITr
       //
       if ( data.expressionEvaluators == null ) {
         data.expressionEvaluators = new ExpressionEvaluator[ meta.getFormula().length ];
-        data.argumentIndexes = new ArrayList<List<Integer>>();
+        data.argumentIndexes = new ArrayList<>();
 
         for ( int i = 0; i < meta.getFormula().length; i++ ) {
-          List<Integer> argIndexes = new ArrayList<Integer>();
+          List<Integer> argIndexes = new ArrayList<>();
           data.argumentIndexes.add( argIndexes );
         }
 
         for ( int m = 0; m < meta.getFormula().length; m++ ) {
           List<Integer> argIndexes = data.argumentIndexes.get( m );
           List<String> parameterNames = new ArrayList<>();
-          List<Class<?>> parameterTypes = new ArrayList<Class<?>>();
+          List<Class<?>> parameterTypes = new ArrayList<>();
 
           for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {
 

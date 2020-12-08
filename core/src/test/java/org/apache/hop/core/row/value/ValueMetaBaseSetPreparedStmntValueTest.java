@@ -67,7 +67,7 @@ public class ValueMetaBaseSetPreparedStmntValueTest {
     IValueMeta r1 = new ValueMetaString( "value" );
     r1.setDateFormatLocale( null );
     IRowMeta row = new RowMeta();
-    row.setValueMetaList( new ArrayList<IValueMeta>( Arrays.asList( r1 ) ) );
+    row.setValueMetaList( new ArrayList<>( Arrays.asList( r1 ) ) );
 
     row.getMetaXml();
   }

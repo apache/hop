@@ -123,7 +123,7 @@ public class MongoField implements Comparable<MongoField> {
     String fieldPath = MongoDbInputData.cleansePath(this.fieldPath);
 
     String[] temp = fieldPath.split("\\.");
-    pathParts = new ArrayList<String>();
+    pathParts = new ArrayList<>();
     for (String part : temp) {
       pathParts.add(part);
     }
@@ -137,7 +137,7 @@ public class MongoField implements Comparable<MongoField> {
       pathParts.set(0, r);
     }
 
-    tempParts = new ArrayList<String>();
+    tempParts = new ArrayList<>();
     tempValueMeta = ValueMetaFactory.createValueMeta(ValueMetaFactory.getIdForValueMeta(hopType));
     this.outputIndex = outputIndex;
   }

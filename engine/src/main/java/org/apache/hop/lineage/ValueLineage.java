@@ -49,7 +49,7 @@ public class ValueLineage {
   public ValueLineage( PipelineMeta pipelineMeta, IValueMeta valueMeta ) {
     this.pipelineMeta = pipelineMeta;
     this.valueMeta = valueMeta;
-    this.sourceTransforms = new ArrayList<TransformMeta>();
+    this.sourceTransforms = new ArrayList<>();
   }
 
   /**

@@ -201,7 +201,7 @@ public class AnalyticQuery extends BaseTransform<AnalyticQueryMeta, AnalyticQuer
   }
 
   public void resetGroup() {
-    data.data = new ConcurrentLinkedQueue<Object[]>();
+    data.data = new ConcurrentLinkedQueue<>();
     data.queue_cursor = 0;
   }
 

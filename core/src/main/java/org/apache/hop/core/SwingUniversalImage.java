@@ -34,7 +34,7 @@ import java.util.TreeMap;
  */
 public abstract class SwingUniversalImage {
 
-  private Map<String, BufferedImage> cache = new TreeMap<String, BufferedImage>();
+  private Map<String, BufferedImage> cache = new TreeMap<>();
 
   public abstract boolean isBitmap();
 

@@ -54,13 +54,13 @@ public class WorkflowActionEvalFilesMetricsLoadSaveTest extends WorkflowActionLo
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     int sourceFileCount = new Random().nextInt( 50 ) + 1;
-    validators.put( "sourceFileFolder", new ArrayLoadSaveValidator<String>(
+    validators.put( "sourceFileFolder", new ArrayLoadSaveValidator<>(
       new StringLoadSaveValidator(), sourceFileCount ) );
-    validators.put( "sourceWildcard", new ArrayLoadSaveValidator<String>(
+    validators.put( "sourceWildcard", new ArrayLoadSaveValidator<>(
       new StringLoadSaveValidator(), sourceFileCount ) );
-    validators.put( "sourceIncludeSubfolders", new ArrayLoadSaveValidator<String>(
+    validators.put( "sourceIncludeSubfolders", new ArrayLoadSaveValidator<>(
       new StringLoadSaveValidator(), sourceFileCount ) );
     validators.put( "successConditionType",
       new IntLoadSaveValidator( ActionEvalFilesMetrics.successNumberConditionCode.length ) );

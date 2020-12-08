@@ -41,7 +41,7 @@ public class ObjectValidator<T> implements IFieldLoadSaveValidator<T> {
   public ObjectValidator( IFieldLoadSaveValidatorFactory fieldLoadSaveValidatorFactory, Class<T> clazz,
                           List<String> fieldNames, Map<String, String> getterMap, Map<String, String> setterMap ) {
     this.fieldLoadSaveValidatorFactory = fieldLoadSaveValidatorFactory;
-    manipulator = new JavaBeanManipulator<T>( clazz, fieldNames, getterMap, setterMap );
+    manipulator = new JavaBeanManipulator<>( clazz, fieldNames, getterMap, setterMap );
     this.clazz = clazz;
     this.fieldNames = new ArrayList<>( fieldNames );
   }

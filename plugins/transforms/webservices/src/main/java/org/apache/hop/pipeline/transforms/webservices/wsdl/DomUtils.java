@@ -68,7 +68,7 @@ public final class DomUtils {
    * @return child elements
    */
   protected static List<Element> getChildElementsByName( Element parent, String localName ) {
-    List<Element> elements = new ArrayList<Element>();
+    List<Element> elements = new ArrayList<>();
 
     NodeList children = parent.getChildNodes();
 

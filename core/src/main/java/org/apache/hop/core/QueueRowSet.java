@@ -37,7 +37,7 @@ public class QueueRowSet extends BaseRowSet implements Comparable<IRowSet>, IRow
   private LinkedList<Object[]> buffer;
 
   public QueueRowSet() {
-    buffer = new LinkedList<Object[]>();
+    buffer = new LinkedList<>();
   }
 
   @Override

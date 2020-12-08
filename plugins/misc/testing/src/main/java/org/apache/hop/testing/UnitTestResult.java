@@ -118,7 +118,7 @@ public class UnitTestResult {
   }
 
   public static final List<Object[]> getRowData( List<UnitTestResult> results ) {
-    List<Object[]> rows = new ArrayList<Object[]>();
+    List<Object[]> rows = new ArrayList<>();
     IRowMeta rowMeta = getRowMeta();
     for ( UnitTestResult result : results ) {
       int index = 0;

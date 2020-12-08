@@ -55,8 +55,8 @@ public class AddSequenceMetaTest {
     getterMap.put( "useDatabase", "isDatabaseUsed" );
     getterMap.put( "useCounter", "isCounterUsed" );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    Map<String, IFieldLoadSaveValidator<?>> fieldValidators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidators = new HashMap<>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldValidators = new HashMap<>();
 
     LoadSaveTester loadSaveTester = new LoadSaveTester( AddSequenceMeta.class, attributes, getterMap, setterMap, fieldValidators, typeValidators );
     loadSaveTester.testSerialization();

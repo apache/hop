@@ -48,7 +48,7 @@ public class ColumnExistsMetaTest {
       "dynamicTablenameField", "dynamicColumnnameField", "resultFieldName" );
 
     LoadSaveTester<ColumnExistsMeta> loadSaveTester =
-      new LoadSaveTester<ColumnExistsMeta>( ColumnExistsMeta.class, attributes );
+      new LoadSaveTester<>( ColumnExistsMeta.class, attributes );
 
     loadSaveTester.testSerialization();
   }

@@ -58,7 +58,7 @@ public class SyslogDefs {
     "EMERGENCY", "ALERT", "CRITICAL", "ERROR", "WARNING", "NOTICE", "INFO", "DEBUG", };
 
   static {
-    facHash = new Hashtable<String, Integer>( 18 );
+    facHash = new Hashtable<>( 18 );
     facHash.put( "KERNEL", SyslogConstants.FACILITY_KERN );
     facHash.put( "USER", SyslogConstants.FACILITY_USER );
     facHash.put( "MAIL", SyslogConstants.FACILITY_MAIL );
@@ -78,7 +78,7 @@ public class SyslogDefs {
     facHash.put( "LOCAL6", SyslogConstants.FACILITY_LOCAL6 );
     facHash.put( "LOCAL7", SyslogConstants.FACILITY_LOCAL7 );
 
-    priHash = new Hashtable<String, Integer>( 8 );
+    priHash = new Hashtable<>( 8 );
     priHash.put( "EMERGENCY", SyslogConstants.LEVEL_EMERGENCY );
     priHash.put( "ALERT", SyslogConstants.LEVEL_ALERT );
     priHash.put( "CRITICAL", SyslogConstants.LEVEL_CRITICAL );

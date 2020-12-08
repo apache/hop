@@ -82,7 +82,7 @@ public class YamlReader {
     this.filename = null;
     this.string = null;
     this.file = null;
-    this.documents = new ArrayList<Object>();
+    this.documents = new ArrayList<>();
     this.useMap = true;
     this.dataList = null;
     this.yaml = new Yaml();

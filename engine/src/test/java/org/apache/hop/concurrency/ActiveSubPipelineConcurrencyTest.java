@@ -85,7 +85,7 @@ public class ActiveSubPipelineConcurrencyTest {
   }
 
   private List<Creator> generateCreators( IPipelineEngine<PipelineMeta> pipeline, AtomicBoolean condition ) {
-    List<Creator> creators = new ArrayList<Creator>();
+    List<Creator> creators = new ArrayList<>();
     for ( int i = 0; i < NUMBER_OF_CREATES; i++ ) {
       creators.add( new Creator( pipeline, condition ) );
     }

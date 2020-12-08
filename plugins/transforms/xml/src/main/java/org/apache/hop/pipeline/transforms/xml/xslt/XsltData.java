@@ -69,7 +69,7 @@ public class XsltData extends BaseTransformData implements ITransformData {
     fieldposition = -1;
     fielxslfiledposition = -1;
     xslfilename = null;
-    transformers = new HashMap<String, Transformer>();
+    transformers = new HashMap<>();
     useParameters = false;
     nrParams = 0;
     setOutputProperties = false;

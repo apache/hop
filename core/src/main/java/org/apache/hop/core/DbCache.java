@@ -109,7 +109,7 @@ public class DbCache {
    */
   public void clear( String dbname ) {
     if ( dbname == null ) {
-      cache = new Hashtable<DbCacheEntry, IRowMeta>();
+      cache = new Hashtable<>();
       setActive();
     } else {
       Enumeration<DbCacheEntry> keys = cache.keys();

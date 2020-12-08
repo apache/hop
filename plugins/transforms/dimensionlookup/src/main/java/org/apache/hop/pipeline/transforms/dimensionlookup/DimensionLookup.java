@@ -121,7 +121,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       // Get the fields that need conversion to normal storage...
       // Modify the storage type of the input data...
       //
-      data.lazyList = new ArrayList<Integer>();
+      data.lazyList = new ArrayList<>();
       for ( int i = 0; i < data.inputRowMeta.size(); i++ ) {
         IValueMeta valueMeta = data.inputRowMeta.getValueMeta( i );
         if ( valueMeta.isStorageBinaryString() ) {
@@ -303,7 +303,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       // Also see what indexes to take to populate the lookup row...
       // We only ever compare indexes and the lookup date in the cache, the rest is not needed...
       //
-      data.preloadIndexes = new ArrayList<Integer>();
+      data.preloadIndexes = new ArrayList<>();
       for ( int i = 0; i < meta.getKeyStream().length; i++ ) {
         int index = data.inputRowMeta.indexOfValue( meta.getKeyStream()[ i ] );
         if ( index < 0 ) {
@@ -1525,7 +1525,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       //
       List<byte[]> keys = data.cache.getKeys();
       int sizeBefore = keys.size();
-      List<Long> samples = new ArrayList<Long>();
+      List<Long> samples = new ArrayList<>();
 
       // Take 10 sample technical keys....
       int transformsize = keys.size() / 5;

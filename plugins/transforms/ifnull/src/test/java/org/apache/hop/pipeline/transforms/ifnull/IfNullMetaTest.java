@@ -76,8 +76,8 @@ public class IfNullMetaTest {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 3 );
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "replaceValue", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "typeName", stringArrayLoadSaveValidator );
@@ -85,7 +85,7 @@ public class IfNullMetaTest {
     attrValidatorMap.put( "typereplaceMask", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "replaceMask", stringArrayLoadSaveValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
     typeValidatorMap.put( boolean[].class.getCanonicalName(), new PrimitiveBooleanArrayLoadSaveValidator(
       new BooleanLoadSaveValidator(), 3 ) );
 
@@ -94,7 +94,7 @@ public class IfNullMetaTest {
     field.setReplaceValue( "replaceValue" );
     field.setReplaceMask( "replaceMask" );
     field.setEmptyString( true );
-    typeValidatorMap.put( Fields[].class.getCanonicalName(), new ArrayLoadSaveValidator<Fields>(
+    typeValidatorMap.put( Fields[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
       new FieldsLoadSaveValidator( field ), 3 ) );
 
     ValueTypes type = new ValueTypes();
@@ -102,7 +102,7 @@ public class IfNullMetaTest {
     type.setTypereplaceValue( "typereplaceValue" );
     type.setTypereplaceMask( "typereplaceMask" );
     type.setTypeEmptyString( true );
-    typeValidatorMap.put( ValueTypes[].class.getCanonicalName(), new ArrayLoadSaveValidator<ValueTypes>(
+    typeValidatorMap.put( ValueTypes[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
       new ValueTypesLoadSaveValidator( type ), 3 ) );
 
     loadSaveTester =

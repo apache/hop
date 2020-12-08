@@ -240,7 +240,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
    * @throws HopException
    */
   private void getFilenames() throws HopException {
-    List<String> filenames = new ArrayList<String>();
+    List<String> filenames = new ArrayList<>();
     int index = -1;
 
     Object[] row = getRow();
@@ -253,7 +253,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       // try using this value as a path if not found in incoming hops
       data.filenames = new String[] { filenameValue };
     } else {
-      data.inputDataRows = new HashMap<String, Object[]>();
+      data.inputDataRows = new HashMap<>();
       while ( row != null ) {
 
         String filename = getInputRowMeta().getString( row, index );

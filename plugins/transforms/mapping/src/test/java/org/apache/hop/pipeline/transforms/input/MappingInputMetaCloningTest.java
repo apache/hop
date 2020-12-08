@@ -106,7 +106,7 @@ public class MappingInputMetaCloningTest {
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
     typeValidatorMap.put( int[].class.getCanonicalName(),
       new PrimitiveIntArrayLoadSaveValidator( new NonZeroIntLoadSaveValidator( 6 ), 5 ) );
 

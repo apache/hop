@@ -36,57 +36,57 @@ public class KeyValueFactory<T> {
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<String> STRING = new KeyValueFactory<String>( "" );
+  public static final KeyValueFactory<String> STRING = new KeyValueFactory<>( "" );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Integer> INTEGER = new KeyValueFactory<Integer>( 0 );
+  public static final KeyValueFactory<Integer> INTEGER = new KeyValueFactory<>( 0 );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Integer> INTEGER_ONE = new KeyValueFactory<Integer>( 1 );
+  public static final KeyValueFactory<Integer> INTEGER_ONE = new KeyValueFactory<>( 1 );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Boolean> BOOLEAN = new KeyValueFactory<Boolean>( Boolean.FALSE );
+  public static final KeyValueFactory<Boolean> BOOLEAN = new KeyValueFactory<>( Boolean.FALSE );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Boolean> BOOLEAN_TRUE = new KeyValueFactory<Boolean>( Boolean.TRUE );
+  public static final KeyValueFactory<Boolean> BOOLEAN_TRUE = new KeyValueFactory<>( Boolean.TRUE );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Float> FLOAT = new KeyValueFactory<Float>( 0.0f );
+  public static final KeyValueFactory<Float> FLOAT = new KeyValueFactory<>( 0.0f );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Float> FLOAT_ONE = new KeyValueFactory<Float>( 1.0f );
+  public static final KeyValueFactory<Float> FLOAT_ONE = new KeyValueFactory<>( 1.0f );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Double> DOUBLE = new KeyValueFactory<Double>( 0.0 );
+  public static final KeyValueFactory<Double> DOUBLE = new KeyValueFactory<>( 0.0 );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Double> DOUBLE_ONE = new KeyValueFactory<Double>( 1.0 );
+  public static final KeyValueFactory<Double> DOUBLE_ONE = new KeyValueFactory<>( 1.0 );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Long> LONG = new KeyValueFactory<Long>( 0L );
+  public static final KeyValueFactory<Long> LONG = new KeyValueFactory<>( 0L );
 
   /**
    * Default instance for ...
    */
-  public static final KeyValueFactory<Long> LONG_ONE = new KeyValueFactory<Long>( 1L );
+  public static final KeyValueFactory<Long> LONG_ONE = new KeyValueFactory<>( 1L );
 
   private final T defaultValue;
 
@@ -112,7 +112,7 @@ public class KeyValueFactory<T> {
    * @throws IllegalArgumentException if key is blank.
    */
   public KeyValue<T> create( final String key ) throws IllegalArgumentException {
-    return new KeyValue<T>( key, this.defaultValue );
+    return new KeyValue<>( key, this.defaultValue );
   }
 
   /**
@@ -121,7 +121,7 @@ public class KeyValueFactory<T> {
    * @throws IllegalArgumentException if one key is blank.
    */
   public List<KeyValue<T>> createAll( final String... keys ) throws IllegalArgumentException {
-    final List<KeyValue<T>> instances = new ArrayList<KeyValue<T>>();
+    final List<KeyValue<T>> instances = new ArrayList<>();
     for ( String key : keys ) {
       instances.add( create( key ) );
     }

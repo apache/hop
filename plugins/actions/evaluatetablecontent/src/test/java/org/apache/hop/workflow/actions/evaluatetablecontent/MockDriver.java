@@ -45,7 +45,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class MockDriver implements Driver {
-  private static final List<MockDriver> drivers = new ArrayList<MockDriver>();
+  private static final List<MockDriver> drivers = new ArrayList<>();
 
   public static synchronized void registerInstance() throws SQLException {
     MockDriver driver = new MockDriver();

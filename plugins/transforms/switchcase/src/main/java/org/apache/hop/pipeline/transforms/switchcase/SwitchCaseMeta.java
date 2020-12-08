@@ -133,7 +133,7 @@ public class SwitchCaseMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   public void allocate() {
-    caseTargets = new ArrayList<SwitchCaseTarget>();
+    caseTargets = new ArrayList<>();
   }
 
   public Object clone() {
@@ -424,7 +424,7 @@ public class SwitchCaseMeta extends BaseTransformMeta implements ITransformMeta<
     .getString( PKG, "SwitchCaseMeta.TargetStream.NewCaseTarget.Description" ), StreamIcon.TARGET, null );
 
   public List<IStream> getOptionalStreams() {
-    List<IStream> list = new ArrayList<IStream>();
+    List<IStream> list = new ArrayList<>();
 
     if ( getDefaultTargetTransform() == null ) {
       list.add( newDefaultStream );

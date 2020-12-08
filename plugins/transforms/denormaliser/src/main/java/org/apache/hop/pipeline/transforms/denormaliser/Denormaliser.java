@@ -65,7 +65,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;
 
-  private Map<String, IValueMeta> conversionMetaCache = new HashMap<String, IValueMeta>();
+  private Map<String, IValueMeta> conversionMetaCache = new HashMap<>();
 
   public Denormaliser( TransformMeta transformMeta, DenormaliserMeta meta, DenormaliserData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
@@ -139,7 +139,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
       return false;
     }
 
-    Map<Integer, Integer> subjects = new Hashtable<Integer, Integer>();
+    Map<Integer, Integer> subjects = new Hashtable<>();
     data.fieldNameIndex = new int[ meta.getDenormaliserTargetField().length ];
     for ( int i = 0; i < meta.getDenormaliserTargetField().length; i++ ) {
       DenormaliserTargetField field = meta.getDenormaliserTargetField()[ i ];
@@ -168,7 +168,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
       String keyValue = environmentSubstitute( field.getKeyValue() );
       List<Integer> indexes = data.keyValue.get( keyValue );
       if ( indexes == null ) {
-        indexes = new ArrayList<Integer>( 2 );
+        indexes = new ArrayList<>( 2 );
       }
       indexes.add( Integer.valueOf( i ) ); // Add the index to the list...
       data.keyValue.put( keyValue, indexes ); // store the list
@@ -188,7 +188,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
       }
     }
 
-    List<Integer> removeList = new ArrayList<Integer>();
+    List<Integer> removeList = new ArrayList<>();
     removeList.add( Integer.valueOf( data.keyFieldNr ) );
     for ( int i = 0; i < data.fieldNrs.length; i++ ) {
       removeList.add( data.fieldNrs[ i ] );

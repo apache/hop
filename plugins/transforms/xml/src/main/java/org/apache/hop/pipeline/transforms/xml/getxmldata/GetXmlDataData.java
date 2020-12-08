@@ -75,8 +75,8 @@ public class GetXmlDataData extends BaseTransformData implements ITransformData 
   public List<Node> an;
   public Object[] readrow;
   public int totalpreviousfields;
-  public Map<String, String> NAMESPACE = new HashMap<String, String>();
-  public List<String> NSPath = new ArrayList<String>();
+  public Map<String, String> NAMESPACE = new HashMap<>();
+  public List<String> NSPath = new ArrayList<>();
 
   public int nrReadRow;
 

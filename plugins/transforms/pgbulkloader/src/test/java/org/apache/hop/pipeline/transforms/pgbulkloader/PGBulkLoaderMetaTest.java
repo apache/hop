@@ -103,17 +103,17 @@ public class PGBulkLoaderMetaTest {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
     IFieldLoadSaveValidator<String[]> datemaskArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new DateMaskLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new DateMaskLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldTable", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "dateMask", datemaskArrayLoadSaveValidator );
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
     // typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 1 ) );
 
     loadSaveTester = new LoadSaveTester( testMetaClass, attributes, getterMap, setterMap, attrValidatorMap, typeValidatorMap );

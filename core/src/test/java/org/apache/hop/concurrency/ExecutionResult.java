@@ -31,11 +31,11 @@ import java.util.concurrent.Future;
 class ExecutionResult<T> {
   static <T> ExecutionResult<T> from( Future<? extends T> future ) {
     try {
-      return new ExecutionResult<T>( future.get(), null );
+      return new ExecutionResult<>( future.get(), null );
     } catch ( InterruptedException e ) {
       throw new IllegalArgumentException( e );
     } catch ( ExecutionException e ) {
-      return new ExecutionResult<T>( null, e.getCause() );
+      return new ExecutionResult<>( null, e.getCause() );
     }
   }
 

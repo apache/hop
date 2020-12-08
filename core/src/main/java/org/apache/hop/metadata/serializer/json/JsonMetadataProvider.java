@@ -80,7 +80,7 @@ public class JsonMetadataProvider extends BaseMetadataProvider implements IHopMe
       }
     }
 
-    return new JsonMetadataSerializer<T>( this, serializerBaseFolderName, managedClass, variables, hopMetadata.name() );
+    return new JsonMetadataSerializer<>( this, serializerBaseFolderName, managedClass, variables, hopMetadata.name() );
   }
 
   /**

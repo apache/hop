@@ -80,11 +80,11 @@ public class RestMetaTest {
         "responseHeaderFieldName" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     // Arrays need to be consistent length
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
     fieldLoadSaveValidatorAttributeMap.put( "headerField", stringArrayLoadSaveValidator );
     fieldLoadSaveValidatorAttributeMap.put( "headerName", stringArrayLoadSaveValidator );
     fieldLoadSaveValidatorAttributeMap.put( "parameterField", stringArrayLoadSaveValidator );
@@ -93,9 +93,9 @@ public class RestMetaTest {
     fieldLoadSaveValidatorAttributeMap.put( "matrixParameterName", stringArrayLoadSaveValidator );
 
     LoadSaveTester<RestMeta> loadSaveTester =
-      new LoadSaveTester<RestMeta>( RestMeta.class, attributes, new HashMap<>(),
+      new LoadSaveTester<>( RestMeta.class, attributes, new HashMap<>(),
         new HashMap<>(), fieldLoadSaveValidatorAttributeMap,
-        new HashMap<String, IFieldLoadSaveValidator<?>>() );
+        new HashMap<>() );
 
     loadSaveTester.testSerialization();
   }
@@ -103,7 +103,7 @@ public class RestMetaTest {
   @Test
   public void testTransformChecks() {
     RestMeta meta = new RestMeta();
-    List<ICheckResult> remarks = new ArrayList<ICheckResult>();
+    List<ICheckResult> remarks = new ArrayList<>();
     PipelineMeta pipelineMeta = new PipelineMeta();
     TransformMeta transform = new TransformMeta();
     IRowMeta prev = new RowMeta();

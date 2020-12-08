@@ -489,7 +489,7 @@ public class LdapConnection {
         // Keep the old dn as attribute
         getInitialContext().removeFromEnvironment("java.naming.ldap.deleteRDN");
       }
-      Map<String, Attributes> childs = new java.util.HashMap<String, Attributes>();
+      Map<String, Attributes> childs = new java.util.HashMap<>();
       List<String> paths = new ArrayList<>();
 
       getPaths(oldDn, childs, paths);

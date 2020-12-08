@@ -102,7 +102,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
           BaseMessages.getString(PKG, "MongoNoAuthWrapper.Message.Error.EmptyHostsString"));
     }
 
-    List<ServerAddress> serverList = new ArrayList<ServerAddress>();
+    List<ServerAddress> serverList = new ArrayList<>();
 
     String[] parts = hostsPorts.trim().split(",");
     for (String part : parts) {
@@ -201,7 +201,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
    * @throws MongoDbException if a problem occurs
    */
   public List<String> getLastErrorModes() throws MongoDbException {
-    List<String> customLastErrorModes = new ArrayList<String>();
+    List<String> customLastErrorModes = new ArrayList<>();
 
     DB local = getDb(LOCAL_DB);
     if (local != null) {
@@ -262,7 +262,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
       }
 
       List<DBObject> collInfo = coll.getIndexInfo();
-      List<String> result = new ArrayList<String>();
+      List<String> result = new ArrayList<>();
       if (collInfo == null || collInfo.size() == 0) {
         throw new MongoDbException(
             BaseMessages.getString(
@@ -357,7 +357,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
   }
 
   protected List<String> setupAllTags(BasicDBList members) {
-    HashSet<String> tempTags = new HashSet<String>();
+    HashSet<String> tempTags = new HashSet<>();
 
     if (members != null && members.size() > 0) {
       for (Object member : members) {
@@ -376,7 +376,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
       }
     }
 
-    return new ArrayList<String>(tempTags);
+    return new ArrayList<>( tempTags );
   }
 
   protected static String quote(String string) {
@@ -404,7 +404,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
   public List<String> getReplicaSetMembersThatSatisfyTagSets(List<DBObject> tagSets)
       throws MongoDbException {
     try {
-      List<String> result = new ArrayList<String>();
+      List<String> result = new ArrayList<>();
       for (DBObject object :
           checkForReplicaSetMembersThatSatisfyTagSets(tagSets, getRepSetMemberRecords())) {
         result.add(object.toString());
@@ -424,7 +424,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
 
   protected List<DBObject> checkForReplicaSetMembersThatSatisfyTagSets(
       List<DBObject> tagSets, BasicDBList members) {
-    List<DBObject> satisfy = new ArrayList<DBObject>();
+    List<DBObject> satisfy = new ArrayList<>();
     if (members != null && members.size() > 0) {
       for (Object m : members) {
         if (m != null) {
@@ -486,7 +486,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
   @Override
   public List<MongoCredential> getCredentialList() {
     // empty cred list
-    return new ArrayList<MongoCredential>();
+    return new ArrayList<>();
   }
 
   protected MongoCollectionWrapper wrap(DBCollection collection) {

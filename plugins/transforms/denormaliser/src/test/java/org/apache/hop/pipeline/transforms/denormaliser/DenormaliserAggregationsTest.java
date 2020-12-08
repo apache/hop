@@ -58,7 +58,7 @@ public class DenormaliserAggregationsTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
-      new TransformMockHelper<DenormaliserMeta, DenormaliserData>( "Denormaliser", DenormaliserMeta.class,
+      new TransformMockHelper<>( "Denormaliser", DenormaliserMeta.class,
         DenormaliserData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       mockHelper.iLogChannel );
@@ -146,15 +146,15 @@ public class DenormaliserAggregationsTest {
 
     // create rmi for one string and 2 integers
     IRowMeta rmi = new RowMeta();
-    List<IValueMeta> list = new ArrayList<IValueMeta>();
+    List<IValueMeta> list = new ArrayList<>();
     list.add( new ValueMetaString( "a" ) );
     list.add( new ValueMetaInteger( "b" ) );
     list.add( new ValueMetaInteger( "d" ) );
     rmi.setValueMetaList( list );
 
     // denormalizer key field will be String 'Junit'
-    data.keyValue = new HashMap<String, List<Integer>>();
-    List<Integer> listInt = new ArrayList<Integer>();
+    data.keyValue = new HashMap<>();
+    List<Integer> listInt = new ArrayList<>();
     listInt.add( 0 );
     data.keyValue.put( JUNIT, listInt );
 

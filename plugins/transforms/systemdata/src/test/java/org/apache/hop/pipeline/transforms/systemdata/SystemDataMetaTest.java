@@ -122,16 +122,16 @@ public class SystemDataMetaTest implements IInitializer<SystemDataMeta> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
     IFieldLoadSaveValidator<SystemDataTypes[]> sdtArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<SystemDataTypes>( new SystemDataTypesLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new SystemDataTypesLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldType", sdtArrayLoadSaveValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

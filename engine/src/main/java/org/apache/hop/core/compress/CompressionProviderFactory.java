@@ -63,7 +63,7 @@ public class CompressionProviderFactory implements ICompressionProviderFactory {
 
   @Override
   public Collection<ICompressionProvider> getCompressionProviders() {
-    Collection<ICompressionProvider> providerClasses = new ArrayList<ICompressionProvider>();
+    Collection<ICompressionProvider> providerClasses = new ArrayList<>();
 
     List<IPlugin> providers = getPlugins();
     if ( providers != null ) {

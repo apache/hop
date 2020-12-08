@@ -45,7 +45,7 @@ public class RegexEvalUnitTest {
   @Before
   public void setup() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<RegexEvalMeta, RegexEvalData>(
+      new TransformMockHelper<>(
         "REGEX EVAL TEST", RegexEvalMeta.class, RegexEvalData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( transformMockHelper.iLogChannel );

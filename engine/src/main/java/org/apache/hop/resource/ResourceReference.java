@@ -43,7 +43,7 @@ public class ResourceReference {
 
   public ResourceReference( IResourceHolder resourceReferenceHolder ) {
     this.resourceReferenceHolder = resourceReferenceHolder;
-    this.entries = new ArrayList<ResourceEntry>();
+    this.entries = new ArrayList<>();
   }
 
   /**

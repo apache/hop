@@ -47,7 +47,7 @@ public class SimpleTimestampFormatTest {
 
   private static Locale formatLocale;
   private Set<Locale> locales =
-    new HashSet<Locale>( Arrays.asList( Locale.US, Locale.GERMANY, Locale.JAPANESE, Locale.CHINESE ) );
+    new HashSet<>( Arrays.asList( Locale.US, Locale.GERMANY, Locale.JAPANESE, Locale.CHINESE ) );
   private ResourceBundle tdb;
 
   private static String stringNinePrecision = "2014-03-15 15:30:45.123456789";

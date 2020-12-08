@@ -46,8 +46,8 @@ public class MetricsRegistry {
   }
 
   private MetricsRegistry() {
-    snapshotMaps = new ConcurrentHashMap<String, Map<String, IMetricsSnapshot>>();
-    snapshotLists = new ConcurrentHashMap<String, Queue<IMetricsSnapshot>>();
+    snapshotMaps = new ConcurrentHashMap<>();
+    snapshotLists = new ConcurrentHashMap<>();
   }
 
   public void addSnapshot( ILogChannel logChannel, IMetricsSnapshot snapshot ) {
@@ -90,7 +90,7 @@ public class MetricsRegistry {
   public Queue<IMetricsSnapshot> getSnapshotList( String logChannelId ) {
     Queue<IMetricsSnapshot> list = snapshotLists.get( logChannelId );
     if ( list == null ) {
-      list = new ConcurrentLinkedQueue<IMetricsSnapshot>();
+      list = new ConcurrentLinkedQueue<>();
       snapshotLists.put( logChannelId, list );
     }
     return list;
@@ -106,7 +106,7 @@ public class MetricsRegistry {
   public Map<String, IMetricsSnapshot> getSnapshotMap( String logChannelId ) {
     Map<String, IMetricsSnapshot> map = snapshotMaps.get( logChannelId );
     if ( map == null ) {
-      map = new ConcurrentHashMap<String, IMetricsSnapshot>();
+      map = new ConcurrentHashMap<>();
       snapshotMaps.put( logChannelId, map );
     }
     return map;

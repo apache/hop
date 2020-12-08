@@ -59,7 +59,7 @@ public class SyslogMessageConcurrentTest {
   public void setUp() throws Exception {
     numOfErrors = new AtomicInteger( 0 );
     countDownLatch = new CountDownLatch( 1 );
-    transformMockHelper = new TransformMockHelper<SyslogMessageMeta, SyslogMessageData>( "SYSLOG_MESSAGE TEST", SyslogMessageMeta.class,
+    transformMockHelper = new TransformMockHelper<>( "SYSLOG_MESSAGE TEST", SyslogMessageMeta.class,
       SyslogMessageData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       transformMockHelper.iLogChannel );

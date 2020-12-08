@@ -120,9 +120,9 @@ public class MessagesStore extends ChangedFlag {
     } catch ( Exception e ) {
       String keys = "[";
       Map<String, List<KeyOccurrence>> po = sourcePackageOccurrences.get( sourceFolder );
-      List<KeyOccurrence> keyList = po == null ? new ArrayList<KeyOccurrence>() : po.get( messagesPackage );
+      List<KeyOccurrence> keyList = po == null ? new ArrayList<>() : po.get( messagesPackage );
       if ( keyList == null ) {
-        keyList = new ArrayList<KeyOccurrence>();
+        keyList = new ArrayList<>();
       }
       boolean first = true;
       for ( KeyOccurrence occ : keyList ) {

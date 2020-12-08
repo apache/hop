@@ -63,7 +63,7 @@ public class LoggingRegistrySingltonTest {
     // fire!
     start.countDown();
 
-    Set<LoggingRegistry> distinct = new HashSet<LoggingRegistry>();
+    Set<LoggingRegistry> distinct = new HashSet<>();
 
     int i = 0;
     while ( i < count ) {
@@ -77,7 +77,7 @@ public class LoggingRegistrySingltonTest {
 
   CompletionService<LoggingRegistry> registerHounds( int count, CountDownLatch start ) {
     ExecutorService executor = Executors.newFixedThreadPool( count );
-    CompletionService<LoggingRegistry> completionService = new ExecutorCompletionService<LoggingRegistry>( executor );
+    CompletionService<LoggingRegistry> completionService = new ExecutorCompletionService<>( executor );
     for ( int i = 0; i < count; i++ ) {
       LogRegistryKicker hound = new LogRegistryKicker( start );
       completionService.submit( hound );

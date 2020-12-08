@@ -184,9 +184,9 @@ public class InsertUpdateMetaTest {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "keyStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyLookup", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyCondition", stringArrayLoadSaveValidator );
@@ -194,9 +194,9 @@ public class InsertUpdateMetaTest {
     attrValidatorMap.put( "updateLookup", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "updateStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
-    attrValidatorMap.put( "update", new ArrayLoadSaveValidator<Boolean>( new BooleanLoadSaveValidator(), 5 ) );
+    attrValidatorMap.put( "update", new ArrayLoadSaveValidator<>( new BooleanLoadSaveValidator(), 5 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     typeValidatorMap.put( boolean[].class.getCanonicalName(), new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 3 ) );
 

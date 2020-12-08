@@ -178,7 +178,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     arguments = null;
 
     super.clear();
-    loopCache = new HashMap<String, Boolean>();
+    loopCache = new HashMap<>();
     addDefaults();
     workflowStatus = -1;
     workflowVersion = null;
@@ -335,9 +335,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       if ( doClear ) {
         workflowMeta.clear();
       } else {
-        workflowMeta.workflowActions = new ArrayList<ActionMeta>();
-        workflowMeta.workflowHops = new ArrayList<WorkflowHopMeta>();
-        workflowMeta.notes = new ArrayList<NotePadMeta>();
+        workflowMeta.workflowActions = new ArrayList<>();
+        workflowMeta.workflowHops = new ArrayList<>();
+        workflowMeta.notes = new ArrayList<>();
         workflowMeta.namedParams = new NamedParameters();
       }
 
@@ -1106,7 +1106,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
 
   public boolean hasLoop( ActionMeta action, ActionMeta lookup ) {
-    return hasLoop( action, lookup, new HashSet<ActionMeta>() );
+    return hasLoop( action, lookup, new HashSet<>() );
   }
 
   /**
@@ -1275,7 +1275,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return the all workflow hops using
    */
   public WorkflowHopMeta[] getAllWorkflowHopsUsing( String name ) {
-    List<WorkflowHopMeta> hops = new ArrayList<WorkflowHopMeta>();
+    List<WorkflowHopMeta> hops = new ArrayList<>();
 
     for ( WorkflowHopMeta hi : workflowHops ) {
       // Look at all the hops
@@ -1435,7 +1435,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return The selected transform and notes locations.
    */
   public Point[] getSelectedNoteLocations() {
-    List<Point> points = new ArrayList<Point>();
+    List<Point> points = new ArrayList<>();
 
     for ( NotePadMeta ni : getSelectedNotes() ) {
       Point p = ni.getLocation();
@@ -1451,7 +1451,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return the selected actions
    */
   public List<ActionMeta> getSelectedActions() {
-    List<ActionMeta> selection = new ArrayList<ActionMeta>();
+    List<ActionMeta> selection = new ArrayList<>();
     for ( ActionMeta je : workflowActions ) {
       if ( je.isSelected() ) {
         selection.add( je );
@@ -1528,7 +1528,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       monitor
         .beginTask( BaseMessages.getString( PKG, "WorkflowMeta.Monitor.GettingSQLNeededForThisWorkflow" ), nrActions() + 1 );
     }
-    List<SqlStatement> stats = new ArrayList<SqlStatement>();
+    List<SqlStatement> stats = new ArrayList<>();
 
     for ( int i = 0; i < nrActions(); i++ ) {
       ActionMeta copy = getAction( i );
@@ -1579,7 +1579,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return A list of StringSearchResult with strings used in the workflow
    */
   public List<StringSearchResult> getStringList( boolean searchTransforms, boolean searchDatabases, boolean searchNotes ) {
-    List<StringSearchResult> stringList = new ArrayList<StringSearchResult>();
+    List<StringSearchResult> stringList = new ArrayList<>();
 
     if ( searchTransforms ) {
       // Loop over all transforms in the pipeline and see what the used
@@ -1867,7 +1867,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return the resource dependencies
    */
   public List<ResourceReference> getResourceDependencies(IVariables variables) {
-    List<ResourceReference> resourceReferences = new ArrayList<ResourceReference>();
+    List<ResourceReference> resourceReferences = new ArrayList<>();
     ActionMeta copy = null;
     IAction action = null;
     for ( int i = 0; i < workflowActions.size(); i++ ) {
@@ -2020,7 +2020,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return
    */
   public List<IAction> composeActionList() {
-    List<IAction> list = new ArrayList<IAction>();
+    List<IAction> list = new ArrayList<>();
 
     for ( ActionMeta action : workflowActions ) {
       if ( !list.contains( action.getAction() ) ) {
@@ -2085,7 +2085,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
   public void addMissingAction( MissingAction missingAction ) {
     if ( missingActions == null ) {
-      missingActions = new ArrayList<MissingAction>();
+      missingActions = new ArrayList<>();
     }
     missingActions.add( missingAction );
   }

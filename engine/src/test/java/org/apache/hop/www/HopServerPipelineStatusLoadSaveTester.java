@@ -42,7 +42,7 @@ public class HopServerPipelineStatusLoadSaveTester extends LoadSaveBase<HopServe
                                                   Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap ) {
     super( clazz, commonAttributes, new ArrayList<>(), new HashMap<>(),
       new HashMap<>(), fieldLoadSaveValidatorAttributeMap,
-      new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      new HashMap<>() );
   }
 
   public void testSerialization() throws HopException {

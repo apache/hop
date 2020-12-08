@@ -731,8 +731,8 @@ public class CsvInput
                 outputRowData[ actualFieldIndex ] = null;
 
                 if ( conversionExceptions == null ) {
-                  conversionExceptions = new ArrayList<Exception>();
-                  exceptionFields = new ArrayList<IValueMeta>();
+                  conversionExceptions = new ArrayList<>();
+                  exceptionFields = new ArrayList<>();
                 }
 
                 conversionExceptions.add( e );
@@ -888,7 +888,7 @@ public class CsvInput
         // As such, the fair thing to do is calculate the total size of the files
         // Then read the required block.
         //
-        data.fileSizes = new ArrayList<Long>();
+        data.fileSizes = new ArrayList<>();
         data.totalFileSize = 0L;
       }
 

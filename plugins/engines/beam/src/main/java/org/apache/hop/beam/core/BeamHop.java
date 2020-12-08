@@ -85,7 +85,7 @@ public class BeamHop {
             // The plugin class is already in the classpath so we simply call Class.forName() on it.
             //
             // LOG.info( "Registering transform plugin class: " + transformPluginClass );
-            stepPluginType.handlePluginAnnotation( transformPluginClass, annotation, new ArrayList<String>(), true, null );
+            stepPluginType.handlePluginAnnotation( transformPluginClass, annotation, new ArrayList<>(), true, null );
           } else {
             LOG.debug( "Plugin " + stepPluginClassName + " is already registered" );
           }
@@ -109,7 +109,7 @@ public class BeamHop {
             // The plugin class is already in the classpath so we simply call Class.forName() on it.
             //
             // LOG.info( "Registering transform plugin class: " + xpPluginClass );
-            xpPluginType.handlePluginAnnotation( xpPluginClass, annotation, new ArrayList<String>(), true, null );
+            xpPluginType.handlePluginAnnotation( xpPluginClass, annotation, new ArrayList<>(), true, null );
           } else {
             LOG.debug( "Plugin " + xpPluginClassName + " is already registered" );
           }

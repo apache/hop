@@ -111,7 +111,7 @@ public class ActionDialog extends Dialog {
    */
   public MetaSelectionLine<DatabaseMeta> addConnectionLine( Composite parent, Control previous, DatabaseMeta selected, ModifyListener lsMod ) {
 
-    final MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<DatabaseMeta>(
+    final MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<>(
       variables,
       metadataProvider,
       DatabaseMeta.class, parent, SWT.NONE,

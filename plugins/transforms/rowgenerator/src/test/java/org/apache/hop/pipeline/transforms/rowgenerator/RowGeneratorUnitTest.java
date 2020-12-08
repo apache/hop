@@ -73,13 +73,17 @@ public class RowGeneratorUnitTest {
     transformMeta.setName( "ROW_TRANSFORM_META" );
     RowGeneratorData data = (RowGeneratorData) transformMeta.getTransform().getTransformData();
 
-    // add variable to pipeline variable variables
-    Map<String, String> map = new HashMap<>();
-    map.put( "ROW_LIMIT", "1440" );
+
     PipelineMeta pipelineMeta = spy( new PipelineMeta() );
     when( pipelineMeta.findTransform( anyString() ) ).thenReturn( transformMeta );
 
     Pipeline pipeline = spy( new LocalPipelineEngine( pipelineMeta ) );
+
+    // add variable to pipeline variable variables
+    Map<String, String> map = new HashMap<>();
+    map.put( "ROW_LIMIT", "1440" );
+    pipeline.injectVariables( map );
+
     when( pipeline.getLogChannelId() ).thenReturn( "ROW_LIMIT" );
 
     //prepare row generator, substitutes variable by value from pipeline variable variables
@@ -94,20 +98,4 @@ public class RowGeneratorUnitTest {
     assertEquals( rowLimit, 1440 );
   }
 
-  @Ignore
-  @Test
-  public void doesNotWriteRowOnTimeWhenStopped() throws HopException, InterruptedException {
-    PipelineMeta pipelineMeta = new PipelineMeta( getClass().getResource( "safe-stop.hpl" ).getPath(), new MemoryMetadataProvider(), true, Variables.getADefaultVariableSpace() );
-    Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
-    pipeline.prepareExecution();
-    pipeline.getTransforms().get( 1 ).transform.addRowListener( new RowAdapter() {
-      @Override public void rowWrittenEvent( IRowMeta rowMeta, Object[] row ) throws HopTransformException {
-        pipeline.safeStop();
-      }
-    } );
-    pipeline.startThreads();
-    pipeline.waitUntilFinished();
-    assertEquals( 1, pipeline.getTransforms().get( 0 ).transform.getLinesWritten() );
-    assertEquals( 1, pipeline.getTransforms().get( 1 ).transform.getLinesRead() );
-  }
 }

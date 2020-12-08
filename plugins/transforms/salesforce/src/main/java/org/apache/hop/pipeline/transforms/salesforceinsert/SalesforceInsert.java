@@ -118,7 +118,7 @@ public class SalesforceInsert extends SalesforceTransform<SalesforceInsertMeta, 
       if ( data.iBufferPos < meta.getBatchSizeInt() ) {
         ArrayList<XmlObject> insertfields = new ArrayList<>();
         // Reserve for empty fields
-        ArrayList<String> fieldsToNull = new ArrayList<String>();
+        ArrayList<String> fieldsToNull = new ArrayList<>();
 
         // Add fields to insert
         for ( int i = 0; i < data.nrfields; i++ ) {

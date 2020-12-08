@@ -215,7 +215,7 @@ final class WsdlUtils {
    */
   protected static HashSet<String> getSOAPHeaders( Binding binding, String operationName ) {
 
-    List<ExtensibilityElement> headers = new ArrayList<ExtensibilityElement>();
+    List<ExtensibilityElement> headers = new ArrayList<>();
     BindingOperation bindingOperation = binding.getBindingOperation( operationName, null, null );
     if ( bindingOperation == null ) {
       throw new IllegalArgumentException( "Can not find operation: " + operationName );
@@ -231,7 +231,7 @@ final class WsdlUtils {
       headers.addAll( WsdlUtils.findExtensibilityElements( (ElementExtensible) bindingOutput, SOAP_HEADER_ELEMENT_NAME ) );
     }
 
-    HashSet<String> headerSet = new HashSet<String>( headers.size() );
+    HashSet<String> headerSet = new HashSet<>( headers.size() );
     for ( ExtensibilityElement element : headers ) {
       if ( element instanceof SOAP12Header ) {
         headerSet.add( ( (SOAP12Header) element ).getPart() );
@@ -277,7 +277,7 @@ final class WsdlUtils {
   protected static List<ExtensibilityElement> findExtensibilityElements( ElementExtensible extensibleElement,
                                                                          String elementType ) {
 
-    List<ExtensibilityElement> elements = new ArrayList<ExtensibilityElement>();
+    List<ExtensibilityElement> elements = new ArrayList<>();
     List<ExtensibilityElement> extensibilityElements = extensibleElement.getExtensibilityElements();
 
     if ( extensibilityElements != null ) {

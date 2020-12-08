@@ -78,7 +78,7 @@ public class SimpleMappingData extends BaseTransformData implements ITransformDa
     super();
     mappingPipeline = null;
     wasStarted = false;
-    inputRenameList = new ArrayList<MappingValueRename>();
+    inputRenameList = new ArrayList<>();
   }
 
   public Pipeline getMappingPipeline() {

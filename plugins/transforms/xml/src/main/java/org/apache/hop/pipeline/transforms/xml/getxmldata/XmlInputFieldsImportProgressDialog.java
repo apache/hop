@@ -97,8 +97,8 @@ public class XmlInputFieldsImportProgressDialog {
     this.encoding = encoding;
     this.nr = 0;
     this.loopXPath = loopXPath;
-    this.list = new HashSet<String>();
-    this.fieldsList = new ArrayList<RowMetaAndData>();
+    this.list = new HashSet<>();
+    this.fieldsList = new ArrayList<>();
   }
 
   public XmlInputFieldsImportProgressDialog(Shell shell, GetXmlDataMeta meta, String xmlSource, boolean useUrl,
@@ -110,8 +110,8 @@ public class XmlInputFieldsImportProgressDialog {
     this.encoding = null;
     this.nr = 0;
     this.loopXPath = loopXPath;
-    this.list = new HashSet<String>();
-    this.fieldsList = new ArrayList<RowMetaAndData>();
+    this.list = new HashSet<>();
+    this.fieldsList = new ArrayList<>();
     if ( useUrl ) {
       this.xml = null;
       this.url = xmlSource;

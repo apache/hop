@@ -209,7 +209,7 @@ public class Variables implements IVariables {
     } else {
       // We have our own personal copy, so changes afterwards
       // to the input properties don't affect us.
-      injection = new Hashtable<String, String>();
+      injection = new Hashtable<>();
       for ( String key : prop.keySet() ) {
         String value = prop.get( key );
         if ( !Utils.isEmpty( key ) ) {

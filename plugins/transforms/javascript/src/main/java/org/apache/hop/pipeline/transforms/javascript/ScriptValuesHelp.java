@@ -50,7 +50,7 @@ public class ScriptValuesHelp {
   }
 
   private static void buildFunctionList() {
-    hatFunctionsList = new Hashtable<String, String>();
+    hatFunctionsList = new Hashtable<>();
     NodeList nlFunctions = dom.getElementsByTagName( "jsFunction" );
     for ( int i = 0; i < nlFunctions.getLength(); i++ ) {
       String strFunctionName = nlFunctions.item( i ).getAttributes().getNamedItem( "name" ).getNodeValue();

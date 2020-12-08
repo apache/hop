@@ -53,9 +53,9 @@ public class SortRowsMetaTest {
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
     IFieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
       new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 25 );
     IFieldLoadSaveValidator<int[]> intArrayLoadSaveValidator =
@@ -70,7 +70,7 @@ public class SortRowsMetaTest {
 
     LoadSaveTester<SortRowsMeta> loadSaveTester =
       new LoadSaveTester<>( SortRowsMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
 
     loadSaveTester.testSerialization();
   }

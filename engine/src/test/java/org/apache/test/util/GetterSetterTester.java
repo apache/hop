@@ -43,12 +43,12 @@ public class GetterSetterTester<T> {
     this.clazz = clazz;
     this.getterMap = getterMap;
     this.setterMap = setterMap;
-    objectTesterMap = new HashMap<String, IObjectTester<?>>();
+    objectTesterMap = new HashMap<>();
   }
 
   public void test( Object objectUnderTest ) {
     JavaBeanManipulator<T> manipulator =
-      new JavaBeanManipulator<T>( clazz, new ArrayList<>( objectTesterMap.keySet() ), getterMap, setterMap );
+      new JavaBeanManipulator<>( clazz, new ArrayList<>( objectTesterMap.keySet() ), getterMap, setterMap );
     for ( Entry<String, IObjectTester<?>> entry : objectTesterMap.entrySet() ) {
       String attribute = entry.getKey();
       @SuppressWarnings( "unchecked" )

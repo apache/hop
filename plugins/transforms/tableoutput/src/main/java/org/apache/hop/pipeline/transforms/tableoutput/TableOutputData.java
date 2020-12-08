@@ -89,13 +89,13 @@ public class TableOutputData extends BaseTransformData implements ITransformData
     warnings = 0;
     tableName = null;
 
-    preparedStatements = new Hashtable<String, PreparedStatement>();
+    preparedStatements = new Hashtable<>();
 
     indexOfPartitioningField = -1;
     indexOfTableNameField = -1;
 
-    batchBuffer = new ArrayList<Object[]>();
-    commitCounterMap = new HashMap<String, Integer>();
+    batchBuffer = new ArrayList<>();
+    commitCounterMap = new HashMap<>();
 
     releaseSavepoint = true;
   }

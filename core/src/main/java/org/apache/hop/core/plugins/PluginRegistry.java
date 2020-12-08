@@ -943,7 +943,7 @@ public class PluginRegistry {
     if ( path.endsWith( "/" ) ) {
       path = path.substring( 0, path.length() - 1 );
     }
-    List<IPlugin> result = new ArrayList<IPlugin>();
+    List<IPlugin> result = new ArrayList<>();
     lock.readLock().lock();
     try {
       for ( Set<IPlugin> typeInterfaces : pluginMap.values() ) {

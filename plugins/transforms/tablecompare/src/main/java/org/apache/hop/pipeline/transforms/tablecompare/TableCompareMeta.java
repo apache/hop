@@ -187,7 +187,7 @@ public class TableCompareMeta extends BaseTransformMeta implements ITransformMet
 
   @Override
   public DatabaseMeta[] getUsedDatabaseConnections() {
-    List<DatabaseMeta> connList = new ArrayList<DatabaseMeta>( 2 );
+    List<DatabaseMeta> connList = new ArrayList<>( 2 );
     if ( compareConnection != null ) {
       connList.add( compareConnection );
     }

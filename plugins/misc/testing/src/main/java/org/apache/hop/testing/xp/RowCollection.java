@@ -34,7 +34,7 @@ public class RowCollection {
 
   public RowCollection() {
     rowMeta = null;
-    rows = new ArrayList<Object[]>();
+    rows = new ArrayList<>();
   }
 
   public RowCollection( IRowMeta rowMeta, List<Object[]> rows ) {

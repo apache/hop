@@ -66,11 +66,11 @@ public class NullIfMetaTest {
     field.setFieldName( "fieldName" );
     field.setFieldValue( "fieldValue" );
     IFieldLoadSaveValidator<Field[]> fieldArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<Field>( new NullIfFieldLoadSaveValidator( field ), 5 );
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new ArrayLoadSaveValidator<>( new NullIfFieldLoadSaveValidator( field ), 5 );
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     typeValidatorMap.put( Field[].class.getCanonicalName(), fieldArrayLoadSaveValidator );
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fields", fieldArrayLoadSaveValidator );
 
     loadSaveTester =

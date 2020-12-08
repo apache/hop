@@ -282,7 +282,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
     PipelineExecutorParameters parameters = meta.getParameters();
 
     // A map where the final parameters and values are stored.
-    Map<String, String> resolvingValuesMap = new LinkedHashMap<String, String>();
+    Map<String, String> resolvingValuesMap = new LinkedHashMap<>();
     for ( int i = 0; i < parameters.getVariable().length; i++ ) {
       resolvingValuesMap.put( parameters.getVariable()[ i ], null );
     }
@@ -455,7 +455,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
         // Do we have a pipeline at all?
         if ( pipelineExecutorData.getExecutorPipelineMeta() != null ) {
-          pipelineExecutorData.groupBuffer = new ArrayList<RowMetaAndData>();
+          pipelineExecutorData.groupBuffer = new ArrayList<>();
 
           // How many rows do we group together for the pipeline?
           if ( !Utils.isEmpty( meta.getGroupSize() ) ) {

@@ -97,7 +97,7 @@ public class SystemDataTest {
   @Before
   public void setUp() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<SystemDataMeta, SystemDataData>( "SYSTEM_DATA TEST", SystemDataMeta.class,
+      new TransformMockHelper<>( "SYSTEM_DATA TEST", SystemDataMeta.class,
         SystemDataData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       transformMockHelper.iLogChannel );

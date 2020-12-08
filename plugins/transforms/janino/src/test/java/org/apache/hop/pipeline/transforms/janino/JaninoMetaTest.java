@@ -57,16 +57,16 @@ public class JaninoMetaTest {
     List<String> attributes = Arrays.asList( "formula" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     IFieldLoadSaveValidator<JaninoMetaFunction[]> janinoMetaFunctionArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<JaninoMetaFunction>( new JaninoMetaFunctionFieldLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<>( new JaninoMetaFunctionFieldLoadSaveValidator(), 25 );
 
     fieldLoadSaveValidatorAttributeMap.put( "formula", janinoMetaFunctionArrayLoadSaveValidator );
 
     LoadSaveTester loadSaveTester =
       new LoadSaveTester( JaninoMeta.class, attributes, new HashMap<>(), new HashMap<>(),
-        fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
 
     loadSaveTester.testSerialization();
   }

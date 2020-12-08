@@ -94,7 +94,7 @@ public class EnterListDialog extends Dialog {
     this.input = input;
     this.retval = null;
 
-    selection = new Hashtable<Integer, String>();
+    selection = new Hashtable<>();
 
     opened = false;
   }

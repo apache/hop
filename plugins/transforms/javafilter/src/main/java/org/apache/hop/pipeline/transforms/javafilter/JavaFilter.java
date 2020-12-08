@@ -129,10 +129,10 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> im
       //
       if ( data.expressionEvaluator == null ) {
         String realCondition = environmentSubstitute( meta.getCondition() );
-        data.argumentIndexes = new ArrayList<Integer>();
+        data.argumentIndexes = new ArrayList<>();
 
         List<String> parameterNames = new ArrayList<>();
-        List<Class<?>> parameterTypes = new ArrayList<Class<?>>();
+        List<Class<?>> parameterTypes = new ArrayList<>();
 
         for ( int i = 0; i < data.outputRowMeta.size(); i++ ) {
 

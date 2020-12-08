@@ -371,7 +371,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
         return result;
       }
     } else {
-      resultRows = new ArrayList<RowMetaAndData>();
+      resultRows = new ArrayList<>();
       RowMetaAndData row = new RowMetaAndData();
       row.addValue(
         new ValueMetaString( urlFieldnameToUse ), environmentSubstitute( url ) );

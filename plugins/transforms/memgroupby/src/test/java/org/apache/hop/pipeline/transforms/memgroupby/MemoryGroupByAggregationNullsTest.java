@@ -64,7 +64,7 @@ public class MemoryGroupByAggregationNullsTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
-      new TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData>( "Memory Group By", MemoryGroupByMeta.class,
+      new TransformMockHelper<>( "Memory Group By", MemoryGroupByMeta.class,
         MemoryGroupByData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       mockHelper.iLogChannel );
@@ -91,7 +91,7 @@ public class MemoryGroupByAggregationNullsTest {
     data.outputRowMeta = rmi;
     data.groupMeta = rmi;
     data.groupnrs = new int[] {};
-    data.map = new HashMap<HashEntry, Aggregate>();
+    data.map = new HashMap<>();
     when( rmi.getValueMeta( Mockito.anyInt() ) ).thenReturn( vmi );
     data.aggMeta = rmi;
     transform = new MemoryGroupBy( mockHelper.transformMeta, meta, data, 0, mockHelper.pipelineMeta, mockHelper.pipeline );

@@ -156,9 +156,9 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       //
       // Perhaps we should get 20% random values and delete everything below the lowest but one TK.
       //
-      List<RowMetaAndData> keys = new ArrayList<RowMetaAndData>( data.cache.keySet() );
+      List<RowMetaAndData> keys = new ArrayList<>( data.cache.keySet() );
       int sizeBefore = keys.size();
-      List<Long> samples = new ArrayList<Long>();
+      List<Long> samples = new ArrayList<>();
 
       // Take 10 sample technical keys....
       int transformsize = keys.size() / 5;
@@ -672,9 +672,9 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       data.realTableName = environmentSubstitute( meta.getTableName() );
 
       if ( meta.getCacheSize() > 0 ) {
-        data.cache = new HashMap<RowMetaAndData, Long>( (int) ( meta.getCacheSize() * 1.5 ) );
+        data.cache = new HashMap<>( (int) ( meta.getCacheSize() * 1.5 ) );
       } else {
-        data.cache = new HashMap<RowMetaAndData, Long>();
+        data.cache = new HashMap<>();
       }
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "CombinationLookup.Init.ConnectionMissing", getTransformName() ) );

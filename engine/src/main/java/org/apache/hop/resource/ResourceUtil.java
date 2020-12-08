@@ -80,7 +80,7 @@ public class ResourceUtil {
     ZipOutputStream out = null;
 
     try {
-      Map<String, ResourceDefinition> definitions = new HashMap<String, ResourceDefinition>();
+      Map<String, ResourceDefinition> definitions = new HashMap<>();
 
       // In case we want to add an extra pay-load to the exported ZIP file...
       //

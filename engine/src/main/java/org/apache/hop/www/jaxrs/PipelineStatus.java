@@ -34,7 +34,7 @@ public class PipelineStatus {
   private String id;
   private String name;
   private String status;
-  private List<TransformStatus> transformStatuses = new ArrayList<TransformStatus>();
+  private List<TransformStatus> transformStatuses = new ArrayList<>();
 
   public PipelineStatus() {
   }

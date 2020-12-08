@@ -210,9 +210,9 @@ public class StaxPoiSheet implements IKSheet {
   private IKCell[] parseRow() throws XMLStreamException {
     List<StaxPoiCell> cells;
     if ( isMaxColsNumberDefined() ) {
-      cells = new ArrayList<StaxPoiCell>( numCols );
+      cells = new ArrayList<>( numCols );
     } else {
-      cells = new ArrayList<StaxPoiCell>();
+      cells = new ArrayList<>();
     }
 
     int undefinedColIndex = 0;

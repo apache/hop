@@ -65,7 +65,7 @@ public final class WsdlTypes implements Serializable {
     Types = wsdlDefinition.getTypes();
     _targetNamespace = wsdlDefinition.getTargetNamespace();
     _prefixMappings = wsdlDefinition.getNamespaces();
-    _elementFormQualifiedNamespaces = new HashSet<String>( getElementFormQualifiedNamespaces() );
+    _elementFormQualifiedNamespaces = new HashSet<>( getElementFormQualifiedNamespaces() );
     NamedComplexTypes = new WsdlComplexTypes( this );
   }
 

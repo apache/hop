@@ -1018,7 +1018,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     int numNonEmpty = wFields.nrNonEmpty();
     if (numNonEmpty > 0) {
-      List<MongoField> outputFields = new ArrayList<MongoField>();
+      List<MongoField> outputFields = new ArrayList<>();
       for (int i = 0; i < numNonEmpty; i++) {
         TableItem item = wFields.getNonEmpty(i);
         MongoField newField = new MongoField();
@@ -1039,7 +1039,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
     numNonEmpty = wTags.nrNonEmpty();
 
-    List<String> tags = new ArrayList<String>();
+    List<String> tags = new ArrayList<>();
     if (numNonEmpty > 0) {
 
       for (int i = 0; i < numNonEmpty; i++) {
@@ -1109,13 +1109,13 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
   }
 
   public void updateFieldTableFields(List<MongoField> fields) {
-    Map<String, MongoField> fieldMap = new HashMap<String, MongoField>(fields.size());
+    Map<String, MongoField> fieldMap = new HashMap<>( fields.size() );
     for (MongoField field : fields) {
       fieldMap.put(field.fieldName, field);
     }
 
     int index = 0;
-    List<Integer> indicesToRemove = new ArrayList<Integer>();
+    List<Integer> indicesToRemove = new ArrayList<>();
     for (TableItem tableItem : wFields.getTable().getItems()) {
       String name = tableItem.getText(1);
       MongoField mongoField = fieldMap.remove(name);
@@ -1354,7 +1354,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       try {
         MongoClientWrapper wrapper =
             MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
-        List<String> dbNames = new ArrayList<String>();
+        List<String> dbNames = new ArrayList<>();
         try {
           dbNames = wrapper.getDatabaseNames();
         } finally {
@@ -1404,7 +1404,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       try {
         MongoClientWrapper wrapper =
             MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
-        Set<String> collections = new HashSet<String>();
+        Set<String> collections = new HashSet<>();
         try {
           collections = wrapper.getCollectionsNames(dB);
         } finally {
@@ -1460,7 +1460,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       try {
         MongoClientWrapper wrapper =
             MongoWrapperUtil.createMongoClientWrapper(meta, variables, log);
-        List<String> repSetTags = new ArrayList<String>();
+        List<String> repSetTags = new ArrayList<>();
         try {
           repSetTags = wrapper.getAllTags();
         } finally {
@@ -1556,7 +1556,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
   private void testUserSpecifiedTagSetsAgainstReplicaSet() {
     if (wTags.nrNonEmpty() > 0) {
-      List<DBObject> tagSets = new ArrayList<DBObject>();
+      List<DBObject> tagSets = new ArrayList<>();
 
       for (int i = 0; i < wTags.nrNonEmpty(); i++) {
         TableItem item = wTags.getNonEmpty(i);
@@ -1588,7 +1588,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
             } catch (MongoDbException e) {
               throw new HopException(e);
             }
-            List<String> satisfy = new ArrayList<String>();
+            List<String> satisfy = new ArrayList<>();
             try {
               try {
                 satisfy = wrapper.getReplicaSetMembersThatSatisfyTagSets(tagSets);

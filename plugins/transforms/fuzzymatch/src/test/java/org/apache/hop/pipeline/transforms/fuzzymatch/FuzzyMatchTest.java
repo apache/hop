@@ -65,10 +65,10 @@ public class FuzzyMatchTest {
   private Object[] row2B = new Object[] { "John".getBytes() };
   private Object[] row3 = new Object[] { "Catriny" };
   private Object[] row3B = new Object[] { "Catriny".getBytes() };
-  private List<Object[]> rows = new ArrayList<Object[]>();
-  private List<Object[]> binaryRows = new ArrayList<Object[]>();
-  private List<Object[]> lookupRows = new ArrayList<Object[]>();
-  private List<Object[]> binaryLookupRows = new ArrayList<Object[]>();
+  private List<Object[]> rows = new ArrayList<>();
+  private List<Object[]> binaryRows = new ArrayList<>();
+  private List<Object[]> lookupRows = new ArrayList<>();
+  private List<Object[]> binaryLookupRows = new ArrayList<>();
 
   {
     rows.add( row );
@@ -109,7 +109,7 @@ public class FuzzyMatchTest {
   @Before
   public void setUp() throws Exception {
     mockHelper =
-      new TransformMockHelper<FuzzyMatchMeta, FuzzyMatchData>( "Fuzzy Match", FuzzyMatchMeta.class, FuzzyMatchData.class );
+      new TransformMockHelper<>( "Fuzzy Match", FuzzyMatchMeta.class, FuzzyMatchData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
@@ -169,7 +169,7 @@ public class FuzzyMatchTest {
     ITransformIOMeta transformIOMetaInterface = mock( ITransformIOMeta.class );
     when( meta.getTransformIOMeta() ).thenReturn( transformIOMetaInterface );
     IStream streamInterface = mock( IStream.class );
-    List<IStream> streamInterfaceList = new ArrayList<IStream>();
+    List<IStream> streamInterfaceList = new ArrayList<>();
     streamInterfaceList.add( streamInterface );
     when( streamInterface.getTransformMeta() ).thenReturn( mockHelper.transformMeta );
 

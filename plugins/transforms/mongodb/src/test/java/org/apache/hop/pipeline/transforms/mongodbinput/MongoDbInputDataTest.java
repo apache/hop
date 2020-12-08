@@ -107,7 +107,7 @@ public class MongoDbInputDataTest {
     // Mock the discoverFields call so that it returns a list of mongofields from the expected input
     MongoDbInputDiscoverFieldsHolder holder = mock(MongoDbInputDiscoverFieldsHolder.class);
     MongoDbInputDiscoverFields mongoDbInputDiscoverFields = mock(MongoDbInputDiscoverFields.class);
-    final List<MongoField> mongoFields = new ArrayList<MongoField>();
+    final List<MongoField> mongoFields = new ArrayList<>();
 
     doAnswer(
             invocationOnMock -> {
@@ -267,7 +267,7 @@ public class MongoDbInputDataTest {
     // Mock the discoverFields call so that it returns a list of mongofields from the expected input
     MongoDbInputDiscoverFieldsHolder holder = mock(MongoDbInputDiscoverFieldsHolder.class);
     MongoDbInputDiscoverFields mongoDbInputDiscoverFields = mock(MongoDbInputDiscoverFields.class);
-    List<MongoField> mongoFields = new ArrayList<MongoField>();
+    List<MongoField> mongoFields = new ArrayList<>();
     mongoFields.add(new MongoField());
     when(mongoDbInputDiscoverFields.discoverFields(
             any(MongoProperties.Builder.class),
@@ -388,7 +388,7 @@ public class MongoDbInputDataTest {
     Object mongoO = JSON.parse(s_testData);
     assertTrue(mongoO instanceof DBObject);
 
-    List<MongoField> discoveredFields = new ArrayList<MongoField>();
+    List<MongoField> discoveredFields = new ArrayList<>();
     MongoField mm = new MongoField();
     mm.fieldName = "test";
     mm.fieldPath = "$.iDontExist";
@@ -419,7 +419,7 @@ public class MongoDbInputDataTest {
     Object mongoO = JSON.parse(s_testData2);
     assertTrue(mongoO instanceof DBObject);
 
-    List<MongoField> fields = new ArrayList<MongoField>();
+    List<MongoField> fields = new ArrayList<>();
 
     MongoField mm = new MongoField();
     mm.fieldName = "test";
@@ -457,7 +457,7 @@ public class MongoDbInputDataTest {
     Object mongoO = JSON.parse(s_testData2);
     assertTrue(mongoO instanceof DBObject);
 
-    List<MongoField> fields = new ArrayList<MongoField>();
+    List<MongoField> fields = new ArrayList<>();
 
     MongoField mm = new MongoField();
     mm.fieldName = "test";
@@ -508,7 +508,7 @@ public class MongoDbInputDataTest {
     Object mongoO = JSON.parse(s_testData2);
     assertTrue(mongoO instanceof DBObject);
 
-    List<MongoField> fields = new ArrayList<MongoField>();
+    List<MongoField> fields = new ArrayList<>();
 
     MongoField mm = new MongoField();
     mm.fieldName = "test";

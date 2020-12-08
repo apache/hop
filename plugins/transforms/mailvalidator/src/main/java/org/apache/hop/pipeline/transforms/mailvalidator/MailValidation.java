@@ -55,7 +55,7 @@ public class MailValidation {
    * verify if there is a mail server registered to the domain name. and return the email servers count
    */
   public static int mailServersCount( String hostName ) throws NamingException {
-    Hashtable<String, String> env = new Hashtable<String, String>();
+    Hashtable<String, String> env = new Hashtable<>();
     env.put( "java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory" );
     DirContext ictx = new InitialDirContext( env );
     Attributes attrs = ictx.getAttributes( hostName, new String[] { "MX" } );
@@ -98,7 +98,7 @@ public class MailValidation {
 
   private static ArrayList<String> getMX( String hostName ) throws NamingException {
     // Perform a DNS lookup for MX records in the domain
-    Hashtable<String, String> env = new Hashtable<String, String>();
+    Hashtable<String, String> env = new Hashtable<>();
     env.put( "java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory" );
     DirContext ictx = new InitialDirContext( env );
     Attributes attrs = ictx.getAttributes( hostName, new String[] { "MX" } );

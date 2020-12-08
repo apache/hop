@@ -36,6 +36,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -69,7 +70,7 @@ public class SimpleMappingTest {
   @Before
   public void setup() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<SimpleMappingMeta, SimpleMappingData>( "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class,
+      new TransformMockHelper<>( "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class,
         SimpleMappingData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       transformMockHelper.iLogChannel );
@@ -102,8 +103,9 @@ public class SimpleMappingTest {
     simpleMpData.rowDataInputMapper = rdInputMpMock;
     simpleMpData.mappingPipeline = transformMockHelper.pipeline;
 
-    when( transformMockHelper.pipeline.findTransformInterface( MAPPING_OUTPUT_TRANSFORM_NAME, 0 ) ).thenReturn( mpOutputMock );
-    when( transformMockHelper.pipeline.addRowProducer( MAPPING_INPUT_TRANSFORM_NAME, 0 ) ).thenReturn( rProducerMock );
+    Mockito.doReturn( mpOutputMock ).when( transformMockHelper.pipeline ).findTransformInterface( MAPPING_OUTPUT_TRANSFORM_NAME, 0 );
+    Mockito.doReturn(rProducerMock).when( transformMockHelper.pipeline).addRowProducer( MAPPING_INPUT_TRANSFORM_NAME, 0 );
+
     when( transformMockHelper.iTransformMeta.getInputMapping() ).thenReturn( mpIODefMock );
   }
 
@@ -174,7 +176,6 @@ public class SimpleMappingTest {
     MappingOutput mappingOutput = mock( MappingOutput.class );
     when( mappingOutput.getTransformName() ).thenReturn( MAPPING_OUTPUT_TRANSFORM_NAME );
     transformMockHelper.iTransformData.mappingOutput = mappingOutput;
-
 
     smp = new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );

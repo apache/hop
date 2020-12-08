@@ -92,7 +92,7 @@ public class HopServerServlet extends HttpServlet {
 
   @Override
   public void init( ServletConfig config ) throws ServletException {
-    hopServerPluginRegistry = new ConcurrentHashMap<String, IHopServerPlugin>();
+    hopServerPluginRegistry = new ConcurrentHashMap<>();
 
     PluginRegistry pluginRegistry = PluginRegistry.getInstance();
     List<IPlugin> plugins = pluginRegistry.getPlugins( HopServerPluginType.class );

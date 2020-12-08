@@ -155,7 +155,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   /**
    * List of ColumnInfo that should have the field names of the selected database table
    */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
+  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
   private boolean gotModule = false;
   private boolean gotFields = false;
 
@@ -169,7 +169,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   public SalesforceInsertDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, variables, in, pipelineMeta, sname );
     input = (SalesforceInsertMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   @Override
@@ -915,7 +915,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
     // Create the existing mapping list...
     //
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
     StringBuffer missingSourceFields = new StringBuffer();
     StringBuffer missingTargetFields = new StringBuffer();
 
@@ -995,13 +995,13 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
 
     String[] fieldNames = entries.toArray( new String[entries.size()] );
     Const.sortStrings( fieldNames );

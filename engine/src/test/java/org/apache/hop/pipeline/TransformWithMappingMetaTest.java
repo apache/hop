@@ -89,38 +89,6 @@ public class TransformWithMappingMetaTest {
     Assert.assertEquals( transformValue, pipeline.getVariable( paramOverwrite ) );
   }
 
-  @Test
-  @PrepareForTest( TransformWithMappingMeta.class )
-  public void activateParamsWithFalsePassParametersFlagTest() throws Exception {
-    String childParam = "childParam";
-    String childValue = "childValue";
-    String paramOverwrite = "paramOverwrite";
-    String parentValue = "parentValue";
-    String transformValue = "transformValue";
-    String parentAndChildParameter = "parentAndChildParameter";
-
-    IVariables parent = new Variables();
-    parent.setVariable( paramOverwrite, parentValue );
-    parent.setVariable( parentAndChildParameter, parentValue );
-
-    PipelineMeta childVariableSpace = new PipelineMeta();
-    childVariableSpace.addParameterDefinition( childParam, "", "" );
-    childVariableSpace.addParameterDefinition( parentAndChildParameter, "", "" );
-
-    LocalPipelineEngine pipeline = new LocalPipelineEngine(pipelineMeta, parent, new LoggingObject("Test"));
-    pipeline.setParameterValue( childParam, childValue );
-    pipeline.setParameterValue( parentAndChildParameter, childValue );
-
-    String[] parameters = pipeline.listParameters();
-    TransformWithMappingMeta.activateParams( pipeline, pipeline, parent,
-      parameters, new String[] { childParam, paramOverwrite }, new String[] { childValue, transformValue }, false );
-
-    Assert.assertEquals( childValue, pipeline.getVariable( childParam ) );
-    // the transform parameter prevails
-    Assert.assertEquals( transformValue, pipeline.getVariable( paramOverwrite ) );
-
-    Assert.assertEquals( childValue, pipeline.getVariable( parentAndChildParameter ) );
-  }
 
   @Test
   @PrepareForTest( TransformWithMappingMeta.class )
@@ -159,7 +127,7 @@ public class TransformWithMappingMetaTest {
 
   @Test
   @PrepareForTest( TransformWithMappingMeta.class )
-  public void replaceVariablesWithJobInternalVariablesTest() {
+  public void replaceVariablesWithWorkflowInternalVariablesTest() {
     String variableOverwrite = "paramOverwrite";
     String variableChildOnly = "childValueVariable";
     String[] jobVariables = Const.INTERNAL_WORKFLOW_VARIABLES;

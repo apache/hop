@@ -53,15 +53,15 @@ public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
       "inFields", "isAFile", "FieldValue", "ShortFileNameField", "PathField", "HiddenField",
       "LastModificationDateField", "UriField", "UriField", "ExtensionField", "SizeField" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     getterMap.put( "includeFilename", "includeFilename" );
     getterMap.put( "includeRowNumber", "includeRowNumber" );
     getterMap.put( "addResultFile", "addResultFile" );
 
     setterMap.put( "HiddenField", "setIsHiddenField" );
 
-    Map<String, IFieldLoadSaveValidator<?>> attributesMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attributesMap = new HashMap<>();
     IFieldLoadSaveValidator<?> fileStringArrayValidator =
       new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), FILE_COUNT );
 
@@ -71,13 +71,13 @@ public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
     attributesMap.put( "FileRequired", fileStringArrayValidator );
     attributesMap.put( "IncludeSubFolders", fileStringArrayValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeMap = new HashMap<>();
     typeMap.put( JsonInputField.class.getCanonicalName(),
-      new ArrayLoadSaveValidator<JsonInputField>( new JsonInputFieldValidator() ) );
+      new ArrayLoadSaveValidator<>( new JsonInputFieldValidator() ) );
     typeMap.put( JsonInputField[].class.getCanonicalName(),
-      new ArrayLoadSaveValidator<JsonInputField>( new JsonInputFieldValidator() ) );
+      new ArrayLoadSaveValidator<>( new JsonInputFieldValidator() ) );
 
-    LoadSaveTester tester = new LoadSaveTester( JsonInputMeta.class, attributes, new ArrayList<String>(), getterMap, setterMap, attributesMap, typeMap, this );
+    LoadSaveTester tester = new LoadSaveTester( JsonInputMeta.class, attributes, new ArrayList<>(), getterMap, setterMap, attributesMap, typeMap, this );
 
     tester.testSerialization();
   }

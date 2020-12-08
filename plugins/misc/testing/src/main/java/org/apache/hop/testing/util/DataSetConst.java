@@ -124,7 +124,7 @@ public class DataSetConst {
         //
         resultCollection = new RowCollection();
         resultCollection.setRowMeta( new RowMeta() );
-        resultCollection.setRows( new ArrayList<Object[]>() );
+        resultCollection.setRows( new ArrayList<>() );
 
         String comment = "WARNING: no test results found for transform '" + location.getTransformName() + "' : check disabled hops, input and so on.";
         results.add( new UnitTestResult(

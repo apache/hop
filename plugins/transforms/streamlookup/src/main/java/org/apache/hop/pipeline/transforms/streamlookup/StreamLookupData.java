@@ -105,10 +105,10 @@ public class StreamLookupData extends BaseTransformData implements ITransformDat
 
   public StreamLookupData() {
     super();
-    look = new HashMap<RowMetaAndData, Object[]>();
+    look = new HashMap<>();
     hashIndex = null;
     longIndex = new LongHashIndex();
-    list = new ArrayList<KeyValue>();
+    list = new ArrayList<>();
     metadataVerifiedIntegerPair = false;
     hasLookupRows = false;
 

@@ -96,39 +96,39 @@ public class FieldSplitterMetaTest {
     setterMap.put( "trimtype", "setFieldTrimType" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     fieldLoadSaveValidatorAttributeMap.put( "name",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "id",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "idrem",
       new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "type",
       new PrimitiveIntArrayLoadSaveValidator(
         new IntLoadSaveValidator( ValueMetaFactory.getAllValueMetaNames().length ), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "format",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "group",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "decimal",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "currency",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "length",
       new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "precision",
       new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "nullif",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "ifnull",
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
     fieldLoadSaveValidatorAttributeMap.put( "trimtype",
       new PrimitiveIntArrayLoadSaveValidator(
         new IntLoadSaveValidator( ValueMetaBase.getTrimTypeCodes().length ), 5 ) );
 
     LoadSaveTester loadSaveTester = new LoadSaveTester( FieldSplitterMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
 
     loadSaveTester.testSerialization();
   }

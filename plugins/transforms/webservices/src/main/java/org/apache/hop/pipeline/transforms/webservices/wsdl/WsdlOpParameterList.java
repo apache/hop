@@ -122,7 +122,7 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
    */
   private List<WsdlOpParameter> getParameter( Part part, boolean requesPart ) throws HopTransformException {
 
-    List<WsdlOpParameter> params = new ArrayList<WsdlOpParameter>();
+    List<WsdlOpParameter> params = new ArrayList<>();
 
     if ( part.getElementName() != null ) {
       if ( WsdlUtils.isWrappedParameterStyle( _operation.getName(), !requesPart, part.getName() ) ) {
@@ -204,7 +204,7 @@ public final class WsdlOpParameterList extends ArrayList<WsdlOpParameter> {
    */
   private List<WsdlOpParameter> resolvePartElement( Part p ) throws HopTransformException {
 
-    List<WsdlOpParameter> resolvedParams = new ArrayList<WsdlOpParameter>();
+    List<WsdlOpParameter> resolvedParams = new ArrayList<>();
     Element schemaElement = _wsdlTypes.findNamedElement( p.getElementName() );
 
     if ( schemaElement.hasAttribute( WsdlUtils.ELEMENT_TYPE_ATTR ) ) {

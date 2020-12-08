@@ -545,7 +545,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
 
   @Override
   public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
-    List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
+    List<ResourceReference> references = new ArrayList<>( 5 );
     String realFilename = variables.environmentSubstitute( filename );
     ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );

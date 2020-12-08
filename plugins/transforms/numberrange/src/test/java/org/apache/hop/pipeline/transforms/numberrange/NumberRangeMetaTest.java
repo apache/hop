@@ -58,13 +58,13 @@ public class NumberRangeMetaTest {
     setterMap.put( "rules", "setRules" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
     fieldLoadSaveValidatorAttributeMap.put( "rules",
-      new ListLoadSaveValidator<NumberRangeRule>( new NumberRangeRuleFieldLoadSaveValidator(), 25 ) );
+      new ListLoadSaveValidator<>( new NumberRangeRuleFieldLoadSaveValidator(), 25 ) );
 
     LoadSaveTester loadSaveTester = new LoadSaveTester(
       NumberRangeMeta.class, attributes, getterMap, setterMap,
-      fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
     loadSaveTester.testSerialization();
   }
 

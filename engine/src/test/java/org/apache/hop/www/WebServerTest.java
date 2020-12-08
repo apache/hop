@@ -175,7 +175,7 @@ public class WebServerTest {
   }
 
   private List<ServerConnector> getSocketConnectors( WebServer wServer ) {
-    List<ServerConnector> sConnectors = new ArrayList<ServerConnector>();
+    List<ServerConnector> sConnectors = new ArrayList<>();
     Connector[] connectors = wServer.getServer().getConnectors();
     for ( Connector cn : connectors ) {
       if ( cn instanceof ServerConnector ) {

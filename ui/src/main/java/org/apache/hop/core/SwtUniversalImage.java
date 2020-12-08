@@ -37,7 +37,7 @@ import java.util.TreeMap;
  */
 public abstract class SwtUniversalImage {
 
-  private Map<String, Image> cache = new TreeMap<String, Image>();
+  private Map<String, Image> cache = new TreeMap<>();
 
   @Deprecated
   protected abstract Image renderSimple( Device device );

@@ -50,7 +50,7 @@ public class BlockingRowSet extends BaseRowSet implements Comparable<IRowSet>, I
     super();
 
     // create an empty queue
-    queArray = new ArrayBlockingQueue<Object[]>( maxSize, false );
+    queArray = new ArrayBlockingQueue<>( maxSize, false );
 
     timeoutGet = Const.toInt( System.getProperty( Const.HOP_ROWSET_GET_TIMEOUT ), Const.TIMEOUT_GET_MILLIS );
     timeoutPut = Const.toInt( System.getProperty( Const.HOP_ROWSET_PUT_TIMEOUT ), Const.TIMEOUT_PUT_MILLIS );

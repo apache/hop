@@ -84,15 +84,15 @@ public class LdapInputMetaTest implements IInitializer<LdapInputMeta> {
     Map<String, String> setterMap = new HashMap<>();
 
     Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap =
-        new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
     attrValidatorMap.put(
         "inputFields",
-        new ArrayLoadSaveValidator<LdapInputField>(new LDAPInputFieldLoadSaveValidator(), 5));
+      new ArrayLoadSaveValidator<>( new LDAPInputFieldLoadSaveValidator(), 5 ));
     attrValidatorMap.put(
         "searchScope", new IntLoadSaveValidator(LdapInputMeta.searchScopeCode.length));
 
     Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap =
-        new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     loadSaveTester =
         new LoadSaveTester<>(

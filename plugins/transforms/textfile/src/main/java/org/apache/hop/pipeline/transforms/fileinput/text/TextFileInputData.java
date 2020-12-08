@@ -74,7 +74,7 @@ public class TextFileInputData extends BaseFileInputTransformData {
 
   public TextFileInputData() {
     // linked list is better, as usually .remove(0) is applied to this list
-    lineBuffer = new LinkedList<TextFileLine>();
+    lineBuffer = new LinkedList<>();
 
     nr_repeats = 0;
     previousRow = null;

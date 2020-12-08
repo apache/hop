@@ -108,11 +108,11 @@ public class DatabaseConnectingTest {
     final int dbsAmount = 300;
     final int threadsAmount = 50;
 
-    List<DatabaseStub> dbs = new ArrayList<DatabaseStub>( dbsAmount );
-    Set<Integer> copies = new HashSet<Integer>( dbsAmount );
+    List<DatabaseStub> dbs = new ArrayList<>( dbsAmount );
+    Set<Integer> copies = new HashSet<>( dbsAmount );
     ExecutorService pool = Executors.newFixedThreadPool( threadsAmount );
     try {
-      CompletionService<DatabaseStub> service = new ExecutorCompletionService<DatabaseStub>( pool );
+      CompletionService<DatabaseStub> service = new ExecutorCompletionService<>( pool );
       for ( int i = 0; i < dbsAmount; i++ ) {
         service.submit( createStubDatabase( shared ) );
         copies.add( i + 1 );
@@ -174,7 +174,7 @@ public class DatabaseConnectingTest {
   public void connect_ManyGroups_Simultaneously() throws Exception {
     final int groupsAmount = 30;
 
-    Map<String, Connection> groups = new HashMap<String, Connection>( groupsAmount );
+    Map<String, Connection> groups = new HashMap<>( groupsAmount );
     for ( int i = 0; i < groupsAmount; i++ ) {
       groups.put( Integer.toString( i ), mock( Connection.class ) );
     }
@@ -182,15 +182,15 @@ public class DatabaseConnectingTest {
     try {
       ExecutorService pool = Executors.newFixedThreadPool( groupsAmount );
       try {
-        CompletionService<DatabaseStub> service = new ExecutorCompletionService<DatabaseStub>( pool );
-        Map<DatabaseStub, String> mapping = new HashMap<DatabaseStub, String>( groupsAmount );
+        CompletionService<DatabaseStub> service = new ExecutorCompletionService<>( pool );
+        Map<DatabaseStub, String> mapping = new HashMap<>( groupsAmount );
         for ( Map.Entry<String, Connection> entry : groups.entrySet() ) {
           DatabaseStub stub = createStubDatabase( entry.getValue() );
           mapping.put( stub, entry.getKey() );
           service.submit( stub );
         }
 
-        Set<String> unmatchedGroups = new HashSet<String>( groups.keySet() );
+        Set<String> unmatchedGroups = new HashSet<>( groups.keySet() );
         for ( int i = 0; i < groupsAmount; i++ ) {
           DatabaseStub stub = service.take().get();
           assertTrue( unmatchedGroups.remove( mapping.get( stub ) ) );

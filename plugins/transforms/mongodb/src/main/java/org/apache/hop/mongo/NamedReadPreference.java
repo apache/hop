@@ -49,7 +49,7 @@ public enum NamedReadPreference {
   }
 
   public static Collection<String> getPreferenceNames() {
-    ArrayList<String> prefs = new ArrayList<String>();
+    ArrayList<String> prefs = new ArrayList<>();
 
     for (NamedReadPreference preference : NamedReadPreference.values()) {
       prefs.add(preference.getName());

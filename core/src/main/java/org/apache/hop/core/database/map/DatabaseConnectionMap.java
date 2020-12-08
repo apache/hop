@@ -57,9 +57,9 @@ public class DatabaseConnectionMap {
   }
 
   private DatabaseConnectionMap() {
-    map = new ConcurrentHashMap<String, Database>();
+    map = new ConcurrentHashMap<>();
     transactionId = new AtomicInteger( 0 );
-    transactionListenersMap = new HashMap<String, List<IDatabaseTransaction>>();
+    transactionListenersMap = new HashMap<>();
   }
 
   /**
@@ -132,7 +132,7 @@ public class DatabaseConnectionMap {
   public List<IDatabaseTransaction> getTransactionListeners( String transactionId ) {
     List<IDatabaseTransaction> transactionListeners = transactionListenersMap.get( transactionId );
     if ( transactionListeners == null ) {
-      transactionListeners = new ArrayList<IDatabaseTransaction>();
+      transactionListeners = new ArrayList<>();
       transactionListenersMap.put( transactionId, transactionListeners );
     }
     return transactionListeners;

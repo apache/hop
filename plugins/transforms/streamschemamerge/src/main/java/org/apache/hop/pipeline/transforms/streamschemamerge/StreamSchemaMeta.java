@@ -62,7 +62,7 @@ public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMet
     /**
      * Stores the names of the transforms to merge into the output
      */
-    private ArrayList<String> transformsToMerge = new ArrayList<String>();
+    private ArrayList<String> transformsToMerge = new ArrayList<>();
 
 	/**
 	 * Constructor should call super() to make sure the base class has a chance to initialize properly.
@@ -118,7 +118,7 @@ public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMet
      * @param arrayOfTransforms Names of steps to merge
      */
     public void setTransformsToMerge(String[] arrayOfTransforms) {
-        transformsToMerge = new ArrayList<String>();
+        transformsToMerge = new ArrayList<>();
         Collections.addAll(transformsToMerge, arrayOfTransforms);
     }
 

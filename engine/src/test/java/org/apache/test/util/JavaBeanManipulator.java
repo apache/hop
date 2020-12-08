@@ -45,8 +45,8 @@ public class JavaBeanManipulator<T> {
     this.clazz = clazz;
     this.getterMap = new HashMap<>( getterMap );
     this.setterMap = new HashMap<>( setterMap );
-    this.getterMethodMap = new HashMap<String, IGetter<?>>();
-    this.setterMethodMap = new HashMap<String, ISetter<?>>();
+    this.getterMethodMap = new HashMap<>();
+    this.setterMethodMap = new HashMap<>();
     populateGetters( attributes );
     populateSetters( attributes );
   }

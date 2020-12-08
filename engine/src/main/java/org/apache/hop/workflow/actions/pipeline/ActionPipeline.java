@@ -416,7 +416,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
     RowMetaAndData resultRow = null;
     boolean first = true;
-    List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>( result.getRows() );
+    List<RowMetaAndData> rows = new ArrayList<>( result.getRows() );
 
     while ( ( first && !execPerRow )
       || ( execPerRow && rows != null && iteration < rows.size() && result.getNrErrors() == 0 )
@@ -469,7 +469,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         }
 
         if ( clearResultRows ) {
-          previousResult.setRows( new ArrayList<RowMetaAndData>() );
+          previousResult.setRows( new ArrayList<>() );
         }
 
         if ( clearResultFiles ) {
@@ -483,7 +483,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           // Execute for each input row
 
           // Just pass a single row
-          List<RowMetaAndData> newList = new ArrayList<RowMetaAndData>();
+          List<RowMetaAndData> newList = new ArrayList<>();
           newList.add( resultRow );
 
           // This previous result rows list can be either empty or not.

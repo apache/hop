@@ -348,7 +348,7 @@ public class LdapInputField implements Cloneable {
   }
 
   static {
-    binaryAttributes = new HashSet<String>();
+    binaryAttributes = new HashSet<>();
     binaryAttributes.add("photo");
     binaryAttributes.add("personalSignature");
     binaryAttributes.add("audio");

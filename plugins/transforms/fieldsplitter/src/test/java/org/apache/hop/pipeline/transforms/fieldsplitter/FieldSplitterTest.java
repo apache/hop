@@ -72,7 +72,7 @@ public class FieldSplitterTest {
 
   @Before
   public void setUp() {
-    transformMockHelper = new TransformMockHelper<FieldSplitterMeta, FieldSplitterData>( "Field Splitter", FieldSplitterMeta.class, FieldSplitterData.class );
+    transformMockHelper = new TransformMockHelper<>( "Field Splitter", FieldSplitterMeta.class, FieldSplitterData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       transformMockHelper.iLogChannel );
     when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );

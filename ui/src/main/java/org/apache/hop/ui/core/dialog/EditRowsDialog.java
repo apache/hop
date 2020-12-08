@@ -357,7 +357,7 @@ public class EditRowsDialog {
         stringRowMeta.addValueMeta( stringValueMeta );
       }
 
-      List<Object[]> list = new ArrayList<Object[]>();
+      List<Object[]> list = new ArrayList<>();
 
       // Now read all the rows in the dialog, including the empty rows...
       //

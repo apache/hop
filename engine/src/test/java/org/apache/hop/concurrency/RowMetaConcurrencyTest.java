@@ -57,23 +57,23 @@ public class RowMetaConcurrencyTest {
     final AtomicBoolean condition = new AtomicBoolean( true );
     final RowMeta rowMeta = new RowMeta();
 
-    List<Adder> adders = new ArrayList<Adder>( addersAmount );
+    List<Adder> adders = new ArrayList<>( addersAmount );
     for ( int i = 0; i < addersAmount; i++ ) {
       adders.add( new Adder( condition, rowMeta, cycles, "adder" + i ) );
     }
 
-    List<Getter> getters = new ArrayList<Getter>( readersAmount );
+    List<Getter> getters = new ArrayList<>( readersAmount );
     for ( int i = 0; i < readersAmount; i++ ) {
       getters.add( new Getter( condition, rowMeta ) );
     }
 
     ConcurrencyTestRunner<List<IValueMeta>, ?> runner =
-      new ConcurrencyTestRunner<List<IValueMeta>, Object>( adders, getters, condition );
+      new ConcurrencyTestRunner<>( adders, getters, condition );
     runner.runConcurrentTest();
 
     runner.checkNoExceptionRaised();
 
-    Set<IValueMeta> results = new HashSet<IValueMeta>( cycles * addersAmount );
+    Set<IValueMeta> results = new HashSet<>( cycles * addersAmount );
     for ( List<IValueMeta> list : runner.getMonitoredTasksResults() ) {
       results.addAll( list );
     }
@@ -101,12 +101,12 @@ public class RowMetaConcurrencyTest {
 
     final AtomicBoolean condition = new AtomicBoolean( true );
 
-    List<Shuffler> shufflers = new ArrayList<Shuffler>( shufflersAmount );
+    List<Shuffler> shufflers = new ArrayList<>( shufflersAmount );
     for ( int i = 0; i < shufflersAmount; i++ ) {
       shufflers.add( new Shuffler( condition, rowMeta, cycles ) );
     }
 
-    List<Searcher> searchers = new ArrayList<Searcher>( searchersAmount );
+    List<Searcher> searchers = new ArrayList<>( searchersAmount );
     for ( int i = 0; i < searchersAmount; i++ ) {
       String name = "meta_" + ( new Random().nextInt( elementsAmount ) );
       assertTrue( rowMeta.indexOfValue( name ) >= 0 );
@@ -134,7 +134,7 @@ public class RowMetaConcurrencyTest {
 
     final AtomicBoolean condition = new AtomicBoolean( true );
 
-    List<Searcher> searchers = new ArrayList<Searcher>( searchersAmount );
+    List<Searcher> searchers = new ArrayList<>( searchersAmount );
     for ( int i = 0; i < searchersAmount; i++ ) {
       String name = "kept_" + i;
       rowMeta.addValueMeta( new ValueMetaString( name ) );
@@ -144,18 +144,18 @@ public class RowMetaConcurrencyTest {
 
     List<Remover> removers = Collections.singletonList( new Remover( condition, rowMeta, toRemove ) );
 
-    List<Adder> adders = new ArrayList<Adder>( addersAmount );
+    List<Adder> adders = new ArrayList<>( addersAmount );
     for ( int i = 0; i < addersAmount; i++ ) {
       adders.add( new Adder( condition, rowMeta, cycles, "adder" + i ) );
     }
 
-    List<Callable<?>> monitored = new ArrayList<Callable<?>>();
+    List<Callable<?>> monitored = new ArrayList<>();
     monitored.addAll( adders );
     monitored.addAll( removers );
 
 
     ConcurrencyTestRunner<?, ?> runner =
-      new ConcurrencyTestRunner<Object, Object>( monitored, searchers, condition );
+      new ConcurrencyTestRunner<>( monitored, searchers, condition );
     runner.runConcurrentTest();
 
     runner.checkNoExceptionRaised();
@@ -171,7 +171,7 @@ public class RowMetaConcurrencyTest {
       }
     }
     // adders should add all elements
-    Set<IValueMeta> metas = new HashSet<IValueMeta>( rowMeta.getValueMetaList() );
+    Set<IValueMeta> metas = new HashSet<>( rowMeta.getValueMetaList() );
     for ( Adder adder : adders ) {
       ExecutionResult<List<IValueMeta>> result =
         (ExecutionResult<List<IValueMeta>>) results.get( adder );
@@ -222,7 +222,7 @@ public class RowMetaConcurrencyTest {
     @Override
     List<IValueMeta> doCall() throws Exception {
       Random random = new Random();
-      List<IValueMeta> result = new ArrayList<IValueMeta>( cycles );
+      List<IValueMeta> result = new ArrayList<>( cycles );
       for ( int i = 0; ( i < cycles ) && condition.get(); i++ ) {
         IValueMeta added = new ValueMetaString( nameSeed + '_' + i );
         rowMeta.addValueMeta( added );
@@ -271,7 +271,7 @@ public class RowMetaConcurrencyTest {
     Object doCall() throws Exception {
       Random random = new Random();
       for ( int i = 0; ( i < cycles ) && condition.get(); i++ ) {
-        List<IValueMeta> list = new ArrayList<IValueMeta>( rowMeta.getValueMetaList() );
+        List<IValueMeta> list = new ArrayList<>( rowMeta.getValueMetaList() );
         Collections.shuffle( list );
         rowMeta.setValueMetaList( list );
         Thread.sleep( random.nextInt( 100 ) );
@@ -293,7 +293,7 @@ public class RowMetaConcurrencyTest {
     @Override
     List<String> doCall() throws Exception {
       Random random = new Random();
-      List<String> result = new LinkedList<String>( toRemove );
+      List<String> result = new LinkedList<>( toRemove );
       for ( Iterator<String> it = result.iterator(); it.hasNext() && condition.get(); ) {
         String name = it.next();
         rowMeta.removeValueMeta( name );

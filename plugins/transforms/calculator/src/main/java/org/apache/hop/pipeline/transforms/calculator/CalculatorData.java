@@ -48,7 +48,7 @@ public class CalculatorData extends BaseTransformData implements ITransformData 
 
   public CalculatorData() {
     super();
-    resultMetaMapping = new HashMap<Integer, IValueMeta>();
+    resultMetaMapping = new HashMap<>();
   }
 
   public IRowMeta getOutputRowMeta() {

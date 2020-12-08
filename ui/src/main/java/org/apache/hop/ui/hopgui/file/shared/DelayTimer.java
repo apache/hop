@@ -46,7 +46,7 @@ public class DelayTimer implements Runnable {
 
   public DelayTimer( int delayInMiliseconds ) {
     this.delayInMiliseconds = delayInMiliseconds;
-    this.delayListeners = new ArrayList<IDelayListener>();
+    this.delayListeners = new ArrayList<>();
 
     stopped = false;
   }

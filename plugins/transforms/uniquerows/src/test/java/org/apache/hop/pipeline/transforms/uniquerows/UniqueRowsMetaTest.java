@@ -65,11 +65,11 @@ public class UniqueRowsMetaTest {
     setterMap.put( "case_insensitive", "setCaseInsensitive" );
 
     Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorAttributeMap =
-      new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new HashMap<>();
 
     //Arrays need to be consistent length
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 25 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 25 );
     IFieldLoadSaveValidator<boolean[]> booleanArrayLoadSaveValidator =
       new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 25 );
 
@@ -78,7 +78,7 @@ public class UniqueRowsMetaTest {
 
     LoadSaveTester loadSaveTester =
       new LoadSaveTester( UniqueRowsMeta.class, attributes, getterMap, setterMap,
-        fieldLoadSaveValidatorAttributeMap, new HashMap<String, IFieldLoadSaveValidator<?>>() );
+        fieldLoadSaveValidatorAttributeMap, new HashMap<>() );
 
     loadSaveTester.testSerialization();
   }

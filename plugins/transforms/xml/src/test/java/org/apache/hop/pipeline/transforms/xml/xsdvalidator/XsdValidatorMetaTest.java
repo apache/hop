@@ -39,7 +39,7 @@ public class XsdValidatorMetaTest {
         Arrays.asList( "xdsfilename", "xmlstream", "resultfieldname", "addvalidationmsg", "validationmsgfield",
             "ifxmlunvalid", "ifxmlvalid", "outputstringfield", "xmlsourcefile", "xsddefinedfield", "xsdsource" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put( "xdsfilename", "getXSDFilename" );
     getterMap.put( "xmlstream", "getXMLStream" );
     getterMap.put( "resultfieldname", "getResultfieldname" );
@@ -52,7 +52,7 @@ public class XsdValidatorMetaTest {
     getterMap.put( "xsddefinedfield", "getXSDDefinedField" );
     getterMap.put( "xsdsource", "getXSDSource" );
 
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put( "xdsfilename", "setXSDfilename" );
     setterMap.put( "xmlstream", "setXMLStream" );
     setterMap.put( "resultfieldname", "setResultfieldname" );

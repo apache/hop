@@ -67,19 +67,19 @@ public class SynchronizeAfterMergeMetaTest implements IInitializer<ITransform> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "keyStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyStream2", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyLookup", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyCondition", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "updateLookup", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "updateStream", stringArrayLoadSaveValidator );
-    attrValidatorMap.put( "update", new ArrayLoadSaveValidator<Boolean>( new BooleanLoadSaveValidator(), 5 ) );
+    attrValidatorMap.put( "update", new ArrayLoadSaveValidator<>( new BooleanLoadSaveValidator(), 5 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

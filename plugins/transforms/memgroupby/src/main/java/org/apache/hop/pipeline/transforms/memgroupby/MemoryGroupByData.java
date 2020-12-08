@@ -112,6 +112,6 @@ public class MemoryGroupByData extends BaseTransformData implements ITransformDa
    * Method responsible for clearing out memory hogs
    */
   public void clear() {
-    map = new HashMap<HashEntry, Aggregate>();
+    map = new HashMap<>();
   }
 }

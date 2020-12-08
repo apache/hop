@@ -43,9 +43,9 @@ public class RowTransformCollector implements IRowListener {
   private List<RowMetaAndData> rowsError;
 
   public RowTransformCollector() {
-    rowsRead = new ArrayList<RowMetaAndData>();
-    rowsWritten = new ArrayList<RowMetaAndData>();
-    rowsError = new ArrayList<RowMetaAndData>();
+    rowsRead = new ArrayList<>();
+    rowsWritten = new ArrayList<>();
+    rowsError = new ArrayList<>();
   }
 
   public void rowReadEvent( IRowMeta rowMeta, Object[] row ) {

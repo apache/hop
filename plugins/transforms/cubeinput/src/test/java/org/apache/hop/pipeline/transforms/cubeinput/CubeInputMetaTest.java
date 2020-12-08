@@ -54,7 +54,7 @@ public class CubeInputMetaTest {
 
     LoadSaveTester loadSaveTester =
       new LoadSaveTester( CubeInputMeta.class, attributes, getterMap, setterMap,
-        new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
+        new HashMap<>(), new HashMap<>() );
 
     loadSaveTester.testSerialization();
   }

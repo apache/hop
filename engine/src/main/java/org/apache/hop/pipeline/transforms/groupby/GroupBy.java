@@ -456,7 +456,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
               data.distinctObjs = new Set[ meta.getSubjectField().length ];
             }
             if ( data.distinctObjs[ i ] == null ) {
-              data.distinctObjs[ i ] = new TreeSet<Object>();
+              data.distinctObjs[ i ] = new TreeSet<>();
             }
             Object obj = subjMeta.convertToNormalStorageType( subj );
             if ( !data.distinctObjs[ i ].contains( obj ) ) {

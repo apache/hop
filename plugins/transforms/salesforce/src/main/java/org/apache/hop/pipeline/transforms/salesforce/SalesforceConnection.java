@@ -419,7 +419,7 @@ public class SalesforceConnection {
               // We can pass a maximum of 2000 object IDs
               if ( nr > SalesforceConnectionUtils.MAX_UPDATED_OBJECTS_IDS ) {
                 this.sObjects = new SObject[ nr ];
-                List<String> list = new ArrayList<String>();
+                List<String> list = new ArrayList<>();
                 int desPos = 0;
                 for ( int i = 0; i < nr; i++ ) {
                   list.add( updatedRecords.getIds()[ i ] );
@@ -431,7 +431,7 @@ public class SalesforceConnection {
                     System.arraycopy( s, 0, this.sObjects, desPos, s.length );
                     desPos += s.length;
                     s = null;
-                    list = new ArrayList<String>();
+                    list = new ArrayList<>();
                   }
                 }
               } else {
@@ -457,7 +457,7 @@ public class SalesforceConnection {
           }
 
           if ( deletedRecords != null && deletedRecords.length > 0 ) {
-            getDeletedList = new HashMap<String, Date>();
+            getDeletedList = new HashMap<>();
 
             for ( DeletedRecord dr : deletedRecords ) {
               getDeletedList.put( dr.getId(), dr.getDeletedDate().getTime() );
@@ -690,7 +690,7 @@ public class SalesforceConnection {
       sobjectResults = dgr.getSobjects();
       int nrObjects = dgr.getSobjects().length;
 
-      objects = new ArrayList<String>();
+      objects = new ArrayList<>();
 
       for ( int i = 0; i < nrObjects; i++ ) {
         DescribeGlobalSObjectResult o = dgr.getSobjects()[ i ];
@@ -753,7 +753,7 @@ public class SalesforceConnection {
   public Field[] getObjectFields( String objectName, boolean excludeNonUpdatableFields ) throws HopException {
     Field[] fieldList = getObjectFields( objectName );
     if ( excludeNonUpdatableFields ) {
-      ArrayList<Field> finalFieldList = new ArrayList<Field>();
+      ArrayList<Field> finalFieldList = new ArrayList<>();
       for ( Field f : fieldList ) {
         // Leave out fields that can't be updated but
         if ( isIdField( f ) || !f.isCalculated() && f.isUpdateable() ) {
@@ -831,7 +831,7 @@ public class SalesforceConnection {
    */
   public String[] getFields( Field[] fields, boolean excludeNonUpdatableFields ) throws HopException {
     if ( fields != null ) {
-      ArrayList<String> fieldsList = new ArrayList<String>( fields.length );
+      ArrayList<String> fieldsList = new ArrayList<>( fields.length );
       for ( Field field : fields ) {
         //Add the name of the field - always
         fieldsList.add( field.getName() );

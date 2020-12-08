@@ -72,7 +72,7 @@ class KerberosMongoClientWrapper
 
   @Override
   public List<MongoCredential> getCredentialList() {
-    List<MongoCredential> credList = new ArrayList<MongoCredential>();
+    List<MongoCredential> credList = new ArrayList<>();
     credList.add(MongoCredential.createGSSAPICredential(props.get(MongoProp.USERNAME)));
     return credList;
   }

@@ -63,7 +63,7 @@ public class TextVarWarning extends Composite implements ISupportsWarning {
   public TextVarWarning( IVariables variables, Composite composite, int flags ) {
     super( composite, SWT.NONE );
 
-    warningInterfaces = new ArrayList<IWarning>();
+    warningInterfaces = new ArrayList<>();
 
     FormLayout formLayout = new FormLayout();
     formLayout.marginWidth = 0;

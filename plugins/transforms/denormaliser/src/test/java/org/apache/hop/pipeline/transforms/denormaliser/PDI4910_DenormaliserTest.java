@@ -50,7 +50,7 @@ public class PDI4910_DenormaliserTest {
 
   @Before
   public void init() {
-    mockHelper = new TransformMockHelper<DenormaliserMeta, DenormaliserData>( "Denormalizer", DenormaliserMeta.class, DenormaliserData.class );
+    mockHelper = new TransformMockHelper<>( "Denormalizer", DenormaliserMeta.class, DenormaliserData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) )
       .thenReturn( mockHelper.iLogChannel );
   }
@@ -66,7 +66,7 @@ public class PDI4910_DenormaliserTest {
     // init transform data
     DenormaliserData data = new DenormaliserData();
     data.keyFieldNr = 0;
-    data.keyValue = new HashMap<String, List<Integer>>();
+    data.keyValue = new HashMap<>();
     data.keyValue.put( "1", Arrays.asList( new Integer[] { 0, 1 } ) );
     data.fieldNameIndex = new int[] { 1, 2 };
     data.inputRowMeta = new RowMeta();

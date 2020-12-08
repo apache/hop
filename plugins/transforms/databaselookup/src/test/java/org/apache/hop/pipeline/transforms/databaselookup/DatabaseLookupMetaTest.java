@@ -74,9 +74,9 @@ public class DatabaseLookupMetaTest implements IInitializer<ITransformMeta> {
     Map<String, String> setterMap = new HashMap<>();
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "streamKeyField1", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "streamKeyField2", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyCondition", stringArrayLoadSaveValidator );
@@ -89,7 +89,7 @@ public class DatabaseLookupMetaTest implements IInitializer<ITransformMeta> {
 
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
@@ -125,7 +125,7 @@ public class DatabaseLookupMetaTest implements IInitializer<ITransformMeta> {
 
     IValueMeta r1 = new ValueMetaString( "value" );
     IRowMeta row = new RowMeta();
-    row.setValueMetaList( new ArrayList<IValueMeta>( Arrays.asList( r1 ) ) );
+    row.setValueMetaList( new ArrayList<>( Arrays.asList( r1 ) ) );
 
     databaseLookupMeta.getFields( row, "", info, null, null, null );
 

@@ -155,7 +155,7 @@ public class TransformMeta implements
     transformPartitioningMeta = new TransformPartitioningMeta();
     targetTransformPartitioningMeta = null;
 
-    attributesMap = new HashMap<String, Map<String, String>>();
+    attributesMap = new HashMap<>();
   }
 
   public TransformMeta() {
@@ -444,10 +444,10 @@ public class TransformMeta implements
 
   private static Map<String, Map<String, String>> copyStringMap( Map<String, Map<String, String>> map ) {
     if ( map == null ) {
-      return new HashMap<String, Map<String, String>>();
+      return new HashMap<>();
     }
 
-    Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>( map.size() );
+    Map<String, Map<String, String>> result = new HashMap<>( map.size() );
     for ( Map.Entry<String, Map<String, String>> entry : map.entrySet() ) {
       Map<String, String> value = entry.getValue();
       HashMap<String, String> copy = ( value == null ) ? null : new HashMap<>( value );

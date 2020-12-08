@@ -281,7 +281,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
     }
     int linenr = 1;
 
-    List<StringEvaluator> evaluators = new ArrayList<StringEvaluator>();
+    List<StringEvaluator> evaluators = new ArrayList<>();
 
     // Allocate number and date parsers
     DecimalFormat df2 = (DecimalFormat) NumberFormat.getInstance();

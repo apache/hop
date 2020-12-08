@@ -380,7 +380,7 @@ public class UIGit extends VCS implements IVCS {
    */
   @Override
   public List<UIFile> getUnstagedFiles() {
-    List<UIFile> files = new ArrayList<UIFile>();
+    List<UIFile> files = new ArrayList<>();
     Status status = null;
     try {
       status = git.status().call();
@@ -420,7 +420,7 @@ public class UIGit extends VCS implements IVCS {
    */
   @Override
   public List<UIFile> getStagedFiles() {
-    List<UIFile> files = new ArrayList<UIFile>();
+    List<UIFile> files = new ArrayList<>();
     Status status = null;
     try {
       status = git.status().call();
@@ -454,7 +454,7 @@ public class UIGit extends VCS implements IVCS {
    */
   @Override
   public List<UIFile> getStagedFiles(String oldCommitId, String newCommitId) {
-    List<UIFile> files = new ArrayList<UIFile>();
+    List<UIFile> files = new ArrayList<>();
     try {
       List<DiffEntry> diffs =
           getDiffCommand(oldCommitId, newCommitId).setShowNameAndStatusOnly(true).call();

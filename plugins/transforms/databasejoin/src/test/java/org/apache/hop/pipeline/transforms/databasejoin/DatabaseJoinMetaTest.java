@@ -60,15 +60,15 @@ public class DatabaseJoinMetaTest implements IInitializer<ITransformMeta> {
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
 
-    attrValidatorMap.put( "parameterField", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 ) );
+    attrValidatorMap.put( "parameterField", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 ) );
 
     attrValidatorMap.put( "parameterType", new PrimitiveIntArrayLoadSaveValidator( new NonZeroIntLoadSaveValidator( 7 ), 5 ) );
 
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

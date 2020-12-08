@@ -553,7 +553,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
   public boolean init() {
 
     if ( super.init() ) {
-      data.map = new HashMap<HashEntry, Aggregate>( 5000 );
+      data.map = new HashMap<>( 5000 );
       return true;
     }
     return false;

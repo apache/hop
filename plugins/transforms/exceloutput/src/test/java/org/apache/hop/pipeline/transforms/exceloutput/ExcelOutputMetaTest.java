@@ -72,9 +72,9 @@ public class ExcelOutputMetaTest implements IInitializer<ITransformMeta> {
       }
     };
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "outputFields",
-      new ArrayLoadSaveValidator<ExcelField>( new ExcelFieldLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new ExcelFieldLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "headerFontName", new IntLoadSaveValidator( ExcelOutputMeta.fontNameCode.length ) );
     attrValidatorMap.put( "headerFontUnderline", new IntLoadSaveValidator( ExcelOutputMeta.font_underlineCode.length ) );
     attrValidatorMap.put( "headerFontOrientation", new IntLoadSaveValidator( ExcelOutputMeta.font_orientationCode.length ) );
@@ -85,7 +85,7 @@ public class ExcelOutputMetaTest implements IInitializer<ITransformMeta> {
     attrValidatorMap.put( "rowFontName", new IntLoadSaveValidator( ExcelOutputMeta.fontNameCode.length ) );
     attrValidatorMap.put( "rowFontColor", new IntLoadSaveValidator( ExcelOutputMeta.fontColorCode.length ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

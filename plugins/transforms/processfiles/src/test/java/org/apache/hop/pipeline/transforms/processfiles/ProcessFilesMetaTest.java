@@ -47,11 +47,11 @@ public class ProcessFilesMetaTest {
     Map<String, String> getterMap = new HashMap<>();
     Map<String, String> setterMap = new HashMap<>();
 
-    Map<String, IFieldLoadSaveValidator<?>> attributeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attributeMap = new HashMap<>();
     attributeMap.put( "OperationType", new IntLoadSaveValidator( ProcessFilesMeta.operationTypeCode.length ) );
-    Map<String, IFieldLoadSaveValidator<?>> typeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeMap = new HashMap<>();
 
-    LoadSaveTester<ProcessFilesMeta> tester = new LoadSaveTester<ProcessFilesMeta>(
+    LoadSaveTester<ProcessFilesMeta> tester = new LoadSaveTester<>(
       ProcessFilesMeta.class, attributes, getterMap, setterMap, attributeMap, typeMap );
 
     tester.testSerialization();

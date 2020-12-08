@@ -104,19 +104,19 @@ public class YamlInputMetaTest implements IInitializer<YamlInputMeta> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
     IFieldLoadSaveValidator<YamlInputField[]> yamlInputFieldArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<YamlInputField>( new YamlInputFieldLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new YamlInputFieldLoadSaveValidator(), 5 );
 
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileRequired", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "includeSubFolders", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "inputFields", yamlInputFieldArrayLoadSaveValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

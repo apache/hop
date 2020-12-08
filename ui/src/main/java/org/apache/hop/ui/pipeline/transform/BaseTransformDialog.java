@@ -357,7 +357,7 @@ public class BaseTransformDialog extends Dialog {
     }
     if (Const.isOSX()) {
       Shell parentShell = composite.getShell();
-      final List<TableView> tableViews = new ArrayList<TableView>();
+      final List<TableView> tableViews = new ArrayList<>();
       getTableViews(parentShell, tableViews);
       for (final Button button : buttons) {
         // We know the table views
@@ -576,15 +576,15 @@ public class BaseTransformDialog extends Dialog {
       Composite parent, Control previous, DatabaseMeta selected, ModifyListener lsMod) {
 
     final MetaSelectionLine<DatabaseMeta> wConnection =
-        new MetaSelectionLine<DatabaseMeta>(
-            variables,
-            metadataProvider,
-            DatabaseMeta.class,
-            parent,
-            SWT.NONE,
-            BaseMessages.getString(PKG, "BaseTransformDialog.Connection.Label"),
-            "Select the relational database connection to use" // TODO : i18n
-            );
+      new MetaSelectionLine<>(
+        variables,
+        metadataProvider,
+        DatabaseMeta.class,
+        parent,
+        SWT.NONE,
+        BaseMessages.getString( PKG, "BaseTransformDialog.Connection.Label" ),
+        "Select the relational database connection to use" // TODO : i18n
+      );
     wConnection.addToConnectionLine(parent, previous, selected, lsMod);
     return wConnection;
   }

@@ -98,8 +98,8 @@ public class ExcelInputMetaTest {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fileName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "sheetName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
@@ -107,9 +107,9 @@ public class ExcelInputMetaTest {
     attrValidatorMap.put( "fileRequired", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "includeSubFolders", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "field",
-      new ArrayLoadSaveValidator<ExcelInputField>( new ExcelInputFieldLoadSaveValidator(), 5 ) );
+      new ArrayLoadSaveValidator<>( new ExcelInputFieldLoadSaveValidator(), 5 ) );
     attrValidatorMap.put( "spreadSheetType", new SpreadSheetTypeFieldLoadSaveValidator() );
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
     typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator(
       new IntLoadSaveValidator(), 5 ) );
 
@@ -206,12 +206,12 @@ public class ExcelInputMetaTest {
     IFieldLoadSaveValidator<String[]> nullStringArrayLoadSaveValidator = new NullStringArrayLoadSaveValidator();
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 1 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 1 );
 
     NullNameExcelInputArrayFieldLoadSaveValidator nullNameExcelInputArrayFieldLoadSaveValidator =
       new NullNameExcelInputArrayFieldLoadSaveValidator();
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fileName", nullStringArrayLoadSaveValidator );
     attrValidatorMap.put( "fileMask", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "excludeFileMask", stringArrayLoadSaveValidator );
@@ -221,7 +221,7 @@ public class ExcelInputMetaTest {
     attrValidatorMap.put( "field", nullNameExcelInputArrayFieldLoadSaveValidator );
     attrValidatorMap.put( "spreadSheetType", new SpreadSheetTypeFieldLoadSaveValidator() );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
     typeValidatorMap.put( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator(
       new IntLoadSaveValidator(), 1 ) );
 

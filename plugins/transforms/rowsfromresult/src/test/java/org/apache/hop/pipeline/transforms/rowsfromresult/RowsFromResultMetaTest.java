@@ -60,10 +60,10 @@ public class RowsFromResultMetaTest implements IInitializer<ITransformMeta> {
     Map<String, String> setterMap = new HashMap<>();
 
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldname", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "type",
       new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 7 ), 5 ) );
@@ -72,7 +72,7 @@ public class RowsFromResultMetaTest implements IInitializer<ITransformMeta> {
     attrValidatorMap.put( "precision",
       new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 9 ), 5 ) );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester = new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
         getterMap, setterMap, attrValidatorMap, typeValidatorMap, this );

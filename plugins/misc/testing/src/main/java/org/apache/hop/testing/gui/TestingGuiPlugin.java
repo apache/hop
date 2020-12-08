@@ -280,7 +280,7 @@ public class TestingGuiPlugin {
       fieldMappings.add(new PipelineUnitTestFieldMapping(transformFieldName, setFieldName));
     }
 
-    List<String> setFieldOrder = new ArrayList<String>();
+    List<String> setFieldOrder = new ArrayList<>();
     for (Object[] orderMapping : orderMappings) {
       String setFieldName = sortMeta.getString(orderMapping, 0);
       setFieldOrder.add(setFieldName);
@@ -445,7 +445,7 @@ public class TestingGuiPlugin {
     sortMeta.addValueMeta(
         new ValueMetaString(
             BaseMessages.getString(PKG, "TestingGuiPlugin.SortOrder.Column.SetField")));
-    List<Object[]> sortData = new ArrayList<Object[]>();
+    List<Object[]> sortData = new ArrayList<>();
     for (String setFieldName : setFieldNames) {
       sortData.add(new Object[] {setFieldName});
     }
@@ -484,7 +484,7 @@ public class TestingGuiPlugin {
               mapping.getTargetString(setFieldNames)));
     }
 
-    List<String> setFieldOrder = new ArrayList<String>();
+    List<String> setFieldOrder = new ArrayList<>();
     for (Object[] orderMapping : orderMappings) {
       setFieldOrder.add(sortMeta.getString(orderMapping, 0));
     }

@@ -43,7 +43,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    */
   private static final long serialVersionUID = 925133158112717153L;
 
-  private final Map<String, KeyValue<?>> entries = new TreeMap<String, KeyValue<?>>();
+  private final Map<String, KeyValue<?>> entries = new TreeMap<>();
 
   /**
    * Add key value(s).
@@ -87,7 +87,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    * @throws IllegalArgumentException if filter is null.
    */
   public List<KeyValue<?>> get( final Predicate filter ) throws IllegalArgumentException {
-    final AddClosureArrayList<KeyValue<?>> result = new AddClosureArrayList<KeyValue<?>>();
+    final AddClosureArrayList<KeyValue<?>> result = new AddClosureArrayList<>();
     this.walk( result, filter );
     return result;
   }
@@ -115,14 +115,14 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    * @return key values/entries.
    */
   public List<KeyValue<?>> keyValues() {
-    return new ArrayList<KeyValue<?>>( this.entries.values() );
+    return new ArrayList<>( this.entries.values() );
   }
 
   /**
    * @return values.
    */
   public List<Object> values() {
-    final List<Object> result = new ArrayList<Object>();
+    final List<Object> result = new ArrayList<>();
     for ( KeyValue<?> keyValue : this.entries.values() ) {
       result.add( keyValue.getValue() );
     }
@@ -133,7 +133,7 @@ public class KeyValueSet implements Iterable<KeyValue<?>>, Serializable {
    * @return entries as map.
    */
   public Map<String, Object> toMap() {
-    final Map<String, Object> map = new TreeMap<String, Object>();
+    final Map<String, Object> map = new TreeMap<>();
     for ( KeyValue<?> keyValue : this.entries.values() ) {
       map.put( keyValue.getKey(), keyValue.getValue() );
     }

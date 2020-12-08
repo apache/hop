@@ -98,7 +98,7 @@ public class HopServerPipelineStatusTest {
     // TODO Add TransformStatusList
     List<String> attributes = Arrays.asList( "PipelineName", "Id", "StatusDescription", "ErrorDescription",
       "LogDate", "Paused", "FirstLoggingLineNr", "LastLoggingLineNr", "LoggingString" );
-    Map<String, IFieldLoadSaveValidator<?>> attributeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attributeMap = new HashMap<>();
     attributeMap.put( "LoggingString", new LoggingStringLoadSaveValidator() );
 
     HopServerPipelineStatusLoadSaveTester tester = new HopServerPipelineStatusLoadSaveTester( HopServerPipelineStatus.class, attributes, attributeMap );

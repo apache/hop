@@ -153,7 +153,7 @@ public class JsonOutputTest extends TestCase {
    * @return list of metadata/data couples of how the result should look like.
    */
   public List<RowMetaAndData> createResultData1() {
-    List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> list = new ArrayList<>();
 
     IRowMeta rowMetaInterface = createResultRowMeta();
 
@@ -203,7 +203,7 @@ public class JsonOutputTest extends TestCase {
    * @return
    */
   public List<RowMetaAndData> createData() {
-    List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> list = new ArrayList<>();
     IRowMeta rowMetaInterface = createIRowMeta();
     Object[] r1 = new Object[] {};
     list.add( new RowMetaAndData( rowMetaInterface, r1 ) );
@@ -353,7 +353,7 @@ public class JsonOutputTest extends TestCase {
   /* PDI-7243 */
   public void testNpeIsNotThrownOnNullInput() throws Exception {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
-        new TransformMockHelper<JsonOutputMeta, JsonOutputData>( "jsonOutput", JsonOutputMeta.class, JsonOutputData.class );
+      new TransformMockHelper<>( "jsonOutput", JsonOutputMeta.class, JsonOutputData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
         mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
@@ -370,7 +370,7 @@ public class JsonOutputTest extends TestCase {
 
   public void testEmptyDoesntWriteToFile() throws Exception {
     TransformMockHelper<JsonOutputMeta, JsonOutputData> mockHelper =
-            new TransformMockHelper<JsonOutputMeta, JsonOutputData>( "jsonOutput", JsonOutputMeta.class, JsonOutputData.class );
+      new TransformMockHelper<>( "jsonOutput", JsonOutputMeta.class, JsonOutputData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
             mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );

@@ -540,15 +540,15 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
 
     // In memory buffer
     //
-    data.buffer = new ArrayList<Object[]>( 5000 );
+    data.buffer = new ArrayList<>( 5000 );
 
     // Buffer for reading from disk
     //
-    data.rowbuffer = new ArrayList<Object[]>( 5000 );
+    data.rowbuffer = new ArrayList<>( 5000 );
 
     data.compressFiles = getBooleanValueOfVariable( meta.getCompressFilesVariable(), meta.getCompressFiles() );
 
-    data.tempRows = new ArrayList<RowTempFile>();
+    data.tempRows = new ArrayList<>();
 
     data.minSortSize = 5000;
 

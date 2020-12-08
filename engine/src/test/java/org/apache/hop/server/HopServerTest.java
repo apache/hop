@@ -273,7 +273,7 @@ public class HopServerTest {
   @Test
   public void testModifyingName() {
     hopServer.setName("test");
-    List<HopServer> list = new ArrayList<HopServer>();
+    List<HopServer> list = new ArrayList<>();
     list.add(hopServer);
 
     HopServer hopServer2 = spy(new HopServer());

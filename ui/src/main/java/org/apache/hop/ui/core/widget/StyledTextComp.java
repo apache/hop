@@ -100,8 +100,8 @@ public class StyledTextComp extends Composite {
     super( parent, SWT.NONE );
     this.varsSensitive = varsSensitive;
     this.variables = variables;
-    undoStack = new LinkedList<UndoRedoStack>();
-    redoStack = new LinkedList<UndoRedoStack>();
+    undoStack = new LinkedList<>();
+    redoStack = new LinkedList<>();
     styledText = new StyledText( this, args );
     styledTextPopupmenu = new Menu( parent.getShell(), SWT.POP_UP );
     xParent = parent;

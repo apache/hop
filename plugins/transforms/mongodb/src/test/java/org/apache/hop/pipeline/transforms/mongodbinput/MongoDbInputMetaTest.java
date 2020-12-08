@@ -50,7 +50,7 @@ public class MongoDbInputMetaTest {
 
   @Test
   public void testRoundTrips() throws HopException, SecurityException {
-    Map<String, String> getterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
     getterMap.put("hostname", "getHostnames");
     getterMap.put("auth_user", "getAuthenticationUser");
     getterMap.put("auth_password", "getAuthenticationPassword");
@@ -59,7 +59,7 @@ public class MongoDbInputMetaTest {
     getterMap.put("execute_for_each_row", "getExecuteForEachIncomingRow");
     getterMap.put("mongo_fields", "getMongoFields");
     getterMap.put("tag_sets", "getReadPrefTagSets");
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> setterMap = new HashMap<>();
     setterMap.put("hostname", "setHostnames");
     setterMap.put("auth_user", "setAuthenticationUser");
     setterMap.put("auth_password", "setAuthenticationPassword");

@@ -343,7 +343,7 @@ public class ZipFile extends BaseTransform<ZipFileMeta,ZipFileData> implements I
     ZipInputStream zin = null;
     ZipEntry entry = null;
     File tempFile = null;
-    HashSet<String> fileSet = new HashSet<String>();
+    HashSet<String> fileSet = new HashSet<>();
 
     try {
 

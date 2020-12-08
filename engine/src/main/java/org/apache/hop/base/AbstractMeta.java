@@ -97,13 +97,13 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
 
   protected String filename;
 
-  protected Set<INameChangedListener> nameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<INameChangedListener, Boolean>() );
+  protected Set<INameChangedListener> nameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
-  protected Set<IFilenameChangedListener> filenameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<IFilenameChangedListener, Boolean>() );
+  protected Set<IFilenameChangedListener> filenameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
-  protected Set<IContentChangedListener> contentChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<IContentChangedListener, Boolean>() );
+  protected Set<IContentChangedListener> contentChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
-  protected Set<ICurrentDirectoryChangedListener> currentDirectoryChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<ICurrentDirectoryChangedListener, Boolean>() );
+  protected Set<ICurrentDirectoryChangedListener> currentDirectoryChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
   protected List<NotePadMeta> notes;
 
@@ -818,7 +818,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INam
    * @return A list of all the selected notes.
    */
   public List<NotePadMeta> getSelectedNotes() {
-    List<NotePadMeta> selection = new ArrayList<NotePadMeta>();
+    List<NotePadMeta> selection = new ArrayList<>();
     for ( NotePadMeta note : notes ) {
       if ( note.isSelected() ) {
         selection.add( note );

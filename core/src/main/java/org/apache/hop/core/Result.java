@@ -192,8 +192,8 @@ public class Result implements Cloneable {
     result = false;
 
     exitStatus = 0;
-    rows = new ArrayList<RowMetaAndData>();
-    resultFiles = new ConcurrentHashMap<String, ResultFile>();
+    rows = new ArrayList<>();
+    resultFiles = new ConcurrentHashMap<>();
 
     stopped = false;
     entryNr = 0;
@@ -220,7 +220,7 @@ public class Result implements Cloneable {
       Result result = (Result) super.clone();
       result.setRows( null );
       if ( resultFiles != null ) {
-        Map<String, ResultFile> clonedFiles = new ConcurrentHashMap<String, ResultFile>();
+        Map<String, ResultFile> clonedFiles = new ConcurrentHashMap<>();
         Collection<ResultFile> files = resultFiles.values();
         for ( ResultFile file : files ) {
           clonedFiles.put( file.getFile().toString(), file.clone() );
@@ -248,7 +248,7 @@ public class Result implements Cloneable {
 
       // Clone result rows and files as well...
       if ( rows != null ) {
-        List<RowMetaAndData> clonedRows = new ArrayList<RowMetaAndData>();
+        List<RowMetaAndData> clonedRows = new ArrayList<>();
         for ( int i = 0; i < rows.size(); i++ ) {
           clonedRows.add( ( rows.get( i ) ).clone() );
         }
@@ -256,7 +256,7 @@ public class Result implements Cloneable {
       }
 
       if ( resultFiles != null ) {
-        Map<String, ResultFile> clonedFiles = new ConcurrentHashMap<String, ResultFile>();
+        Map<String, ResultFile> clonedFiles = new ConcurrentHashMap<>();
         Collection<ResultFile> files = resultFiles.values();
         for ( ResultFile file : files ) {
           clonedFiles.put( file.getFile().toString(), file.clone() );
@@ -743,7 +743,7 @@ public class Result implements Cloneable {
    * @see org.apache.hop.core.ResultFile
    */
   public List<ResultFile> getResultFilesList() {
-    return new ArrayList<ResultFile>( resultFiles.values() );
+    return new ArrayList<>( resultFiles.values() );
   }
 
   /**

@@ -400,7 +400,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
       RowMetaAndData resultRow = null;
       boolean first = true;
-      List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>(result.getRows());
+      List<RowMetaAndData> rows = new ArrayList<>( result.getRows() );
 
       while ((first && !execPerRow)
           || (execPerRow && rows != null && iteration < rows.size() && result.getNrErrors() == 0)) {
@@ -479,7 +479,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
           // Execute for each input row
           // Just pass a single row
           //
-          List<RowMetaAndData> newList = new ArrayList<RowMetaAndData>();
+          List<RowMetaAndData> newList = new ArrayList<>();
           newList.add(resultRow);
           sourceRows = newList;
 
@@ -630,7 +630,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
         // Set the result rows too, if any ...
         if (!Utils.isEmpty(oneResult.getRows())) {
-          result.setRows(new ArrayList<RowMetaAndData>(oneResult.getRows()));
+          result.setRows( new ArrayList<>( oneResult.getRows() ));
         }
 
         // if one of them fails (in the loop), increase the number of errors

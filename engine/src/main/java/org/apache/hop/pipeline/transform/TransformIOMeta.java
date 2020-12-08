@@ -50,7 +50,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     this.outputProducer = outputProducer;
     this.inputOptional = inputOptional;
     this.sortedDataRequired = sortedDataRequired;
-    this.streams = java.util.Collections.synchronizedList( new ArrayList<IStream>() );
+    this.streams = java.util.Collections.synchronizedList( new ArrayList<>() );
     this.inputDynamic = inputDynamic;
     this.outputDynamic = outputDynamic;
   }
@@ -111,7 +111,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
    * metadata.
    */
   public List<IStream> getInfoStreams() {
-    List<IStream> list = new ArrayList<IStream>();
+    List<IStream> list = new ArrayList<>();
     synchronized ( streams ) {
       for ( IStream stream : streams ) {
         if ( stream.getStreamType().equals( IStream.StreamType.INFO ) ) {
@@ -127,7 +127,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
    * metadata.
    */
   public List<IStream> getTargetStreams() {
-    List<IStream> list = new ArrayList<IStream>();
+    List<IStream> list = new ArrayList<>();
     synchronized ( streams ) {
       for ( IStream stream : streams ) {
         if ( stream.getStreamType().equals( IStream.StreamType.TARGET ) ) {
@@ -182,7 +182,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   public void setInfoTransforms( TransformMeta[] infoTransforms ) {
     // First get the info transforms...
     //
-    List<IStream> list = new ArrayList<IStream>();
+    List<IStream> list = new ArrayList<>();
     synchronized ( streams ) {
       for ( IStream stream : streams ) {
         if ( stream.getStreamType().equals( IStream.StreamType.INFO ) ) {

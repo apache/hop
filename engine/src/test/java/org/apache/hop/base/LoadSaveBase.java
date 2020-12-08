@@ -62,11 +62,11 @@ public abstract class LoadSaveBase<T> {
     this.clazz = clazz;
     this.xmlAttributes = concat( commonAttributes, xmlAttributes );
     this.manipulator =
-      new JavaBeanManipulator<T>( clazz, this.xmlAttributes, getterMap, setterMap );
+      new JavaBeanManipulator<>( clazz, this.xmlAttributes, getterMap, setterMap );
     this.initializer = initializer;
 
     Map<IGetter<?>, IFieldLoadSaveValidator<?>> fieldLoadSaveValidatorMethodMap =
-      new HashMap<IGetter<?>, IFieldLoadSaveValidator<?>>( fieldLoadSaveValidatorAttributeMap.size() );
+      new HashMap<>( fieldLoadSaveValidatorAttributeMap.size() );
     for ( Map.Entry<String, IFieldLoadSaveValidator<?>> entry : fieldLoadSaveValidatorAttributeMap.entrySet() ) {
       fieldLoadSaveValidatorMethodMap.put( manipulator.getGetter( entry.getKey() ), entry.getValue() );
     }
@@ -108,7 +108,7 @@ public abstract class LoadSaveBase<T> {
   @SuppressWarnings( { "unchecked" } )
   protected Map<String, IFieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
                                                                                         T metaToSave ) {
-    Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<>();
     metadataProvider = new MemoryMetadataProvider();
     for ( String attribute : attributes ) {
       IGetter<?> getter = manipulator.getGetter( attribute );
@@ -170,7 +170,7 @@ public abstract class LoadSaveBase<T> {
 
 
   private static <E> List<E> concat( List<E> list1, List<E> list2 ) {
-    List<E> result = new ArrayList<E>( list1.size() + list2.size() );
+    List<E> result = new ArrayList<>( list1.size() + list2.size() );
     result.addAll( list1 );
     result.addAll( list2 );
     return result;

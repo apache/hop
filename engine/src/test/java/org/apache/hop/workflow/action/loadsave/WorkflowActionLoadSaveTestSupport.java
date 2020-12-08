@@ -62,7 +62,7 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
     assertTrue( !commonAttributes.isEmpty() || !xmlAttributes.isEmpty() );
 
-    tester = new LoadSaveTester<T>( getActionClass(), commonAttributes, xmlAttributes, getters, setters,
+    tester = new LoadSaveTester<>( getActionClass(), commonAttributes, xmlAttributes, getters, setters,
       attributeValidators, typeValidators );
   }
 
@@ -99,7 +99,7 @@ public abstract class WorkflowActionLoadSaveTestSupport<T extends IAction> {
 
   @SuppressWarnings( "unchecked" )
   protected static <T1, T2> Map<T1, T2> toMap( Object... pairs ) {
-    Map<T1, T2> result = new HashMap<T1, T2>( pairs.length );
+    Map<T1, T2> result = new HashMap<>( pairs.length );
     for ( int i = 0; i < pairs.length; i += 2 ) {
       T1 key = (T1) pairs[ i ];
       T2 value = (T2) pairs[ i + 1 ];

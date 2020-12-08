@@ -289,7 +289,7 @@ public class ExcelWriterTransform_StyleFormatTest {
    * @throws Exception
    */
   private ArrayList<Object[]> createRowData() throws Exception {
-    ArrayList<Object[]> rows = new ArrayList<Object[]>();
+    ArrayList<Object[]> rows = new ArrayList<>();
     Object[] row = new Object[] { new Long( 123456 ), new Double( 2.34e-4 ),
       new BigDecimal( "123456789.987654321" ), new Double( 504150 ) };
     rows.add( row );

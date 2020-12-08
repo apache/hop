@@ -83,12 +83,12 @@ public class GetVariableMetaTest implements IInitializer<GetVariableMeta> {
     fieldDefinition.setVariableString( "variableString" );
 
     IFieldLoadSaveValidator<FieldDefinition[]> fieldDefinitionLoadSaveValidator =
-      new ArrayLoadSaveValidator<FieldDefinition>( new FieldDefinitionLoadSaveValidator( fieldDefinition ), 5 );
+      new ArrayLoadSaveValidator<>( new FieldDefinitionLoadSaveValidator( fieldDefinition ), 5 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldName", fieldDefinitionLoadSaveValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
     typeValidatorMap.put( FieldDefinition[].class.getCanonicalName(), fieldDefinitionLoadSaveValidator );
 
     loadSaveTester =

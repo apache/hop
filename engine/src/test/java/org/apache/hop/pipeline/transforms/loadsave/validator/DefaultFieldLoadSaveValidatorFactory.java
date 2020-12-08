@@ -39,8 +39,8 @@ public class DefaultFieldLoadSaveValidatorFactory implements IFieldLoadSaveValid
   private final Map<String, IFieldLoadSaveValidator<?>> typeMap;
 
   public DefaultFieldLoadSaveValidatorFactory() {
-    this.typeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
-    this.getterMap = new HashMap<IGetter<?>, IFieldLoadSaveValidator<?>>();
+    this.typeMap = new HashMap<>();
+    this.getterMap = new HashMap<>();
     this.typeMap.put( String.class.getCanonicalName(), new StringLoadSaveValidator() );
     this.typeMap.put( boolean.class.getCanonicalName(), new BooleanLoadSaveValidator() );
     this.typeMap.put( Boolean.class.getCanonicalName(), new BooleanLoadSaveValidator() );
@@ -49,17 +49,17 @@ public class DefaultFieldLoadSaveValidatorFactory implements IFieldLoadSaveValid
     registerValidator( getName( List.class, String.class ), new ListLoadSaveValidator<String>(
       new StringLoadSaveValidator() ) {
     } );
-    registerValidator( String[].class.getCanonicalName(), new ArrayLoadSaveValidator<String>(
+    registerValidator( String[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
       new StringLoadSaveValidator() ) );
     registerValidator( boolean[].class.getCanonicalName(), new PrimitiveBooleanArrayLoadSaveValidator(
       new BooleanLoadSaveValidator() ) );
-    registerValidator( Boolean[].class.getCanonicalName(), new ArrayLoadSaveValidator<Boolean>(
+    registerValidator( Boolean[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
       new BooleanLoadSaveValidator() ) );
     registerValidator( int[].class.getCanonicalName(), new PrimitiveIntArrayLoadSaveValidator(
       new IntLoadSaveValidator() ) );
     registerValidator( Locale.class.getCanonicalName(), new LocaleLoadSaveValidator() );
     registerValidator( DatabaseMeta.class.getCanonicalName(), new DatabaseMetaLoadSaveValidator() );
-    registerValidator( DatabaseMeta[].class.getCanonicalName(), new ArrayLoadSaveValidator<DatabaseMeta>(
+    registerValidator( DatabaseMeta[].class.getCanonicalName(), new ArrayLoadSaveValidator<>(
       new DatabaseMetaLoadSaveValidator() ) );
     registerValidator( Date.class.getCanonicalName(), new DateLoadSaveValidator() );
   }

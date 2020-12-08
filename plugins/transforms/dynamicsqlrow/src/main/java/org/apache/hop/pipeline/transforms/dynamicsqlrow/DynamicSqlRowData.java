@@ -60,6 +60,6 @@ public class DynamicSqlRowData extends BaseTransformData implements ITransformDa
     indexOfSqlField = -1;
     skipPreviousRow = false;
     previousSql = null;
-    previousrowbuffer = new ArrayList<Object[]>();
+    previousrowbuffer = new ArrayList<>();
   }
 }

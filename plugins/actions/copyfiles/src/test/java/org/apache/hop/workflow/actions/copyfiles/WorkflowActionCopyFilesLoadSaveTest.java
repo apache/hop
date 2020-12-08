@@ -86,7 +86,7 @@ public class WorkflowActionCopyFilesLoadSaveTest extends WorkflowActionLoadSaveT
       new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), fileArraySize ) );
     attrMap.put( "destinationFileFolder",
       new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), fileArraySize ) );
-    attrMap.put( "wildcard", new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), fileArraySize ) );
+    attrMap.put( "wildcard", new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), fileArraySize ) );
     return attrMap;
   }
 

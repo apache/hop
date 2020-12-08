@@ -146,8 +146,8 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
 
   public WebServiceMeta() {
     super();
-    fieldsIn = new ArrayList<WebServiceField>();
-    fieldsOut = new ArrayList<WebServiceField>();
+    fieldsIn = new ArrayList<>();
+    fieldsOut = new ArrayList<>();
   }
 
   public WebServiceMeta( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
@@ -187,11 +187,11 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
 
   public WebServiceMeta clone() {
     WebServiceMeta retval = (WebServiceMeta) super.clone();
-    retval.fieldsIn = new ArrayList<WebServiceField>();
+    retval.fieldsIn = new ArrayList<>();
     for ( WebServiceField field : fieldsIn ) {
       retval.fieldsIn.add( field.clone() );
     }
-    retval.fieldsOut = new ArrayList<WebServiceField>();
+    retval.fieldsOut = new ArrayList<>();
     for ( WebServiceField field : fieldsOut ) {
       retval.fieldsOut.add( field.clone() );
     }

@@ -145,7 +145,7 @@ public class ConditionEditor extends Composite {
 
     imageAdd = GuiResource.getInstance().getImage( "ui/images/Add.svg" );
 
-    modListeners = new ArrayList<ModifyListener>();
+    modListeners = new ArrayList<>();
 
     sbVertical = getVerticalBar();
     sbHorizontal = getHorizontalBar();
@@ -160,7 +160,7 @@ public class ConditionEditor extends Composite {
     previous_area = -1;
     previous_area_nr = -1;
 
-    parents = new ArrayList<Condition>(); // Remember parent in drill-down...
+    parents = new ArrayList<>(); // Remember parent in drill-down...
 
     hoverCondition = -1;
     hoverOperator = -1;

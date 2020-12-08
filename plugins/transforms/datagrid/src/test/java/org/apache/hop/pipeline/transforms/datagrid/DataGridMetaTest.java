@@ -68,9 +68,9 @@ public class DataGridMetaTest implements IInitializer<ITransformMeta> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 3 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 3 );
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "currency", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "decimal", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "group", stringArrayLoadSaveValidator );
@@ -85,7 +85,7 @@ public class DataGridMetaTest implements IInitializer<ITransformMeta> {
       new PrimitiveBooleanArrayLoadSaveValidator( new BooleanLoadSaveValidator(), 3 ) );
     attrValidatorMap.put( "dataLines", new DataGridLinesLoadSaveValidator() );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),
@@ -110,7 +110,7 @@ public class DataGridMetaTest implements IInitializer<ITransformMeta> {
 
     @Override
     public List<List<String>> getTestObject() {
-      List<List<String>> dataLinesList = new ArrayList<List<String>>();
+      List<List<String>> dataLinesList = new ArrayList<>();
       for ( int i = 0; i < 3; i++ ) {
         List<String> dl = new ArrayList<>();
         dl.add( "line" + ( ( i * 2 ) + 1 ) );

@@ -168,7 +168,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /**
    * A flat list of results in THIS workflow, in the order of execution of actions
    */
-  private final LinkedList<ActionResult> actionResults = new LinkedList<ActionResult>();
+  private final LinkedList<ActionResult> actionResults = new LinkedList<>();
 
   public RemoteWorkflowEngine() {
     workflowStartedListeners = Collections.synchronizedList( new ArrayList<>() );

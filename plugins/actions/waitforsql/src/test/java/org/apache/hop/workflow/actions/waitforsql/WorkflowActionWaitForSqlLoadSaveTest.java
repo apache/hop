@@ -51,7 +51,7 @@ public class WorkflowActionWaitForSqlLoadSaveTest extends WorkflowActionLoadSave
 
   @Override
   protected Map<String, IFieldLoadSaveValidator<?>> createAttributeValidatorsMap() {
-    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validators = new HashMap<>();
     validators.put( "successCondition", new IntLoadSaveValidator( ActionWaitForSql.successConditionsCode.length ) );
     return validators;
   }

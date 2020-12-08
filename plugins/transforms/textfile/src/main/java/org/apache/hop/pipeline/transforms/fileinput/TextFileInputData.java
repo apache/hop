@@ -141,7 +141,7 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
     super();
 
     // linked list is better, as usually .remove(0) is applied to this list
-    lineBuffer = new LinkedList<TextFileLine>();
+    lineBuffer = new LinkedList<>();
 
     nr_repeats = 0;
     previousRow = null;
@@ -154,7 +154,7 @@ public class TextFileInputData extends BaseTransformData implements ITransformDa
     filterProcessor = null;
     lineStringBuilder = new StringBuilder( 256 );
 
-    rejectedFiles = new HashMap<String, Boolean>();
+    rejectedFiles = new HashMap<>();
   }
 
   public FileInputList getFiles() {

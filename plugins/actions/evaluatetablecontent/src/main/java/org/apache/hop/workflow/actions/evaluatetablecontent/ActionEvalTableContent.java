@@ -320,7 +320,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
               // ad rows to result
               IRowMeta rowMeta = db.getQueryFields( countSqlStatement, false );
 
-              List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>();
+              List<RowMetaAndData> rows = new ArrayList<>();
               for ( int i = 0; i < ar.size(); i++ ) {
                 rows.add( new RowMetaAndData( rowMeta, ar.get( i ) ) );
               }

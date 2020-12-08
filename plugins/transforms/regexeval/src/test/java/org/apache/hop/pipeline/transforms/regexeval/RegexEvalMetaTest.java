@@ -221,10 +221,10 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "fieldName", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldFormat", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "fieldGroup", stringArrayLoadSaveValidator );
@@ -238,7 +238,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
     attrValidatorMap.put( "fieldType", new PrimitiveIntArrayLoadSaveValidator( new IntLoadSaveValidator( 9 ), 5 ) );
 
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

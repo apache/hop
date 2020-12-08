@@ -42,7 +42,7 @@ public class LoginContextInvocationHandler<T> implements InvocationHandler {
   private final Set<Class<?>> interfacesToDelegate;
 
   public LoginContextInvocationHandler( T delegate, LoginContext loginContext ) {
-    this( delegate, loginContext, new HashSet<Class<?>>() );
+    this( delegate, loginContext, new HashSet<>() );
   }
 
   public LoginContextInvocationHandler( T delegate, LoginContext loginContext, Set<Class<?>> interfacesToDelegate ) {

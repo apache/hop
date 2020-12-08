@@ -232,7 +232,7 @@ public class MongodbInputDiscoverFieldsImplTest {
     String query = "{$sort : 1}";
 
     // Setup DBObjects collection
-    List<DBObject> dbObjects = new ArrayList<DBObject>();
+    List<DBObject> dbObjects = new ArrayList<>();
     DBObject firstOp = (DBObject) JSON.parse(query);
     DBObject[] remainder = {new BasicDBObject("$limit", NUM_DOCS_TO_SAMPLE)};
     dbObjects.add(firstOp);
@@ -377,8 +377,8 @@ public class MongodbInputDiscoverFieldsImplTest {
 
   @Test
   public void testPostProcessPaths() {
-    Map<String, MongoField> fieldMap = new LinkedHashMap<String, MongoField>();
-    List<MongoField> discovered = new ArrayList<MongoField>();
+    Map<String, MongoField> fieldMap = new LinkedHashMap<>();
+    List<MongoField> discovered = new ArrayList<>();
 
     MongoField m = new MongoField();
     m.fieldPath = "bob.fred[-].george";
@@ -409,7 +409,7 @@ public class MongodbInputDiscoverFieldsImplTest {
 
   @Test
   public void testDocToFields() {
-    Map<String, MongoField> fieldMap = new LinkedHashMap<String, MongoField>();
+    Map<String, MongoField> fieldMap = new LinkedHashMap<>();
     DBObject doc = (DBObject) JSON.parse("{\"fred\" : {\"george\" : 1}, \"bob\" : [1 , 2]}");
 
     MongodbInputDiscoverFieldsImpl.docToFields(doc, fieldMap);
