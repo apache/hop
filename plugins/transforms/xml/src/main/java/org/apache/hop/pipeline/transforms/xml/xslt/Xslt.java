@@ -61,8 +61,8 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransfor
   static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
   static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
 
-  public Xslt(TransformMeta stepMeta, XsltMeta meta, XsltData data, int copyNr, PipelineMeta transMeta, Pipeline trans ) {
-    super( stepMeta, meta, data, copyNr, transMeta, trans );
+  public Xslt(TransformMeta transformMeta, XsltMeta meta, XsltData data, int copyNr, PipelineMeta pipelineMeta, Pipeline trans ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, trans );
   }
 
   public boolean processRow() throws HopException {

@@ -48,12 +48,12 @@ public class CurrentDirectoryResolver {
   /**
    * The logic of this method:
    * <p>
-   * We return the child var space with directory extracted from filename
-   * if we do not have a filename we will return the child var space without updates
+   * We return the child var variables with directory extracted from filename
+   * if we do not have a filename we will return the child var variables without updates
    *
-   * @param parentVariables - parent variable space which can be inherited
+   * @param parentVariables - parent variable variables which can be inherited
    * @param filename        - is file which we use at this moment
-   * @return new var space if inherit was set false or child var space with updated system variables
+   * @return new var variables if inherit was set false or child var variables with updated system variables
    */
   public IVariables resolveCurrentDirectory( IVariables parentVariables, String filename ) {
     Variables tmpSpace = new Variables();

@@ -23,6 +23,7 @@
 package org.apache.hop.core;
 
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.IXml;
 
 import java.util.Date;
@@ -141,9 +142,10 @@ public interface IEngineMeta {
   String getFilename();
 
   /**
-   * Sets the internal hop variables.
+   * Sets the internal hop variables on the provided IVariables
+   * @param variables the variables to set the internal Hop variables and values on
    */
-  void setInternalHopVariables();
+  void setInternalHopVariables( IVariables variables );
 
   /**
    * @return true if the name is derived from the filename

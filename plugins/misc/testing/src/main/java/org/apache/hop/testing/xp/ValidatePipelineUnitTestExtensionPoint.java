@@ -54,13 +54,13 @@ public class ValidatePipelineUnitTestExtensionPoint implements IExtensionPoint<I
   public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
 
     final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
-    boolean runUnitTest = "Y".equalsIgnoreCase( pipelineMeta.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
+    boolean runUnitTest = "Y".equalsIgnoreCase( pipeline.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
     if ( !runUnitTest ) {
       return;
     }
 
     // We should always have a unit test name here...
-    String unitTestName = pipelineMeta.getVariable( DataSetConst.VAR_UNIT_TEST_NAME );
+    String unitTestName = pipeline.getVariable( DataSetConst.VAR_UNIT_TEST_NAME );
     if ( StringUtil.isEmpty( unitTestName ) ) {
       return;
     }
@@ -75,7 +75,6 @@ public class ValidatePipelineUnitTestExtensionPoint implements IExtensionPoint<I
       // If the pipeline has a variable set with the unit test in it, we're dealing with a unit test situation.
       //
       PipelineUnitTest unitTest = metadataProvider.getSerializer( PipelineUnitTest.class).load( unitTestName );
-      unitTest.initializeVariablesFrom( pipelineMeta );
 
       final List<UnitTestResult> results = new ArrayList<UnitTestResult>();
       pipeline.getExtensionDataMap().put( DataSetConst.UNIT_TEST_RESULTS, results );
@@ -88,7 +87,7 @@ public class ValidatePipelineUnitTestExtensionPoint implements IExtensionPoint<I
       } else {
         log.logBasic( "Unit test '" + unitTest.getName() + "' failed, " + errors + " errors detected, " + results.size() + " comments to report." );
 
-        String dontShowResults = pipelineMeta.getVariable( DataSetConst.VAR_DO_NOT_SHOW_UNIT_TEST_ERRORS, "N" );
+        String dontShowResults = pipeline.getVariable( DataSetConst.VAR_DO_NOT_SHOW_UNIT_TEST_ERRORS, "N" );
 
         final HopGui hopGui = HopGui.getInstance();
         if ( hopGui != null && "N".equalsIgnoreCase( dontShowResults ) ) {

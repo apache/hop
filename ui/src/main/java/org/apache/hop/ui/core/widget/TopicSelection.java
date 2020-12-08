@@ -22,6 +22,7 @@
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -42,7 +43,7 @@ import static org.apache.hop.ui.core.WidgetUtils.createFieldDropDown;
 public class TopicSelection extends Composite {
 
   private final PropsUi props;
-  private final PipelineMeta pipelineMeta;
+  private final IVariables variables;
   private final BaseTransformMeta transformMeta;
   private final ModifyListener lsMod;
   private final boolean topicInField;
@@ -62,7 +63,7 @@ public class TopicSelection extends Composite {
   private TopicSelection( final Builder builder ) {
     super( builder.composite, builder.style );
     this.props = builder.props;
-    this.pipelineMeta = builder.pipelineMeta;
+    this.variables = builder.variables;
     this.transformMeta = builder.transformMeta;
     this.lsMod = builder.lsMod;
     this.topicInField = builder.topicInField;
@@ -151,8 +152,8 @@ public class TopicSelection extends Composite {
     formData.left = new FormAttachment( separator, 15 );
     formData.right = new FormAttachment( 100, 0 );
 
-    wTopicText = new TextVar( pipelineMeta, wTopicGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wTopicField = createFieldDropDown( wTopicGroup, props, transformMeta, formData );
+    wTopicText = new TextVar( variables, wTopicGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTopicField = createFieldDropDown( wTopicGroup, props, variables, transformMeta, formData );
     wTopicText.setLayoutData( formData );
     wTopicField.setLayoutData( formData );
 
@@ -222,7 +223,7 @@ public class TopicSelection extends Composite {
     private Composite composite;
     private int style;
     private PropsUi props;
-    private PipelineMeta pipelineMeta;
+    private IVariables variables;
     private BaseTransformMeta transformMeta;
     private ModifyListener lsMod;
     private boolean topicInField;
@@ -247,8 +248,8 @@ public class TopicSelection extends Composite {
       return this;
     }
 
-    public Builder setPipelineMeta( PipelineMeta pipelineMeta ) {
-      this.pipelineMeta = pipelineMeta;
+    public Builder setVariables( IVariables variables ) {
+      this.variables = variables;
       return this;
     }
 

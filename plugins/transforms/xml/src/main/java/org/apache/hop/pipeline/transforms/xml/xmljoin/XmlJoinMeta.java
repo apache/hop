@@ -170,24 +170,24 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
   }
 
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     IValueMeta v = new ValueMetaString( this.getValueXmlField() );
     v.setOrigin( name );
 
-    PipelineMeta transMeta = (PipelineMeta) space;
+    PipelineMeta pipelineMeta = (PipelineMeta) variables;
     try {
       // Row should only include fields from the target and not the source. During the preview table generation
       // the fields from all previous transforms (source and target) are included in the row so lets remove the
       // source fields.
       List<String> targetFieldNames = null;
-      IRowMeta targetRowMeta = transMeta.getTransformFields( transMeta.findTransform( getTargetXmlTransform() ),
+      IRowMeta targetRowMeta = pipelineMeta.getTransformFields( variables, pipelineMeta.findTransform( getTargetXmlTransform() ),
         null,
         null );
       if ( targetRowMeta != null ) {
         targetFieldNames = Arrays.asList( targetRowMeta.getFieldNames() );
       }
-      for ( String fieldName : transMeta.getTransformFields( transMeta.findTransform( getSourceXmlTransform() ),
+      for ( String fieldName : pipelineMeta.getTransformFields( variables, pipelineMeta.findTransform( getSourceXmlTransform() ),
         null,
         null ).getFieldNames() ) {
         if ( targetFieldNames == null || !targetFieldNames.contains( fieldName ) ) {
@@ -220,8 +220,8 @@ public class XmlJoinMeta extends BaseTransformMeta implements ITransformMeta<Xml
   }
 
 
-  public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta transformMeta, IRowMeta prev,
-                     String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     // checks for empty field which are required

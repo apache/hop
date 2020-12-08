@@ -112,7 +112,7 @@ public class SymmetricCryptoDialog extends BaseTransformDialog implements ITrans
   private Button wOutputAsBinary;
   private FormData fdlOutputAsBinary, fdOutputAsBinary;
 
-  public SymmetricCryptoDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public SymmetricCryptoDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SymmetricCryptoPipelineMeta) in;
   }
@@ -255,7 +255,7 @@ public class SymmetricCryptoDialog extends BaseTransformDialog implements ITrans
     fdlScheme.right = new FormAttachment( middle, -margin );
     wlScheme.setLayoutData( fdlScheme );
 
-    wScheme = new TextVar( pipelineMeta, wCryptoSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wScheme = new TextVar( variables, wCryptoSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wScheme );
     wScheme.addModifyListener( lsMod );
     fdScheme = new FormData();
@@ -274,7 +274,7 @@ public class SymmetricCryptoDialog extends BaseTransformDialog implements ITrans
     fdlSecretKey.right = new FormAttachment( middle, -margin );
     wlSecretKey.setLayoutData( fdlSecretKey );
 
-    wSecretKey = new PasswordTextVar( pipelineMeta, wCryptoSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wSecretKey = new PasswordTextVar( variables, wCryptoSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "SymmetricCryptoDialog.SecretKey.Tooltip" ) );
     props.setLook( wSecretKey );
     wSecretKey.addModifyListener( lsMod );
@@ -436,7 +436,7 @@ public class SymmetricCryptoDialog extends BaseTransformDialog implements ITrans
     wOutputField.setLayout( outputfieldgroupLayout );
 
     // Output Fieldame
-    wResultField = new LabelTextVar( pipelineMeta, wOutputField,
+    wResultField = new LabelTextVar( variables, wOutputField,
       BaseMessages.getString( PKG, "SymmetricCryptoDialog.ResultField.Label" ),
       BaseMessages.getString( PKG, "SymmetricCryptoDialog.ResultField.Tooltip" ) );
     props.setLook( wResultField );
@@ -570,7 +570,7 @@ public class SymmetricCryptoDialog extends BaseTransformDialog implements ITrans
       String field = wSecretKeyField.getText();
       wSecretKeyField.removeAll();
 
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         wSecretKeyField.setItems( r.getFieldNames() );
       }
@@ -590,7 +590,7 @@ public class SymmetricCryptoDialog extends BaseTransformDialog implements ITrans
       String field = wMessage.getText();
       wMessage.removeAll();
 
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       wMessage.setItems( r.getFieldNames() );
       if ( field != null ) {
         wMessage.setText( field );

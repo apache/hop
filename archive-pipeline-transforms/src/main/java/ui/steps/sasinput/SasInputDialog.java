@@ -75,7 +75,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
   private boolean backupChanged;
   private TableView wFields;
 
-  public SasInputDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public SasInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (SasInputMeta) in;
   }
@@ -148,7 +148,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
     // Fill in the source fields...
     //
     try {
-      IRowMeta fields = pipelineMeta.getPrevTransformFields( transformMeta );
+      IRowMeta fields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
       wAccField.setItems( fields.getFieldNames() );
     } catch ( Exception e ) {
       LogChannel.GENERAL.logError( "Couldn't get input fields for transform '" + transformMeta + "'", e );
@@ -242,7 +242,7 @@ public class SasInputDialog extends BaseTransformDialog implements ITransformDia
 
     } );
 
-    wFields = new TableView( pipelineMeta, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
+    wFields = new TableView( variables, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.top = new FormAttachment( lastControl, margin * 2 );

@@ -330,11 +330,11 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     if ( getOperationType() != OPERATION_TYPE_WRITE_TO_FILE ) {
       IValueMeta v =
-        new ValueMetaString( space.environmentSubstitute( this.getOutputValue() ) );
+        new ValueMetaString( variables.environmentSubstitute( this.getOutputValue() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -384,21 +384,21 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   @Override
-  public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta transformMeta, IRowMeta prev,
-                     String[] input, String[] output, IRowMeta info, IVariables space,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
     if ( getOperationType() != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE ) {
       // We need to have output field name
-      if ( Utils.isEmpty( transMeta.environmentSubstitute( getOutputValue() ) ) ) {
+      if ( Utils.isEmpty( variables.environmentSubstitute( getOutputValue() ) ) ) {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
             "JsonOutput.Error.MissingOutputFieldName" ), transformMeta );
         remarks.add( cr );
       }
     }
-    if ( Utils.isEmpty( transMeta.environmentSubstitute( getFileName() ) ) ) {
+    if ( Utils.isEmpty( variables.environmentSubstitute( getFileName() ) ) ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
           "JsonOutput.Error.MissingTargetFilename" ), transformMeta );
@@ -454,9 +454,9 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
   }
 
   @Override
-  public JsonOutput createTransform( TransformMeta transformMeta, JsonOutputData data, int cnr, PipelineMeta transMeta,
+  public JsonOutput createTransform( TransformMeta transformMeta, JsonOutputData data, int cnr, PipelineMeta pipelineMeta,
                                      Pipeline pipeline ) {
-    return new JsonOutput( transformMeta, this, data, cnr, transMeta, pipeline );
+    return new JsonOutput( transformMeta, this, data, cnr, pipelineMeta, pipeline );
   }
 
   public JsonOutputData getTransformData() {

@@ -339,7 +339,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.schemaTable =
-        meta.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
+        meta.getDatabaseMeta().getQuotedSchemaTableCombination( this, data.realSchemaName, data.realTableName );
 
       determineTechKeyCreation();
 

@@ -497,7 +497,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
       remarks.add( cr );
 
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareVariablesWith( variables );
       try {
         db.connect();
 
@@ -510,7 +510,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
           String realSchemaName = db.environmentSubstitute( schemaName );
           String realTableName = db.environmentSubstitute( tableName );
           String schemaTable =
-            databaseMeta.getQuotedSchemaTableCombination( realSchemaName, realTableName );
+            databaseMeta.getQuotedSchemaTableCombination( variables, realSchemaName, realTableName );
           // Check if this table exists...
           if ( db.checkTableExists( realSchemaName, realTableName ) ) {
             cr =
@@ -690,7 +690,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     return new TableOutputData();
   }
 
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) {
     if ( truncateTable ) {
@@ -715,25 +715,25 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     }
   }
 
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) {
-    return getSqlStatements( pipelineMeta, transformMeta, prev, null, false, null );
+    return getSqlStatements( variables, pipelineMeta, transformMeta, prev, null, false, null );
   }
 
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev, String tk,
-                                        boolean useAutoInc, String pk ) {
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev, String tk,
+                                        boolean useAutoIncrement, String pk ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
         if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( pipelineMeta );
+          db.shareVariablesWith( variables );
           try {
             db.connect();
 
-            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
-            String crTable = db.getDDL( schemaTable, prev, tk, useAutoInc, pk );
+            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
+            String crTable = db.getDDL( schemaTable, prev, tk, useAutoIncrement, pk );
 
             // Empty string means: nothing to do: set it to null...
             if ( crTable == null || crTable.length() == 0 ) {

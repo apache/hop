@@ -498,16 +498,16 @@ public class GuiCompositeWidgets {
   }
 
   /**
-   * Gets space
+   * Gets variables
    *
-   * @return value of space
+   * @return value of variables
    */
   public IVariables getSpace() {
     return variables;
   }
 
   /**
-   * @param variables The space to set
+   * @param variables The variables to set
    */
   public void setSpace( IVariables variables ) {
     this.variables = variables;

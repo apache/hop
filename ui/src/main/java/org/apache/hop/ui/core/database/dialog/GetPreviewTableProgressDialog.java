@@ -27,6 +27,7 @@ import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -60,11 +61,11 @@ public class GetPreviewTableProgressDialog {
   /**
    * Creates a new dialog that will handle the wait while we're doing the hard work.
    */
-  public GetPreviewTableProgressDialog( Shell shell, DatabaseMeta dbInfo, String schemaName, String tableName,
+  public GetPreviewTableProgressDialog( Shell shell, IVariables variables, DatabaseMeta dbInfo, String schemaName, String tableName,
                                         int limit ) {
     this.shell = shell;
     this.dbMeta = dbInfo;
-    this.tableName = dbInfo.getQuotedSchemaTableCombination( schemaName, tableName );
+    this.tableName = dbInfo.getQuotedSchemaTableCombination( variables, schemaName, tableName );
     this.limit = limit;
   }
 

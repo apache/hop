@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -68,8 +69,8 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
 
   private boolean gotPreviousFields = false;
 
-  public ZipFileDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ZipFileDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ZipFileMeta) in;
   }
 
@@ -483,7 +484,7 @@ public class ZipFileDialog extends BaseTransformDialog implements ITransformDial
         wSourceFileNameField.removeAll();
         wTargetFileNameField.removeAll();
         wBaseFolderField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           String[] fields = r.getFieldNames();
           wSourceFileNameField.setItems( fields );

@@ -121,7 +121,7 @@ public @interface GuiWidgetElement {
   String order() default "";
 
   /**
-   * Set to true if you want the menu-item of toolbar icon to be preceded by a separator or space.
+   * Set to true if you want the menu-item of toolbar icon to be preceded by a separator or variables.
    *
    * @return True if you want a separator before this element
    */

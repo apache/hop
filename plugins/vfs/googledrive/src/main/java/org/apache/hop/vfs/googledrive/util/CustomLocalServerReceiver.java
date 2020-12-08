@@ -48,39 +48,39 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
   private String url;
 
   public CustomLocalServerReceiver() {
-    this( "localhost", -1 );
+    this("localhost", -1);
   }
 
-  CustomLocalServerReceiver( String host, int port ) {
+  CustomLocalServerReceiver(String host, int port) {
     this.host = host;
     this.port = port;
   }
 
-  public void setUrl( String url ) {
+  public void setUrl(String url) {
     this.url = url;
   }
 
   public String getRedirectUri() throws IOException {
-    if ( this.port == -1 ) {
+    if (this.port == -1) {
       this.port = getUnusedPort();
     }
 
-    this.server = new Server( this.port );
+    this.server = new Server(this.port);
     Connector[] arr$ = this.server.getConnectors();
     int len$ = arr$.length;
 
-    for ( int i$ = 0; i$ < len$; ++i$ ) {
+    for (int i$ = 0; i$ < len$; ++i$) {
       Connector c = arr$[i$];
-      c.setHost( this.host );
+      c.setHost(this.host);
     }
 
-    this.server.addHandler( new CustomLocalServerReceiver.CallbackHandler() );
+    this.server.addHandler(new CustomLocalServerReceiver.CallbackHandler());
 
     try {
       this.server.start();
-    } catch ( Exception var5 ) {
-      Throwables.propagateIfPossible( var5 );
-      throw new IOException( var5 );
+    } catch (Exception var5) {
+      Throwables.propagateIfPossible(var5);
+      throw new IOException(var5);
     }
 
     return "http://" + this.host + ":" + this.port + "/Callback/success.html";
@@ -91,12 +91,12 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
   }
 
   public void stop() throws IOException {
-    if ( this.server != null ) {
+    if (this.server != null) {
       try {
         this.server.stop();
-      } catch ( Exception var2 ) {
-        Throwables.propagateIfPossible( var2 );
-        throw new IOException( var2 );
+      } catch (Exception var2) {
+        Throwables.propagateIfPossible(var2);
+        throw new IOException(var2);
       }
       this.server = null;
     }
@@ -112,7 +112,7 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
 
   private static int getUnusedPort() throws IOException {
     Socket s = new Socket();
-    s.bind( (SocketAddress) null );
+    s.bind((SocketAddress) null);
 
     int var1;
     try {
@@ -126,27 +126,29 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
   class CallbackHandler extends WebAppContext {
 
     CallbackHandler() {
-      URL warUrl = this.getClass().getClassLoader().getResource( "success_page" );
+      URL warUrl = this.getClass().getClassLoader().getResource("success_page");
       String warUrlString = warUrl.toExternalForm();
-      setResourceBase( warUrlString );
-      setContextPath( "/Callback" );
+      setResourceBase(warUrlString);
+      setContextPath("/Callback");
     }
 
-    public void handle( String target, HttpServletRequest request, HttpServletResponse response, int dispatch )
+    public void handle(
+        String target, HttpServletRequest request, HttpServletResponse response, int dispatch)
         throws IOException, ServletException {
-      if ( target.contains( "/Callback" ) ) {
+      if (target.contains("/Callback")) {
 
-        CustomLocalServerReceiver.this.error = request.getParameter( "error" );
-        if ( CustomLocalServerReceiver.this.code == null ) {
-          CustomLocalServerReceiver.this.code = request.getParameter( "code" );
+        CustomLocalServerReceiver.this.error = request.getParameter("error");
+        if (CustomLocalServerReceiver.this.code == null) {
+          CustomLocalServerReceiver.this.code = request.getParameter("code");
         }
-        if ( CustomLocalServerReceiver.this.url != null && CustomLocalServerReceiver.this.error != null
-            && CustomLocalServerReceiver.this.error.equals( "access_denied" ) ) {
-          response.sendRedirect( CustomLocalServerReceiver.this.url );
+        if (CustomLocalServerReceiver.this.url != null
+            && CustomLocalServerReceiver.this.error != null
+            && CustomLocalServerReceiver.this.error.equals("access_denied")) {
+          response.sendRedirect(CustomLocalServerReceiver.this.url);
         } else {
-          super.handle( target, request, response, dispatch );
+          super.handle(target, request, response, dispatch);
         }
-        ( (Request) request ).setHandled( true );
+        ((Request) request).setHandled(true);
       }
     }
   }
@@ -155,18 +157,17 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
     private String host = "localhost";
     private int port = -1;
 
-    public Builder() {
-    }
+    public Builder() {}
 
     public CustomLocalServerReceiver build() {
-      return new CustomLocalServerReceiver( this.host, this.port );
+      return new CustomLocalServerReceiver(this.host, this.port);
     }
 
     public String getHost() {
       return this.host;
     }
 
-    public CustomLocalServerReceiver.Builder setHost( String host ) {
+    public CustomLocalServerReceiver.Builder setHost(String host) {
       this.host = host;
       return this;
     }
@@ -175,7 +176,7 @@ public class CustomLocalServerReceiver implements VerificationCodeReceiver {
       return this.port;
     }
 
-    public CustomLocalServerReceiver.Builder setPort( int port ) {
+    public CustomLocalServerReceiver.Builder setPort(int port) {
       this.port = port;
       return this;
     }

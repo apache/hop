@@ -25,12 +25,12 @@ package org.apache.hop.ui.hopgui.file.workflow.delegates;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.logging.DefaultLogLevel;
-import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.hopgui.file.workflow.HopGuiWorkflowGraph;
 import org.apache.hop.ui.workflow.dialog.WorkflowExecutionConfigurationDialog;
@@ -73,7 +73,7 @@ public class HopGuiWorkflowRunDelegate {
     jobMap = new ArrayList<>();
   }
 
-  public void executeWorkflow( WorkflowMeta workflowMeta, String startActionName, int startActionNr ) throws HopException {
+  public void executeWorkflow( IVariables variables, WorkflowMeta workflowMeta, String startActionName, int startActionNr ) throws HopException {
 
     if ( workflowMeta == null ) {
       return;
@@ -86,7 +86,7 @@ public class HopGuiWorkflowRunDelegate {
     Map<String, String> variableMap = new HashMap<>();
     variableMap.putAll( executionConfiguration.getVariablesMap() ); // the default
     executionConfiguration.setVariablesMap( variableMap );
-    executionConfiguration.getUsedVariables( workflowMeta );
+    executionConfiguration.getUsedVariables( workflowMeta, variables );
     executionConfiguration.setStartActionName( startActionName );
     executionConfiguration.setStartActionNr( startActionNr );
     executionConfiguration.setLogLevel( DefaultLogLevel.getLogLevel() );
@@ -127,7 +127,7 @@ public class HopGuiWorkflowRunDelegate {
     // There is a workflow running in the background. When it finishes log the result on the console.
     // Launch in a separate thread to prevent GUI blocking...
     //
-    Thread thread = new Thread( () -> remoteHopServer.monitorRemoteJob( hopGui.getLog(), serverObjectId, workflowMeta.toString() ) );
+    Thread thread = new Thread( () -> remoteHopServer.monitorRemoteWorkflow( hopGui.getVariables(), hopGui.getLog(), serverObjectId, workflowMeta.toString() ) );
 
     thread.setName( "Monitor remote workflow '" + workflowMeta.getName() + "', carte object id=" + serverObjectId
       + ", hop server: " + remoteHopServer.getName() );

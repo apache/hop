@@ -1049,7 +1049,7 @@ public class JsonInputTest {
     meta.setRemoveSourceField( true );
     when( helper.transformMeta.isDoingErrorHandling() ).thenReturn( true );
     JsonInput jsonInput = createJsonInput( "json", meta, new Object[] { input1 }, new Object[] { input2 } );
-    TransformErrorMeta errMeta = new TransformErrorMeta( jsonInput, helper.transformMeta );
+    TransformErrorMeta errMeta = new TransformErrorMeta( helper.transformMeta );
     errMeta.setEnabled( true );
     errMeta.setErrorFieldsValuename( "err field" );
     when( helper.transformMeta.getTransformErrorMeta() ).thenReturn( errMeta );
@@ -1141,7 +1141,7 @@ public class JsonInputTest {
   protected JsonInputMeta createFileListMeta( final List<FileObject> files ) {
     JsonInputMeta meta = new JsonInputMeta() {
       @Override
-      public FileInputList getFileInputList( IVariables space ) {
+      public FileInputList getFileInputList( IVariables variables ) {
         return new FileInputList() {
           @Override
           public List<FileObject> getFiles() {

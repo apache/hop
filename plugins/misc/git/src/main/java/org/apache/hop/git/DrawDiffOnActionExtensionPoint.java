@@ -35,14 +35,14 @@ import static org.apache.hop.git.PdiDiff.CHANGED;
 import static org.apache.hop.git.PdiDiff.REMOVED;
 
 @ExtensionPoint(
-  id = "DrawDiffOnActionExtensionPoint",
-  description = "Draws a marker on top of an action if it has some change",
-  extensionPointId = "WorkflowPainterEnd" )
+    id = "DrawDiffOnActionExtensionPoint",
+    description = "Draws a marker on top of an action if it has some change",
+    extensionPointId = "WorkflowPainterEnd")
 public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, Object object ) throws HopException {
-    if ( !( object instanceof WorkflowPainter ) ) {
+  public void callExtensionPoint(ILogChannel log, Object object) throws HopException {
+    if (!(object instanceof WorkflowPainter)) {
       return;
     }
     WorkflowPainter painter = (WorkflowPainter) object;
@@ -50,39 +50,50 @@ public class DrawDiffOnActionExtensionPoint implements IExtensionPoint {
     IGc gc = painter.getGc();
     WorkflowMeta workflowMeta = painter.getWorkflowMeta();
     try {
-      workflowMeta.getActions().stream().filter( je -> je.getAttribute( ATTR_GIT, ATTR_STATUS ) != null )
-        .forEach( je -> {
-          if ( workflowMeta.getWorkflowVersion() == null ? false : workflowMeta.getWorkflowVersion().startsWith( "git" ) ) {
-            String status = je.getAttribute( ATTR_GIT, ATTR_STATUS );
-            Point n = je.getLocation();
-            String location;
-            if ( status.equals( REMOVED ) ) {
-              location = "removed.svg";
-            } else if ( status.equals( CHANGED ) ) {
-              location = "changed.svg";
-            } else if ( status.equals( ADDED ) ) {
-              location = "added.svg";
-            } else { // Unchanged
-              return;
-            }
-            int iconSize = ConstUi.ICON_SIZE;
-            try {
-              iconSize = PropsUi.getInstance().getIconSize();
-            } catch ( Exception e ) {
-              // Exception when accessed from Carte
-            }
-            int x = ( n.x + iconSize + offset.x ) - ( iconSize / 4 );
-            int y = n.y + offset.y - ( iconSize / 4 );
-            try {
-              gc.drawImage( new SvgFile( location, getClass().getClassLoader() ), x, y, iconSize / 4, iconSize / 4, gc.getMagnification(), 0 );
-            } catch(Exception e) {
-              throw new RuntimeException(e);
-            }
-          } else {
-            je.getAttributesMap().remove( ATTR_GIT );
-          }
-        } );
-    } catch(Exception e) {
+      workflowMeta.getActions().stream()
+          .filter(je -> je.getAttribute(ATTR_GIT, ATTR_STATUS) != null)
+          .forEach(
+              je -> {
+                if (workflowMeta.getWorkflowVersion() == null
+                    ? false
+                    : workflowMeta.getWorkflowVersion().startsWith("git")) {
+                  String status = je.getAttribute(ATTR_GIT, ATTR_STATUS);
+                  Point n = je.getLocation();
+                  String location;
+                  if (status.equals(REMOVED)) {
+                    location = "removed.svg";
+                  } else if (status.equals(CHANGED)) {
+                    location = "changed.svg";
+                  } else if (status.equals(ADDED)) {
+                    location = "added.svg";
+                  } else { // Unchanged
+                    return;
+                  }
+                  int iconSize = ConstUi.ICON_SIZE;
+                  try {
+                    iconSize = PropsUi.getInstance().getIconSize();
+                  } catch (Exception e) {
+                    // Exception when accessed from Carte
+                  }
+                  int x = (n.x + iconSize + offset.x) - (iconSize / 4);
+                  int y = n.y + offset.y - (iconSize / 4);
+                  try {
+                    gc.drawImage(
+                        new SvgFile(location, getClass().getClassLoader()),
+                        x,
+                        y,
+                        iconSize / 4,
+                        iconSize / 4,
+                        gc.getMagnification(),
+                        0);
+                  } catch (Exception e) {
+                    throw new RuntimeException(e);
+                  }
+                } else {
+                  je.getAttributesMap().remove(ATTR_GIT);
+                }
+              });
+    } catch (Exception e) {
       throw new HopException("Error drawing status icon on action", e);
     }
   }

@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
@@ -36,10 +37,12 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 public class WorkflowEngineFactory {
 
   public static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine(
+      IVariables variables,
       String runConfigurationName,
       IHopMetadataProvider metadataProvider,
       T workflowMeta,
-      ILoggingObject parentLogging) throws HopException {
+      ILoggingObject parentLogging)
+      throws HopException {
 
     if (StringUtils.isEmpty(runConfigurationName)) {
       throw new HopException(
@@ -57,17 +60,18 @@ public class WorkflowEngineFactory {
       throw new HopException(
           "Workflow run configuration '" + runConfigurationName + "' could not be found");
     }
-    IWorkflowEngine<T> workflowEngine = createWorkflowEngine(
-      runConfiguration,
-      workflowMeta,
-      parentLogging
-    );
+    IWorkflowEngine<T> workflowEngine =
+        createWorkflowEngine(runConfiguration, workflowMeta, parentLogging);
 
     // Copy the variables from the metadata
     //
-    workflowEngine.initializeVariablesFrom(workflowMeta);
+    workflowEngine.initializeVariablesFrom(variables);
 
-    // Pass the metastores around to make sure
+    // Copy the parameters from the metadata...
+    //
+    workflowEngine.copyParametersFromDefinitions( workflowMeta );
+
+    // Pass the metadata providers around to make sure
     //
     workflowEngine.setMetadataProvider(metadataProvider);
     workflowMeta.setMetadataProvider(metadataProvider);

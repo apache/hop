@@ -30,6 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -131,8 +132,8 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
   private boolean getPreviousFields = false;
 
-  public GetFileNamesDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public GetFileNamesDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (GetFileNamesMeta) in;
   }
 
@@ -372,7 +373,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     fdbaFilename.top = new FormAttachment( wOriginFiles, margin );
     wbaFilename.setLayoutData( fdbaFilename );
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -389,7 +390,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     fdlFilemask.top = new FormAttachment( wFilename, margin );
     fdlFilemask.right = new FormAttachment( middle, -margin );
     wlFilemask.setLayoutData( fdlFilemask );
-    wFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilemask );
     wFilemask.addModifyListener( lsMod );
     FormData fdFilemask = new FormData();
@@ -406,7 +407,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     fdlExcludeFilemask.top = new FormAttachment( wFilemask, margin );
     fdlExcludeFilemask.right = new FormAttachment( middle, -margin );
     wlExcludeFilemask.setLayoutData( fdlExcludeFilemask );
-    wExcludeFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExcludeFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExcludeFilemask );
     wExcludeFilemask.addModifyListener( lsMod );
     FormData fdExcludeFilemask = new FormData();
@@ -481,7 +482,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
     wFilenameList =
       new TableView(
-        pipelineMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, colinfo.length, lsMod,
+        variables, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, colinfo.length, lsMod,
         props );
     props.setLook( wFilenameList );
     FormData fdFilenameList = new FormData();
@@ -590,7 +591,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     fdlInclRownumField.left = new FormAttachment( wInclRownum, margin );
     fdlInclRownumField.top = new FormAttachment( wFilterFileType, 2 * margin );
     wlInclRownumField.setLayoutData( fdlInclRownumField );
-    wInclRownumField = new TextVar( pipelineMeta, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclRownumField = new TextVar( variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclRownumField );
     wInclRownumField.addModifyListener( lsMod );
     FormData fdInclRownumField = new FormData();
@@ -768,7 +769,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
       public void widgetSelected( SelectionEvent e ) {
         GetFileNamesMeta tfii = new GetFileNamesMeta();
         getInfo( tfii );
-        String[] files = tfii.getFilePaths( pipelineMeta );
+        String[] files = tfii.getFilePaths( variables );
         if ( files != null && files.length > 0 ) {
           EnterSelectionDialog esd = new EnterSelectionDialog( shell, files, "Files read", "Files read:" );
           esd.setViewOnly();
@@ -785,9 +786,9 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     // Listen to the Browse... button
     wbbFilename.addListener( SWT.Selection, e -> {
       if ( !Utils.isEmpty( wFilemask.getText() ) || !Utils.isEmpty( wExcludeFilemask.getText() ) ) {
-        BaseDialog.presentDirectoryDialog( shell, wFilename, pipelineMeta );
+        BaseDialog.presentDirectoryDialog( shell, wFilename, variables );
       } else {
-        BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+        BaseDialog.presentFileDialog( shell, wFilename, variables,
           new String[] { "*.txt;*.csv", "*.csv", "*.txt", "*" },
           new String[] {
             BaseMessages.getString( PKG, "GetFileNamesDialog.FileType.TextAndCSVFiles" ),
@@ -836,7 +837,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
         wWildcardField.removeAll();
         wExcludeWildcardField.removeAll();
 
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wFilenameField.setItems( r.getFieldNames() );
           wWildcardField.setItems( r.getFieldNames() );
@@ -990,7 +991,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     GetFileNamesMeta oneMeta = new GetFileNamesMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =
@@ -1001,7 +1002,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
     if ( previewSize > 0 ) {
       PipelinePreviewProgressDialog progressDialog =
         new PipelinePreviewProgressDialog(
-          shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+          shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
       progressDialog.open();
 
       if ( !progressDialog.isCancelled() ) {
@@ -1018,7 +1019,7 @@ public class GetFileNamesDialog extends BaseTransformDialog implements ITransfor
 
         PreviewRowsDialog prd =
           new PreviewRowsDialog(
-            shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+            shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
             .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
         prd.open();
       }

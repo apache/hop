@@ -402,10 +402,10 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
+  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformMeta ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
 
-    ResourceReference reference = new ResourceReference( transformInfo );
+    ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
     if ( !Utils.isEmpty( filename ) ) {
       // Add the filename to the references, including a reference to this
@@ -592,7 +592,7 @@ public class ParGzipCsvInputMeta extends BaseTransformMeta implements ITransform
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.

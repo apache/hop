@@ -128,8 +128,8 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
-    return inputFiles.getResourceDependencies( pipelineMeta, transformInfo );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
+    return inputFiles.getResourceDependencies( variables, transformMeta );
   }
 
   public abstract String getEncoding();
@@ -147,12 +147,12 @@ public abstract class BaseFileInputMeta<A extends BaseFileInputAdditionalField, 
     return inputFiles == null ? null : inputFiles.acceptingField;
   }
 
-  public String[] getFilePaths( final boolean showSamples ) {
+  public String[] getFilePaths( IVariables variables, final boolean showSamples ) {
     final TransformMeta parentTransformMeta = getParentTransformMeta();
     if ( parentTransformMeta != null ) {
       final PipelineMeta parentPipelineMeta = parentTransformMeta.getParentPipelineMeta();
       if ( parentPipelineMeta != null ) {
-        final FileInputList inputList = getFileInputList( parentPipelineMeta );
+        final FileInputList inputList = getFileInputList( variables );
         if ( inputList != null ) {
           return inputList.getFileStrings();
         }

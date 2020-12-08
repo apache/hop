@@ -29,6 +29,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -115,8 +116,8 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
   private TextVar wCloseIdleConnectionsTime;
 
-  public HttpPostDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public HttpPostDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (HttpPostMeta) in;
     inputFields = new HashMap<>();
   }
@@ -208,7 +209,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlUrl.top = new FormAttachment( wTransformName, margin );
     wlUrl.setLayoutData(fdlUrl);
 
-    wUrl = new TextVar( pipelineMeta, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUrl = new TextVar( variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUrl );
     wUrl.addModifyListener( lsMod );
     FormData fdUrl = new FormData();
@@ -250,7 +251,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlUrlField.top = new FormAttachment( wUrlInField, margin );
     wlUrlField.setLayoutData(fdlUrlField);
 
-    wUrlField = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
+    wUrlField = new ComboVar( variables, gSettings, SWT.BORDER | SWT.READ_ONLY );
     wUrlField.setEditable( true );
     props.setLook( wUrlField );
     wUrlField.addModifyListener( lsMod );
@@ -280,7 +281,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlEncoding.top = new FormAttachment( wUrlField, margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
     wlEncoding.setLayoutData(fdlEncoding);
-    wEncoding = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
+    wEncoding = new ComboVar( variables, gSettings, SWT.BORDER | SWT.READ_ONLY );
     wEncoding.setEditable( true );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
@@ -312,7 +313,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlRequestEntity.top = new FormAttachment( wEncoding, margin );
     wlRequestEntity.setLayoutData(fdlRequestEntity);
 
-    wRequestEntity = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
+    wRequestEntity = new ComboVar( variables, gSettings, SWT.BORDER | SWT.READ_ONLY );
     wRequestEntity.setEditable( true );
     props.setLook( wRequestEntity );
     wRequestEntity.addModifyListener( lsMod );
@@ -361,7 +362,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlConnectionTimeOut.left = new FormAttachment( 0, 0 );
     fdlConnectionTimeOut.right = new FormAttachment( middle, -margin );
     wlConnectionTimeOut.setLayoutData( fdlConnectionTimeOut );
-    wConnectionTimeOut = new TextVar( pipelineMeta, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wConnectionTimeOut = new TextVar( variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wConnectionTimeOut.addModifyListener( lsMod );
     wConnectionTimeOut.setToolTipText( BaseMessages.getString( PKG, "HTTPPOSTDialog.ConnectionTimeOut.Tooltip" ) );
     props.setLook( wConnectionTimeOut );
@@ -379,7 +380,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlSocketTimeOut.left = new FormAttachment( 0, 0 );
     fdlSocketTimeOut.right = new FormAttachment( middle, -margin );
     wlSocketTimeOut.setLayoutData( fdlSocketTimeOut );
-    wSocketTimeOut = new TextVar( pipelineMeta, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSocketTimeOut = new TextVar( variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSocketTimeOut.addModifyListener( lsMod );
     wSocketTimeOut.setToolTipText( BaseMessages.getString( PKG, "HTTPPOSTDialog.SocketTimeOut.Tooltip" ) );
     props.setLook( wSocketTimeOut );
@@ -398,7 +399,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlCloseIdleConnectionsTime.left = new FormAttachment( 0, 0 );
     fdlCloseIdleConnectionsTime.right = new FormAttachment( middle, -margin );
     wlCloseIdleConnectionsTime.setLayoutData( fdlCloseIdleConnectionsTime );
-    wCloseIdleConnectionsTime = new TextVar( pipelineMeta, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCloseIdleConnectionsTime = new TextVar( variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wCloseIdleConnectionsTime.addModifyListener( lsMod );
     wCloseIdleConnectionsTime.setToolTipText( BaseMessages.getString(
       PKG, "HTTPPOSTDialog.CloseIdleConnectionsTime.Tooltip" ) );
@@ -438,7 +439,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlResult.right = new FormAttachment( middle, -margin );
     fdlResult.top = new FormAttachment( wPostAFile, margin );
     wlResult.setLayoutData(fdlResult);
-    wResult = new TextVar( pipelineMeta, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResult = new TextVar( variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
     FormData fdResult = new FormData();
@@ -456,7 +457,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlResultCode.right = new FormAttachment( middle, -margin );
     fdlResultCode.top = new FormAttachment( wResult, margin );
     wlResultCode.setLayoutData(fdlResultCode);
-    wResultCode = new TextVar( pipelineMeta, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResultCode = new TextVar( variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResultCode );
     wResultCode.addModifyListener( lsMod );
     FormData fdResultCode = new FormData();
@@ -474,7 +475,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlResponseTime.right = new FormAttachment( middle, -margin );
     fdlResponseTime.top = new FormAttachment( wResultCode, margin );
     wlResponseTime.setLayoutData(fdlResponseTime);
-    wResponseTime = new TextVar( pipelineMeta, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResponseTime = new TextVar( variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResponseTime );
     wResponseTime.addModifyListener( lsMod );
     FormData fdResponseTime = new FormData();
@@ -491,7 +492,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlResponseHeader.right = new FormAttachment( middle, -margin );
     fdlResponseHeader.top = new FormAttachment( wResponseTime, margin );
     wlResponseHeader.setLayoutData(fdlResponseHeader);
-    wResponseHeader = new TextVar( pipelineMeta, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResponseHeader = new TextVar( variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResponseHeader );
     wResponseHeader.addModifyListener( lsMod );
     FormData fdResponseHeader = new FormData();
@@ -529,7 +530,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlHttpLogin.left = new FormAttachment( 0, 0 );
     fdlHttpLogin.right = new FormAttachment( middle, -margin );
     wlHttpLogin.setLayoutData( fdlHttpLogin );
-    wHttpLogin = new TextVar( pipelineMeta, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHttpLogin = new TextVar( variables, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wHttpLogin.addModifyListener( lsMod );
     wHttpLogin.setToolTipText( BaseMessages.getString( PKG, "HTTPPOSTDialog.HttpLogin.Tooltip" ) );
     props.setLook( wHttpLogin );
@@ -548,7 +549,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlHttpPassword.left = new FormAttachment( 0, 0 );
     fdlHttpPassword.right = new FormAttachment( middle, -margin );
     wlHttpPassword.setLayoutData( fdlHttpPassword );
-    wHttpPassword = new PasswordTextVar( pipelineMeta, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHttpPassword = new PasswordTextVar( variables, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wHttpPassword.addModifyListener( lsMod );
     wHttpPassword.setToolTipText( BaseMessages.getString( PKG, "HTTPPOSTDialog.HttpPassword.Tooltip" ) );
     props.setLook( wHttpPassword );
@@ -587,7 +588,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlProxyHost.left = new FormAttachment( 0, 0 );
     fdlProxyHost.right = new FormAttachment( middle, -margin );
     wlProxyHost.setLayoutData( fdlProxyHost );
-    wProxyHost = new TextVar( pipelineMeta, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyHost = new TextVar( variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wProxyHost.addModifyListener( lsMod );
     wProxyHost.setToolTipText( BaseMessages.getString( PKG, "HTTPPOSTDialog.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
@@ -606,7 +607,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     fdlProxyPort.left = new FormAttachment( 0, 0 );
     fdlProxyPort.right = new FormAttachment( middle, -margin );
     wlProxyPort.setLayoutData( fdlProxyPort );
-    wProxyPort = new TextVar( pipelineMeta, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyPort = new TextVar( variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wProxyPort.addModifyListener( lsMod );
     wProxyPort.setToolTipText( BaseMessages.getString( PKG, "HTTPPOSTDialog.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
@@ -676,7 +677,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     colinf[ 1 ].setUsingVariables( true );
     wFields =
       new TableView(
-        pipelineMeta, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        variables, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
         props );
 
     Button wGetBodyParam = new Button(wAdditionalComp, SWT.PUSH);
@@ -714,7 +715,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
     colinfquery[ 1 ].setUsingVariables( true );
     wQuery =
       new TableView(
-        pipelineMeta, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinfquery, QueryRows,
+        variables, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinfquery, QueryRows,
         lsMod, props );
 
     wGet = new Button(wAdditionalComp, SWT.PUSH );
@@ -739,7 +740,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -1030,7 +1031,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           tableItem.setText( 3, NO ); // default is "N"
@@ -1048,7 +1049,7 @@ public class HttpPostDialog extends BaseTransformDialog implements ITransformDia
 
   private void getQueryFields() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wQuery, 1, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, null );
       }

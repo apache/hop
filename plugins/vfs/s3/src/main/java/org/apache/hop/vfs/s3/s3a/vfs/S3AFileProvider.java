@@ -28,24 +28,19 @@ import org.apache.hop.vfs.s3.s3common.S3CommonFileProvider;
 
 public class S3AFileProvider extends S3CommonFileProvider {
 
-  /**
-   * The scheme this provider was designed to support
-   */
+  /** The scheme this provider was designed to support */
   public static final String SCHEME = "s3a";
 
-  /**
-   * User Information.
-   */
+  /** User Information. */
   public static final String ATTR_USER_INFO = "UI";
 
   public S3AFileProvider() {
     super();
-    setFileNameParser( S3AFileNameParser.getInstance() );
+    setFileNameParser(S3AFileNameParser.getInstance());
   }
 
-  protected FileSystem doCreateFileSystem( final FileName name, final FileSystemOptions fileSystemOptions )
-    throws FileSystemException {
-    return new S3AFileSystem( name, fileSystemOptions );
+  protected FileSystem doCreateFileSystem(
+      final FileName name, final FileSystemOptions fileSystemOptions) throws FileSystemException {
+    return new S3AFileSystem(name, fileSystemOptions);
   }
-
 }

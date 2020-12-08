@@ -38,6 +38,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -200,7 +201,8 @@ public class TextFileOutputTest {
     Mockito.when( transformMockHelper.iTransformMeta.getSeparator() ).thenReturn( " " );
     Mockito.when( transformMockHelper.iTransformMeta.getEnclosure() ).thenReturn( "\"" );
     Mockito.when( transformMockHelper.iTransformMeta.getNewline() ).thenReturn( "\n" );
-    Mockito.when( transformMockHelper.pipelineMeta.listVariables() ).thenReturn( new String[ 0 ] );
+    // Mockito.when( transformMockHelper.pipelineMeta.listVariables() ).thenReturn( new String[ 0 ] );
+
   }
 
   @After
@@ -229,8 +231,8 @@ public class TextFileOutputTest {
 
   private FileObject createTemplateFile() {
     String path = TestUtils.createRamFile( getClass().getSimpleName() + "/" + TEXT_FILE_OUTPUT_PREFIX + new Random().nextLong()
-        + TEXT_FILE_OUTPUT_EXTENSION, transformMockHelper.pipelineMeta );
-    return TestUtils.getFileObject( path, transformMockHelper.pipelineMeta );
+        + TEXT_FILE_OUTPUT_EXTENSION, new Variables() );
+    return TestUtils.getFileObject( path, new Variables() );
   }
 
   private FileObject createTemplateFile( String content ) throws IOException {

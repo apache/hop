@@ -80,6 +80,8 @@ import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingRegistry;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
@@ -119,6 +121,7 @@ public class ValueMetaBaseTest  {
 	  protected ResultSet resultSet;
 	  protected DatabaseMeta dbMeta;
 	  protected ValueMetaBase valueMetaBase;
+	  protected IVariables variables;
 
 	  @BeforeClass
 	  public static void setUpBeforeClass() throws HopException {
@@ -136,6 +139,8 @@ public class ValueMetaBaseTest  {
 	    valueMetaBase = new ValueMetaBase();
 	    dbMeta = spy( new DatabaseMeta() );
 	    resultSet = mock( ResultSet.class );
+
+	    variables = Variables.getADefaultVariableSpace();
 	  }
 
 	  @After
@@ -251,7 +256,7 @@ public class ValueMetaBaseTest  {
     doReturn( iDatabase ).when( dbMeta ).getIDatabase();
 
     ResultSetMetaData metaData = mock( ResultSetMetaData.class );
-    valueMetaBaseSpy.getValueFromSqlType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
+    valueMetaBaseSpy.getValueFromSqlType( variables, dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
 
     verify( iDatabase, times( 1 ) ).customizeValueFromSqlType( any( IValueMeta.class ),
       any( ResultSetMetaData.class ), anyInt() );
@@ -945,35 +950,35 @@ public class ValueMetaBaseTest  {
   @Test
   public void testMetdataPreviewSqlCharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.CHAR ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
   public void testMetdataPreviewSqlVarcharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.VARCHAR ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
   public void testMetdataPreviewSqlNVarcharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.NVARCHAR ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
   public void testMetdataPreviewSqlLongVarcharToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.LONGVARCHAR ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
   }
 
   @Test
   public void testMetdataPreviewSqlClobToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.CLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
     assertEquals( DatabaseMeta.CLOB_LENGTH, valueMeta.getLength() );
     assertTrue( valueMeta.isLargeTextField() );
@@ -982,7 +987,7 @@ public class ValueMetaBaseTest  {
   @Test
   public void testMetdataPreviewSqlNClobToPentahoString() throws SQLException, HopDatabaseException {
     doReturn( Types.NCLOB ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isString() );
     assertEquals( DatabaseMeta.CLOB_LENGTH, valueMeta.getLength() );
     assertTrue( valueMeta.isLargeTextField() );
@@ -991,7 +996,7 @@ public class ValueMetaBaseTest  {
   @Test
   public void testMetdataPreviewSqlBigIntToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.BIGINT ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 15, valueMeta.getLength() );
@@ -1000,7 +1005,7 @@ public class ValueMetaBaseTest  {
   @Test
   public void testMetdataPreviewSqlIntegerToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.INTEGER ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 9, valueMeta.getLength() );
@@ -1009,7 +1014,7 @@ public class ValueMetaBaseTest  {
   @Test
   public void testMetdataPreviewSqlSmallIntToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.SMALLINT ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 4, valueMeta.getLength() );
@@ -1018,7 +1023,7 @@ public class ValueMetaBaseTest  {
   @Test
   public void testMetdataPreviewSqlTinyIntToPentahoInteger() throws SQLException, HopDatabaseException {
     doReturn( Types.TINYINT ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 2, valueMeta.getLength() );
@@ -1030,7 +1035,7 @@ public class ValueMetaBaseTest  {
     doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 5 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isBigNumber() );
     assertEquals( 5, valueMeta.getPrecision() );
     assertEquals( 20, valueMeta.getLength() );
@@ -1039,7 +1044,7 @@ public class ValueMetaBaseTest  {
     doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isBigNumber() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 20, valueMeta.getLength() );
@@ -1051,7 +1056,7 @@ public class ValueMetaBaseTest  {
     doReturn( 2 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isInteger() );
     assertEquals( 0, valueMeta.getPrecision() );
     assertEquals( 2, valueMeta.getLength() );
@@ -1063,7 +1068,7 @@ public class ValueMetaBaseTest  {
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 2 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( 2, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
@@ -1075,7 +1080,7 @@ public class ValueMetaBaseTest  {
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 0 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( -1, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
@@ -1089,7 +1094,7 @@ public class ValueMetaBaseTest  {
     doReturn( 128 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 127 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isBigNumber() );
     assertEquals( -1, valueMeta.getPrecision() );
     assertEquals( -1, valueMeta.getLength() );
@@ -1101,7 +1106,7 @@ public class ValueMetaBaseTest  {
     doReturn( 20 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 15 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isBigNumber() );
     assertEquals( 15, valueMeta.getPrecision() );
     assertEquals( 20, valueMeta.getLength() );
@@ -1113,7 +1118,7 @@ public class ValueMetaBaseTest  {
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 2 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( 2, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
@@ -1125,7 +1130,7 @@ public class ValueMetaBaseTest  {
     doReturn( 3 ).when( resultSet ).getInt( "COLUMN_SIZE" );
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 2 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isNumber() );
     assertEquals( 2, valueMeta.getPrecision() );
     assertEquals( 3, valueMeta.getLength() );
@@ -1137,28 +1142,28 @@ public class ValueMetaBaseTest  {
     doReturn( mock( Object.class ) ).when( resultSet ).getObject( "DECIMAL_DIGITS" );
     doReturn( 19 ).when( resultSet ).getInt( "DECIMAL_DIGITS" );
     doReturn( false ).when( dbMeta ).supportsTimestampDataType();
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( !valueMeta.isDate() );
   }
 
   @Test
   public void testMetdataPreviewSqlTimeToPentahoDate() throws SQLException, HopDatabaseException {
     doReturn( Types.TIME ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isDate() );
   }
 
   @Test
   public void testMetdataPreviewSqlBooleanToPentahoBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BOOLEAN ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
 
   @Test
   public void testMetdataPreviewSqlBitToPentahoBoolean() throws SQLException, HopDatabaseException {
     doReturn( Types.BIT ).when( resultSet ).getInt( "DATA_TYPE" );
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isBoolean() );
   }
 }

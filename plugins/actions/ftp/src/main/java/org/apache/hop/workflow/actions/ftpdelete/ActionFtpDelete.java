@@ -1081,7 +1081,7 @@ public class ActionFtpDelete extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
     if ( !Utils.isEmpty( serverName ) ) {
-      String realServername = workflowMeta.environmentSubstitute( serverName );
+      String realServername = environmentSubstitute( serverName );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
       references.add( reference );

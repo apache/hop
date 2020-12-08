@@ -170,24 +170,6 @@ public class PipelineTest {
   }
 
   @Test
-  public void testPDI12424ParametersFromMetaAreCopiedToPipeline() throws HopException, URISyntaxException, IOException {
-    String testParam = "testParam";
-    String testParamValue = "testParamValue";
-    PipelineMeta mockPipelineMeta = mock( PipelineMeta.class );
-    when( mockPipelineMeta.listVariables() ).thenReturn( new String[] {} );
-    when( mockPipelineMeta.listParameters() ).thenReturn( new String[] { testParam } );
-    when( mockPipelineMeta.getParameterValue( testParam ) ).thenReturn( testParamValue );
-    FileObject hpl = HopVfs.createTempFile( "parameters", ".hpl", "ram://" );
-    try ( OutputStream outputStream = hpl.getContent().getOutputStream( true ) ) {
-      InputStream inputStream = new ByteArrayInputStream( "<pipeline></pipeline>".getBytes() );
-      IOUtils.copy( inputStream, outputStream );
-    }
-    Pipeline pipeline = new LocalPipelineEngine( mockPipelineMeta, null, hpl.getURL().toURI().toString(), new MemoryMetadataProvider() );
-    assertEquals( testParamValue, pipeline.getParameterValue( testParam ) );
-  }
-
-
-  @Test
   public void testFirePipelineFinishedListeners() throws Exception {
     Pipeline pipeline = new LocalPipelineEngine();
     IExecutionFinishedListener mockListener = mock( IExecutionFinishedListener.class );
@@ -376,12 +358,10 @@ public class PipelineTest {
   @Test
   public void testNewPipelineWithContainerObjectId() throws Exception {
     PipelineMeta meta = mock( PipelineMeta.class );
-    doReturn( new String[] { "X", "Y", "Z" } ).when( meta ).listVariables();
+
     doReturn( new String[] { "A", "B", "C" } ).when( meta ).listParameters();
-    doReturn( "XYZ" ).when( meta ).getVariable( anyString() );
     doReturn( "" ).when( meta ).getParameterDescription( anyString() );
     doReturn( "" ).when( meta ).getParameterDefault( anyString() );
-    doReturn( "ABC" ).when( meta ).getParameterValue( anyString() );
 
     String carteId = UUID.randomUUID().toString();
     doReturn( carteId ).when( meta ).getContainerId();
@@ -398,12 +378,9 @@ public class PipelineTest {
   @Test
   public void testTwoPipelineGetSameLogChannelId() throws Exception {
     PipelineMeta meta = mock( PipelineMeta.class );
-    doReturn( new String[] { "X", "Y", "Z" } ).when( meta ).listVariables();
     doReturn( new String[] { "A", "B", "C" } ).when( meta ).listParameters();
-    doReturn( "XYZ" ).when( meta ).getVariable( anyString() );
     doReturn( "" ).when( meta ).getParameterDescription( anyString() );
     doReturn( "" ).when( meta ).getParameterDefault( anyString() );
-    doReturn( "ABC" ).when( meta ).getParameterValue( anyString() );
 
     IPipelineEngine<PipelineMeta> pipeline1 = new LocalPipelineEngine( meta );
     IPipelineEngine<PipelineMeta> pipeline2 = new LocalPipelineEngine( meta );

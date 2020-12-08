@@ -24,6 +24,7 @@ package org.apache.hop.ui.hopgui.file.delegates;
 
 import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.NotePadMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
@@ -74,9 +75,9 @@ public class HopGuiNotePadDelegate {
     handler.updateGui();
   }
 
-  public void newNote( AbstractMeta meta, int x, int y ) {
+  public void newNote( IVariables variables, AbstractMeta meta, int x, int y ) {
     String title = BaseMessages.getString( PKG, "PipelineGraph.Dialog.NoteEditor.Title" );
-    NotePadDialog dd = new NotePadDialog( meta, hopGui.getShell(), title );
+    NotePadDialog dd = new NotePadDialog( variables, hopGui.getShell(), title );
     NotePadMeta n = dd.open();
     if ( n != null ) {
       NotePadMeta npi =

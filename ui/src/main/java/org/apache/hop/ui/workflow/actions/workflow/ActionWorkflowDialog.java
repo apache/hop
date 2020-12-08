@@ -214,7 +214,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
       if ( inputWorkflowMeta == null ) {
         ActionWorkflow jej = new ActionWorkflow();
         getInfo( jej );
-        inputWorkflowMeta = jej.getWorkflowMeta( this.getMetadataProvider(), this.getWorkflowMeta() );
+        inputWorkflowMeta = jej.getWorkflowMeta( this.getMetadataProvider(), variables );
       }
       String[] parameters = inputWorkflowMeta.listParameters();
 
@@ -238,7 +238,7 @@ public class ActionWorkflowDialog extends ActionBaseDialog implements IActionDia
 
   protected void pickFileVFS() {
     HopWorkflowFileType<WorkflowMeta> workflowFileType = new HopWorkflowFileType<>();
-    BaseDialog.presentFileDialog( shell, wPath, this.getWorkflowMeta(), workflowFileType.getFilterExtensions(), workflowFileType.getFilterNames(), true );
+    BaseDialog.presentFileDialog( shell, wPath, variables, workflowFileType.getFilterExtensions(), workflowFileType.getFilterNames(), true );
   }
 
   public void dispose() {

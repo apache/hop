@@ -51,7 +51,6 @@ import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.utils.RowMetaUtils;
 import org.w3c.dom.Node;
 
-import javax.xml.crypto.Data;
 import java.util.List;
 
 /*
@@ -183,7 +182,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
 
   /**
    * @param vs -
-   *           variable space to be used for searching variable value
+   *           variable variables to be used for searching variable value
    *           usually "this" for a calling transform
    * @return Returns the commitSize.
    */
@@ -535,7 +534,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareVariablesWith( variables );
       try {
         db.connect();
 
@@ -723,7 +722,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
   }
 
   @Override
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) throws HopTransformException {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -733,10 +732,10 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
         IRowMeta tableFields = RowMetaUtils.getRowMetaForUpdate( prev, keyLookup, keyStream,
           updateLookup, updateStream );
         if ( !Utils.isEmpty( tableName ) ) {
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
 
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( pipelineMeta );
+          db.shareVariablesWith( variables );
           try {
             db.connect();
 
@@ -791,7 +790,7 @@ public class UpdateMeta extends BaseTransformMeta implements ITransformMeta<Upda
   }
 
   @Override
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( prev != null ) {

@@ -132,7 +132,7 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     fdbFilename.top = new FormAttachment( wName, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -142,9 +142,9 @@ public class ActionCreateFileDialog extends ActionDialog implements IActionDialo
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
           new String[] { "*" }, FILETYPES, true )
     );
 

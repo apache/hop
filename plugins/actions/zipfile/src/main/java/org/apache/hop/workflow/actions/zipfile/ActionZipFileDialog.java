@@ -265,7 +265,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wbSourceFile.setLayoutData(fdbSourceFile);
 
     wSourceDirectory =
-      new TextVar( getWorkflowMeta(), wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobZipFiles.SourceDir.Tooltip" ) );
     props.setLook( wSourceDirectory );
     wSourceDirectory.addModifyListener( lsMod );
@@ -285,7 +285,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard =
-      new TextVar( getWorkflowMeta(), wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobZipFiles.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -305,7 +305,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     fdlWildcardExclude.right = new FormAttachment( middle, -margin );
     wlWildcardExclude.setLayoutData(fdlWildcardExclude);
     wWildcardExclude =
-      new TextVar( getWorkflowMeta(), wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobZipFiles.WildcardExclude.Tooltip" ) );
     props.setLook( wWildcardExclude );
     wWildcardExclude.addModifyListener( lsMod );
@@ -378,7 +378,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     fdbZipFilename.right = new FormAttachment( 100, 0 );
     fdbZipFilename.top = new FormAttachment(wSourceFiles, 0 );
     wbZipFilename.setLayoutData(fdbZipFilename);
-    wZipFilename = new TextVar( getWorkflowMeta(), wZipFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wZipFilename = new TextVar( variables, wZipFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wZipFilename );
     wZipFilename.addModifyListener( lsMod );
     FormData fdZipFilename = new FormData();
@@ -388,9 +388,9 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wZipFilename.setLayoutData(fdZipFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wZipFilename.addModifyListener( e -> wZipFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wZipFilename.getText() ) ) );
+    wZipFilename.addModifyListener( e -> wZipFilename.setToolTipText( variables.environmentSubstitute( wZipFilename.getText() ) ) );
 
-    wbZipFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wZipFilename, getWorkflowMeta(),
+    wbZipFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wZipFilename, variables,
       new String[] { "*.zip;*.ZIP", "*" }, FILETYPES, true )
     );
 
@@ -689,7 +689,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     wbMovetoDirectory.setLayoutData(fdbMovetoDirectory);
 
     wMovetoDirectory =
-      new TextVar( getWorkflowMeta(), wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobZipFiles.MovetoDirectory.Tooltip" ) );
     props.setLook( wMovetoDirectory );
     wMovetoDirectory.addModifyListener( lsMod );
@@ -731,7 +731,7 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
     fdlStoredSourcePathDepth.top = new FormAttachment( wCreateMoveToDirectory, margin );
     fdlStoredSourcePathDepth.right = new FormAttachment( middle, -margin );
     wlStoredSourcePathDepth.setLayoutData(fdlStoredSourcePathDepth);
-    wStoredSourcePathDepth = new ComboVar( getWorkflowMeta(), wSettings, SWT.SINGLE | SWT.BORDER );
+    wStoredSourcePathDepth = new ComboVar( variables, wSettings, SWT.SINGLE | SWT.BORDER );
     props.setLook( wStoredSourcePathDepth );
     wStoredSourcePathDepth.setToolTipText( BaseMessages.getString(
       PKG, "JobZipFiles.StoredSourcePathDepth.Tooltip" ) );
@@ -844,9 +844,9 @@ public class ActionZipFileDialog extends ActionDialog implements IActionDialog {
       }
     };
 
-    wbSourceDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSourceDirectory, getWorkflowMeta() ) );
-    wbMovetoDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wMovetoDirectory, getWorkflowMeta() ) );
-    wbSourceFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wSourceDirectory, getWorkflowMeta(),
+    wbSourceDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSourceDirectory, variables ) );
+    wbMovetoDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wMovetoDirectory, variables ) );
+    wbSourceFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wSourceDirectory, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 

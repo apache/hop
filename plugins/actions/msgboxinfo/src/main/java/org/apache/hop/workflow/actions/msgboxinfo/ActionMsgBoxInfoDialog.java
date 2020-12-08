@@ -130,7 +130,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     fdlTitleMessage.right = new FormAttachment( middle, -margin );
     wlTitleMessage.setLayoutData(fdlTitleMessage);
 
-    wTitleMessage = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTitleMessage = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTitleMessage );
     wTitleMessage.addModifyListener( lsMod );
     FormData fdTitleMessage = new FormData();
@@ -149,7 +149,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     fdlBodyMessage.right = new FormAttachment( middle, -margin );
     wlBodyMessage.setLayoutData(fdlBodyMessage);
 
-    wBodyMessage = new TextVar( getWorkflowMeta(), shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
+    wBodyMessage = new TextVar( variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL );
     wBodyMessage.setText( BaseMessages.getString( PKG, "MsgBoxInfo.Name.Default" ) );
     props.setLook( wBodyMessage, Props.WIDGET_STYLE_FIXED );
     wBodyMessage.addModifyListener( lsMod );
@@ -161,7 +161,7 @@ public class ActionMsgBoxInfoDialog extends ActionDialog implements IActionDialo
     wBodyMessage.setLayoutData(fdBodyMessage);
 
     // SelectionAdapter lsVar = VariableButtonListenerFactory.getSelectionAdapter(shell, wBodyMessage, workflowMeta);
-    wBodyMessage.addKeyListener( new ControlSpaceKeyAdapter( getWorkflowMeta(), wBodyMessage ) );
+    wBodyMessage.addKeyListener( new ControlSpaceKeyAdapter( variables, wBodyMessage ) );
 
     // Add listeners
     Listener lsCancel = e -> cancel();

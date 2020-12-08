@@ -26,6 +26,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -47,6 +48,7 @@ public class GetTableSizeProgressDialog {
   private static final Class<?> PKG = GetTableSizeProgressDialog.class; // Needed by Translator
 
   private Shell shell;
+  private IVariables variables;
   private DatabaseMeta dbMeta;
   private String tableName;
   private Long size;
@@ -56,14 +58,14 @@ public class GetTableSizeProgressDialog {
   /**
    * Creates a new dialog that will handle the wait while we're doing the hard work.
    */
-  public GetTableSizeProgressDialog( Shell shell, DatabaseMeta dbInfo, String tableName ) {
-    this( shell, dbInfo, tableName, null );
+  public GetTableSizeProgressDialog( Shell shell, IVariables variables, DatabaseMeta dbInfo, String tableName ) {
+    this( shell, variables, dbInfo, tableName, null );
   }
 
-  public GetTableSizeProgressDialog( Shell shell, DatabaseMeta dbInfo, String tableName, String schemaName ) {
+  public GetTableSizeProgressDialog( Shell shell, IVariables variables, DatabaseMeta dbInfo, String tableName, String schemaName ) {
     this.shell = shell;
     this.dbMeta = dbInfo;
-    this.tableName = dbInfo.getQuotedSchemaTableCombination( schemaName, tableName );
+    this.tableName = dbInfo.getQuotedSchemaTableCombination( variables, schemaName, tableName );
   }
 
   public Long open() {

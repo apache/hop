@@ -32,6 +32,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -80,8 +81,8 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
 
   private final Map<String, Integer> inputFields;
 
-  public AddXmlDialog(Shell parent, Object in, PipelineMeta transMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, transMeta, sname );
+  public AddXmlDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (AddXmlMeta) in;
     inputFields = new HashMap<>();
   }
@@ -337,7 +338,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
           new ColumnInfo( BaseMessages.getString( PKG, "AddXMLDialog.AttributeParentName.Column" ),
               ColumnInfo.COLUMN_TYPE_TEXT, false ) };
     wFields =
-        new TableView( pipelineMeta, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        new TableView( variables, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
             props );
 
     FormData fdFields = new FormData();
@@ -351,10 +352,10 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
     // Search the fields in the background
 
     final Runnable runnable = () -> {
-      TransformMeta stepMeta = pipelineMeta.findTransform( transformName );
-      if ( stepMeta != null ) {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( stepMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -594,7 +595,7 @@ public class AddXmlDialog extends BaseTransformDialog implements ITransformDialo
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1, 2 }, new int[] { 3 }, 5, 6,
           ( tableItem, v ) -> {

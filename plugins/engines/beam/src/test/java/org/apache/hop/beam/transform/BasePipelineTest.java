@@ -38,6 +38,6 @@ public class BasePipelineTest extends PipelineTestBase {
       metadataProvider
     );
 
-    createRunPipeline( pipelineMeta );
+    createRunPipeline( variables, pipelineMeta );
   }
 }

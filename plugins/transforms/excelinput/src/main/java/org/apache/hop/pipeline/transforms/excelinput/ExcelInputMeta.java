@@ -1209,7 +1209,7 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
       remarks.add( cr );
     }
 
-    FileInputList fileList = getFileList( pipelineMeta );
+    FileInputList fileList = getFileList( variables );
     if ( fileList.nrOfFiles() == 0 ) {
       if ( !isAcceptingFilenames() ) {
         cr =
@@ -1431,7 +1431,7 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   /**
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.

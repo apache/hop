@@ -43,6 +43,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class SwitchCaseDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SwitchCaseMeta.class; // Needed by Translator
@@ -65,8 +66,8 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
 
   private final SwitchCaseMeta input;
 
-  public SwitchCaseDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public SwitchCaseDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (SwitchCaseMeta) in;
   }
 
@@ -137,7 +138,7 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
     // TODO: grab field list in thread in the background...
     //
     try {
-      IRowMeta inputFields = pipelineMeta.getPrevTransformFields(transformMeta);
+      IRowMeta inputFields = pipelineMeta.getPrevTransformFields(variables, transformMeta);
       wFieldName.setItems( inputFields.getFieldNames() );
     } catch ( HopTransformException ex ) {
       new ErrorDialog( shell,
@@ -263,7 +264,7 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
           ColumnInfo.COLUMN_TYPE_CCOMBO, nextTransformNames, false ), };
 
     wValues =
-      new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, input
+      new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, input
         .getTransformIOMeta().getTargetStreams().size(), lsMod, props );
 
     // Some buttons

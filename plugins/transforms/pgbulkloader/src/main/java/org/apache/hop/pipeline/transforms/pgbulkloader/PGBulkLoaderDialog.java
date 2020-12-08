@@ -33,6 +33,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -97,8 +98,8 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
    */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
-  public PGBulkLoaderDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public PGBulkLoaderDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (PGBulkLoaderMeta) in;
     inputFields = new HashMap<>();
   }
@@ -161,7 +162,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     fdlSchema.top = new FormAttachment( wConnection, margin * 2 );
     wlSchema.setLayoutData(fdlSchema);
 
-    wSchema = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsMod );
     wSchema.addFocusListener( lsFocusLost );
@@ -188,7 +189,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     fdbTable.right = new FormAttachment( 100, 0 );
     fdbTable.top = new FormAttachment( wSchema, margin );
     wbTable.setLayoutData(fdbTable);
-    wTable = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTable = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsMod );
     wTable.addFocusListener( lsFocusLost );
@@ -236,7 +237,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     fdlDbNameOverride.top = new FormAttachment( wLoadAction, margin );
     fdlDbNameOverride.right = new FormAttachment( middle, -margin );
     wlDbNameOverride.setLayoutData(fdlDbNameOverride);
-    wDbNameOverride = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDbNameOverride = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDbNameOverride );
     wDbNameOverride.addModifyListener( lsMod );
     FormData fdDbNameOverride = new FormData();
@@ -254,7 +255,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     fdlEnclosure.top = new FormAttachment( wDbNameOverride, margin );
     fdlEnclosure.right = new FormAttachment( middle, -margin );
     wlEnclosure.setLayoutData(fdlEnclosure);
-    wEnclosure = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEnclosure = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEnclosure );
     wEnclosure.addModifyListener( lsMod );
     FormData fdEnclosure = new FormData();
@@ -272,7 +273,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     fdlDelimiter.top = new FormAttachment( wEnclosure, margin );
     fdlDelimiter.right = new FormAttachment( middle, -margin );
     wlDelimiter.setLayoutData(fdlDelimiter);
-    wDelimiter = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDelimiter = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDelimiter );
     wDelimiter.addModifyListener( lsMod );
     FormData fdDelimiter = new FormData();
@@ -344,7 +345,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     tableFieldColumns.add( ciReturn[ 0 ] );
     wReturn =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
     Button wGetLU = new Button(shell, SWT.PUSH);
@@ -378,7 +379,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -546,7 +547,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     IRowMeta targetFields;
 
     try {
-      sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      sourceFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "PGBulkLoaderDialog.DoMapping.UnableToFindSourceFields.Title" ),
@@ -555,10 +556,10 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     }
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
-    input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
+    input.setTableName( variables.environmentSubstitute( wTable.getText() ) );
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
-      targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
+      targetFields = transformMetaInterface.getRequiredFields( variables );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "PGBulkLoaderDialog.DoMapping.UnableToFindTargetFields.Title" ),
@@ -732,7 +733,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
     if ( databaseMeta != null ) {
       logDebug( BaseMessages.getString( PKG, "PGBulkLoaderDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -748,7 +749,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
 
   private void getUpdate() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           if ( v.getType() == IValueMeta.TYPE_DATE ) {
@@ -778,13 +779,13 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
         new TransformMeta( BaseMessages.getString( PKG, "PGBulkLoaderDialog.TransformMeta.Title" ), name, info );
-      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( variables, transformName );
 
-      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
+      SqlStatement sql = info.getSqlStatements( variables, pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSql() ) {
           SqlEditor sqledit =
-            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
+            new SqlEditor( shell, SWT.NONE, variables, info.getDatabaseMeta(), DbCache.getInstance(), sql
               .getSql() );
           sqledit.open();
         } else {
@@ -825,8 +826,7 @@ public class PGBulkLoaderDialog extends BaseTransformDialog implements ITransfor
               db.connect();
 
               String schemaTable =
-                ci.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
-                  .environmentSubstitute( tableName ) );
+                ci.getQuotedSchemaTableCombination( variables, schemaName, tableName );
               IRowMeta r = db.getTableFields( schemaTable );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();

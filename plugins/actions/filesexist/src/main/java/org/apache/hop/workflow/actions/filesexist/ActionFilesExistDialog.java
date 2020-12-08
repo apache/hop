@@ -137,7 +137,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     fdbDirectory.top = new FormAttachment( wName, margin );
     wbDirectory.setLayoutData(fdbDirectory);
 
-    wbDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFilename, getWorkflowMeta() ));
+    wbDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFilename, variables ));
 
     Button wbFilename = new Button(shell, SWT.PUSH | SWT.CENTER);
     props.setLook(wbFilename);
@@ -157,7 +157,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
     fdbaFilename.top = new FormAttachment( wName, margin );
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -168,9 +168,9 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -220,7 +220,7 @@ public class ActionFilesExistDialog extends ActionDialog implements IActionDialo
 
     wFields =
       new TableView(
-    		  getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

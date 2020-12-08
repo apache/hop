@@ -67,8 +67,8 @@ public class AddXml extends BaseTransform<AddXmlMeta, AddXmlData> implements ITr
   private DOMImplementation domImplentation;
   private Transformer serializer;
 
-  public AddXml(TransformMeta stepMeta,  AddXmlMeta meta, AddXmlData sdi, int copyNr, PipelineMeta tm, Pipeline trans ) {
-    super( stepMeta, meta, sdi, copyNr, tm, trans );
+  public AddXml(TransformMeta transformMeta,  AddXmlMeta meta, AddXmlData sdi, int copyNr, PipelineMeta tm, Pipeline trans ) {
+    super( transformMeta, meta, sdi, copyNr, tm, trans );
   }
 
   public boolean processRow() throws HopException {

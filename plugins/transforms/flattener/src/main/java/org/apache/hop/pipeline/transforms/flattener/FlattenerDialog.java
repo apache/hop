@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -54,8 +55,8 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
 
   private FlattenerMeta input;
 
-  public FlattenerDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public FlattenerDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (FlattenerMeta) in;
   }
 
@@ -153,7 +154,7 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     ColumnInfo[] ciKey = new ColumnInfo[ nrKeyCols ];
     ciKey[ 0 ] = new ColumnInfo( BaseMessages.getString( PKG, "FlattenerDialog.ColumnInfo.TargetField" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
 
-    wFields = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey, nrKeyRows, lsMod, props );
+    wFields = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey, nrKeyRows, lsMod, props );
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment(wlFields, margin );
@@ -196,7 +197,7 @@ public class FlattenerDialog extends BaseTransformDialog implements ITransformDi
     if ( !gotPreviousFields ) {
       try {
         String field = wField.getText();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wField.setItems( r.getFieldNames() );
         }

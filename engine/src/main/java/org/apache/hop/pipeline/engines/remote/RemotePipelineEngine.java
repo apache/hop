@@ -24,6 +24,8 @@ package org.apache.hop.pipeline.engines.remote;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
@@ -37,8 +39,7 @@ import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.metadata.SerializableMetadataProvider;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.INamedParams;
-import org.apache.hop.core.parameters.NamedParamsDefault;
+import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.util.Utils;
@@ -157,7 +158,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /**
    * The named parameters.
    */
-  protected INamedParams namedParams = new NamedParamsDefault();
+  protected INamedParameters namedParams = new NamedParameters();
   private String statusDescription;
   private ComponentExecutionStatus status;
 
@@ -261,19 +262,18 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     Map<String, String> vars = new HashMap<>();
 
     for ( String var : Const.INTERNAL_PIPELINE_VARIABLES ) {
-      vars.put( var, pipelineMeta.getVariable( var ) );
+      vars.put( var, getVariable( var ) );
     }
     for ( String var : Const.INTERNAL_WORKFLOW_VARIABLES ) {
-      vars.put( var, pipelineMeta.getVariable( var ) );
+      vars.put( var, getVariable( var ) );
     }
     // Overwrite with all the other variables we know off
     //
     for ( String var : listVariables() ) {
-      vars.put( var, pipelineMeta.getVariable( var ) );
+      vars.put( var, getVariable( var ) );
     }
 
     executionConfiguration.getVariablesMap().putAll( vars );
-    hopServer.injectVariables( executionConfiguration.getVariablesMap() );
 
     hopServer.getLogChannel().setLogLevel( executionConfiguration.getLogLevel() );
 
@@ -289,12 +289,12 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         // TODO: Serialize metadata objects to JSON and include it in the zip file
         //
         PipelineExecutionConfiguration clonedConfiguration = (PipelineExecutionConfiguration) executionConfiguration.clone();
-        TopLevelResource topLevelResource = ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), pipelineMeta, pipelineMeta,
+        TopLevelResource topLevelResource = ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), pipelineMeta, this,
           metadataProvider, clonedConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
 
         // Send the zip file over to the hop server...
         //
-        String result = hopServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_PIPELINE, topLevelResource.getBaseResourceName() );
+        String result = hopServer.sendExport( this, topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_PIPELINE, topLevelResource.getBaseResourceName() );
         WebResult webResult = WebResult.fromXmlString( result );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error passing the exported pipeline to the remote server: "
@@ -308,7 +308,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
         //
         SerializableMetadataProvider serializableMetadataProvider = new SerializableMetadataProvider( metadataProvider );
         String xml = new PipelineConfiguration( pipelineMeta, executionConfiguration, serializableMetadataProvider ).getXml();
-        String reply = hopServer.sendXml( xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y" );
+        String reply = hopServer.sendXml( this, xml, RegisterPipelineServlet.CONTEXT_PATH + "/?xml=Y" );
         WebResult webResult = WebResult.fromXmlString( reply );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error posting the pipeline on the remote server: " + Const.CR
@@ -319,7 +319,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
       // Prepare the pipeline
       //
-      String reply = hopServer.execService( PrepareExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineMeta.getName(), "UTF-8" ) + "&xml=Y&id=" + containerId );
+      String reply = hopServer.execService( this, PrepareExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( pipelineMeta.getName(), "UTF-8" ) + "&xml=Y&id=" + containerId );
       WebResult webResult = WebResult.fromXmlString( reply );
       if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
         throw new HopException( "There was an error preparing the pipeline for execution on the remote server: " + Const.CR + webResult.getMessage() );
@@ -339,7 +339,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     try {
       // Start the pipeline
       //
-      String reply = hopServer.execService( StartExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( subject.getName(), "UTF-8" ) + "&xml=Y&id=" + containerId );
+      String reply = hopServer.execService( this, StartExecutionPipelineServlet.CONTEXT_PATH + "/?name=" + URLEncoder.encode( subject.getName(), "UTF-8" ) + "&xml=Y&id=" + containerId );
       WebResult webResult = WebResult.fromXmlString( reply );
       if ( WebResult.STRING_OK.equals( webResult.getResult() ) ) {
         // Inform anyone that wants to know that the show has started
@@ -371,7 +371,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   private synchronized void getPipelineStatus() throws RuntimeException {
     try {
-      HopServerPipelineStatus pipelineStatus = hopServer.getPipelineStatus( subject.getName(), containerId, lastLogLineNr );
+      HopServerPipelineStatus pipelineStatus = hopServer.getPipelineStatus( this, subject.getName(), containerId, lastLogLineNr );
       synchronized ( engineMetrics ) {
         hasHaltedComponents = false;
         engineMetrics.setStartDate( pipelineStatus.getExecutionStartDate() );
@@ -486,7 +486,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    */
   @Override public void stopAll() {
     try {
-      hopServer.stopPipeline( subject.getName(), containerId );
+      hopServer.stopPipeline( this, subject.getName(), containerId );
       getPipelineStatus();
     } catch ( Exception e ) {
       throw new RuntimeException( "Stopping of pipeline '" + subject.getName() + "' with ID " + containerId + " failed", e );
@@ -499,7 +499,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
   @Override public void pauseExecution() {
     try {
-      hopServer.pauseResumePipeline( subject.getName(), containerId );
+      hopServer.pauseResumePipeline( this, subject.getName(), containerId );
       getPipelineStatus();
     } catch ( Exception e ) {
       throw new RuntimeException( "Pause/Resume of pipeline '" + subject.getName() + "' with ID " + containerId + " failed", e );
@@ -590,11 +590,11 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     return result;
   }
 
-  @Override public void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
+  @Override public void retrieveComponentOutput( IVariables variables, String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
     try {
       Runnable runnable = () -> {
         try {
-          String rowBufferXml = hopServer.sniffTransform( subject.getName(), componentName, containerId, "" + copyNr, nrRows, SniffTransformServlet.TYPE_OUTPUT );
+          String rowBufferXml = hopServer.sniffTransform( this, subject.getName(), componentName, containerId, "" + copyNr, nrRows, SniffTransformServlet.TYPE_OUTPUT );
           Node rowBufferNode = XmlHandler.getSubNode( XmlHandler.loadXmlString( rowBufferXml ), RowBuffer.XML_TAG );
           if ( rowBufferNode != null ) {
             RowBuffer rowBuffer = new RowBuffer( rowBufferNode );
@@ -1223,7 +1223,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#addParameterDefinition(java.lang.String, java.lang.String,
+   * @see org.apache.hop.core.parameters.INamedParameters#addParameterDefinition(java.lang.String, java.lang.String,
    * java.lang.String)
    */
   @Override
@@ -1234,7 +1234,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDescription(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterDescription(java.lang.String)
    */
   @Override
   public String getParameterDescription( String key ) throws UnknownParamException {
@@ -1244,7 +1244,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDefault(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterDefault(java.lang.String)
    */
   @Override
   public String getParameterDefault( String key ) throws UnknownParamException {
@@ -1254,7 +1254,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterValue(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterValue(java.lang.String)
    */
   @Override
   public String getParameterValue( String key ) throws UnknownParamException {
@@ -1264,7 +1264,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#listParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#listParameters()
    */
   @Override
   public String[] listParameters() {
@@ -1274,7 +1274,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#setParameterValue(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#setParameterValue(java.lang.String, java.lang.String)
    */
   @Override
   public void setParameterValue( String key, String value ) throws UnknownParamException {
@@ -1284,72 +1284,36 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#eraseParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#eraseParameters()
    */
   @Override
-  public void eraseParameters() {
-    namedParams.eraseParameters();
+  public void removeAllParameters() {
+    namedParams.removeAllParameters();
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#clearParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#clearParameters()
    */
   @Override
-  public void clearParameters() {
-    namedParams.clearParameters();
+  public void clearParameterValues() {
+    namedParams.clearParameterValues();
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#copyParametersFrom(org.apache.hop.core.parameters.INamedParams)
+   * @see org.apache.hop.core.parameters.INamedParameters#activateParameters()
    */
   @Override
-  public void copyParametersFrom( INamedParams params ) {
-    namedParams.copyParametersFrom( params );
+  public void activateParameters(IVariables variables) {
+    namedParams.activateParameters( variables );
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#mergeParametersWith(org.apache.hop.core.parameters.INamedParams, boolean replace)
-   */
-  @Override
-  public void mergeParametersWith( INamedParams params, boolean replace ) {
-    namedParams.mergeParametersWith( params, replace );
+  @Override public void copyParametersFromDefinitions( INamedParameterDefinitions definitions ) {
+    namedParams.copyParametersFromDefinitions( definitions );
   }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#activateParameters()
-   */
-  @Override
-  public void activateParameters() {
-    String[] keys = listParameters();
-
-    for ( String key : keys ) {
-      String value;
-      try {
-        value = getParameterValue( key );
-      } catch ( UnknownParamException e ) {
-        value = "";
-      }
-      String defValue;
-      try {
-        defValue = getParameterDefault( key );
-      } catch ( UnknownParamException e ) {
-        defValue = "";
-      }
-
-      // Set the variable of "" if no value or default value was found.
-      //
-      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
-    }
-  }
-
 
   /**
    * Gets engineCapabilities
@@ -1365,14 +1329,14 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
    *
    * @return value of namedParams
    */
-  public INamedParams getNamedParams() {
+  public INamedParameters getNamedParams() {
     return namedParams;
   }
 
   /**
    * @param namedParams The namedParams to set
    */
-  public void setNamedParams( INamedParams namedParams ) {
+  public void setNamedParams( INamedParameters namedParams ) {
     this.namedParams = namedParams;
   }
 

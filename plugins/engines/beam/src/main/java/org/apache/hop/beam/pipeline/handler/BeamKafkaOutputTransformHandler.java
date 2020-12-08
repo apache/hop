@@ -32,6 +32,7 @@ import org.apache.hop.beam.transforms.kafka.BeamProduceMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -41,8 +42,8 @@ import java.util.Map;
 
 public class BeamKafkaOutputTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamKafkaOutputTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamKafkaOutputTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputTransformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -53,10 +54,10 @@ public class BeamKafkaOutputTransformHandler extends BeamBaseTransformHandler im
 
     BeamKafkaOutputTransform beamOutputTransform = new BeamKafkaOutputTransform(
       beamOutputTransformMeta.getName(),
-      pipelineMeta.environmentSubstitute( beamProduceMeta.getBootstrapServers() ),
-      pipelineMeta.environmentSubstitute( beamProduceMeta.getTopic() ),
-      pipelineMeta.environmentSubstitute( beamProduceMeta.getKeyField() ),
-      pipelineMeta.environmentSubstitute( beamProduceMeta.getMessageField() ),
+      variables.environmentSubstitute( beamProduceMeta.getBootstrapServers() ),
+      variables.environmentSubstitute( beamProduceMeta.getTopic() ),
+      variables.environmentSubstitute( beamProduceMeta.getKeyField() ),
+      variables.environmentSubstitute( beamProduceMeta.getMessageField() ),
       JsonRowMeta.toJson( rowMeta ),
       transformPluginClasses,
       xpPluginClasses

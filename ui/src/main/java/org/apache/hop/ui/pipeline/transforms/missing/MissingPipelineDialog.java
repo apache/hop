@@ -22,6 +22,7 @@
 package org.apache.hop.ui.pipeline.transforms.missing;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -59,16 +60,16 @@ public class MissingPipelineDialog extends BaseTransformDialog implements ITrans
   public static final int MISSING_PIPELINE_TRANSFORMS = 1;
   public static final int MISSING_PIPELINE_TRANSFORM_ID = 2;
 
-  public MissingPipelineDialog( Shell parent, List<Missing> missingPipeline, ITransformMeta baseTransformMeta,
+  public MissingPipelineDialog( Shell parent, IVariables variables, List<Missing> missingPipeline, ITransformMeta baseTransformMeta,
                                 PipelineMeta pipelineMeta, String transformName ) {
-    super( parent, baseTransformMeta, pipelineMeta, transformName );
+    super( parent, variables, baseTransformMeta, pipelineMeta, transformName );
     this.shellParent = parent;
     this.missingPipeline = missingPipeline;
     this.mode = MISSING_PIPELINE_TRANSFORMS;
   }
 
-  public MissingPipelineDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String transformName ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, transformName );
+  public MissingPipelineDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String transformName ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, transformName );
     this.shellParent = parent;
     this.mode = MISSING_PIPELINE_TRANSFORM_ID;
   }

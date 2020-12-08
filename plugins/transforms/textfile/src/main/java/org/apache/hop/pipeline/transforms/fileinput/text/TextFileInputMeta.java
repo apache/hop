@@ -915,7 +915,7 @@ public class TextFileInputMeta
       remarks.add( cr );
     }
 
-    FileInputList textFileList = getFileInputList( pipelineMeta );
+    FileInputList textFileList = getFileInputList( variables );
     if ( textFileList.nrOfFiles() == 0 ) {
       if ( !inputFiles.acceptingFilenames ) {
         cr =
@@ -1017,7 +1017,7 @@ public class TextFileInputMeta
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
@@ -1160,8 +1160,8 @@ public class TextFileInputMeta
   }
 
   @Override
-  public FileObject getHeaderFileObject( final PipelineMeta pipelineMeta ) {
-    final FileInputList fileList = getFileInputList( pipelineMeta );
+  public FileObject getHeaderFileObject( final IVariables variables ) {
+    final FileInputList fileList = getFileInputList( variables );
     return fileList.nrOfFiles() == 0 ? null : fileList.getFile( 0 );
   }
 

@@ -62,8 +62,8 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
 
   private Transformer transformer;
 
-  public XmlJoin(TransformMeta stepMeta, XmlJoinMeta meta, XmlJoinData data, int copyNr, PipelineMeta transMeta, Pipeline trans ) {
-    super( stepMeta, meta, data, copyNr, transMeta, trans );
+  public XmlJoin(TransformMeta transformMeta, XmlJoinMeta meta, XmlJoinData data, int copyNr, PipelineMeta pipelineMeta, Pipeline trans ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, trans );
   }
 
   @Override
@@ -104,7 +104,7 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
 
       data.outputRowMeta = data.TargetRowSet.getRowMeta().clone();
       meta.getFields( data.outputRowMeta, getTransformName(), new IRowMeta[] { data.TargetRowSet.getRowMeta() },
-          null, getPipelineMeta(), metadataProvider );
+          null, variables, metadataProvider );
       data.outputRowData = rTarget.clone();
 
       // get the target xml structure and create a DOM

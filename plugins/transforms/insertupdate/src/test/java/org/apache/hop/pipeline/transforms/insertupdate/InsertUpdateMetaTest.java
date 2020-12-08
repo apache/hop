@@ -75,10 +75,6 @@ public class InsertUpdateMetaTest {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName( "delete1" );
 
-    Map<String, String> vars = new HashMap<>();
-    vars.put( "max.sz", "10" );
-    pipelineMeta.injectVariables( vars );
-
     umi = new InsertUpdateMeta();
     ud = new InsertUpdateData();
 
@@ -87,9 +83,13 @@ public class InsertUpdateMetaTest {
 
     transformMeta = new TransformMeta( deletePid, "delete", umi );
     Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
+
+    Map<String, String> vars = new HashMap<>();
+    vars.put( "max.sz", "10" );
+    pipeline.injectVariables( vars );
+
     pipelineMeta.addTransform( transformMeta );
     upd = new InsertUpdate( transformMeta, umi, ud, 1, pipelineMeta, pipeline );
-    upd.copyVariablesFrom( pipelineMeta );
 
     mockHelper =
       new TransformMockHelper<>( "insertUpdate", InsertUpdateMeta.class, InsertUpdateData.class );

@@ -699,7 +699,7 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
       remarks.add( cr );
 
       // check specified file names
-      FileInputList fileList = getFileList( pipelineMeta );
+      FileInputList fileList = getFileList( variables );
       if ( fileList.nrOfFiles() == 0 ) {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
@@ -714,12 +714,12 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
+  public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    ResourceReference reference = new ResourceReference( transformInfo );
+    ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 
-    String[] files = getFilePaths( pipelineMeta );
+    String[] files = getFilePaths( variables );
     if ( files != null ) {
       for ( int i = 0; i < files.length; i++ ) {
         reference.getEntries().add( new ResourceEntry( files[ i ], ResourceType.FILE ) );
@@ -740,7 +740,7 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   /**
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.

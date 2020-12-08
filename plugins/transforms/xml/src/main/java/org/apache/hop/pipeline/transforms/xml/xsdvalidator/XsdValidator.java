@@ -64,9 +64,9 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
 
   static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
 
-  public XsdValidator(TransformMeta stepMeta, XsdValidatorMeta meta, XsdValidatorData data, int copyNr, PipelineMeta transMeta,
+  public XsdValidator(TransformMeta transformMeta, XsdValidatorMeta meta, XsdValidatorData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline trans ) {
-    super( stepMeta, meta, data, copyNr, transMeta, trans );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, trans );
   }
 
   public boolean processRow() throws HopException {

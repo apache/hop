@@ -169,7 +169,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlFilename.left = new FormAttachment( 0, 0 );
     fdlFilename.right = new FormAttachment( middle, -margin );
     wlFilename.setLayoutData( fdlFilename );
-    wFilename = new TextVar( pipelineUnitTest, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     FormData fdFilename = new FormData();
     fdFilename.top = new FormAttachment( wlFilename, 0, SWT.CENTER );
@@ -188,7 +188,7 @@ public class PipelineUnitTestEditor extends MetadataEditor<PipelineUnitTest> {
     fdlBasePath.left = new FormAttachment( 0, 0 );
     fdlBasePath.right = new FormAttachment( middle, -margin );
     wlBasePath.setLayoutData( fdlBasePath );
-    wBasePath = new TextVar( pipelineUnitTest, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBasePath = new TextVar( manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBasePath );
     FormData fdBasePath = new FormData();
     fdBasePath.top = new FormAttachment( wlBasePath, 0, SWT.CENTER );

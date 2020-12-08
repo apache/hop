@@ -183,11 +183,13 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     data.executorWorkflow = createWorkflow( data.executorWorkflowMeta, this );
 
-    data.executorWorkflow.shareVariablesWith( data.executorWorkflowMeta );
+    data.executorWorkflow.initializeVariablesFrom( this );
     data.executorWorkflow.setParentPipeline( getPipeline() );
     data.executorWorkflow.setLogLevel( getLogLevel() );
     data.executorWorkflow.setInternalHopVariables();
-    data.executorWorkflow.copyParametersFrom( data.executorWorkflowMeta );
+
+    // Copy the parameters
+    data.executorWorkflow.copyParametersFromDefinitions( data.executorWorkflowMeta );
 
     // data.executorWorkflow.setInteractive(); TODO: pass interactivity through the pipeline too for drill-down.
 
@@ -306,7 +308,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
   @VisibleForTesting
   IWorkflowEngine<WorkflowMeta> createWorkflow( WorkflowMeta workflowMeta, ILoggingObject parentLogging ) throws HopException {
 
-    return WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute(meta.getRunConfigurationName()), metadataProvider, workflowMeta, parentLogging );
+    return WorkflowEngineFactory.createWorkflowEngine( this, environmentSubstitute(meta.getRunConfigurationName()), metadataProvider, workflowMeta, parentLogging );
   }
 
   @VisibleForTesting
@@ -348,16 +350,13 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
         }
 
         try {
-          data.executorWorkflowMeta.setParameterValue( variableName, Const.NVL(variableValue, "") );
           data.executorWorkflow.setParameterValue( variableName, Const.NVL(variableValue, "") );
         } catch( UnknownParamException e ) {
-          data.executorWorkflowMeta.setVariable( variableName, Const.NVL(variableValue, "") );
           data.executorWorkflow.setVariable( variableName, Const.NVL(variableValue, "") );
         }
       }
     }
-    data.executorWorkflowMeta.activateParameters();
-    data.executorWorkflow.activateParameters();
+    data.executorWorkflow.activateParameters(data.executorWorkflow);
   }
 
   @Override

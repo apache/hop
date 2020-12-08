@@ -25,6 +25,7 @@ package org.apache.hop.pipeline;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 import org.w3c.dom.Node;
 
@@ -84,73 +85,74 @@ public interface IPartitioner {
    *
    * @return single instance of IPartitioner
    */
-  public abstract IPartitioner getInstance();
+  IPartitioner getInstance();
 
   /**
    * Gets the partition.
    *
+   * @param variables the variables to resolve variable expressions with
    * @param rowMeta the row meta
    * @param r       the r
    * @return the partition
    * @throws HopException the hop exception
    */
-  public int getPartition( IRowMeta rowMeta, Object[] r ) throws HopException;
+  int getPartition( IVariables variables, IRowMeta rowMeta, Object[] r ) throws HopException;
 
   /**
    * Sets the meta.
    *
    * @param meta the new meta
    */
-  public void setMeta( TransformPartitioningMeta meta );
+  void setMeta( TransformPartitioningMeta meta );
 
   /**
    * Gets the id.
    *
    * @return the id
    */
-  public String getId();
+  String getId();
 
   /**
    * Gets the description.
    *
    * @return the description
    */
-  public String getDescription();
+  String getDescription();
 
   /**
    * Sets the id.
    *
    * @param id the new id
    */
-  public void setId( String id );
+  void setId( String id );
 
   /**
    * Sets the description.
    *
    * @param description the new description
    */
-  public void setDescription( String description );
+  void setDescription( String description );
 
   /**
    * Gets the dialog class name.
    *
    * @return the dialog class name
    */
-  public String getDialogClassName();
+  String getDialogClassName();
 
   /**
    * Clone.
    *
    * @return the partitioner
    */
-  public IPartitioner clone();
+  IPartitioner clone();
 
   /**
    * Gets the xml.
    *
    * @return the xml
    */
-  public String getXml();
+  String getXml();
 
   /**
    * Load xml.
@@ -158,6 +160,6 @@ public interface IPartitioner {
    * @param partitioningMethodNode the partitioning method node
    * @throws HopXmlException the hop xml exception
    */
-  public void loadXml( Node partitioningMethodNode ) throws HopXmlException;
+  void loadXml( Node partitioningMethodNode ) throws HopXmlException;
 
 }

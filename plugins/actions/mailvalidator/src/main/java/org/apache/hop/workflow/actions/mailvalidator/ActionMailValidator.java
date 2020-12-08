@@ -194,7 +194,7 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
     String realDefaultSMTP = environmentSubstitute( defaultSMTP );
     int timeOut = Const.toInt( environmentSubstitute( timeout ), 0 );
 
-    // Split the mail-address: separated by space
+    // Split the mail-address: separated by variables
     String[] mailsCheck = realEmailAddress.split( " " );
     boolean exitloop = false;
     boolean mailIsValid = false;

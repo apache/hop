@@ -49,6 +49,7 @@ import org.apache.hop.core.row.value.ValueMetaPluginType;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.row.value.ValueMetaTimestamp;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
@@ -66,6 +67,7 @@ public class OracleDatabaseMetaTest {
   private final String sequenceName = "sequence_name";
   
   private OracleDatabaseMeta nativeMeta;
+  private IVariables variables;
 
   
   @BeforeClass
@@ -81,6 +83,7 @@ public class OracleDatabaseMetaTest {
     nativeMeta = new OracleDatabaseMeta();
     nativeMeta.setAccessType( DatabaseMeta.TYPE_ACCESS_NATIVE );
     HopClientEnvironment.init();
+    variables = Mockito.spy(new Variables());
   }
 
   @Test
@@ -278,7 +281,7 @@ public class OracleDatabaseMetaTest {
     IRowMeta rm = Mockito.mock( IRowMeta.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
-    Mockito.when( dm.getQuotedSchemaTableCombination( "", "FOO" ) ).thenReturn( "FOO" );
+    Mockito.when( dm.getQuotedSchemaTableCombination( variables, "", "FOO" ) ).thenReturn( "FOO" );
     Mockito.when( rs.next() ).thenReturn( rowCnt < 2 );
     Mockito.when( db.openQuery( expectedSql ) ).thenReturn( rs );
     Mockito.when( db.getReturnRowMeta() ).thenReturn( rm );

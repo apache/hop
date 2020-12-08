@@ -63,7 +63,7 @@ import java.util.Objects;
 /*
  * Created on 14-may-2003
  *
- * TODO: In the distant future the use_autoinc flag should be removed since its
+ * TODO: In the distant future the useAutoIncrement flag should be removed since its
  *       functionality is now taken over by techKeyCreation (which is cleaner).
  */
 @Transform(
@@ -560,7 +560,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
           boolean errorFound = false;
           errorMessage = "";
 
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
           IRowMeta r = db.getTableFields( schemaTable );
           if ( r != null ) {
             for ( int i = 0; i < keyLookup.length; i++ ) {
@@ -711,7 +711,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -720,7 +720,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
     if ( databaseMeta != null ) {
       if ( prev != null && prev.size() > 0 ) {
         if ( !Utils.isEmpty( tableName ) ) {
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
           Database db = new Database( loggingObject, databaseMeta );
           try {
             boolean doHash = false;
@@ -913,7 +913,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
                 crSeq += Const.CR;
               }
             }
-            retval.setSql( pipelineMeta.environmentSubstitute( crTable + cr_uniqIndex + crIndex + crSeq ) );
+            retval.setSql( variables.environmentSubstitute( crTable + cr_uniqIndex + crIndex + crSeq ) );
           } catch ( HopException e ) {
             retval.setError( BaseMessages.getString( PKG, "CombinationLookupMeta.ReturnValue.ErrorOccurred" )
               + Const.CR + e.getMessage() );
@@ -943,7 +943,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   }
 
   @Override
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) {
     // The keys are read-only...
@@ -1096,7 +1096,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
   protected IRowMeta getDatabaseTableFields( Database db, String schemaName, String tableName )
     throws HopDatabaseException {
     // First try without connecting to the database... (can be S L O W)
-    String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+    String schemaTable = databaseMeta.getQuotedSchemaTableCombination( db, schemaName, tableName );
     IRowMeta extraFields = db.getTableFields( schemaTable );
     if ( extraFields == null ) { // now we need to connect
       db.connect();

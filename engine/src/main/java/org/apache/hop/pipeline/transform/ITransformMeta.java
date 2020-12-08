@@ -154,7 +154,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param name         Name of the transform to use as input for the origin field in the values
    * @param info         Fields used as extra lookup information
    * @param nextTransform     the next transform that is targeted
-   * @param variables        the space The variable space to use to replace variables
+   * @param variables        the variables The variable variables to use to replace variables
    * @param metadataProvider    the MetaStore to use to load additional external data or metadata impacting the output fields
    * @throws HopTransformException the hop transform exception
    */
@@ -188,7 +188,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param input     The input transform names
    * @param output    The output transform names
    * @param info      The fields that are used as information by the transform
-   * @param variables     the variable space to resolve variable expressions with
+   * @param variables     the variable variables to resolve variable expressions with
    * @param metadataProvider the MetaStore to use to load additional external data or metadata impacting the output fields
    */
   void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
@@ -204,8 +204,9 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
 
   /**
    * @return The fields used by this transform, this is being used for the Impact analyses.
+   * @param variables
    */
-  IRowMeta getTableFields();
+  IRowMeta getTableFields( IVariables variables );
 
   /**
    * This method is added to exclude certain transforms from layout checking.
@@ -234,6 +235,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
   /**
    * Each transform must be able to report on the impact it has on a database, table field, etc.
    *
+   * @param variables the variables to resolve expression with
    * @param impact    The list of impacts @see org.apache.hop.pipelineMeta.DatabaseImpact
    * @param pipelineMeta The pipeline information
    * @param transformMeta  The transform information
@@ -243,7 +245,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @param info      The fields used as information by this transform
    * @param metadataProvider the MetaStore to use to load additional external data or metadata impacting the output fields
    */
-  void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                       IRowMeta prev, String[] input, String[] output, IRowMeta info, IHopMetadataProvider metadataProvider ) throws HopTransformException;
 
   /**
@@ -251,6 +253,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * correctly. This can mean "create table", "create index" statements but also "alter table ... add/drop/modify"
    * statements.
    *
+   * @param variables the variables to resolve expressions with
    * @param pipelineMeta PipelineMeta object containing the complete pipeline
    * @param transformMeta  TransformMeta object containing the complete transform
    * @param prev      Row containing meta-data for the input fields (no data)
@@ -258,7 +261,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * @return The SQL Statements for this transform. If nothing has to be done, the SqlStatement.getSql() == null. @see
    * SqlStatement
    */
-  SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                  IHopMetadataProvider metadataProvider ) throws HopTransformException;
 
   /**
@@ -273,7 +276,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    * are required for a transform. This allows us to automate certain tasks like the mapping to pre-defined tables. The Table
    * Output transform in this case will output the fields in the target table using this method.
    *
-   * @param variables the variable space to reference
+   * @param variables the variable variables to reference
    * @return the required fields for this transforms metadata.
    * @throws HopException in case the required fields can't be determined.
    */
@@ -287,14 +290,13 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
   /**
    * Get a list of all the resource dependencies that the transform is depending on.
    *
-   * @param pipelineMeta
    * @param transformMeta
    * @return a list of all the resource dependencies that the transform is depending on
    */
-  List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformMeta );
+  List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta );
 
   /**
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
@@ -373,7 +375,7 @@ public interface ITransformMeta<Main extends ITransform, Data extends ITransform
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metadataProvider the MetaStore to use
-   * @param variables     the variable space to use
+   * @param variables     the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */

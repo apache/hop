@@ -292,7 +292,7 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
             if ( !Utils.isEmpty( realSchemaname ) ) {
               countSqlStatement =
                 selectCount
-                  + db.getDatabaseMeta().getQuotedSchemaTableCombination( realSchemaname, realTablename );
+                  + db.getDatabaseMeta().getQuotedSchemaTableCombination( this, realSchemaname, realTablename );
             } else {
               countSqlStatement = selectCount + db.getDatabaseMeta().quoteField( realTablename );
             }
@@ -397,8 +397,8 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
     return new DatabaseMeta[] { connection, };
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( connection != null ) {
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( connection.getHostname(), ResourceType.SERVER ) );

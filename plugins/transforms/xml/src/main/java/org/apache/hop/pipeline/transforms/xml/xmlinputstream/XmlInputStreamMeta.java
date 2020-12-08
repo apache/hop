@@ -135,25 +135,25 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
 
   @Override
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-      IVariables space, IHopMetadataProvider metadataProvider ) {
+      IVariables variables, IHopMetadataProvider metadataProvider ) {
     int defaultStringLenNameValueElements =
-        Const.toInt( space.environmentSubstitute( defaultStringLen ), new Integer( DEFAULT_STRING_LEN ) );
+        Const.toInt( variables.environmentSubstitute( defaultStringLen ), new Integer( DEFAULT_STRING_LEN ) );
 
     if ( includeFilenameField ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( filenameField ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( filenameField ) );
       v.setLength( DEFAULT_STRING_LEN_FILENAME );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeRowNumberField ) {
-      IValueMeta v = new ValueMetaInteger( space.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeXmlDataTypeNumericField ) {
       IValueMeta vdtn =
-          new ValueMetaInteger( space.environmentSubstitute( xmlDataTypeNumericField ) );
+          new ValueMetaInteger( variables.environmentSubstitute( xmlDataTypeNumericField ) );
       vdtn.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
       vdtn.setOrigin( name );
       r.addValueMeta( vdtn );
@@ -161,7 +161,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
 
     if ( includeXmlDataTypeDescriptionField ) {
       IValueMeta vdtd =
-          new ValueMetaString( space.environmentSubstitute( xmlDataTypeDescriptionField ) );
+          new ValueMetaString( variables.environmentSubstitute( xmlDataTypeDescriptionField ) );
       vdtd.setLength( 25 );
       vdtd.setOrigin( name );
       r.addValueMeta( vdtd );
@@ -169,7 +169,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
 
     if ( includeXmlLocationLineField ) {
       IValueMeta vline =
-          new ValueMetaInteger( space.environmentSubstitute( xmlLocationLineField ) );
+          new ValueMetaInteger( variables.environmentSubstitute( xmlLocationLineField ) );
       vline.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
       vline.setOrigin( name );
       r.addValueMeta( vline );
@@ -177,7 +177,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
 
     if ( includeXmlLocationColumnField ) {
       IValueMeta vcol =
-          new ValueMetaInteger( space.environmentSubstitute( xmlLocationColumnField ) );
+          new ValueMetaInteger( variables.environmentSubstitute( xmlLocationColumnField ) );
       vcol.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
       vcol.setOrigin( name );
       r.addValueMeta( vcol );
@@ -441,28 +441,28 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
   }
 
   @Override
-  public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                    String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
     // TODO externalize messages
     CheckResult cr;
     if ( Utils.isEmpty( filename ) ) {
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, "Filename is not given", stepMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, "Filename is not given", transformMeta );
     } else {
-      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, "Filename is given", stepMeta );
+      cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, "Filename is given", transformMeta );
     }
     remarks.add( cr );
 
-    if ( transMeta.findNrPrevTransforms( stepMeta ) > 0 ) {
+    if ( pipelineMeta.findNrPrevTransforms( transformMeta ) > 0 ) {
       IRowMeta previousFields;
       try {
-        previousFields = transMeta.getPrevTransformFields( stepMeta );
+        previousFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
         if ( null == previousFields.searchValueMeta( filename ) ) {
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, "Field name is not in previous step", stepMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, "Field name is not in previous step", transformMeta );
         } else {
-          cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, "Field name is in previous step", stepMeta );
+          cr = new CheckResult( ICheckResult.TYPE_RESULT_OK, "Field name is in previous step", transformMeta );
         }
       } catch ( HopTransformException e ) {
-        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, "Could not find previous step", stepMeta );
+        cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, "Could not find previous step", transformMeta );
       }
       remarks.add( cr );
     }
@@ -470,22 +470,22 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
     if ( includeXmlDataTypeNumericField || includeXmlDataTypeDescriptionField ) {
       cr =
           new CheckResult( ICheckResult.TYPE_RESULT_COMMENT,
-              "At least one Data Type field (numeric or description) is in the data stream", stepMeta );
+              "At least one Data Type field (numeric or description) is in the data stream", transformMeta );
     } else {
       cr =
           new CheckResult( ICheckResult.TYPE_RESULT_WARNING,
-              "Data Type field (numeric or description) is missing in the data stream", stepMeta );
+              "Data Type field (numeric or description) is missing in the data stream", transformMeta );
     }
     remarks.add( cr );
 
     if ( includeXmlDataValueField && includeXmlDataNameField ) {
       cr =
           new CheckResult( ICheckResult.TYPE_RESULT_COMMENT,
-              "Data Name and Data Value fields are in the data stream", stepMeta );
+              "Data Name and Data Value fields are in the data stream", transformMeta );
     } else {
       cr =
           new CheckResult( ICheckResult.TYPE_RESULT_WARNING,
-              "Both Data Name and Data Value fields should be in the data stream", stepMeta );
+              "Both Data Name and Data Value fields should be in the data stream", transformMeta );
     }
     remarks.add( cr );
   }

@@ -26,6 +26,7 @@ package org.apache.hop.ui.hopgui.dialog;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -47,14 +48,16 @@ public class GetWorkflowSqlProgressDialog {
   private static final Class<?> PKG = GetWorkflowSqlProgressDialog.class; // Needed by Translator
 
   private Shell shell;
+  private final IVariables variables;
   private WorkflowMeta workflowMeta;
   private List<SqlStatement> stats;
 
   /**
    * Creates a new dialog that will handle the wait while getting the SQL for a workflow...
    */
-  public GetWorkflowSqlProgressDialog( Shell shell, WorkflowMeta workflowMeta ) {
+  public GetWorkflowSqlProgressDialog( Shell shell, IVariables variables, WorkflowMeta workflowMeta ) {
     this.shell = shell;
+    this.variables = variables;
     this.workflowMeta = workflowMeta;
   }
 
@@ -66,7 +69,7 @@ public class GetWorkflowSqlProgressDialog {
       // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
 
       try {
-        stats = workflowMeta.getSqlStatements( new ProgressMonitorAdapter( monitor ) );
+        stats = workflowMeta.getSqlStatements( new ProgressMonitorAdapter( monitor ), variables );
       } catch ( HopException e ) {
         throw new InvocationTargetException( e, BaseMessages.getString(
           PKG, "GetJobSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) ); // Error

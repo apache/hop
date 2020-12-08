@@ -39,14 +39,14 @@ public class S3NFileName extends AbstractFileName {
   private String bucketId;
   private String bucketRelativePath;
 
-  public S3NFileName( String scheme, String bucketId, String path, FileType type ) {
-    super( scheme, path, type );
+  public S3NFileName(String scheme, String bucketId, String path, FileType type) {
+    super(scheme, path, type);
 
     this.bucketId = bucketId;
 
-    if ( path.length() > 1 ) {
-      this.bucketRelativePath = path.substring( 1 );
-      if ( type.equals( FileType.FOLDER ) ) {
+    if (path.length() > 1) {
+      this.bucketRelativePath = path.substring(1);
+      if (type.equals(FileType.FOLDER)) {
         this.bucketRelativePath += DELIMITER;
       }
     } else {
@@ -54,10 +54,11 @@ public class S3NFileName extends AbstractFileName {
     }
   }
 
-  @Override public String getURI() {
+  @Override
+  public String getURI() {
     final StringBuilder buffer = new StringBuilder();
-    appendRootUri( buffer, false );
-    buffer.append( getPath() );
+    appendRootUri(buffer, false);
+    buffer.append(getPath());
     return buffer.toString();
   }
 
@@ -69,13 +70,13 @@ public class S3NFileName extends AbstractFileName {
     return bucketRelativePath;
   }
 
-  public FileName createName( String absPath, FileType type ) {
-    return new S3NFileName( getScheme(), bucketId, absPath, type );
+  public FileName createName(String absPath, FileType type) {
+    return new S3NFileName(getScheme(), bucketId, absPath, type);
   }
 
-  protected void appendRootUri( StringBuilder buffer, boolean addPassword ) {
-    buffer.append( getScheme() );
-    buffer.append( "://" );
-    buffer.append( bucketId );
+  protected void appendRootUri(StringBuilder buffer, boolean addPassword) {
+    buffer.append(getScheme());
+    buffer.append("://");
+    buffer.append(bucketId);
   }
 }

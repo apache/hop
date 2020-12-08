@@ -179,7 +179,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
   }
 
   public String buildFilename() {
-    return meta.buildFilename( environmentSubstitute( meta.getFileName() ), getCopy(), data.splitnr );
+    return meta.buildFilename( this, environmentSubstitute( meta.getFileName() ), getCopy(), data.splitnr );
   }
 
   public boolean openNewFile() {
@@ -330,7 +330,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           throw new HopTransformException( "The tablename is not defined (empty)" );
         }
 
-        schemaTable = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
+        schemaTable = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( this, schemaName, tableName );
 
       } catch ( Exception e ) {
         logError( "An error occurred intialising this transform: " + e.getMessage() );

@@ -222,7 +222,7 @@ public class CubeInputMeta extends BaseTransformMeta implements ITransformMeta<C
   }
 
   /**
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.

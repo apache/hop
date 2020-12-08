@@ -22,11 +22,12 @@
 
 package org.apache.hop.www.jaxrs;
 
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowConfiguration;
 import org.apache.hop.workflow.WorkflowExecutionConfiguration;
@@ -108,7 +109,8 @@ public class WorkflowResource {
         servletLoggingObject.setContainerObjectId( serverObjectId );
         String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
         try {
-          IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflow.getWorkflowMeta(), servletLoggingObject );
+          IVariables variables = Variables.getADefaultVariableSpace();
+          IWorkflowEngine<WorkflowMeta> newWorkflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflow.getWorkflowMeta(), servletLoggingObject );
           newWorkflow.setLogLevel( workflow.getLogLevel() );
 
           // Discard old log lines from the old workflow
@@ -165,7 +167,6 @@ public class WorkflowResource {
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
       workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
-      workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
 
       String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( getClass().getName(), LoggingObjectType.HOP_SERVER, null );
@@ -175,7 +176,8 @@ public class WorkflowResource {
       // Create the workflow and store in the list...
       //
       String runConfigurationName = workflowConfiguration.getWorkflowExecutionConfiguration().getRunConfiguration();
-      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
+      IVariables variables = Variables.getADefaultVariableSpace();
+      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
       // Setting variables
       //
@@ -185,8 +187,8 @@ public class WorkflowResource {
 
       // Also copy the parameters over...
       //
-      workflow.copyParametersFrom( workflowMeta );
-      workflow.clearParameters();
+      workflow.copyParametersFromDefinitions( workflowMeta );
+      workflow.clearParameterValues();
       String[] parameterNames = workflow.listParameters();
       for ( int idx = 0; idx < parameterNames.length; idx++ ) {
         // Grab the parameter value set in the action
@@ -195,10 +197,10 @@ public class WorkflowResource {
         if ( !Utils.isEmpty( thisValue ) ) {
           // Set the value as specified by the user in the action
           //
-          workflowMeta.setParameterValue( parameterNames[ idx ], thisValue );
+          workflow.setParameterValue( parameterNames[ idx ], thisValue );
         }
       }
-      workflowMeta.activateParameters();
+      workflow.activateParameters(workflow);
 
       HopServerSingleton.getInstance().getWorkflowMap().addWorkflow( workflow.getWorkflowName(), serverObjectId, workflow, workflowConfiguration );
 

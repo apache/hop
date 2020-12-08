@@ -23,6 +23,7 @@
 package org.apache.hop.metadata.serializer.json.occupation;
 
 import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 
@@ -32,10 +33,7 @@ import java.util.Objects;
   name = "Occupation",
   key = "occupation"
 )
-public class Occupation implements IHopMetadata {
-
-  @HopMetadataProperty
-  private String name;
+public class Occupation extends HopMetadataBase implements IHopMetadata {
 
   @HopMetadataProperty
   private String description;
@@ -67,22 +65,6 @@ public class Occupation implements IHopMetadata {
 
   @Override public int hashCode() {
     return Objects.hash( name, description, startYear );
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
-    this.name = name;
   }
 
   /**

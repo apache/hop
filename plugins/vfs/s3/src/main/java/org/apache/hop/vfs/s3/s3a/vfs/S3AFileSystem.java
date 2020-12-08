@@ -28,12 +28,11 @@ import org.apache.hop.vfs.s3.s3common.S3CommonFileSystem;
 
 public class S3AFileSystem extends S3CommonFileSystem {
 
-  protected S3AFileSystem( final FileName rootName, final FileSystemOptions fileSystemOptions ) {
-    super( rootName, fileSystemOptions );
+  protected S3AFileSystem(final FileName rootName, final FileSystemOptions fileSystemOptions) {
+    super(rootName, fileSystemOptions);
   }
 
-  protected FileObject createFile( AbstractFileName name ) throws Exception {
-    return new S3AFileObject( name, this );
+  protected FileObject createFile(AbstractFileName name) throws Exception {
+    return new S3AFileObject(name, this);
   }
-
 }

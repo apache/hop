@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.rowstoresult;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -42,8 +43,8 @@ public class RowsToResultDialog extends BaseTransformDialog implements ITransfor
 
   private final RowsToResultMeta input;
 
-  public RowsToResultDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public RowsToResultDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (RowsToResultMeta) in;
   }
 

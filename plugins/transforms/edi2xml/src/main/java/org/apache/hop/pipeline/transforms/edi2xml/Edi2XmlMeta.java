@@ -137,7 +137,7 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
     }
 
     // is the input field there?
-    String realInputField = pipelineMeta.environmentSubstitute( getInputField() );
+    String realInputField = variables.environmentSubstitute( getInputField() );
     if ( prev.searchValueMeta( realInputField ) != null ) {
       cr = new CheckResult( CheckResult.TYPE_RESULT_OK, "Transform is seeing input field: " + realInputField, transformMeta );
       remarks.add( cr );

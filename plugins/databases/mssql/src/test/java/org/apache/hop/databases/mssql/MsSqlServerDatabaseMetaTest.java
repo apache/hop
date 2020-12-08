@@ -31,6 +31,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -44,6 +46,7 @@ import java.sql.ResultSet;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 public class MsSqlServerDatabaseMetaTest {
   MsSqlServerDatabaseMeta nativeMeta;
@@ -51,6 +54,7 @@ public class MsSqlServerDatabaseMetaTest {
 
   private DatabaseMeta databaseMeta;
   private IDatabase iDatabase;
+  private IVariables variables;
 
   @BeforeClass
   public static void setUpOnce() throws HopPluginException, HopException {
@@ -67,6 +71,7 @@ public class MsSqlServerDatabaseMetaTest {
     databaseMeta = new DatabaseMeta();
     iDatabase = mock( IDatabase.class );
     databaseMeta.setIDatabase( iDatabase );
+    variables = spy( new Variables() );
   }
 
   @Test
@@ -243,12 +248,12 @@ public class MsSqlServerDatabaseMetaTest {
   public void testCheckIndexExists() throws Exception {
     String expectedSQL =
       "select i.name table_name, c.name column_name from     sysindexes i, sysindexkeys k, syscolumns c where    i.name = 'FOO' AND      i.id = k.id AND      i.id = c.id AND      k.colid = c.colid "
-      ; // yes, space at the end like in the dbmeta
+      ; // yes, variables at the end like in the dbmeta
     Database db = Mockito.mock( Database.class );
     IRowMeta rm = Mockito.mock( IRowMeta.class );
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
-    Mockito.when( dm.getQuotedSchemaTableCombination( "", "FOO" ) ).thenReturn( "FOO" );
+    Mockito.when( dm.getQuotedSchemaTableCombination( variables, "", "FOO" ) ).thenReturn( "FOO" );
     Mockito.when( rs.next() ).thenReturn( rowCnt < 2 );
     Mockito.when( db.openQuery( expectedSQL ) ).thenReturn( rs );
     Mockito.when( db.getReturnRowMeta() ).thenReturn( rm );

@@ -139,15 +139,18 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     }
   }
 
-  public void getUsedVariables( WorkflowMeta workflowMeta ) {
-    Properties sp = new Properties();
-    IVariables variables = new Variables();
-    variables.initializeVariablesFrom( workflowMeta );
+  /**
+   * Extracts used variables and their values.
+   * @param workflowMeta The metadata to search for variables
+   * @param variables The place to look up the values in
+   */
+  public void getUsedVariables( WorkflowMeta workflowMeta, IVariables variables ) {
+    Properties properties = new Properties();
 
     String[] keys = variables.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
       if ( StringUtils.isNotEmpty( keys[ i ] ) ) {
-        sp.put( keys[ i ], Const.NVL( variables.getVariable( keys[ i ] ), "" ) );
+        properties.put( keys[ i ], Const.NVL( variables.getVariable( keys[ i ] ), "" ) );
       }
     }
 
@@ -159,7 +162,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
         String varname = vars.get( i );
         if ( !varname.startsWith( Const.INTERNAL_VARIABLE_PREFIX ) ) {
           // add all new non-internal variables to newVariablesMap
-          newVariables.put( varname, Const.NVL( variablesMap.get( varname ), sp.getProperty( varname, "" ) ) );
+          newVariables.put( varname, Const.NVL( variablesMap.get( varname ), properties.getProperty( varname, "" ) ) );
         }
       }
       // variables.clear();
@@ -169,7 +172,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     // Also add the internal workflow variables if these are set...
     //
     for ( String variableName : Const.INTERNAL_WORKFLOW_VARIABLES ) {
-      String value = workflowMeta.getVariable( variableName );
+      String value = variables.getVariable( variableName );
       if ( !Utils.isEmpty( value ) ) {
         variablesMap.put( variableName, value );
       }

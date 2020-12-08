@@ -187,7 +187,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
 
   @Override
   public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                    boolean addFieldname, boolean addCr ) {
+                                    boolean addFieldName, boolean addCr ) {
     StringBuilder retval = new StringBuilder();
 
     String fieldname = v.getName();
@@ -197,7 +197,7 @@ public class MonetDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     Boolean mode = MonetDBDatabaseMeta.safeModeLocal.get();
     boolean safeMode = mode != null && mode.booleanValue();
 
-    if ( addFieldname ) {
+    if ( addFieldName ) {
       // protect the fieldname
       if ( safeMode ) {
         fieldname = getSafeFieldname( fieldname );

@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -58,8 +59,8 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
 
   private final CreditCardValidatorMeta input;
 
-  public CreditCardValidatorDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public CreditCardValidatorDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (CreditCardValidatorMeta) in;
   }
 
@@ -176,7 +177,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     fdlResult.top = new FormAttachment( wgetOnlyDigits, 2 * margin );
     wlResult.setLayoutData(fdlResult);
 
-    wResult = new TextVar( pipelineMeta, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResult = new TextVar( variables, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "CreditCardValidatorDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
@@ -196,7 +197,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     fdlCardType.top = new FormAttachment( wResult, margin );
     wlCardType.setLayoutData(fdlCardType);
 
-    wFileType = new TextVar( pipelineMeta, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFileType = new TextVar( variables, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wFileType.setToolTipText( BaseMessages.getString( PKG, "CreditCardValidatorDialog.CardType.Tooltip" ) );
     props.setLook( wFileType );
     wFileType.addModifyListener( lsMod );
@@ -216,7 +217,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
     fdlNotValidMsg.top = new FormAttachment( wFileType, margin );
     wlNotValidMsg.setLayoutData(fdlNotValidMsg);
 
-    wNotValidMsg = new TextVar( pipelineMeta, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wNotValidMsg = new TextVar( variables, wOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wNotValidMsg.setToolTipText( BaseMessages.getString( PKG, "CreditCardValidatorDialog.NotValidMsg.Tooltip" ) );
     props.setLook( wNotValidMsg );
     wNotValidMsg.addModifyListener( lsMod );
@@ -330,7 +331,7 @@ public class CreditCardValidatorDialog extends BaseTransformDialog implements IT
       try {
         String columnName = wFieldName.getText();
         wFieldName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           r.getFieldNames();
 

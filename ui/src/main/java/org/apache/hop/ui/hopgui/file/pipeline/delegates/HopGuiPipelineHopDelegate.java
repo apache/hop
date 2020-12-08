@@ -133,7 +133,7 @@ public class HopGuiPipelineHopDelegate {
       // StackOverflow there ;-)
       try {
         if ( !newHop.getToTransform().getTransform().excludeFromRowLayoutVerification() ) {
-          pipelineMeta.checkRowMixingStatically( newHop.getToTransform(), null );
+          pipelineMeta.checkRowMixingStatically( pipelineGraph.getVariables(), newHop.getToTransform(), null );
         }
       } catch ( HopRowException re ) {
         // Show warning about mixing rows with conflicting layouts...

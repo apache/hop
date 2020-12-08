@@ -26,6 +26,7 @@ import static org.apache.hop.i18n.ConstMessages.*;
 
 import org.apache.hop.core.fileinput.FileInputList;
 import org.apache.hop.core.injection.Injection;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.resource.ResourceEntry;
 import org.apache.hop.resource.ResourceEntry.ResourceType;
@@ -179,13 +180,13 @@ public class BaseFileInputFiles implements Cloneable {
     return includeSubFolderBoolean;
   }
 
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
-    List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    ResourceReference reference = new ResourceReference( transformInfo );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
+    List<ResourceReference> references = new ArrayList<>( 5 );
+    ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 
     String[] textFiles =
-      FileInputList.createFilePathList( pipelineMeta, fileName, fileMask, excludeFileMask, fileRequired,
+      FileInputList.createFilePathList( variables, fileName, fileMask, excludeFileMask, fileRequired,
         includeSubFolderBoolean() );
     if ( textFiles != null ) {
       for ( int i = 0; i < textFiles.length; i++ ) {

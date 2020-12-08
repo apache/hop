@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.common;
 
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 
 /**
@@ -46,9 +47,9 @@ public interface ICsvInputAwareMeta {
    * Returns a {@link FileObject} that corresponds to the first encountered input file. This object is used to read the
    * file headers for the purpose of field parsing.
    *
-   * @param pipelineMeta the {@link PipelineMeta}
+   * @param variables the {@link PipelineMeta}
    * @return null if the {@link FileObject} cannot be created.
    */
-  FileObject getHeaderFileObject( final PipelineMeta pipelineMeta );
+  FileObject getHeaderFileObject( final IVariables variables );
 
 }

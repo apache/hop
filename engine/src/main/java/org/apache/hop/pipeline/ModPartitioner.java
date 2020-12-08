@@ -28,6 +28,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
@@ -59,13 +60,13 @@ public class ModPartitioner extends BasePartitioner implements IXml {
     return "org.apache.hop.ui.pipeline.dialog.ModPartitionerDialog";
   }
 
-  public int getPartition( IRowMeta rowMeta, Object[] row ) throws HopException {
+  public int getPartition( IVariables variables, IRowMeta rowMeta, Object[] row ) throws HopException {
 
     if (rowMeta==null) {
       throw new HopException( "No row metadata was provided and so a partition can't be calculated on field '"+fieldName+"' using a mod partitioner" );
     }
 
-    init( rowMeta );
+    init( variables, rowMeta );
 
     if ( partitionColumnIndex < 0 ) {
       partitionColumnIndex = rowMeta.indexOfValue( fieldName );

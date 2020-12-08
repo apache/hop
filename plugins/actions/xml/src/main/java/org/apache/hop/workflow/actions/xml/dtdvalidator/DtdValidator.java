@@ -174,11 +174,11 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
     this.dtdintern = dtdinternin;
   }
 
-  public List<ResourceReference> getResourceDependencies(WorkflowMeta jobMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( jobMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( ( !Utils.isEmpty( dtdfilename ) ) && ( !Utils.isEmpty( xmlfilename ) ) ) {
-      String realXmlFileName = jobMeta.environmentSubstitute( xmlfilename );
-      String realXsdFileName = jobMeta.environmentSubstitute( dtdfilename );
+      String realXmlFileName = variables.environmentSubstitute( xmlfilename );
+      String realXsdFileName = variables.environmentSubstitute( dtdfilename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realXmlFileName, ResourceEntry.ResourceType.FILE ) );
       reference.getEntries().add( new ResourceEntry( realXsdFileName, ResourceEntry.ResourceType.FILE ) );
@@ -188,7 +188,7 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables variables, IHopMetadataProvider metadataProvider ) {
     ValidatorContext ctx = new ValidatorContext();
     AbstractFileValidator.putVariableSpace( ctx, getVariables() );
     AndValidator.putValidators( ctx, ActionValidatorUtils.notBlankValidator(), ActionValidatorUtils.fileExistsValidator() );

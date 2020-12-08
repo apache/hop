@@ -65,7 +65,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> im
       } else {
         // If the stream is empty, then row metadata probably hasn't been received. In this case, use
         // the design-time algorithm to calculate the output metadata.
-        data.outputMeta = getPipelineMeta().getPrevTransformFields( getTransformMeta() );
+        data.outputMeta = getPipelineMeta().getPrevTransformFields( this, getTransformMeta() );
       }
 
       // If input stream is empty, but file was already opened in init(), then

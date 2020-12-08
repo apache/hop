@@ -66,7 +66,7 @@ public class PipelineProfileFactory {
 
     // Now start building the pipeline...
     //
-    PipelineMeta pipelineMeta = new PipelineMeta( databaseMeta );
+    PipelineMeta pipelineMeta = new PipelineMeta();
 
     // Create a transform to read the content of the table
     // Read the data from the database table...

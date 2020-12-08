@@ -275,11 +275,11 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
     this.addFilenameToResult = addFilenameToResult;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( ( !Utils.isEmpty( filename1 ) ) && ( !Utils.isEmpty( filename2 ) ) ) {
-      String realFilename1 = workflowMeta.environmentSubstitute( filename1 );
-      String realFilename2 = workflowMeta.environmentSubstitute( filename2 );
+      String realFilename1 = environmentSubstitute( filename1 );
+      String realFilename2 = environmentSubstitute( filename2 );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFilename1, ResourceType.FILE ) );
       reference.getEntries().add( new ResourceEntry( realFilename2, ResourceType.FILE ) );

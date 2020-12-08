@@ -35,7 +35,7 @@ public class PipelinePreviewFactory {
                                                             String oneTransformName ) {
     PluginRegistry registry = PluginRegistry.getInstance();
 
-    PipelineMeta previewMeta = new PipelineMeta( parent );
+    PipelineMeta previewMeta = new PipelineMeta();
 
     // Pass the MetaStore to look up shared metadata at runtime
     //

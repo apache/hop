@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.xml.xmljoin;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -77,8 +78,8 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
 
   private boolean gotEncodings = false;
 
-  public XmlJoinDialog(Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public XmlJoinDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (XmlJoinMeta) in;
   }
 
@@ -174,7 +175,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     fdlTargetXMLfield.top = new FormAttachment( wTargetXmlTransform, margin );
     wlTargetXMLfield.setLayoutData(fdlTargetXMLfield);
 
-    wTargetXmlField = new TextVar( pipelineMeta, gTarget, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTargetXmlField = new TextVar( variables, gTarget, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTargetXmlField );
     wTargetXmlField.addModifyListener( lsMod );
     FormData fdTargetXMLfield = new FormData();
@@ -225,7 +226,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     fdlSourceXMLfield.top = new FormAttachment( wSourceXmlTransform, margin );
     wlSourceXMLfield.setLayoutData(fdlSourceXMLfield);
 
-    wSourceXmlField = new TextVar( pipelineMeta, gSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSourceXmlField = new TextVar( variables, gSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSourceXmlField );
     wSourceXmlField.addModifyListener( lsMod );
     FormData fdSourceXMLfield = new FormData();
@@ -258,7 +259,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     fdlTargetXPath.top = new FormAttachment( wSourceXmlField, margin );
     wlTargetXPath.setLayoutData(fdlTargetXPath);
 
-    wTargetXPath = new TextVar( pipelineMeta, gJoin, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTargetXPath = new TextVar( variables, gJoin, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTargetXPath );
     wTargetXPath.addModifyListener( lsMod );
     FormData fdTargetXPath = new FormData();
@@ -305,7 +306,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     fdlJoinCompareField.top = new FormAttachment( wComplexJoin, margin );
     wlJoinCompareField.setLayoutData(fdlJoinCompareField);
 
-    wJoinCompareField = new TextVar( pipelineMeta, gJoin, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wJoinCompareField = new TextVar( variables, gJoin, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wJoinCompareField );
     wJoinCompareField.addModifyListener( lsMod );
     FormData fdJoinCompareField = new FormData();
@@ -339,7 +340,7 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     fdlValueXmlField.right = new FormAttachment( middle, -margin );
     fdlValueXmlField.top = new FormAttachment( wJoinCompareField, margin );
     wlValueXmlField.setLayoutData(fdlValueXmlField);
-    wValueXmlField = new TextVar( pipelineMeta, gResult, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wValueXmlField = new TextVar( variables, gResult, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wValueXmlField );
     wValueXmlField.addModifyListener( lsMod );
     FormData fdValueXMLfield = new FormData();
@@ -450,9 +451,9 @@ public class XmlJoinDialog extends BaseTransformDialog implements ITransformDial
     input.setChanged( changed );
 
     List<TransformMeta> steps = pipelineMeta.findPreviousTransforms( pipelineMeta.findTransform( transformName ), true );
-    for ( TransformMeta stepMeta : steps ) {
-      wTargetXmlTransform.add( stepMeta.getName() );
-      wSourceXmlTransform.add( stepMeta.getName() );
+    for ( TransformMeta transformMeta : steps ) {
+      wTargetXmlTransform.add( transformMeta.getName() );
+      wSourceXmlTransform.add( transformMeta.getName() );
     }
 
     shell.open();

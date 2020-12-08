@@ -59,13 +59,13 @@ public class GoogleBigQueryDatabaseMeta extends BaseDatabaseMeta implements IDat
   }
 
   @Override public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                              boolean addFieldname, boolean addCr ) {
+                                              boolean addFieldName, boolean addCr ) {
     String retval = "";
 
     String fieldname = v.getName();
     int precision = v.getPrecision();
 
-    if ( addFieldname ) {
+    if ( addFieldName ) {
       retval += fieldname + " ";
     }
 

@@ -23,6 +23,7 @@
 package org.apache.hop.testing.xp;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
@@ -33,9 +34,11 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.testing.PipelineUnitTest;
+import org.apache.hop.testing.VariableValue;
 import org.apache.hop.testing.util.DataSetConst;
 
 import java.io.OutputStream;
+import java.util.List;
 
 @ExtensionPoint(
   extensionPointId = "PipelinePrepareExecution",
@@ -48,7 +51,7 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
   public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
     PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
 
-    boolean runUnitTest = "Y".equalsIgnoreCase( pipelineMeta.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
+    boolean runUnitTest = "Y".equalsIgnoreCase( pipeline.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
     if ( !runUnitTest ) {
       // No business here...
       if ( log.isDetailed() ) {
@@ -72,7 +75,6 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
 
     try {
       unitTest = pipeline.getMetadataProvider().getSerializer(PipelineUnitTest.class).load( unitTestName );
-      unitTest.initializeVariablesFrom( pipelineMeta );
     } catch ( HopException e ) {
       throw new HopException( "Unable to load unit test '" + unitTestName + "'", e );
     }
@@ -83,13 +85,34 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
 
     // Get a modified copy of the pipeline using the unit test information
     //
-    PipelineMetaModifier modifier = new PipelineMetaModifier( pipelineMeta, unitTest );
+    PipelineMetaModifier modifier = new PipelineMetaModifier( pipeline, pipelineMeta, unitTest );
     PipelineMeta copyPipelineMeta = modifier.getTestPipeline( log, pipeline, pipeline.getMetadataProvider() );
-
 
     // Now replace the metadata in the IPipelineEngine<PipelineMeta> object...
     //
     pipeline.setPipelineMeta( copyPipelineMeta );
+
+    // Set parameters and variables...
+    //
+    String[] parameters = copyPipelineMeta.listParameters();
+    List<VariableValue> variableValues = unitTest.getVariableValues();
+    for ( VariableValue variableValue : variableValues ) {
+      String key = pipeline.environmentSubstitute( variableValue.getKey() );
+      String value = pipeline.environmentSubstitute( variableValue.getValue() );
+
+      if ( StringUtils.isEmpty( key ) ) {
+        continue;
+      }
+      if ( Const.indexOfString( key, parameters ) < 0 ) {
+        // set the variable in the pipeline metadata...
+        //
+        pipeline.setVariable( key, value );
+      } else {
+        // Set the parameter value...
+        //
+        pipeline.setParameterValue( key, value );
+      }
+    }
 
     String testFilename = pipeline.environmentSubstitute( unitTest.getFilename() );
     if ( !StringUtil.isEmpty( testFilename ) ) {

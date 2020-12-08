@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -74,8 +75,8 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
   private ColumnInfo[] colinf;
 
 
-  public WriteToLogDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public WriteToLogDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (WriteToLogMeta) in;
     inputFields = new HashMap<>();
   }
@@ -220,7 +221,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
     fdlLogMessage.right = new FormAttachment( middle, -margin );
     wlLogMessage.setLayoutData( fdlLogMessage );
 
-    wLogMessage = new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wLogMessage = new StyledTextComp( variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wLogMessage, Props.WIDGET_STYLE_FIXED );
     wLogMessage.addModifyListener( lsMod );
     FormData fdLogMessage = new FormData();
@@ -258,7 +259,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
         new String[] { "" }, false );
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -274,7 +275,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -348,7 +349,7 @@ public class WriteToLogDialog extends BaseTransformDialog implements ITransformD
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
 
         ITableItemInsertListener insertListener = (tableItem, v) -> true;

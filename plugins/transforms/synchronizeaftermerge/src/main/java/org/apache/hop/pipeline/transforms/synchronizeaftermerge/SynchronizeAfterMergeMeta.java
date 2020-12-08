@@ -588,7 +588,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareVariablesWith( variables );
       try {
         db.connect();
 
@@ -838,7 +838,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
     }
   }
 
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) throws HopTransformException {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -881,7 +881,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
           try {
             db.connect();
 
-            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
             String crTable = db.getDDL( schemaTable, tableFields, null, false, null, true );
 
             String crIndex = "";
@@ -930,7 +930,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
     return retval;
   }
 
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( prev != null ) {

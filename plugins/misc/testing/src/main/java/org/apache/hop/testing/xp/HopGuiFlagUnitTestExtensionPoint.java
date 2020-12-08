@@ -27,22 +27,23 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
 import org.apache.hop.testing.util.DataSetConst;
 
 @ExtensionPoint(
-  extensionPointId = "HopGuiPipelineMetaExecutionStart",
+  extensionPointId = "PipelinePrepareExecution",
   id = "HopGuiFlagUnitTestExtensionPoint",
-  description = "Change the pipeline metadata prior to execution but only in HopGui"
+  description = "Change the pipeline variables prior to execution but only in HopGui"
 )
-public class HopGuiFlagUnitTestExtensionPoint implements IExtensionPoint<PipelineMeta> {
+public class HopGuiFlagUnitTestExtensionPoint implements IExtensionPoint<Pipeline> {
 
   @Override
-  public void callExtensionPoint( ILogChannel log, PipelineMeta pipelineMeta ) throws HopException {
+  public void callExtensionPoint( ILogChannel log, Pipeline pipeline ) throws HopException {
 
-    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest( pipelineMeta );
+    PipelineUnitTest unitTest = TestingGuiPlugin.getCurrentUnitTest( pipeline.getPipelineMeta() );
     if ( unitTest == null ) {
       return;
     }
@@ -52,8 +53,8 @@ public class HopGuiFlagUnitTestExtensionPoint implements IExtensionPoint<Pipelin
     if ( !StringUtil.isEmpty( unitTestName ) ) {
       // We're running in HopGui and there's a unit test selected : test it
       //
-      pipelineMeta.setVariable( DataSetConst.VAR_RUN_UNIT_TEST, "Y" );
-      pipelineMeta.setVariable( DataSetConst.VAR_UNIT_TEST_NAME, unitTestName );
+      pipeline.setVariable( DataSetConst.VAR_RUN_UNIT_TEST, "Y" );
+      pipeline.setVariable( DataSetConst.VAR_UNIT_TEST_NAME, unitTestName );
     }
   }
 

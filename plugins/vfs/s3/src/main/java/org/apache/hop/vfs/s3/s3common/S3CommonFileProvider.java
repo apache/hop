@@ -34,39 +34,35 @@ import java.util.Collections;
 
 public abstract class S3CommonFileProvider extends AbstractOriginatingFileProvider {
 
-  /**
-   * Authentication types.
-   */
+  /** Authentication types. */
   public static final UserAuthenticationData.Type[] AUTHENTICATOR_TYPES =
-    new UserAuthenticationData.Type[] {
-      UserAuthenticationData.USERNAME,
-      UserAuthenticationData.PASSWORD
-    };
+      new UserAuthenticationData.Type[] {
+        UserAuthenticationData.USERNAME, UserAuthenticationData.PASSWORD
+      };
 
-  /**
-   * The provider's capabilities.
-   */
+  /** The provider's capabilities. */
   protected static final Collection<Capability> capabilities =
-    Collections.unmodifiableCollection( Arrays.asList(
-      new Capability[] {
-        Capability.CREATE,
-        Capability.DELETE,
-        Capability.RENAME,
-        Capability.GET_TYPE,
-        Capability.LIST_CHILDREN,
-        Capability.READ_CONTENT,
-        Capability.URI,
-        Capability.WRITE_CONTENT,
-        Capability.GET_LAST_MODIFIED,
-        Capability.RANDOM_ACCESS_READ
-      } ) );
+      Collections.unmodifiableCollection(
+          Arrays.asList(
+              new Capability[] {
+                Capability.CREATE,
+                Capability.DELETE,
+                Capability.RENAME,
+                Capability.GET_TYPE,
+                Capability.LIST_CHILDREN,
+                Capability.READ_CONTENT,
+                Capability.URI,
+                Capability.WRITE_CONTENT,
+                Capability.GET_LAST_MODIFIED,
+                Capability.RANDOM_ACCESS_READ
+              }));
 
   public S3CommonFileProvider() {
     super();
   }
 
-  protected abstract FileSystem doCreateFileSystem( final FileName name, final FileSystemOptions fileSystemOptions )
-    throws FileSystemException;
+  protected abstract FileSystem doCreateFileSystem(
+      final FileName name, final FileSystemOptions fileSystemOptions) throws FileSystemException;
 
   public Collection<Capability> getCapabilities() {
     return capabilities;

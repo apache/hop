@@ -74,9 +74,9 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
     "CHARACTERS", "COMMENT", "SPACE", "START_DOCUMENT", "END_DOCUMENT", "ENTITY_REFERENCE", "ATTRIBUTE", "DTD",
     "CDATA", "NAMESPACE", "NOTATION_DECLARATION", "ENTITY_DECLARATION" };
 
-  public XmlInputStream(TransformMeta stepMeta, XmlInputStreamMeta meta, XmlInputStreamData stepDataInterface, int copyNr, PipelineMeta transMeta,
+  public XmlInputStream(TransformMeta transformMeta, XmlInputStreamMeta meta, XmlInputStreamData stepDataInterface, int copyNr, PipelineMeta pipelineMeta,
                         Pipeline trans ) {
-    super( stepMeta, meta, stepDataInterface, copyNr, transMeta, trans );
+    super( transformMeta, meta, stepDataInterface, copyNr, pipelineMeta, trans );
   }
 
   @Override

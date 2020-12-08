@@ -27,11 +27,13 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.widget.MetaSelectionLine;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.action.IAction;
 import org.eclipse.swt.SWT;
@@ -68,12 +70,17 @@ public class ActionDialog extends Dialog {
   /**
    * The Metadata provider
    */
-  private IHopMetadataProvider metadataProvider;
+  protected IHopMetadataProvider metadataProvider;
+
+  /**
+   * The variables for the action dialogs
+   */
+  protected IVariables variables;
 
   /**
    * The workflow metadata object.
    */
-  private WorkflowMeta workflowMeta;
+  protected WorkflowMeta workflowMeta;
 
   /**
    * A reference to the properties user interface
@@ -88,7 +95,8 @@ public class ActionDialog extends Dialog {
    */
   public ActionDialog( Shell parent, WorkflowMeta workflowMeta ) {
     super( parent, SWT.NONE );
-    props = PropsUi.getInstance();
+    this.props = PropsUi.getInstance();
+    this.variables = HopGui.getInstance().getVariables();
 
     this.workflowMeta = workflowMeta;
   }
@@ -103,8 +111,8 @@ public class ActionDialog extends Dialog {
    */
   public MetaSelectionLine<DatabaseMeta> addConnectionLine( Composite parent, Control previous, DatabaseMeta selected, ModifyListener lsMod ) {
 
-    final MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<>(
-      workflowMeta,
+    final MetaSelectionLine<DatabaseMeta> wConnection = new MetaSelectionLine<DatabaseMeta>(
+      variables,
       metadataProvider,
       DatabaseMeta.class, parent, SWT.NONE,
       BaseMessages.getString( PKG, "BaseTransformDialog.Connection.Label" ),

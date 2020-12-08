@@ -31,6 +31,7 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ShellAdapter;
@@ -120,9 +121,15 @@ public class PreviewSelectDialog extends Dialog {
       };
 
     wFields =
-      new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows,
-        true, // read-only
-        null, props );
+        new TableView(
+            HopGui.getInstance().getVariables(),
+            shell,
+            SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+            colinf,
+            FieldsRows,
+            true, // read-only
+            null,
+            props);
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

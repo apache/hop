@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.ResultFile;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -49,8 +50,8 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
 
   private final FilesToResultMeta input;
 
-  public FilesToResultDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public FilesToResultDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (FilesToResultMeta) in;
   }
 
@@ -122,7 +123,7 @@ public class FilesToResultDialog extends BaseTransformDialog implements ITransfo
      */
     Runnable runnable = () -> {
       try {
-        IRowMeta inputfields = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta inputfields = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( inputfields != null ) {
           for ( int i = 0; i < inputfields.size(); i++ ) {
             wFilenameField.add( inputfields.getValueMeta( i ).getName() );

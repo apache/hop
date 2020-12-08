@@ -484,11 +484,11 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     jscx = ContextFactory.getGlobal().enterContext();
     jsscope = jscx.initStandardObjects( null, false );
     try {
-      jscx.setOptimizationLevel( Integer.valueOf( pipelineMeta.environmentSubstitute( optimizationLevel ) ) );
+      jscx.setOptimizationLevel( Integer.valueOf( variables.environmentSubstitute( optimizationLevel ) ) );
     } catch ( NumberFormatException nfe ) {
       errorMessage =
         "Error with optimization level.  Could not convert the value of "
-          + pipelineMeta.environmentSubstitute( optimizationLevel ) + " to an integer.";
+          + variables.environmentSubstitute( optimizationLevel ) + " to an integer.";
       cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } catch ( IllegalArgumentException iae ) {
@@ -572,7 +572,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
       }
 
       try {
-        ScriptValuesModDummy dummyTransform = new ScriptValuesModDummy( prev, pipelineMeta.getTransformFields( transformMeta ) );
+        ScriptValuesModDummy dummyTransform = new ScriptValuesModDummy( prev, pipelineMeta.getTransformFields( variables, transformMeta ) );
         Scriptable jsvalue = Context.toObject( dummyTransform, jsscope );
         jsscope.put( "_transform_", jsscope, jsvalue );
 

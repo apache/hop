@@ -493,10 +493,10 @@ public class PipelineExecutorMeta
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
+  public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    String realFilename = pipelineMeta.environmentSubstitute( filename );
-    ResourceReference reference = new ResourceReference( transformInfo );
+    String realFilename = variables.environmentSubstitute( filename );
+    ResourceReference reference = new ResourceReference( transformMeta );
 
     if ( StringUtils.isNotEmpty( realFilename ) ) {
       // Add the filename to the references, including a reference to this transform
@@ -911,7 +911,7 @@ public class PipelineExecutorMeta
    * Load the referenced object
    *
    * @param index the object index to load
-   * @param variables the variable space to use
+   * @param variables the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */

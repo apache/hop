@@ -31,6 +31,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -126,8 +127,8 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
    */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
-  public CombinationLookupDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public CombinationLookupDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (CombinationLookupMeta) in;
     inputFields = new HashMap<>();
   }
@@ -214,7 +215,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     fdbSchema.right = new FormAttachment( 100, 0 );
     wbSchema.setLayoutData( fdbSchema );
 
-    wSchema = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsTableMod );
     FormData fdSchema = new FormData();
@@ -241,7 +242,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     fdbTable.top = new FormAttachment( wbSchema, margin );
     wbTable.setLayoutData( fdbTable );
 
-    wTable = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTable = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsTableMod );
     FormData fdTable = new FormData();
@@ -331,7 +332,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     tableFieldColumns.add( ciKey[ 0 ] );
     wKey =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrKeyRows, lsMod, props );
 
     // THE BUTTONS
@@ -533,7 +534,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -650,8 +651,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
               db.connect();
 
               String schemaTable =
-                ci.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
-                  .environmentSubstitute( tableName ) );
+                ci.getQuotedSchemaTableCombination( variables, schemaName, tableName);
               IRowMeta r = db.getTableFields( schemaTable );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();
@@ -922,7 +922,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
     if ( databaseMeta != null ) {
       logDebug( BaseMessages.getString( PKG, "CombinationLookupDialog.Log.LookingAtConnection", databaseMeta.toString() ) );
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -939,7 +939,7 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
           r, wKey, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, ( tableItem, v ) -> {
@@ -965,13 +965,13 @@ public class CombinationLookupDialog extends BaseTransformDialog implements ITra
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
         new TransformMeta( BaseMessages.getString( PKG, "CombinationLookupDialog.TransformMeta.Title" ), name, info );
-      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( variables, transformName );
 
-      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
+      SqlStatement sql = info.getSqlStatements( variables, pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSql() ) {
           SqlEditor sqledit =
-            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
+            new SqlEditor( shell, SWT.NONE, variables, info.getDatabaseMeta(), DbCache.getInstance(), sql
               .getSql() );
           sqledit.open();
         } else {

@@ -16,7 +16,6 @@
 
 package org.apache.hop.git.model.repository;
 
-
 import org.apache.hop.core.Const;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.git.HopGitPerspective;
@@ -42,7 +41,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class GitRepositoryDialog implements IMetadataDialog {
 
-  private static final Class<?> PKG = GitRepositoryDialog.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      GitRepositoryDialog.class; // for i18n purposes, needed by Translator2!!
 
   private final Shell parentShell;
   private Text nameText;
@@ -60,17 +60,21 @@ public class GitRepositoryDialog implements IMetadataDialog {
 
   /**
    * A dialog to edit repository settings.
+   *
    * @param parentShell
    * @param repo a git repository to edit. Can be null to create a new one.
    */
-  public GitRepositoryDialog( Shell parentShell, IHopMetadataProvider metadataProvider, GitRepository repo, IVariables variables ) {
+  public GitRepositoryDialog(
+      Shell parentShell,
+      IHopMetadataProvider metadataProvider,
+      GitRepository repo,
+      IVariables variables) {
     this.parentShell = parentShell;
     this.repo = repo;
     this.metadataProvider = metadataProvider;
     this.variables = variables;
     props = PropsUi.getInstance();
     APPLICATION_NAME = "Edit Repository";
-
   }
 
   @Override
@@ -80,12 +84,12 @@ public class GitRepositoryDialog implements IMetadataDialog {
     addButtons(lastControl);
 
     // Set the shell size, based upon previous time...
-    BaseTransformDialog.setSize( shell );
+    BaseTransformDialog.setSize(shell);
 
     shell.open();
 
-    while ( !shell.isDisposed() ) {
-      if ( !shell.getDisplay().readAndDispatch() ) {
+    while (!shell.isDisposed()) {
+      if (!shell.getDisplay().readAndDispatch()) {
         shell.getDisplay().sleep();
       }
     }
@@ -93,116 +97,118 @@ public class GitRepositoryDialog implements IMetadataDialog {
     return returnValue;
   }
 
-  protected void addButtons( Control lastControl ) {
+  protected void addButtons(Control lastControl) {
     // Buttons go at the bottom of the dialog
     //
-    Button wOK = new Button( shell, SWT.PUSH );
-    wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
-    wOK.addListener( SWT.Selection, event -> ok() );
-    Button wCancel = new Button( shell, SWT.PUSH );
-    wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
-    wCancel.addListener( SWT.Selection, event -> cancel() );
-    BaseTransformDialog.positionBottomButtons( shell, new Button[] { wOK, wCancel }, props.getMargin(), lastControl );
+    Button wOK = new Button(shell, SWT.PUSH);
+    wOK.setText(BaseMessages.getString(PKG, "System.Button.OK"));
+    wOK.addListener(SWT.Selection, event -> ok());
+    Button wCancel = new Button(shell, SWT.PUSH);
+    wCancel.setText(BaseMessages.getString(PKG, "System.Button.Cancel"));
+    wCancel.addListener(SWT.Selection, event -> cancel());
+    BaseTransformDialog.positionBottomButtons(
+        shell, new Button[] {wOK, wCancel}, props.getMargin(), lastControl);
   }
 
   protected Control addStandardWidgets() {
-    shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE );
-    shell.setText( APPLICATION_NAME );
-    shell.setImage( HopGitPerspective.getInstance().getGitImage() );
-    shell.addListener( SWT.Close, e->cancel() );
-    shell.setLayout( new FormLayout() );
+    shell = new Shell(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
+    shell.setText(APPLICATION_NAME);
+    shell.setImage(HopGitPerspective.getInstance().getGitImage());
+    shell.addListener(SWT.Close, e -> cancel());
+    shell.setLayout(new FormLayout());
 
     // The name line...
     //
-    Label nameLabel = new Label( shell, SWT.RIGHT );
-    nameLabel.setText( "Name " );
+    Label nameLabel = new Label(shell, SWT.RIGHT);
+    nameLabel.setText("Name ");
     FormData fdNameLabel = new FormData();
     fdNameLabel.left = new FormAttachment(0, 0);
     fdNameLabel.right = new FormAttachment(props.getMiddlePct(), 0);
     fdNameLabel.top = new FormAttachment(0, props.getMargin());
-    nameLabel.setLayoutData( fdNameLabel );
+    nameLabel.setLayoutData(fdNameLabel);
 
-    nameText = new Text( shell, SWT.SINGLE | SWT.BORDER );
-    nameText.setText( Const.NVL( repo.getName(), "" ) );
+    nameText = new Text(shell, SWT.SINGLE | SWT.BORDER);
+    nameText.setText(Const.NVL(repo.getName(), ""));
     FormData fdNameText = new FormData();
     fdNameText.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
     fdNameText.right = new FormAttachment(100, 0);
     fdNameText.top = new FormAttachment(nameLabel, 0, SWT.CENTER);
-    nameText.setLayoutData( fdNameText );
+    nameText.setLayoutData(fdNameText);
     Control lastControl = nameText;
 
     // The description line
     //
-    Label descLabel = new Label( shell, SWT.RIGHT );
-    descLabel.setText( "Description " );
+    Label descLabel = new Label(shell, SWT.RIGHT);
+    descLabel.setText("Description ");
     FormData fdDescLabel = new FormData();
     fdDescLabel.left = new FormAttachment(0, 0);
     fdDescLabel.right = new FormAttachment(props.getMiddlePct(), 0);
     fdDescLabel.top = new FormAttachment(lastControl, props.getMargin());
-    descLabel.setLayoutData( fdDescLabel );
+    descLabel.setLayoutData(fdDescLabel);
 
-    descText = new Text( shell, SWT.SINGLE | SWT.BORDER );
-    descText.setText( Const.NVL( repo.getDescription(), "" ) );
+    descText = new Text(shell, SWT.SINGLE | SWT.BORDER);
+    descText.setText(Const.NVL(repo.getDescription(), ""));
     FormData fdDescText = new FormData();
     fdDescText.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
     fdDescText.right = new FormAttachment(100, 0);
     fdDescText.top = new FormAttachment(descLabel, 0, SWT.CENTER);
-    descText.setLayoutData( fdDescText );
+    descText.setLayoutData(fdDescText);
     lastControl = descText;
 
     // The directory
     //
-    Label directoryLabel = new Label( shell, SWT.RIGHT );
-    directoryLabel.setText( "Directory " );
+    Label directoryLabel = new Label(shell, SWT.RIGHT);
+    directoryLabel.setText("Directory ");
     FormData fdDirectoryLabel = new FormData();
     fdDirectoryLabel.left = new FormAttachment(0, 0);
     fdDirectoryLabel.right = new FormAttachment(props.getMiddlePct(), 0);
     fdDirectoryLabel.top = new FormAttachment(lastControl, props.getMargin());
-    directoryLabel.setLayoutData( fdDirectoryLabel );
+    directoryLabel.setLayoutData(fdDirectoryLabel);
 
-    Button directoryButton = new Button( shell, SWT.PUSH );
-    directoryButton.setText( "Browse" );
-    directoryButton.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        String filterPath = BaseDialog.presentDirectoryDialog( shell, variables );
-        if (filterPath!=null) {
-          directoryText.setText( filterPath );
-        }
-      }
-    } );
+    Button directoryButton = new Button(shell, SWT.PUSH);
+    directoryButton.setText("Browse");
+    directoryButton.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            String filterPath = BaseDialog.presentDirectoryDialog(shell, variables);
+            if (filterPath != null) {
+              directoryText.setText(filterPath);
+            }
+          }
+        });
     FormData fdDirectoryButton = new FormData();
     fdDirectoryButton.right = new FormAttachment(100, 0);
     fdDirectoryButton.top = new FormAttachment(directoryLabel, 0, SWT.CENTER);
-    directoryButton.setLayoutData( fdDirectoryButton );
+    directoryButton.setLayoutData(fdDirectoryButton);
 
-    directoryText = new TextVar( variables, shell, SWT.SINGLE | SWT.BORDER );
-    directoryText.setText( Const.NVL( repo.getDirectory(), "" ) );
+    directoryText = new TextVar(variables, shell, SWT.SINGLE | SWT.BORDER);
+    directoryText.setText(Const.NVL(repo.getDirectory(), ""));
     FormData fdDirectoryText = new FormData();
     fdDirectoryText.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
     fdDirectoryText.right = new FormAttachment(directoryButton, -props.getMargin());
     fdDirectoryText.top = new FormAttachment(directoryLabel, 0, SWT.CENTER);
-    directoryText.setLayoutData( fdDirectoryText );
+    directoryText.setLayoutData(fdDirectoryText);
     lastControl = directoryText;
 
     return lastControl;
   }
 
   protected void ok() {
-    repo.setName( nameText.getText() );
-    repo.setDescription( descText.getText() );
-    repo.setDirectory( directoryText.getText() );
+    repo.setName(nameText.getText());
+    repo.setDescription(descText.getText());
+    repo.setDirectory(directoryText.getText());
     returnValue = repo.getName();
     dispose();
   }
 
   public void cancel() {
-    returnValue=null;
+    returnValue = null;
     dispose();
   }
 
   private void dispose() {
-    props.setScreen( new WindowProperty( shell ) );
+    props.setScreen(new WindowProperty(shell));
     shell.dispose();
   }
 }

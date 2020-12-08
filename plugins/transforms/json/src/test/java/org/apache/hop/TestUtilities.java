@@ -349,9 +349,9 @@ public class TestUtilities {
   }
 
   public static Pipeline loadAndRunPipeline( String path, Object... parameters ) throws Exception {
-    PipelineMeta transMeta = new PipelineMeta( path, new MemoryMetadataProvider(), true, Variables.getADefaultVariableSpace() );
+    PipelineMeta pipelineMeta = new PipelineMeta( path, new MemoryMetadataProvider(), true, Variables.getADefaultVariableSpace() );
 
-    Pipeline trans = new LocalPipelineEngine( transMeta );
+    Pipeline trans = new LocalPipelineEngine( pipelineMeta );
     if ( parameters != null ) {
       if ( parameters.length % 2 == 1 ) {
         throw new IllegalArgumentException( "Parameters should be an array of pairs 'parameter'-'value'-..." );

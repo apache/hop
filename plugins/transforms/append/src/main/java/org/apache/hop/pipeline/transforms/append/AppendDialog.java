@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.append;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -55,8 +56,8 @@ public class AppendDialog extends BaseTransformDialog implements ITransformDialo
 
   private final AppendMeta input;
 
-  public AppendDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public AppendDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (AppendMeta) in;
   }
 

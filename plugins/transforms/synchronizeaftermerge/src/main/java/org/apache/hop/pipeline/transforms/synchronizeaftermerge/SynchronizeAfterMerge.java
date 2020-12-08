@@ -90,7 +90,7 @@ public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMe
           throw new HopTransformException( "The name of the table is not specified!" );
         }
         data.realSchemaTable =
-          data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
+          data.db.getDatabaseMeta().getQuotedSchemaTableCombination( this, data.realSchemaName, data.realTableName );
       }
 
       if ( operation.equals( data.insertValue ) ) {
@@ -678,7 +678,7 @@ public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMe
           throw new HopTransformException( "The table name is not specified (or the input field is empty)" );
         }
         data.realSchemaTable =
-          data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
+          data.db.getDatabaseMeta().getQuotedSchemaTableCombination( this, data.realSchemaName, data.realTableName );
       }
 
       // ICache the position of the operation order field

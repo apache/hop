@@ -259,7 +259,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   IPipelineEngine<PipelineMeta> createInternalPipeline() throws HopException {
 
     String runConfigurationName = environmentSubstitute( meta.getRunConfigurationName() );
-    IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, getData().getExecutorPipelineMeta() );
+    IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( this, runConfigurationName, metadataProvider, getData().getExecutorPipelineMeta() );
     executorPipeline.setParentPipeline( getPipeline() );
     executorPipeline.setParent(this);
     executorPipeline.setLogLevel( getLogLevel() );
@@ -491,7 +491,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
   @VisibleForTesting
   PipelineMeta loadExecutorPipelineMeta() throws HopException {
-    return PipelineExecutorMeta.loadMappingMeta( meta, meta.getMetadataProvider(), this, meta.getParameters().isInheritingAllVariables() );
+    return PipelineExecutorMeta.loadMappingMeta( meta, metadataProvider, this );
   }
 
   public void dispose(){

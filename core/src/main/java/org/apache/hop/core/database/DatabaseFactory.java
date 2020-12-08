@@ -28,6 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 
 /**
@@ -45,7 +46,7 @@ public class DatabaseFactory implements IDatabaseFactory {
   }
 
   @Override
-  public String getConnectionTestReport( DatabaseMeta databaseMeta ) throws HopDatabaseException {
+  public String getConnectionTestReport( IVariables variables, DatabaseMeta databaseMeta ) throws HopDatabaseException {
     success = true; // default
 
     StringBuilder report = new StringBuilder();
@@ -64,21 +65,21 @@ public class DatabaseFactory implements IDatabaseFactory {
       db.disconnect();
     }
 
-    appendConnectionInfo( report, db, databaseMeta );
+    appendConnectionInfo( variables, report, db, databaseMeta );
     report.append( Const.CR );
 
     return report.toString();
   }
 
-  public DatabaseTestResults getConnectionTestResults( DatabaseMeta databaseMeta ) throws HopDatabaseException {
+  public DatabaseTestResults getConnectionTestResults( IVariables variables, DatabaseMeta databaseMeta ) throws HopDatabaseException {
     DatabaseTestResults databaseTestResults = new DatabaseTestResults();
-    String message = getConnectionTestReport( databaseMeta );
+    String message = getConnectionTestReport( variables, databaseMeta );
     databaseTestResults.setMessage( message );
     databaseTestResults.setSuccess( success );
     return databaseTestResults;
   }
 
-  private StringBuilder appendConnectionInfo( StringBuilder report, Database db, DatabaseMeta databaseMeta ) {
+  private StringBuilder appendConnectionInfo( IVariables variables, StringBuilder report, Database db, DatabaseMeta databaseMeta ) {
 
     // Check to see if the interface is of a type GenericDatabaseMeta, since it does not have hostname and port fields
     if ( databaseMeta.getIDatabase() instanceof GenericDatabaseMeta ) {
@@ -96,7 +97,7 @@ public class DatabaseFactory implements IDatabaseFactory {
     
 	String url =  "";
 	try {
-		url =  databaseMeta.getURL();
+		url =  databaseMeta.getURL(variables);
 	} catch (HopDatabaseException e) {
 		url = e.toString();
 	}	

@@ -30,11 +30,12 @@ import java.io.ByteArrayInputStream;
  */
 public class S3CommonWindowedSubstream extends ByteArrayInputStream {
 
-  public S3CommonWindowedSubstream( byte[] buf ) {
-    super( buf );
+  public S3CommonWindowedSubstream(byte[] buf) {
+    super(buf);
   }
 
-  @Override public synchronized long skip( long n ) {
+  @Override
+  public synchronized long skip(long n) {
     // virtual skip
     return n;
   }

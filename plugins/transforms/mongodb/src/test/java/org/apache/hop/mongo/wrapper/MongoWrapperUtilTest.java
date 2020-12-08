@@ -67,7 +67,7 @@ public class MongoWrapperUtilTest {
   @Test
   public void testCreateCalledNoReadPrefs() throws MongoDbException {
     MongoDbMeta mongoDbMeta = mock(MongoDbMeta.class);
-    IVariables variableSpace = mock(IVariables.class);
+    IVariables variables = mock(IVariables.class);
     ILogChannel logChannelInterface = mock(ILogChannel.class);
 
     MongoClientWrapper wrapper = mock(MongoClientWrapper.class);
@@ -76,13 +76,13 @@ public class MongoWrapperUtilTest {
         .thenReturn(wrapper);
     assertEquals(
         wrapper,
-        MongoWrapperUtil.createMongoClientWrapper(mongoDbMeta, variableSpace, logChannelInterface));
+        MongoWrapperUtil.createMongoClientWrapper(mongoDbMeta, variables, logChannelInterface));
   }
 
   @Test
   public void testCreateCalledReadPrefs() throws MongoDbException {
     MongoDbMeta mongoDbMeta = mock(MongoDbMeta.class);
-    IVariables variableSpace = mock(IVariables.class);
+    IVariables variables = mock(IVariables.class);
     ILogChannel logChannelInterface = mock(ILogChannel.class);
 
     MongoClientWrapper wrapper = mock(MongoClientWrapper.class);
@@ -92,7 +92,7 @@ public class MongoWrapperUtilTest {
         .thenReturn(wrapper);
     assertEquals(
         wrapper,
-        MongoWrapperUtil.createMongoClientWrapper(mongoDbMeta, variableSpace, logChannelInterface));
+        MongoWrapperUtil.createMongoClientWrapper(mongoDbMeta, variables, logChannelInterface));
   }
 
   @Test

@@ -121,7 +121,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     fdlHostname.right = new FormAttachment( middle, -margin );
     wlHostname.setLayoutData(fdlHostname);
 
-    wHostname = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHostname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wHostname );
     wHostname.addModifyListener( lsMod );
     FormData fdHostname = new FormData();
@@ -131,7 +131,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     wHostname.setLayoutData(fdHostname);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wHostname.addModifyListener( e -> wHostname.setToolTipText( getWorkflowMeta().environmentSubstitute( wHostname.getText() ) ) );
+    wHostname.addModifyListener( e -> wHostname.setToolTipText( variables.environmentSubstitute( wHostname.getText() ) ) );
 
     Label wlPort = new Label(shell, SWT.RIGHT);
     wlPort.setText( BaseMessages.getString( PKG, "JobTelnet.Port.Label" ) );
@@ -142,7 +142,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     fdlPort.top = new FormAttachment( wHostname, margin );
     wlPort.setLayoutData(fdlPort);
 
-    wPort = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPort = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
     FormData fdPort = new FormData();
@@ -160,7 +160,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     fdlTimeOut.top = new FormAttachment( wPort, margin );
     wlTimeOut.setLayoutData(fdlTimeOut);
 
-    wTimeOut = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
     FormData fdTimeOut = new FormData();

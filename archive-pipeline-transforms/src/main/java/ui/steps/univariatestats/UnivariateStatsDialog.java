@@ -95,7 +95,7 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements ITrans
   private Map<String, Integer> mInputFields;
   private ColumnInfo[] mColinf;
 
-  public UnivariateStatsDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public UnivariateStatsDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
 
     super( parent, (BaseTransformMeta) in, tr, sname );
 
@@ -204,7 +204,7 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements ITrans
 
     m_wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, mColinf, fieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, mColinf, fieldsRows, lsMod, props );
 
     m_fdFields = new FormData();
     m_fdFields.left = new FormAttachment( 0, 0 );
@@ -220,7 +220,7 @@ public class UnivariateStatsDialog extends BaseTransformDialog implements ITrans
 
         if ( transformMeta != null ) {
           try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {

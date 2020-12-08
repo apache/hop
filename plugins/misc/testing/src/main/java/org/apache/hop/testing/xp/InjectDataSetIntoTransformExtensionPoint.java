@@ -72,7 +72,7 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
     }
 
     final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
-    boolean dataSetEnabled = "Y".equalsIgnoreCase( pipelineMeta.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
+    boolean dataSetEnabled = "Y".equalsIgnoreCase( pipeline.getVariable( DataSetConst.VAR_RUN_UNIT_TEST ) );
     if ( log.isDetailed() ) {
       log.logDetailed( "Data Set enabled? " + dataSetEnabled );
     }
@@ -99,7 +99,6 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
         }
         return;
       }
-      unitTest.initializeVariablesFrom( pipelineMeta );
 
       // Replace all transforms with input data sets with Injector transforms.
       // Replace all transforms with a golden data set, attached to a unit test, with a Dummy
@@ -171,7 +170,7 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
     if (dataSet==null) {
       throw new HopException("Unable to find data set '"+dataSetName+"'");
     }
-    dataSet.initializeVariablesFrom( pipeline );
+
     final ILogChannel log = pipeline.getLogChannel();
     final RowProducer rowProducer = pipeline.addRowProducer( transformMeta.getName(), 0 );
 
@@ -189,7 +188,7 @@ public class InjectDataSetIntoTransformExtensionPoint implements IExtensionPoint
 
       // Get the rows of the mapped values in the mapped order sorted as asked
       //
-      final List<Object[]> dataSetRows = dataSet.getAllRows( log, inputLocation );
+      final List<Object[]> dataSetRows = dataSet.getAllRows( pipeline, log, inputLocation );
       IRowMeta dataSetRowMeta = dataSet.getMappedDataSetFieldsRowMeta( inputLocation );
 
       // The rows to inject are always driven by the dataset, NOT the transform it replaces (!) for simplicity

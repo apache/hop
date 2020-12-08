@@ -220,7 +220,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     fdbxmlFilename.right = new FormAttachment( 100, 0 );
     fdbxmlFilename.top = new FormAttachment( wPrevious, 0 );
     wbxmlFilename.setLayoutData(fdbxmlFilename);
-    wxmlFilename = new TextVar( workflowMeta, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wxmlFilename = new TextVar( variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wxmlFilename );
     wxmlFilename.addModifyListener( lsMod );
     FormData fdxmlFilename = new FormData();
@@ -230,14 +230,14 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wxmlFilename.setLayoutData(fdxmlFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) ) );
+    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( variables.environmentSubstitute( wxmlFilename.getText() ) ) );
 
     wbxmlFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
         if ( wxmlFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) );
+          dialog.setFileName( variables.environmentSubstitute( wxmlFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XML );
         if ( dialog.open() != null ) {
@@ -262,7 +262,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     fdbxslFilename.right = new FormAttachment( 100, 0 );
     fdbxslFilename.top = new FormAttachment( wxmlFilename, 0 );
     wbxslFilename.setLayoutData(fdbxslFilename);
-    wxslFilename = new TextVar( workflowMeta, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wxslFilename = new TextVar( variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wxslFilename );
     wxslFilename.addModifyListener( lsMod );
     FormData fdxslFilename = new FormData();
@@ -272,14 +272,14 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wxslFilename.setLayoutData(fdxslFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxslFilename.addModifyListener( e -> wxslFilename.setToolTipText( workflowMeta.environmentSubstitute( wxslFilename.getText() ) ) );
+    wxslFilename.addModifyListener( e -> wxslFilename.setToolTipText( variables.environmentSubstitute( wxslFilename.getText() ) ) );
 
     wbxslFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xsl;*.XSL", "*.xslt;*.XSLT", "*" } );
         if ( wxslFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wxslFilename.getText() ) );
+          dialog.setFileName( variables.environmentSubstitute( wxslFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XSL );
         if ( dialog.open() != null ) {
@@ -301,7 +301,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
       public void widgetSelected( SelectionEvent e ) {
         DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
         if ( wOutputFilename.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wOutputFilename.getText() ) );
+          ddialog.setFilterPath( variables.environmentSubstitute( wOutputFilename.getText() ) );
         }
 
         // Calling open() will open and run the dialog.
@@ -338,7 +338,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
       public void widgetSelected( SelectionEvent e ) {
         DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
         if ( wOutputFilename.getText() != null ) {
-          ddialog.setFilterPath( workflowMeta.environmentSubstitute( wOutputFilename.getText() ) );
+          ddialog.setFilterPath( variables.environmentSubstitute( wOutputFilename.getText() ) );
         }
 
         // Calling open() will open and run the dialog.
@@ -353,7 +353,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
       }
     } );
 
-    wOutputFilename = new TextVar( workflowMeta, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wOutputFilename = new TextVar( variables, wFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wOutputFilename );
     wOutputFilename.addModifyListener( lsMod );
     FormData fdOutputFilename = new FormData();
@@ -363,7 +363,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wOutputFilename.setLayoutData(fdOutputFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wOutputFilename.addModifyListener( e -> wOutputFilename.setToolTipText( workflowMeta.environmentSubstitute( wOutputFilename.getText() ) ) );
+    wOutputFilename.addModifyListener( e -> wOutputFilename.setToolTipText( variables.environmentSubstitute( wOutputFilename.getText() ) ) );
 
     FormData fdFiles = new FormData();
     fdFiles.left = new FormAttachment( 0, margin );
@@ -519,7 +519,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     colinf[1].setUsingVariables( true );
 
     wOutputProperties =
-        new TableView( workflowMeta, wAdvancedComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf,
+        new TableView( variables, wAdvancedComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf,
             OutputPropertiesRows, lsMod, props );
     FormData fdOutputProperties = new FormData();
     fdOutputProperties.left = new FormAttachment( 0, 0 );
@@ -550,7 +550,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     colinf[0].setUsingVariables( true );
 
     wFields =
-        new TableView( workflowMeta, wAdvancedComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        new TableView( variables, wAdvancedComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
             props );
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

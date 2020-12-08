@@ -37,6 +37,7 @@ import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -46,8 +47,8 @@ import java.util.Map;
 
 public class BeamOutputTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamOutputTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamOutputTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputTransformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -79,11 +80,11 @@ public class BeamOutputTransformHandler extends BeamBaseTransformHandler impleme
 
     BeamOutputTransform beamOutputTransform = new BeamOutputTransform(
       beamOutputTransformMeta.getName(),
-      pipelineMeta.environmentSubstitute( beamOutputMeta.getOutputLocation() ),
-      pipelineMeta.environmentSubstitute( beamOutputMeta.getFilePrefix() ),
-      pipelineMeta.environmentSubstitute( beamOutputMeta.getFileSuffix() ),
-      pipelineMeta.environmentSubstitute( outputFileDefinition.getSeparator() ),
-      pipelineMeta.environmentSubstitute( outputFileDefinition.getEnclosure() ),
+      variables.environmentSubstitute( beamOutputMeta.getOutputLocation() ),
+      variables.environmentSubstitute( beamOutputMeta.getFilePrefix() ),
+      variables.environmentSubstitute( beamOutputMeta.getFileSuffix() ),
+      variables.environmentSubstitute( outputFileDefinition.getSeparator() ),
+      variables.environmentSubstitute( outputFileDefinition.getEnclosure() ),
       beamOutputMeta.isWindowed(),
       JsonRowMeta.toJson( rowMeta ),
       transformPluginClasses,

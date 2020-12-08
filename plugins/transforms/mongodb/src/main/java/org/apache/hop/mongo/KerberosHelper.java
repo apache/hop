@@ -49,7 +49,7 @@ public class KerberosHelper {
   }
 
   /**
-   * Log in to Kerberos with the principal using the configuration defined in the variable space
+   * Log in to Kerberos with the principal using the configuration defined in the variable variables
    * provided.
    *
    * @param principal Principal to log in as.

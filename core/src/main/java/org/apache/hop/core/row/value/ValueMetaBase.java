@@ -37,6 +37,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.ValueDataUtil;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.w3c.dom.Node;
@@ -3866,7 +3867,7 @@ public class ValueMetaBase implements IValueMeta {
    * @param convertMeta the metadata of the object (only string type) to be converted
    * @param nullIf      set the object to null if pos equals nullif (IgnoreCase)
    * @param ifNull      set the object to ifNull when pol is empty or null
-   * @param trim_type   the trim type to be used (IValueMeta.TRIM_TYPE_XXX)
+   * @param trimType   the trim type to be used (IValueMeta.TRIM_TYPE_XXX)
    * @return the object in the data type of this value metadata object
    * @throws HopValueException in case there is a data conversion error
    */
@@ -4503,8 +4504,8 @@ public class ValueMetaBase implements IValueMeta {
 
   @SuppressWarnings( "fallthrough" )
   @Override
-  public IValueMeta getValueFromSqlType(DatabaseMeta databaseMeta, String name, java.sql.ResultSetMetaData rm,
-                                        int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
+  public IValueMeta getValueFromSqlType( IVariables variables, DatabaseMeta databaseMeta, String name, java.sql.ResultSetMetaData rm,
+                                         int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
     try {
       int length = -1;
       int precision = -1;
@@ -4666,7 +4667,7 @@ public class ValueMetaBase implements IValueMeta {
           valtype = IValueMeta.TYPE_DATE;
           //
           if ( databaseMeta.getIDatabase().isMySqlVariant() ) {
-            String property = databaseMeta.getConnectionProperties().getProperty( "yearIsDateType" );
+            String property = databaseMeta.getConnectionProperties(variables).getProperty( "yearIsDateType" );
             if ( property != null && property.equalsIgnoreCase( "false" )
               && rm.getColumnTypeName( index ).equalsIgnoreCase( "YEAR" ) ) {
               valtype = IValueMeta.TYPE_INTEGER;
@@ -4797,7 +4798,7 @@ public class ValueMetaBase implements IValueMeta {
   }
 
   @Override
-  public IValueMeta getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
+  public IValueMeta getMetadataPreview( IVariables variables, DatabaseMeta databaseMeta, ResultSet rs )
     throws HopDatabaseException {
 
     try {
@@ -4958,7 +4959,7 @@ public class ValueMetaBase implements IValueMeta {
           valtype = IValueMeta.TYPE_DATE;
           //
           if ( databaseMeta.isMySqlVariant() ) {
-            String property = databaseMeta.getConnectionProperties().getProperty( "yearIsDateType" );
+            String property = databaseMeta.getConnectionProperties(variables).getProperty( "yearIsDateType" );
             if ( property != null && property.equalsIgnoreCase( "false" )
               && "YEAR".equalsIgnoreCase( originalColumnTypeName ) ) {
               valtype = IValueMeta.TYPE_INTEGER;
@@ -5282,7 +5283,7 @@ public class ValueMetaBase implements IValueMeta {
 
   @Override
   public String getDatabaseColumnTypeDefinition( IDatabase iDatabase, String tk, String pk,
-                                                 boolean useAutoInc, boolean addFieldname, boolean addCr ) {
+                                                 boolean useAutoIncrement, boolean addFieldName, boolean addCr ) {
     return null; // No default suggestions...
   }
 

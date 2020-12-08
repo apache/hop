@@ -31,9 +31,16 @@ import org.apache.hop.core.logging.HopLoggingEvent;
 import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.databases.sqlite.SqliteDatabaseMeta;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.mockito.Spy;
 
 import java.sql.PreparedStatement;
@@ -44,7 +51,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 
 public class SQLiteValueMetaBaseTest {
   @ClassRule public static RestoreHopEnvironment env = new RestoreHopEnvironment();
@@ -57,17 +66,17 @@ public class SQLiteValueMetaBaseTest {
   private Class<?> PKG = ValueMetaBase.PKG;
   private StoreLoggingEventListener listener;
 
-  @Spy
-  private DatabaseMeta databaseMetaSpy = spy( new DatabaseMeta() );
-  private PreparedStatement preparedStatementMock = mock( PreparedStatement.class );
+  @Spy private DatabaseMeta databaseMetaSpy = spy(new DatabaseMeta());
+  private PreparedStatement preparedStatementMock = mock(PreparedStatement.class);
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
   private ValueMetaBase valueMetaBase;
+  private IVariables variables;
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
-    PluginRegistry.addPluginType( ValueMetaPluginType.getInstance() );
-    PluginRegistry.addPluginType( DatabasePluginType.getInstance() );
+    PluginRegistry.addPluginType(ValueMetaPluginType.getInstance());
+    PluginRegistry.addPluginType(DatabasePluginType.getInstance());
     PluginRegistry.init();
     HopLogStore.init();
   }
@@ -75,16 +84,17 @@ public class SQLiteValueMetaBaseTest {
   @Before
   public void setUp() {
     listener = new StoreLoggingEventListener();
-    HopLogStore.getAppender().addLoggingEventListener( listener );
+    HopLogStore.getAppender().addLoggingEventListener(listener);
 
     valueMetaBase = new ValueMetaBase();
-    dbMeta = spy( new DatabaseMeta() );
-    resultSet = mock( ResultSet.class );
+    dbMeta = spy(new DatabaseMeta());
+    resultSet = mock(ResultSet.class);
+    variables = spy(new Variables());
   }
 
   @After
   public void tearDown() {
-    HopLogStore.getAppender().removeLoggingEventListener( listener );
+    HopLogStore.getAppender().removeLoggingEventListener(listener);
     listener = new StoreLoggingEventListener();
   }
 
@@ -93,8 +103,8 @@ public class SQLiteValueMetaBaseTest {
     private List<HopLoggingEvent> events = new ArrayList<>();
 
     @Override
-    public void eventAdded( HopLoggingEvent event ) {
-      events.add( event );
+    public void eventAdded(HopLoggingEvent event) {
+      events.add(event);
     }
 
     public List<HopLoggingEvent> getEvents() {
@@ -104,11 +114,11 @@ public class SQLiteValueMetaBaseTest {
 
   @Ignore
   @Test
-  public void testMetdataPreviewSqlBinaryToHopStringUsingSqlite() throws SQLException, HopDatabaseException {
-    doReturn( Types.BINARY ).when( resultSet ).getInt( "DATA_TYPE" );
-    doReturn( mock( SqliteDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
-    assertTrue( valueMeta.isString() );
+  public void testMetdataPreviewSqlBinaryToHopStringUsingSqlite()
+      throws SQLException, HopDatabaseException {
+    doReturn(Types.BINARY).when(resultSet).getInt("DATA_TYPE");
+    doReturn(mock(SqliteDatabaseMeta.class)).when(dbMeta).getIDatabase();
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview(variables, dbMeta, resultSet);
+    assertTrue(valueMeta.isString());
   }
-
 }

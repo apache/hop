@@ -23,15 +23,12 @@
 package org.apache.hop.core.parameters;
 
 /**
- * Interface to implement named parameters.
+ * This contains only parameter definitions without the possibility to actually give values to them.
  *
- * @author Sven Boden
  */
-public interface INamedParams {
+public interface INamedParameterDefinitions {
   /**
    * Add a parameter definition to this set.
-   * <p>
-   * TODO: default, throw exception
    *
    * @param key         Name of the parameter.
    * @param defValue    default value.
@@ -39,24 +36,6 @@ public interface INamedParams {
    * @throws DuplicateParamException Upon duplicate parameter definitions
    */
   void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException;
-
-  /**
-   * Set the value of a parameter.
-   *
-   * @param key   key to set value of
-   * @param value value to set it to.
-   * @throws UnknownParamException Parameter 'key' is unknown.
-   */
-  void setParameterValue( String key, String value ) throws UnknownParamException;
-
-  /**
-   * Get the value of a parameter.
-   *
-   * @param key Key to get value for.
-   * @return value of parameter key.
-   * @throws UnknownParamException Parameter 'key' is unknown.
-   */
-  String getParameterValue( String key ) throws UnknownParamException;
 
   /**
    * Get the description of a parameter.
@@ -84,33 +63,7 @@ public interface INamedParams {
   String[] listParameters();
 
   /**
-   * Clear the values.
+   * Remove all defined parameters
    */
-  void eraseParameters();
-
-  /**
-   * Copy params to these named parameters (clearing out first).
-   *
-   * @param params the parameters to copy from.
-   */
-  void copyParametersFrom( INamedParams params );
-
-  /**
-   * Merge the given named parameters with current ones.
-   *
-   * @param params  the parameters to merge with.
-   * @param replace replace if exists
-   */
-  default void mergeParametersWith( INamedParams params, boolean replace ) {
-  }
-
-  /**
-   * Activate the currently set parameters
-   */
-  void activateParameters();
-
-  /**
-   * Clear all parameters
-   */
-  void clearParameters();
+  void removeAllParameters();
 }

@@ -41,7 +41,8 @@ import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspec
 import java.util.ArrayList;
 import java.util.List;
 
-public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implements IGuiContextHandler {
+public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
+    implements IGuiContextHandler {
 
   public static final String CONTEXT_ID = "HopGuiPipelineTransformContext";
 
@@ -51,7 +52,11 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
   private Point click;
   private GuiActionLambdaBuilder<HopGuiPipelineTransformContext> lambdaBuilder;
 
-  public HopGuiPipelineTransformContext( PipelineMeta pipelineMeta, TransformMeta transformMeta, HopGuiPipelineGraph pipelineGraph, Point click ) {
+  public HopGuiPipelineTransformContext(
+      PipelineMeta pipelineMeta,
+      TransformMeta transformMeta,
+      HopGuiPipelineGraph pipelineGraph,
+      Point click) {
     super();
     this.pipelineMeta = pipelineMeta;
     this.transformMeta = transformMeta;
@@ -65,12 +70,13 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
   }
 
   /**
-   * Create a list of supported actions on a pipeline.
-   * We'll add the creation of every possible transform as well as the modification of the pipeline itself.
+   * Create a list of supported actions on a pipeline. We'll add the creation of every possible
+   * transform as well as the modification of the pipeline itself.
    *
    * @return The list of supported actions
    */
-  @Override public List<GuiAction> getSupportedActions() {
+  @Override
+  public List<GuiAction> getSupportedActions() {
     List<GuiAction> actions = new ArrayList<>();
 
     // Put references at the start since we use those things a lot
@@ -78,59 +84,66 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
     ITransformMeta iTransformMeta = transformMeta.getTransform();
 
     String[] objectDescriptions = iTransformMeta.getReferencedObjectDescriptions();
-    for ( int i = 0; objectDescriptions != null && i < objectDescriptions.length; i++ ) {
-      final String objectDescription = objectDescriptions[ i ];
-      if ( iTransformMeta.isReferencedObjectEnabled()[ i ] ) {
+    for (int i = 0; objectDescriptions != null && i < objectDescriptions.length; i++) {
+      final String objectDescription = objectDescriptions[i];
+      if (iTransformMeta.isReferencedObjectEnabled()[i]) {
         final int index = i;
-        GuiAction openReferencedAction = new GuiAction(
-          "transform-open-referenced-"+objectDescription,
-          GuiActionType.Info,
-          "open: " + objectDescription,
-          "This opens up the file referenced in the transform",
-          "ui/images/open.svg",
-          ( shiftAction, controlAction, t ) -> openReferencedObject( iTransformMeta, objectDescription, index )
-        );
-        openReferencedAction.setCategory( "Basic" );
-        openReferencedAction.setCategoryOrder( "1" );
-        actions.add( openReferencedAction );
+        GuiAction openReferencedAction =
+            new GuiAction(
+                "transform-open-referenced-" + objectDescription,
+                GuiActionType.Info,
+                "open: " + objectDescription,
+                "This opens up the file referenced in the transform",
+                "ui/images/open.svg",
+                (shiftAction, controlAction, t) ->
+                    openReferencedObject(iTransformMeta, objectDescription, index));
+        openReferencedAction.setCategory("Basic");
+        openReferencedAction.setCategoryOrder("1");
+        actions.add(openReferencedAction);
       }
     }
 
     // Get the actions from the plugins, sorted by ID...
     //
-    List<GuiAction> pluginActions = getPluginActions( true );
-    if ( pluginActions != null ) {
-      for ( GuiAction pluginAction : pluginActions ) {
-        actions.add( lambdaBuilder.createLambda( pluginAction, this, pipelineGraph ) );
+    List<GuiAction> pluginActions = getPluginActions(true);
+    if (pluginActions != null) {
+      for (GuiAction pluginAction : pluginActions) {
+        actions.add(lambdaBuilder.createLambda(pluginAction, this, pipelineGraph));
       }
     }
 
     return actions;
   }
 
-  private void openReferencedObject( ITransformMeta iTransformMeta, String objectDescription, int index ) {
+  private void openReferencedObject(
+      ITransformMeta iTransformMeta, String objectDescription, int index) {
     HopGui hopGui = HopGui.getInstance();
     try {
-      IHasFilename hasFilename = iTransformMeta.loadReferencedObject( index, pipelineMeta.getMetadataProvider(), pipelineMeta );
-      if ( hasFilename != null ) {
-        String filename = pipelineMeta.environmentSubstitute( hasFilename.getFilename() );
+      IHasFilename hasFilename =
+          iTransformMeta.loadReferencedObject(
+              index, pipelineMeta.getMetadataProvider(), pipelineGraph.getVariables());
+      if (hasFilename != null) {
+        String filename =
+            pipelineGraph.getVariables().environmentSubstitute(hasFilename.getFilename());
 
         // Is this object already loaded?
         //
         HopDataOrchestrationPerspective perspective = HopGui.getDataOrchestrationPerspective();
-        TabItemHandler tabItemHandler = perspective.findTabItemHandlerWithFilename( filename );
-        if ( tabItemHandler != null ) {
-          perspective.switchToTab( tabItemHandler );
+        TabItemHandler tabItemHandler = perspective.findTabItemHandlerWithFilename(filename);
+        if (tabItemHandler != null) {
+          perspective.switchToTab(tabItemHandler);
         } else {
-          hopGui.fileDelegate.fileOpen( filename );
+          hopGui.fileDelegate.fileOpen(filename);
         }
       }
-    } catch ( Exception e ) {
-      new ErrorDialog( hopGui.getShell(), "Error", "Error opening referenced object '" + objectDescription + "'", e );
+    } catch (Exception e) {
+      new ErrorDialog(
+          hopGui.getShell(),
+          "Error",
+          "Error opening referenced object '" + objectDescription + "'",
+          e);
     }
   }
-
-
 
   /**
    * Gets pipelineMeta
@@ -141,10 +154,8 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
     return pipelineMeta;
   }
 
-  /**
-   * @param pipelineMeta The pipelineMeta to set
-   */
-  public void setPipelineMeta( PipelineMeta pipelineMeta ) {
+  /** @param pipelineMeta The pipelineMeta to set */
+  public void setPipelineMeta(PipelineMeta pipelineMeta) {
     this.pipelineMeta = pipelineMeta;
   }
 
@@ -157,10 +168,8 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
     return transformMeta;
   }
 
-  /**
-   * @param transformMeta The transformMeta to set
-   */
-  public void setTransformMeta( TransformMeta transformMeta ) {
+  /** @param transformMeta The transformMeta to set */
+  public void setTransformMeta(TransformMeta transformMeta) {
     this.transformMeta = transformMeta;
   }
 
@@ -173,10 +182,8 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
     return pipelineGraph;
   }
 
-  /**
-   * @param pipelineGraph The pipelineGraph to set
-   */
-  public void setPipelineGraph( HopGuiPipelineGraph pipelineGraph ) {
+  /** @param pipelineGraph The pipelineGraph to set */
+  public void setPipelineGraph(HopGuiPipelineGraph pipelineGraph) {
     this.pipelineGraph = pipelineGraph;
   }
 
@@ -189,10 +196,8 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler implem
     return click;
   }
 
-  /**
-   * @param click The click to set
-   */
-  public void setClick( Point click ) {
+  /** @param click The click to set */
+  public void setClick(Point click) {
     this.click = click;
   }
 }

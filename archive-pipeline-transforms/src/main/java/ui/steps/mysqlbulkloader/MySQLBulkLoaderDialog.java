@@ -156,8 +156,8 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
    */
   private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
 
-  public MySQLBulkLoaderDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public MySQLBulkLoaderDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (MySQLBulkLoaderMeta) in;
     inputFields = new HashMap<String, Integer>();
   }
@@ -224,7 +224,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlSchema.top = new FormAttachment( wConnection, margin * 2 );
     wlSchema.setLayoutData( fdlSchema );
 
-    wSchema = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsMod );
     wSchema.addFocusListener( lsFocusLost );
@@ -251,7 +251,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdbTable.right = new FormAttachment( 100, 0 );
     fdbTable.top = new FormAttachment( wSchema, margin );
     wbTable.setLayoutData( fdbTable );
-    wTable = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTable = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsMod );
     wTable.addFocusListener( lsFocusLost );
@@ -270,7 +270,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlFifoFile.right = new FormAttachment( middle, -margin );
     fdlFifoFile.top = new FormAttachment( wTable, margin );
     wlFifoFile.setLayoutData( fdlFifoFile );
-    wFifoFile = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFifoFile = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFifoFile );
     wFifoFile.addModifyListener( lsMod );
     fdFifoFile = new FormData();
@@ -295,7 +295,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdbDelimiter.top = new FormAttachment( wFifoFile, margin );
     fdbDelimiter.right = new FormAttachment( 100, 0 );
     wbDelimiter.setLayoutData( fdbDelimiter );
-    wDelimiter = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDelimiter = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDelimiter );
     wDelimiter.addModifyListener( lsMod );
     fdDelimiter = new FormData();
@@ -322,7 +322,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlEnclosure.right = new FormAttachment( middle, -margin );
     fdlEnclosure.top = new FormAttachment( wDelimiter, margin );
     wlEnclosure.setLayoutData( fdlEnclosure );
-    wEnclosure = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEnclosure = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEnclosure );
     wEnclosure.addModifyListener( lsMod );
     fdEnclosure = new FormData();
@@ -340,7 +340,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlEscapeChar.right = new FormAttachment( middle, -margin );
     fdlEscapeChar.top = new FormAttachment( wEnclosure, margin );
     wlEscapeChar.setLayoutData( fdlEscapeChar );
-    wEscapeChar = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEscapeChar = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEscapeChar );
     wEscapeChar.addModifyListener( lsMod );
     fdEscapeChar = new FormData();
@@ -358,7 +358,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlCharSet.right = new FormAttachment( middle, -margin );
     fdlCharSet.top = new FormAttachment( wEscapeChar, margin );
     wlCharSet.setLayoutData( fdlCharSet );
-    wCharSet = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCharSet = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCharSet );
     wCharSet.addModifyListener( lsMod );
     fdCharSet = new FormData();
@@ -376,7 +376,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     fdlBulkSize.right = new FormAttachment( middle, -margin );
     fdlBulkSize.top = new FormAttachment( wCharSet, margin );
     wlBulkSize.setLayoutData( fdlBulkSize );
-    wBulkSize = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBulkSize = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBulkSize );
     wBulkSize.addModifyListener( lsMod );
     fdBulkSize = new FormData();
@@ -502,7 +502,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     tableFieldColumns.add( ciReturn[ 0 ] );
     wReturn =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
     wGetLU = new Button( shell, SWT.PUSH );
@@ -541,7 +541,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -640,7 +640,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     IRowMeta targetFields;
 
     try {
-      sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      sourceFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.DoMapping.UnableToFindSourceFields.Title" ),
@@ -649,10 +649,10 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
     }
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
-    input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
+    input.setTableName( variables.environmentSubstitute( wTable.getText() ) );
     ITransform transformMetaInterface = transformMeta.getITransform();
     try {
-      targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
+      targetFields = transformMetaInterface.getRequiredFields( variables );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.DoMapping.UnableToFindTargetFields.Title" ),
@@ -881,7 +881,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
         logDebug( BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
       }
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -897,7 +897,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
 
   private void getUpdate() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
           public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
@@ -930,7 +930,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
         new TransformMeta( BaseMessages.getString( PKG, "MySQLBulkLoaderDialog.TransformMeta.Title" ), name, info );
-      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( variables, transformName );
 
       SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
@@ -978,7 +978,7 @@ public class MySQLBulkLoaderDialog extends BaseTransformDialog implements ITrans
                 db.connect();
 
                 String schemaTable =
-                  ci.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
+                  ci.getQuotedSchemaTableCombination( variables.environmentSubstitute( schemaName ), pipelineMeta
                     .environmentSubstitute( tableName ) );
                 IRowMeta r = db.getTableFields( schemaTable );
                 if ( null != r ) {

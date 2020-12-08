@@ -35,6 +35,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -114,8 +115,8 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
   private Map<String, Integer> inputFields;
 
-  public ConcatFieldsDialog(Shell parent, Object in, PipelineMeta transMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, transMeta, sname );
+  public ConcatFieldsDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ConcatFieldsMeta) in;
     inputFields = new HashMap<String, Integer>();
   }
@@ -174,7 +175,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     fdlTargetFieldName.top = new FormAttachment( wTransformName, margin );
     fdlTargetFieldName.right = new FormAttachment( middle, -margin );
     wlTargetFieldName.setLayoutData( fdlTargetFieldName );
-    wTargetFieldName = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTargetFieldName = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTargetFieldName.setText( "" );
     props.setLook( wTargetFieldName );
     wTargetFieldName.addModifyListener( lsMod );
@@ -228,7 +229,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
       }
     } );
 
-    wSeparator = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeparator = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSeparator );
     wSeparator.addModifyListener( lsMod );
     fdSeparator = new FormData();
@@ -246,7 +247,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     fdlEnclosure.top = new FormAttachment( wSeparator, margin );
     fdlEnclosure.right = new FormAttachment( middle, -margin );
     wlEnclosure.setLayoutData( fdlEnclosure );
-    wEnclosure = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEnclosure = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEnclosure );
     wEnclosure.addModifyListener( lsMod );
     fdEnclosure = new FormData();
@@ -345,7 +346,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
     wFields =
       new TableView(
-        pipelineMeta, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -362,7 +363,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -443,7 +444,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     // Whenever something changes, set the tooltip to the expanded version:
     wTargetFieldName.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        wTargetFieldName.setToolTipText( pipelineMeta.environmentSubstitute( wTargetFieldName.getText() ) );
+        wTargetFieldName.setToolTipText( variables.environmentSubstitute( wTargetFieldName.getText() ) );
       }
     } );
 
@@ -607,7 +608,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = new ITableItemInsertListener() {
           public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {

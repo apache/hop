@@ -86,7 +86,7 @@ public class NextSequenceValueServlet extends BaseHttpServlet implements IHopSer
         out.println( XmlHandler.addTagValue( XML_TAG_ERROR, "Server sequence '" + name + "' could not be found." ) );
       } else {
         ILoggingObject loggingObject = new SimpleLoggingObject( "HopServer", LoggingObjectType.HOP_SERVER, null );
-        long nextValue = hopServerSequence.getNextValue( loggingObject, increment );
+        long nextValue = hopServerSequence.getNextValue( variables, loggingObject, increment );
         out.println( XmlHandler.addTagValue( XML_TAG_VALUE, nextValue ) );
         out.println( XmlHandler.addTagValue( XML_TAG_INCREMENT, increment ) );
       }

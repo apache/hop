@@ -98,7 +98,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
         }
       } else {
         if ( !Utils.isEmpty( data.schemaname ) ) {
-          data.tableName = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.schemaname, data.tableName );
+          data.tableName = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( this, data.schemaname, data.tableName );
         } else {
           data.tableName = data.db.getDatabaseMeta().quoteField( data.tableName );
         }
@@ -124,7 +124,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
       if ( meta.isTablenameInField() ) {
         data.tableName = getInputRowMeta().getString( r, data.indexOfTablename );
         if ( !Utils.isEmpty( data.schemaname ) ) {
-          data.tableName = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( data.schemaname, data.tableName );
+          data.tableName = data.db.getDatabaseMeta().getQuotedSchemaTableCombination( this, data.schemaname, data.tableName );
         } else {
           data.tableName = data.db.getDatabaseMeta().quoteField( data.tableName );
         }

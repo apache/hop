@@ -23,6 +23,7 @@
 package org.apache.hop.pipeline.transforms.filemetadata;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -90,11 +91,11 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
    *
    * @param parent    the SWT shell to open the dialog in
    * @param in        the meta object holding the step's settings
-   * @param transMeta transformation description
+   * @param pipelineMeta transformation description
    * @param sname     the step name
    */
-  public FileMetadataDialog(Shell parent, Object in, PipelineMeta transMeta, String sname) {
-    super(parent, (BaseTransformMeta) in, transMeta, sname);
+  public FileMetadataDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     meta = (FileMetadataMeta) in;
   }
 
@@ -103,7 +104,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 //  private String[] getFieldListForCombo() {
 //    String[] items;
 //    try {
-//      RowMetaInterface r = transMeta.getPrevTransformFields(TransformName);
+//      RowMetaInterface r = pipelineMeta.getPrevTransformFields(TransformName);
 //      items = r.getFieldNames();
 //    } catch (KettleException exception) {
 //      items = emptyFieldList;
@@ -238,7 +239,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     fdlFilename.left = new FormAttachment(0, 0);
     fdlFilename.right = new FormAttachment(middle, -margin);
     wlFilename.setLayoutData(fdlFilename);
-    wFilename = new TextVar(pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFilename);
     wFilename.addModifyListener(lsMod);
     FormData fdFilename = new FormData();
@@ -268,7 +269,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     fdlLimit.right = new FormAttachment( middle, -margin );
     fdlLimit.top = new FormAttachment( 0, margin );
     wlLimit.setLayoutData( fdlLimit );
-    wLimit = new TextVar( pipelineMeta, gDelimitedLayout, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLimit = new TextVar( variables, gDelimitedLayout, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLimit.setToolTipText( BaseMessages.getString( PKG, "FileMetadata.methods.DELIMITED_FIELDS.limit.tooltip" ) );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
@@ -289,7 +290,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
     fdlDefaultCharset.left = new FormAttachment( 0, 0 );
     fdlDefaultCharset.right = new FormAttachment( middle, -margin );
     wlEncoding.setLayoutData( fdlDefaultCharset );
-    wDefaultCharset = new ComboVar( pipelineMeta, gDelimitedLayout, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDefaultCharset = new ComboVar( variables, gDelimitedLayout, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook(wDefaultCharset);
     wDefaultCharset.addModifyListener(lsMod);
     FormData fdDefaultCharset = new FormData();
@@ -320,7 +321,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     colinf[0].setUsingVariables(true);
 
-    wDelimiterCandidates = new TableView(pipelineMeta, gDelimitedLayout, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, candidateCount, lsMod, props);
+    wDelimiterCandidates = new TableView(variables, gDelimitedLayout, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, candidateCount, lsMod, props);
     FormData fdDelimiterCandidates = new FormData();
     fdDelimiterCandidates.left = new FormAttachment(0, 0);
     fdDelimiterCandidates.right = new FormAttachment(100, 0);
@@ -336,7 +337,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
 
     colinf[0].setUsingVariables(true);
 
-    wEnclosureCandidates = new TableView(pipelineMeta, gDelimitedLayout, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, candidateCount, lsMod, props);
+    wEnclosureCandidates = new TableView(variables, gDelimitedLayout, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, candidateCount, lsMod, props);
     FormData fdEnclosureCandidates = new FormData();
     fdEnclosureCandidates.left = new FormAttachment(0, 0);
     fdEnclosureCandidates.right = new FormAttachment(100, 0);
@@ -380,7 +381,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
         FileDialog dialog = new FileDialog(shell, SWT.OPEN);
         dialog.setFilterExtensions(new String[]{"*.txt;*.csv", "*.csv", "*.txt", "*"});
         if (wFilename.getText() != null) {
-          String fileName = pipelineMeta.environmentSubstitute(wFilename.getText());
+          String fileName = variables.environmentSubstitute(wFilename.getText());
           dialog.setFileName(fileName);
         }
 

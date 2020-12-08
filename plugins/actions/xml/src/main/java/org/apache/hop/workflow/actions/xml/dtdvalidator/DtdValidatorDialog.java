@@ -141,7 +141,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     fdbxmlFilename.right = new FormAttachment( 100, 0 );
     fdbxmlFilename.top = new FormAttachment( wName, 0 );
     wbxmlFilename.setLayoutData(fdbxmlFilename);
-    wxmlFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wxmlFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wxmlFilename );
     wxmlFilename.addModifyListener( lsMod );
     FormData fdxmlFilename = new FormData();
@@ -151,14 +151,14 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     wxmlFilename.setLayoutData(fdxmlFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) ) );
+    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( variables.environmentSubstitute( wxmlFilename.getText() ) ) );
 
     wbxmlFilename.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
         if ( wxmlFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) );
+          dialog.setFileName( variables.environmentSubstitute( wxmlFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XML );
         if ( dialog.open() != null ) {
@@ -208,7 +208,7 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     fdbdtdFilename.right = new FormAttachment( 100, 0 );
     fdbdtdFilename.top = new FormAttachment( wDTDIntern, 0 );
     wbdtdFilename.setLayoutData(fdbdtdFilename);
-    wdtdFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wdtdFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wdtdFilename );
     wdtdFilename.addModifyListener( lsMod );
     FormData fddtdFilename = new FormData();
@@ -218,14 +218,14 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     wdtdFilename.setLayoutData(fddtdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wdtdFilename.addModifyListener( e -> wdtdFilename.setToolTipText( workflowMeta.environmentSubstitute( wdtdFilename.getText() ) ) );
+    wdtdFilename.addModifyListener( e -> wdtdFilename.setToolTipText( variables.environmentSubstitute( wdtdFilename.getText() ) ) );
 
     wbdtdFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.dtd;*.DTD", "*" } );
         if ( wdtdFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wdtdFilename.getText() ) );
+          dialog.setFileName( variables.environmentSubstitute( wdtdFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_DTD );
         if ( dialog.open() != null ) {

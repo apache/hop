@@ -276,8 +276,8 @@ public class SalesforceUpsertMeta extends SalesforceTransformMeta<SalesforceUpse
 
   /* This function adds meta data to the rows being pushed out */
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-    IVariables space,  IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    String realfieldname = space.environmentSubstitute( getSalesforceIDFieldName() );
+    IVariables variables,  IHopMetadataProvider metadataProvider ) throws HopTransformException {
+    String realfieldname = variables.environmentSubstitute( getSalesforceIDFieldName() );
     if ( !Utils.isEmpty( realfieldname ) ) {
       IValueMeta v = new ValueMetaString( realfieldname );
       v.setLength( 18 );

@@ -27,6 +27,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -190,8 +191,8 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
   private ColumnInfo[] colinf;
 
-  public SalesforceInputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, in, pipelineMeta, sname );
+  public SalesforceInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, in, pipelineMeta, sname );
     input = (SalesforceInputMeta) in;
   }
 
@@ -300,7 +301,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     props.setLook( wConnectionGroup );
 
     // Webservice URL
-    wURL = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wURL = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceInputDialog.URL.Label" ),
       BaseMessages.getString( PKG, "SalesforceInputDialog.URL.Tooltip" ) );
     props.setLook( wURL );
@@ -312,7 +313,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wURL.setLayoutData( fdURL );
 
     // UserName line
-    wUserName = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wUserName = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceInputDialog.User.Label" ),
       BaseMessages.getString( PKG, "SalesforceInputDialog.User.Tooltip" ) );
     props.setLook( wUserName );
@@ -324,7 +325,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wUserName.setLayoutData( fdUserName );
 
     // Password line
-    wPassword = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wPassword = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceInputDialog.Password.Label" ),
       BaseMessages.getString( PKG, "SalesforceInputDialog.Password.Tooltip" ), true );
     props.setLook( wPassword );
@@ -398,7 +399,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlModule.top = new FormAttachment( wSpecifyQuery, margin );
     fdlModule.right = new FormAttachment( middle, -margin );
     wlModule.setLayoutData( fdlModule );
-    wModule = new ComboVar( pipelineMeta, wSettingsGroup, SWT.BORDER | SWT.READ_ONLY );
+    wModule = new ComboVar( variables, wSettingsGroup, SWT.BORDER | SWT.READ_ONLY );
     wModule.setEditable( true );
     props.setLook( wModule );
     wModule.addModifyListener( lsMod );
@@ -445,7 +446,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlCondition.setLayoutData( fdlCondition );
 
     wCondition =
-      new StyledTextComp( pipelineMeta, wSettingsGroup, SWT.MULTI
+      new StyledTextComp( variables, wSettingsGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     wCondition.setToolTipText( BaseMessages.getString( PKG, "SalesforceInputDialog.Condition.Tooltip" ) );
     props.setLook( wCondition, Props.WIDGET_STYLE_FIXED );
@@ -517,7 +518,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     wlQuery.setLayoutData( fdlQuery );
 
     wQuery =
-      new StyledTextComp( pipelineMeta, wSettingsGroup, SWT.MULTI
+      new StyledTextComp( variables, wSettingsGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wQuery, Props.WIDGET_STYLE_FIXED );
     wQuery.addModifyListener( lsMod );
@@ -724,7 +725,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlReadFrom.top = new FormAttachment( wQueryAll, margin );
     fdlReadFrom.right = new FormAttachment( middle, -margin );
     wlReadFrom.setLayoutData( fdlReadFrom );
-    wReadFrom = new TextVar( pipelineMeta, wAdvancedGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReadFrom = new TextVar( variables, wAdvancedGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReadFrom.setToolTipText( BaseMessages.getString( PKG, "SalesforceInputDialog.ReadFrom.Tooltip" ) );
     props.setLook( wReadFrom );
     wReadFrom.addModifyListener( lsMod );
@@ -784,7 +785,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlReadTo.top = new FormAttachment( wReadFrom, 2 * margin );
     fdlReadTo.right = new FormAttachment( middle, -margin );
     wlReadTo.setLayoutData( fdlReadTo );
-    wReadTo = new TextVar( pipelineMeta, wAdvancedGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReadTo = new TextVar( variables, wAdvancedGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReadTo.setToolTipText( BaseMessages.getString( PKG, "SalesforceInputDialog.ReadTo.Tooltip" ) );
     props.setLook( wReadTo );
     wReadTo.addModifyListener( lsMod );
@@ -849,7 +850,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlInclURLField.left = new FormAttachment( wInclURL, margin );
     fdlInclURLField.top = new FormAttachment( wAdvancedGroup, margin );
     wlInclURLField.setLayoutData( fdlInclURLField );
-    wInclURLField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclURLField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wlInclURLField );
     wInclURLField.addModifyListener( lsMod );
     fdInclURLField = new FormData();
@@ -891,7 +892,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlInclModuleField.left = new FormAttachment( wInclModule, margin );
     fdlInclModuleField.top = new FormAttachment( wInclURLField, margin );
     wlInclModuleField.setLayoutData( fdlInclModuleField );
-    wInclModuleField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclModuleField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclModuleField );
     wInclModuleField.addModifyListener( lsMod );
     fdInclModuleField = new FormData();
@@ -932,7 +933,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlInclSQLField.left = new FormAttachment( wInclSQL, margin );
     fdlInclSQLField.top = new FormAttachment( wInclModuleField, margin );
     wlInclSQLField.setLayoutData( fdlInclSQLField );
-    wInclSQLField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclSQLField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wlInclSQLField );
     wInclSQLField.addModifyListener( lsMod );
     fdInclSQLField = new FormData();
@@ -973,7 +974,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlInclTimestampField.left = new FormAttachment( wInclTimestamp, margin );
     fdlInclTimestampField.top = new FormAttachment( wInclSQLField, margin );
     wlInclTimestampField.setLayoutData( fdlInclTimestampField );
-    wInclTimestampField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclTimestampField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wlInclTimestampField );
     wInclTimestampField.addModifyListener( lsMod );
     fdInclTimestampField = new FormData();
@@ -1015,7 +1016,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlInclRownumField.left = new FormAttachment( wInclRownum, margin );
     fdlInclRownumField.top = new FormAttachment( wInclTimestampField, margin );
     wlInclRownumField.setLayoutData( fdlInclRownumField );
-    wInclRownumField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclRownumField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclRownumField );
     wInclRownumField.addModifyListener( lsMod );
     FormData fdInclRownumField = new FormData();
@@ -1058,7 +1059,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlInclDeletionDateField.left = new FormAttachment( wInclDeletionDate, margin );
     fdlInclDeletionDateField.top = new FormAttachment( wInclRownumField, margin );
     wlInclDeletionDateField.setLayoutData( fdlInclDeletionDateField );
-    wInclDeletionDateField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclDeletionDateField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclDeletionDateField );
     wInclDeletionDateField.addModifyListener( lsMod );
     fdInclDeletionDateField = new FormData();
@@ -1086,7 +1087,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlTimeOut.top = new FormAttachment( wAdditionalFields, 2 * margin );
     fdlTimeOut.right = new FormAttachment( middle, -margin );
     wlTimeOut.setLayoutData( fdlTimeOut );
-    wTimeOut = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
     fdTimeOut = new FormData();
@@ -1123,7 +1124,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     fdlLimit.top = new FormAttachment( wUseCompression, margin );
     fdlLimit.right = new FormAttachment( middle, -margin );
     wlLimit.setLayoutData( fdlLimit );
-    wLimit = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLimit = new TextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
     fdLimit = new FormData();
@@ -1219,7 +1220,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     colinf[1].setToolTip( BaseMessages.getString( PKG, "SalesforceInputDialog.FieldsTable.Field.Column.Tooltip" ) );
     colinf[2].setReadOnly( true );
     wFields =
-      new TableView( pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+      new TableView( variables, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -1361,18 +1362,18 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       wFields.removeAll();
 
       // get real values
-      String realModule = pipelineMeta.environmentSubstitute( meta.getModule() );
-      String realURL = pipelineMeta.environmentSubstitute( meta.getTargetUrl() );
-      String realUsername = pipelineMeta.environmentSubstitute( meta.getUsername() );
-      String realPassword = Utils.resolvePassword( pipelineMeta, meta.getPassword() );
-      int realTimeOut = Const.toInt( pipelineMeta.environmentSubstitute( meta.getTimeout() ), 0 );
+      String realModule = variables.environmentSubstitute( meta.getModule() );
+      String realURL = variables.environmentSubstitute( meta.getTargetUrl() );
+      String realUsername = variables.environmentSubstitute( meta.getUsername() );
+      String realPassword = Utils.resolvePassword( variables, meta.getPassword() );
+      int realTimeOut = Const.toInt( variables.environmentSubstitute( meta.getTimeout() ), 0 );
 
       connection = new SalesforceConnection( log, realURL, realUsername, realPassword );
       connection.setTimeOut( realTimeOut );
       String[] fieldsName = null;
       if ( meta.isSpecifyQuery() ) {
         // Free hand SOQL
-        String realQuery = pipelineMeta.environmentSubstitute( meta.getQuery() );
+        String realQuery = variables.environmentSubstitute( meta.getQuery() );
         connection.setSQL( realQuery );
         connection.connect();
         // We are connected, so let's query
@@ -1754,7 +1755,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       // check if the path is given
 
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, metadataProvider, oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( variables, metadataProvider, oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "SalesforceInputDialog.NumberRows.DialogTitle" ),
@@ -1763,7 +1764,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       if ( previewSize > 0 ) {
         PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-            shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+            shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
         progressDialog.open();
 
         if ( !progressDialog.isCancelled() ) {
@@ -1781,7 +1782,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
 
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
-              shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+              shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
                 .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
           prd.open();
         }
@@ -1802,12 +1803,12 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       try {
         SalesforceInputMeta meta = new SalesforceInputMeta();
         getInfo( meta );
-        String url = pipelineMeta.environmentSubstitute( meta.getTargetUrl() );
+        String url = variables.environmentSubstitute( meta.getTargetUrl() );
 
         // Define a new Salesforce connection
         connection =
-          new SalesforceConnection( log, url, pipelineMeta.environmentSubstitute( meta.getUsername() ),
-            Utils.resolvePassword( pipelineMeta, meta.getPassword() ) );
+          new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+            Utils.resolvePassword( variables, meta.getPassword() ) );
         // connect to Salesforce
         connection.connect();
 
@@ -1844,7 +1845,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     if ( wSpecifyQuery.getSelection() ) {
       control = wQuery;
     }
-    control.setToolTipText( pipelineMeta.environmentSubstitute( control.getText() ) );
+    control.setToolTipText( variables.environmentSubstitute( control.getText() ) );
   }
 
   public void setPosition() {

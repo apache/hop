@@ -127,7 +127,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
 
   /**
    * @param vs -
-   *           variable space to be used for searching variable value
+   *           variable variables to be used for searching variable value
    *           usually "this" for a calling transform
    * @return Returns the commitSize.
    */
@@ -347,7 +347,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareVariablesWith( variables );
       try {
         db.connect();
 
@@ -482,7 +482,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     }
   }
 
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -490,11 +490,11 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
       if ( prev != null && prev.size() > 0 ) {
         if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( pipelineMeta );
+          db.shareVariablesWith( variables );
           try {
             db.connect();
 
-            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
             String crTable = db.getDDL( schemaTable, prev, null, false, null, true );
 
             String crIndex = "";
@@ -540,7 +540,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
     return retval;
   }
 
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( prev != null ) {

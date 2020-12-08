@@ -24,6 +24,7 @@ package org.apache.hop.pipeline;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.TransformPartitioningMeta;
 
 /**
@@ -74,15 +75,16 @@ public abstract class BasePartitioner implements IPartitioner {
   }
 
   /**
-   * Inits the partitioner.
+   * Initialises the partitioner.
    *
+   * @param variables the variables to use to resolve variables expressions
    * @param rowMeta the row meta
    * @throws HopException the hop exception
    */
-  public void init( IRowMeta rowMeta ) throws HopException {
+  public void init( IVariables variables, IRowMeta rowMeta ) throws HopException {
 
     if ( nrPartitions < 0 ) {
-      nrPartitions = meta.getPartitionSchema().calculatePartitionIds().size();
+      nrPartitions = meta.getPartitionSchema().calculatePartitionIds(variables).size();
     }
 
   }

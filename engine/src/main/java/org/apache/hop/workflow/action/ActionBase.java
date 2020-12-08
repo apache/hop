@@ -474,7 +474,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Gets the SQL statements needed by this action to execute successfully, given a set of variables. For
    * ActionBase, this method returns an empty list.
    *
-   * @param variables a variable space object containing variable bindings
+   * @param variables a variable variables object containing variable bindings
    * @return an empty list
    * @throws HopException if any errors occur during the generation of SQL statements
    */
@@ -514,7 +514,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   }
 
   /**
-   * Copies variables from a given variable space to this action
+   * Copies variables from a given variable variables to this action
    *
    * @see IVariables#copyVariablesFrom(IVariables)
    */
@@ -551,9 +551,9 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   }
 
   /**
-   * Gets the parent variable space
+   * Gets the parent variable variables
    *
-   * @return the parent variable space
+   * @return the parent variable variables
    * @see IVariables#getParentVariableSpace()
    */
   @Override
@@ -562,7 +562,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   }
 
   /**
-   * Sets the parent variable space
+   * Sets the parent variable variables
    *
    * @see IVariables#setParentVariableSpace(
    *IVariables)
@@ -647,7 +647,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   }
 
   /**
-   * Shares a variable space from another variable space. This means that the object should take over the space used as
+   * Shares a variable variables from another variable variables. This means that the object should take over the variables used as
    * argument.
    *
    * @see IVariables#shareVariablesWith(IVariables)
@@ -659,7 +659,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
 
   /**
    * Injects variables using the given Map. The behavior should be that the properties object will be stored and at the
-   * time the IVariables is initialized (or upon calling this method if the space is already initialized). After
+   * time the IVariables is initialized (or upon calling this method if the variables is already initialized). After
    * injecting the link of the properties object should be removed.
    *
    * @see IVariables#injectVariables(java.util.Map)
@@ -674,7 +674,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    *
    * @param remarks   List of CheckResult objects indicating consistency status
    * @param workflowMeta   the metadata object for the action
-   * @param variables     the variable space to resolve string expressions with variables with
+   * @param variables     the variable variables to resolve string expressions with variables with
    * @param metadataProvider the MetaStore to load common elements from
    */
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IHopMetadataProvider metadataProvider ) {
@@ -688,8 +688,8 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @return an empty list of ResourceReferences
    * @see ResourceReference
    */
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    return new ArrayList<ResourceReference>( 5 ); // default: return an empty resource dependency list. Lower the
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    return new ArrayList<>( 5 ); // default: return an empty resource dependency list. Lower the
     // initial capacity
   }
 
@@ -698,7 +698,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param variables           The variable space to resolve (environment) variables with.
+   * @param variables           The variable variables to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metadataProvider       the metadataProvider to load external metadata from
@@ -1061,7 +1061,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metadataProvider the metadataProvider to load from
-   * @param variables     the variable space to use
+   * @param variables     the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */

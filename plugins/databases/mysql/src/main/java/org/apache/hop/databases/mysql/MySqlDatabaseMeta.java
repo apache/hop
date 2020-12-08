@@ -272,8 +272,8 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
 
     @Override
-    public String getFieldDefinition(IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                     boolean addFieldname, boolean addCR) {
+    public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
+                                      boolean addFieldName, boolean addCR) {
         String retval = "";
 
         String fieldname = v.getName();
@@ -283,7 +283,7 @@ public class MySqlDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
         int length = v.getLength();
         int precision = v.getPrecision();
 
-        if (addFieldname) {
+        if ( addFieldName ) {
             retval += fieldname + " ";
         }
 

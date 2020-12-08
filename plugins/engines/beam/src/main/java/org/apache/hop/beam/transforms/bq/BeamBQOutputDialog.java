@@ -24,6 +24,7 @@ package org.apache.hop.beam.transforms.bq;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -54,8 +55,8 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
   private Button wTruncateTable;
   private Button wFailIfNotEmpty;
 
-  public BeamBQOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public BeamBQOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent,variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (BeamBQOutputMeta) in;
   }
 
@@ -106,7 +107,7 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
     fdlProjectId.top = new FormAttachment( lastControl, margin );
     fdlProjectId.right = new FormAttachment( middle, -margin );
     wlProjectId.setLayoutData( fdlProjectId );
-    wProjectId = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProjectId = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wProjectId );
     FormData fdProjectId = new FormData();
     fdProjectId.left = new FormAttachment( middle, 0 );
@@ -123,7 +124,7 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
     fdlDatasetId.top = new FormAttachment( lastControl, margin );
     fdlDatasetId.right = new FormAttachment( middle, -margin );
     wlDatasetId.setLayoutData( fdlDatasetId );
-    wDatasetId = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDatasetId = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDatasetId );
     FormData fdDatasetId = new FormData();
     fdDatasetId.left = new FormAttachment( middle, 0 );
@@ -140,7 +141,7 @@ public class BeamBQOutputDialog extends BaseTransformDialog implements ITransfor
     fdlTableId.top = new FormAttachment( lastControl, margin );
     fdlTableId.right = new FormAttachment( middle, -margin );
     wlTableId.setLayoutData( fdlTableId );
-    wTableId = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTableId = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTableId );
     FormData fdTableId = new FormData();
     fdTableId.left = new FormAttachment( middle, 0 );

@@ -502,10 +502,10 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( serverName ) ) {
-      String realServername = workflowMeta.environmentSubstitute( serverName );
+      String realServername = environmentSubstitute( serverName );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
       references.add( reference );

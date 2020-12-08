@@ -54,9 +54,9 @@ import java.io.OutputStreamWriter;
 public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> implements ITransform<JsonOutputMeta, JsonOutputData> {
   private static final Class<?> PKG = JsonOutput.class; // for i18n purposes, needed by Translator2!!
 
-  public JsonOutput( TransformMeta transformMeta, JsonOutputMeta meta, JsonOutputData data, int copyNr, PipelineMeta transMeta,
+  public JsonOutput( TransformMeta transformMeta, JsonOutputMeta meta, JsonOutputData data, int copyNr, PipelineMeta pipelineMeta,
                      Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, transMeta, pipeline );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
 
     // Here we decide whether or not to build the structure in
     // compatible mode or fixed mode
@@ -379,7 +379,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
   }
 
   public String buildFilename() {
-    return meta.buildFilename( meta.getParentTransformMeta().getParentPipelineMeta(), getCopy() + "", null, data.splitnr + "",
+    return meta.buildFilename( variables, getCopy() + "", null, data.splitnr + "",
       false );
   }
 

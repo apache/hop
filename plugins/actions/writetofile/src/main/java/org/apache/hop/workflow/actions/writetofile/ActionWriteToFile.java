@@ -264,10 +264,10 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
     this.createParentFolder = createParentFolder;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( getFilename() ) ) {
-      String realFileName = workflowMeta.environmentSubstitute( getFilename() );
+      String realFileName = environmentSubstitute( getFilename() );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
       references.add( reference );

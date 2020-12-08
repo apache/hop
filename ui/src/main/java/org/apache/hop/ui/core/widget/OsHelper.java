@@ -87,7 +87,7 @@ public class OsHelper {
 
     // please note, the resulting string will be something like:
     // "Select All\t \u2318A"
-    // ^ this space is important so the menu does not get bound to a window
+    // ^ this variables is important so the menu does not get bound to a window
     // global accelerator
     // It's a workaround for apparently randomly enabled/disabled menu
     // items. In fact, they are just kept in synch

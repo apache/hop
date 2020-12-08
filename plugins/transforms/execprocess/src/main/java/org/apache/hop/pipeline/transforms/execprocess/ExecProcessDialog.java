@@ -28,6 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -64,8 +65,8 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
   private final ExecProcessMeta input;
   private boolean gotPreviousFields = false;
 
-  public ExecProcessDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ExecProcessDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ExecProcessMeta) in;
   }
 
@@ -277,7 +278,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wOutputComp.setLayout( fdOutputCompLayout );
 
     // Output Line Delimiter
-    wOutputDelim = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wOutputDelim = new LabelTextVar( variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.OutputDelimiterField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.OutputDelimiterField.Tooltip" ) );
     wOutputDelim.addModifyListener( lsMod );
@@ -288,7 +289,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wOutputDelim.setLayoutData(fdOutputDelim);
 
     // Result fieldname ...
-    wResult = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wResult = new LabelTextVar( variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.ResultField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.ResultField.Tooltip" ) );
     wResult.addModifyListener( lsMod );
@@ -299,7 +300,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wResult.setLayoutData(fdResult);
 
     // Error fieldname ...
-    wError = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wError = new LabelTextVar( variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.ErrorField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.ErrorField.Tooltip" ) );
     wError.addModifyListener( lsMod );
@@ -310,7 +311,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wError.setLayoutData(fdError);
 
     // ExitValue fieldname ...
-    wExitValue = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wExitValue = new LabelTextVar( variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.ExitValueField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.ExitValueField.Tooltip" ) );
     wExitValue.addModifyListener( lsMod );
@@ -372,7 +373,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
 
     IRowMeta r = null;
     try {
-      r = pipelineMeta.getPrevTransformFields( transformName );
+      r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         wArgumentFields.getColumns()[ 0 ].setComboValues( r.getFieldNames() );
       }
@@ -476,7 +477,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
       try {
         String fieldvalue = wProcess.getText();
         wProcess.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wProcess.setItems( r.getFieldNames() );
         }

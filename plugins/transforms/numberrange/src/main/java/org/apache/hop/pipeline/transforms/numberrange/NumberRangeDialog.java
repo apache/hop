@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -66,8 +67,8 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
   private Text fallBackValueControl;
   private TableView rulesControl;
 
-  public NumberRangeDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public NumberRangeDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (NumberRangeMeta) in;
   }
 
@@ -177,7 +178,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
     colinf[ 2 ] =
       new ColumnInfo( BaseMessages.getString( PKG, "NumberRange.Value" ), ColumnInfo.COLUMN_TYPE_TEXT, false );
 
-    rulesControl = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    rulesControl = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -348,7 +349,7 @@ public class NumberRangeDialog extends BaseTransformDialog implements ITransform
       if ( inputFieldControl.getText() != null ) {
         fieldvalue = inputFieldControl.getText();
       }
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         inputFieldControl.setItems( r.getFieldNames() );
       }

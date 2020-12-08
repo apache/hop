@@ -30,6 +30,8 @@ import org.apache.commons.vfs2.FileObject;
 import org.apache.commons.vfs2.FileSelectInfo;
 import org.apache.commons.vfs2.FileSelector;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopPluginException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.DefaultLogLevel;
@@ -908,5 +910,15 @@ public abstract class BasePluginType<T extends Annotation> implements IPluginTyp
    */
   public void setExtraLibraryFolders( List<String> extraLibraryFolders ) {
     this.extraLibraryFolders = extraLibraryFolders;
+  }
+
+  /**
+   * Register an extra plugin from the classpath. Useful for testing.
+   * @param clazz The class with the annotation to register to the plugin registry.
+   * @throws HopPluginException in case something goes wrong with the class or the annotation
+   */
+  public void registerClassPathPlugin(Class<?> clazz) throws HopPluginException {
+    T annotation = clazz.getAnnotation( pluginClass );
+    handlePluginAnnotation( clazz, annotation, new ArrayList<>(), true, null );
   }
 }

@@ -145,7 +145,7 @@ class UserDefinedJavaClassHighlight implements LineStyleListener {
           lastStyle = styles.lastElement();
           if ( lastStyle.fontStyle != SWT.NORMAL ) {
             if ( lastStyle.start + lastStyle.length == start ) {
-              // have the white space take on the style before it to minimize font style
+              // have the white variables take on the style before it to minimize font style
               // changes
               lastStyle.length += scanner.getLength();
             }

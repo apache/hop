@@ -352,7 +352,7 @@ public class ActionCopyFilesDialog extends ActionDialog implements IActionDialog
 
     wFields =
       new TableView(
-        getWorkflowMeta(), wFilesComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wFilesComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, margin );

@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.cubeinput;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -56,8 +57,8 @@ public class CubeInputDialog extends BaseTransformDialog implements ITransformDi
   private Button wAddResult;
   private final CubeInputMeta input;
 
-  public CubeInputDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public CubeInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (CubeInputMeta) in;
   }
 
@@ -117,7 +118,7 @@ public class CubeInputDialog extends BaseTransformDialog implements ITransformDi
     fdbFilename.right = new FormAttachment( 100, 0 );
     fdbFilename.top = new FormAttachment( wTransformName, margin + 5 );
     wbFilename.setLayoutData( fdbFilename );
-    wFilename = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -177,7 +178,7 @@ public class CubeInputDialog extends BaseTransformDialog implements ITransformDi
     wCancel.addListener( SWT.Selection, lsCancel );
     wOk.addListener( SWT.Selection, lsOk );
 
-    wbFilename.addListener( SWT.Selection, e -> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+    wbFilename.addListener( SWT.Selection, e -> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*.cube", "*" },
       new String[] {
         BaseMessages.getString( PKG, "CubeInputDialog.FilterNames.CubeFiles" ),

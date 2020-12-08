@@ -127,7 +127,7 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
    * Execute this action and return the result. In this case it means, just set the result boolean in the Result
    * class.
    *
-   * @param prev_result The result of the previous execution
+   * @param prevResult The result of the previous execution
    * @return The Result of the execution.
    */
   public Result execute( Result prevResult, int nr ) {

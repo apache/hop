@@ -557,11 +557,11 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return addfiletoresult;
   }
 
-  public List<ResourceReference> getResourceDependencies(WorkflowMeta jobMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( jobMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( ( !Utils.isEmpty( xslfilename ) ) && ( !Utils.isEmpty( xmlfilename ) ) ) {
-      String realXmlFileName = jobMeta.environmentSubstitute( xmlfilename );
-      String realXslFileName = jobMeta.environmentSubstitute( xslfilename );
+      String realXmlFileName = variables.environmentSubstitute( xmlfilename );
+      String realXslFileName = variables.environmentSubstitute( xslfilename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realXmlFileName, ResourceEntry.ResourceType.FILE ) );
       reference.getEntries().add( new ResourceEntry( realXslFileName, ResourceEntry.ResourceType.FILE ) );
@@ -571,7 +571,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables variables, IHopMetadataProvider metadataProvider ) {
     ValidatorContext ctx = new ValidatorContext();
     putVariableSpace( ctx, getVariables() );
     putValidators( ctx, notBlankValidator(), fileExistsValidator() );

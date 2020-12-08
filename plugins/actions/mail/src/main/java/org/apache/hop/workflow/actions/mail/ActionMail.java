@@ -723,7 +723,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       // set Reply to addresses
       String replyToAddress = environmentSubstitute( replyToAddresses );
       if ( !Utils.isEmpty( replyToAddress ) ) {
-        // Split the mail-address: space separated
+        // Split the mail-address: variables separated
         String[] reply_Address_List = environmentSubstitute( replyToAddress ).split( " " );
         InternetAddress[] address = new InternetAddress[ reply_Address_List.length ];
         for ( int i = 0; i < reply_Address_List.length; i++ ) {
@@ -732,7 +732,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
         msg.setReplyTo( address );
       }
 
-      // Split the mail-address: space separated
+      // Split the mail-address: variables separated
       String[] destinations = environmentSubstitute( destination ).split( " " );
       InternetAddress[] address = new InternetAddress[ destinations.length ];
       for ( int i = 0; i < destinations.length; i++ ) {
@@ -742,7 +742,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
       String realCC = environmentSubstitute( getDestinationCc() );
       if ( !Utils.isEmpty( realCC ) ) {
-        // Split the mail-address Cc: space separated
+        // Split the mail-address Cc: variables separated
         String[] destinationsCc = realCC.split( " " );
         InternetAddress[] addressCc = new InternetAddress[ destinationsCc.length ];
         for ( int i = 0; i < destinationsCc.length; i++ ) {
@@ -754,7 +754,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
       String realBCc = environmentSubstitute( getDestinationBCc() );
       if ( !Utils.isEmpty( realBCc ) ) {
-        // Split the mail-address BCc: space separated
+        // Split the mail-address BCc: variables separated
         String[] destinationsBCc = realBCc.split( " " );
         InternetAddress[] addressBCc = new InternetAddress[ destinationsBCc.length ];
         for ( int i = 0; i < destinationsBCc.length; i++ ) {
@@ -1200,9 +1200,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
     this.port = port;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
-    String realServername = workflowMeta.environmentSubstitute( server );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
+    String realServername = environmentSubstitute( server );
     ResourceReference reference = new ResourceReference( this );
     reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
     references.add( reference );

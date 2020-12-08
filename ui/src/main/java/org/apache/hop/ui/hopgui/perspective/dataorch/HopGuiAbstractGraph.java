@@ -25,6 +25,8 @@ package org.apache.hop.ui.hopgui.perspective.dataorch;
 import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.hopgui.HopGui;
@@ -58,6 +60,8 @@ public abstract class HopGuiAbstractGraph extends Composite {
 
   protected HopGui hopGui;
 
+  protected IVariables variables;
+
   protected Composite parentComposite;
 
   protected CTabItem parentTabItem;
@@ -79,8 +83,9 @@ public abstract class HopGuiAbstractGraph extends Composite {
   public HopGuiAbstractGraph( HopGui hopGui, Composite parent, int style, CTabItem parentTabItem ) {
     super( parent, style );
     this.parentComposite = parent;
-
     this.hopGui = hopGui;
+    this.variables = new Variables();
+    this.variables.copyVariablesFrom( hopGui.getVariables() );
     this.parentTabItem = parentTabItem;
     defaultFont = parentTabItem.getFont();
     changedState = false;
@@ -325,5 +330,21 @@ public abstract class HopGuiAbstractGraph extends Composite {
     }
 
     redraw();
+  }
+
+  /**
+   * Gets variables
+   *
+   * @return value of variables
+   */
+  public IVariables getVariables() {
+    return variables;
+  }
+
+  /**
+   * @param variables The variables to set
+   */
+  public void setVariables( IVariables variables ) {
+    this.variables = variables;
   }
 }

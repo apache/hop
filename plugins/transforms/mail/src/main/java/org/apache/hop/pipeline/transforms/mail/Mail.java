@@ -586,7 +586,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
     // Set reply to
     if ( !Utils.isEmpty( replyToAddresses ) ) {
       // get replay to
-      // Split the mail-address: space separated
+      // Split the mail-address: variables separated
       String[] reply_Address_List = replyToAddresses.split( " " );
       InternetAddress[] address = new InternetAddress[ reply_Address_List.length ];
 
@@ -598,7 +598,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
       msg.setReplyTo( address );
     }
 
-    // Split the mail-address: space separated
+    // Split the mail-address: variables separated
     String[] destinations = destination.split( " " );
     InternetAddress[] address = new InternetAddress[ destinations.length ];
     for ( int i = 0; i < destinations.length; i++ ) {
@@ -609,7 +609,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
 
     String realdestinationCc = destinationCc;
     if ( !Utils.isEmpty( realdestinationCc ) ) {
-      // Split the mail-address Cc: space separated
+      // Split the mail-address Cc: variables separated
       String[] destinationsCc = realdestinationCc.split( " " );
       InternetAddress[] addressCc = new InternetAddress[ destinationsCc.length ];
       for ( int i = 0; i < destinationsCc.length; i++ ) {
@@ -621,7 +621,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
 
     String realdestinationBCc = destinationBCc;
     if ( !Utils.isEmpty( realdestinationBCc ) ) {
-      // Split the mail-address BCc: space separated
+      // Split the mail-address BCc: variables separated
       String[] destinationsBCc = realdestinationBCc.split( " " );
       InternetAddress[] addressBCc = new InternetAddress[ destinationsBCc.length ];
       for ( int i = 0; i < destinationsBCc.length; i++ ) {

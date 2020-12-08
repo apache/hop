@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -58,8 +59,8 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
 
   private final FileExistsMeta input;
 
-  public FileExistsDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public FileExistsDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (FileExistsMeta) in;
   }
 
@@ -154,7 +155,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     fdlResult.top = new FormAttachment( wFileName, margin * 2 );
     wlResult.setLayoutData(fdlResult);
 
-    wResult = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResult = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "FileExistsDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
@@ -229,7 +230,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
     fdlFileType.top = new FormAttachment( wResult, margin );
     wlFileType.setLayoutData(fdlFileType);
 
-    wFileType = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFileType = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wFileType.setToolTipText( BaseMessages.getString( PKG, "FileExistsDialog.FileTypeField.Tooltip" ) );
     props.setLook( wFileType );
     wFileType.addModifyListener( lsMod );
@@ -335,7 +336,7 @@ public class FileExistsDialog extends BaseTransformDialog implements ITransformD
       try {
         String fieldvalue = wFileName.getText();
         wFileName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wFileName.setItems( r.getFieldNames() );
         }

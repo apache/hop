@@ -554,7 +554,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           try {
             strings[ fieldnr ] = pol;
           } catch ( ArrayIndexOutOfBoundsException e ) {
-            // In case we didn't allocate enough space.
+            // In case we didn't allocate enough variables.
             // This happens when you have less header values specified than there are actual values in the rows.
             // As this is "the exception" we catch and resize here.
             //

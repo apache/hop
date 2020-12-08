@@ -30,6 +30,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.TestType;
 import org.apache.hop.testing.gui.TestingGuiPlugin;
+import org.apache.hop.ui.hopgui.HopGui;
 
 @ExtensionPoint(
   id = "HopGuiUnitTestCreateBeforeDialog",
@@ -50,7 +51,7 @@ public class HopGuiUnitTestCreateBeforeDialog extends HopGuiUnitTestChanged impl
     if (pipelineMeta!=null) {
       test.setName( pipelineMeta.getName() + " UNIT" );
       test.setType( TestType.UNIT_TEST );
-      test.setRelativeFilename( pipelineMeta.getFilename() );
+      test.setRelativeFilename( HopGui.getInstance().getVariables(), pipelineMeta.getFilename() );
     }
   }
 }

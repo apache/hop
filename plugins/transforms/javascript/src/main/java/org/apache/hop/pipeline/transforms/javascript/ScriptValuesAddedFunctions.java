@@ -511,9 +511,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         if ( ci == null ) {
           throw Context.reportRuntimeError( "Database connection not found: " + strDBName );
         }
-        ci.shareVariablesWith( scm );
 
         Database db = new Database( scm, ci );
+        // TODO: figure out how to set variables on the connection?
+        //
         db.setQueryLimit( 0 );
         try {
           db.connect( scm.getPartitionId() );

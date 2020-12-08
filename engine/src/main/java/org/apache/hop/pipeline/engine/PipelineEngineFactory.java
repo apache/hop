@@ -26,6 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
@@ -33,7 +35,17 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 public class PipelineEngineFactory {
 
-  public static final <T extends PipelineMeta> IPipelineEngine<T> createPipelineEngine( String runConfigurationName, IHopMetadataProvider metadataProvider, T pipelineMeta ) throws HopException {
+  /**
+   * Create a new pipeline engine
+   * @param parentVariables The parent variables to use and pass on to the pipeline engine. They will not be changed.
+   * @param runConfigurationName The run configuration to use
+   * @param metadataProvider
+   * @param pipelineMeta
+   * @param <T>
+   * @return
+   * @throws HopException
+   */
+  public static final <T extends PipelineMeta> IPipelineEngine<T> createPipelineEngine( IVariables parentVariables, String runConfigurationName, IHopMetadataProvider metadataProvider, T pipelineMeta ) throws HopException {
 
     if ( StringUtils.isEmpty(runConfigurationName)) {
       throw new HopException( "Please specify a run configuration to execute the pipeline with" );
@@ -50,13 +62,19 @@ public class PipelineEngineFactory {
 
     // Apply the variables from the run configuration
     //
-    pipelineRunConfiguration.applyToVariables(pipelineMeta);
+    IVariables variables = new Variables();
+    variables.copyVariablesFrom( parentVariables );
+    pipelineRunConfiguration.applyToVariables(variables);
 
     IPipelineEngine<T> pipelineEngine = createPipelineEngine( pipelineRunConfiguration, pipelineMeta );
 
     // inherit variables from the metadata
     //
-    pipelineEngine.initializeVariablesFrom( pipelineMeta );
+    pipelineEngine.initializeVariablesFrom( variables );
+
+    // Copy over the parameter definitions
+    //
+    pipelineEngine.copyParametersFromDefinitions( pipelineMeta );
 
     // Pass the metadata to make sure
     //

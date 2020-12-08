@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.blockuntiltransformsfinish;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -50,8 +51,8 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implem
 
   private TableView wFields;
 
-  public BlockUntilTransformsFinishDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public BlockUntilTransformsFinishDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (BlockUntilTransformsFinishMeta) in;
   }
 
@@ -131,7 +132,7 @@ public class BlockUntilTransformsFinishDialog extends BaseTransformDialog implem
     colinf[ 1 ].setUsingVariables( true );
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

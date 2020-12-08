@@ -145,7 +145,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
       }
     } );
 
-    wSchemaname = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.addModifyListener( lsMod );
     FormData fdSchemaname = new FormData();
@@ -177,7 +177,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
       }
     } );
 
-    wTablename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTablename );
     wTablename.addModifyListener( lsMod );
     FormData fdTablename = new FormData();
@@ -289,7 +289,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
       Database database = new Database( loggingObject, databaseMeta );
-      database.shareVariablesWith( getWorkflowMeta() );
+      database.shareVariablesWith( variables );
       try {
         database.connect();
         String[] schemas = database.getSchemas();
@@ -327,7 +327,7 @@ public class ActionTableExistsDialog extends ActionDialog implements IActionDial
     if ( StringUtils.isNotEmpty( databaseName ) ) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( databaseName );
       if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases() );
         std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
         if ( std.open() ) {
           wSchemaname.setText( Const.NVL( std.getSchemaName(), "" ) );

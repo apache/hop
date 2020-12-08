@@ -385,7 +385,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
     this.createparentfolder = createparentfolder;
   }
 
-  public String[] getFiles( String fileName ) {
+  public String[] getFiles( IVariables variables, String fileName ) {
     int copies = 1;
     int splits = 1;
     int parts = 1;
@@ -413,7 +413,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
     for ( int copy = 0; copy < copies; copy++ ) {
       for ( int part = 0; part < parts; part++ ) {
         for ( int split = 0; split < splits; split++ ) {
-          retval[ i ] = buildFilename( fileName, copy, split );
+          retval[ i ] = buildFilename( variables, fileName, copy, split );
           i++;
         }
       }
@@ -425,7 +425,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
     return retval;
   }
 
-  public String buildFilename( String fileName, int transformnr, int splitnr ) {
+  public String buildFilename( IVariables variables, String fileName, int transformnr, int splitnr ) {
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
@@ -452,7 +452,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
     }
 
     if ( extension != null && extension.length() != 0 ) {
-      retval += "." + getDatabaseMeta().environmentSubstitute( extension );
+      retval += "." + variables.environmentSubstitute( extension );
     }
 
     return retval;
@@ -550,7 +550,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
         remarks.add( cr );
 
         if ( !Utils.isEmpty( tableName ) ) {
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
           // Check if this table exists...
           if ( db.checkTableExists( schemaName, tableName ) ) {
             cr =
@@ -681,7 +681,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
     return new SQLFileOutputData();
   }
 
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) {
     if ( truncateTable ) {
@@ -706,7 +706,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
     }
   }
 
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -714,11 +714,11 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
       if ( prev != null && prev.size() > 0 ) {
         if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( pipelineMeta );
+          db.shareVariablesWith( variables );
           try {
             db.connect();
 
-            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+            String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
             String crTable = db.getDDL( schemaTable, prev );
 
             // Empty string means: nothing to do: set it to null...
@@ -808,7 +808,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.

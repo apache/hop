@@ -53,7 +53,7 @@ public class PDI_2875_Test {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @BeforeClass
-  public static void setUp() throws HopException {
+  public static void setUp() throws Exception {
     HopEnvironment.init();
     smh =
       new TransformMockHelper<TextFileInputMeta, TextFileInputData>( "CsvInputTest", TextFileInputMeta.class, TextFileInputData.class );

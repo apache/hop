@@ -26,6 +26,7 @@ package org.apache.hop.pipeline.transforms.rowsfromresult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -47,8 +48,8 @@ public class RowsFromResultDialog extends BaseTransformDialog implements ITransf
 
   private final RowsFromResultMeta input;
 
-  public RowsFromResultDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public RowsFromResultDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (RowsFromResultMeta) in;
   }
 
@@ -119,7 +120,7 @@ public class RowsFromResultDialog extends BaseTransformDialog implements ITransf
 
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     // Some buttons
     wOk = new Button( shell, SWT.PUSH );

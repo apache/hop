@@ -41,6 +41,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -51,8 +52,8 @@ import java.util.Map;
 
 public class BeamWindowTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamWindowTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamWindowTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -65,7 +66,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
       throw new HopException( "Please specify a window type in Beam Window transform '" + transformMeta.getName() + "'" );
     }
 
-    String duration = pipelineMeta.environmentSubstitute( beamWindowMeta.getDuration() );
+    String duration = variables.environmentSubstitute( beamWindowMeta.getDuration() );
     long durationSeconds = Const.toLong( duration, -1L );
 
     PCollection<HopRow> stepPCollection;
@@ -86,7 +87,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
         throw new HopException( "Please specify a valid positive window size (duration) for Beam window transform '" + transformMeta.getName() + "'" );
       }
 
-      String every = pipelineMeta.environmentSubstitute( beamWindowMeta.getEvery() );
+      String every = variables.environmentSubstitute( beamWindowMeta.getEvery() );
       long everySeconds = Const.toLong( every, -1L );
 
       SlidingWindows slidingWindows = SlidingWindows
@@ -121,9 +122,9 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
 
       WindowInfoFn windowInfoFn = new WindowInfoFn(
         transformMeta.getName(),
-        pipelineMeta.environmentSubstitute( beamWindowMeta.getMaxWindowField() ),
-        pipelineMeta.environmentSubstitute( beamWindowMeta.getStartWindowField() ),
-        pipelineMeta.environmentSubstitute( beamWindowMeta.getMaxWindowField() ),
+        variables.environmentSubstitute( beamWindowMeta.getMaxWindowField() ),
+        variables.environmentSubstitute( beamWindowMeta.getStartWindowField() ),
+        variables.environmentSubstitute( beamWindowMeta.getMaxWindowField() ),
         JsonRowMeta.toJson( inputRowMeta ),
         transformPluginClasses,
         xpPluginClasses

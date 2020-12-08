@@ -697,9 +697,9 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
-    String realUrl = workflowMeta.environmentSubstitute( url );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
+    String realUrl = environmentSubstitute( url );
     ResourceReference reference = new ResourceReference( this );
     reference.getEntries().add( new ResourceEntry( realUrl, ResourceType.URL ) );
     references.add( reference );

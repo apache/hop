@@ -254,18 +254,18 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
   }
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-                         IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !Utils.isEmpty( resultFieldname ) ) {
       if ( outputStringField ) {
         // Output field (String)
         IValueMeta v =
-          new ValueMetaString( space.environmentSubstitute( getResultfieldname() ) );
+          new ValueMetaString( variables.environmentSubstitute( getResultfieldname() ) );
         inputRowMeta.addValueMeta( v );
       } else {
 
         // Output field (boolean)
         IValueMeta v =
-          new ValueMetaBoolean( space.environmentSubstitute( getResultfieldname() ) );
+          new ValueMetaBoolean( variables.environmentSubstitute( getResultfieldname() ) );
         inputRowMeta.addValueMeta( v );
       }
 
@@ -273,7 +273,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     // Add String Field that contain validation message (most the time, errors)
     if ( addValidationMessage && !Utils.isEmpty( validationMessageField ) ) {
       IValueMeta v =
-        new ValueMetaString( space.environmentSubstitute( validationMessageField ) );
+        new ValueMetaString( variables.environmentSubstitute( validationMessageField ) );
       inputRowMeta.addValueMeta( v );
     }
 
@@ -300,8 +300,8 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
   }
 
 
-  public void check( List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepinfo, IRowMeta prev,
-                     String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta stepinfo, IRowMeta prev,
+                     String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
     // Check XML stream field
@@ -375,13 +375,13 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param space                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param resourceNamingInterface The repository to optionally load other resources from (to be converted to XML)
    * @param metadataProvider        the metadataProvider in which non-kettle metadata could reside.
    * @return the filename of the exported resource
    */
-  public String exportResources( IVariables space, Map<String, ResourceDefinition> definitions,
+  public String exportResources( IVariables variables, Map<String, ResourceDefinition> definitions,
                                  IResourceNaming resourceNamingInterface, IHopMetadataProvider metadataProvider )
     throws HopException {
     try {
@@ -394,8 +394,8 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
       // To : /home/matt/test/files/foo/bar.xsd
       //
       if ( !Utils.isEmpty( xsdFilename ) ) {
-        FileObject fileObject = HopVfs.getFileObject( space.environmentSubstitute( xsdFilename ) );
-        xsdFilename = resourceNamingInterface.nameResource( fileObject, space, true );
+        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( xsdFilename ) );
+        xsdFilename = resourceNamingInterface.nameResource( fileObject, variables, true );
         return xsdFilename;
       }
 

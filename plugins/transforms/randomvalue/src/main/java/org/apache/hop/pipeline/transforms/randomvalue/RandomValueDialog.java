@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.randomvalue;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -47,8 +48,8 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
 
   private final RandomValueMeta input;
 
-  public RandomValueDialog(Shell parent, Object in, PipelineMeta pipelineMeta, String sname) {
-    super(parent, (BaseTransformMeta) in, pipelineMeta, sname);
+  public RandomValueDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname) {
+    super(parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (RandomValueMeta) in;
   }
 
@@ -150,7 +151,7 @@ public class RandomValueDialog extends BaseTransformDialog implements ITransform
 
     wFields =
         new TableView(
-            pipelineMeta,
+            variables,
             shell,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             colinf,

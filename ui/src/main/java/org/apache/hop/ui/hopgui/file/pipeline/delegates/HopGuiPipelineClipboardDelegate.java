@@ -188,7 +188,7 @@ public class HopGuiPipelineClipboardDelegate {
       for ( int i = 0; i < nrErrorHandlers; i++ ) {
         Node transformErrorMetaNode = XmlHandler.getSubNodeByNr( errorHandlingNode, TransformErrorMeta.XML_ERROR_TAG, i );
         TransformErrorMeta transformErrorMeta =
-          new TransformErrorMeta( pipelineMeta.getParentVariableSpace(), transformErrorMetaNode, pipelineMeta.getTransforms() );
+          new TransformErrorMeta( transformErrorMetaNode, pipelineMeta.getTransforms() );
 
         // Handle pasting multiple times, need to update source and target transform names
         int srcTransformPos = transformOldNames.indexOf( transformErrorMeta.getSourceTransform().getName() );

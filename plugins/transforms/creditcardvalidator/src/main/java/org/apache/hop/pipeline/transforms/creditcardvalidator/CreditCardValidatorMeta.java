@@ -216,7 +216,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta implements ITrans
     CheckResult cr;
     String errorMessage = "";
 
-    String realresultfieldname = pipelineMeta.environmentSubstitute( resultfieldname );
+    String realresultfieldname = variables.environmentSubstitute( resultfieldname );
     if ( Utils.isEmpty( realresultfieldname ) ) {
       errorMessage = BaseMessages.getString( PKG, "CreditCardValidatorMeta.CheckResult.ResultFieldMissing" );
       cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );

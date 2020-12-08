@@ -68,8 +68,8 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
   private String metaStoreJson;
 
-  public BeamGenericTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, String metaStoreJson, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamGenericTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, String metaStoreJson, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
     this.metaStoreJson = metaStoreJson;
   }
 
@@ -95,7 +95,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     for ( TransformMeta infoTransformMeta : infoTransformMetas ) {
       if ( !previousTransforms.contains( infoTransformMeta ) ) {
         infoTransforms.add( infoTransformMeta.getName() );
-        infoRowMetaJsons.add( JsonRowMeta.toJson( pipelineMeta.getTransformFields( infoTransformMeta ) ) );
+        infoRowMetaJsons.add( JsonRowMeta.toJson( pipelineMeta.getTransformFields( variables, infoTransformMeta ) ) );
         PCollection<HopRow> infoCollection = stepCollectionMap.get( infoTransformMeta.getName() );
         if ( infoCollection == null ) {
           throw new HopException( "Unable to find collection for transform '" + infoTransformMeta.getName() + " providing info for '" + transformMeta.getName() + "'" );
@@ -106,7 +106,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
     // Get the list of variables from the PipelineMeta variable variables:
     //
-    List<VariableValue> variableValues = getVariableValues( pipelineMeta );
+    List<VariableValue> variableValues = getVariableValues( variables );
 
     // Find out all the target transforms for this transform...
     //

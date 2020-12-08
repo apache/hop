@@ -1456,7 +1456,7 @@ public class TextFileInputMeta
       remarks.add( cr );
     }
 
-    FileInputList textFileList = getTextFileList( pipelineMeta );
+    FileInputList textFileList = getTextFileList( variables );
     if ( textFileList.nrOfFiles() == 0 ) {
       if ( !isAcceptingFilenames() ) {
         cr =
@@ -1816,13 +1816,12 @@ public class TextFileInputMeta
     }
   }
 
-  @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
+  @Override public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    ResourceReference reference = new ResourceReference( transformInfo );
+    ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 
-    String[] textFiles = getFilePaths( pipelineMeta );
+    String[] textFiles = getFilePaths( variables );
     if ( textFiles != null ) {
       for ( int i = 0; i < textFiles.length; i++ ) {
         reference.getEntries().add( new ResourceEntry( textFiles[ i ], ResourceType.FILE ) );
@@ -1837,7 +1836,7 @@ public class TextFileInputMeta
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.

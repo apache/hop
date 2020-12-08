@@ -36,6 +36,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 
 import java.io.BufferedInputStream;
@@ -77,10 +78,10 @@ public class DataSetCsvUtil {
     }
   }
 
-  public static final List<Object[]> getAllRows( DataSet dataSet ) throws HopException {
+  public static final List<Object[]> getAllRows( IVariables variables, DataSet dataSet ) throws HopException {
     IRowMeta setRowMeta = dataSet.getSetRowMeta();
     setValueFormats( setRowMeta );
-    String dataSetFilename = dataSet.getActualDataSetFilename();
+    String dataSetFilename = dataSet.getActualDataSetFilename(variables);
     List<Object[]> rows = new ArrayList<>();
     final ValueMetaString constantValueMeta = new ValueMetaString( "constant" );
 
@@ -119,12 +120,14 @@ public class DataSetCsvUtil {
   /**
    * Get the rows for this data set in the format of the data set.
    *
+   *
+   * @param variables
    * @param log      the logging channel to which you can write.
    * @param location The fields to obtain in the order given
    * @return The rows for the given location
    * @throws HopException
    */
-  public static final List<Object[]> getAllRows( ILogChannel log, DataSet dataSet, PipelineUnitTestSetLocation location ) throws HopException {
+  public static final List<Object[]> getAllRows( IVariables variables, ILogChannel log, DataSet dataSet, PipelineUnitTestSetLocation location ) throws HopException {
 
     IRowMeta setRowMeta = dataSet.getSetRowMeta();
 
@@ -133,7 +136,7 @@ public class DataSetCsvUtil {
     final IRowMeta outputRowMeta = dataSet.getMappedDataSetFieldsRowMeta( location );
 
     setValueFormats( setRowMeta );
-    String dataSetFilename = dataSet.getActualDataSetFilename();
+    String dataSetFilename = dataSet.getActualDataSetFilename(variables);
     List<Object[]> rows = new ArrayList<>();
     final ValueMetaString constantValueMeta = new ValueMetaString( "constant" );
 
@@ -214,9 +217,9 @@ public class DataSetCsvUtil {
     }
   }
 
-  public static final void writeDataSetData( DataSet dataSet, IRowMeta rowMeta, List<Object[]> rows ) throws HopException {
+  public static final void writeDataSetData( IVariables variables, DataSet dataSet, IRowMeta rowMeta, List<Object[]> rows ) throws HopException {
 
-    String dataSetFilename = dataSet.getActualDataSetFilename();
+    String dataSetFilename = dataSet.getActualDataSetFilename(variables);
 
     IRowMeta setRowMeta = rowMeta.clone(); // just making sure
     setValueFormats( setRowMeta );

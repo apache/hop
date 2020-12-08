@@ -33,6 +33,8 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.*;
 import org.mockito.Spy;
@@ -78,6 +80,7 @@ public class TeradataValueMetaBaseTest {
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
   private ValueMetaBase valueMetaBase;
+  private IVariables variables;
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -95,6 +98,7 @@ public class TeradataValueMetaBaseTest {
     valueMetaBase = new ValueMetaBase();
     dbMeta = new DatabaseMeta( "teradata", "TERADATA", "", "", "", "", "", "" );
     resultSet = mock( ResultSet.class );
+    variables = spy( new Variables() );
   }
 
   @After
@@ -108,7 +112,7 @@ public class TeradataValueMetaBaseTest {
   public void testMetdataPreviewSqlDateToPentahoDateUsingTeradata() throws SQLException, HopDatabaseException {
     doReturn( Types.DATE ).when( resultSet ).getInt( "DATA_TYPE" );
     doReturn( mock( TeradataDatabaseMeta.class ) ).when( dbMeta ).getIDatabase();
-    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( dbMeta, resultSet );
+    IValueMeta valueMeta = valueMetaBase.getMetadataPreview( variables, dbMeta, resultSet );
     assertTrue( valueMeta.isDate() );
     assertEquals( 1, valueMeta.getPrecision() );
   }

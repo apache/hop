@@ -428,12 +428,12 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( arguments != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < arguments.length; i++ ) {
-        String filename = workflowMeta.environmentSubstitute( arguments[ i ] );
+        String filename = environmentSubstitute( arguments[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

@@ -80,6 +80,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.apache.hop.core.variables.IVariables;
 
 public class CsvInputDialog extends BaseTransformDialog implements ITransformDialog,
   IGetFieldsCapableTransformDialog<CsvInputMeta>, ICsvInputAwareTransformDialog {
@@ -112,8 +113,8 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
   private AtomicBoolean previewBusy;
 
-  public CsvInputDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public CsvInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     inputMeta = (CsvInputMeta) in;
   }
 
@@ -172,7 +173,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
       IRowMeta previousFields;
       try {
-        previousFields = pipelineMeta.getPrevTransformFields( transformMeta );
+        previousFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
       } catch ( HopTransformException e ) {
         new ErrorDialog( shell,
           BaseMessages.getString( PKG, "CsvInputDialog.ErrorDialog.UnableToGetInputFields.Title" ),
@@ -245,7 +246,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
       fdlFilename.left = new FormAttachment( 0, 0 );
       fdlFilename.right = new FormAttachment( middle, -margin );
       wlFilename.setLayoutData( fdlFilename );
-      wFilename = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+      wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
       props.setLook( wFilename );
       wFilename.addModifyListener( lsMod );
       FormData fdFilename = new FormData();
@@ -277,7 +278,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     fdbDelimiter.top = new FormAttachment( lastControl, margin );
     fdbDelimiter.right = new FormAttachment( 100, 0 );
     wbDelimiter.setLayoutData( fdbDelimiter );
-    wDelimiter = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDelimiter = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDelimiter );
     wDelimiter.addModifyListener( lsMod );
     FormData fdDelimiter = new FormData();
@@ -297,7 +298,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     fdlEnclosure.left = new FormAttachment( 0, 0 );
     fdlEnclosure.right = new FormAttachment( middle, -margin );
     wlEnclosure.setLayoutData( fdlEnclosure );
-    wEnclosure = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEnclosure = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEnclosure );
     wEnclosure.addModifyListener( lsMod );
     FormData fdEnclosure = new FormData();
@@ -318,7 +319,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     fdlBufferSize.left = new FormAttachment( 0, 0 );
     fdlBufferSize.right = new FormAttachment( middle, -margin );
     wlBufferSize.setLayoutData( fdlBufferSize );
-    wBufferSize = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBufferSize = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBufferSize );
     wBufferSize.addModifyListener( lsMod );
     FormData fdBufferSize = new FormData();
@@ -398,7 +399,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     fdlRowNumField.left = new FormAttachment( 0, 0 );
     fdlRowNumField.right = new FormAttachment( middle, -margin );
     wlRowNumField.setLayoutData( fdlRowNumField );
-    wRowNumField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowNumField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRowNumField );
     wRowNumField.addModifyListener( lsMod );
     FormData fdRowNumField = new FormData();
@@ -464,7 +465,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     fdlEncoding.left = new FormAttachment( 0, 0 );
     fdlEncoding.right = new FormAttachment( middle, -margin );
     wlEncoding.setLayoutData( fdlEncoding );
-    wEncoding = new ComboVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEncoding = new ComboVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
     FormData fdEncoding = new FormData();
@@ -535,7 +536,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
       return comboValues;
     } );
 
-    wFields = new TableView( pipelineMeta, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
+    wFields = new TableView( variables, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.top = new FormAttachment( lastControl, margin * 2 );
@@ -582,7 +583,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     if ( wbbFilename != null ) {
       // Listen to the browse button next to the file name
       //
-      wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+      wbbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
         new String[] { "*.txt;*.csv", "*.csv", "*.txt", "*" },
         new String[] {
           BaseMessages.getString( PKG, "System.FileType.CSVFiles" ) + ", "
@@ -798,7 +799,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
   private InputStreamReader getReader( final CsvInputMeta meta, final InputStream inputStream ) {
     InputStreamReader reader = null;
     try {
-      String filename = pipelineMeta.environmentSubstitute( meta.getFilename() );
+      String filename = variables.environmentSubstitute( meta.getFilename() );
 
       FileObject fileObject = HopVfs.getFileObject( filename );
       if ( !( fileObject instanceof LocalFile ) ) {
@@ -808,7 +809,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
         throw new HopException( BaseMessages.getString( PKG, "CsvInput.Log.OnlyLocalFilesAreSupported" ) );
       }
 
-      String realEncoding = pipelineMeta.environmentSubstitute( meta.getEncoding() );
+      String realEncoding = variables.environmentSubstitute( meta.getEncoding() );
       if ( Utils.isEmpty( realEncoding ) ) {
         reader = new InputStreamReader( inputStream );
       } else {
@@ -829,7 +830,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
   private InputStream getInputStream( final CsvInputMeta meta ) {
     InputStream inputStream = null;
     try {
-      final String filename = pipelineMeta.environmentSubstitute( meta.getFilename() );
+      final String filename = variables.environmentSubstitute( meta.getFilename() );
 
       final FileObject fileObject = HopVfs.getFileObject( filename );
       if ( !( fileObject instanceof LocalFile ) ) {
@@ -867,7 +868,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     CsvInputMeta oneMeta = new CsvInputMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =
@@ -878,7 +879,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
     if ( previewSize > 0 ) {
       PipelinePreviewProgressDialog progressDialog =
         new PipelinePreviewProgressDialog(
-          shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+          shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
       progressDialog.open();
 
       Pipeline pipeline = progressDialog.getPipeline();
@@ -897,7 +898,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
       PreviewRowsDialog prd =
         new PreviewRowsDialog(
-          shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+          shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
           .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
       prd.open();
     }
@@ -937,9 +938,9 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
 
       try {
 
-        meta.getFields( rowMeta, transformName, null, null, pipelineMeta, metadataProvider );
+        meta.getFields( rowMeta, transformName, null, null, variables, metadataProvider );
 
-        PipelineMeta previewPipelineMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
+        PipelineMeta previewPipelineMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
           meta, transformName );
         final Pipeline pipeline = new LocalPipelineEngine( previewPipelineMeta );
         pipeline.prepareExecution();
@@ -1003,7 +1004,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
   @Override
   public ICsvInputAwareImportProgressDialog getCsvImportProgressDialog(
     final ICsvInputAwareMeta meta, final int samples, final InputStreamReader reader ) {
-    return new TextFileCSVImportProgressDialog( getShell(), (CsvInputMeta) meta, pipelineMeta, reader, samples, true );
+    return new TextFileCSVImportProgressDialog( getShell(), variables, (CsvInputMeta) meta, pipelineMeta, reader, samples, true );
   }
 
   @Override
@@ -1020,7 +1021,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
   public InputStream getInputStream( final ICsvInputAwareMeta meta ) {
     InputStream inputStream = null;
     try {
-      FileObject fileObject = meta.getHeaderFileObject( getPipelineMeta() );
+      FileObject fileObject = meta.getHeaderFileObject( variables );
       if ( !( fileObject instanceof LocalFile ) ) {
         // We can only use NIO on local files at the moment, so that's what we limit ourselves to.
         throw new HopException( BaseMessages.getString( "FileInputDialog.Log.OnlyLocalFilesAreSupported" ) );

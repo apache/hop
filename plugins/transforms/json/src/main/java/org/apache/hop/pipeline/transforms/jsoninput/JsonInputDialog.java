@@ -35,6 +35,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -134,8 +135,8 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
   private int margin;
   private ModifyListener lsMod;
 
-  public JsonInputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public JsonInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (JsonInputMeta) in;
   }
 
@@ -270,7 +271,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
         try {
           JsonInputMeta tfii = new JsonInputMeta();
           getInfo( tfii );
-          FileInputList fileInputList = tfii.getFiles( pipelineMeta );
+          FileInputList fileInputList = tfii.getFiles( variables );
           String[] files = fileInputList.getFileStrings();
           if ( files != null && files.length > 0 ) {
             EnterSelectionDialog esd = new EnterSelectionDialog( shell, files,
@@ -314,7 +315,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
           // directory!
           DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
           if ( wFilename.getText() != null ) {
-            String fpath = pipelineMeta.environmentSubstitute( wFilename.getText() );
+            String fpath = variables.environmentSubstitute( wFilename.getText() );
             dialog.setFilterPath( fpath );
           }
 
@@ -326,7 +327,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
           FileDialog dialog = new FileDialog( shell, SWT.OPEN );
           dialog.setFilterExtensions( new String[] { "*.js;*.JS;*.json;*.JSON", "*" } );
           if ( wFilename.getText() != null ) {
-            String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
+            String fname = variables.environmentSubstitute( wFilename.getText() );
             dialog.setFileName( fname );
           }
 
@@ -440,7 +441,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "JsonInputDialog.FieldsTable.Path.Column.Tooltip" ) );
 
     wFields =
-      new TableView( pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+      new TableView( variables, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -634,7 +635,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlInclFilenameField.left = new FormAttachment( wInclFilename, margin );
     fdlInclFilenameField.top = new FormAttachment( wLimit, 4 * margin );
     wlInclFilenameField.setLayoutData( fdlInclFilenameField );
-    wInclFilenameField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclFilenameField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclFilenameField );
     wInclFilenameField.addModifyListener( lsMod );
     FormData fdInclFilenameField = new FormData();
@@ -666,7 +667,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlInclRownumField.left = new FormAttachment( wInclRownum, margin );
     fdlInclRownumField.top = new FormAttachment( wInclFilenameField, margin );
     wlInclRownumField.setLayoutData( fdlInclRownumField );
-    wInclRownumField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclRownumField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclRownumField );
     wInclRownumField.addModifyListener( lsMod );
     FormData fdInclRownumField = new FormData();
@@ -925,7 +926,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdbaFilename.top = new FormAttachment( wOutputField, margin );
     wbaFilename.setLayoutData( fdbaFilename );
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -942,7 +943,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlFilemask.top = new FormAttachment( wFilename, margin );
     fdlFilemask.right = new FormAttachment( middle, -margin );
     wlFilemask.setLayoutData( fdlFilemask );
-    wFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilemask );
     wFilemask.addModifyListener( lsMod );
     FormData fdFilemask = new FormData();
@@ -959,7 +960,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlExcludeFilemask.top = new FormAttachment( wFilemask, margin );
     fdlExcludeFilemask.right = new FormAttachment( middle, -margin );
     wlExcludeFilemask.setLayoutData( fdlExcludeFilemask );
-    wExcludeFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExcludeFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExcludeFilemask );
     wExcludeFilemask.addModifyListener( lsMod );
     FormData fdExcludeFilemask = new FormData();
@@ -1038,7 +1039,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
 
     wFilenameList =
       new TableView(
-        pipelineMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 2, lsMod, props );
+        variables, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 2, lsMod, props );
     props.setLook( wFilenameList );
     FormData fdFilenameList = new FormData();
     fdFilenameList.left = new FormAttachment( middle, 0 );
@@ -1067,7 +1068,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
       String value = wFieldValue.getText();
       wFieldValue.removeAll();
 
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         wFieldValue.setItems( r.getFieldNames() );
       }
@@ -1362,7 +1363,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     try {
       // Call new get fields dialog
       if ( wFilenameList.getItemCount() > 0 ) {
-        String filename = pipelineMeta.environmentSubstitute( wFilenameList.getItem( 0 )[ 0 ] );
+        String filename = variables.environmentSubstitute( wFilenameList.getItem( 0 )[ 0 ] );
         List<String> paths = new ArrayList<>();
         for ( int i = 0; i < wFields.table.getItems().length; i++ ) {
           TableItem item = wFields.table.getItem( i );
@@ -1399,7 +1400,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
       JsonInputMeta oneMeta = new JsonInputMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, metadataProvider, oneMeta, wTransformName.getText() );
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, metadataProvider, oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "JsonInputDialog.NumberRows.DialogTitle" ),
@@ -1407,7 +1408,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
 
       int previewSize = numberDialog.open();
       if ( previewSize > 0 ) {
-        PipelinePreviewProgressDialog progressDialog = new PipelinePreviewProgressDialog( shell, previewMeta, new String[] { wTransformName.getText() },
+        PipelinePreviewProgressDialog progressDialog = new PipelinePreviewProgressDialog( shell, variables, previewMeta, new String[] { wTransformName.getText() },
           new int[] { previewSize } );
         progressDialog.open();
 
@@ -1422,7 +1423,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
             etd.open();
           }
           PreviewRowsDialog prd =
-            new PreviewRowsDialog( shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog
+            new PreviewRowsDialog( shell, variables, SWT.NONE, wTransformName.getText(), progressDialog
               .getPreviewRowsMeta( wTransformName.getText() ), progressDialog.getPreviewRows( wTransformName.getText() ),
               loggingText );
           prd.open();
@@ -1458,7 +1459,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlShortFileFieldName.right = new FormAttachment( middle, -margin );
     wlShortFileFieldName.setLayoutData( fdlShortFileFieldName );
 
-    wShortFileFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wShortFileFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wShortFileFieldName );
     wShortFileFieldName.addModifyListener( lsMod );
     FormData fdShortFileFieldName = new FormData();
@@ -1477,7 +1478,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlExtensionFieldName.right = new FormAttachment( middle, -margin );
     wlExtensionFieldName.setLayoutData( fdlExtensionFieldName );
 
-    wExtensionFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExtensionFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExtensionFieldName );
     wExtensionFieldName.addModifyListener( lsMod );
     FormData fdExtensionFieldName = new FormData();
@@ -1496,7 +1497,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlPathFieldName.right = new FormAttachment( middle, -margin );
     wlPathFieldName.setLayoutData( fdlPathFieldName );
 
-    wPathFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPathFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPathFieldName );
     wPathFieldName.addModifyListener( lsMod );
     FormData fdPathFieldName = new FormData();
@@ -1515,7 +1516,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlSizeFieldName.right = new FormAttachment( middle, -margin );
     wlSizeFieldName.setLayoutData( fdlSizeFieldName );
 
-    wSizeFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSizeFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSizeFieldName );
     wSizeFieldName.addModifyListener( lsMod );
     FormData fdSizeFieldName = new FormData();
@@ -1534,7 +1535,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlIsHiddenName.right = new FormAttachment( middle, -margin );
     wlIsHiddenName.setLayoutData( fdlIsHiddenName );
 
-    wIsHiddenName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIsHiddenName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIsHiddenName );
     wIsHiddenName.addModifyListener( lsMod );
     FormData fdIsHiddenName = new FormData();
@@ -1554,7 +1555,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlLastModificationTimeName.right = new FormAttachment( middle, -margin );
     wlLastModificationTimeName.setLayoutData( fdlLastModificationTimeName );
 
-    wLastModificationTimeName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLastModificationTimeName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLastModificationTimeName );
     wLastModificationTimeName.addModifyListener( lsMod );
     FormData fdLastModificationTimeName = new FormData();
@@ -1573,7 +1574,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlUriName.right = new FormAttachment( middle, -margin );
     wlUriName.setLayoutData( fdlUriName );
 
-    wUriName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUriName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUriName );
     wUriName.addModifyListener( lsMod );
     FormData fdUriName = new FormData();
@@ -1592,7 +1593,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     fdlRootUriName.right = new FormAttachment( middle, -margin );
     wlRootUriName.setLayoutData( fdlRootUriName );
 
-    wRootUriName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRootUriName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRootUriName );
     wRootUriName.addModifyListener( lsMod );
     FormData fdRootUriName = new FormData();

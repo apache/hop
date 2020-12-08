@@ -58,7 +58,7 @@ public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetS
     if ( data.value >= ( data.startValue + data.increment ) ) {
       // Get a new value from the service...
       //
-      data.startValue = data.hopServer.getNextServerSequenceValue( data.sequenceName, data.increment );
+      data.startValue = data.hopServer.getNextServerSequenceValue( this, data.sequenceName, data.increment );
       data.value = data.startValue;
     }
 
@@ -94,7 +94,7 @@ public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetS
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
-      data.startValue = data.hopServer.getNextServerSequenceValue( data.sequenceName, data.increment );
+      data.startValue = data.hopServer.getNextServerSequenceValue( this, data.sequenceName, data.increment );
       data.value = data.startValue;
     }
 

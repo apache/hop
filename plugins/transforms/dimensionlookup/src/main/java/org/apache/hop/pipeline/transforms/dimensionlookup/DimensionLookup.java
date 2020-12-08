@@ -112,7 +112,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
     if ( first ) {
       first = false;
 
-      data.schemaTable = meta.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
+      data.schemaTable = meta.getDatabaseMeta().getQuotedSchemaTableCombination( this, data.realSchemaName, data.realTableName );
 
       data.inputRowMeta = getInputRowMeta().clone();
       data.outputRowMeta = getInputRowMeta().clone();

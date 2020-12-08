@@ -46,12 +46,12 @@ public class AddXMLTest {
   private TransformMockHelper<AddXmlMeta, AddXmlData> stepMockHelper;
 
   @Before
-  public void setup() {
+  public void setup() throws Exception {
     XmlField field = mock( XmlField.class );
     when( field.getElementName() ).thenReturn( "ADDXML_TEST" );
     when( field.isAttribute() ).thenReturn( true );
 
-    stepMockHelper = new TransformMockHelper<AddXmlMeta, AddXmlData>( "ADDXML_TEST", AddXmlMeta.class, AddXmlData.class );
+    stepMockHelper = new TransformMockHelper<>( "ADDXML_TEST", AddXmlMeta.class, AddXmlData.class );
 //    when( stepMockHelper.logChannelInterfaceFactory.create( any(), any( ILogChannel.class ) ) ).thenReturn(
 //        stepMockHelper.logChannelInterface );
     when( stepMockHelper.pipeline.isRunning() ).thenReturn( true );

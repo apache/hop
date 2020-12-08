@@ -35,6 +35,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineHopMeta;
@@ -148,9 +149,9 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
 
   private RowGeneratorMeta genMeta;
 
-  public ScriptValuesMetaModDialog(Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public ScriptValuesMetaModDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
 
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ScriptValuesMetaMod) in;
     genMeta = null;
     try {
@@ -301,7 +302,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     fdlOptimizationLevel.top = new FormAttachment( wlPosition, margin );
     wlOptimizationLevel.setLayoutData( fdlOptimizationLevel );
 
-    wOptimizationLevel = new TextVar( pipelineMeta, wTop, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wOptimizationLevel = new TextVar( variables, wTop, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wOptimizationLevel.setToolTipText( BaseMessages.getString(
       PKG, "ScriptValuesDialogMod.OptimizationLevel.Tooltip" ) );
     props.setLook( wOptimizationLevel );
@@ -380,7 +381,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
 
     wFields =
       new TableView(
-        pipelineMeta, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -515,7 +516,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          rowPrevTransformFields = pipelineMeta.getPrevTransformFields( transformMeta );
+          rowPrevTransformFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
           if ( rowPrevTransformFields != null ) {
             setInputOutputFields();
           } else {
@@ -599,7 +600,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
         break;
     }
     StyledTextComp wScript =
-      new StyledTextComp( pipelineMeta, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, item
+      new StyledTextComp( variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, item
         .getText(), false );
     if ( ( strScript != null ) && strScript.length() > 0 ) {
       wScript.setText( strScript );
@@ -1023,7 +1024,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     try {
       // What fields are coming into the transform?
       //
-      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( transformName ).clone();
+      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( variables, transformName ).clone();
       if ( rowMeta != null ) {
         // Create a new RowGenerator transform to generate rows for the test data...
         // Only create a new instance the first time to help the user.
@@ -1118,7 +1119,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
           //
           PipelinePreviewProgressDialog progressDialog =
             new PipelinePreviewProgressDialog(
-              shell, pipelineMeta, new String[] { scriptTransformName, }, new int[] { Const.toInt( genMeta
+              shell, variables, pipelineMeta, new String[] { scriptTransformName, }, new int[] { Const.toInt( genMeta
               .getRowLimit(), 10 ), } );
           progressDialog.open();
 
@@ -1142,7 +1143,7 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
           if ( previewRowsMeta != null && previewRows != null && previewRows.size() > 0 ) {
             PreviewRowsDialog prd =
               new PreviewRowsDialog(
-                shell, pipelineMeta, SWT.NONE, wTransformName.getText(), previewRowsMeta, previewRows, loggingText );
+                shell, variables, SWT.NONE, wTransformName.getText(), previewRowsMeta, previewRows, loggingText );
             prd.open();
           }
         }
@@ -1189,10 +1190,10 @@ public class ScriptValuesMetaModDialog extends BaseTransformDialog implements IT
     jsscope.put( "_PipelineName_", jsscope, this.transformName );
 
     try {
-      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( rowMeta != null ) {
 
-        ScriptValuesModDummy dummyTransform = new ScriptValuesModDummy( rowMeta, pipelineMeta.getTransformFields( transformName ) );
+        ScriptValuesModDummy dummyTransform = new ScriptValuesModDummy( rowMeta, pipelineMeta.getTransformFields(variables, transformName ) );
         Scriptable jsvalue = Context.toObject( dummyTransform, jsscope );
         jsscope.put( "_transform_", jsscope, jsvalue );
 

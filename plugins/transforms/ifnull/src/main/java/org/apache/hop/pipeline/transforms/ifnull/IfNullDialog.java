@@ -30,6 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -95,8 +96,8 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
   private Label wlSetEmptyStringAll;
   private Button wSetEmptyStringAll;
 
-  public IfNullDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public IfNullDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (IfNullMeta) in;
   }
 
@@ -178,7 +179,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     fdlReplaceByValue.top = new FormAttachment( wTransformName, margin * 2 );
     wlReplaceByValue.setLayoutData( fdlReplaceByValue );
 
-    wReplaceByValue = new TextVar( pipelineMeta, wAllFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReplaceByValue = new TextVar( variables, wAllFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReplaceByValue.setToolTipText( BaseMessages.getString( PKG, "IfNullDialog.ReplaceByValue.Tooltip" ) );
     props.setLook( wReplaceByValue );
     FormData fdReplaceByValue = new FormData();
@@ -296,7 +297,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
     };
     colval[ 1 ].setUsingVariables( true );
 
-    wValueTypes = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colval, valueTypesRows, oldlsMod, props );
+    wValueTypes = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colval, valueTypesRows, oldlsMod, props );
     FormData fdValueTypes = new FormData();
     fdValueTypes.left = new FormAttachment( 0, 0 );
     fdValueTypes.top = new FormAttachment( wlValueTypes, margin );
@@ -391,7 +392,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
 
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, oldlsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, oldlsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -440,7 +441,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener insertListener = ( tableItem, v ) -> true;
 
@@ -457,7 +458,7 @@ public class IfNullDialog extends BaseTransformDialog implements ITransformDialo
   private void setComboValues() {
     Runnable fieldLoader = () -> {
       try {
-        prevFields = pipelineMeta.getPrevTransformFields( transformName );
+        prevFields = pipelineMeta.getPrevTransformFields( variables, transformName );
 
       } catch ( HopException e ) {
         String msg = BaseMessages.getString( PKG, "IfNullDialog.DoMapping.UnableToFindInput" );

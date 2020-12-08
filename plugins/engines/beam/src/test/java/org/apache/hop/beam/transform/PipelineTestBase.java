@@ -50,6 +50,8 @@ import org.apache.hop.beam.transforms.window.BeamTimestampMeta;
 import org.apache.hop.beam.transforms.window.BeamWindowMeta;
 import org.apache.hop.beam.util.BeamConst;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.metadata.plugin.MetadataPluginType;
@@ -76,11 +78,13 @@ public class PipelineTestBase {
   public static final String INPUT_CUSTOMERS_FILE = System.getProperty( "java.io.tmpdir" ) + "/customers/io/customers-100.txt";
   public static final String INPUT_STATES_FILE = System.getProperty( "java.io.tmpdir" ) + "/customers/io/state-data.txt";
 
+  protected IVariables variables;
   protected IHopMetadataProvider metadataProvider;
 
   @Before
   public void setUp() throws Exception {
 
+    variables = Variables.getADefaultVariableSpace();
 
     List<String> beamTransforms = Arrays.asList(
       BeamBQInputMeta.class.getName(),
@@ -125,7 +129,7 @@ public class PipelineTestBase {
 
 
   @Ignore
-  public void createRunPipeline( PipelineMeta pipelineMeta ) throws Exception {
+  public void createRunPipeline( IVariables variables, PipelineMeta pipelineMeta ) throws Exception {
 
     /*
     FileOutputStream fos = new FileOutputStream( "/tmp/"+pipelineMeta.getName()+".ktr" );
@@ -142,7 +146,7 @@ public class PipelineTestBase {
     beamRunConfig.setTempLocation( System.getProperty( "java.io.tmpdir" ) );
 
     // No extra plugins to load : null option
-    HopPipelineMetaToBeamPipelineConverter converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metadataProvider, beamRunConfig );
+    HopPipelineMetaToBeamPipelineConverter converter = new HopPipelineMetaToBeamPipelineConverter( variables, pipelineMeta, metadataProvider, beamRunConfig );
     Pipeline pipeline = converter.createPipeline();
 
     PipelineResult pipelineResult = pipeline.run();

@@ -29,7 +29,7 @@ import org.apache.hop.core.gui.WorkflowTracker;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.parameters.INamedParams;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
@@ -49,7 +49,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILoggingObject, INamedParams {
+public interface IWorkflowEngine<T extends WorkflowMeta> extends IVariables, ILoggingObject, INamedParameters {
 
   String getWorkflowName();
 

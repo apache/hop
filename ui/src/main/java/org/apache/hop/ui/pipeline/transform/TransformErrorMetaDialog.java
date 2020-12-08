@@ -23,6 +23,7 @@
 package org.apache.hop.ui.pipeline.transform;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformErrorMeta;
@@ -64,6 +65,7 @@ import java.util.List;
 public class TransformErrorMetaDialog extends Dialog {
   private static final Class<?> PKG = ITransform.class; // Needed by Translator
 
+  private final IVariables variables;
   private TransformErrorMeta transformErrorMeta;
   private List<TransformMeta> targetTransforms;
 
@@ -91,9 +93,10 @@ public class TransformErrorMetaDialog extends Dialog {
 
   private PipelineMeta pipelineMeta;
 
-  public TransformErrorMetaDialog( Shell par, TransformErrorMeta transformErrorMeta, PipelineMeta pipelineMeta,
+  public TransformErrorMetaDialog( Shell par, IVariables variables, TransformErrorMeta transformErrorMeta, PipelineMeta pipelineMeta,
                                    List<TransformMeta> targetTransforms ) {
     super( par, SWT.NONE );
+    this.variables = variables;
     this.transformErrorMeta = transformErrorMeta.clone();
     this.originalTransformErrorMeta = transformErrorMeta;
     this.targetTransforms = targetTransforms;
@@ -207,7 +210,7 @@ public class TransformErrorMetaDialog extends Dialog {
     fdlNrErrors.right = new FormAttachment( middle, -margin );
     wlNrErrors.setLayoutData( fdlNrErrors );
 
-    wNrErrors = new TextVar( pipelineMeta, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wNrErrors = new TextVar( variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wNrErrors );
     wNrErrors.addModifyListener( lsMod );
     FormData fdNrErrors = new FormData();
@@ -226,7 +229,7 @@ public class TransformErrorMetaDialog extends Dialog {
     fdlErrDesc.right = new FormAttachment( middle, -margin );
     wlErrDesc.setLayoutData( fdlErrDesc );
 
-    wErrDesc = new TextVar( pipelineMeta, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wErrDesc = new TextVar( variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrDesc );
     wErrDesc.addModifyListener( lsMod );
     FormData fdErrDesc = new FormData();
@@ -245,7 +248,7 @@ public class TransformErrorMetaDialog extends Dialog {
     fdlErrFields.right = new FormAttachment( middle, -margin );
     wlErrFields.setLayoutData( fdlErrFields );
 
-    wErrFields = new TextVar( pipelineMeta, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wErrFields = new TextVar( variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrFields );
     wErrFields.addModifyListener( lsMod );
     FormData fdErrFields = new FormData();
@@ -264,7 +267,7 @@ public class TransformErrorMetaDialog extends Dialog {
     fdlErrCodes.right = new FormAttachment( middle, -margin );
     wlErrCodes.setLayoutData( fdlErrCodes );
 
-    wErrCodes = new TextVar( pipelineMeta, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wErrCodes = new TextVar( variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrCodes );
     wErrCodes.addModifyListener( lsMod );
     FormData fdErrCodes = new FormData();
@@ -283,7 +286,7 @@ public class TransformErrorMetaDialog extends Dialog {
     fdlMaxErrors.right = new FormAttachment( middle, -margin );
     wlMaxErrors.setLayoutData( fdlMaxErrors );
 
-    wMaxErrors = new TextVar( pipelineMeta, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaxErrors = new TextVar( variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMaxErrors );
     wMaxErrors.addModifyListener( lsMod );
     FormData fdMaxErrors = new FormData();
@@ -302,7 +305,7 @@ public class TransformErrorMetaDialog extends Dialog {
     fdlMaxPct.right = new FormAttachment( middle, -margin );
     wlMaxPct.setLayoutData( fdlMaxPct );
 
-    wMaxPct = new TextVar( pipelineMeta, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaxPct = new TextVar( variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMaxPct );
     wMaxPct.addModifyListener( lsMod );
     FormData fdMaxPct = new FormData();
@@ -321,7 +324,7 @@ public class TransformErrorMetaDialog extends Dialog {
     fdlMinPctRows.right = new FormAttachment( middle, -margin );
     wlMinPctRows.setLayoutData( fdlMinPctRows );
 
-    wMinPctRows = new TextVar( pipelineMeta, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMinPctRows = new TextVar( variables, composite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMinPctRows );
     wMinPctRows.addModifyListener( lsMod );
     FormData fdMinPctRows = new FormData();

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.partition;
 
@@ -31,6 +26,7 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 
@@ -50,10 +46,7 @@ import java.util.Map;
   description = "Describes a partition schema",
   iconImage = "ui/images/partition_schema.svg"
 )
-public class PartitionSchema extends ChangedFlag implements Cloneable, IVariables, IHopMetadata {
-
-  @HopMetadataProperty
-  private String name;
+public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty
   private List<String> partitionIDs;
@@ -64,7 +57,7 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
   @HopMetadataProperty
   private String numberOfPartitions;
 
-  private IVariables variables = new Variables();
+  private volatile String metadataSource;
 
   public PartitionSchema() {
     this.dynamicallyDefined = true;
@@ -94,8 +87,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
 
     this.dynamicallyDefined = partitionSchema.dynamicallyDefined;
     this.numberOfPartitions = partitionSchema.numberOfPartitions;
-
-    this.setChanged( true );
   }
 
   public String toString() {
@@ -113,8 +104,8 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
     return name.hashCode();
   }
 
-  public List<String> calculatePartitionIds() {
-    int nrPartitions = Const.toInt( environmentSubstitute( numberOfPartitions ), 0 );
+  public List<String> calculatePartitionIds(IVariables variables) {
+    int nrPartitions = Const.toInt( variables.environmentSubstitute( numberOfPartitions ), 0 );
     if ( dynamicallyDefined ) {
       List<String> list = new ArrayList<>();
       for ( int i = 0; i < nrPartitions; i++ ) {
@@ -124,83 +115,6 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
     } else {
       return partitionIDs;
     }
-  }
-
-  public void copyVariablesFrom( IVariables variables ) {
-    this.variables.copyVariablesFrom( variables );
-  }
-
-  public String environmentSubstitute( String aString ) {
-    return variables.environmentSubstitute( aString );
-  }
-
-  public String[] environmentSubstitute( String[] aString ) {
-    return variables.environmentSubstitute( aString );
-  }
-
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
-    throws HopValueException {
-    return variables.fieldSubstitute( aString, rowMeta, rowData );
-  }
-
-  public IVariables getParentVariableSpace() {
-    return variables.getParentVariableSpace();
-  }
-
-  public void setParentVariableSpace( IVariables parent ) {
-    variables.setParentVariableSpace( parent );
-  }
-
-  public String getVariable( String variableName, String defaultValue ) {
-    return variables.getVariable( variableName, defaultValue );
-  }
-
-  public String getVariable( String variableName ) {
-    return variables.getVariable( variableName );
-  }
-
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
-    if ( !Utils.isEmpty( variableName ) ) {
-      String value = environmentSubstitute( variableName );
-      if ( !Utils.isEmpty( value ) ) {
-        return ValueMetaString.convertStringToBoolean( value );
-      }
-    }
-    return defaultValue;
-  }
-
-  public void initializeVariablesFrom( IVariables parent ) {
-    variables.initializeVariablesFrom( parent );
-  }
-
-  public String[] listVariables() {
-    return variables.listVariables();
-  }
-
-  public void setVariable( String variableName, String variableValue ) {
-    variables.setVariable( variableName, variableValue );
-  }
-
-  public void shareVariablesWith( IVariables variables ) {
-    this.variables = variables;
-  }
-
-  public void injectVariables( Map<String, String> prop ) {
-    variables.injectVariables( prop );
-  }
-
-  /**
-   * @return the name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name the name to set
-   */
-  public void setName( String name ) {
-    this.name = name;
   }
 
   /**
@@ -245,4 +159,19 @@ public class PartitionSchema extends ChangedFlag implements Cloneable, IVariable
     this.numberOfPartitions = numberOfPartitions;
   }
 
+  /**
+   * Gets metadataSource
+   *
+   * @return value of metadataSource
+   */
+  @Override public String getMetadataSource() {
+    return metadataSource;
+  }
+
+  /**
+   * @param metadataSource The metadataSource to set
+   */
+  @Override public void setMetadataSource( String metadataSource ) {
+    this.metadataSource = metadataSource;
+  }
 }

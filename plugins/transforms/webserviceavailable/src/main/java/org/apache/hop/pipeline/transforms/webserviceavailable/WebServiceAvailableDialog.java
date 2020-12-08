@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -57,8 +58,8 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
 
   private boolean gotPreviousFields = false;
 
-  public WebServiceAvailableDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public WebServiceAvailableDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (WebServiceAvailableMeta) in;
   }
 
@@ -141,7 +142,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     fdlConnectTimeOut.right = new FormAttachment( middle, -margin );
     wlConnectTimeOut.setLayoutData(fdlConnectTimeOut);
 
-    wConnectTimeOut = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wConnectTimeOut = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wConnectTimeOut.setToolTipText( BaseMessages.getString(
       PKG, "WebServiceAvailableDialog.ConnectTimeOut.Tooltip" ) );
     props.setLook( wConnectTimeOut );
@@ -153,7 +154,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wConnectTimeOut.setLayoutData(fdConnectTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( pipelineMeta.environmentSubstitute( wConnectTimeOut.getText() ) ) );
+    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( variables.environmentSubstitute( wConnectTimeOut.getText() ) ) );
 
     // Read timeout line
     Label wlReadTimeOut = new Label(shell, SWT.RIGHT);
@@ -165,7 +166,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     fdlReadTimeOut.right = new FormAttachment( middle, -margin );
     wlReadTimeOut.setLayoutData(fdlReadTimeOut);
 
-    wReadTimeOut = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReadTimeOut = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReadTimeOut.setToolTipText( BaseMessages.getString( PKG, "WebServiceAvailableDialog.ReadTimeOut.Tooltip" ) );
     props.setLook( wReadTimeOut );
     wReadTimeOut.addModifyListener( lsMod );
@@ -176,7 +177,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wReadTimeOut.setLayoutData(fdReadTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( pipelineMeta.environmentSubstitute( wReadTimeOut.getText() ) ) );
+    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( variables.environmentSubstitute( wReadTimeOut.getText() ) ) );
 
     // Result fieldname ...
     Label wlResult = new Label(shell, SWT.RIGHT);
@@ -188,7 +189,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     fdlResult.top = new FormAttachment( wReadTimeOut, margin * 2 );
     wlResult.setLayoutData(fdlResult);
 
-    wResult = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResult = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "WebServiceAvailableDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
@@ -293,7 +294,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
       try {
         String filefield = wURL.getText();
         wURL.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wURL.setItems( r.getFieldNames() );
         }

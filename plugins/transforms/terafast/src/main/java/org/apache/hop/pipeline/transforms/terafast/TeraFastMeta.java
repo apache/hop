@@ -160,12 +160,12 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
     this.variableSubstitution = this.getPropertyFactory().createBoolean( VARIABLE_SUBSTITUTION );
   }
 
-  public void check( final List<ICheckResult> remarks, final PipelineMeta transmeta, final TransformMeta transformMeta,
+  public void check( final List<ICheckResult> remarks, final PipelineMeta pipelineMeta, final TransformMeta transformMeta,
                      final IRowMeta prev, final String[] input, final String[] output, final IRowMeta info,
                      IVariables variables, IHopMetadataProvider metadataProvider ) {
     CheckResult checkResult;
     try {
-      IRowMeta tableFields = getRequiredFields( transmeta );
+      IRowMeta tableFields = getRequiredFields( variables );
       checkResult =
         new CheckResult( ICheckResult.TYPE_RESULT_OK, MESSAGES
           .getString( "TeraFastMeta.Message.ConnectionEstablished" ), transformMeta );

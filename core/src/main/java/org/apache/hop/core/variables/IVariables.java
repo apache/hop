@@ -34,42 +34,42 @@ import java.util.Map;
  */
 public interface IVariables {
   /**
-   * Initialize variable space using the defaults, copy over the variables from the parent (using copyVariablesFrom()),
+   * Initialize variable variables using the defaults, copy over the variables from the parent (using copyVariablesFrom()),
    * after this the "injected" variables should be inserted (injectVariables()).
    * <p>
-   * The parent is set as parent variable space.
+   * The parent is set as parent variable variables.
    *
    * @param parent the parent to start from, or null if root.
    */
   void initializeVariablesFrom( IVariables parent );
 
   /**
-   * Copy the variables from another space, without initializing with the defaults. This does not affect any parent
+   * Copy the variables from another variables, without initializing with the defaults. This does not affect any parent
    * relationship.
    *
-   * @param variables the space to copy the variables from.
+   * @param variables the variables to copy the variables from.
    */
   void copyVariablesFrom( IVariables variables );
 
   /**
-   * Share a variable space from another variable space. This means that the object should take over the space used as
+   * Share a variable variables from another variable variables. This means that the object should take over the variables used as
    * argument.
    *
-   * @param variables Variable space to be shared.
+   * @param variables Variable variables to be shared.
    */
   void shareVariablesWith( IVariables variables );
 
   /**
-   * Get the parent of the variable space.
+   * Get the parent of the variable variables.
    *
    * @return the parent.
    */
   IVariables getParentVariableSpace();
 
   /**
-   * Set the parent variable space
+   * Set the parent variable variables
    *
-   * @param parent The parent variable space to set
+   * @param parent The parent variable variables to set
    */
   void setParentVariableSpace( IVariables parent );
 
@@ -110,14 +110,14 @@ public interface IVariables {
   boolean getBooleanValueOfVariable( String variableName, boolean defaultValue );
 
   /**
-   * List the variables (not the values) that are currently in the variable space.
+   * List the variables (not the values) that are currently in the variable variables.
    *
    * @return Array of String variable names.
    */
   String[] listVariables();
 
   /**
-   * Substitute the string using the current variable space.
+   * Substitute the string using the current variable variables.
    *
    * @param aString The string to substitute.
    * @return The substituted string.
@@ -136,7 +136,7 @@ public interface IVariables {
 
   /**
    * Inject variables. The behaviour should be that the properties object will be stored and at the time the
-   * IVariables is initialized (or upon calling this method if the space is already initialized). After injecting the
+   * IVariables is initialized (or upon calling this method if the variables is already initialized). After injecting the
    * link of the properties object should be removed.
    *
    * @param prop Properties object containing key-value pairs.

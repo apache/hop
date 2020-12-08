@@ -43,6 +43,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class SystemDataDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SystemDataMeta.class; // Needed by Translator
@@ -53,8 +54,8 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
 
   private final SystemDataMeta input;
 
-  public SystemDataDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SystemDataDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SystemDataMeta) in;
   }
 
@@ -155,7 +156,7 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    wFields = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
+    wFields = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
       colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
@@ -266,7 +267,7 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
       getInfo( oneMeta );
 
       PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline(
-        pipelineMeta,
+        variables,
         pipelineMeta.getMetadataProvider(),
         oneMeta,
         wTransformName.getText() );
@@ -279,7 +280,7 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
       if ( previewSize > 0 ) {
         PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-            shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+            shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
         progressDialog.open();
 
         if ( !progressDialog.isCancelled() ) {
@@ -297,7 +298,7 @@ public class SystemDataDialog extends BaseTransformDialog implements ITransformD
 
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
-              shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+              shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
               .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
           prd.open();
 

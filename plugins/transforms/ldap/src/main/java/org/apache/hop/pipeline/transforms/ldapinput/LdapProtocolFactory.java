@@ -77,7 +77,7 @@ public class LdapProtocolFactory {
   /**
    * Creates the LdapProtocol appropriate for the ILdapMeta
    *
-   * @param variables the variable space for environment substitutions
+   * @param variables the variable variables for environment substitutions
    * @param meta the ldap meta
    * @param binaryAttributes binary attributes to associate with the connection
    * @return an LdapProtocol

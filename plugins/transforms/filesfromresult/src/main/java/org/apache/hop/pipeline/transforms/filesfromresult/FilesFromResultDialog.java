@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.filesfromresult;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -41,8 +42,8 @@ public class FilesFromResultDialog extends BaseTransformDialog implements ITrans
 
   private final FilesFromResultMeta input;
 
-  public FilesFromResultDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public FilesFromResultDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (FilesFromResultMeta) in;
   }
 

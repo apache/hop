@@ -200,7 +200,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
             if (inputPipelineMeta == null) {
                 ActionPipeline jet = new ActionPipeline();
                 getInfo(jet);
-                inputPipelineMeta = jet.getPipelineMeta(this.getMetadataProvider(), this.getWorkflowMeta());
+                inputPipelineMeta = jet.getPipelineMeta(this.getMetadataProvider(), variables);
             }
             String[] parameters = inputPipelineMeta.listParameters();
 
@@ -226,7 +226,7 @@ public class ActionPipelineDialog extends ActionBaseDialog implements IActionDia
     protected void pickFileVFS() {
 
         HopPipelineFileType<PipelineMeta> pipelineFileType = new HopPipelineFileType<>();
-        String filename = BaseDialog.presentFileDialog(shell, wPath, this.getWorkflowMeta(), pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true);
+        String filename = BaseDialog.presentFileDialog(shell, wPath, variables, pipelineFileType.getFilterExtensions(), pipelineFileType.getFilterNames(), true);
         if (filename != null) {
             wPath.setText(filename);
         }

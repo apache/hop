@@ -281,7 +281,7 @@ public class MVSFileParser extends FTPFileParser {
 
   /**
    * This is a split + trim function. The String.split method doesn't work well if there are a multiple contiguous
-   * white-space characters. StringTokenizer handles this very well. This should never fail to return an array, even if
+   * white-variables characters. StringTokenizer handles this very well. This should never fail to return an array, even if
    * the array is empty. In other words, this should never return null.
    *
    * @param raw The string to tokenize from the MainFrame

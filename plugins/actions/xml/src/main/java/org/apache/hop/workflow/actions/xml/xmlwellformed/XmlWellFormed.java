@@ -594,7 +594,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables variables, IHopMetadataProvider metadataProvider ) {
     boolean res = ActionValidatorUtils.andValidator().validate( this, "arguments", remarks, AndValidator.putValidators( ActionValidatorUtils.notNullValidator() ) );
 
     if ( res == false ) {

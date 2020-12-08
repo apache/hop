@@ -207,7 +207,7 @@ public class ActionTruncateTablesDialog extends ActionDialog implements IActionD
 
     wFields =
       new TableView(
-    		  getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

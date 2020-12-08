@@ -101,7 +101,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
       // So we need to calculated based on the metadata...
       //
       if ( data.inputRowMeta == null ) {
-        data.inputRowMeta = getPipelineMeta().getPrevTransformFields( getTransformMeta() );
+        data.inputRowMeta = getPipelineMeta().getPrevTransformFields( this, getTransformMeta() );
       }
 
       data.outputRowMeta = data.inputRowMeta.clone();

@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -147,8 +148,8 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
   private Button wForceFormulaRecalculation;
   private Button wLeaveExistingStylesUnchanged;
 
-  public ExcelWriterTransformDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ExcelWriterTransformDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ExcelWriterTransformMeta) in;
     inputFields = new HashMap<>();
   }
@@ -256,7 +257,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdbFilename.top = new FormAttachment( 0, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( pipelineMeta, fileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, fileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     wFilename.setToolTipText( BaseMessages.getString( PKG, "ExcelWriterDialog.Filename.Tooltip" ) );
@@ -453,7 +454,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       public void widgetSelected( SelectionEvent e ) {
         ExcelWriterTransformMeta tfoi = new ExcelWriterTransformMeta();
         getInfo( tfoi );
-        String[] files = tfoi.getFiles( pipelineMeta );
+        String[] files = tfoi.getFiles( variables );
         if ( files != null && files.length > 0 ) {
           EnterSelectionDialog esd =
             new EnterSelectionDialog( shell, files,
@@ -479,7 +480,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdlIfFileExists.top = new FormAttachment(wbShowFiles, 2 * margin, margin );
     fdlIfFileExists.right = new FormAttachment( middle, -margin );
     wlIfFileExists.setLayoutData(fdlIfFileExists);
-    // wIfFileExists=new TextVar(pipelineMeta,wFileComp, SWT.SINGLE | SWT.LEFT |
+    // wIfFileExists=new TextVar(variables,wFileComp, SWT.SINGLE | SWT.LEFT |
     // SWT.BORDER);
     wIfFileExists = new CCombo( fileGroup, SWT.LEFT | SWT.BORDER | SWT.SINGLE | SWT.READ_ONLY );
 
@@ -564,7 +565,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdlSheetname.top = new FormAttachment( 0, margin );
     fdlSheetname.right = new FormAttachment( middle, -margin );
     wlSheetname.setLayoutData(fdlSheetname);
-    wSheetname = new TextVar( pipelineMeta, sheetGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSheetname = new TextVar( variables, sheetGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSheetname.setToolTipText( BaseMessages.getString( PKG, "ExcelWriterDialog.Sheetname.Tooltip" ) );
     props.setLook( wSheetname );
     wSheetname.addModifyListener( lsMod );
@@ -654,7 +655,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdlProtectedBy.top = new FormAttachment( wProtectSheet, margin );
     fdlProtectedBy.right = new FormAttachment( middle, -margin );
     wlProtectedBy.setLayoutData( fdlProtectedBy );
-    wProtectedBy = new TextVar( pipelineMeta, sheetGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProtectedBy = new TextVar( variables, sheetGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wProtectedBy.setToolTipText( BaseMessages.getString( PKG, "ExcelWriterDialog.ProtectedBy.Tooltip" ) );
     props.setLook( wProtectedBy );
 
@@ -674,7 +675,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdlPassword.top = new FormAttachment( wProtectedBy, margin );
     fdlPassword.right = new FormAttachment( middle, -margin );
     wlPassword.setLayoutData(fdlPassword);
-    wPassword = new PasswordTextVar( pipelineMeta, sheetGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPassword = new PasswordTextVar( variables, sheetGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wPassword.setToolTipText( BaseMessages.getString( PKG, "ExcelWriterDialog.Password.Tooltip" ) );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
@@ -748,7 +749,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdbTemplateFilename.top = new FormAttachment( wTemplate, 0 );
     wbTemplateFilename.setLayoutData(fdbTemplateFilename);
 
-    wTemplateFilename = new TextVar( pipelineMeta, wTemplateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTemplateFilename = new TextVar( variables, wTemplateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTemplateFilename );
     wTemplateFilename.addModifyListener( lsMod );
     FormData fdTemplateFilename = new FormData();
@@ -793,7 +794,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdlTemplateSheetname.right = new FormAttachment( middle, -margin );
     wlTemplateSheetname.setLayoutData( fdlTemplateSheetname );
 
-    wTemplateSheetname = new TextVar( pipelineMeta, wTemplateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTemplateSheetname = new TextVar( variables, wTemplateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTemplateSheetname );
     wTemplateSheetname.addModifyListener( lsMod );
     FormData fdTemplateSheetname = new FormData();
@@ -877,7 +878,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     fdlStartingCell.top = new FormAttachment( wIfSheetExists, margin );
     fdlStartingCell.right = new FormAttachment( middle, -margin );
     wlStartingCell.setLayoutData( fdlStartingCell );
-    wStartingCell = new TextVar( pipelineMeta, wContentGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wStartingCell = new TextVar( variables, wContentGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wStartingCell.setToolTipText( BaseMessages.getString( PKG, "ExcelWriterDialog.StartingCell.Tooltip" ) );
     props.setLook( wStartingCell );
     wStartingCell.addModifyListener( lsMod );
@@ -1202,7 +1203,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
     wFields =
       new TableView(
-        pipelineMeta, fieldGroup, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, fieldGroup, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -1218,7 +1219,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -1286,24 +1287,24 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wTemplateFilename.addSelectionListener( lsDef );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() )
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() )
       + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.Filename.Tooltip" ) ) );
-    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateFilename.getText() ) ) );
+    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( variables.environmentSubstitute( wTemplateFilename.getText() ) ) );
 
-    wSheetname.addModifyListener( e -> wSheetname.setToolTipText( pipelineMeta.environmentSubstitute( wSheetname.getText() )
+    wSheetname.addModifyListener( e -> wSheetname.setToolTipText( variables.environmentSubstitute( wSheetname.getText() )
       + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.Sheetname.Tooltip" ) ) );
 
-    wTemplateSheetname.addModifyListener( e -> wTemplateSheetname.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateSheetname.getText() ) ) );
+    wTemplateSheetname.addModifyListener( e -> wTemplateSheetname.setToolTipText( variables.environmentSubstitute( wTemplateSheetname.getText() ) ) );
 
-    wStartingCell.addModifyListener( e -> wStartingCell.setToolTipText( pipelineMeta.environmentSubstitute( wStartingCell.getText() )
+    wStartingCell.addModifyListener( e -> wStartingCell.setToolTipText( variables.environmentSubstitute( wStartingCell.getText() )
       + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.StartingCell.Tooltip" ) ) );
 
     wPassword.addModifyListener( e -> wPassword.setToolTipText( BaseMessages.getString( PKG, "ExcelWriterDialog.Password.Tooltip" ) ) );
 
-    wProtectedBy.addModifyListener( e -> wProtectedBy.setToolTipText( pipelineMeta.environmentSubstitute( wProtectedBy.getText() )
+    wProtectedBy.addModifyListener( e -> wProtectedBy.setToolTipText( variables.environmentSubstitute( wProtectedBy.getText() )
       + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.ProtectedBy.Tooltip" ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*.xls", "*.xlsx", "*.*" },
       new String[] {
         BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLS.Label" ),
@@ -1311,7 +1312,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
         BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
       true )
     );
-    wbTemplateFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTemplateFilename, pipelineMeta,
+    wbTemplateFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTemplateFilename, variables,
       new String[] { "*.xls", "*.xlsx", "*.*" },
       new String[] {
         BaseMessages.getString( PKG, "ExcelWriterDialog.FormatXLS.Label" ),
@@ -1654,7 +1655,7 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           if ( v.isNumber() ) {

@@ -29,6 +29,7 @@ import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.apache.hop.core.variables.IVariables;
 
 public abstract class SalesforceTransformDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -38,8 +39,8 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog impl
 
   private final Class<? extends SalesforceTransformMeta> META_CLASS;
 
-  public SalesforceTransformDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SalesforceTransformDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     META_CLASS = ( (SalesforceTransformMeta) in ).getClass();
   }
 
@@ -56,10 +57,10 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog impl
       getInfo( meta );
 
       // get real values
-      String realURL = pipelineMeta.environmentSubstitute( meta.getTargetUrl() );
-      realUsername = pipelineMeta.environmentSubstitute( meta.getUsername() );
-      String realPassword = Utils.resolvePassword( pipelineMeta, meta.getPassword() );
-      int realTimeOut = Const.toInt( pipelineMeta.environmentSubstitute( meta.getTimeout() ), 0 );
+      String realURL = variables.environmentSubstitute( meta.getTargetUrl() );
+      realUsername = variables.environmentSubstitute( meta.getUsername() );
+      String realPassword = Utils.resolvePassword( variables, meta.getPassword() );
+      int realTimeOut = Const.toInt( variables.environmentSubstitute( meta.getTimeout() ), 0 );
 
       connection = new SalesforceConnection( log, realURL, realUsername, realPassword );
       connection.setTimeOut( realTimeOut );

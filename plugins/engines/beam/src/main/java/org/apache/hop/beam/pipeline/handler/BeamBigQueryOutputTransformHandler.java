@@ -32,6 +32,7 @@ import org.apache.hop.beam.transforms.bq.BeamBQOutputMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -41,8 +42,8 @@ import java.util.Map;
 
 public class BeamBigQueryOutputTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamBigQueryOutputTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamBigQueryOutputTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta beamOutputTransformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -53,9 +54,9 @@ public class BeamBigQueryOutputTransformHandler extends BeamBaseTransformHandler
 
     BeamBQOutputTransform beamOutputTransform = new BeamBQOutputTransform(
       beamOutputTransformMeta.getName(),
-      pipelineMeta.environmentSubstitute( beamOutputMeta.getProjectId() ),
-      pipelineMeta.environmentSubstitute( beamOutputMeta.getDatasetId() ),
-      pipelineMeta.environmentSubstitute( beamOutputMeta.getTableId() ),
+      variables.environmentSubstitute( beamOutputMeta.getProjectId() ),
+      variables.environmentSubstitute( beamOutputMeta.getDatasetId() ),
+      variables.environmentSubstitute( beamOutputMeta.getTableId() ),
       beamOutputMeta.isCreatingIfNeeded(),
       beamOutputMeta.isTruncatingTable(),
       beamOutputMeta.isFailingIfNotEmpty(),

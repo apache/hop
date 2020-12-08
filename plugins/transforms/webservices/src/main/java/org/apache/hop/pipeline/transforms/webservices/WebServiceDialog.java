@@ -32,6 +32,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformDialog;
@@ -178,13 +179,13 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void loadWebService( String anURI ) throws HopException {
-    anURI = pipelineMeta.environmentSubstitute( anURI );
+    anURI = variables.environmentSubstitute( anURI );
 
     try {
       if ( wProxyHost.getText() != null && !"".equals( wProxyHost.getText() ) ) {
         Properties systemProperties = System.getProperties();
-        systemProperties.setProperty( "http.proxyHost", pipelineMeta.environmentSubstitute( wProxyHost.getText() ) );
-        systemProperties.setProperty( "http.proxyPort", pipelineMeta.environmentSubstitute( wProxyPort.getText() ) );
+        systemProperties.setProperty( "http.proxyHost", variables.environmentSubstitute( wProxyHost.getText() ) );
+        systemProperties.setProperty( "http.proxyPort", variables.environmentSubstitute( wProxyPort.getText() ) );
       }
       wsdl = new Wsdl( new URI( anURI ), null, null, wHttpLogin.getText(), wHttpPassword.getText() );
     } catch ( Exception e ) {
@@ -363,7 +364,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
           BaseMessages.getString( PKG, "WebServiceDialog.TypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false ), };
     fieldInTableView =
-      new TableView( pipelineMeta, vCompositeTabField, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
+      new TableView( variables, vCompositeTabField, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
     fieldInTableView.setReadonly( false );
     fieldInTableView.clearAll();
     String containerName =
@@ -493,7 +494,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
           BaseMessages.getString( PKG, "WebServiceDialog.TypeColumn.Column" ), ColumnInfo.COLUMN_TYPE_TEXT,
           false ) };
     fieldOutTableView =
-      new TableView( pipelineMeta, vCompositeTabFieldOut, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
+      new TableView( variables, vCompositeTabFieldOut, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
     String outContainerName =
       outWsdlParamContainer == null ? meta.getOutFieldContainerName() : outWsdlParamContainer.getContainerName();
     tabItemFieldOut.setText( outContainerName == null ? "out" : outContainerName );
@@ -742,8 +743,8 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     }
   }
 
-  public WebServiceDialog( Shell aShell, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( aShell, (ITransformMeta) in, pipelineMeta, sname );
+  public WebServiceDialog( Shell aShell, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( aShell, variables, (ITransformMeta) in, pipelineMeta, sname );
     meta = (WebServiceMeta) in;
   }
 
@@ -895,7 +896,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
       }
     } );
 
-    wURL = new TextVar( pipelineMeta, compositeTabWebService, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wURL = new TextVar( variables, compositeTabWebService, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wURL.addModifyListener( lsMod );
     props.setLook( wURL );
     FormData fdURL = new FormData();
@@ -1025,7 +1026,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     fdlRepeatingElement.left = new FormAttachment( 0, 0 );
     fdlRepeatingElement.right = new FormAttachment( middle, -margin );
     wlRepeatingElement.setLayoutData( fdlRepeatingElement );
-    wRepeatingElement = new TextVar( pipelineMeta, compositeTabWebService, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRepeatingElement = new TextVar( variables, compositeTabWebService, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wRepeatingElement.addModifyListener( lsMod );
     wRepeatingElement.setToolTipText( BaseMessages.getString( PKG, "WebServiceDialog.RepeatingElement.Tooltip" ) );
     props.setLook( wRepeatingElement );
@@ -1074,7 +1075,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     fdlHttpLogin.left = new FormAttachment( 0, 0 );
     fdlHttpLogin.right = new FormAttachment( middle, -margin );
     wlHttpLogin.setLayoutData( fdlHttpLogin );
-    wHttpLogin = new TextVar( pipelineMeta, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHttpLogin = new TextVar( variables, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wHttpLogin.addModifyListener( lsMod );
     wHttpLogin.setToolTipText( BaseMessages.getString( PKG, "WebServiceDialog.HttpLogin.Tooltip" ) );
     props.setLook( wHttpLogin );
@@ -1093,7 +1094,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     fdlHttpPassword.left = new FormAttachment( 0, 0 );
     fdlHttpPassword.right = new FormAttachment( middle, -margin );
     wlHttpPassword.setLayoutData( fdlHttpPassword );
-    wHttpPassword = new PasswordTextVar( pipelineMeta, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHttpPassword = new PasswordTextVar( variables, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wHttpPassword.addModifyListener( lsMod );
     wHttpPassword.setToolTipText( BaseMessages.getString( PKG, "WebServiceDialog.HttpPassword.Tooltip" ) );
     props.setLook( wHttpPassword );
@@ -1132,7 +1133,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     fdlProxyHost.left = new FormAttachment( 0, 0 );
     fdlProxyHost.right = new FormAttachment( middle, -margin );
     wlProxyHost.setLayoutData( fdlProxyHost );
-    wProxyHost = new TextVar( pipelineMeta, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyHost = new TextVar( variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wProxyHost.addModifyListener( lsMod );
     wProxyHost.setToolTipText( BaseMessages.getString( PKG, "WebServiceDialog.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
@@ -1151,7 +1152,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
     fdlProxyPort.left = new FormAttachment( 0, 0 );
     fdlProxyPort.right = new FormAttachment( middle, -margin );
     wlProxyPort.setLayoutData( fdlProxyPort );
-    wProxyPort = new TextVar( pipelineMeta, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyPort = new TextVar( variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wProxyPort.addModifyListener( lsMod );
     wProxyPort.setToolTipText( BaseMessages.getString( PKG, "WebServiceDialog.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
@@ -1270,7 +1271,7 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
   private void setComboValues() {
     Runnable fieldLoader = () -> {
       try {
-        prevFields = pipelineMeta.getPrevTransformFields( transformName );
+        prevFields = pipelineMeta.getPrevTransformFields( variables, transformName );
       } catch ( HopException e ) {
         prevFields = new RowMeta();
         String msg = BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.UnableToFindInput" );

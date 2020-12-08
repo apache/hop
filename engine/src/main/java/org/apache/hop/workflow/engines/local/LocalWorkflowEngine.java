@@ -22,18 +22,7 @@
 
 package org.apache.hop.workflow.engines.local;
 
-import org.apache.hop.core.Const;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.parameters.INamedParams;
-import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.Pipeline;
-import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
-import org.apache.hop.pipeline.config.PipelineRunConfiguration;
-import org.apache.hop.pipeline.engine.IPipelineEngine;
-import org.apache.hop.pipeline.engine.PipelineEngineCapabilities;
 import org.apache.hop.workflow.Workflow;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;

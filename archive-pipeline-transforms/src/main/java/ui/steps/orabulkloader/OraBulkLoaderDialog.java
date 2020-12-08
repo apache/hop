@@ -234,7 +234,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
   private static final String[] ALL_FILETYPES = new String[] { BaseMessages.getString(
     PKG, "OraBulkLoaderDialog.Filetype.All" ) };
 
-  public OraBulkLoaderDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public OraBulkLoaderDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (OraBulkLoaderMeta) in;
     inputFields = new HashMap<String, Integer>();
@@ -341,7 +341,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdbSchema.right = new FormAttachment( 100, 0 );
     wbSchema.setLayoutData( fdbSchema );
 
-    wSchema = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsTableMod );
     fdSchema = new FormData();
@@ -367,7 +367,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdbTable.right = new FormAttachment( 100, 0 );
     fdbTable.top = new FormAttachment( wbSchema, margin );
     wbTable.setLayoutData( fdbTable );
-    wTable = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTable = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsTableMod );
     fdTable = new FormData();
@@ -393,7 +393,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdbSqlldr.right = new FormAttachment( 100, 0 );
     fdbSqlldr.top = new FormAttachment( wTable, margin );
     wbSqlldr.setLayoutData( fdbSqlldr );
-    wSqlldr = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSqlldr = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSqlldr );
     wSqlldr.addModifyListener( lsMod );
     fdSqlldr = new FormData();
@@ -471,7 +471,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdlMaxErrors.top = new FormAttachment( wLoadAction, margin );
     fdlMaxErrors.right = new FormAttachment( middle, -margin );
     wlMaxErrors.setLayoutData( fdlMaxErrors );
-    wMaxErrors = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaxErrors = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMaxErrors );
     wMaxErrors.addModifyListener( lsMod );
     fdMaxErrors = new FormData();
@@ -489,7 +489,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdlCommit.top = new FormAttachment( wMaxErrors, margin );
     fdlCommit.right = new FormAttachment( middle, -margin );
     wlCommit.setLayoutData( fdlCommit );
-    wCommit = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCommit = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCommit );
     wCommit.addModifyListener( lsMod );
     fdCommit = new FormData();
@@ -507,7 +507,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdlBindSize.top = new FormAttachment( wCommit, margin );
     fdlBindSize.right = new FormAttachment( middle, -margin );
     wlBindSize.setLayoutData( fdlBindSize );
-    wBindSize = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBindSize = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBindSize );
     wBindSize.addModifyListener( lsMod );
     fdBindSize = new FormData();
@@ -525,7 +525,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdlReadSize.top = new FormAttachment( wBindSize, margin );
     fdlReadSize.right = new FormAttachment( middle, -margin );
     wlReadSize.setLayoutData( fdlReadSize );
-    wReadSize = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReadSize = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wReadSize );
     wReadSize.addModifyListener( lsMod );
     fdReadSize = new FormData();
@@ -543,7 +543,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdlDbNameOverride.top = new FormAttachment( wReadSize, margin );
     fdlDbNameOverride.right = new FormAttachment( middle, -margin );
     wlDbNameOverride.setLayoutData( fdlDbNameOverride );
-    wDbNameOverride = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDbNameOverride = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDbNameOverride );
     wDbNameOverride.addModifyListener( lsMod );
     fdDbNameOverride = new FormData();
@@ -568,7 +568,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdbControlFile.right = new FormAttachment( 100, 0 );
     fdbControlFile.top = new FormAttachment( wDbNameOverride, margin );
     wbControlFile.setLayoutData( fdbControlFile );
-    wControlFile = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wControlFile = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wControlFile );
     wControlFile.addModifyListener( lsMod );
     fdControlFile = new FormData();
@@ -593,7 +593,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdbDataFile.right = new FormAttachment( 100, 0 );
     fdbDataFile.top = new FormAttachment( wControlFile, margin );
     wbDataFile.setLayoutData( fdbDataFile );
-    wDataFile = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDataFile = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDataFile );
     wDataFile.addModifyListener( lsMod );
     fdDataFile = new FormData();
@@ -618,7 +618,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdbLogFile.right = new FormAttachment( 100, 0 );
     fdbLogFile.top = new FormAttachment( wDataFile, margin );
     wbLogFile.setLayoutData( fdbLogFile );
-    wLogFile = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLogFile = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLogFile );
     wLogFile.addModifyListener( lsMod );
     fdLogFile = new FormData();
@@ -643,7 +643,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdbBadFile.right = new FormAttachment( 100, 0 );
     fdbBadFile.top = new FormAttachment( wLogFile, margin );
     wbBadFile.setLayoutData( fdbBadFile );
-    wBadFile = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBadFile = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBadFile );
     wBadFile.addModifyListener( lsMod );
     fdBadFile = new FormData();
@@ -668,7 +668,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdbDiscardFile.right = new FormAttachment( 100, 0 );
     fdbDiscardFile.top = new FormAttachment( wBadFile, margin );
     wbDiscardFile.setLayoutData( fdbDiscardFile );
-    wDiscardFile = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDiscardFile = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDiscardFile );
     wDiscardFile.addModifyListener( lsMod );
     fdDiscardFile = new FormData();
@@ -732,7 +732,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     fdlAltRecordTerm.top = new FormAttachment( wCharacterSetName, margin );
     fdlAltRecordTerm.right = new FormAttachment( middle, -margin );
     wlAltRecordTerm.setLayoutData( fdlAltRecordTerm );
-    wAltRecordTerm = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wAltRecordTerm = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wAltRecordTerm );
     fdAltRecordTerm = new FormData();
     fdAltRecordTerm.left = new FormAttachment( middle, 0 );
@@ -901,7 +901,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     tableFieldColumns.add( ciReturn[ 0 ] );
     wReturn =
       new TableView(
-        pipelineMeta, comp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
+        variables, comp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
     wGetLU = new Button( comp, SWT.PUSH );
@@ -957,7 +957,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -1176,7 +1176,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
                 db.connect();
 
                 String schemaTable =
-                  ci.getQuotedSchemaTableCombination( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
+                  ci.getQuotedSchemaTableCombination( variables.environmentSubstitute( schemaName ), pipelineMeta
                     .environmentSubstitute( tableName ) );
                 IRowMeta r = db.getTableFields( schemaTable );
                 if ( null != r ) {
@@ -1486,7 +1486,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
         logDebug( BaseMessages.getString( PKG, "OraBulkLoaderDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
       }
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -1503,7 +1503,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
 
   private void getUpdate() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         TableItemInsertListener listener = new TableItemInsertListener() {
           public boolean tableItemInserted( TableItem tableItem, IValueMeta v ) {
@@ -1535,7 +1535,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
         new TransformMeta( BaseMessages.getString( PKG, "OraBulkLoaderDialog.TransformMeta.Title" ), name, info );
-      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( variables, transformName );
 
       SQLStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
@@ -1576,7 +1576,7 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     IRowMeta targetFields;
 
     try {
-      sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      sourceFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindSourceFields.Title" ),
@@ -1585,10 +1585,10 @@ public class OraBulkLoaderDialog extends BaseTransformDialog implements ITransfo
     }
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
-    input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
+    input.setTableName( variables.environmentSubstitute( wTable.getText() ) );
     ITransform transformMetaInterface = transformMeta.getITransform();
     try {
-      targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
+      targetFields = transformMetaInterface.getRequiredFields( variables );
     } catch ( HopException e ) {
       new ErrorDialog( shell, BaseMessages.getString(
         PKG, "OraBulkLoaderDialog.DoMapping.UnableToFindTargetFields.Title" ), BaseMessages.getString(

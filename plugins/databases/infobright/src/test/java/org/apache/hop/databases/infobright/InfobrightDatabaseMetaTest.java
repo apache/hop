@@ -21,9 +21,18 @@
  ******************************************************************************/
 package org.apache.hop.databases.infobright;
 
+import org.apache.hop.core.HopClientEnvironment;
+import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.DatabaseMeta;
+import org.apache.hop.core.database.DatabaseMetaPlugin;
+import org.apache.hop.core.database.DatabasePluginType;
 import org.apache.hop.core.exception.HopDatabaseException;
+import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -38,6 +47,12 @@ import static org.junit.Assert.fail;
 
 public class InfobrightDatabaseMetaTest {
 
+  @Before
+  public void setup() throws HopException {
+    HopClientEnvironment.init();
+    DatabasePluginType.getInstance().registerClassPathPlugin( InfobrightDatabaseMeta.class );
+  }
+
   @Test
   public void mysqlTestOverrides() throws Exception {
     InfobrightDatabaseMeta idm = new InfobrightDatabaseMeta();
@@ -45,7 +60,6 @@ public class InfobrightDatabaseMetaTest {
     assertEquals( 5029, idm.getDefaultDatabasePort() );
   }
 
-  @Ignore
   @Test
   public void testAddOptionsInfobright() {
     DatabaseMeta databaseMeta = new DatabaseMeta( "", "Infobright", "JDBC", null, "stub:stub", null, null, null );
@@ -55,19 +69,18 @@ public class InfobrightDatabaseMetaTest {
     }
   }
 
-  @Ignore
   @Test
   public void testAttributesVariable() throws HopDatabaseException {
-    DatabaseMeta dbmeta = new DatabaseMeta( "", "Infobright", "JDBC", null, "stub:stub", null, null, null );
-    dbmeta.setVariable( "someVar", "someValue" );
-    dbmeta.setAttributes( new HashMap<>() );
-    Map<String,String> props = dbmeta.getAttributes();
+    IVariables variables = new Variables();
+    DatabaseMeta databaseMeta = new DatabaseMeta( "", "Infobright", "JDBC", null, "stub:stub", null, null, null );
+    variables.setVariable( "someVar", "someValue" );
+    databaseMeta.setAttributes( new HashMap<>() );
+    Map<String,String> props = databaseMeta.getAttributes();
     props.put( "EXTRA_OPTION_Infobright.additional_param", "${someVar}" );
-    dbmeta.getURL();
-    assertTrue( dbmeta.getURL().contains( "someValue" ) );
+    databaseMeta.getURL(variables);
+    assertTrue( databaseMeta.getURL(variables).contains( "someValue" ) );
   }
 
-  @Ignore
   @Test
   public void testfindDatabase() throws HopDatabaseException {
     List<DatabaseMeta> databases = new ArrayList<DatabaseMeta>();

@@ -145,7 +145,7 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
           String[] filesname = { filename };
           String[] filesrequired = { GetSubFoldersMeta.NO };
           // Get files list
-          data.files = meta.getDynamicFolderList( getPipelineMeta(), filesname, filesrequired );
+          data.files = meta.getDynamicFolderList( this, filesname, filesrequired );
           data.filessize = data.files.nrOfFiles();
           data.filenr = 0;
         }

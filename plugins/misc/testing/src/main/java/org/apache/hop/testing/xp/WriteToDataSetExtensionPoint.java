@@ -66,7 +66,7 @@ public class WriteToDataSetExtensionPoint implements IExtensionPoint<IPipelineEn
   public void callExtensionPoint( ILogChannel log, IPipelineEngine<PipelineMeta> pipeline ) throws HopException {
 
     final PipelineMeta pipelineMeta = pipeline.getPipelineMeta();
-    boolean writeToDataSet = "Y".equalsIgnoreCase( pipelineMeta.getVariable( DataSetConst.VAR_WRITE_TO_DATASET ) );
+    boolean writeToDataSet = "Y".equalsIgnoreCase( pipeline.getVariable( DataSetConst.VAR_WRITE_TO_DATASET ) );
     if ( !writeToDataSet ) {
       return;
     }
@@ -75,7 +75,7 @@ public class WriteToDataSetExtensionPoint implements IExtensionPoint<IPipelineEn
       // Remove the flag when done.
       // We don't want to write to the data set every time we run
       //
-      pipelineMeta.setVariable( DataSetConst.VAR_WRITE_TO_DATASET, null );
+      pipeline.setVariable( DataSetConst.VAR_WRITE_TO_DATASET, null );
 
       // Prevent memory leaking as well
       //
@@ -141,7 +141,7 @@ public class WriteToDataSetExtensionPoint implements IExtensionPoint<IPipelineEn
     pipeline.addExecutionFinishedListener( engine -> {
       // Write it
       //
-      DataSetCsvUtil.writeDataSetData( dataSet, setRowMeta, transformsForDbRows );
+      DataSetCsvUtil.writeDataSetData( pipeline, dataSet, setRowMeta, transformsForDbRows );
     } );
 
   }

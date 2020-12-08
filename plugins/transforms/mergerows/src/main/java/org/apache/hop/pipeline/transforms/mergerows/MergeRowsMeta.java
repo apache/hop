@@ -291,8 +291,8 @@ public class MergeRowsMeta extends BaseTransformMeta implements ITransformMeta<M
     IRowMeta referenceRowMeta = null;
     IRowMeta compareRowMeta = null;
     try {
-      referenceRowMeta = pipelineMeta.getPrevTransformFields( referenceStream.getTransformName() );
-      compareRowMeta = pipelineMeta.getPrevTransformFields( compareStream.getTransformName() );
+      referenceRowMeta = pipelineMeta.getPrevTransformFields( variables, referenceStream.getTransformName() );
+      compareRowMeta = pipelineMeta.getPrevTransformFields( variables, compareStream.getTransformName() );
     } catch ( HopTransformException kse ) {
       new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
         PKG, "MergeRowsMeta.CheckResult.ErrorGettingPrevTransformFields" ), transformMeta );

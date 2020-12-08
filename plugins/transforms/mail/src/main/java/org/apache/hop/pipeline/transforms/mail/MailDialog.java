@@ -29,6 +29,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -165,8 +166,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
   private final MailMeta input;
 
-  public MailDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public MailDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (MailMeta) in;
   }
 
@@ -1414,7 +1415,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
       public void widgetSelected( SelectionEvent e ) {
         DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
         if ( wSourceFileFoldername.getText() != null ) {
-          ddialog.setFilterPath( pipelineMeta.environmentSubstitute( wSourceFileFoldername.getText() ) );
+          ddialog.setFilterPath( variables.environmentSubstitute( wSourceFileFoldername.getText() ) );
         }
 
         // Calling open() will open and run the dialog.
@@ -1438,7 +1439,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdbSourceFileFoldername.top = new FormAttachment( wDynamicWildcardField, 2 * margin );
     wbFileFoldername.setLayoutData(fdbSourceFileFoldername);
 
-    wSourceFileFoldername = new TextVar( pipelineMeta, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSourceFileFoldername = new TextVar( variables, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSourceFileFoldername );
     wSourceFileFoldername.addModifyListener( lsMod );
     FormData fdSourceFileFoldername = new FormData();
@@ -1448,14 +1449,14 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wSourceFileFoldername.setLayoutData(fdSourceFileFoldername);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFoldername.addModifyListener( e -> wSourceFileFoldername.setToolTipText( pipelineMeta.environmentSubstitute( wSourceFileFoldername.getText() ) ) );
+    wSourceFileFoldername.addModifyListener( e -> wSourceFileFoldername.setToolTipText( variables.environmentSubstitute( wSourceFileFoldername.getText() ) ) );
 
     wbFileFoldername.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*" } );
         if ( wSourceFileFoldername.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wSourceFileFoldername.getText() ) );
+          dialog.setFileName( variables.environmentSubstitute( wSourceFileFoldername.getText() ) );
         }
         dialog.setFilterNames( FILETYPES );
         if ( dialog.open() != null ) {
@@ -1496,7 +1497,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdlWildcard.top = new FormAttachment( wIncludeSubFolders, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
-    wWildcard = new TextVar( pipelineMeta, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( variables, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWildcard );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "MailDialog.Wildcard.Tooltip" ) );
     wWildcard.addModifyListener( lsMod );
@@ -1507,7 +1508,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( pipelineMeta.environmentSubstitute( wWildcard.getText() ) ) );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.environmentSubstitute( wWildcard.getText() ) ) );
     FormData fdOriginFiles = new FormData();
     fdOriginFiles.left = new FormAttachment( 0, margin );
     fdOriginFiles.top = new FormAttachment(wAttachedContent, 2 * margin );
@@ -1612,7 +1613,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     // ZipFilename line
     wZipFilename =
       new LabelTextVar(
-        pipelineMeta, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipFilename.Label" ), BaseMessages
+        variables, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipFilename.Label" ), BaseMessages
         .getString( PKG, "MailDialog.ZipFilename.Tooltip" ) );
     wZipFilename.addModifyListener( lsMod );
     FormData fdZipFilename = new FormData();
@@ -1624,7 +1625,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     // Zip files on condition?
     wZipSizeCondition =
       new LabelTextVar(
-        pipelineMeta, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipSizeCondition.Label" ), BaseMessages
+        variables, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipSizeCondition.Label" ), BaseMessages
         .getString( PKG, "MailDialog.ZipSizeCondition.Tooltip" ) );
     wZipSizeCondition.addModifyListener( lsMod );
     FormData fdZipSizeCondition = new FormData();
@@ -1701,7 +1702,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdbaImageFilename.top = new FormAttachment( wTransformName, margin );
     wbaImageFilename.setLayoutData( fdbaImageFilename );
 
-    wImageFilename = new TextVar( pipelineMeta, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wImageFilename = new TextVar( variables, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wImageFilename );
     wImageFilename.addModifyListener( lsMod );
     FormData fdImageFilename = new FormData();
@@ -1711,14 +1712,14 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wImageFilename.setLayoutData( fdImageFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( pipelineMeta.environmentSubstitute( wImageFilename.getText() ) ) );
+    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( variables.environmentSubstitute( wImageFilename.getText() ) ) );
 
     wbImageFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*" } );
         if ( wImageFilename.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wImageFilename.getText() ) );
+          dialog.setFileName( variables.environmentSubstitute( wImageFilename.getText() ) );
         }
         dialog.setFilterNames( IMAGES_FILE_TYPES );
         if ( dialog.open() != null ) {
@@ -1739,7 +1740,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdlContentID.right = new FormAttachment( middle, -margin );
     wlContentID.setLayoutData( fdlContentID );
     wContentID =
-      new TextVar( pipelineMeta, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "MailDialog.ContentID.Tooltip" ) );
     props.setLook( wContentID );
     wContentID.addModifyListener( lsMod );
@@ -1798,7 +1799,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
     wFields =
       new TableView(
-        pipelineMeta, wembeddedComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        variables, wembeddedComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
         props );
 
     FormData fdFields = new FormData();
@@ -2051,7 +2052,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
         }
         wAttachContentFileNameField.removeAll();
 
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           String[] fieldnames = r.getFieldNames();
           wDestination.setItems( fieldnames );

@@ -233,7 +233,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     fdbDirectory.top = new FormAttachment( wSettings, margin );
     wbDirectory.setLayoutData( fdbDirectory );
 
-    wbDirectory.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFilename, getWorkflowMeta() ) );
+    wbDirectory.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFilename, variables ) );
 
     wbFilename = new Button( shell, SWT.PUSH | SWT.CENTER );
     props.setLook( wbFilename );
@@ -252,7 +252,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     fdbaFilename.top = new FormAttachment( wSettings, margin );
     wbaFilename.setLayoutData( fdbaFilename );
 
-    wFilename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -262,9 +262,9 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     wFilename.setLayoutData( fdFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( ( ModifyEvent e ) -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ));
+    wFilename.addModifyListener( ( ModifyEvent e ) -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ));
 
-    wbFilename.addListener( SWT.Selection, e -> BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
+    wbFilename.addListener( SWT.Selection, e -> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -278,7 +278,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
     fdlFilemask.right = new FormAttachment( middle, -margin );
     wlFilemask.setLayoutData( fdlFilemask );
     wFilemask =
-      new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobDeleteFiles.Wildcard.Tooltip" ) );
     props.setLook( wFilemask );
     wFilemask.addModifyListener( lsMod );
@@ -336,7 +336,7 @@ public class ActionDeleteFilesDialog extends ActionDialog implements IActionDial
 
     wFields =
       new TableView(
-    		  getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
+    		  variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

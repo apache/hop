@@ -31,6 +31,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
@@ -81,7 +82,6 @@ public class HopServerSequence {
   /**
    * @param name
    * @param startValue
-   * @param incrementValue
    * @param databaseMeta
    * @param schemaName
    * @param tableName
@@ -99,14 +99,14 @@ public class HopServerSequence {
     this.valueField = valueField;
   }
 
-  public synchronized long getNextValue( ILoggingObject log, long incrementValue ) throws HopException {
+  public synchronized long getNextValue( IVariables variables, ILoggingObject log, long incrementValue ) throws HopException {
 
     Database db = null;
     try {
       db = new Database( log, databaseMeta );
       db.connect();
 
-      String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+      String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
       String seqField = databaseMeta.quoteField( sequenceNameField );
       String valField = databaseMeta.quoteField( valueField );
 

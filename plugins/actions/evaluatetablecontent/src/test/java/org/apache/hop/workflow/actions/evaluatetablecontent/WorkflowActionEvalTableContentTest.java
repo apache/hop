@@ -78,8 +78,8 @@ public class WorkflowActionEvalTableContentTest {
     }
 
     @Override
-    public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoInc,
-                                      boolean addFieldname, boolean addCr ) {
+    public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoIncrement,
+                                      boolean addFieldName, boolean addCr ) {
       // TODO Auto-generated method stub
       return null;
     }
@@ -95,7 +95,7 @@ public class WorkflowActionEvalTableContentTest {
     }
 
     @Override
-    public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
+    public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoIncrement,
                                          String pk, boolean semicolon ) {
       // TODO Auto-generated method stub
       return null;
@@ -103,7 +103,7 @@ public class WorkflowActionEvalTableContentTest {
 
     @Override
     public String getModifyColumnStatement( String tableName, IValueMeta v, String tk,
-                                            boolean useAutoInc, String pk, boolean semicolon ) {
+                                            boolean useAutoIncrement, String pk, boolean semicolon ) {
       // TODO Auto-generated method stub
       return null;
     }

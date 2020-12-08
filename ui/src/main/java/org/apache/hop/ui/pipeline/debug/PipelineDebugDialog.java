@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.debug.TransformDebugMeta;
 import org.apache.hop.pipeline.debug.PipelineDebugMeta;
@@ -85,6 +86,7 @@ public class PipelineDebugDialog extends Dialog {
 
   private TableView wTransforms;
 
+  private final IVariables variables;
   private PipelineDebugMeta pipelineDebugMeta;
   private Composite wComposite;
   private LabelText wRowCount;
@@ -99,8 +101,9 @@ public class PipelineDebugDialog extends Dialog {
   private Map<TransformMeta, TransformDebugMeta> transformDebugMetaMap;
   private int previousIndex;
 
-  public PipelineDebugDialog( Shell parent, PipelineDebugMeta pipelineDebugMeta ) {
+  public PipelineDebugDialog( Shell parent, IVariables variables, PipelineDebugMeta pipelineDebugMeta ) {
     super( parent );
+    this.variables = variables;
     this.parent = parent;
     this.pipelineDebugMeta = pipelineDebugMeta;
     props = PropsUi.getInstance();
@@ -176,7 +179,7 @@ public class PipelineDebugDialog extends Dialog {
     int nrTransforms = pipelineDebugMeta.getPipelineMeta().nrTransforms();
     wTransforms =
       new TableView(
-        pipelineDebugMeta.getPipelineMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE, transformColumns,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.SINGLE, transformColumns,
         nrTransforms, true, null, props );
     FormData fdTransform = new FormData();
     fdTransform.left = new FormAttachment( 0, 0 );
@@ -439,7 +442,7 @@ public class PipelineDebugDialog extends Dialog {
 
     // The input fields...
     try {
-      transformInputFields = pipelineDebugMeta.getPipelineMeta().getTransformFields( transformMeta );
+      transformInputFields = pipelineDebugMeta.getPipelineMeta().getTransformFields( variables, transformMeta );
     } catch ( HopTransformException e ) {
       transformInputFields = new RowMeta();
     }

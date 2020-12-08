@@ -437,7 +437,7 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH,SSH
       remarks.add( cr );
     }
     if ( isusePrivateKey() ) {
-      String keyfilename = pipelineMeta.environmentSubstitute( getKeyFileName() );
+      String keyfilename = variables.environmentSubstitute( getKeyFileName() );
       if ( Utils.isEmpty( keyfilename ) ) {
         errorMessage = BaseMessages.getString( PKG, "SSHMeta.CheckResult.PrivateKeyFileNameMissing" );
         cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );

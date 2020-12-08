@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopDatabaseException;
 import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -457,12 +458,12 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
   }
 
   @Override
-  public IValueMeta getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
+  public IValueMeta getMetadataPreview( IVariables variables, DatabaseMeta databaseMeta, ResultSet rs )
     throws HopDatabaseException {
 
     try {
       if ( "INET".equalsIgnoreCase( rs.getString( "TYPE_NAME" ) ) ) {
-        IValueMeta vmi = super.getMetadataPreview( databaseMeta, rs );
+        IValueMeta vmi = super.getMetadataPreview( variables, databaseMeta, rs );
         IValueMeta valueMeta = new ValueMetaInternetAddress( name );
         valueMeta.setLength( vmi.getLength() );
         valueMeta.setOriginalColumnType( vmi.getOriginalColumnType() );
@@ -480,8 +481,8 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
   }
 
   @Override
-  public IValueMeta getValueFromSqlType(DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
-                                        int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
+  public IValueMeta getValueFromSqlType( IVariables variables, DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
+                                         int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
 
     try {
       int type = rm.getColumnType( index );
@@ -535,11 +536,11 @@ public class ValueMetaInternetAddress extends ValueMetaDate {
 
   @Override
   public String getDatabaseColumnTypeDefinition( IDatabase iDatabase, String tk, String pk,
-                                                 boolean useAutoInc, boolean addFieldname, boolean addCr ) {
+                                                 boolean useAutoIncrement, boolean addFieldName, boolean addCr ) {
 
     String retval = null;
     if ( iDatabase.isPostgresVariant() ) {
-      if ( addFieldname ) {
+      if ( addFieldName ) {
         retval = getName() + " ";
       } else {
         retval = "";

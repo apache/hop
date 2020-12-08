@@ -40,6 +40,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SplitFieldToRowsMeta.class; // Needed by Translator
@@ -62,8 +63,8 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
 
   private Button wDelimiterIsRegex;
 
-  public SplitFieldToRowsDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SplitFieldToRowsDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SplitFieldToRowsMeta) in;
   }
 
@@ -126,7 +127,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     fdlSplitfield.top = new FormAttachment( wTransformName, margin );
     wlSplitfield.setLayoutData( fdlSplitfield );
 
-    wSplitField = new ComboVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSplitField = new ComboVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSplitField.setToolTipText( BaseMessages.getString( PKG, "SplitFieldToRowsDialog.UrlField.Tooltip" ) );
     props.setLook( wSplitField );
     wSplitField.addModifyListener( lsMod );
@@ -157,7 +158,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     fdlDelimiter.right = new FormAttachment( middle, -margin );
     fdlDelimiter.top = new FormAttachment( wSplitField, margin );
     wlDelimiter.setLayoutData( fdlDelimiter );
-    wDelimiter = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDelimiter = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wDelimiter.setText( "" );
     props.setLook( wDelimiter );
     wDelimiter.addModifyListener( lsMod );
@@ -201,7 +202,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     fdlValName.right = new FormAttachment( middle, -margin );
     fdlValName.top = new FormAttachment( wDelimiterIsRegex, margin );
     wlValName.setLayoutData( fdlValName );
-    wValName = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wValName = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wValName.setText( "" );
     props.setLook( wValName );
     wValName.addModifyListener( lsMod );
@@ -253,7 +254,7 @@ public class SplitFieldToRowsDialog extends BaseTransformDialog implements ITran
     fdlInclRownumField.left = new FormAttachment( wInclRownum, margin );
     fdlInclRownumField.top = new FormAttachment( wValName, margin );
     wlInclRownumField.setLayoutData( fdlInclRownumField );
-    wInclRownumField = new TextVar( pipelineMeta, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclRownumField = new TextVar( variables, wAdditionalFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclRownumField );
     wInclRownumField.addModifyListener( lsMod );
     FormData fdInclRownumField = new FormData();

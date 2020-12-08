@@ -25,6 +25,7 @@ package org.apache.hop.ui.hopgui.dialog;
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -40,12 +41,14 @@ import java.lang.reflect.InvocationTargetException;
 public class SearchFieldsProgressDialog implements IRunnableWithProgress {
   private static final Class<?> PKG = SearchFieldsProgressDialog.class; // Needed by Translator
 
+  private final IVariables variables;
   private TransformMeta transformMeta;
   private boolean before;
   private PipelineMeta pipelineMeta;
   private IRowMeta fields;
 
-  public SearchFieldsProgressDialog( PipelineMeta pipelineMeta, TransformMeta transformMeta, boolean before ) {
+  public SearchFieldsProgressDialog( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, boolean before ) {
+    this.variables = variables;
     this.pipelineMeta = pipelineMeta;
     this.transformMeta = transformMeta;
     this.before = before;
@@ -62,14 +65,14 @@ public class SearchFieldsProgressDialog implements IRunnableWithProgress {
         // for
         // input
         // fields...
-        fields = pipelineMeta.getPrevTransformFields( transformMeta, new ProgressMonitorAdapter( monitor ) );
+        fields = pipelineMeta.getPrevTransformFields( variables, transformMeta, new ProgressMonitorAdapter( monitor ) );
       } else {
         monitor.beginTask( BaseMessages.getString(
           PKG, "SearchFieldsProgressDialog.Dialog.SearchOutputFields.Message" ), size ); // Searching
         // for
         // output
         // fields...
-        fields = pipelineMeta.getTransformFields( transformMeta, new ProgressMonitorAdapter( monitor ) );
+        fields = pipelineMeta.getTransformFields( variables, transformMeta, new ProgressMonitorAdapter( monitor ) );
       }
     } catch ( HopTransformException kse ) {
       throw new InvocationTargetException( kse, BaseMessages.getString(

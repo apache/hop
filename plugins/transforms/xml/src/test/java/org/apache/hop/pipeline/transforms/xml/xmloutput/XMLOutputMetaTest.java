@@ -345,10 +345,10 @@ public class XMLOutputMetaTest {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
     IResourceNaming resourceNamingInterface = mock( IResourceNaming.class );
-    Variables space = new Variables();
-    when( resourceNamingInterface.nameResource( any( FileObject.class ), eq( space ), eq( true ) ) ).thenReturn(
+    Variables variables = new Variables();
+    when( resourceNamingInterface.nameResource( any( FileObject.class ), eq( variables ), eq( true ) ) ).thenReturn(
         "exportFile" );
-    xmlOutputMeta.exportResources( space, null, resourceNamingInterface, null );
+    xmlOutputMeta.exportResources( variables, null, resourceNamingInterface, null );
     assertEquals( "exportFile", xmlOutputMeta.getFileName() );
   }
 
@@ -356,13 +356,13 @@ public class XMLOutputMetaTest {
   public void testCheck() throws Exception {
     XmlOutputMeta xmlOutputMeta = new XmlOutputMeta();
     xmlOutputMeta.setDefault();
-    PipelineMeta transMeta = mock( PipelineMeta.class );
+    PipelineMeta pipelineMeta = mock( PipelineMeta.class );
     TransformMeta stepInfo = mock( TransformMeta.class );
     IRowMeta prev = mock( IRowMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IRowMeta info = mock( IRowMeta.class );
     ArrayList<ICheckResult> remarks = new ArrayList<>();
-    xmlOutputMeta.check( remarks, transMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
+    xmlOutputMeta.check( remarks, pipelineMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
         new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Transform is receiving info from other steps.", remarks.get( 0 ).getText() );
@@ -376,7 +376,7 @@ public class XMLOutputMetaTest {
     xmlOutputMeta.setOutputFields( new XmlField[] { xmlField } );
     when( prev.size() ).thenReturn( 1 );
     remarks.clear();
-    xmlOutputMeta.check( remarks, transMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
+    xmlOutputMeta.check( remarks, pipelineMeta, stepInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
         new Variables(), metadataProvider );
     assertEquals( 4, remarks.size() );
     assertEquals( "Transform is connected to previous one, receiving 1 fields", remarks.get( 0 ).getText() );

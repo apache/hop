@@ -53,8 +53,8 @@ public class XmlJoinOmitNullValuesTest {
   TransformMockHelper<XmlJoinMeta, XmlJoinData> smh;
 
   @Before
-  public void init() {
-    smh = new TransformMockHelper<XmlJoinMeta, XmlJoinData>( "XmlJoin", XmlJoinMeta.class, XmlJoinData.class );
+  public void init() throws Exception {
+    smh = new TransformMockHelper<>( "XmlJoin", XmlJoinMeta.class, XmlJoinData.class );
     when( smh.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
         smh.iLogChannel );
     when( smh.pipeline.isRunning() ).thenReturn( true );
@@ -75,14 +75,14 @@ public class XmlJoinOmitNullValuesTest {
     doReturn( createSourceRowSet( sourceXml ) ).when( spy ).findInputRowSet( "source" );
     doReturn( createTargetRowSet( targetXml ) ).when( spy ).findInputRowSet( "target" );
 
-    XmlJoinMeta stepMeta = smh.iTransformMeta;
-    when( stepMeta.getSourceXmlTransform() ).thenReturn( "source" );
-    when( stepMeta.getTargetXmlTransform() ).thenReturn( "target" );
-    when( stepMeta.getSourceXmlField() ).thenReturn( "sourceField" );
-    when( stepMeta.getTargetXmlField() ).thenReturn( "targetField" );
-    when( stepMeta.getValueXmlField() ).thenReturn( "resultField" );
-    when( stepMeta.getTargetXPath() ).thenReturn( "//root" );
-    when( stepMeta.isOmitNullValues() ).thenReturn( true );
+    XmlJoinMeta transformMeta = smh.iTransformMeta;
+    when( transformMeta.getSourceXmlTransform() ).thenReturn( "source" );
+    when( transformMeta.getTargetXmlTransform() ).thenReturn( "target" );
+    when( transformMeta.getSourceXmlField() ).thenReturn( "sourceField" );
+    when( transformMeta.getTargetXmlField() ).thenReturn( "targetField" );
+    when( transformMeta.getValueXmlField() ).thenReturn( "resultField" );
+    when( transformMeta.getTargetXPath() ).thenReturn( "//root" );
+    when( transformMeta.isOmitNullValues() ).thenReturn( true );
 
     spy.init();
 

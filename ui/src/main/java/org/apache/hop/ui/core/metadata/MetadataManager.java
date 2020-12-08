@@ -513,16 +513,19 @@ public class MetadataManager<T extends IHopMetadata> {
   }
 
   /**
-   * Gets space
+   * Gets variables
+    		  variables
    *
-   * @return value of space
+   * @return value of variables
+    		  variables
    */
   public IVariables getVariables() {
     return variables;
   }
 
   /**
-   * @param variables The space to set
+   * @param variables The variables
+    		  variables to set
    */
   public void setVariables( IVariables variables ) {
     this.variables = variables;

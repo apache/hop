@@ -43,6 +43,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
 
 import java.util.Arrays;
+import org.apache.hop.core.variables.IVariables;
 
 public class TableCompareDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TableCompare.class; // Needed by Translator
@@ -76,8 +77,8 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
   private LabelCombo wReferenceValue;
   private LabelCombo wCompareValue;
 
-  public TableCompareDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public TableCompareDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (TableCompareMeta) in;
   }
 
@@ -382,7 +383,7 @@ public class TableCompareDialog extends BaseTransformDialog implements ITransfor
       public void run() {
 
         try {
-          prevFields = pipelineMeta.getPrevTransformFields( transformName );
+          prevFields = pipelineMeta.getPrevTransformFields( variables, transformName );
 
         } catch ( HopException e ) {
           String msg = BaseMessages.getString( PKG, "TableCompareDialog.DoMapping.UnableToFindInput" );

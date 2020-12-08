@@ -149,10 +149,10 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( filename ) ) {
-      String realFileName = workflowMeta.environmentSubstitute( filename );
+      String realFileName = environmentSubstitute( filename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
       references.add( reference );
@@ -172,7 +172,7 @@ public class ActionFileExists extends ActionBase implements Cloneable, IAction {
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param variables           The variable space to resolve (environment) variables with.
+   * @param variables           The variable variables to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metadataProvider       the metadataProvider to load external metadata from

@@ -63,6 +63,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SynchronizeAfterMergeMeta.class; // Needed by Translator
@@ -113,8 +114,8 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
    */
   private final List<ColumnInfo> tableFieldColumns = new ArrayList<>();
 
-  public SynchronizeAfterMergeDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SynchronizeAfterMergeDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SynchronizeAfterMergeMeta) in;
     inputFields = new HashMap<>();
   }
@@ -226,7 +227,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdbSchema.right = new FormAttachment( 100, 0 );
     wbSchema.setLayoutData(fdbSchema);
 
-    wSchema = new TextVar( pipelineMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsTableMod );
     FormData fdSchema = new FormData();
@@ -253,7 +254,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdbTable.top = new FormAttachment(wbSchema, margin );
     wbTable.setLayoutData(fdbTable);
 
-    wTable = new TextVar( pipelineMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTable = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsTableMod );
     FormData fdTable = new FormData();
@@ -272,7 +273,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdlCommit.right = new FormAttachment( middle, -margin );
     wlCommit.setLayoutData(fdlCommit);
 
-    wCommit = new TextVar( pipelineMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCommit = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCommit );
     wCommit.addModifyListener( lsMod );
     FormData fdCommit = new FormData();
@@ -385,7 +386,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
     tableFieldColumns.add( ciKey[ 0 ] );
     wKey =
-      new TableView( pipelineMeta, wGeneralComp, SWT.BORDER
+      new TableView( variables, wGeneralComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey, nrKeyRows, lsMod, props );
 
     wGet = new Button(wGeneralComp, SWT.PUSH );
@@ -430,7 +431,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "Y", "N" } );
     tableFieldColumns.add( ciReturn[ 0 ] );
     wReturn =
-      new TableView( pipelineMeta, wGeneralComp, SWT.BORDER
+      new TableView( variables, wGeneralComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn, UpInsRows, lsMod, props );
 
     Button wGetLU = new Button(wGeneralComp, SWT.PUSH);
@@ -465,7 +466,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -569,7 +570,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdlOrderInsert.top = new FormAttachment( wOperationField, margin );
     wlOrderInsert.setLayoutData(fdlOrderInsert);
 
-    wOrderInsert = new TextVar( pipelineMeta, wOperationOrder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wOrderInsert = new TextVar( variables, wOperationOrder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wOrderInsert.setToolTipText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.OrderInsert.ToolTip" ) );
     props.setLook( wOrderInsert );
     wOrderInsert.addModifyListener( lsMod );
@@ -589,7 +590,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdlOrderUpdate.top = new FormAttachment( wOrderInsert, margin );
     wlOrderUpdate.setLayoutData(fdlOrderUpdate);
 
-    wOrderUpdate = new TextVar( pipelineMeta, wOperationOrder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wOrderUpdate = new TextVar( variables, wOperationOrder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wOrderUpdate.setToolTipText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.OrderUpdate.ToolTip" ) );
     props.setLook( wOrderUpdate );
     wOrderUpdate.addModifyListener( lsMod );
@@ -609,7 +610,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     fdlOrderDelete.top = new FormAttachment( wOrderUpdate, margin );
     wlOrderDelete.setLayoutData(fdlOrderDelete);
 
-    wOrderDelete = new TextVar( pipelineMeta, wOperationOrder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wOrderDelete = new TextVar( variables, wOperationOrder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wOrderDelete.setToolTipText( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.OrderDelete.ToolTip" ) );
     props.setLook( wOrderDelete );
     wOrderDelete.addModifyListener( lsMod );
@@ -732,7 +733,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
     IRowMeta targetFields;
 
     try {
-      sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      sourceFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.DoMapping.UnableToFindSourceFields.Title" ),
@@ -742,10 +743,10 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
-    input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
+    input.setTableName( variables.environmentSubstitute( wTable.getText() ) );
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
-      targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
+      targetFields = transformMetaInterface.getRequiredFields( variables );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.DoMapping.UnableToFindTargetFields.Title" ),
@@ -855,14 +856,14 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
           DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
           if ( ci != null ) {
             Database db = new Database( loggingObject, ci );
-            db.shareVariablesWith( pipelineMeta );
+            db.shareVariablesWith( variables );
             try {
               db.connect();
 
               IRowMeta r =
                 db.getTableFieldsMeta(
-                  pipelineMeta.environmentSubstitute( schemaName ),
-                  pipelineMeta.environmentSubstitute( tableName ) );
+                  variables.environmentSubstitute( schemaName ),
+                  variables.environmentSubstitute( tableName ) );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();
                 if ( null != fieldNames ) {
@@ -928,7 +929,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
       try {
         String field = wTableField.getText();
         String fieldoperation = wOperationField.getText();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wTableField.setItems( r.getFieldNames() );
           wOperationField.setItems( r.getFieldNames() );
@@ -1115,7 +1116,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
           + databaseMeta.toString() );
       }
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -1133,7 +1134,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = (tableItem, v) -> {
           tableItem.setText( 2, "=" );
@@ -1150,7 +1151,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
   private void getUpdate() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = (tableItem, v) -> {
           tableItem.setText( 3, "Y" );
@@ -1175,13 +1176,13 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
       String name = transformName; // new name might not yet be linked to other transforms!
       TransformMeta transformMeta =
         new TransformMeta( BaseMessages.getString( PKG, "SynchronizeAfterMergeDialog.TransformMeta.Title" ), name, info );
-      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( variables, transformName );
 
-      SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, metadataProvider );
+      SqlStatement sql = info.getSqlStatements( variables, pipelineMeta, transformMeta, prev, metadataProvider );
       if ( !sql.hasError() ) {
         if ( sql.hasSql() ) {
           SqlEditor sqledit =
-            new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
+            new SqlEditor( shell, SWT.NONE, variables,  info.getDatabaseMeta(), DbCache.getInstance(), sql
               .getSql() );
           sqledit.open();
         } else {

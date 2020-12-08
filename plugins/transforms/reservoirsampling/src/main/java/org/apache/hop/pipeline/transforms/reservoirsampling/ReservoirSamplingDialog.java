@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.reservoirsampling;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -54,9 +55,9 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
   private final ReservoirSamplingMeta mCurrentMeta;
   private final ReservoirSamplingMeta mOriginalMeta;
 
-  public ReservoirSamplingDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public ReservoirSamplingDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
 
-    super( parent, (BaseTransformMeta) in, tr, sname );
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
 
     // The order here is important...
     // m_currentMeta is looked at for changes
@@ -127,7 +128,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     mFdlSampleSize.top = new FormAttachment(mWTransformName, margin );
     mWlSampleSize.setLayoutData(mFdlSampleSize);
 
-    mWSampleSize = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    mWSampleSize = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook(mWSampleSize);
     mWSampleSize.addModifyListener( lsMod );
     mWSampleSize.setText( "" + mOriginalMeta.getSampleSize() );
@@ -148,7 +149,7 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     mFdlSeed.top = new FormAttachment(mWSampleSize, margin );
     mWlSeed.setLayoutData(mFdlSeed);
 
-    mWSeed = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    mWSeed = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook(mWSeed);
     mWSeed.addModifyListener( lsMod );
     mWSeed.setText( "" + mOriginalMeta.getSeed() );
@@ -189,10 +190,10 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     } );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    mWSampleSize.addModifyListener(e -> mWSampleSize.setToolTipText( pipelineMeta.environmentSubstitute( mWSampleSize.getText() ) ) );
+    mWSampleSize.addModifyListener(e -> mWSampleSize.setToolTipText( variables.environmentSubstitute( mWSampleSize.getText() ) ) );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    mWSeed.addModifyListener(e -> mWSeed.setToolTipText( pipelineMeta.environmentSubstitute( mWSeed.getText() ) ) );
+    mWSeed.addModifyListener(e -> mWSeed.setToolTipText( variables.environmentSubstitute( mWSeed.getText() ) ) );
 
     // Set the shell size, based upon previous time...
     setSize();

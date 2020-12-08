@@ -138,11 +138,11 @@ public class ValueDataUtil {
   }
 
   /**
-   * Determines whether or not a character is considered a space. A character is considered a space in Hop if it is a
-   * space, a tab, a newline or a cariage return.
+   * Determines whether or not a character is considered a variables. A character is considered a variables in Hop if it is a
+   * variables, a tab, a newline or a cariage return.
    *
-   * @param c The character to verify if it is a space.
-   * @return true if the character is a space. false otherwise.
+   * @param c The character to verify if it is a variables.
+   * @return true if the character is a variables. false otherwise.
    * @deprecated Use {@link Const#isSpace(char)} instead
    */
   @Deprecated

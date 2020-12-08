@@ -23,6 +23,8 @@
 
 package org.apache.hop.www;
 
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
@@ -78,11 +80,14 @@ public class HopServerConfig {
 
   private String passwordFile;
 
+  private IVariables variables;
+
   public HopServerConfig() {
     databases = new ArrayList<>();
-    hopServerSequences = new ArrayList<HopServerSequence>();
+    hopServerSequences = new ArrayList<>();
     automaticCreationAllowed = false;
     passwordFile = null; // force lookup by server in ~/.hop or local folder
+    variables = Variables.getADefaultVariableSpace();
   }
 
   public HopServerConfig( HopServer hopServer ) {
@@ -219,7 +224,7 @@ public class HopServerConfig {
       database = new Database( loggingInterface, databaseMeta );
       database.connect();
       String schemaTable =
-        databaseMeta.getQuotedSchemaTableCombination( autoSequence.getSchemaName(), autoSequence.getTableName() );
+        databaseMeta.getQuotedSchemaTableCombination( variables, autoSequence.getSchemaName(), autoSequence.getTableName() );
       String seqField = databaseMeta.quoteField( autoSequence.getSequenceNameField() );
       String valueField = databaseMeta.quoteField( autoSequence.getValueField() );
 
@@ -436,4 +441,19 @@ public class HopServerConfig {
     this.passwordFile = passwordFile;
   }
 
+  /**
+   * Gets variables
+   *
+   * @return value of variables
+   */
+  public IVariables getVariables() {
+    return variables;
+  }
+
+  /**
+   * @param variables The variables to set
+   */
+  public void setVariables( IVariables variables ) {
+    this.variables = variables;
+  }
 }

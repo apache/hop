@@ -40,6 +40,7 @@ import org.apache.hop.core.gui.IScrollBar;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.Rectangle;
 import org.apache.hop.core.logging.LogChannel;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.workflow.action.ActionMeta;
 
 import java.util.Collections;
@@ -57,11 +58,11 @@ public class WorkflowPainter extends BasePainter<WorkflowHopMeta, ActionMeta> {
   private List<ActionMeta> activeActions;
   private List<ActionResult> actionResults;
 
-  public WorkflowPainter( IGc gc, WorkflowMeta workflowMeta, Point area, IScrollBar hori,
+  public WorkflowPainter( IGc gc, IVariables variables, WorkflowMeta workflowMeta, Point area, IScrollBar hori,
                           IScrollBar vert, WorkflowHopMeta candidate, Point drop_candidate, Rectangle selrect,
                           List<AreaOwner> areaOwners, int iconSize, int lineWidth, int gridSize,
                           String noteFontName, int noteFontHeight, double zoomFactor ) {
-    super( gc, workflowMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconSize, lineWidth, gridSize,
+    super( gc, variables, workflowMeta, area, hori, vert, drop_candidate, selrect, areaOwners, iconSize, lineWidth, gridSize,
       noteFontName, noteFontHeight, zoomFactor );
     this.workflowMeta = workflowMeta;
 

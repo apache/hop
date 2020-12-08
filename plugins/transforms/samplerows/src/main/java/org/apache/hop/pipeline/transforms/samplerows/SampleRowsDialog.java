@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.apache.hop.core.variables.IVariables;
 
 public class SampleRowsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SampleRowsMeta.class; // Needed by Translator
@@ -55,8 +56,8 @@ public class SampleRowsDialog extends BaseTransformDialog implements ITransformD
   private LabelTextVar wLineNumberField;
   private SampleRowsMeta input;
 
-  public SampleRowsDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public SampleRowsDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (SampleRowsMeta) in;
   }
 
@@ -116,7 +117,7 @@ public class SampleRowsDialog extends BaseTransformDialog implements ITransformD
     // Lines ragne
     wLinesRange =
       new LabelTextVar(
-        pipelineMeta, shell, BaseMessages.getString( PKG, "SampleRowsDialog.LinesRange.Label" ), BaseMessages
+        variables, shell, BaseMessages.getString( PKG, "SampleRowsDialog.LinesRange.Label" ), BaseMessages
         .getString( PKG, "SampleRowsDialog.LinesRange.Tooltip" ) );
     props.setLook( wLinesRange );
     wLinesRange.addModifyListener( lsMod );
@@ -129,7 +130,7 @@ public class SampleRowsDialog extends BaseTransformDialog implements ITransformD
     // Add line number to output?
     wLineNumberField =
       new LabelTextVar(
-        pipelineMeta, shell, BaseMessages.getString( PKG, "SampleRowsDialog.LineNumberField.Label" ),
+        variables, shell, BaseMessages.getString( PKG, "SampleRowsDialog.LineNumberField.Label" ),
         BaseMessages.getString( PKG, "SampleRowsDialog.LineNumberField.Tooltip" ) );
     props.setLook( wLinesRange );
     wLineNumberField.addModifyListener( lsMod );

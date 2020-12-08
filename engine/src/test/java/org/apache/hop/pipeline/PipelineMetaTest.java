@@ -47,7 +47,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.powermock.modules.junit4.PowerMockRunner;
 import org.w3c.dom.Node;
@@ -97,11 +96,13 @@ public class PipelineMetaTest {
   }
 
   private PipelineMeta pipelineMeta;
+  private IVariables variables;
   private IHopMetadataProvider metadataProvider;
 
   @Before
   public void setUp() throws Exception {
     pipelineMeta = new PipelineMeta();
+    variables = new Variables();
     metadataProvider = new MemoryMetadataProvider();
   }
 
@@ -151,7 +152,7 @@ public class PipelineMetaTest {
     RowMeta rowMeta = new RowMeta();
     rowMeta.addValueMeta( new ValueMetaString( "value" ) );
 
-    IRowMeta thisTransformsFields = pipelineMeta.getThisTransformFields( thisTransform, nextTransform, rowMeta );
+    IRowMeta thisTransformsFields = pipelineMeta.getThisTransformFields( variables, thisTransform, nextTransform, rowMeta );
 
     assertEquals( 1, thisTransformsFields.size() );
     assertEquals( overriddenValue, thisTransformsFields.getValueMeta( 0 ).getName() );
@@ -169,10 +170,10 @@ public class PipelineMetaTest {
     when( thisTransform.getTransform() ).thenReturn( smi );
 
     RowMeta row = new RowMeta();
-    when( smi.getTableFields() ).thenReturn( row );
+    when( smi.getTableFields(variables) ).thenReturn( row );
 
     // when
-    pipelineMeta.getThisTransformFields( thisTransform, nextTransform, row );
+    pipelineMeta.getThisTransformFields( variables, thisTransform, nextTransform, row );
 
     // then
     verify( smi, never() ).getFields( any(), any(), eq( new IRowMeta[] { row } ), any(), any(), any() );
@@ -210,8 +211,6 @@ public class PipelineMetaTest {
     pipelineMeta2.setNameSynchronizedWithFilename( false );
     pipelineMeta2.setFilename( "aFile" );
     pipelineMeta2.setName( "aName" );
-    assertEquals( 0, pipelineMeta.compare( pipelineMeta, pipelineMeta2 ) );
-    pipelineMeta2.setVariable( "myVariable", "myValue" );
     assertEquals( 0, pipelineMeta.compare( pipelineMeta, pipelineMeta2 ) );
     pipelineMeta2.setFilename( null );
     assertEquals( 1, pipelineMeta.compare( pipelineMeta, pipelineMeta2 ) );
@@ -408,7 +407,7 @@ public class PipelineMetaTest {
     Mockito.when( variables.listVariables() ).thenReturn( new String[ 0 ] );
 
     meta.loadXml( workflowNode, null, metadataProvider, false, variables );
-    meta.setInternalHopVariables( null );
+    meta.setInternalHopVariables( variables );
   }
 
   @Test
@@ -463,7 +462,7 @@ public class PipelineMetaTest {
     //  This is important with transforms like StreamLookup and Append, where the previous transforms may or may not
     //  have their fields included in the current transform.
 
-    PipelineMeta pipelineMeta = new PipelineMeta( new Variables() );
+    PipelineMeta pipelineMeta = new PipelineMeta();
     TransformMeta toBeAppended1 = testTransform( "toBeAppended1",
       emptyList(),  // no info transforms
       asList( "field1", "field2" )  // names of fields from this transform
@@ -478,7 +477,7 @@ public class PipelineMetaTest {
 
     wireUpTestPipelineMeta( pipelineMeta, toBeAppended1, toBeAppended2, append, after );
 
-    IRowMeta results = pipelineMeta.getTransformFields( append, after, mock( IProgressMonitor.class ) );
+    IRowMeta results = pipelineMeta.getTransformFields( variables, append, after, mock( IProgressMonitor.class ) );
 
     assertThat( 1, equalTo( results.size() ) );
     assertThat( "outputField", equalTo( results.getFieldNames()[ 0 ] ) );
@@ -487,7 +486,7 @@ public class PipelineMetaTest {
   @Test
   public void prevTransformFieldsAreIncludedInGetTransformFields() throws HopTransformException {
 
-    PipelineMeta pipelineMeta = new PipelineMeta( new Variables() );
+    PipelineMeta pipelineMeta = new PipelineMeta();
     TransformMeta prevTransform1 = testTransform( "prevTransform1", emptyList(), asList( "field1", "field2" ) );
     TransformMeta prevTransform2 = testTransform( "prevTransform2", emptyList(), asList( "field3", "field4", "field5" ) );
 
@@ -497,7 +496,7 @@ public class PipelineMetaTest {
 
     wireUpTestPipelineMeta( pipelineMeta, prevTransform1, prevTransform2, someTransform, after );
 
-    IRowMeta results = pipelineMeta.getTransformFields( someTransform, after, mock( IProgressMonitor.class ) );
+    IRowMeta results = pipelineMeta.getTransformFields( variables, someTransform, after, mock( IProgressMonitor.class ) );
 
     assertThat( 4, equalTo( results.size() ) );
     assertThat( new String[] { "field3", "field4", "field5", "outputField" }, equalTo( results.getFieldNames() ) );
@@ -505,7 +504,7 @@ public class PipelineMetaTest {
 
   @Test
   public void findPreviousTransformsNullMeta() {
-    PipelineMeta pipelineMeta = new PipelineMeta( new Variables() );
+    PipelineMeta pipelineMeta = new PipelineMeta();
     List<TransformMeta> result = pipelineMeta.findPreviousTransforms( null, false );
 
     assertThat( 0, equalTo( result.size() ) );
@@ -563,11 +562,11 @@ public class PipelineMetaTest {
   public void testSetInternalEntryCurrentDirectoryWithFilename() {
     PipelineMeta pipelineMetaTest = new PipelineMeta();
     pipelineMetaTest.setFilename( "hasFilename" );
-    pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
-    pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    pipelineMetaTest.setInternalEntryCurrentDirectory();
+    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
+    variables.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
+    pipelineMetaTest.setInternalEntryCurrentDirectory(variables);
 
-    assertEquals( "file:///C:/SomeFilenameDirectory", pipelineMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
+    assertEquals( "file:///C:/SomeFilenameDirectory", variables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
 
   }
 
@@ -575,10 +574,10 @@ public class PipelineMetaTest {
   @Test
   public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
     PipelineMeta pipelineMetaTest = new PipelineMeta();
-    pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
-    pipelineMetaTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
-    pipelineMetaTest.setInternalEntryCurrentDirectory();
+    variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
+    variables.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
+    pipelineMetaTest.setInternalEntryCurrentDirectory(variables);
 
-    assertEquals( "Original value defined at run execution", pipelineMetaTest.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
+    assertEquals( "Original value defined at run execution", variables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
   }
 }

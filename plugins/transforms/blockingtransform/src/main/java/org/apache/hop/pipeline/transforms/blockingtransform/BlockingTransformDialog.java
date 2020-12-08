@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.blockingtransform;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -59,8 +60,8 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
   private Label wlCompress;
   private Button wCompress;
 
-  public BlockingTransformDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public BlockingTransformDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (BlockingTransformMeta) in;
   }
 
@@ -148,7 +149,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     fdbSpoolDir.top = new FormAttachment( wPassAllRows, margin );
     wbSpoolDir.setLayoutData(fdbSpoolDir);
 
-    wSpoolDir = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSpoolDir = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSpoolDir );
     wSpoolDir.addModifyListener( lsMod );
     FormData fdSpoolDir = new FormData();
@@ -158,9 +159,9 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wSpoolDir.setLayoutData(fdSpoolDir);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSpoolDir.addModifyListener( e -> wSpoolDir.setToolTipText( pipelineMeta.environmentSubstitute( wSpoolDir.getText() ) ) );
+    wSpoolDir.addModifyListener( e -> wSpoolDir.setToolTipText( variables.environmentSubstitute( wSpoolDir.getText() ) ) );
 
-    wbSpoolDir.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSpoolDir, pipelineMeta ) );
+    wbSpoolDir.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSpoolDir, variables ) );
 
     // Prefix of temporary file
     wlPrefix = new Label( shell, SWT.RIGHT );

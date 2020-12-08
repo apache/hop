@@ -57,16 +57,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class KafkaDialogHelper {
-  private IVariables space;
+  private IVariables variables;
   private KafkaFactory kafkaFactory;
   private ComboVar wTopic;
   private TextVar wBootstrapServers;
   private TableView optionsTable;
   private TransformMeta parentMeta;
 
-  public KafkaDialogHelper( IVariables space, ComboVar wTopic, TextVar wBootstrapServers, KafkaFactory kafkaFactory,
+  public KafkaDialogHelper( IVariables variables, ComboVar wTopic, TextVar wBootstrapServers, KafkaFactory kafkaFactory,
                             TableView optionsTable, TransformMeta parentMeta ) {
-    this.space = space;
+    this.variables = variables;
     this.wTopic = wTopic;
     this.wBootstrapServers = wBootstrapServers;
     this.kafkaFactory = kafkaFactory;
@@ -109,7 +109,7 @@ public class KafkaDialogHelper {
       localMeta.setDirectBootstrapServers( directBootstrapServers );
       localMeta.setConfig( config );
       localMeta.setParentTransformMeta( parentMeta );
-      kafkaConsumer = kafkaFactory.consumer( localMeta, space::environmentSubstitute );
+      kafkaConsumer = kafkaFactory.consumer( localMeta, variables::environmentSubstitute );
       Map<String, List<PartitionInfo>> topicMap = kafkaConsumer.listTopics();
       return topicMap;
     } catch ( Exception e ) {
@@ -122,12 +122,12 @@ public class KafkaDialogHelper {
     }
   }
 
-  public static void populateFieldsList( PipelineMeta pipelineMeta, ComboVar comboVar, String TransformName ) {
+  public static void populateFieldsList( IVariables variables, PipelineMeta pipelineMeta, ComboVar comboVar, String TransformName ) {
     String current = comboVar.getText();
     comboVar.getCComboWidget().removeAll();
     comboVar.setText( current );
     try {
-      IRowMeta rmi = pipelineMeta.getPrevTransformFields( TransformName );
+      IRowMeta rmi = pipelineMeta.getPrevTransformFields( variables, TransformName );
       for ( int i = 0; i < rmi.size(); i++ ) {
         IValueMeta vmb = rmi.getValueMeta( i );
         comboVar.add( vmb.getName() );

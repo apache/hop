@@ -38,6 +38,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.RowBuffer;
 import org.apache.hop.core.svg.SvgFile;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.partition.PartitionSchema;
 import org.apache.hop.pipeline.engine.EngineComponent;
@@ -87,13 +88,14 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
   public PipelinePainter(
       IGc gc,
+      IVariables variables,
       PipelineMeta pipelineMeta,
       Point area,
       IScrollBar hori,
       IScrollBar vert,
       PipelineHopMeta candidate,
       Point drop_candidate,
-      Rectangle selrect,
+      Rectangle selectRectangle,
       List<AreaOwner> areaOwners,
       int iconSize,
       int lineWidth,
@@ -106,12 +108,13 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
       Map<String, RowBuffer> outputRowsMap) {
     super(
         gc,
+        variables,
         pipelineMeta,
         area,
         hori,
         vert,
         drop_candidate,
-        selrect,
+        selectRectangle,
         areaOwners,
         iconSize,
         lineWidth,
@@ -133,6 +136,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
   public PipelinePainter(
       IGc gc,
+      IVariables variables,
       PipelineMeta pipelineMeta,
       Point area,
       IScrollBar hori,
@@ -150,6 +154,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
 
     this(
         gc,
+        variables,
         pipelineMeta,
         area,
         hori,
@@ -942,7 +947,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
         if (fs.getName().equalsIgnoreCase(stream.getTransformName())) {
           // This is the info transform over this hop!
           //
-          if (fs.getCopies() > 1) {
+          if (fs.getCopies(variables) > 1) {
             // This is not a desirable situation, it will always end in error.
             // As such, it's better not to give feedback on it.
             // We do this by drawing an error icon over the hop...
@@ -1120,7 +1125,7 @@ public class PipelinePainter extends BasePainter<PipelineHopMeta, TransformMeta>
           if (fs.getName().equalsIgnoreCase(infoTransform)) {
             // This is the info transform over this hop!
             //
-            if (fs.getCopies() > 1) {
+            if (fs.getCopies(variables) > 1) {
               // This is not a desirable situation, it will always end in error.
               // As such, it's better not to give feedback on it.
               // We do this by drawing an error icon over the hop...

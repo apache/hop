@@ -499,15 +499,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
       + realFilename + "]" );
 
     // Pass some important information to the mapping pipeline metadata:
-
-    //  When the child parameter does exist in the parent parameters, overwrite the child parameter by the
-    // parent parameter.
-    TransformWithMappingMeta.replaceVariableValues( mappingWorkflowMeta, variables, "Workflow" );
-    if ( executorMeta.getParameters().isInheritingAllVariables() ) {
-      // All other parent parameters need to get copied into the child parameters  (when the 'Inherit all
-      // variables from the pipeline?' option is checked)
-      TransformWithMappingMeta.addMissingVariables( mappingWorkflowMeta, variables );
-    }
+    //
     mappingWorkflowMeta.setMetadataProvider( metadataProvider );
     mappingWorkflowMeta.setFilename( mappingWorkflowMeta.getFilename() );
 
@@ -552,10 +544,10 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
+  public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
     List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    String realFilename = pipelineMeta.environmentSubstitute( filename );
-    ResourceReference reference = new ResourceReference( transformInfo );
+    String realFilename = variables.environmentSubstitute( filename );
+    ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 
     if ( StringUtils.isNotEmpty( realFilename ) ) {
@@ -601,7 +593,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
       //
       String proposedNewFilename =
         executorWorkflowMeta.exportResources(
-          executorWorkflowMeta, definitions, iResourceNaming, metadataProvider );
+          variables, definitions, iResourceNaming, metadataProvider );
 
       // To get a relative path to it, we inject
       // ${Internal.Entry.Current.Directory}
@@ -1156,7 +1148,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
    *
    * @param index     the object index to load
    * @param metadataProvider the metadataProvider
-   * @param variables     the variable space to use
+   * @param variables     the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */

@@ -242,7 +242,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
   }
 
   public void getFields(IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                        IVariables space,  IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                        IVariables variables,  IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     IValueMeta v = new ValueMetaString( this.getValueName());
     v.setOrigin( name );
@@ -288,8 +288,8 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
   }
 
 
-  public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables space,
+  public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                    String[] input, String[] output, IRowMeta info, IVariables variables,
                     IHopMetadataProvider metadataProvider ) {
 
     CheckResult cr;
@@ -299,7 +299,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     if ( prev != null && prev.size() > 0 ) {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "AddXMLMeta.CheckResult.FieldsReceived", "" + prev.size() ), stepMeta );
+              "AddXMLMeta.CheckResult.FieldsReceived", "" + prev.size() ), transformMeta );
       remarks.add( cr );
 
       String errorMessage = "";
@@ -315,12 +315,12 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
       }
       if ( errorFound ) {
         errorMessage = BaseMessages.getString( PKG, "AddXMLMeta.CheckResult.FieldsNotFound", errorMessage );
-        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, stepMeta );
+        cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
         remarks.add( cr );
       } else {
         cr =
             new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "AddXMLMeta.CheckResult.AllFieldsFound" ), stepMeta );
+                "AddXMLMeta.CheckResult.AllFieldsFound" ), transformMeta );
         remarks.add( cr );
       }
     }
@@ -329,18 +329,18 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     if ( input.length > 0 ) {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "AddXMLMeta.CheckResult.ExpectedInputOk" ), stepMeta );
+              "AddXMLMeta.CheckResult.ExpectedInputOk" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "AddXMLMeta.CheckResult.ExpectedInputError" ), stepMeta );
+              "AddXMLMeta.CheckResult.ExpectedInputError" ), transformMeta );
       remarks.add( cr );
     }
 
     cr =
         new CheckResult( CheckResult.TYPE_RESULT_COMMENT, BaseMessages.getString( PKG,
-            "AddXMLMeta.CheckResult.FilesNotChecked" ), stepMeta );
+            "AddXMLMeta.CheckResult.FilesNotChecked" ), transformMeta );
     remarks.add( cr );
   }
 

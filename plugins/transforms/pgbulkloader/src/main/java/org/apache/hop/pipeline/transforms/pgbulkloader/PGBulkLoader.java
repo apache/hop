@@ -88,8 +88,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     StringBuilder contents = new StringBuilder( 500 );
 
     String tableName =
-      dm.getQuotedSchemaTableCombination(
-        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ) );
+      dm.getQuotedSchemaTableCombination( this, meta.getSchemaName(), meta.getTableName() );
 
     // Set the date style...
     //
@@ -200,8 +199,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     if ( loadAction.equalsIgnoreCase( "truncate" ) ) {
       DatabaseMeta dm = meta.getDatabaseMeta();
       String tableName =
-        dm.getQuotedSchemaTableCombination( environmentSubstitute( meta.getSchemaName() ),
-          environmentSubstitute( meta.getTableName() ) );
+        dm.getQuotedSchemaTableCombination( this, meta.getSchemaName(), meta.getTableName() );
       logBasic( "Launching command: " + "TRUNCATE " + tableName );
 
       Statement statement = connection.createStatement();

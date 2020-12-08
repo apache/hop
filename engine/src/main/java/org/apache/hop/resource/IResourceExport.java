@@ -40,7 +40,7 @@ public interface IResourceExport {
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param variables           The variable space to resolve (environment) variables with.
+   * @param variables           The variable variables to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to name appropriately
    * @param metadataProvider       the central metadata to load non-hop specific metadata from

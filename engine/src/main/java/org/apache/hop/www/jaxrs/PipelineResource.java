@@ -27,6 +27,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
@@ -205,15 +207,6 @@ public class PipelineResource {
       if ( log.isDetailed() ) {
         log.logDetailed( "Logging level set to " + log.getLogLevel().getDescription() );
       }
-      pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariablesMap() );
-
-      // Also copy the parameters over...
-      //
-      Map<String, String> params = pipelineExecutionConfiguration.getParametersMap();
-      for ( String param : params.keySet() ) {
-        String value = params.get( param );
-        pipelineMeta.setParameterValue( param, value );
-      }
 
       PipelineExecutionConfiguration executionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
 
@@ -226,7 +219,8 @@ public class PipelineResource {
       // Create the pipeline and store in the list...
       //
       String runConfigurationName = executionConfiguration.getRunConfiguration();
-      final IPipelineEngine pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta);
+      IVariables variables = Variables.getADefaultVariableSpace(); // TODO: configure
+      final IPipelineEngine pipeline = PipelineEngineFactory.createPipelineEngine( variables, runConfigurationName, metadataProvider, pipelineMeta);
       pipeline.setParent( servletLoggingObject );
 
       HopServerSingleton.getInstance().getPipelineMap().addPipeline(pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration );

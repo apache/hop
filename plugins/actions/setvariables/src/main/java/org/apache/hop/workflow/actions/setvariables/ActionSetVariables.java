@@ -423,12 +423,12 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     }
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( variableName != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < variableName.length; i++ ) {
-        String filename = workflowMeta.environmentSubstitute( variableName[ i ] );
+        String filename = environmentSubstitute( variableName[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

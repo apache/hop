@@ -59,7 +59,7 @@ public class SocketReaderDialog extends BaseTransformDialog implements ITransfor
   private TextVar wBufferSize;
   private Button wCompressed;
 
-  public SocketReaderDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public SocketReaderDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (SocketReaderMeta) in;
   }
@@ -117,7 +117,7 @@ public class SocketReaderDialog extends BaseTransformDialog implements ITransfor
     fdlHostname.right = new FormAttachment( middle, -margin );
     fdlHostname.top = new FormAttachment( wTransformName, margin );
     wlHostname.setLayoutData( fdlHostname );
-    wHostname = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHostname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wHostname.setText( transformName );
     props.setLook( wHostname );
     wHostname.addModifyListener( lsMod );
@@ -136,7 +136,7 @@ public class SocketReaderDialog extends BaseTransformDialog implements ITransfor
     fdlPort.right = new FormAttachment( middle, -margin );
     fdlPort.top = new FormAttachment( wHostname, margin );
     wlPort.setLayoutData( fdlPort );
-    wPort = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPort = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wPort.setText( transformName );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
@@ -155,7 +155,7 @@ public class SocketReaderDialog extends BaseTransformDialog implements ITransfor
     fdlBufferSize.right = new FormAttachment( middle, -margin );
     fdlBufferSize.top = new FormAttachment( wPort, margin );
     wlBufferSize.setLayoutData( fdlBufferSize );
-    wBufferSize = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBufferSize = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wBufferSize.setText( transformName );
     props.setLook( wBufferSize );
     wBufferSize.addModifyListener( lsMod );

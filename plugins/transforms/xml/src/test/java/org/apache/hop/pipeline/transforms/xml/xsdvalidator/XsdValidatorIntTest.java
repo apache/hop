@@ -154,11 +154,11 @@ public class XsdValidatorIntTest {
     meta.setXSDSource( meta.SPECIFY_FIELDNAME );
     meta.setXSDDefinedField( "SchemaFile" );
     meta.setAddValidationMessage( true );
-    PipelineMeta transMeta = PipelineTestFactory.generateTestTransformation( null, meta, TransformName );
+    PipelineMeta pipelineMeta = PipelineTestFactory.generateTestTransformation( null, meta, TransformName );
 
     List<RowMetaAndData> result = null;
     result =
-        PipelineTestFactory.executeTestTransformation( transMeta, PipelineTestFactory.INJECTOR_TRANSFORMNAME, TransformName,
+        PipelineTestFactory.executeTestTransformation( pipelineMeta, PipelineTestFactory.INJECTOR_TRANSFORMNAME, TransformName,
             PipelineTestFactory.DUMMY_TRANSFORMNAME, inputData );
 
     assertNotNull( result );

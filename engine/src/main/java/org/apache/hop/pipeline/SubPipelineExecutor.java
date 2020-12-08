@@ -138,14 +138,13 @@ public class SubPipelineExecutor {
     }
 
     subPipeline.setInternalHopVariables( this.parentPipeline );
-    subPipeline.copyParametersFrom( this.subPipelineMeta );
     subPipeline.setPreview( this.parentPipeline.isPreview() );
     PipelineTransformUtil.initServletConfig( this.parentPipeline, subPipeline );
     return subPipeline;
   }
 
   private void passParametersToPipeline( IPipelineEngine<PipelineMeta> internalPipeline, RowMetaAndData rowMetaAndData ) throws HopException {
-    internalPipeline.clearParameters();
+    internalPipeline.clearParameterValues();
     String[] parameterNames = internalPipeline.listParameters();
 
     for ( int i = 0; i < this.parameters.getVariable().length; ++i ) {
@@ -172,7 +171,7 @@ public class SubPipelineExecutor {
       }
     }
 
-    internalPipeline.activateParameters();
+    internalPipeline.activateParameters(internalPipeline);
   }
 
   public void stop() {

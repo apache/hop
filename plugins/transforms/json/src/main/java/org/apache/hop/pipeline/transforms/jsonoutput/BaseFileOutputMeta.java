@@ -116,7 +116,7 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
 
   public abstract int getSplitEvery();
 
-  public int getSplitEvery( IVariables space ) {
+  public int getSplitEvery( IVariables variables ) {
     return getSplitEvery();
   }
 
@@ -171,14 +171,14 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
   }
 
 
-  public String[] getFiles( final IVariables space ) {
-    return getFiles( space, true );
+  public String[] getFiles( final IVariables variables ) {
+    return getFiles( variables, true );
   }
 
-  private String[] getFiles( final IVariables space, final boolean showSamples ) {
+  private String[] getFiles( final IVariables variables, final boolean showSamples ) {
 
-    String realFileName = space.environmentSubstitute( fileName );
-    String realExtension = space.environmentSubstitute( extension );
+    String realFileName = variables.environmentSubstitute( fileName );
+    String realExtension = variables.environmentSubstitute( extension );
 
     return getFiles( realFileName, realExtension, showSamples );
   }
@@ -236,17 +236,17 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
   }
 
   public String buildFilename(
-    final IVariables space, final String stepnr, final String partnr, final String splitnr,
+    final IVariables variables, final String copyNr, final String partitionNr, final String splitNr,
     final boolean ziparchive ) {
-    return buildFilename( space, stepnr, partnr, splitnr, ziparchive, true );
+    return buildFilename( variables, copyNr, partitionNr, splitNr, ziparchive, true );
   }
 
   public String buildFilename(
-    final IVariables space, final String stepnr, final String partnr, final String splitnr,
+    final IVariables variables, final String stepnr, final String partnr, final String splitnr,
     final boolean ziparchive, final boolean showSamples ) {
 
-    String realFileName = space.environmentSubstitute( fileName );
-    String realExtension = space.environmentSubstitute( extension );
+    String realFileName = variables.environmentSubstitute( fileName );
+    String realExtension = variables.environmentSubstitute( extension );
 
     return buildFilename( realFileName, realExtension, stepnr, partnr, splitnr, new Date(), ziparchive, showSamples );
   }
@@ -268,7 +268,7 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
   }
 
   protected String buildFilename(
-    final IVariables space, final String realFileName, final String realExtension, final String stepnr,
+    final IVariables variables, final String realFileName, final String realExtension, final String stepnr,
     final String partnr, final String splitnr, final Date date, final boolean ziparchive, final boolean showSamples,
     final BaseFileOutputMeta meta ) {
 
@@ -313,7 +313,7 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
     if ( meta.isPartNrInFilename() ) {
       retval += "_" + partnr;
     }
-    if ( meta.getSplitEvery( space ) > 0 ) {
+    if ( meta.getSplitEvery( variables ) > 0 ) {
       retval += "_" + splitnr;
     }
 
@@ -334,16 +334,5 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
       }
     }
     return retval;
-  }
-
-  public String[] getFilePaths( final boolean showSamples ) {
-    final TransformMeta parentTransformMeta = getParentTransformMeta();
-    if ( parentTransformMeta != null ) {
-      final PipelineMeta parentPipelineMeta = parentTransformMeta.getParentPipelineMeta();
-      if ( parentPipelineMeta != null ) {
-        return getFiles( parentPipelineMeta, showSamples );
-      }
-    }
-    return new String[] {};
   }
 }

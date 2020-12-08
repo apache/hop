@@ -98,7 +98,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
       // So we need to calculated based on the metadata...
       //
       if ( data.inputRowMeta == null ) {
-        data.inputRowMeta = getPipelineMeta().getPrevTransformFields( getTransformMeta() );
+        data.inputRowMeta = getPipelineMeta().getPrevTransformFields( this, getTransformMeta() );
       }
 
       data.outputRowMeta = data.inputRowMeta.clone();

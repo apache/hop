@@ -329,12 +329,12 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( tableNames != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < tableNames.length; i++ ) {
-        String filename = workflowMeta.environmentSubstitute( tableNames[ i ] );
+        String filename = environmentSubstitute( tableNames[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

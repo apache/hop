@@ -26,7 +26,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogChannelFileWriter;
-import org.apache.hop.core.parameters.INamedParams;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.variables.IVariables;
@@ -256,7 +256,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       throws HopException {
     PipelineMeta pipelineMeta = loadPipeline(realFilename, metadataProvider, this);
     IPipelineEngine<PipelineMeta> pipeline =
-        PipelineEngineFactory.createPipelineEngine(
+        PipelineEngineFactory.createPipelineEngine( this,
             runConfigurationName, metadataProvider, pipelineMeta);
     pipeline.setParentWorkflow(getParentWorkflow());
     pipeline.setParent( this );
@@ -267,18 +267,16 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
       // Also copy the parameters over...
       //
-      pipeline.copyParametersFrom(pipelineMeta);
-      pipeline.copyParametersFrom(parentWorkflow);
+      pipeline.copyParametersFromDefinitions( pipelineMeta);
     }
     pipeline.getPipelineMeta().setInternalHopVariables(pipeline);
-    pipeline.injectVariables(getVariablesMap(pipelineMeta, previousResult));
+    pipeline.injectVariables(getVariablesMap(pipeline, previousResult));
 
     // TODO: check this!
-    INamedParams previousParams =
-        previousResult == null ? null : (INamedParams) previousResult.variables;
+    INamedParameters previousParams =
+        previousResult == null ? null : (INamedParameters) previousResult.variables;
     IVariables previousVars = previousResult == null ? null : previousResult.variables;
     updateParameters(pipeline, previousVars, getParentWorkflow(), previousParams);
-    updateParameters(pipelineMeta, previousVars, getParentWorkflow(), previousParams);
 
     pipeline.setLogLevel(getLogLevel());
     pipeline.setMetadataProvider(metadataProvider);
@@ -347,7 +345,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   private Map<String, String> getVariablesMap(
-      INamedParams namedParams, ExecutionResult previousResult) {
+    INamedParameters namedParams, ExecutionResult previousResult) {
     String[] params = namedParams.listParameters();
     Map<String, String> variablesMap = new HashMap<>();
 
@@ -372,6 +370,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
     WorkflowMeta workflowMeta = loadWorkflow(realFilename, metadataProvider, this);
     IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine(
+      this,
       runConfigurationName,
       metadataProvider,
       workflowMeta,
@@ -386,18 +385,16 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
 
       // Also copy the parameters over...
       //
-      workflow.copyParametersFrom(workflowMeta);
-      workflow.copyParametersFrom(parentWorkflow);
+      workflow.copyParametersFromDefinitions(workflowMeta);
     }
 
     workflow.getWorkflowMeta().setInternalHopVariables(workflow);
-    workflow.injectVariables(getVariablesMap(workflowMeta, previousResult));
+    workflow.injectVariables(getVariablesMap(workflow, previousResult));
 
     // TODO: check this!
-    INamedParams previousParams = previousResult == null ? null : (INamedParams) previousResult.variables;
+    INamedParameters previousParams = previousResult == null ? null : (INamedParameters) previousResult.variables;
     IVariables previousVars = previousResult == null ? null : (IVariables) previousResult.variables;
     updateParameters(workflow, previousVars, getParentWorkflow(), previousParams);
-    updateParameters(workflowMeta, previousVars, getParentWorkflow(), previousParams);
 
     workflow.setLogLevel(getLogLevel());
 
@@ -442,11 +439,12 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   }
 
   private void updateParameters(
-      INamedParams subParams, IVariables subVars, INamedParams... params) {
+    INamedParameters subParams, IVariables subVars, INamedParameters... params) {
     // Inherit
-    for (INamedParams param : params) {
+    for ( INamedParameters param : params) {
       if (param != null) {
-        subParams.mergeParametersWith(param, true);
+        // TODO : Merge
+        // subParams.mergeParametersWith(param, true);
       }
     }
 
@@ -479,7 +477,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       }
     }
 
-    subParams.activateParameters();
+    // subParams.activateParameters(); TODO
   }
 
   private boolean isVariableValueSet(IVariables variables) {

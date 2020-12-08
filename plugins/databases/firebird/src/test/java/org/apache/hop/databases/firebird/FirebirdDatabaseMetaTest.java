@@ -148,7 +148,7 @@ public class FirebirdDatabaseMetaTest {
       nativeMeta.getFieldDefinition( new ValueMetaString( "FOO", 15, 0 ), "", "", false, true, false ) );
 
     assertEquals( "\"SELECT\"VARCHAR(15)",
-      nativeMeta.getFieldDefinition( new ValueMetaString( "SELECT", 15, 0 ), "", "", false, true, false ) ); // Missing space between quote is a bug
+      nativeMeta.getFieldDefinition( new ValueMetaString( "SELECT", 15, 0 ), "", "", false, true, false ) ); // Missing variables between quote is a bug
 
     assertEquals( "TIMESTAMP",
       nativeMeta.getFieldDefinition( new ValueMetaDate( "FOO" ), "", "", false, false, false ) );

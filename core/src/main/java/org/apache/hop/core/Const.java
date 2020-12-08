@@ -379,7 +379,7 @@ public class Const {
   /*
    * Deprecated variables array.
    * Variables in this array will display with the prefix (deprecated) and will be moved
-   * at the bottom of the variables dropdown when pressing ctrl+space
+   * at the bottom of the variables dropdown when pressing ctrl+variables
    * */
   public static final String[] DEPRECATED_VARIABLES = new String[] {
     Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY,
@@ -1216,11 +1216,11 @@ public class Const {
   }
 
   /**
-   * Determines whether or not a character is considered a space. A character is considered a space in Hop if it is a
-   * space, a tab, a newline or a cariage return.
+   * Determines whether or not a character is considered a variables. A character is considered a variables in Hop if it is a
+   * variables, a tab, a newline or a cariage return.
    *
-   * @param c The character to verify if it is a space.
-   * @return true if the character is a space. false otherwise.
+   * @param c The character to verify if it is a variables.
+   * @return true if the character is a variables. false otherwise.
    */
   public static boolean isSpace( char c ) {
     return c == ' ' || c == '\t' || c == '\r' || c == '\n' || Character.isWhitespace( c );
@@ -2587,7 +2587,7 @@ public class Const {
    * Create an array of Strings consisting of spaces. The index of a String in the array determines the number of spaces
    * in that string.
    *
-   * @return array of 'space' Strings.
+   * @return array of 'variables' Strings.
    */
   public static String[] getEmptyPaddedStrings() {
     if ( emptyPaddedSpacesStrings == null ) {

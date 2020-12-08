@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -56,8 +57,8 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
 
   private IRowMeta inputFields;
 
-  public ClosureGeneratorDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ClosureGeneratorDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ClosureGeneratorMeta) in;
   }
 
@@ -189,7 +190,7 @@ public class ClosureGeneratorDialog extends BaseTransformDialog implements ITran
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          inputFields = pipelineMeta.getPrevTransformFields( transformMeta );
+          inputFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
           setComboBoxes();
         } catch ( HopException e ) {
           logError( BaseMessages.getString( PKG, "ClosureGeneratorDialog.Log.UnableToFindInput" ) );

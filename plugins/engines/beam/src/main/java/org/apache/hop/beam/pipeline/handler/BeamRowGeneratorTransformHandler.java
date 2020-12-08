@@ -40,6 +40,7 @@ import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -55,12 +56,14 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
     implements IBeamTransformHandler {
 
   public BeamRowGeneratorTransformHandler(
-      IBeamPipelineEngineRunConfiguration runConfiguration,
+    IVariables variables,
+    IBeamPipelineEngineRunConfiguration runConfiguration,
       IHopMetadataProvider metadataProvider,
       PipelineMeta pipelineMeta,
       List<String> transformPluginClasses,
       List<String> xpPluginClasses) {
     super(
+      variables,
         runConfiguration,
         false,
         false,
@@ -113,7 +116,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
       throw new HopException("Error encoding row as XML", e);
     }
 
-    long intervalMs = Const.toLong(pipelineMeta.environmentSubstitute(meta.getIntervalInMs()), -1L);
+    long intervalMs = Const.toLong(variables.environmentSubstitute(meta.getIntervalInMs()), -1L);
     if (intervalMs < 0) {
       throw new HopException(
           "The interval in milliseconds is expected to be >= 0, not '"
@@ -134,7 +137,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
               + intervalMs
               + "}"
               + ", \"forceNumInitialBundles\" : "
-              + transformMeta.getCopies()
+              + transformMeta.getCopies(variables)
               + "}";
 
       try {
@@ -147,9 +150,9 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
       SyntheticUnboundedSource unboundedSource = new SyntheticUnboundedSource(options);
       Read.Unbounded<KV<byte[], byte[]>> unboundedReader = Read.from(unboundedSource);
       PCollection<KV<byte[], byte[]>> sourceInput = pipeline.apply(unboundedReader);
-      String currentTimeField = pipelineMeta.environmentSubstitute(meta.getRowTimeField());
+      String currentTimeField = variables.environmentSubstitute(meta.getRowTimeField());
       int currentTimeFieldIndex = rowMeta.indexOfValue(currentTimeField);
-      String previousTimeField = pipelineMeta.environmentSubstitute(meta.getLastTimeField());
+      String previousTimeField = variables.environmentSubstitute(meta.getLastTimeField());
       int previousTimeFieldIndex = rowMeta.indexOfValue(previousTimeField);
 
       afterInput =
@@ -169,7 +172,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
 
       // A fixed number of records
       //
-      long numRecords = Const.toLong(pipelineMeta.environmentSubstitute(meta.getRowLimit()), -1L);
+      long numRecords = Const.toLong(variables.environmentSubstitute(meta.getRowLimit()), -1L);
       if (numRecords < 0) {
         throw new HopException(
             "Please specify a valid number of records to generate, not '"
@@ -182,7 +185,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
               + "\"numRecords\" : "
               + numRecords
               + ", \"forceNumInitialBundles\" : "
-              + transformMeta.getCopies()
+              + transformMeta.getCopies(variables)
               + "}";
 
       SyntheticSourceOptions options;

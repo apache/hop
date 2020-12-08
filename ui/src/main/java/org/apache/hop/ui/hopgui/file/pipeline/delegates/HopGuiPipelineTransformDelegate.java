@@ -32,6 +32,7 @@ import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.plugins.TransformPluginType;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.history.AuditManager;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.IPartitioner;
@@ -80,8 +81,8 @@ public class HopGuiPipelineTransformDelegate {
   }
 
   public ITransformDialog getTransformDialog( ITransformMeta transformMeta, PipelineMeta pipelineMeta, String transformName ) throws HopException {
-    Class<?>[] paramClasses = new Class<?>[] { Shell.class, Object.class, PipelineMeta.class, String.class };
-    Object[] paramArgs = new Object[] { hopGui.getShell(), transformMeta, pipelineMeta, transformName };
+    Class<?>[] paramClasses = new Class<?>[] { Shell.class, IVariables.class, Object.class, PipelineMeta.class, String.class };
+    Object[] paramArgs = new Object[] { hopGui.getShell(), pipelineGraph.getVariables(), transformMeta, pipelineMeta, transformName };
 
     PluginRegistry registry = PluginRegistry.getInstance();
     IPlugin plugin = registry.getPlugin( TransformPluginType.class, transformMeta );
@@ -108,7 +109,7 @@ public class HopGuiPipelineTransformDelegate {
     } catch ( Exception e ) {
       // try the old way for compatibility
       try {
-        Class<?>[] sig = new Class<?>[] { Shell.class, ITransformMeta.class, PipelineMeta.class, String.class };
+        Class<?>[] sig = new Class<?>[] { Shell.class, IVariables.class, ITransformMeta.class, PipelineMeta.class, String.class };
         Method method = transformMeta.getClass().getDeclaredMethod( "getDialog", sig );
         if ( method != null ) {
           hopGui.getLog().logDebug( "Use of ITransformMeta#getDialog is deprecated, use PluginDialog annotation instead." );
@@ -422,13 +423,13 @@ public class HopGuiPipelineTransformDelegate {
     if ( transformMeta != null && transformMeta.supportsErrorHandling() ) {
       TransformErrorMeta transformErrorMeta = transformMeta.getTransformErrorMeta();
       if ( transformErrorMeta == null ) {
-        transformErrorMeta = new TransformErrorMeta( pipelineMeta, transformMeta );
+        transformErrorMeta = new TransformErrorMeta( transformMeta );
       }
       List<TransformMeta> targetTransforms = pipelineMeta.findNextTransforms( transformMeta );
 
       // now edit this transformErrorMeta object:
       TransformErrorMetaDialog dialog =
-        new TransformErrorMetaDialog( hopGui.getShell(), transformErrorMeta, pipelineMeta, targetTransforms );
+        new TransformErrorMetaDialog( hopGui.getShell(), pipelineGraph.getVariables(), transformErrorMeta, pipelineMeta, targetTransforms );
       if ( dialog.open() ) {
         transformMeta.setTransformErrorMeta( transformErrorMeta );
         transformMeta.setChanged();

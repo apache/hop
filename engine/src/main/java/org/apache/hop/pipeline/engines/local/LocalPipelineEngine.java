@@ -25,7 +25,7 @@ package org.apache.hop.pipeline.engines.local;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.parameters.INamedParams;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
@@ -51,12 +51,12 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
     setDefaultRunConfiguration();
   }
 
-  public LocalPipelineEngine( PipelineMeta pipelineMeta, ILoggingObject parent ) {
-    super( pipelineMeta, parent );
+  public LocalPipelineEngine( PipelineMeta pipelineMeta, IVariables variables, ILoggingObject parent ) {
+    super( pipelineMeta, variables, parent );
     setDefaultRunConfiguration();
   }
 
-  public <Parent extends IVariables & INamedParams> LocalPipelineEngine( Parent parent, String name, String filename, IHopMetadataProvider metadataProvider ) throws HopException {
+  public <Parent extends IVariables & INamedParameters> LocalPipelineEngine( Parent parent, String name, String filename, IHopMetadataProvider metadataProvider ) throws HopException {
     super( parent, name, filename, metadataProvider );
     setDefaultRunConfiguration();
   }
@@ -77,7 +77,7 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
     LocalPipelineRunConfiguration config = (LocalPipelineRunConfiguration) pipelineRunConfiguration.getEngineRunConfiguration();
 
-    int sizeRowsSet = Const.toInt( pipelineMeta.environmentSubstitute( config.getRowSetSize() ), Const.ROWS_IN_ROWSET );
+    int sizeRowsSet = Const.toInt( environmentSubstitute( config.getRowSetSize() ), Const.ROWS_IN_ROWSET );
     setRowSetSize( sizeRowsSet );
     setSafeModeEnabled( config.isSafeModeEnabled() );
     setSortingTransformsTopologically( config.isSortingTransformsTopologically() );

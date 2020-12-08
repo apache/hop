@@ -131,16 +131,15 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
     }
   }
 
-  public void getAllVariables( PipelineMeta pipelineMeta ) {
+  public void getAllVariables( IVariables variables, PipelineMeta pipelineMeta ) {
     Properties sp = new Properties();
-    IVariables variables = Variables.getADefaultVariableSpace();
 
     String[] keys = variables.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
       sp.put( keys[ i ], variables.getVariable( keys[ i ] ) );
     }
 
-    String[] vars = pipelineMeta.listVariables();
+    String[] vars = variables.listVariables();
     if ( vars != null && vars.length > 0 ) {
       HashMap<String, String> newVariables = new HashMap<>();
 
@@ -155,17 +154,15 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
     // Also add the internal workflow variables if these are set...
     //
     for ( String variableName : Const.INTERNAL_WORKFLOW_VARIABLES ) {
-      String value = pipelineMeta.getVariable( variableName );
+      String value = variables.getVariable( variableName );
       if ( !Utils.isEmpty( value ) ) {
         variablesMap.put( variableName, value );
       }
     }
   }
 
-  public void getUsedVariables( PipelineMeta pipelineMeta ) {
+  public void getUsedVariables( IVariables variables, PipelineMeta pipelineMeta ) {
     Properties sp = new Properties();
-    IVariables variables = new Variables();
-    variables.initializeVariablesFrom( pipelineMeta );
 
     String[] keys = variables.listVariables();
     for ( int i = 0; i < keys.length; i++ ) {
@@ -191,7 +188,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
     // Also add the internal workflow variables if these are set...
     //
     for ( String variableName : Const.INTERNAL_WORKFLOW_VARIABLES ) {
-      String value = pipelineMeta.getVariable( variableName );
+      String value = variables.getVariable( variableName );
       if ( !Utils.isEmpty( value ) ) {
         variablesMap.put( variableName, value );
       }

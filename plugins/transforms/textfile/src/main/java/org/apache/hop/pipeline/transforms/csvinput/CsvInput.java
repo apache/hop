@@ -882,7 +882,7 @@ public class CsvInput
 
       if ( meta.isRunningInParallel() ) {
         data.transformNumber = getCopyNr();
-        data.totalNumberOfTransforms = getTransformMeta().getCopies();
+        data.totalNumberOfTransforms = getTransformMeta().getCopies(this);
 
         // We are not handling a single file, but possibly a list of files...
         // As such, the fair thing to do is calculate the total size of the files

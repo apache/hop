@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.testing;
 
@@ -35,6 +30,7 @@ import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -56,10 +52,7 @@ import java.util.List;
   description = "This describes a test for a pipeline with alternative data sets as input from certain transform and testing output against golden data",
   iconImage = "Test_tube_icon.svg"
 )
-public class PipelineUnitTest extends Variables implements IVariables, Cloneable, IHopMetadata {
-
-  @HopMetadataProperty
-  private String name;
+public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   @HopMetadataProperty
   private String description;
@@ -128,23 +121,6 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
     this.autoOpening = autoOpening;
   }
 
-  @Override
-  public boolean equals( Object obj ) {
-    if ( obj == this ) {
-      return true;
-    }
-    if ( !( obj instanceof PipelineUnitTest ) ) {
-      return false;
-    }
-    return ( (PipelineUnitTest) obj ).name.equalsIgnoreCase( name );
-  }
-
-  @Override
-  public int hashCode() {
-    return name.hashCode();
-  }
-
-
   public PipelineUnitTestSetLocation findGoldenLocation( String transformName ) {
     for ( PipelineUnitTestSetLocation location : goldenDataSets ) {
       if ( transformName.equalsIgnoreCase( location.getTransformName() ) ) {
@@ -188,7 +164,6 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
       if ( goldenDataSet == null ) {
         throw new HopException( "Unable to find golden data set '" + goldenDataSetName + "' for transform '" + transformName + "'" );
       }
-      goldenDataSet.initializeVariablesFrom( this );
 
       return goldenDataSet;
 
@@ -234,14 +209,14 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
     }
   }
 
-  public boolean matchesPipelineFilename(String referencePipelineFilename) throws HopFileException, FileSystemException {
+  public boolean matchesPipelineFilename(IVariables variables, String referencePipelineFilename) throws HopFileException, FileSystemException {
     if ( Utils.isEmpty(referencePipelineFilename)) {
       return false;
     }
     FileObject pipelineFile = HopVfs.getFileObject( referencePipelineFilename );
     String pipelineUri = pipelineFile.getName().getURI();
 
-    String testPipelineFilename = calculateCompleteFilename();
+    String testPipelineFilename = calculateCompleteFilename(variables);
     if (Utils.isEmpty(testPipelineFilename)) {
       return false;
     }
@@ -251,7 +226,7 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
     return pipelineUri.equals( testPipelineUri );
   }
 
-  public String calculateCompleteFilename() {
+  public String calculateCompleteFilename(IVariables variables) {
 
     // Without a filename we don't have any work
     //
@@ -262,16 +237,16 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
     // If the filename is an absolute path, just return that.
     //
     if (pipelineFilename.startsWith( "/" ) || pipelineFilename.startsWith( "file:///" )) {
-      return environmentSubstitute( pipelineFilename ); // to make sure
+      return variables.environmentSubstitute( pipelineFilename ); // to make sure
     }
 
     // We're dealing with a relative path vs the base path
     //
-    String baseFilePath = environmentSubstitute( basePath );
+    String baseFilePath = variables.environmentSubstitute( basePath );
     if ( StringUtils.isEmpty( baseFilePath ) ) {
       // See if the base path environment variable is set
       //
-      baseFilePath = getVariable( DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER );
+      baseFilePath = variables.getVariable( DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER );
     }
     if ( StringUtils.isEmpty( baseFilePath ) ) {
       baseFilePath = "";
@@ -282,22 +257,6 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
       }
     }
     return baseFilePath + pipelineFilename;
-  }
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
-    this.name = name;
   }
 
   /**
@@ -476,7 +435,7 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
     this.autoOpening = autoOpening;
   }
 
-  public void setRelativeFilename( String referencePipelineFilename ) throws HopException {
+  public void setRelativeFilename( IVariables variables, String referencePipelineFilename ) throws HopException {
     // Build relative path whenever a pipeline is saved
     //
     if ( StringUtils.isEmpty( referencePipelineFilename ) ) {
@@ -489,9 +448,9 @@ public class PipelineUnitTest extends Variables implements IVariables, Cloneable
 
     String base = getBasePath();
     if ( StringUtils.isEmpty( base ) ) {
-      base = getVariable( DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER );
+      base = variables.getVariable( DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER );
     }
-    base = environmentSubstitute( base );
+    base = variables.environmentSubstitute( base );
     if ( StringUtils.isNotEmpty( base ) ) {
       // See if the base path is present in the filename
       // Then replace the filename

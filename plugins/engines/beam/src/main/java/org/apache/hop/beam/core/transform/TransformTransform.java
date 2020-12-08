@@ -300,14 +300,6 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           pipelineMeta.setPipelineType( PipelineMeta.PipelineType.SingleThreaded );
           pipelineMeta.setMetadataProvider( metadataProvider );
 
-          // Give transforms variables from above
-          //
-          for ( VariableValue variableValue : variableValues ) {
-            if ( StringUtils.isNotEmpty( variableValue.getVariable() ) ) {
-              pipelineMeta.setVariable( variableValue.getVariable(), variableValue.getValue() );
-            }
-          }
-
           // Input row metadata...
           //
           inputRowMeta = JsonRowMeta.fromJson( inputRowMetaJson );
@@ -403,6 +395,14 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           pipeline.setMetadataProvider( pipelineMeta.getMetadataProvider() );
           pipeline.prepareExecution();
 
+          // Give transforms variables from above
+          //
+          for ( VariableValue variableValue : variableValues ) {
+            if ( StringUtils.isNotEmpty( variableValue.getVariable() ) ) {
+              pipeline.setVariable( variableValue.getVariable(), variableValue.getValue() );
+            }
+          }
+
           // Create producers so we can efficiently pass data
           //
           rowProducer = null;
@@ -424,7 +424,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
 
           TransformMetaDataCombi stepCombi = findCombi( pipeline, transformName );
           stepCombis.add( stepCombi );
-          outputRowMeta = pipelineMeta.getTransformFields( transformName );
+          outputRowMeta = pipelineMeta.getTransformFields( pipeline, transformName );
 
           if ( targetTransforms.isEmpty() ) {
             rowListener = new RowAdapter() {
@@ -449,7 +449,7 @@ public class TransformTransform extends PTransform<PCollection<HopRow>, PCollect
           for ( String targetTransform : targetTransforms ) {
             TransformMetaDataCombi targetCombi = findCombi( pipeline, targetTransform );
             stepCombis.add( targetCombi );
-            targetRowMetas.add( pipelineMeta.getTransformFields( stepCombi.transformName ) );
+            targetRowMetas.add( pipelineMeta.getTransformFields( pipeline, stepCombi.transformName ) );
 
             String tupleId = HopBeamUtil.createTargetTupleId( transformName, targetTransform );
             TupleTag<HopRow> tupleTag = new TupleTag<HopRow>( tupleId ) {

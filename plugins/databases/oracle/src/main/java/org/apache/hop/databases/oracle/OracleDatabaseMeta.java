@@ -334,15 +334,15 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     }
 
     @Override
-    public String getFieldDefinition(IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                     boolean addFieldname, boolean addCR) {
+    public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
+                                      boolean addFieldName, boolean addCR) {
         StringBuilder retval = new StringBuilder(128);
 
         String fieldname = v.getName();
         int length = v.getLength();
         int precision = v.getPrecision();
 
-        if (addFieldname) {
+        if ( addFieldName ) {
             retval.append(fieldname).append(' ');
         }
 
@@ -466,14 +466,14 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
      * @param database   a connected database
      * @param schemaName
      * @param tableName
-     * @param idx_fields
+     * @param idxFields
      * @return true if the index exists, false if it doesn't.
      * @throws HopDatabaseException
      */
     @Override
     public boolean checkIndexExists(Database database, String schemaName, String tableName, String[] idxFields) throws HopDatabaseException {
 
-        String schemaTable = database.getDatabaseMeta().getQuotedSchemaTableCombination(schemaName, tableName);
+        String schemaTable = database.getDatabaseMeta().getQuotedSchemaTableCombination(database, schemaName, tableName);
 
         boolean[] exists = new boolean[idxFields.length];
         for (int i = 0; i < exists.length; i++) {

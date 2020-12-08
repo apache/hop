@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.detectlastrow;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -44,8 +45,8 @@ public class DetectLastRowDialog extends BaseTransformDialog implements ITransfo
 
   private final DetectLastRowMeta input;
 
-  public DetectLastRowDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public DetectLastRowDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (DetectLastRowMeta) in;
   }
 
@@ -100,7 +101,7 @@ public class DetectLastRowDialog extends BaseTransformDialog implements ITransfo
     fdlResult.top = new FormAttachment( wTransformName, margin * 2 );
     wlResult.setLayoutData(fdlResult);
 
-    wResult = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResult = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "DetectLastRowDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );

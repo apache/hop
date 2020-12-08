@@ -30,6 +30,7 @@ import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.FileUtil;
 import org.apache.hop.core.vfs.HopVfs;
@@ -61,7 +62,6 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
 
     WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
     workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
-    workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
 
     String serverObjectId = UUID.randomUUID().toString();
 
@@ -70,7 +70,7 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     // Create the workflow and store in the list...
     //
     String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
-    final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
+    final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
     // Setting variables
     workflow.initializeVariablesFrom( null );
@@ -97,12 +97,8 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     PipelineMeta pipelineMeta = pipelineConfiguration.getPipelineMeta();
     PipelineExecutionConfiguration pipelineExecutionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
     pipelineMeta.setLogLevel( pipelineExecutionConfiguration.getLogLevel() );
-    pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariablesMap() );
 
     IHopMetadataProvider metadataProvider = pipelineConfiguration.getMetadataProvider();
-
-    // Also copy the parameters over...
-    copyParameters( pipelineMeta, pipelineExecutionConfiguration.getParametersMap() );
 
     String serverObjectId = UUID.randomUUID().toString();
     SimpleLoggingObject servletLoggingObject = getServletLogging( serverObjectId, pipelineExecutionConfiguration.getLogLevel() );
@@ -110,9 +106,12 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     // Create the pipeline and store in the list...
     //
     String runConfigurationName = pipelineConfiguration.getPipelineExecutionConfiguration().getRunConfiguration();
-    final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta );
+    final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( variables, runConfigurationName, metadataProvider, pipelineMeta );
     pipeline.setParent( servletLoggingObject );
     pipeline.setMetadataProvider( metadataProvider );
+
+    // Also copy the parameters over...
+    copyParameters( pipeline, pipelineExecutionConfiguration.getParametersMap() );
 
     if ( pipelineExecutionConfiguration.isSetLogfile() ) {
       String realLogFilename = pipelineExecutionConfiguration.getLogFileName();
@@ -141,11 +140,11 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     return pipeline;
   }
 
-  private void copyParameters( final AbstractMeta meta, final Map<String, String> params ) throws UnknownParamException {
+  private void copyParameters( final INamedParameters namedParameters, final Map<String, String> params ) throws UnknownParamException {
     for ( String parameterName : params.keySet() ) {
       String thisValue = params.get( parameterName );
       if ( !StringUtils.isBlank( thisValue ) ) {
-        meta.setParameterValue( parameterName, thisValue );
+        namedParameters.setParameterValue( parameterName, thisValue );
       }
     }
   }
@@ -153,18 +152,18 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
   private void copyWorkflowParameters( IWorkflowEngine<WorkflowMeta> workflow, Map<String, String> params ) throws UnknownParamException {
     WorkflowMeta workflowMeta = workflow.getWorkflowMeta();
     // Also copy the parameters over...
-    workflow.copyParametersFrom( workflowMeta );
-    workflow.clearParameters();
+    workflow.copyParametersFromDefinitions( workflowMeta );
+    workflow.clearParameterValues();
     String[] parameterNames = workflow.listParameters();
     for ( String parameterName : parameterNames ) {
       // Grab the parameter value set in the action
       String thisValue = params.get( parameterName );
       if ( !StringUtils.isBlank( thisValue ) ) {
         // Set the value as specified by the user in the action
-        workflowMeta.setParameterValue( parameterName, thisValue );
+        workflow.setParameterValue( parameterName, thisValue );
       }
     }
-    workflowMeta.activateParameters();
+    workflow.activateParameters(workflow);
   }
 
   private SimpleLoggingObject getServletLogging( final String serverObjectId, final LogLevel level ) {

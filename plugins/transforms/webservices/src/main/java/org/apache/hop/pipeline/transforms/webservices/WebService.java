@@ -250,7 +250,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
 
     StringBuilder xml = new StringBuilder();
 
-    // TODO We only manage one name space for all the elements. See in the
+    // TODO We only manage one name variables for all the elements. See in the
     // future how to manage multiple name spaces
     //
     xml.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );

@@ -59,8 +59,8 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> imple
 
   private OutputStream outputStream;
 
-  public XmlOutput(TransformMeta stepMeta, XmlOutputMeta meta, XmlOutputData stepDataInterface, int copyNr, PipelineMeta transMeta, Pipeline trans ) {
-    super( stepMeta, meta, stepDataInterface, copyNr, transMeta, trans );
+  public XmlOutput(TransformMeta transformMeta, XmlOutputMeta meta, XmlOutputData stepDataInterface, int copyNr, PipelineMeta pipelineMeta, Pipeline trans ) {
+    super( transformMeta, meta, stepDataInterface, copyNr, pipelineMeta, trans );
   }
 
   public boolean processRow() throws HopException {
@@ -156,7 +156,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> imple
         data.writer.writeStartElement( meta.getRepeatElement() );
 
         for ( int i = 0; i < data.formatRowMeta.size(); i++ ) {
-          // Put a space between the XML elements of the row
+          // Put a variables between the XML elements of the row
           //
           if ( i > 0 ) {
             data.writer.writeCharacters( " " );
@@ -183,7 +183,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> imple
           XmlField outputField = meta.getOutputFields()[i];
           if ( outputField.getContentType() == ContentType.Element ) {
             if ( i > 0 ) {
-              data.writer.writeCharacters( " " ); // a space between
+              data.writer.writeCharacters( " " ); // a variables between
               // elements
             }
 
@@ -314,7 +314,7 @@ public class XmlOutput extends BaseTransform<XmlOutputMeta, XmlOutputData> imple
 
       // OK, write the header & the parent element:
       data.writer.writeStartElement( meta.getMainElement() );
-      // Add the name space if defined
+      // Add the name variables if defined
       if ( ( meta.getNameSpace() != null ) && ( !"".equals( meta.getNameSpace() ) ) ) {
         data.writer.writeDefaultNamespace( meta.getNameSpace() );
       }

@@ -88,7 +88,7 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
   private SwitchCaseMeta input;
   private IRowMeta inputFields;
 
-  public SwitchCaseDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public SwitchCaseDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (SwitchCaseMeta) in;
   }
@@ -164,7 +164,7 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
     // TODO: grab field list in thread in the background...
     //
     try {
-      inputFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      inputFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
       wFieldName.setItems( inputFields.getFieldNames() );
     } catch ( HopTransformException ex ) {
       new ErrorDialog( shell,
@@ -290,7 +290,7 @@ public class SwitchCaseDialog extends BaseTransformDialog implements ITransformD
           ColumnInfo.COLUMN_TYPE_CCOMBO, nextTransformNames, false ), };
 
     wValues =
-      new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, input
+      new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, input
         .getTransformIOMeta().getTargetStreams().size(), lsMod, props );
 
     // Some buttons

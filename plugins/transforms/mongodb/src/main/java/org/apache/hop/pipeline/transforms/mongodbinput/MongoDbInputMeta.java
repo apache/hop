@@ -213,7 +213,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
       String origin,
       IRowMeta[] info,
       TransformMeta nextTransform,
-      IVariables space,
+      IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 

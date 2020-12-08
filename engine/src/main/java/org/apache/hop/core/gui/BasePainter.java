@@ -32,6 +32,7 @@ import org.apache.hop.core.gui.IGc.EColor;
 import org.apache.hop.core.gui.IGc.EImage;
 import org.apache.hop.core.gui.IGc.ELineStyle;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.transform.errorhandling.StreamIcon;
 
 import java.util.List;
@@ -72,6 +73,7 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
   protected float translationY;
 
   protected Object subject;
+  protected IVariables variables;
 
   protected IGc gc;
 
@@ -81,10 +83,11 @@ public abstract class BasePainter<Hop extends BaseHopMeta<?>, Part extends IBase
 
   protected Hop candidate;
 
-  public BasePainter( IGc gc, Object subject, Point area, IScrollBar hori,
+  public BasePainter( IGc gc, IVariables variables, Object subject, Point area, IScrollBar hori,
                       IScrollBar vert, Point dropCandidate, Rectangle selectionRectangle, List<AreaOwner> areaOwners, int iconSize,
                       int lineWidth, int gridSize, String noteFontName, int noteFontHeight, double zoomFactor ) {
     this.gc = gc;
+    this.variables = variables;
     this.subject = subject;
     this.area = area;
     this.hori = hori;

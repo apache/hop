@@ -82,18 +82,18 @@ public class ModifyActionLogLevelExtensionPoint implements IExtensionPoint<IWork
       rootDataMap = rootPipeline.getExtensionDataMap();
     }
 
-    // Look for a reference variable space in the root workflow.
+    // Look for a reference variable variables in the root workflow.
     // If non exists, add it.  Only do this at the start of the root workflow, afterwards, never again.
     //
     final IVariables referenceSpace;
     synchronized ( rootDataMap ) {
-      IVariables space = (IVariables) rootDataMap.get( STRING_REFERENCE_VARIABLE_SPACE );
-      if ( space == null ) {
-        space = new Variables();
-        space.initializeVariablesFrom( workflow.getWorkflowMeta() );
-        rootDataMap.put( STRING_REFERENCE_VARIABLE_SPACE, space );
+      IVariables variables = (IVariables) rootDataMap.get( STRING_REFERENCE_VARIABLE_SPACE );
+      if ( variables == null ) {
+        variables = new Variables();
+        variables.initializeVariablesFrom( workflow );
+        rootDataMap.put( STRING_REFERENCE_VARIABLE_SPACE, variables );
       }
-      referenceSpace = space;
+      referenceSpace = variables;
     }
 
     // Find the debug info in the workflow metadata
@@ -199,11 +199,11 @@ public class ModifyActionLogLevelExtensionPoint implements IExtensionPoint<IWork
                   if ( action instanceof IVariables ) {
                     log.logMinimal( "Action notable variables: " );
 
-                    IVariables space = (IVariables) action;
+                    IVariables variables = (IVariables) action;
                     // See the variables set differently from the parent workflow
-                    for ( String var : space.listVariables() ) {
+                    for ( String var : variables.listVariables() ) {
                       if ( !variablesToIgnore.contains( var ) ) {
-                        String value = space.getVariable( var );
+                        String value = variables.getVariable( var );
                         String refValue = referenceSpace.getVariable( var );
 
                         if ( refValue == null || !refValue.equals( value ) ) {

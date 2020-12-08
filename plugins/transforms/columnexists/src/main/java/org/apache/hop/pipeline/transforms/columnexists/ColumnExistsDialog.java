@@ -29,6 +29,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -69,8 +70,8 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
 
   private final ColumnExistsMeta input;
 
-  public ColumnExistsDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ColumnExistsDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ColumnExistsMeta) in;
   }
 
@@ -143,7 +144,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
       }
     } );
 
-    wSchemaname = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "ColumnExistsDialog.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
@@ -176,7 +177,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
       }
     } );
 
-    wTablenameText = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablenameText = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTablenameText.setToolTipText( BaseMessages.getString( PKG, "ColumnExistsDialog.TablenameTextField.Tooltip" ) );
     props.setLook( wTablenameText );
     wTablenameText.addModifyListener( lsMod );
@@ -417,7 +418,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
 
       wColumnName.removeAll();
       wTableName.removeAll();
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         r.getFieldNames();
 
@@ -442,7 +443,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     }
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( connectionName );
     if ( databaseMeta != null ) {
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablenameText.getText() );
       if ( std.open() ) {
         wSchemaname.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -464,7 +465,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
       Database database = new Database( loggingObject, databaseMeta );
-      database.shareVariablesWith( pipelineMeta );
+      database.shareVariablesWith( variables );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

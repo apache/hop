@@ -47,8 +47,8 @@ public class KafkaProducerOutput extends BaseTransform<KafkaProducerOutputMeta, 
   public KafkaProducerOutput( TransformMeta transformMeta,
                               KafkaProducerOutputMeta meta,
                               KafkaProducerOutputData data, int copyNr,
-                              PipelineMeta transMeta, Pipeline trans ) {
-    super( transformMeta, meta, data, copyNr, transMeta, trans );
+                              PipelineMeta pipelineMeta, Pipeline trans ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, trans );
     setKafkaFactory( KafkaFactory.defaultFactory() );
   }
 

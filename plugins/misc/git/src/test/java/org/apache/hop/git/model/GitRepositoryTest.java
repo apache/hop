@@ -65,11 +65,10 @@ public class GitRepositoryTest {
 
   @Test
   public void testVariableSubstitution() {
-    IVariables space = Variables.getADefaultVariableSpace();
-    space.setVariable( "BASE_DIRECTORY", DIRECTORY );
-    repo.initializeVariablesFrom( space );
+    IVariables variables = Variables.getADefaultVariableSpace();
+    variables.setVariable( "BASE_DIRECTORY", DIRECTORY );
     repo.setDirectory( "${BASE_DIRECTORY}" );
 
-    assertEquals( DIRECTORY, repo.getPhysicalDirectory() );
+    assertEquals( DIRECTORY, repo.getPhysicalDirectory(variables) );
   }
 }

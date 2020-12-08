@@ -32,6 +32,8 @@ import org.apache.hop.core.logging.IHopLoggingEventListener;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.*;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -65,6 +67,8 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   private ResultSet resultSet;
   private DatabaseMeta dbMeta;
   private IValueMeta valueMetaBase;
+  private IVariables variables;
+
 
   @BeforeClass
   public static void setUpBeforeClass() throws HopException {
@@ -78,6 +82,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
   public void setUp() throws HopPluginException {
     listener = new StoreLoggingEventListener();
     HopLogStore.getAppender().addLoggingEventListener( listener );
+    variables = spy( new Variables() );
 
     valueMetaBase = ValueMetaFactory.createValueMeta( IValueMeta.TYPE_NONE );
 
@@ -157,7 +162,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
     // get value meta for binary type
     IValueMeta binaryValueMeta =
-      obj.getValueFromSqlType( dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
+      obj.getValueFromSqlType( variables, dbMeta, TEST_NAME, metaData, binaryColumnIndex, false, false );
     assertNotNull( binaryValueMeta );
     assertTrue( TEST_NAME.equals( binaryValueMeta.getName() ) );
     assertTrue( IValueMeta.TYPE_BINARY == binaryValueMeta.getType() );
@@ -166,7 +171,7 @@ public class Vertica5DatabaseMetaTest extends VerticaDatabaseMetaTest {
 
     // get value meta for varbinary type
     IValueMeta varbinaryValueMeta =
-      obj.getValueFromSqlType( dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
+      obj.getValueFromSqlType( variables, dbMeta, TEST_NAME, metaData, varbinaryColumnIndex, false, false );
     assertNotNull( varbinaryValueMeta );
     assertTrue( TEST_NAME.equals( varbinaryValueMeta.getName() ) );
     assertTrue( IValueMeta.TYPE_BINARY == varbinaryValueMeta.getType() );

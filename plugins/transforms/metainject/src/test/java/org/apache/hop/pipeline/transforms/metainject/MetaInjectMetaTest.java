@@ -20,6 +20,7 @@ package org.apache.hop.pipeline.transforms.metainject;
 import org.apache.hop.core.HopClientEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -83,7 +84,7 @@ public class MetaInjectMetaTest {
     TransformMeta transformMeta = mock(TransformMeta.class);
 
     List<ResourceReference> actualResult =
-        metaInjectMeta.getResourceDependencies(pipelineMeta, transformMeta);
+        metaInjectMeta.getResourceDependencies(new Variables(), transformMeta);
     assertEquals(1, actualResult.size());
     ResourceReference reference = actualResult.iterator().next();
     assertEquals(0, reference.getEntries().size());
@@ -94,10 +95,10 @@ public class MetaInjectMetaTest {
     PipelineMeta pipelineMeta = mock(PipelineMeta.class);
     TransformMeta transformMeta = mock(TransformMeta.class);
     metaInjectMeta.setFileName("FILE_NAME");
-    doReturn("FILE_NAME_WITH_SUBSTITUTIONS").when(pipelineMeta).environmentSubstitute("FILE_NAME");
+    // doReturn("FILE_NAME_WITH_SUBSTITUTIONS").when(pipelineMeta).environmentSubstitute("FILE_NAME");
 
     List<ResourceReference> actualResult =
-        metaInjectMeta.getResourceDependencies(pipelineMeta, transformMeta);
+        metaInjectMeta.getResourceDependencies(new Variables(), transformMeta);
     assertEquals(1, actualResult.size());
     ResourceReference reference = actualResult.iterator().next();
     assertEquals(1, reference.getEntries().size());
@@ -105,7 +106,7 @@ public class MetaInjectMetaTest {
 
   @Test
   public void exportResources() throws HopException {
-    IVariables variableSpace = mock(IVariables.class);
+    IVariables variables = mock(IVariables.class);
     IResourceNaming resourceNamingInterface = mock(IResourceNaming.class);
     IHopMetadataProvider metadataProvider = mock(IHopMetadataProvider.class);
 
@@ -115,16 +116,16 @@ public class MetaInjectMetaTest {
         Collections.emptyMap();
     doReturn(TEST_FILE_NAME)
         .when(pipelineMeta)
-        .exportResources(pipelineMeta, definitions, resourceNamingInterface, metadataProvider);
-    doReturn(pipelineMeta).when(injectMetaSpy).loadPipelineMeta(metadataProvider, variableSpace);
+        .exportResources(variables, definitions, resourceNamingInterface, metadataProvider);
+    doReturn(pipelineMeta).when(injectMetaSpy).loadPipelineMeta(metadataProvider, variables);
 
     String actualExportedFileName =
         injectMetaSpy.exportResources(
-            variableSpace, definitions, resourceNamingInterface, metadataProvider);
+            variables, definitions, resourceNamingInterface, metadataProvider);
     assertEquals(TEST_FILE_NAME, actualExportedFileName);
     assertEquals(EXPORTED_FILE_NAME, injectMetaSpy.getFileName());
     verify(pipelineMeta)
-        .exportResources(pipelineMeta, definitions, resourceNamingInterface, metadataProvider);
+        .exportResources(variables, definitions, resourceNamingInterface, metadataProvider);
   }
 
   @Test

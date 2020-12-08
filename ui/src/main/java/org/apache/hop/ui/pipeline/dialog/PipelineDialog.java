@@ -30,6 +30,7 @@ import org.apache.hop.core.parameters.DuplicateParamException;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -111,6 +112,7 @@ public class PipelineDialog extends Dialog {
 
   private Button wOk, wCancel;
 
+  private IVariables variables;
   private PipelineMeta pipelineMeta;
   private Shell shell;
 
@@ -137,14 +139,15 @@ public class PipelineDialog extends Dialog {
 
   private ArrayList<IPipelineDialogPlugin> extraTabs;
 
-  public PipelineDialog( Shell parent, int style, PipelineMeta pipelineMeta, Tabs currentTab ) {
-    this( parent, style, pipelineMeta );
+  public PipelineDialog( Shell parent, int style, IVariables variables, PipelineMeta pipelineMeta, Tabs currentTab ) {
+    this( parent, style, variables, pipelineMeta );
     this.currentTab = currentTab;
   }
 
-  public PipelineDialog( Shell parent, int style, PipelineMeta pipelineMeta ) {
+  public PipelineDialog( Shell parent, int style, IVariables variables, PipelineMeta pipelineMeta ) {
     super( parent, style );
     this.props = PropsUi.getInstance();
+    this.variables = variables;
     this.pipelineMeta = pipelineMeta;
 
     changed = false;
@@ -556,7 +559,7 @@ public class PipelineDialog extends Dialog {
 
     wParamFields =
       new TableView(
-        pipelineMeta, wParamComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wParamComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -647,7 +650,7 @@ public class PipelineDialog extends Dialog {
     fdlTransformPerfMaxSize.right = new FormAttachment( middle, -margin );
     fdlTransformPerfMaxSize.top = new FormAttachment( wTransformPerfInterval, margin );
     wlTransformPerfMaxSize.setLayoutData( fdlTransformPerfMaxSize );
-    wTransformPerfMaxSize = new TextVar( pipelineMeta, wMonitorComp, SWT.LEFT | SWT.BORDER | SWT.SINGLE );
+    wTransformPerfMaxSize = new TextVar( variables, wMonitorComp, SWT.LEFT | SWT.BORDER | SWT.SINGLE );
     wTransformPerfMaxSize.setToolTipText( BaseMessages.getString( PKG, "PipelineDialog.TransformPerformanceMaxSize.Tooltip" ) );
     props.setLook( wTransformPerfMaxSize );
     FormData fdTransformPerfMaxSize = new FormData();
@@ -770,7 +773,7 @@ public class PipelineDialog extends Dialog {
     }
 
     // Clear and add parameters
-    pipelineMeta.eraseParameters();
+    pipelineMeta.removeAllParameters();
     int nrNonEmptyFields = wParamFields.nrNonEmpty();
     for ( int i = 0; i < nrNonEmptyFields; i++ ) {
       TableItem item = wParamFields.getNonEmpty( i );
@@ -781,7 +784,6 @@ public class PipelineDialog extends Dialog {
         // Ignore the duplicate parameter.
       }
     }
-    pipelineMeta.activateParameters();
 
     // Performance monitoring tab:
     //

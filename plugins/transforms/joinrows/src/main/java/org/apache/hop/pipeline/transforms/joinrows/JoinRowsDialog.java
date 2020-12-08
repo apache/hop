@@ -29,6 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -66,8 +67,8 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
 
   private Condition backupCondition;
 
-  public JoinRowsDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public JoinRowsDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (JoinRowsMeta) in;
     condition = input.getCondition();
   }
@@ -131,7 +132,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     fdbSortDir.top = new FormAttachment( wTransformName, margin );
     wbSortDir.setLayoutData(fdbSortDir);
 
-    wSortDir = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSortDir = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSortDir.setText( BaseMessages.getString( PKG, "JoinRowsDialog.Temp.Label" ) );
     props.setLook( wSortDir );
     wSortDir.addModifyListener( lsMod );
@@ -153,7 +154,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     } );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( pipelineMeta.environmentSubstitute( wSortDir.getText() ) ) );
+    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( variables.environmentSubstitute( wSortDir.getText() ) ) );
 
     // Table line...
     Label wlPrefix = new Label(shell, SWT.RIGHT);
@@ -227,7 +228,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
 
     IRowMeta inputfields = null;
     try {
-      inputfields = pipelineMeta.getPrevTransformFields( transformName );
+      inputfields = pipelineMeta.getPrevTransformFields( variables, transformName );
     } catch ( HopException ke ) {
       inputfields = new RowMeta();
       new ErrorDialog(

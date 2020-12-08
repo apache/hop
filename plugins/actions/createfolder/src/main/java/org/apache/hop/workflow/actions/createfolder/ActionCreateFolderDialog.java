@@ -127,7 +127,7 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     fdbFoldername.top = new FormAttachment( wName, 0 );
     wbFoldername.setLayoutData(fdbFoldername);
 
-    wFoldername = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFoldername = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFoldername );
     wFoldername.addModifyListener( lsMod );
     FormData fdFoldername = new FormData();
@@ -137,9 +137,9 @@ public class ActionCreateFolderDialog extends ActionDialog implements IActionDia
     wFoldername.setLayoutData(fdFoldername);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( getWorkflowMeta().environmentSubstitute( wFoldername.getText() ) ) );
+    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( variables.environmentSubstitute( wFoldername.getText() ) ) );
 
-    wbFoldername.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFoldername, getWorkflowMeta() ) );
+    wbFoldername.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFoldername, variables ) );
 
     Label wlAbortExists = new Label(shell, SWT.RIGHT);
     wlAbortExists.setText( BaseMessages.getString( PKG, "JobCreateFolder.FailIfExists.Label" ) );

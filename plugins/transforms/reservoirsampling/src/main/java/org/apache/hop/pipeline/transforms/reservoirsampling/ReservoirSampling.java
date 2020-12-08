@@ -54,7 +54,8 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
    * 1985. Pages 37-57.
    *
    * @param transformMeta          holds the transform's meta data
-   * @param ReservoirSamplingData holds the transform's temporary data
+   * @param meta
+   * @param data holds the transform's temporary data
    * @param copyNr            the number assigned to the transform
    * @param pipelineMeta         meta data for the pipeline
    * @param pipeline             a <code>Pipeline</code> value
@@ -91,8 +92,8 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
 
       // Initialize the data object
       data.setOutputRowMeta( getInputRowMeta().clone() );
-      String sampleSize = getPipelineMeta().environmentSubstitute( meta.getSampleSize() );
-      String seed = getPipelineMeta().environmentSubstitute( meta.getSeed() );
+      String sampleSize = environmentSubstitute( meta.getSampleSize() );
+      String seed = environmentSubstitute( meta.getSeed() );
       data.initialize( Integer.valueOf( sampleSize ), Integer.valueOf( seed ) );
 
       // no real reason to determine the output fields here
@@ -114,7 +115,7 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
         int numRows = ( samples != null ) ? samples.size() : 0;
         logBasic( this.getTransformName()
           + " Actual/Sample: " + numRows + "/" + data.m_k + " Seed:"
-          + getPipelineMeta().environmentSubstitute( meta.m_randomSeed ) );
+          + environmentSubstitute( meta.m_randomSeed ) );
         if ( samples != null ) {
           for ( int i = 0; i < samples.size(); i++ ) {
             Object[] sample = samples.get( i );
@@ -151,8 +152,6 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
   /**
    * Initialize the transform.
    *
-   * @param smi a <code>ITransform</code> value
-   * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    */
   public boolean init() {

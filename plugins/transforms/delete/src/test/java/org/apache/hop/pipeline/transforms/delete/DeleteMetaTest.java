@@ -113,10 +113,6 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
     PipelineMeta pipelineMeta = new PipelineMeta();
     pipelineMeta.setName( "delete1" );
 
-    Map<String, String> vars = new HashMap<>();
-    vars.put( "max.sz", "10" );
-    pipelineMeta.injectVariables( vars );
-
     meta = new DeleteMeta();
     data = new DeleteData();
 
@@ -125,9 +121,13 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
     transformMeta = new TransformMeta( deletePid, "delete", meta );
     Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
+
+    Map<String, String> vars = new HashMap<>();
+    vars.put( "max.sz", "10" );
+    pipeline.injectVariables( vars );
+
     pipelineMeta.addTransform( transformMeta );
     del = new Delete( transformMeta, meta, data, 1, pipelineMeta, pipeline );
-    del.copyVariablesFrom( pipelineMeta );
   }
 
   @Test

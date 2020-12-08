@@ -280,8 +280,17 @@ public abstract class ConfigurationDialog extends Dialog {
 
     String[] namedParams = abstractMeta.listParameters();
     int nrParams = namedParams.length;
-    wParams = new TableView( abstractMeta, parametersComposite, SWT.FULL_SELECTION | SWT.MULTI, cParams,
-        nrParams, false, null, props, false );
+    wParams =
+        new TableView(
+            hopGui.getVariables(),
+            parametersComposite,
+            SWT.FULL_SELECTION | SWT.MULTI,
+            cParams,
+            nrParams,
+            false,
+            null,
+            props,
+            false);
     FormData fdParams = new FormData();
     fdParams.top = new FormAttachment( 0, 0 );
     fdParams.right = new FormAttachment( 100, 0 );
@@ -308,8 +317,17 @@ public abstract class ConfigurationDialog extends Dialog {
     };
 
     int nrVariables = configuration.getVariablesMap() != null ? configuration.getVariablesMap().size() : 0;
-    wVariables = new TableView( abstractMeta, variablesComposite, SWT.FULL_SELECTION | SWT.MULTI, cVariables,
-        nrVariables, false, null, props, false );
+    wVariables =
+        new TableView(
+            hopGui.getVariables(),
+            variablesComposite,
+            SWT.FULL_SELECTION | SWT.MULTI,
+            cVariables,
+            nrVariables,
+            false,
+            null,
+            props,
+            false);
 
     FormData fdVariables = new FormData();
     fdVariables.top = new FormAttachment( 0, 0 );

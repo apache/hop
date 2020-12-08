@@ -429,7 +429,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
     transformListeners = new ArrayList<>();
 
-    // This composite takes up all the space in the parent
+    // This composite takes up all the variables in the parent
     //
     FormData formData = new FormData();
     formData.left = new FormAttachment(0, 0);
@@ -471,7 +471,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     fdSashForm.bottom = new FormAttachment(100, 0);
     sashForm.setLayoutData(fdSashForm);
 
-    // Add a canvas below it, use up all space initially
+    // Add a canvas below it, use up all variables initially
     //
     canvas = new Canvas(sashForm, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.BORDER);
     FormData fdCanvas = new FormData();
@@ -766,7 +766,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             break;
 
           case TRANSFORM_DATA_SERVICE:
-            editProperties(pipelineMeta, hopGui, true, PipelineDialog.Tabs.EXTRA_TAB);
+            editProperties(pipelineMeta, hopGui, PipelineDialog.Tabs.EXTRA_TAB);
             break;
           default:
             break;
@@ -843,7 +843,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (areaOwner != null && areaOwner.getAreaType() != null) {
       switch (areaOwner.getAreaType()) {
         case TRANSFORM_OUTPUT_DATA:
-          if ( !mouseMovedSinceClick && showTransformOutputData( areaOwner ) ) {
+          if (!mouseMovedSinceClick && showTransformOutputData(areaOwner)) {
             return;
           }
           break;
@@ -1057,7 +1057,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     lastButton = 0;
   }
 
-  public boolean showTransformOutputData( AreaOwner areaOwner ) {
+  public boolean showTransformOutputData(AreaOwner areaOwner) {
     TransformMeta dataTransform = (TransformMeta) areaOwner.getParent();
     RowBuffer rowBuffer = (RowBuffer) areaOwner.getOwner();
     if (rowBuffer != null) {
@@ -1105,7 +1105,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
             PreviewRowsDialog previewRowsDialog =
                 new PreviewRowsDialog(
                     hopGui.getShell(),
-                    hopGui.getVariables(),
+                    variables,
                     SWT.NONE,
                     dataTransform.getName(),
                     rowBuffer.getRowMeta(),
@@ -1712,7 +1712,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     }
     TransformErrorMeta errorMeta = candidate.getFromTransform().getTransformErrorMeta();
     if (errorMeta == null) {
-      errorMeta = new TransformErrorMeta(pipelineMeta, candidate.getFromTransform());
+      errorMeta = new TransformErrorMeta(candidate.getFromTransform());
     }
     errorMeta.setEnabled(true);
     errorMeta.setTargetTransform(candidate.getToTransform());
@@ -2254,11 +2254,11 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     String mt = BaseMessages.getString(PKG, "PipelineGraph.Dialog.NrOfCopiesOfTransform.Message");
     EnterStringDialog nd =
         new EnterStringDialog(
-            hopShell(), transformMeta.getCopiesString(), tt, mt, true, pipelineMeta);
+            hopShell(), transformMeta.getCopiesString(), tt, mt, true, variables);
     String cop = nd.open();
     if (!Utils.isEmpty(cop)) {
 
-      int copies = Const.toInt(pipelineMeta.environmentSubstitute(cop), -1);
+      int copies = Const.toInt(hopGui.getVariables().environmentSubstitute(cop), -1);
       if (copies > 1 && !multipleOK) {
         cop = "1";
 
@@ -2322,7 +2322,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void fieldsLineage() {
     PipelineDataLineage tdl = new PipelineDataLineage(pipelineMeta);
     try {
-      tdl.calculateLineage();
+      tdl.calculateLineage(variables);
     } catch (Exception e) {
       new ErrorDialog(hopShell(), "Lineage error", "Unexpected lineage calculation error", e);
     }
@@ -2574,7 +2574,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
   public void newNote(HopGuiPipelineContext context) {
     selectionRegion = null;
     String title = BaseMessages.getString(PKG, "PipelineGraph.Dialog.NoteEditor.Title");
-    NotePadDialog dd = new NotePadDialog(pipelineMeta, hopShell(), title);
+    NotePadDialog dd = new NotePadDialog(variables, hopShell(), title);
     NotePadMeta n = dd.open();
     if (n != null) {
       NotePadMeta npi =
@@ -3000,7 +3000,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     redraw();
 
     SearchFieldsProgressDialog op =
-        new SearchFieldsProgressDialog(pipelineMeta, transformMeta, before);
+        new SearchFieldsProgressDialog( variables, pipelineMeta, transformMeta, before);
     boolean alreadyThrownError = false;
     try {
       final ProgressMonitorDialog pmd = new ProgressMonitorDialog(hopShell());
@@ -3052,7 +3052,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     if (fields != null && fields.size() > 0) {
       TransformFieldsDialog sfd =
           new TransformFieldsDialog(
-              hopShell(), pipelineMeta, SWT.NONE, transformMeta.getName(), fields);
+              hopShell(), variables, SWT.NONE, transformMeta.getName(), fields);
       String sn = (String) sfd.open();
       if (sn != null) {
         TransformMeta esi = pipelineMeta.findTransform(sn);
@@ -3112,6 +3112,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       PipelinePainter pipelinePainter =
           new PipelinePainter(
               gc,
+              variables,
               pipelineMeta,
               new Point(width, height),
               new SwtScrollBar(horizontalScrollBar),
@@ -3179,7 +3180,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     NotePadMeta before = ni.clone();
 
     String title = BaseMessages.getString(PKG, "PipelineGraph.Dialog.EditNote.Title");
-    NotePadDialog dd = new NotePadDialog(pipelineMeta, hopShell(), title, ni);
+    NotePadDialog dd = new NotePadDialog(variables, hopShell(), title, ni);
     NotePadMeta n = dd.open();
 
     if (n != null) {
@@ -3556,21 +3557,18 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public boolean editProperties(
       PipelineMeta pipelineMeta, HopGui hopGui, boolean allowDirectoryChange) {
-    return editProperties(pipelineMeta, hopGui, allowDirectoryChange, null);
+    return editProperties(pipelineMeta, hopGui, null);
   }
 
   public boolean editProperties(
-      PipelineMeta pipelineMeta,
-      HopGui hopGui,
-      boolean allowDirectoryChange,
-      PipelineDialog.Tabs currentTab) {
+      PipelineMeta pipelineMeta, HopGui hopGui, PipelineDialog.Tabs currentTab) {
     if (pipelineMeta == null) {
       return false;
     }
 
-    PipelineDialog tid = new PipelineDialog(hopGui.getShell(), SWT.NONE, pipelineMeta, currentTab);
+    PipelineDialog tid = new PipelineDialog(hopGui.getShell(), SWT.NONE, variables, pipelineMeta, currentTab);
     if (tid.open() != null) {
-      hopGui.setParametersAsVariablesInUI(pipelineMeta, pipelineMeta);
+      hopGui.setParametersAsVariablesInUI(pipelineMeta, variables);
       updateGui();
       perspective.updateTabs();
       return true;
@@ -3946,17 +3944,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           //
           DefaultLogLevel.setLogLevel(executionConfiguration.getLogLevel());
 
-          pipelineMeta.injectVariables(executionConfiguration.getVariablesMap());
-
-          // Set the named parameters
-          Map<String, String> paramMap = executionConfiguration.getParametersMap();
-          Set<String> keys = paramMap.keySet();
-          for (String key : keys) {
-            pipelineMeta.setParameterValue(key, Const.NVL(paramMap.get(key), ""));
-          }
-
-          pipelineMeta.activateParameters();
-
           // Do we need to clear the log before running?
           //
           if (executionConfiguration.isClearingLog()) {
@@ -3977,8 +3964,26 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
           String pipelineRunConfigurationName = executionConfiguration.getRunConfiguration();
           pipeline =
               PipelineEngineFactory.createPipelineEngine(
-                  pipelineRunConfigurationName, hopGui.getMetadataProvider(), pipelineMeta);
-          pipeline.setMetadataProvider(hopGui.getMetadataProvider());
+                  variables,
+                  pipelineRunConfigurationName,
+                  hopGui.getMetadataProvider(),
+                  pipelineMeta);
+
+          // Set the variables that where specified...
+          //
+          for (String varName : executionConfiguration.getVariablesMap().keySet()) {
+            String varValue = executionConfiguration.getVariablesMap().get(varName);
+            pipeline.setVariable(varName, varValue);
+          }
+
+          // Set the named parameters
+          //
+          Map<String, String> paramMap = executionConfiguration.getParametersMap();
+          Set<String> keys = paramMap.keySet();
+          for (String key : keys) {
+            pipeline.setParameterValue(key, Const.NVL(paramMap.get(key), ""));
+          }
+          pipeline.activateParameters(pipeline);
 
           String guiLogObjectId = UUID.randomUUID().toString();
           SimpleLoggingObject guiLoggingObject =
@@ -4176,16 +4181,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
         if (log.isDetailed()) {
           log.logDetailed(BaseMessages.getString(PKG, "PipelineLog.Log.DoPreview"));
         }
-        pipelineMeta.injectVariables(executionConfiguration.getVariablesMap());
-
-        // Set the named parameters
-        Map<String, String> paramMap = executionConfiguration.getParametersMap();
-        Set<String> keys = paramMap.keySet();
-        for (String key : keys) {
-          pipelineMeta.setParameterValue(key, Const.NVL(paramMap.get(key), ""));
-        }
-
-        pipelineMeta.activateParameters();
 
         // Do we need to clear the log before running?
         //
@@ -4260,7 +4255,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               PreviewRowsDialog previewRowsDialog =
                   new PreviewRowsDialog(
                       hopShell(),
-                      pipelineMeta,
+                      variables,
                       SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MAX | SWT.APPLICATION_MODAL | SWT.SHEET,
                       transformDebugMeta.getTransformMeta().getName(),
                       rowBufferMeta,
@@ -4322,10 +4317,6 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
       halted = false;
       halting = false;
-
-      pipelineMeta
-          .setInternalHopVariables(); // set the original vars back as they may be changed by a
-                                      // mapping
     }
     updateGui();
   }
@@ -4605,6 +4596,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     } else {
       try {
         pipeline.retrieveComponentOutput(
+            hopGui.getVariables(),
             transformMeta.getName(),
             0,
             50,
@@ -4646,7 +4638,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public String buildTabName() throws HopException {
     String tabName = null;
-    String realFilename = pipelineMeta.environmentSubstitute(pipelineMeta.getFilename());
+    String realFilename = variables.environmentSubstitute(pipelineMeta.getFilename());
     if (StringUtils.isEmpty(realFilename)) {
       tabName = pipelineMeta.getName();
     } else {
@@ -4667,7 +4659,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
    *
    * <p>Prompt auto save feature...
    *
-   * @param workflowMeta
+   * @param pipelineMeta
    * @return true if pipeline meta has name and if changed is saved
    * @throws HopException
    */

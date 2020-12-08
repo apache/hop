@@ -188,7 +188,7 @@ public class ReservoirSamplingMeta extends BaseTransformMeta implements ITransfo
     // nothing to do, as no fields are added/deleted
   }
 
-  public void check( List<ICheckResult> remarks, PipelineMeta transmeta, TransformMeta transformMeta,
+  public void check( List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                      IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables,
                      IHopMetadataProvider metadataProvider ) {
 

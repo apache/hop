@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -52,8 +53,8 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
 
   private InjectorMeta input;
 
-  public InjectorDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public InjectorDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (InjectorMeta) in;
   }
 
@@ -124,7 +125,7 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
 
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     // Some buttons
     wOk = new Button( shell, SWT.PUSH );
@@ -222,9 +223,9 @@ public class InjectorDialog extends BaseTransformDialog implements ITransformDia
   }
 
   @Override
-  protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
+  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
     plugin.setDocumentationUrl("https://hop.apache.org/manual/latest/plugins/transforms/injector.html");
-    return super.createHelpButton(shell, stepMeta, plugin);
+    return super.createHelpButton(shell, transformMeta, plugin);
   }
 
 }

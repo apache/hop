@@ -32,6 +32,7 @@ import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.timestamp.SimpleTimestampFormat;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -438,12 +439,12 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   }
 
   @Override
-  public IValueMeta getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
+  public IValueMeta getMetadataPreview( IVariables variables, DatabaseMeta databaseMeta, ResultSet rs )
     throws HopDatabaseException {
 
     try {
       if ( java.sql.Types.TIMESTAMP == rs.getInt( "COLUMN_TYPE" ) ) {
-        IValueMeta vmi = super.getMetadataPreview( databaseMeta, rs );
+        IValueMeta vmi = super.getMetadataPreview( variables, databaseMeta, rs );
         IValueMeta valueMeta;
         if ( databaseMeta.supportsTimestampDataType() ) {
           valueMeta = new ValueMetaTimestamp( name );
@@ -466,8 +467,8 @@ public class ValueMetaTimestamp extends ValueMetaDate {
   }
 
   @Override
-  public IValueMeta getValueFromSqlType(DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
-                                        int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
+  public IValueMeta getValueFromSqlType( IVariables variables, DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
+                                         int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
 
     try {
       int type = rm.getColumnType( index );

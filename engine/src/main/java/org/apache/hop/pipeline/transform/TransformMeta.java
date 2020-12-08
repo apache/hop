@@ -319,11 +319,11 @@ public class TransformMeta implements
    *
    * @return the number of transform copies to start.
    */
-  public int getCopies() {
+  public int getCopies(IVariables variables) {
     // If the transform is partitioned, that's going to determine the number of copies, nothing else...
     //
     if ( isPartitioned() && getTransformPartitioningMeta().getPartitionSchema() != null ) {
-      List<String> partitionIDs = getTransformPartitioningMeta().getPartitionSchema().calculatePartitionIds();
+      List<String> partitionIDs = getTransformPartitioningMeta().getPartitionSchema().calculatePartitionIds(variables);
       if ( partitionIDs != null && partitionIDs.size() > 0 ) { // these are the partitions the transform can "reach"
         return partitionIDs.size();
       }
@@ -336,7 +336,7 @@ public class TransformMeta implements
     if ( parentPipelineMeta != null ) {
       // Return -1 to indicate that the variable or string value couldn't be converted to number
       //
-      copiesCache = Const.toInt( parentPipelineMeta.environmentSubstitute( copiesString ), -1 );
+      copiesCache = Const.toInt( variables.environmentSubstitute( copiesString ), -1 );
     } else {
       copiesCache = Const.toInt( copiesString, 1 );
     }
@@ -692,8 +692,8 @@ public class TransformMeta implements
    *
    * @return a list of all the resource dependencies that the transform is depending on
    */
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta ) {
-    return transform.getResourceDependencies( pipelineMeta, this );
+  public List<ResourceReference> getResourceDependencies( IVariables variables ) {
+    return transform.getResourceDependencies( variables, this );
   }
 
   @Override

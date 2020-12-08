@@ -103,7 +103,6 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
       workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
-      workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
 
       String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
@@ -113,7 +112,7 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       // Create the workflow and store in the list...
       //
       String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
-      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
+      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
       // Setting variables
       //
@@ -123,8 +122,8 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
       // Also copy the parameters over...
       //
-      workflow.copyParametersFrom( workflowMeta );
-      workflow.clearParameters();
+      workflow.copyParametersFromDefinitions( workflowMeta );
+      workflow.clearParameterValues();
       String[] parameterNames = workflow.listParameters();
       for ( int idx = 0; idx < parameterNames.length; idx++ ) {
         // Grab the parameter value set in the action
@@ -133,10 +132,11 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
         if ( !Utils.isEmpty( thisValue ) ) {
           // Set the value as specified by the user in the action
           //
-          workflowMeta.setParameterValue( parameterNames[ idx ], thisValue );
+          workflow.setParameterValue( parameterNames[ idx ], thisValue );
         }
       }
-      workflowMeta.activateParameters();
+      workflow.activateParameters(workflow);
+
       // Check if there is a starting point specified.
       String startActionName = workflowExecutionConfiguration.getStartActionName();
       if ( startActionName != null && !startActionName.isEmpty() ) {

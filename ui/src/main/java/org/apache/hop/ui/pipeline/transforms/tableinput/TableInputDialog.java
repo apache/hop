@@ -31,6 +31,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -97,8 +98,8 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   private Label wlPosition;
 
-  public TableInputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public TableInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (TableInputMeta) in;
   }
 
@@ -168,7 +169,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     fdlLimit.right = new FormAttachment( middle, -margin );
     fdlLimit.bottom = new FormAttachment( wOk, -2 * margin );
     wlLimit.setLayoutData( fdlLimit );
-    wLimit = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLimit = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
     FormData fdLimit = new FormData();
@@ -274,7 +275,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     fdbTable.top = new FormAttachment( wConnection, margin * 2 );
     wbTable.setLayoutData( fdbTable );
 
-    wSql = new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wSql = new StyledTextComp( variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
     FormData fdSql = new FormData();
@@ -387,7 +388,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   protected void setSqlToolTip() {
     if ( wVariables.getSelection() ) {
-      wSql.setToolTipText( pipelineMeta.environmentSubstitute( wSql.getText() ) );
+      wSql.setToolTipText( variables.environmentSubstitute( wSql.getText() ) );
     }
   }
 
@@ -476,12 +477,12 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   private void getSql() {
     DatabaseMeta inf = pipelineMeta.findDatabase( wConnection.getText() );
     if ( inf != null ) {
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, inf, pipelineMeta.getDatabases(), false, true );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, inf, pipelineMeta.getDatabases(), false, true );
       if ( std.open() ) {
         String sql =
           "SELECT *"
             + Const.CR + "FROM "
-            + inf.getQuotedSchemaTableCombination( std.getSchemaName(), std.getTableName() ) + Const.CR;
+            + inf.getQuotedSchemaTableCombination( variables, std.getSchemaName(), std.getTableName() ) + Const.CR;
         wSql.setText( sql );
 
         MessageBox yn = new MessageBox( shell, SWT.YES | SWT.NO | SWT.CANCEL | SWT.ICON_QUESTION );
@@ -496,7 +497,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
             break;
           case SWT.YES:
             Database db = new Database( loggingObject, inf );
-            db.shareVariablesWith( pipelineMeta );
+            db.shareVariablesWith( variables );
             try {
               db.connect();
               IRowMeta fields = db.getQueryFields( sql, false );
@@ -513,7 +514,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
                 }
                 sql +=
                   "FROM "
-                    + inf.getQuotedSchemaTableCombination( std.getSchemaName(), std.getTableName() )
+                    + inf.getQuotedSchemaTableCombination( variables, std.getSchemaName(), std.getTableName() )
                     + Const.CR;
                 wSql.setText( sql );
               } else {
@@ -574,7 +575,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     TableInputMeta oneMeta = new TableInputMeta();
     getInfo( oneMeta, true );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
@@ -584,7 +585,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
     if ( previewSize > 0 ) {
       PipelinePreviewProgressDialog progressDialog =
         new PipelinePreviewProgressDialog(
-          shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+          shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
       progressDialog.open();
 
       Pipeline pipeline = progressDialog.getPipeline();
@@ -601,7 +602,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
         } else {
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
-              shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+              shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
               .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
           prd.open();
         }
@@ -610,9 +611,9 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
   }
 
   @Override
-  protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
+  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
     plugin.setDocumentationUrl("https://hop.apache.org/manual/latest/plugins/transforms/tableinput.html");
-    return super.createHelpButton(shell, stepMeta, plugin);
+    return super.createHelpButton(shell, transformMeta, plugin);
   }
 
 }

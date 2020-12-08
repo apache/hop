@@ -445,7 +445,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       } else {
         if ( !Utils.isEmpty( realSchemaName ) ) {
           countStatement =
-            selectCount + db.getDatabaseMeta().getQuotedSchemaTableCombination( realSchemaName, realTableName );
+            selectCount + db.getDatabaseMeta().getQuotedSchemaTableCombination( this, realSchemaName, realTableName );
         } else {
           countStatement = selectCount + db.getDatabaseMeta().quoteField( realTableName );
         }
@@ -533,8 +533,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( connection != null ) {
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( connection.getHostname(), ResourceType.SERVER ) );

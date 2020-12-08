@@ -33,8 +33,8 @@ import org.apache.hop.core.listeners.IFilenameChangedListener;
 import org.apache.hop.core.listeners.INameChangedListener;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.parameters.INamedParams;
-import org.apache.hop.core.parameters.NamedParamsDefault;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.undo.ChangeAction;
@@ -336,99 +336,6 @@ public class AbstractMetaTest {
     assertEquals( 2, indexes.length );
   }
 
-
-  @Test
-  public void testCopyVariablesFrom() throws Exception {
-    assertNull( meta.getVariable( "var1" ) );
-    IVariables vars = mock( IVariables.class );
-    when( vars.getVariable( "var1" ) ).thenReturn( "x" );
-    when( vars.listVariables() ).thenReturn( new String[] { "var1" } );
-    meta.copyVariablesFrom( vars );
-    assertEquals( "x", meta.getVariable( "var1", "y" ) );
-  }
-
-  @Test
-  public void testEnvironmentSubstitute() throws Exception {
-    // This is just a delegate method, verify it's called
-    IVariables vars = mock( IVariables.class );
-    // This method is reused by the stub to set the mock as the variables object
-    meta.setInternalHopVariables( vars );
-
-    meta.environmentSubstitute( "${param}" );
-    verify( vars, times( 1 ) ).environmentSubstitute( "${param}" );
-    String[] params = new String[] { "${param}" };
-    meta.environmentSubstitute( params );
-    verify( vars, times( 1 ) ).environmentSubstitute( params );
-  }
-
-  @Test
-  public void testFieldSubstitute() throws Exception {
-    // This is just a delegate method, verify it's called
-    IVariables vars = mock( IVariables.class );
-    // This method is reused by the stub to set the mock as the variables object
-    meta.setInternalHopVariables( vars );
-
-    IRowMeta rowMeta = mock( IRowMeta.class );
-    Object[] data = new Object[ 0 ];
-    meta.fieldSubstitute( "?{param}", rowMeta, data );
-    verify( vars, times( 1 ) ).fieldSubstitute( "?{param}", rowMeta, data );
-  }
-
-  @Test
-  public void testGetSetParentVariableSpace() throws Exception {
-    assertNull( meta.getParentVariableSpace() );
-    IVariables variables = mock( IVariables.class );
-    meta.setParentVariableSpace( variables );
-    assertEquals( variables, meta.getParentVariableSpace() );
-  }
-
-  @Test
-  public void testGetSetVariable() throws Exception {
-    assertNull( meta.getVariable( "var1" ) );
-    assertEquals( "x", meta.getVariable( "var1", "x" ) );
-    meta.setVariable( "var1", "y" );
-    assertEquals( "y", meta.getVariable( "var1", "x" ) );
-  }
-
-  @Test
-  public void testGetSetParameterValue() throws Exception {
-    assertNull( meta.getParameterValue( "var1" ) );
-    assertNull( meta.getParameterDefault( "var1" ) );
-    assertNull( meta.getParameterDescription( "var1" ) );
-
-    meta.setParameterValue( "var1", "y" );
-    // Values for new parameters must be added by addParameterDefinition
-    assertNull( meta.getParameterValue( "var1" ) );
-    assertNull( meta.getParameterDefault( "var1" ) );
-    assertNull( meta.getParameterDescription( "var1" ) );
-
-    meta.addParameterDefinition( "var2", "z", "My Description" );
-    assertEquals( "", meta.getParameterValue( "var2" ) );
-    assertEquals( "z", meta.getParameterDefault( "var2" ) );
-    assertEquals( "My Description", meta.getParameterDescription( "var2" ) );
-    meta.setParameterValue( "var2", "y" );
-    assertEquals( "y", meta.getParameterValue( "var2" ) );
-    assertEquals( "z", meta.getParameterDefault( "var2" ) );
-
-    String[] params = meta.listParameters();
-    assertNotNull( params );
-
-    // clearParameters() just clears their values, not their presence
-    meta.clearParameters();
-    assertEquals( "", meta.getParameterValue( "var2" ) );
-
-    // eraseParameters() clears the list of parameters
-    meta.eraseParameters();
-    assertNull( meta.getParameterValue( "var1" ) );
-
-    INamedParams newParams = new NamedParamsDefault();
-    newParams.addParameterDefinition( "var3", "default", "description" );
-    newParams.setParameterValue( "var3", "a" );
-    meta.copyParametersFrom( newParams );
-    meta.activateParameters();
-    assertEquals( "default", meta.getParameterDefault( "var3" ) );
-  }
-
   @Test
   public void testGetSetLogLevel() throws Exception {
     assertEquals( LogLevel.BASIC, meta.getLogLevel() );
@@ -498,41 +405,6 @@ public class AbstractMetaTest {
   }
 
   @Test
-  public void testGetBooleanValueOfVariable() {
-    assertFalse( meta.getBooleanValueOfVariable( null, false ) );
-    assertTrue( meta.getBooleanValueOfVariable( "", true ) );
-    assertTrue( meta.getBooleanValueOfVariable( "true", true ) );
-    assertFalse( meta.getBooleanValueOfVariable( "${myVar}", false ) );
-    meta.setVariable( "myVar", "Y" );
-    assertTrue( meta.getBooleanValueOfVariable( "${myVar}", false ) );
-  }
-
-  @Test
-  public void testInitializeShareInjectVariables() {
-    meta.initializeVariablesFrom( null );
-    IVariables parent = mock( IVariables.class );
-    when( parent.getVariable( "var1" ) ).thenReturn( "x" );
-    when( parent.listVariables() ).thenReturn( new String[] { "var1" } );
-    meta.initializeVariablesFrom( parent );
-    assertEquals( "x", meta.getVariable( "var1" ) );
-    assertNotNull( meta.listVariables() );
-    IVariables newVars = mock( IVariables.class );
-    when( newVars.getVariable( "var2" ) ).thenReturn( "y" );
-    when( newVars.listVariables() ).thenReturn( new String[] { "var2" } );
-    meta.shareVariablesWith( newVars );
-    assertEquals( "y", meta.getVariable( "var2" ) );
-    Map<String, String> props = new HashMap<>();
-    props.put( "var3", "a" );
-    props.put( "var4", "b" );
-    meta.shareVariablesWith( new Variables() );
-    meta.injectVariables( props );
-    // Need to "Activate" the injection, we can initialize from null
-    meta.initializeVariablesFrom( null );
-    assertEquals( "a", meta.getVariable( "var3" ) );
-    assertEquals( "b", meta.getVariable( "var4" ) );
-  }
-
-  @Test
   public void testCanSave() {
     assertTrue( meta.canSave() );
   }
@@ -579,10 +451,9 @@ public class AbstractMetaTest {
       return ".ext";
     }
 
-    // Reuse this method to set a mock internal variable space
+    // Reuse this method to set a mock internal variable variables
     @Override
     public void setInternalHopVariables( IVariables var ) {
-      this.variables = var;
     }
 
     @Override

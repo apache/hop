@@ -308,7 +308,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlServerName.top = new FormAttachment( 0, 2 * margin );
     fdlServerName.right = new FormAttachment( middle, -margin );
     wlServerName.setLayoutData(fdlServerName);
-    wServerName = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wServerName = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
     FormData fdServerName = new FormData();
@@ -351,7 +351,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlPort.top = new FormAttachment( wUseSSL, margin );
     fdlPort.right = new FormAttachment( middle, -margin );
     wlPort.setLayoutData(fdlPort);
-    wPort = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPort = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPort );
     wPort.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.SSLPort.Tooltip" ) );
     wPort.addModifyListener( lsMod );
@@ -370,7 +370,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlUserName.top = new FormAttachment( wPort, margin );
     fdlUserName.right = new FormAttachment( middle, -margin );
     wlUserName.setLayoutData(fdlUserName);
-    wUserName = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUserName = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUserName );
     wUserName.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.Username.Tooltip" ) );
     wUserName.addModifyListener( lsMod );
@@ -389,7 +389,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlPassword.top = new FormAttachment( wUserName, margin );
     fdlPassword.right = new FormAttachment( middle, -margin );
     wlPassword.setLayoutData(fdlPassword);
-    wPassword = new PasswordTextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPassword = new PasswordTextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
     FormData fdPassword = new FormData();
@@ -432,7 +432,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlProxyUsername.top = new FormAttachment( wUseProxy, margin );
     fdlProxyUsername.right = new FormAttachment( middle, -margin );
     wlProxyUsername.setLayoutData(fdlProxyUsername);
-    wProxyUsername = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyUsername = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wProxyUsername );
     wProxyUsername.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.ProxyUsername.Tooltip" ) );
     wProxyUsername.addModifyListener( lsMod );
@@ -517,9 +517,9 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdbDirectory.right = new FormAttachment( 100, -margin );
     fdbDirectory.top = new FormAttachment(wServerSettings, margin );
     wbDirectory.setLayoutData(fdbDirectory);
-    wbDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wOutputDirectory, workflowMeta ) );
+    wbDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wOutputDirectory, variables ) );
 
-    wOutputDirectory = new TextVar( workflowMeta, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wOutputDirectory = new TextVar( variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wOutputDirectory );
     wOutputDirectory.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.OutputDirectory.Tooltip" ) );
     wOutputDirectory.addModifyListener( lsMod );
@@ -556,7 +556,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlFilenamePattern.top = new FormAttachment( wcreateLocalFolder, margin );
     fdlFilenamePattern.right = new FormAttachment( middle, -margin );
     wlFilenamePattern.setLayoutData(fdlFilenamePattern);
-    wFilenamePattern = new TextVar( workflowMeta, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilenamePattern = new TextVar( variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilenamePattern );
     wFilenamePattern.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.FilenamePattern.Tooltip" ) );
     wFilenamePattern.addModifyListener( lsMod );
@@ -567,7 +567,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wFilenamePattern.setLayoutData(fdFilenamePattern);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilenamePattern.addModifyListener( e -> wFilenamePattern.setToolTipText( workflowMeta.environmentSubstitute( wFilenamePattern.getText() ) ) );
+    wFilenamePattern.addModifyListener( e -> wFilenamePattern.setToolTipText( variables.environmentSubstitute( wFilenamePattern.getText() ) ) );
 
     // Get message?
     wlGetMessage = new Label(wTargetFolder, SWT.RIGHT );
@@ -663,9 +663,9 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdbAttachmentFolder.right = new FormAttachment( 100, -margin );
     fdbAttachmentFolder.top = new FormAttachment( wDifferentFolderForAttachment, margin );
     wbAttachmentFolder.setLayoutData(fdbAttachmentFolder);
-    wbAttachmentFolder.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wAttachmentFolder, workflowMeta ) );
+    wbAttachmentFolder.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wAttachmentFolder, variables ) );
 
-    wAttachmentFolder = new TextVar( workflowMeta, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wAttachmentFolder = new TextVar( variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wAttachmentFolder );
     wAttachmentFolder.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.AttachmentFolder.Tooltip" ) );
     wAttachmentFolder.addModifyListener( lsMod );
@@ -684,7 +684,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlAttachmentWildcard.top = new FormAttachment( wbAttachmentFolder, margin );
     fdlAttachmentWildcard.right = new FormAttachment( middle, -margin );
     wlAttachmentWildcard.setLayoutData(fdlAttachmentWildcard);
-    wAttachmentWildcard = new TextVar( workflowMeta, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wAttachmentWildcard = new TextVar( variables, wTargetFolder, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wAttachmentWildcard );
     wAttachmentWildcard.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.AttachmentWildcard.Tooltip" ) );
     wAttachmentWildcard.addModifyListener( lsMod );
@@ -695,7 +695,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wAttachmentWildcard.setLayoutData(fdAttachmentWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wAttachmentWildcard.addModifyListener( e -> wAttachmentWildcard.setToolTipText( workflowMeta.environmentSubstitute( wAttachmentWildcard.getText() ) ) );
+    wAttachmentWildcard.addModifyListener( e -> wAttachmentWildcard.setToolTipText( variables.environmentSubstitute( wAttachmentWildcard.getText() ) ) );
 
     FormData fdTargetFolder = new FormData();
     fdTargetFolder.left = new FormAttachment( 0, margin );
@@ -824,7 +824,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlFirstmails.top = new FormAttachment( wListmails, margin );
     wlFirstmails.setLayoutData(fdlFirstmails);
 
-    wFirstmails = new TextVar( workflowMeta, wPOP3Settings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFirstmails = new TextVar( variables, wPOP3Settings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFirstmails );
     wFirstmails.addModifyListener( lsMod );
     FormData fdFirstmails = new FormData();
@@ -901,7 +901,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlIMAPFolder.top = new FormAttachment(wPOP3Settings, margin );
     fdlIMAPFolder.right = new FormAttachment( middle, -margin );
     wlIMAPFolder.setLayoutData(fdlIMAPFolder);
-    wIMAPFolder = new TextVar( workflowMeta, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIMAPFolder = new TextVar( variables, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIMAPFolder );
     wIMAPFolder.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.IMAPFolder.Tooltip" ) );
     wIMAPFolder.addModifyListener( lsMod );
@@ -967,7 +967,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlIMAPFirstmails.top = new FormAttachment( wIMAPListmails, margin );
     wlIMAPFirstmails.setLayoutData(fdlIMAPFirstmails);
 
-    wIMAPFirstmails = new TextVar( workflowMeta, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIMAPFirstmails = new TextVar( variables, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIMAPFirstmails );
     wIMAPFirstmails.addModifyListener( lsMod );
     FormData fdIMAPFirstmails = new FormData();
@@ -1035,7 +1035,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdTestMoveToFolder.right = new FormAttachment( wSelectMoveToFolder, -margin );
     wTestMoveToFolder.setLayoutData(fdTestMoveToFolder);
 
-    wMoveToFolder = new TextVar( workflowMeta, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMoveToFolder = new TextVar( variables, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMoveToFolder );
     wMoveToFolder.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.MoveToFolder.Tooltip" ) );
     wMoveToFolder.addModifyListener( lsMod );
@@ -1130,7 +1130,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlSender.top = new FormAttachment( 0, margin );
     fdlSender.right = new FormAttachment( middle, -margin );
     wlSender.setLayoutData(fdlSender);
-    wSender = new TextVar( workflowMeta, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSender = new TextVar( variables, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSender );
     wSender.addModifyListener( lsMod );
     FormData fdSender = new FormData();
@@ -1156,7 +1156,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlReceipient.top = new FormAttachment( wSender, margin );
     fdlReceipient.right = new FormAttachment( middle, -margin );
     wlReceipient.setLayoutData(fdlReceipient);
-    wReceipient = new TextVar( workflowMeta, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReceipient = new TextVar( variables, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wReceipient );
     wReceipient.addModifyListener( lsMod );
     FormData fdReceipient = new FormData();
@@ -1182,7 +1182,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlSubject.top = new FormAttachment( wReceipient, margin );
     fdlSubject.right = new FormAttachment( middle, -margin );
     wlSubject.setLayoutData(fdlSubject);
-    wSubject = new TextVar( workflowMeta, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSubject = new TextVar( variables, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSubject );
     wSubject.addModifyListener( lsMod );
     FormData fdSubject = new FormData();
@@ -1229,7 +1229,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlBody.top = new FormAttachment(wHeader, margin );
     fdlBody.right = new FormAttachment( middle, -margin );
     wlBody.setLayoutData(fdlBody);
-    wBody = new TextVar( workflowMeta, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBody = new TextVar( variables, wContent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBody );
     wBody.addModifyListener( lsMod );
     FormData fdBody = new FormData();
@@ -1346,7 +1346,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlReadFrom.top = new FormAttachment( wConditionOnReceivedDate, margin );
     fdlReadFrom.right = new FormAttachment( middle, -margin );
     wlReadFrom.setLayoutData(fdlReadFrom);
-    wReadFrom = new TextVar( workflowMeta, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReadFrom = new TextVar( variables, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReadFrom.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.ReadFrom.Tooltip" ) );
     props.setLook( wReadFrom );
     wReadFrom.addModifyListener( lsMod );
@@ -1406,7 +1406,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     fdlReadTo.top = new FormAttachment( wReadFrom, 2 * margin );
     fdlReadTo.right = new FormAttachment( middle, -margin );
     wlReadTo.setLayoutData(fdlReadTo);
-    wReadTo = new TextVar( workflowMeta, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReadTo = new TextVar( variables, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReadTo.setToolTipText( BaseMessages.getString( PKG, "JobGetPOP.ReadTo.Tooltip" ) );
     props.setLook( wReadTo );
     wReadTo.addModifyListener( lsMod );
@@ -1469,10 +1469,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     Listener lsTest = e -> test();
     wTest.addListener( SWT.Selection, lsTest);
 
-    Listener lsTestIMAPFolder = e -> checkFolder(workflowMeta.environmentSubstitute(wIMAPFolder.getText()));
+    Listener lsTestIMAPFolder = e -> checkFolder(variables.environmentSubstitute(wIMAPFolder.getText()));
     wTestIMAPFolder.addListener( SWT.Selection, lsTestIMAPFolder);
 
-    Listener lsTestMoveToFolder = e -> checkFolder(workflowMeta.environmentSubstitute(wMoveToFolder.getText()));
+    Listener lsTestMoveToFolder = e -> checkFolder(variables.environmentSubstitute(wMoveToFolder.getText()));
     wTestMoveToFolder.addListener( SWT.Selection, lsTestMoveToFolder);
 
     Listener lsSelectFolder = e -> selectFolder(wIMAPFolder);
@@ -1523,11 +1523,11 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     }
 
     if ( !retval ) {
-      String realserver = getWorkflowMeta().environmentSubstitute( wServerName.getText() );
-      String realuser = getWorkflowMeta().environmentSubstitute( wUserName.getText() );
-      String realpass = action.getRealPassword( getWorkflowMeta().environmentSubstitute( wPassword.getText() ) );
-      int realport = Const.toInt( getWorkflowMeta().environmentSubstitute( wPort.getText() ), -1 );
-      String realproxyuser = getWorkflowMeta().environmentSubstitute( wProxyUsername.getText() );
+      String realserver = variables.environmentSubstitute( wServerName.getText() );
+      String realuser = variables.environmentSubstitute( wUserName.getText() );
+      String realpass = action.getRealPassword( variables.environmentSubstitute( wPassword.getText() ) );
+      int realport = Const.toInt( variables.environmentSubstitute( wPort.getText() ), -1 );
+      String realproxyuser = variables.environmentSubstitute( wProxyUsername.getText() );
       try {
         mailConn =
           new MailConnection(

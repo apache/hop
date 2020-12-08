@@ -24,6 +24,7 @@ package org.apache.hop.beam.transforms.kafka;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -50,8 +51,8 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
   private TextVar wKeyField;
   private TextVar wMessageField;
 
-  public BeamProduceDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public BeamProduceDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (BeamProduceMeta) in;
   }
 
@@ -102,7 +103,7 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     fdlBootstrapServers.top = new FormAttachment( lastControl, margin );
     fdlBootstrapServers.right = new FormAttachment( middle, -margin );
     wlBootstrapServers.setLayoutData( fdlBootstrapServers );
-    wBootstrapServers = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBootstrapServers = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBootstrapServers );
     FormData fdBootstrapServers = new FormData();
     fdBootstrapServers.left = new FormAttachment( middle, 0 );
@@ -119,7 +120,7 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     fdlTopic.top = new FormAttachment( lastControl, margin );
     fdlTopic.right = new FormAttachment( middle, -margin );
     wlTopic.setLayoutData( fdlTopic );
-    wTopic = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTopic = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTopic );
     FormData fdTopic = new FormData();
     fdTopic.left = new FormAttachment( middle, 0 );
@@ -136,7 +137,7 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     fdlKeyField.top = new FormAttachment( lastControl, margin );
     fdlKeyField.right = new FormAttachment( middle, -margin );
     wlKeyField.setLayoutData( fdlKeyField );
-    wKeyField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wKeyField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wKeyField );
     FormData fdKeyField = new FormData();
     fdKeyField.left = new FormAttachment( middle, 0 );
@@ -153,7 +154,7 @@ public class BeamProduceDialog extends BaseTransformDialog implements ITransform
     fdlMessageField.top = new FormAttachment( lastControl, margin );
     fdlMessageField.right = new FormAttachment( middle, -margin );
     wlMessageField.setLayoutData( fdlMessageField );
-    wMessageField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMessageField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMessageField );
     FormData fdMessageField = new FormData();
     fdMessageField.left = new FormAttachment( middle, 0 );

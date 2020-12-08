@@ -47,6 +47,7 @@ import org.snmp4j.UserTarget;
 import org.snmp4j.smi.UdpAddress;
 
 import java.net.InetAddress;
+import org.apache.hop.core.variables.IVariables;
 
 public class SyslogMessageDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SyslogMessageMeta.class; // Needed by Translator
@@ -72,8 +73,8 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
 
   private boolean gotPreviousFields = false;
 
-  public SyslogMessageDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SyslogMessageDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SyslogMessageMeta) in;
   }
 
@@ -142,7 +143,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     wSettingsGroup.setLayout( settingGroupLayout );
 
     // Server port line
-    wServerName = new LabelTextVar( pipelineMeta, wSettingsGroup,
+    wServerName = new LabelTextVar( variables, wSettingsGroup,
       BaseMessages.getString( PKG, "SyslogMessageDialog.Server.Label" ),
       BaseMessages.getString( PKG, "SyslogMessageDialog.Server.Tooltip" ) );
     props.setLook( wServerName );
@@ -154,7 +155,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     wServerName.setLayoutData(fdServerName);
 
     // Server port line
-    wPort = new LabelTextVar( pipelineMeta, wSettingsGroup,
+    wPort = new LabelTextVar( variables, wSettingsGroup,
       BaseMessages.getString( PKG, "SyslogMessageDialog.Port.Label" ),
       BaseMessages.getString( PKG, "SyslogMessageDialog.Port.Tooltip" ) );
     props.setLook( wPort );
@@ -301,7 +302,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     fdlDatePattern.right = new FormAttachment( middle, -margin );
     fdlDatePattern.top = new FormAttachment( wAddTimestamp, margin );
     wlDatePattern.setLayoutData(fdlDatePattern);
-    wDatePattern = new ComboVar( pipelineMeta, wLogSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wDatePattern = new ComboVar( variables, wLogSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wDatePattern.setItems( Const.getDateFormats() );
     props.setLook( wDatePattern );
     FormData fdDatePattern = new FormData();
@@ -454,7 +455,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
         String source = wMessageField.getText();
 
         wMessageField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wMessageField.setItems( r.getFieldNames() );
           if ( source != null ) {
@@ -472,8 +473,8 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = pipelineMeta.environmentSubstitute( wServerName.getText() );
-    int nrPort = Const.toInt( pipelineMeta.environmentSubstitute( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
+    String hostname = variables.environmentSubstitute( wServerName.getText() );
+    int nrPort = Const.toInt( variables.environmentSubstitute( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
 
     try {
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( hostname ), nrPort );

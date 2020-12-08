@@ -252,7 +252,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     fdbSourceDirectory.top = new FormAttachment(wSettings, margin );
     wbSourceDirectory.setLayoutData(fdbSourceDirectory);
 
-    wbSourceDirectory.addListener( SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wSourceFileFolder, getWorkflowMeta() ));
+    wbSourceDirectory.addListener( SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wSourceFileFolder, variables ));
 
     // Browse Source files button ...
     wbSourceFileFolder = new Button(wGeneralComp, SWT.PUSH | SWT.CENTER );
@@ -272,7 +272,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     fdbaSourceFileFolder.top = new FormAttachment(wSettings, margin );
     wbaSourceFileFolder.setLayoutData(fdbaSourceFileFolder);
 
-    wSourceFileFolder = new TextVar( getWorkflowMeta(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSourceFileFolder = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSourceFileFolder.setToolTipText( BaseMessages.getString( PKG, "JobDosToUnix.SourceFileFolder.Tooltip" ) );
 
     props.setLook( wSourceFileFolder );
@@ -284,9 +284,9 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wSourceFileFolder.setLayoutData(fdSourceFileFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( getWorkflowMeta().environmentSubstitute( wSourceFileFolder.getText() ) ) );
+    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( variables.environmentSubstitute( wSourceFileFolder.getText() ) ) );
 
-    wbSourceFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wSourceFileFolder, getWorkflowMeta(),
+    wbSourceFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wSourceFileFolder, variables,
       new String[] { "*.xml;*.XML", "*" }, FILETYPES, true )
     );
 
@@ -320,7 +320,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
 
-    wWildcard = new TextVar( getWorkflowMeta(), wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "JobDosToUnix.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -363,7 +363,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
 
     wFields =
       new TableView(
-    		  getWorkflowMeta(), wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  variables, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -497,7 +497,7 @@ public class ActionDosToUnixDialog extends ActionDialog implements IActionDialog
     wlNrErrorsLessThan.setLayoutData(fdlNrErrorsLessThan);
 
     wNrErrorsLessThan =
-      new TextVar( getWorkflowMeta(), wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobDosToUnix.NrErrorFilesCountLessThan.Tooltip" ) );
     props.setLook( wNrErrorsLessThan );
     wNrErrorsLessThan.addModifyListener( lsMod );

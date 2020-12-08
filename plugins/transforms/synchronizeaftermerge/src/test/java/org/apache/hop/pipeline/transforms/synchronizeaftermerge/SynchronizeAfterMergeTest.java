@@ -26,6 +26,8 @@ package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.GenericDatabaseMeta;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -48,7 +50,7 @@ public class SynchronizeAfterMergeTest {
   public void initWithCommitSizeVariable() {
     TransformMeta transformMeta = mock( TransformMeta.class );
     doReturn( TRANSFORM_NAME ).when( transformMeta ).getName();
-    doReturn( 1 ).when( transformMeta ).getCopies();
+    doReturn( 1 ).when( transformMeta ).getCopies(any( IVariables.class ) );
 
     SynchronizeAfterMergeMeta smi = mock( SynchronizeAfterMergeMeta.class );
     SynchronizeAfterMergeData sdi = mock( SynchronizeAfterMergeData.class );

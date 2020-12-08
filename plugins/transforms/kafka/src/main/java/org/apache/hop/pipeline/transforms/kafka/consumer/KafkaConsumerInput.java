@@ -113,18 +113,19 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
       String realFilename = environmentSubstitute( meta.getFilename() );
       PipelineMeta subTransMeta = new PipelineMeta( realFilename, metadataProvider, true, this);
-      TransformWithMappingMeta.replaceVariableValues( subTransMeta, this );
-      TransformWithMappingMeta.addMissingVariables( subTransMeta, this );
-      subTransMeta.activateParameters();
       subTransMeta.setMetadataProvider( metadataProvider );
       subTransMeta.setFilename( meta.getFilename() );
       subTransMeta.setPipelineType( PipelineMeta.PipelineType.SingleThreaded );
       logDetailed( "Loaded sub-pipeline '"+realFilename+"'" );
 
-      LocalPipelineEngine kafkaPipeline = new LocalPipelineEngine(subTransMeta, getPipeline());
+      LocalPipelineEngine kafkaPipeline = new LocalPipelineEngine(subTransMeta, this, getPipeline());
       kafkaPipeline.prepareExecution();
       kafkaPipeline.setLogLevel( getPipeline().getLogLevel() );
       kafkaPipeline.setPreviousResult( new Result(  ) );
+      TransformWithMappingMeta.replaceVariableValues( kafkaPipeline, this );
+      TransformWithMappingMeta.addMissingVariables( kafkaPipeline, this );
+      kafkaPipeline.activateParameters(kafkaPipeline);
+
       logDetailed( "Initialized sub-pipeline '"+realFilename+"'" );
 
       // Find the (first copy of the) "Get Record from Stream" transform
@@ -187,7 +188,7 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
     super.dispose();
   }
 
-  public static Consumer buildKafkaConsumer( IVariables space, KafkaConsumerInputMeta meta ) {
+  public static Consumer buildKafkaConsumer( IVariables variables, KafkaConsumerInputMeta meta ) {
 
     Thread.currentThread().setContextClassLoader(meta.getClass().getClassLoader());
 
@@ -196,28 +197,28 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
     // Set all the configuration options...
     //
     for (String option : meta.getConfig().keySet()) {
-      String value = space.environmentSubstitute( meta.getConfig().get( option ) );
+      String value = variables.environmentSubstitute( meta.getConfig().get( option ) );
       if ( StringUtils.isNotEmpty( value ) ) {
-        config.put(option, space.environmentSubstitute( value) );
+        config.put(option, variables.environmentSubstitute( value) );
       }
     }
 
     // The basics
     //
-    config.put( ConsumerConfig.GROUP_ID_CONFIG, space.environmentSubstitute( Const.NVL(meta.getConsumerGroup(), "kettle") ));
-    config.put( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, space.environmentSubstitute( meta.getDirectBootstrapServers() ));
+    config.put( ConsumerConfig.GROUP_ID_CONFIG, variables.environmentSubstitute( Const.NVL(meta.getConsumerGroup(), "kettle") ));
+    config.put( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, variables.environmentSubstitute( meta.getDirectBootstrapServers() ));
     config.put( ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit() );
 
     // Timeout : max batch wait
     //
-    int timeout = Const.toInt(space.environmentSubstitute( meta.getBatchDuration()), 0);
+    int timeout = Const.toInt(variables.environmentSubstitute( meta.getBatchDuration()), 0);
     if (timeout>0) {
       config.put( ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, timeout);
     }
 
     // The batch size : max poll size
     //
-    int batch = Const.toInt( space.environmentSubstitute( meta.getBatchSize() ), 0 );
+    int batch = Const.toInt( variables.environmentSubstitute( meta.getBatchSize() ), 0 );
     if (batch>0) {
       config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, batch);
     }

@@ -121,14 +121,14 @@ public class SybaseIQDatabaseMeta extends BaseDatabaseMeta implements IDatabase 
 
   @Override
   public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                    boolean addFieldname, boolean addCr ) {
+                                    boolean addFieldName, boolean addCr ) {
     String retval = "";
 
     String fieldname = v.getName();
     int length = v.getLength();
     int precision = v.getPrecision();
 
-    if ( addFieldname ) {
+    if ( addFieldName ) {
       retval += fieldname + " ";
     }
 

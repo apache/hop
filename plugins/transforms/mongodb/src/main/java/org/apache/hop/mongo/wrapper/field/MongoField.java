@@ -145,16 +145,16 @@ public class MongoField implements Comparable<MongoField> {
   /**
    * Reset this field, ready for processing a new document
    *
-   * @param space variables to use
+   * @param variables variables to use
    */
-  public void reset(IVariables space) {
+  public void reset(IVariables variables) {
     // first clear because there may be stuff left over from processing
     // the previous mongo document object (especially if a path exited early
     // due to non-existent field or array index out of bounds)
     tempParts.clear();
 
     for (String part : pathParts) {
-      tempParts.add(space.environmentSubstitute(part));
+      tempParts.add(variables.environmentSubstitute(part));
     }
   }
 

@@ -33,6 +33,7 @@ import org.apache.hop.beam.transforms.pubsub.BeamPublishMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -42,8 +43,8 @@ import java.util.Map;
 
 public class BeamPublisherTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamPublisherTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamPublisherTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, false, true, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -60,7 +61,7 @@ public class BeamPublisherTransformHandler extends BeamBaseTransformHandler impl
 
     BeamPublishTransform beamOutputTransform = new BeamPublishTransform(
       transformMeta.getName(),
-      pipelineMeta.environmentSubstitute( publishMeta.getTopic() ),
+      variables.environmentSubstitute( publishMeta.getTopic() ),
       publishMeta.getMessageType(),
       publishMeta.getMessageField(),
       JsonRowMeta.toJson( rowMeta ),

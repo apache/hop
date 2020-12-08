@@ -50,8 +50,9 @@ import org.apache.hop.core.logging.LoggingBuffer;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.Metrics;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.INamedParams;
-import org.apache.hop.core.parameters.NamedParamsDefault;
+import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.EnvUtil;
 import org.apache.hop.core.util.Utils;
@@ -94,7 +95,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Matt Casters
  * @since 07-apr-2003
  */
-public abstract class Workflow extends Variables implements IVariables, INamedParams, IHasLogChannel, ILoggingObject,
+public abstract class Workflow extends Variables implements IVariables, INamedParameters, IHasLogChannel, ILoggingObject,
   IExecutor, IExtensionData, IWorkflowEngine<WorkflowMeta> {
   protected static Class<?> PKG = Workflow.class; // Needed by Translator
 
@@ -167,7 +168,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /**
    * Parameters of the workflow.
    */
-  protected INamedParams namedParams = new NamedParamsDefault();
+  protected INamedParameters namedParams = new NamedParameters();
 
   protected int maxActionsLogged;
 
@@ -292,13 +293,13 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       setInitialized( true );
 
       if (initializingVariablesOnStart) {
-        // Create a new variable name space as we want workflows to have their own set of variables.
+        // Create a new variable name variables as we want workflows to have their own set of variables.
         // initialize from parentWorkflow or null
         //
         initializeVariablesFrom(parentWorkflow);
         setInternalHopVariables();
-        copyParametersFrom(workflowMeta);
-        activateParameters();
+        copyParametersFromDefinitions(workflowMeta);
+        activateParameters(this);
       }
 
       // Run the workflow
@@ -514,14 +515,14 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
    * Uses a back-tracking algorithm.<br>
    *
    * @param nr
-   * @param prev_result
+   * @param previousResult
    * @param actionMeta
    * @param previous
    * @param reason
    * @return
    * @throws HopException
    */
-  private Result executeFromStart( final int nr, Result prev_result, final ActionMeta actionMeta, ActionMeta previous,
+  private Result executeFromStart( final int nr, Result previousResult, final ActionMeta actionMeta, ActionMeta previous,
                                    String reason ) throws HopException {
     Result res = null;
 
@@ -535,8 +536,8 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     //
     final Result newResult;
     Result prevResult = null;
-    if ( prev_result != null ) {
-      prevResult = prev_result.clone();
+    if ( previousResult != null ) {
+      prevResult = previousResult.clone();
     } else {
       prevResult = new Result();
     }
@@ -552,7 +553,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       newResult = prevResult;
     } else {
       if ( log.isDetailed() ) {
-        log.logDetailed( "exec(" + nr + ", " + ( prev_result != null ? prev_result.getNrErrors() : 0 ) + ", "
+        log.logDetailed( "exec(" + nr + ", " + ( prevResult != null ? prevResult.getNrErrors() : 0 ) + ", "
           + ( actionMeta != null ? actionMeta.toString() : "null" ) + ")" );
       }
 
@@ -975,11 +976,11 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
     /**
      * Sets the internal hop variables.
      *
-     * @param space the space in which we want to set the internal variables
+     * @param variables the variables in which we want to set the internal variables
      * @param filename the filename if there is any
      * @param name the name of the workflow
      */
-  public static final void setInternalHopVariables( IVariables space, String filename, String name ) {
+  public static final void setInternalHopVariables( IVariables variables, String filename, String name ) {
     boolean hasFilename = !Utils.isEmpty( filename );
     if ( hasFilename ) { // we have a filename that's defined.
       try {
@@ -987,22 +988,22 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
         FileName fileName = fileObject.getName();
 
         // The filename of the pipeline
-        space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, fileName.getBaseName() );
+        variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, fileName.getBaseName() );
 
         // The directory of the pipeline
         FileName fileDir = fileName.getParent();
-        space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, fileDir.getURI() );
+        variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, fileDir.getURI() );
       } catch ( Exception e ) {
-        space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, "" );
-        space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
+        variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, "" );
+        variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
       }
     } else {
-      space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, "" );
-      space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
+      variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER, "" );
+      variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
     }
 
     // The name of the workflow
-    space.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_NAME, Const.NVL( name, "" ) );
+    variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_NAME, Const.NVL( name, "" ) );
   }
 
 
@@ -1047,7 +1048,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#addParameterDefinition(java.lang.String, java.lang.String,
+   * @see org.apache.hop.core.parameters.INamedParameters#addParameterDefinition(java.lang.String, java.lang.String,
    * java.lang.String)
    */
   @Override public void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException {
@@ -1057,7 +1058,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDescription(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterDescription(java.lang.String)
    */
   @Override public String getParameterDescription( String key ) throws UnknownParamException {
     return namedParams.getParameterDescription( key );
@@ -1066,7 +1067,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDefault(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterDefault(java.lang.String)
    */
   @Override public String getParameterDefault( String key ) throws UnknownParamException {
     return namedParams.getParameterDefault( key );
@@ -1075,7 +1076,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterValue(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterValue(java.lang.String)
    */
   @Override public String getParameterValue( String key ) throws UnknownParamException {
     return namedParams.getParameterValue( key );
@@ -1084,7 +1085,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#listParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#listParameters()
    */
   @Override public String[] listParameters() {
     return namedParams.listParameters();
@@ -1093,7 +1094,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#setParameterValue(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#setParameterValue(java.lang.String, java.lang.String)
    */
   @Override public void setParameterValue( String key, String value ) throws UnknownParamException {
     namedParams.setParameterValue( key, value );
@@ -1102,67 +1103,32 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#eraseParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#eraseParameters()
    */
-  public void eraseParameters() {
-    namedParams.eraseParameters();
+  public void removeAllParameters() {
+    namedParams.removeAllParameters();
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#clearParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#clearParameters()
    */
-  public void clearParameters() {
-    namedParams.clearParameters();
+  public void clearParameterValues() {
+    namedParams.clearParameterValues();
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#activateParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#activateParameters()
    */
-  public void activateParameters() {
-    String[] keys = listParameters();
-
-    for ( String key : keys ) {
-      String value;
-      try {
-        value = getParameterValue( key );
-      } catch ( UnknownParamException e ) {
-        value = "";
-      }
-      String defValue;
-      try {
-        defValue = getParameterDefault( key );
-      } catch ( UnknownParamException e ) {
-        defValue = "";
-      }
-
-      // Set the variable of "" if no value or default value was found.
-      //
-      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
-    }
+  public void activateParameters(IVariables variables) {
+    namedParams.activateParameters( variables );
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#copyParametersFrom(org.apache.hop.core.parameters.INamedParams)
-   */
-  public void copyParametersFrom( INamedParams params ) {
-    namedParams.copyParametersFrom( params );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#mergeParametersWith(org.apache.hop.core.parameters.INamedParams,
-   * boolean replace)
-   */
-  @Override
-  public void mergeParametersWith( INamedParams params, boolean replace ) {
-    namedParams.mergeParametersWith( params, replace );
+  @Override public void copyParametersFromDefinitions( INamedParameterDefinitions definitions ) {
+    namedParams.copyParametersFromDefinitions( definitions );
   }
 
   /**

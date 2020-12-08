@@ -60,7 +60,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
       first = false;
       data.outputRowMeta = rowMeta.clone();
       meta.getFields(
-        data.outputRowMeta, getTransformName(), new IRowMeta[] { meta.getTableFields(), }, null, this, metadataProvider );
+        data.outputRowMeta, getTransformName(), new IRowMeta[] { meta.getTableFields(this), }, null, this, metadataProvider );
 
       loadFromBuffer = false;
     }

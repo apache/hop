@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.delay;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -46,8 +47,8 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
 
   private LabelTextVar wTimeout;
 
-  public DelayDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public DelayDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (DelayMeta) in;
   }
 
@@ -94,7 +95,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     // Timeout line
     wTimeout =
       new LabelTextVar(
-        pipelineMeta, shell, BaseMessages.getString( PKG, "DelayDialog.Timeout.Label" ), BaseMessages.getString(
+        variables, shell, BaseMessages.getString( PKG, "DelayDialog.Timeout.Label" ), BaseMessages.getString(
         PKG, "DelayDialog.Timeout.Tooltip" ) );
     props.setLook( wTimeout );
     wTimeout.addModifyListener( lsMod );
@@ -105,7 +106,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     wTimeout.setLayoutData(fdTimeout);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wTimeout.addModifyListener( e -> wTimeout.setToolTipText( pipelineMeta.environmentSubstitute( wTimeout.getText() ) ) );
+    wTimeout.addModifyListener( e -> wTimeout.setToolTipText( variables.environmentSubstitute( wTimeout.getText() ) ) );
 
     wScaleTime = new CCombo( shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wScaleTime.add( BaseMessages.getString( PKG, "DelayDialog.MSScaleTime.Label" ) );

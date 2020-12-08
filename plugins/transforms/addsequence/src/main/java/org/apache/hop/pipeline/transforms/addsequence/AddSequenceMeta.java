@@ -295,11 +295,11 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
     CheckResult cr;
     if ( useDatabase ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareVariablesWith( variables );
       try {
         db.connect();
-        if ( db.checkSequenceExists( pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta
-          .environmentSubstitute( sequenceName ) ) ) {
+        if ( db.checkSequenceExists( variables.environmentSubstitute( schemaName ),
+          variables.environmentSubstitute( sequenceName ) ) ) {
           cr =
             new CheckResult( ICheckResult.TYPE_RESULT_OK, BaseMessages.getString(
               PKG, "AddSequenceMeta.CheckResult.SequenceExists.Title" ), transformMeta );
@@ -333,7 +333,7 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   @Override
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -341,7 +341,7 @@ public class AddSequenceMeta extends BaseTransformMeta implements ITransformMeta
       // Otherwise, don't bother!
       if ( databaseMeta != null ) {
         Database db = new Database( loggingObject, databaseMeta );
-        db.shareVariablesWith( pipelineMeta );
+        db.shareVariablesWith( variables );
         try {
           db.connect();
           if ( !db.checkSequenceExists( schemaName, sequenceName ) ) {

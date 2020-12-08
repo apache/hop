@@ -47,6 +47,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class StringCutDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -60,8 +61,8 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
 
   private ColumnInfo[] ciKey;
 
-  public StringCutDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public StringCutDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (StringCutMeta) in;
     inputFields = new HashMap<>();
   }
@@ -152,7 +153,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
 
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrFieldRows, lsMod, props );
 
     FormData fdKey = new FormData();
@@ -169,7 +170,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -299,7 +300,7 @@ public class StringCutDialog extends BaseTransformDialog implements ITransformDi
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           if ( v.getType() == IValueMeta.TYPE_STRING ) {

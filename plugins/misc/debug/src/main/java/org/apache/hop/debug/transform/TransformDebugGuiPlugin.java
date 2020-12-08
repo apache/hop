@@ -26,6 +26,7 @@ import org.apache.hop.core.action.GuiContextAction;
 import org.apache.hop.core.gui.plugin.GuiPlugin;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -76,6 +77,7 @@ public class TransformDebugGuiPlugin {
     try {
       PipelineMeta pipelineMeta = context.getPipelineMeta();
       TransformMeta transformMeta = context.getTransformMeta();
+      IVariables variables = context.getPipelineGraph().getVariables();
 
       Map<String, Map<String, String>> attributesMap = pipelineMeta.getAttributesMap();
       Map<String, String> debugGroupAttributesMap = attributesMap.get( Defaults.DEBUG_GROUP );
@@ -90,7 +92,7 @@ public class TransformDebugGuiPlugin {
         debugLevel = new TransformDebugLevel();
       }
 
-      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields( transformMeta );
+      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields( variables, transformMeta );
       TransformDebugLevelDialog dialog = new TransformDebugLevelDialog( hopGui.getShell(), debugLevel, inputRowMeta );
       if (dialog.open()) {
         DebugLevelUtil.storeTransformDebugLevel(debugGroupAttributesMap, transformMeta.getName(), debugLevel);

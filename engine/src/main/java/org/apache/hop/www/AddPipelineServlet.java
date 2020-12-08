@@ -109,15 +109,6 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
       if ( log.isDetailed() ) {
         logDetailed( "Logging level set to " + log.getLogLevel().getDescription() );
       }
-      pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariablesMap() );
-
-      // Also copy the parameters over...
-      //
-      Map<String, String> params = pipelineExecutionConfiguration.getParametersMap();
-      for ( String param : params.keySet() ) {
-        String value = params.get( param );
-        pipelineMeta.setParameterValue( param, value );
-      }
 
       String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject =
@@ -128,7 +119,7 @@ public class AddPipelineServlet extends BaseHttpServlet implements IHopServerPlu
       IHopMetadataProvider metadataProvider = pipelineConfiguration.getMetadataProvider();
 
       String runConfigurationName = pipelineExecutionConfiguration.getRunConfiguration();
-      final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta );
+      final IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( variables, runConfigurationName, metadataProvider, pipelineMeta );
       pipeline.setParent( servletLoggingObject );
 
       if ( pipelineExecutionConfiguration.isSetLogfile() ) {

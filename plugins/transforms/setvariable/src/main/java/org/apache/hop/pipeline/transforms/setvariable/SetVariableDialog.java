@@ -49,6 +49,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class SetVariableDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SetVariableMeta.class; // Needed by Translator
@@ -67,8 +68,8 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
 
   private ColumnInfo[] colinf;
 
-  public SetVariableDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SetVariableDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SetVariableMeta) in;
     inputFields = new HashMap<>();
   }
@@ -174,7 +175,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
 
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -190,7 +191,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -338,7 +339,7 @@ public class SetVariableDialog extends BaseTransformDialog implements ITransform
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
           r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, ( tableItem, v ) -> {

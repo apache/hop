@@ -86,7 +86,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
   private RowGeneratorMeta input;
 
-  public RowGeneratorDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public RowGeneratorDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (RowGeneratorMeta) in;
   }
@@ -144,7 +144,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     fdlLimit.right = new FormAttachment( middle, -margin );
     fdlLimit.top = new FormAttachment( lastControl, margin );
     wlLimit.setLayoutData( fdlLimit );
-    wLimit = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLimit = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLimit );
     wLimit.addModifyListener( lsMod );
     FormData fdLimit = new FormData();
@@ -186,7 +186,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     fdlInterval.right = new FormAttachment( middle, -margin );
     fdlInterval.top = new FormAttachment( lastControl, margin );
     wlInterval.setLayoutData( fdlInterval );
-    wInterval = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInterval = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInterval );
     wInterval.addModifyListener( lsMod );
     FormData fdInterval = new FormData();
@@ -204,7 +204,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     fdlRowTimeField.right = new FormAttachment( middle, -margin );
     fdlRowTimeField.top = new FormAttachment( lastControl, margin );
     wlRowTimeField.setLayoutData( fdlRowTimeField );
-    wRowTimeField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowTimeField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRowTimeField );
     wRowTimeField.addModifyListener( lsMod );
     FormData fdRowTimeField = new FormData();
@@ -222,7 +222,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     fdlLastTimeField.right = new FormAttachment( middle, -margin );
     fdlLastTimeField.top = new FormAttachment( lastControl, margin );
     wlLastTimeField.setLayoutData( fdlLastTimeField );
-    wLastTimeField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLastTimeField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLastTimeField );
     wLastTimeField.addModifyListener( lsMod );
     FormData fdLastTimeField = new FormData();
@@ -274,7 +274,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
 
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -484,7 +484,7 @@ public class RowGeneratorDialog extends BaseTransformDialog implements ITransfor
     /*
      * Commented out verification : if variables are used, this check is a pain!
      *
-     * long longLimit = Const.toLong(pipelineMeta.environmentSubstitute( wLimit.getText()), -1L ); if (longLimit<0) { throw
+     * long longLimit = Const.toLong(variables.environmentSubstitute( wLimit.getText()), -1L ); if (longLimit<0) { throw
      * new HopException( BaseMessages.getString(PKG, "RowGeneratorDialog.Wrong.RowLimit.Number") ); }
      */
   }

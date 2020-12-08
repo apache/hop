@@ -27,6 +27,7 @@ import org.apache.hop.core.extension.ExtensionPoint;
 import org.apache.hop.core.extension.IExtensionPoint;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.debug.util.DebugLevelUtil;
 import org.apache.hop.debug.util.Defaults;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -52,7 +53,8 @@ public class EditTransformDebugLevelExtensionPoint implements IExtensionPoint<Ho
       TransformDebugLevel debugLevel = (TransformDebugLevel) ext.getAreaOwner().getOwner();
       PipelineMeta pipelineMeta = ext.getPipelineGraph().getPipelineMeta();
       TransformMeta transformMeta = (TransformMeta) ext.getAreaOwner().getParent();
-      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields( transformMeta );
+      IVariables variables = ext.getPipelineGraph().getVariables();
+      IRowMeta inputRowMeta = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
       TransformDebugLevelDialog dialog = new TransformDebugLevelDialog( HopGui.getInstance().getShell(), debugLevel, inputRowMeta );
       if ( dialog.open() ) {

@@ -69,8 +69,8 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
 
   private static final byte[] EMPTY_JSON = "{}".getBytes(); // for replacing null inputs
 
-  public JsonInput( TransformMeta transformMeta, JsonInputMeta meta, JsonInputData data, int copyNr, PipelineMeta transMeta, Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, transMeta, pipeline );
+  public JsonInput( TransformMeta transformMeta, JsonInputMeta meta, JsonInputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override

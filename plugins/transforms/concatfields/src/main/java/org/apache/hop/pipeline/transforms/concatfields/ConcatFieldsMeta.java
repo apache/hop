@@ -206,19 +206,19 @@ public class ConcatFieldsMeta extends BaseTransformMeta  implements ITransformMe
 
   @Deprecated
   public void getFieldsModifyInput(IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-                                   IVariables space ) throws HopTransformException {
-    getFieldsModifyInput( row, name, info, nextTransform, space, null );
+                                   IVariables variables ) throws HopTransformException {
+    getFieldsModifyInput( row, name, info, nextTransform, variables, null );
   }
 
   public void getFieldsModifyInput( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-    IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+    IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // the field precisions and lengths are altered! see TextFileOutputMeta.getFields().
-    super.getFields( row, name, info, nextTransform, space, metadataProvider );
+    super.getFields( row, name, info, nextTransform, variables, metadataProvider );
   }
 
   @Override
   public void getFields( IRowMeta row, String name, IRowMeta[] info, TransformMeta nextTransform,
-    IVariables space, IHopMetadataProvider metadataProvider) throws HopTransformException {
+    IVariables variables, IHopMetadataProvider metadataProvider) throws HopTransformException {
     // do not call the super class from TextFileOutputMeta since it modifies the source meta data
     // see getFieldsModifyInput() instead
 
@@ -338,8 +338,8 @@ public class ConcatFieldsMeta extends BaseTransformMeta  implements ITransformMe
   }
   
   @Override
-  public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta transformMeta,
-                    IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables space, IHopMetadataProvider metadataProvider) {
+  public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+                    IRowMeta prev, String[] input, String[] output, IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider) {
     CheckResult cr;
 
     // Check Target Field Name

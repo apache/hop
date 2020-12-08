@@ -108,11 +108,7 @@ public class SqlEditor {
 
   private SqlValuesHighlight highlight;
 
-  public SqlEditor( Shell parent, int style, DatabaseMeta ci, DbCache dbc, String sql ) {
-    this( null, parent, style, ci, dbc, sql );
-  }
-
-  public SqlEditor( IVariables variables, Shell parent, int style, DatabaseMeta ci, DbCache dbc, String sql ) {
+  public SqlEditor( Shell parent, int style, IVariables variables, DatabaseMeta ci, DbCache dbc, String sql ) {
     props = PropsUi.getInstance();
     log = new LogChannel( ci );
     input = sql;
@@ -347,7 +343,7 @@ public class SqlEditor {
             IRowMeta rowMeta = db.getReturnRowMeta();
             if ( rows.size() > 0 ) {
               PreviewRowsDialog prd =
-                new PreviewRowsDialog( shell, ci, SWT.NONE, BaseMessages.getString(
+                new PreviewRowsDialog( shell, variables, SWT.NONE, BaseMessages.getString(
                   PKG, "SQLEditor.ResultRows.Title", Integer.toString( nrstats ) ), rowMeta, rows );
               prd.open();
             } else {

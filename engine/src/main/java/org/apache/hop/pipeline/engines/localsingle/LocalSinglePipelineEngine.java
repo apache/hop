@@ -24,7 +24,7 @@ package org.apache.hop.pipeline.engines.localsingle;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
-import org.apache.hop.core.parameters.INamedParams;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
@@ -44,11 +44,11 @@ public class LocalSinglePipelineEngine extends Pipeline implements IPipelineEngi
     super( pipelineMeta );
   }
 
-  public LocalSinglePipelineEngine( PipelineMeta pipelineMeta, ILoggingObject parent ) {
-    super( pipelineMeta, parent );
+  public LocalSinglePipelineEngine( PipelineMeta pipelineMeta, IVariables variables, ILoggingObject parent ) {
+    super( pipelineMeta, variables, parent );
   }
 
-  public <Parent extends IVariables & INamedParams> LocalSinglePipelineEngine( Parent parent, String name, String filename, IHopMetadataProvider metadataProvider ) throws HopException {
+  public <Parent extends IVariables & INamedParameters> LocalSinglePipelineEngine( Parent parent, String name, String filename, IHopMetadataProvider metadataProvider ) throws HopException {
     super( parent, name, filename, metadataProvider );
   }
 

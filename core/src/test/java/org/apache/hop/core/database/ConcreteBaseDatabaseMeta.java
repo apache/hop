@@ -29,8 +29,8 @@ import org.apache.hop.core.row.IValueMeta;
 public class ConcreteBaseDatabaseMeta extends BaseDatabaseMeta {
 
   @Override
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean use_autoinc,
-                                    boolean add_fieldname, boolean add_cr ) {
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoIncrement,
+                                    boolean addFieldName, boolean add_cr ) {
     return null;
   }
 
@@ -45,13 +45,13 @@ public class ConcreteBaseDatabaseMeta extends BaseDatabaseMeta {
   }
 
   @Override
-  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
+  public String getAddColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoIncrement,
                                        String pk, boolean semicolon ) {
     return null;
   }
 
   @Override
-  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean use_autoinc,
+  public String getModifyColumnStatement( String tablename, IValueMeta v, String tk, boolean useAutoIncrement,
                                           String pk, boolean semicolon ) {
     return null;
   }

@@ -28,7 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.parameters.INamedParams;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.IExecutionFinishedListener;
@@ -49,7 +49,7 @@ import java.util.Map;
  *
  * @param <T> The subject class to execute
  */
-public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILoggingObject, INamedParams {
+public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILoggingObject, INamedParameters {
 
   T getPipelineMeta();
 
@@ -341,13 +341,14 @@ public interface IPipelineEngine<T extends PipelineMeta> extends IVariables, ILo
   /**
    * Retrieve output rows from a component copy.  Pass the rows to the rows received lambda.
    *
+   * @param variables
    * @param componentName
    * @param copyNr
    * @param nrRows
    * @param rowsReceived
    * @throws HopException
    */
-  void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException;
+  void retrieveComponentOutput( IVariables variables, String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException;
 
   /**
    * Determine the pipeline engine which is executing this pipeline engine.

@@ -732,8 +732,8 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return tablock;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     ResourceReference reference = null;
     if ( connection != null ) {
       reference = new ResourceReference( this );

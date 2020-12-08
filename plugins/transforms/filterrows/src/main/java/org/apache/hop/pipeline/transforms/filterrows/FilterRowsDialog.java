@@ -28,6 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -61,8 +62,8 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
 
   private Condition backupCondition;
 
-  public FilterRowsDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public FilterRowsDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (FilterRowsMeta) in;
 
     condition = (Condition) input.getCondition().clone();
@@ -174,7 +175,7 @@ public class FilterRowsDialog extends BaseTransformDialog implements ITransformD
 
     IRowMeta inputfields = null;
     try {
-      inputfields = pipelineMeta.getPrevTransformFields( transformName );
+      inputfields = pipelineMeta.getPrevTransformFields( variables, transformName );
     } catch ( HopException ke ) {
       inputfields = new RowMeta();
       new ErrorDialog(

@@ -28,13 +28,12 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.git.HopGitPerspective;
 import org.apache.hop.git.model.repository.GitRepository;
 
-/**
- * Used for create/update/delete of Git Repository metadata objects
- */
+/** Used for create/update/delete of Git Repository metadata objects */
 public class HopGuiGitRepositoryChanged implements IExtensionPoint {
 
-  @Override public void callExtensionPoint( ILogChannel log, Object o ) throws HopException {
-    if (!(o instanceof GitRepository )) {
+  @Override
+  public void callExtensionPoint(ILogChannel log, Object o) throws HopException {
+    if (!(o instanceof GitRepository)) {
       return;
     }
 

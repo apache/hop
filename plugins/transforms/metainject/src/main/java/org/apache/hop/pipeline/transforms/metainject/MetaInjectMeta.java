@@ -269,7 +269,7 @@ public class MetaInjectMeta extends BaseTransformMeta
       String origin,
       IRowMeta[] info,
       TransformMeta nextTransform,
-      IVariables space,
+      IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 
@@ -311,14 +311,14 @@ public class MetaInjectMeta extends BaseTransformMeta
   }
 
   public static final synchronized PipelineMeta loadPipelineMeta(
-      MetaInjectMeta injectMeta, IHopMetadataProvider metadataProvider, IVariables space)
+      MetaInjectMeta injectMeta, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopException {
     PipelineMeta mappingPipelineMeta = null;
 
     CurrentDirectoryResolver resolver = new CurrentDirectoryResolver();
     IVariables tmpSpace =
         resolver.resolveCurrentDirectory(
-            space, injectMeta.getParentTransformMeta(), injectMeta.getFileName());
+            variables, injectMeta.getParentTransformMeta(), injectMeta.getFileName());
 
     String realFilename = tmpSpace.environmentSubstitute(injectMeta.getFileName());
     try {
@@ -343,24 +343,22 @@ public class MetaInjectMeta extends BaseTransformMeta
 
     // Pass some important information to the mapping transformation metadata:
     //
-    mappingPipelineMeta.copyVariablesFrom(space);
     mappingPipelineMeta.setFilename(mappingPipelineMeta.getFilename());
 
     return mappingPipelineMeta;
   }
 
   /** package-local visibility for testing purposes */
-  PipelineMeta loadPipelineMeta(IHopMetadataProvider metadataProvider, IVariables space)
+  PipelineMeta loadPipelineMeta(IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopException {
-    return MetaInjectMeta.loadPipelineMeta(this, metadataProvider, space);
+    return MetaInjectMeta.loadPipelineMeta(this, metadataProvider, variables);
   }
 
-  @Override
-  public List<ResourceReference> getResourceDependencies(
-      PipelineMeta pipelineMeta, TransformMeta transformInfo) {
+  @Override public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
+
     List<ResourceReference> references = new ArrayList<>(5);
-    String realFilename = pipelineMeta.environmentSubstitute(fileName);
-    ResourceReference reference = new ResourceReference(transformInfo);
+    String realFilename = variables.environmentSubstitute(fileName);
+    ResourceReference reference = new ResourceReference(transformMeta);
     references.add(reference);
 
     if (!Utils.isEmpty(realFilename)) {
@@ -376,7 +374,7 @@ public class MetaInjectMeta extends BaseTransformMeta
 
   @Override
   public String exportResources(
-      IVariables space,
+      IVariables variables,
       Map<String, ResourceDefinition> definitions,
       IResourceNaming resourceNamingInterface,
       IHopMetadataProvider metadataProvider)
@@ -390,14 +388,14 @@ public class MetaInjectMeta extends BaseTransformMeta
       //
       // First load the executor transformation metadata...
       //
-      PipelineMeta executorPipelineMeta = loadPipelineMeta(metadataProvider, space);
+      PipelineMeta executorPipelineMeta = loadPipelineMeta(metadataProvider, variables);
 
       // Also go down into the mapping transformation and export the files
       // there. (mapping recursively down)
       //
       String proposedNewFilename =
           executorPipelineMeta.exportResources(
-              executorPipelineMeta, definitions, resourceNamingInterface, metadataProvider);
+              variables, definitions, resourceNamingInterface, metadataProvider);
 
       // To get a relative path to it, we inject
       // ${Internal.Entry.Current.Directory}
@@ -497,8 +495,8 @@ public class MetaInjectMeta extends BaseTransformMeta
 
   //  @Override
   //  @Deprecated
-  //  public Object loadReferencedObject( int index, IVariables space ) throws HopException {
-  //    return loadReferencedObject( index, null, space );
+  //  public Object loadReferencedObject( int index, IVariables variables ) throws HopException {
+  //    return loadReferencedObject( index, null, variables );
   //  }
 
   /**
@@ -506,14 +504,14 @@ public class MetaInjectMeta extends BaseTransformMeta
    *
    * @param index the object index to load
    * @param metadataProvider metadataProvider
-   * @param space the variable space to use
+   * @param variables the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */
   @Override
   public IHasFilename loadReferencedObject(
-      int index, IHopMetadataProvider metadataProvider, IVariables space) throws HopException {
-    return loadPipelineMeta(this, metadataProvider, space);
+      int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
+    return loadPipelineMeta(this, metadataProvider, variables);
   }
 
   public String getStreamSourceTransformName() {

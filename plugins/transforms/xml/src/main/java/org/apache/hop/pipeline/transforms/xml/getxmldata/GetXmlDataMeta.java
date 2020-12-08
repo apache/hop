@@ -574,14 +574,14 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
 
   /**
    * @param nameSpaceAware
-   *          the name space aware flag to set
+   *          the name variables aware flag to set
    */
   public void setNamespaceAware( boolean nameSpaceAware ) {
     this.nameSpaceAware = nameSpaceAware;
   }
 
   /**
-   * @return the name space aware flag
+   * @return the name variables aware flag
    */
   public boolean isNamespaceAware() {
     return nameSpaceAware;
@@ -891,7 +891,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
   }
 
   public void getFields(IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
-                        IVariables space, IHopMetadataProvider metadataProvider ) throws HopTransformException {
+                        IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     int i;
     for ( i = 0; i < inputFields.length; i++ ) {
       GetXmlDataField field = inputFields[i];
@@ -901,7 +901,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
         type = IValueMeta.TYPE_STRING;
       }
       try {
-        IValueMeta v = ValueMetaFactory.createValueMeta( space.environmentSubstitute( field.getName() ), type );
+        IValueMeta v = ValueMetaFactory.createValueMeta( variables.environmentSubstitute( field.getName() ), type );
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
         v.setOrigin( name );
@@ -916,7 +916,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     }
 
     if ( includeFilename ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( filenameField ));
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( filenameField ));
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -924,7 +924,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     }
 
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( space.environmentSubstitute( rowNumberField ));
+      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ));
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -933,58 +933,58 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
 
     if ( getShortFileNameField() != null && getShortFileNameField().length() > 0 ) {
       IValueMeta v =
-          new ValueMetaString( space.environmentSubstitute( getShortFileNameField() ));
+          new ValueMetaString( variables.environmentSubstitute( getShortFileNameField() ));
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getExtensionField() != null && getExtensionField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( getExtensionField() ));
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getExtensionField() ));
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getPathField() != null && getPathField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( getPathField() ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getPathField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getSizeField() != null && getSizeField().length() > 0 ) {
-      IValueMeta v = new ValueMetaInteger( space.environmentSubstitute( getSizeField() ) );
+      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( getSizeField() ) );
       v.setOrigin( name );
       v.setLength( 9 );
       r.addValueMeta( v );
     }
     if ( isHiddenField() != null && isHiddenField().length() > 0 ) {
-      IValueMeta v = new ValueMetaBoolean( space.environmentSubstitute( isHiddenField() ) );
+      IValueMeta v = new ValueMetaBoolean( variables.environmentSubstitute( isHiddenField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getLastModificationDateField() != null && getLastModificationDateField().length() > 0 ) {
       IValueMeta v =
-          new ValueMetaDate( space.environmentSubstitute( getLastModificationDateField() ));
+          new ValueMetaDate( variables.environmentSubstitute( getLastModificationDateField() ));
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getUriField() != null && getUriField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( getUriField() ) );
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getRootUriField() != null && getRootUriField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( space.environmentSubstitute( getRootUriField() ));
+      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getRootUriField() ));
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
   }
 
-  public FileInputList getFiles(IVariables space ) {
-    return FileInputList.createFileList( space, fileName, fileMask, excludeFileMask, fileRequired,
+  public FileInputList getFiles(IVariables variables ) {
+    return FileInputList.createFileList( variables, fileName, fileMask, excludeFileMask, fileRequired,
         includeSubFolderBoolean() );
   }
 
@@ -997,8 +997,8 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     return includeSubFolderBoolean;
   }
 
-  public void check(List<ICheckResult> remarks, PipelineMeta transMeta, TransformMeta stepMeta, IRowMeta prev,
-                    String[] input, String[] output, IRowMeta info, IVariables space,
+  public void check(List<ICheckResult> remarks, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+                    String[] input, String[] output, IRowMeta info, IVariables variables,
                     IHopMetadataProvider metadataProvider ) {
     CheckResult cr;
 
@@ -1006,12 +1006,12 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     if ( input.length <= 0 ) {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "GetXMLDataMeta.CheckResult.NoInputExpected" ), stepMeta );
+              "GetXMLDataMeta.CheckResult.NoInputExpected" ), transformMeta );
       remarks.add( cr );
     } else {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "GetXMLDataMeta.CheckResult.NoInput" ), stepMeta );
+              "GetXMLDataMeta.CheckResult.NoInput" ), transformMeta );
       remarks.add( cr );
     }
 
@@ -1019,13 +1019,13 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     if ( getLoopXPath() == null || Utils.isEmpty( getLoopXPath() ) ) {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "GetXMLDataMeta.CheckResult.NoLoopXpath" ), stepMeta );
+              "GetXMLDataMeta.CheckResult.NoLoopXpath" ), transformMeta );
       remarks.add( cr );
     }
     if ( getInputFields().length <= 0 ) {
       cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-              "GetXMLDataMeta.CheckResult.NoInputField" ), stepMeta );
+              "GetXMLDataMeta.CheckResult.NoInputField" ), transformMeta );
       remarks.add( cr );
     }
 
@@ -1033,26 +1033,26 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
       if ( Utils.isEmpty( getXMLField() ) ) {
         cr =
             new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "GetXMLDataMeta.CheckResult.NoField" ), stepMeta );
+                "GetXMLDataMeta.CheckResult.NoField" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
             new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "GetXMLDataMeta.CheckResult.FieldOk" ), stepMeta );
+                "GetXMLDataMeta.CheckResult.FieldOk" ), transformMeta );
         remarks.add( cr );
       }
     } else {
-      FileInputList fileInputList = getFiles( transMeta );
+      FileInputList fileInputList = getFiles( variables );
       // String files[] = getFiles();
       if ( fileInputList == null || fileInputList.getFiles().size() == 0 ) {
         cr =
             new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-                "GetXMLDataMeta.CheckResult.NoFiles" ), stepMeta );
+                "GetXMLDataMeta.CheckResult.NoFiles" ), transformMeta );
         remarks.add( cr );
       } else {
         cr =
             new CheckResult( CheckResult.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-                "GetXMLDataMeta.CheckResult.FilesOk", "" + fileInputList.getFiles().size() ), stepMeta );
+                "GetXMLDataMeta.CheckResult.FilesOk", "" + fileInputList.getFiles().size() ), transformMeta );
         remarks.add( cr );
       }
     }
@@ -1068,15 +1068,15 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    * 
-   * @param space
-   *          the variable space to use
+   * @param variables
+   *          the variable variables to use
    * @param definitions
    * @param resourceNamingInterface
    * @param metadataProvider the metadata in which shared metadata could reside.
    * 
    * @return the filename of the exported resource
    */
-  public String exportResources(IVariables space, Map<String, ResourceDefinition> definitions,
+  public String exportResources(IVariables variables, Map<String, ResourceDefinition> definitions,
                                 IResourceNaming resourceNamingInterface, IHopMetadataProvider metadataProvider )
     throws HopException {
     try {
@@ -1087,7 +1087,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
       List<String> newFilenames = new ArrayList<String>();
 
       if ( !isInFields() ) {
-        FileInputList fileList = getFiles( space );
+        FileInputList fileList = getFiles( variables );
         if ( fileList.getFiles().size() > 0 ) {
           for ( FileObject fileObject : fileList.getFiles() ) {
             // From : ${Internal.Transformation.Filename.Directory}/../foo/bar.xml

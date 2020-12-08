@@ -103,8 +103,7 @@ public class Delete extends BaseTransform<DeleteMeta, DeleteData> implements ITr
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.schemaTable =
-        meta.getDatabaseMeta().getQuotedSchemaTableCombination(
-          environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ) );
+        meta.getDatabaseMeta().getQuotedSchemaTableCombination( this, meta.getSchemaName(), meta.getTableName() );
 
       // lookup the values!
       if ( log.isDetailed() ) {

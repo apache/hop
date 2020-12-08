@@ -24,12 +24,14 @@ package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -66,7 +68,7 @@ public class EnterStringDialog extends Dialog {
 
   private TextVar wStringVar;
 
-  private PipelineMeta pipelineMeta;
+  private final IVariables variables;
 
   private boolean allowVariables;
 
@@ -111,17 +113,17 @@ public class EnterStringDialog extends Dialog {
    * @param shellText
    * @param lineText
    * @param allowVariables Indicates to allow environmental substitution
-   * @param pipelineMeta      This object has the has the environmental variables
+   * @param variables      This object has the has the environmental variables
    */
   public EnterStringDialog( Shell parent, String string, String shellText, String lineText,
-                            boolean allowVariables, PipelineMeta pipelineMeta ) {
+                            boolean allowVariables, IVariables variables ) {
     super( parent, SWT.NONE );
     this.props = PropsUi.getInstance();
     this.string = string;
     this.shellText = shellText;
     this.lineText = lineText;
     this.allowVariables = allowVariables;
-    this.pipelineMeta = pipelineMeta;
+    this.variables = variables;
   }
 
   public String open() {
@@ -151,7 +153,7 @@ public class EnterStringDialog extends Dialog {
     fdlString.top = new FormAttachment( 0, margin );
     wlString.setLayoutData( fdlString );
     if ( allowVariables ) {
-      wStringVar = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+      wStringVar = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
       wStringVar.setText( string );
       props.setLook( wStringVar );
       lastControl = wStringVar;

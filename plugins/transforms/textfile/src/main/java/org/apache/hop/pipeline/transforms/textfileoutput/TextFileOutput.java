@@ -91,7 +91,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
   public boolean isFileExists( String filename ) throws HopException {
     try {
-      return getFileObject( filename, getPipelineMeta() ).exists();
+      return getFileObject( filename, this ).exists();
     } catch ( Exception e ) {
       throw new HopException( "Error opening new file : " + e.toString() );
     }
@@ -153,7 +153,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           if ( meta.isAddToResultFiles() ) {
             // Add this to the result file names...
             ResultFile resultFile =
-              new ResultFile( ResultFile.FILE_TYPE_GENERAL, getFileObject( filename, getPipelineMeta() ),
+              new ResultFile( ResultFile.FILE_TYPE_GENERAL, getFileObject( filename, this ),
                 getPipelineMeta().getName(), getTransformName() );
             resultFile.setComment( BaseMessages.getString( PKG, "TextFileOutput.AddResultFile" ) );
             addResultFile( resultFile );
@@ -186,7 +186,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           }
 
           OutputStream fileOutputStream =
-            getOutputStream( filename, getPipelineMeta(), !isZipFile && appendToExistingFile );
+            getOutputStream( filename, this, !isZipFile && appendToExistingFile );
           CompressionOutputStream compressionOutputStream = compressionProvider.createOutputStream( fileOutputStream );
 
           // The compression output stream may also archive entries. For this we create the filename
@@ -217,7 +217,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
             data.getFileStreamsCollection().closeOldestOpenFile( false );
           }
 
-          OutputStream fileOutputStream = getOutputStream( filename, getPipelineMeta(), true );
+          OutputStream fileOutputStream = getOutputStream( filename, this, true );
           ICompressionProvider compressionProvider = getCompressionProvider();
           CompressionOutputStream compressionOutputStream = compressionProvider.createOutputStream( fileOutputStream );
           compressionOutputStream.addEntry( filename, environmentSubstitute( meta.getExtension() ) );
@@ -277,7 +277,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   }
 
   public int getFlushInterval() {
-    String var = getPipelineMeta().getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_LIFE" );
+    String var = variables.getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_LIFE" );
     int flushInterval = 0;
     if ( var != null ) {
       try {
@@ -290,7 +290,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   }
 
   public int getMaxOpenFiles() {
-    String var = getPipelineMeta().getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_COUNT" );
+    String var = variables.getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_COUNT" );
     int maxStreamCount = 0;
     if ( var != null ) {
       try {
@@ -979,7 +979,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     FileObject parentfolder = null;
     try {
       // Get parent folder
-      parentfolder = getFileObject( filename, getPipelineMeta() ).getParent();
+      parentfolder = getFileObject( filename, variables ).getParent();
       if ( parentfolder.exists() ) {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderExist",

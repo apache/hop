@@ -49,20 +49,19 @@ public final class S3Util {
   /** Configuration file name */
   public static final String CONFIG_FILE = "config";
 
-  public static boolean hasChanged( String previousValue, String currentValue ) {
-    if ( !isEmpty( previousValue ) && isEmpty( currentValue ) ) {
+  public static boolean hasChanged(String previousValue, String currentValue) {
+    if (!isEmpty(previousValue) && isEmpty(currentValue)) {
       return true;
     }
-    if ( isEmpty( previousValue ) && !isEmpty( currentValue ) ) {
+    if (isEmpty(previousValue) && !isEmpty(currentValue)) {
       return true;
     }
-    return !isEmpty( previousValue ) && !isEmpty( currentValue ) && !currentValue.equals( previousValue );
+    return !isEmpty(previousValue) && !isEmpty(currentValue) && !currentValue.equals(previousValue);
   }
 
-  public static boolean isEmpty( String value ) {
+  public static boolean isEmpty(String value) {
     return value == null || value.length() == 0;
   }
 
-  private S3Util() { }
-
+  private S3Util() {}
 }

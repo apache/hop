@@ -228,9 +228,9 @@ public class TableCompare extends BaseTransform<TableCompareMeta, TableCompareDa
     }
 
     String refSchemaTable =
-      meta.getReferenceConnection().getQuotedSchemaTableCombination( referenceSchema, referenceTable );
+      meta.getReferenceConnection().getQuotedSchemaTableCombination( this, referenceSchema, referenceTable );
     String cmpSchemaTable =
-      meta.getCompareConnection().getQuotedSchemaTableCombination( compareSchema, compareTable );
+      meta.getCompareConnection().getQuotedSchemaTableCombination( this, compareSchema, compareTable );
 
     if ( Utils.isEmpty( keyFields ) ) {
       Object[] errorRowData = constructErrorRow( rowMeta, r, null, null, null );

@@ -149,7 +149,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     fdlWildcard.top = new FormAttachment( wSpecifyWildcard, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
-    wWildcard = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "ActionDeleteResultFilenames.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -160,7 +160,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( getWorkflowMeta().environmentSubstitute( wWildcard.getText() ) ) );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.environmentSubstitute( wWildcard.getText() ) ) );
 
     // wWildcardExclude
     wlWildcardExclude = new Label( shell, SWT.RIGHT );
@@ -172,7 +172,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     fdlWildcardExclude.top = new FormAttachment( wWildcard, margin );
     fdlWildcardExclude.right = new FormAttachment( middle, -margin );
     wlWildcardExclude.setLayoutData(fdlWildcardExclude);
-    wWildcardExclude = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcardExclude = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcardExclude.setToolTipText( BaseMessages.getString(
       PKG, "ActionDeleteResultFilenames.WildcardExclude.Tooltip" ) );
     props.setLook( wWildcardExclude );
@@ -184,7 +184,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wWildcardExclude.setLayoutData(fdWildcardExclude);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( getWorkflowMeta().environmentSubstitute( wWildcardExclude.getText() ) ) );
+    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( variables.environmentSubstitute( wWildcardExclude.getText() ) ) );
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

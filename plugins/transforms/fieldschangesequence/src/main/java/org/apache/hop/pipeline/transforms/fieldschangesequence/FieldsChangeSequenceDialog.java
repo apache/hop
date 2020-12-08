@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -69,8 +70,8 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
 
   public static final String STRING_CHANGE_SEQUENCE_WARNING_PARAMETER = "ChangeSequenceSortWarning";
 
-  public FieldsChangeSequenceDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public FieldsChangeSequenceDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (FieldsChangeSequenceMeta) in;
     inputFields = new HashMap<>();
   }
@@ -142,7 +143,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     fdlStart.right = new FormAttachment( middle, -margin );
     fdlStart.top = new FormAttachment( wResult, margin );
     wlStart.setLayoutData(fdlStart);
-    wStart = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wStart = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wStart );
     FormData fdStart = new FormData();
     fdStart.left = new FormAttachment( middle, 0 );
@@ -159,7 +160,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
     fdlIncrement.right = new FormAttachment( middle, -margin );
     fdlIncrement.top = new FormAttachment( wStart, margin );
     wlIncrement.setLayoutData(fdlIncrement);
-    wIncrement = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIncrement = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIncrement );
     FormData fdIncrement = new FormData();
     fdIncrement.left = new FormAttachment( middle, 0 );
@@ -195,7 +196,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -241,7 +242,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
           if ( row != null ) {
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -303,7 +304,7 @@ public class FieldsChangeSequenceDialog extends BaseTransformDialog implements I
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener insertListener = ( tableItem, v ) -> {
           tableItem.setText( 2, BaseMessages.getString( PKG, "System.Combo.Yes" ) );

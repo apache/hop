@@ -213,12 +213,12 @@ public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMet
 	 * @param name 				the name of the transform making the changes
 	 * @param info				row structures of any info transforms coming in
 	 * @param nextTransform			the description of a transform this transform is passing rows to
-	 * @param space				the variable space for resolving variables
+	 * @param variables				the variable variables for resolving variables
 	 * @param metadataProvider			the metadata provider to optionally read from
 	 */
 	@Override
 	public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-						  IVariables space, IHopMetadataProvider metadataProvider) throws HopTransformException {
+						  IVariables variables, IHopMetadataProvider metadataProvider) throws HopTransformException {
 
 		/*
 		 * We don't have any input fields so we ingore inputRowMeta

@@ -501,7 +501,7 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   }
 
   @Override
-  public int getNotFoundTK( boolean useAutoInc ) {
+  public int getNotFoundTK( boolean useAutoIncrement ) {
     return 0;
   }
 
@@ -627,8 +627,8 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * Get the schema-table combination to query the right table. Usually that is SCHEMA.TABLENAME, however there are
    * exceptions to this rule...
    *
-   * @param schema_name The schema name
-   * @param table_part  The tablename
+   * @param schemaName The schema name
+   * @param tablePart  The table name
    * @return the schema-table combination to query the right table.
    */
   @Override
@@ -739,13 +739,13 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param useAutoInc whether or not this field uses auto increment
+   * @param useAutoIncrement whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to drop a column from the specified table
    */
   @Override
-  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
+  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoIncrement,
                                         String pk, boolean semicolon ) {
     return "ALTER TABLE " + tableName + " DROP " + v.getName() + Const.CR;
   }
@@ -1229,14 +1229,14 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
    * @param database   a connected database
    * @param schemaName
    * @param tableName
-   * @param idx_fields
+   * @param idxFields
    * @return true if the index exists, false if it doesn't.
    * @throws HopDatabaseException
    */
   @Override
   public boolean checkIndexExists( Database database, String schemaName, String tableName, String[] idxFields ) throws HopDatabaseException {
 
-    String schemaTable = database.getDatabaseMeta().getQuotedSchemaTableCombination( schemaName, tableName );
+    String schemaTable = database.getDatabaseMeta().getQuotedSchemaTableCombination( database, schemaName, tableName );
 
     boolean[] exists = new boolean[ idxFields.length ];
     for ( int i = 0; i < exists.length; i++ ) {
@@ -1694,86 +1694,6 @@ public abstract class BaseDatabaseMeta implements Cloneable, IDatabase {
   @Override
   public boolean releaseSavepoint() {
     return releaseSavepoint;
-  }
-
-  public Long getNextBatchIdUsingSequence( String sequenceName, String schemaName, DatabaseMeta dbm, Database ldb ) throws HopDatabaseException {
-    return ldb.getNextSequenceValue( schemaName, sequenceName, null );
-  }
-
-  public Long getNextBatchIdUsingAutoIncSql(String autoIncSql, DatabaseMeta dbm, Database ldb ) throws HopDatabaseException {
-    Long rtn = null;
-    PreparedStatement stmt = ldb.prepareSql( autoIncSql, true );
-    try {
-      stmt.executeUpdate();
-      RowMetaAndData rmad = ldb.getGeneratedKeys( stmt );
-      if ( rmad.getRowMeta().size() > 0 ) {
-        rtn = rmad.getRowMeta().getInteger( rmad.getData(), 0 );
-      } else {
-        throw new HopDatabaseException( "Unable to retrieve value of auto-generated technical key : "
-          + "no value found!" );
-      }
-    } catch ( HopValueException kve ) {
-      throw new HopDatabaseException( kve );
-    } catch ( SQLException sqlex ) {
-      throw new HopDatabaseException( sqlex );
-    } finally {
-      try {
-        stmt.close();
-      } catch ( SQLException ignored ) {
-        // Ignored
-      }
-    }
-    return rtn;
-  }
-
-  public Long getNextBatchIdUsingLockTables( DatabaseMeta dbm, Database ldb, String schemaName, String tableName,
-                                             String fieldName ) throws HopDatabaseException {
-    // The old way of doing things...
-    Long rtn = null;
-    // Make sure we lock that table to avoid concurrency issues
-    String schemaAndTable = dbm.getQuotedSchemaTableCombination( schemaName, tableName );
-    ldb.lockTables( new String[] { schemaAndTable, } );
-    try {
-
-      // Now insert value -1 to create a real write lock blocking the other
-      // requests.. FCFS
-      String sql = "INSERT INTO " + schemaAndTable + " (" + dbm.quoteField( fieldName ) + ") values (-1)";
-      ldb.execStatement( sql );
-
-      // Now this next lookup will stall on the other connections
-      //
-      rtn = ldb.getNextValue( null, schemaName, tableName, fieldName );
-    } finally {
-      // Remove the -1 record again...
-      String sql = "DELETE FROM " + schemaAndTable + " WHERE " + dbm.quoteField( fieldName ) + "= -1";
-      ldb.execStatement( sql );
-      ldb.unlockTables( new String[] { schemaAndTable, } );
-    }
-    return rtn;
-  }
-
-  @Override
-  public Long getNextBatchId( DatabaseMeta dbm, Database ldb,
-                              String schemaName, String tableName, String fieldName ) throws HopDatabaseException {
-    // Always take off autocommit.
-    ldb.setCommit( 10 );
-
-    //
-    // Temporary work-around to handle batch-id from extended options
-    // Eventually want this promoted to proper dialogs and such
-    //
-
-    Map<String, String> connectionExtraOptions = this.getExtraOptions();
-    String sequenceProp = this.getPluginId() + "." + SEQUENCE_FOR_BATCH_ID;
-    String autoIncSqlProp = this.getPluginId() + "." + AUTOINCREMENT_SQL_FOR_BATCH_ID;
-    if ( connectionExtraOptions != null ) {
-      if ( this.supportsSequences() && connectionExtraOptions.containsKey( sequenceProp ) ) {
-        return getNextBatchIdUsingSequence( connectionExtraOptions.get( sequenceProp ), schemaName, dbm, ldb );
-      } else if ( this.supportsAutoInc() && connectionExtraOptions.containsKey( autoIncSqlProp ) ) {
-        return getNextBatchIdUsingAutoIncSql( connectionExtraOptions.get( autoIncSqlProp ), dbm, ldb );
-      }
-    }
-    return getNextBatchIdUsingLockTables( dbm, ldb, schemaName, tableName, fieldName );
   }
 
   /**

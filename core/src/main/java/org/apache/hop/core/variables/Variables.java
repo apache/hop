@@ -62,7 +62,7 @@ public class Variables implements IVariables {
   @Override
   public void copyVariablesFrom( IVariables variables ) {
     if ( variables != null && this != variables ) {
-      // If space is not null and this variable is not already
+      // If variables is not null and this variable is not already
       // the same object as the argument.
       String[] variableNames = variables.listVariables();
       for ( int idx = 0; idx < variableNames.length; idx++ ) {
@@ -220,9 +220,9 @@ public class Variables implements IVariables {
   }
 
   /**
-   * Get a default variable space as a placeholder. Every time you will get a new instance.
+   * Get a default variable variables as a placeholder. Every time you will get a new instance.
    *
-   * @return a default variable space.
+   * @return a default variable variables.
    */
   public static synchronized IVariables getADefaultVariableSpace() {
     IVariables variables = new Variables();

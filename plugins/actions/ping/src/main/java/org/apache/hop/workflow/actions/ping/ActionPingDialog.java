@@ -126,7 +126,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     fdlHostname.right = new FormAttachment( middle, 0 );
     wlHostname.setLayoutData(fdlHostname);
 
-    wHostname = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHostname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wHostname );
     wHostname.addModifyListener( lsMod );
     FormData fdHostname = new FormData();
@@ -136,7 +136,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wHostname.setLayoutData(fdHostname);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wHostname.addModifyListener( e -> wHostname.setToolTipText( getWorkflowMeta().environmentSubstitute( wHostname.getText() ) ) );
+    wHostname.addModifyListener( e -> wHostname.setToolTipText( variables.environmentSubstitute( wHostname.getText() ) ) );
 
     Label wlPingType = new Label(shell, SWT.RIGHT);
     wlPingType.setText( BaseMessages.getString( PKG, "JobPing.PingType.Label" ) );
@@ -174,7 +174,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     fdlTimeOut.top = new FormAttachment( wPingType, margin );
     wlTimeOut.setLayoutData(fdlTimeOut);
 
-    wTimeOut = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wlTimeOut.setToolTipText( BaseMessages.getString( PKG, "JobPing.TimeOut.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
@@ -194,7 +194,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     fdlNbrPackets.top = new FormAttachment( wTimeOut, margin );
     wlNbrPackets.setLayoutData(fdlNbrPackets);
 
-    wNbrPackets = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wNbrPackets = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wNbrPackets );
     wNbrPackets.addModifyListener( lsMod );
     FormData fdNbrPackets = new FormData();

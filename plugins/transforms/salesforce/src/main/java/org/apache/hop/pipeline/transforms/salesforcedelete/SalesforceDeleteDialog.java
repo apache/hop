@@ -22,6 +22,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.salesforce.SalesforceConnection;
@@ -124,8 +125,8 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
   private Button wRollbackAllChangesOnError;
   private FormData fdRollbackAllChangesOnError;
 
-  public SalesforceDeleteDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, in, pipelineMeta, sname );
+  public SalesforceDeleteDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, in, pipelineMeta, sname );
     input = (SalesforceDeleteMeta) in;
   }
 
@@ -210,7 +211,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     wConnectionGroup.setLayout( connectionGroupLayout );
 
     // Webservice URL
-    wURL = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wURL = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceDeleteDialog.URL.Label" ),
       BaseMessages.getString( PKG, "SalesforceDeleteDialog.URL.Tooltip" ) );
     props.setLook( wURL );
@@ -222,7 +223,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     wURL.setLayoutData( fdURL );
 
     // UserName line
-    wUserName = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wUserName = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceDeleteDialog.User.Label" ),
       BaseMessages.getString( PKG, "SalesforceDeleteDialog.User.Tooltip" ) );
     props.setLook( wUserName );
@@ -234,7 +235,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     wUserName.setLayoutData( fdUserName );
 
     // Password line
-    wPassword = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wPassword = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceDeleteDialog.Password.Label" ),
       BaseMessages.getString( PKG, "SalesforceDeleteDialog.Password.Tooltip" ), true );
     props.setLook( wPassword );
@@ -287,7 +288,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     fdlTimeOut.top = new FormAttachment( wSettingsGroup, margin );
     fdlTimeOut.right = new FormAttachment( middle, -margin );
     wlTimeOut.setLayoutData( fdlTimeOut );
-    wTimeOut = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
     fdTimeOut = new FormData();
@@ -345,7 +346,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     fdlBatchSize.top = new FormAttachment( wRollbackAllChangesOnError, margin );
     fdlBatchSize.right = new FormAttachment( middle, -margin );
     wlBatchSize.setLayoutData( fdlBatchSize );
-    wBatchSize = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBatchSize = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBatchSize );
     wBatchSize.addModifyListener( lsMod );
     fdBatchSize = new FormData();
@@ -363,7 +364,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     fdlModule.top = new FormAttachment( wBatchSize, margin );
     fdlModule.right = new FormAttachment( middle, -margin );
     wlModule.setLayoutData( fdlModule );
-    wModule = new ComboVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wModule = new ComboVar( variables, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wModule.setEditable( true );
     props.setLook( wModule );
     wModule.addModifyListener( lsTableMod );
@@ -402,7 +403,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
     fdlDeleteField.top = new FormAttachment( wModule, margin );
     fdlDeleteField.right = new FormAttachment( middle, -margin );
     wlDeleteField.setLayoutData( fdlDeleteField );
-    wDeleteField = new ComboVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wDeleteField = new ComboVar( variables, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wDeleteField.setEditable( true );
     props.setLook( wDeleteField );
     wDeleteField.addModifyListener( lsMod );
@@ -511,7 +512,7 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
   private void getPreviousFields() {
     if ( !gotPrevious ) {
       try {
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           String value = wDeleteField.getText();
           wDeleteField.removeAll();
@@ -594,16 +595,16 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
       try {
         SalesforceDeleteMeta meta = new SalesforceDeleteMeta();
         getInfo( meta );
-        String url = pipelineMeta.environmentSubstitute( meta.getTargetUrl() );
+        String url = variables.environmentSubstitute( meta.getTargetUrl() );
 
         String selectedField = wModule.getText();
         wModule.removeAll();
 
         // Define a new Salesforce connection
         connection =
-          new SalesforceConnection( log, url, pipelineMeta.environmentSubstitute( meta.getUsername() ),
-            Utils.resolvePassword( pipelineMeta, meta.getPassword() ) );
-        int realTimeOut = Const.toInt( pipelineMeta.environmentSubstitute( meta.getTimeout() ), 0 );
+          new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+            Utils.resolvePassword( variables, meta.getPassword() ) );
+        int realTimeOut = Const.toInt( variables.environmentSubstitute( meta.getTimeout() ), 0 );
         connection.setTimeOut( realTimeOut );
         // connect to Salesforce
         connection.connect();

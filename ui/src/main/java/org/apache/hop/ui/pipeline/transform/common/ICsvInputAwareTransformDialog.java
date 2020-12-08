@@ -28,6 +28,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.file.EncodingType;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
@@ -35,10 +36,6 @@ import org.apache.hop.pipeline.transforms.common.ICsvInputAwareMeta;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.text.DecimalFormat;
-
-//import org.apache.hop.pipeline.transforms.csvinput.CsvInput;
-//import org.apache.hop.pipeline.transforms.fileinput.text.EncodingType;
-//import org.apache.hop.pipeline.transforms.fileinput.text.TextFileInputUtils;
 
 /**
  * A common interface for all transform dialogs aware of the csv input format, such as CSV Input and Text File Input Dialog
@@ -71,8 +68,8 @@ public interface ICsvInputAwareTransformDialog {
       logError( BaseMessages.getString( "Dialog.ErrorGettingFields.Message" ) );
       return fieldNames;
     }
-    final String delimiter = getPipelineMeta().environmentSubstitute( meta.getDelimiter() );
-    final String enclosure = getPipelineMeta().environmentSubstitute( meta.getEnclosure() );
+    final String delimiter = getVariables().environmentSubstitute( meta.getDelimiter() );
+    final String enclosure = getVariables().environmentSubstitute( meta.getEnclosure() );
 
     final EncodingType encodingType = EncodingType.guessEncodingType( reader.getEncoding() );
 
@@ -127,7 +124,7 @@ public interface ICsvInputAwareTransformDialog {
   default InputStreamReader getReader( final ICsvInputAwareMeta meta, final InputStream inputStream ) {
     InputStreamReader reader = null;
     try {
-      String realEncoding = getPipelineMeta().environmentSubstitute( meta.getEncoding() );
+      String realEncoding = getVariables().environmentSubstitute( meta.getEncoding() );
       if ( Utils.isEmpty( realEncoding ) ) {
         reader = new InputStreamReader( inputStream );
       } else {
@@ -170,4 +167,6 @@ public interface ICsvInputAwareTransformDialog {
   LogChannel getLogChannel();
 
   PipelineMeta getPipelineMeta();
+
+  IVariables getVariables();
 }

@@ -48,6 +48,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class StringOperationsDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -62,8 +63,8 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
 
   private ColumnInfo[] ciKey;
 
-  public StringOperationsDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public StringOperationsDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (StringOperationsMeta) in;
     inputFields = new HashMap<>();
   }
@@ -188,7 +189,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
 
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrFieldRows, lsMod, props );
 
     FormData fdKey = new FormData();
@@ -227,7 +228,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
           if ( row != null ) {
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -360,7 +361,7 @@ public class StringOperationsDialog extends BaseTransformDialog implements ITran
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           if ( v.getType() == IValueMeta.TYPE_STRING ) {

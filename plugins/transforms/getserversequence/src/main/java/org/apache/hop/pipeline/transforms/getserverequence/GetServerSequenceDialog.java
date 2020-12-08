@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.getserverequence;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -61,8 +62,8 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
 
   private final GetServerSequenceMeta input;
 
-  public GetServerSequenceDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public GetServerSequenceDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (GetServerSequenceMeta) in;
   }
 
@@ -126,7 +127,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     wValuename.setLayoutData( fdValuename );
 
     // Hop server line
-    wHopServer = new MetaSelectionLine<>( pipelineMeta, pipelineMeta.getMetadataProvider(), HopServer.class,
+    wHopServer = new MetaSelectionLine<>( variables, pipelineMeta.getMetadataProvider(), HopServer.class,
     	      shell, SWT.BORDER, 
     	      BaseMessages.getString( PKG, "GetSequenceDialog.HopServer.Label" ), 
     	      "Select the server to use" // TODO : i18n
@@ -149,7 +150,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     fdlSeqname.top = new FormAttachment( wHopServer, margin );
     wlSeqname.setLayoutData( fdlSeqname );
 
-    wSeqname = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeqname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSeqname.setText( "" );
     props.setLook( wSeqname );
     wSeqname.addModifyListener( lsMod );
@@ -169,7 +170,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     fdlIncrement.top = new FormAttachment( wSeqname, margin );
     wlIncrement.setLayoutData( fdlIncrement );
 
-    wIncrement = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIncrement = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wIncrement.setText( "" );
     props.setLook( wIncrement );
     wIncrement.addModifyListener( lsMod );

@@ -342,7 +342,7 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
       remarks.add( cr );
 
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareVariablesWith( variables );
       databases = new Database[] { db }; // keep track of it for
       // cancelling purposes...
 
@@ -417,7 +417,7 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
     return new ExecSqlData();
   }
 
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMeta prev,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, RowMeta prev,
                              String[] input, String[] output, RowMeta info ) throws HopTransformException {
     DatabaseImpact ii =
       new DatabaseImpact(

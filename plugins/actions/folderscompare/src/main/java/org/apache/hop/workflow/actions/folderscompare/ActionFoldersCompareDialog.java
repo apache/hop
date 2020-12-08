@@ -204,7 +204,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
     wWildcard =
-      new TextVar( getWorkflowMeta(), wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobFoldersCompare.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -290,7 +290,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
 
     wbDirectory1.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        BaseDialog.presentDirectoryDialog( shell, wFilename1, getWorkflowMeta() );
+        BaseDialog.presentDirectoryDialog( shell, wFilename1, variables );
       }
     } );
 
@@ -303,7 +303,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     fdbFilename1.top = new FormAttachment(wSettings, 2 * margin );
     wbFilename1.setLayoutData(fdbFilename1);
 
-    wFilename1 = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename1 = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename1 );
     wFilename1.addModifyListener( lsMod );
     FormData fdFilename1 = new FormData();
@@ -313,9 +313,9 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wFilename1.setLayoutData(fdFilename1);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename1.addModifyListener( e -> wFilename1.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename1.getText() ) ) );
+    wFilename1.addModifyListener( e -> wFilename1.setToolTipText( variables.environmentSubstitute( wFilename1.getText() ) ) );
 
-    wbFilename1.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename1, getWorkflowMeta(),
+    wbFilename1.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename1, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -338,7 +338,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     fdbDirectory2.top = new FormAttachment( wFilename1, margin );
     wbDirectory2.setLayoutData(fdbDirectory2);
 
-    wbDirectory2.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFilename2, getWorkflowMeta() ) );
+    wbDirectory2.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFilename2, variables ) );
 
     // Browse files...
     Button wbFilename2 = new Button(shell, SWT.PUSH | SWT.CENTER);
@@ -349,7 +349,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     fdbFilename2.top = new FormAttachment( wFilename1, margin );
     wbFilename2.setLayoutData(fdbFilename2);
 
-    wFilename2 = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename2 = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename2 );
     wFilename2.addModifyListener( lsMod );
     FormData fdFilename2 = new FormData();
@@ -359,9 +359,9 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wFilename2.setLayoutData(fdFilename2);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename2.addModifyListener( e -> wFilename2.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename2.getText() ) ) );
+    wFilename2.addModifyListener( e -> wFilename2.setToolTipText( variables.environmentSubstitute( wFilename2.getText() ) ) );
 
-    wbFilename2.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename2, getWorkflowMeta(),
+    wbFilename2.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename2, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 

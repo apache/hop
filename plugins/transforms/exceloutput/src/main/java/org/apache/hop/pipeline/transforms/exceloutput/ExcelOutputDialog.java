@@ -29,6 +29,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -163,8 +164,8 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
 
   private final Map<String, Integer> inputFields;
 
-  public ExcelOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ExcelOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ExcelOutputMeta) in;
     inputFields = new HashMap<>();
   }
@@ -255,7 +256,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdbFilename.top = new FormAttachment( 0, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -323,7 +324,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlExtension.top = new FormAttachment( wDoNotOpenNewFileInit, margin );
     fdlExtension.right = new FormAttachment( middle, -margin );
     wlExtension.setLayoutData(fdlExtension);
-    wExtension = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExtension = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wExtension.setText( "" );
     props.setLook( wExtension );
     wExtension.addModifyListener( lsMod );
@@ -463,7 +464,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
       public void widgetSelected( SelectionEvent e ) {
         ExcelOutputMeta tfoi = new ExcelOutputMeta();
         getInfo( tfoi );
-        String[] files = tfoi.getFiles( pipelineMeta );
+        String[] files = tfoi.getFiles( variables );
         if ( files != null && files.length > 0 ) {
           EnterSelectionDialog esd =
             new EnterSelectionDialog( shell, files,
@@ -659,7 +660,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlSheetname.top = new FormAttachment( wSplitEvery, margin );
     fdlSheetname.right = new FormAttachment( middle, -margin );
     wlSheetname.setLayoutData(fdlSheetname);
-    wSheetname = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSheetname = new TextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSheetname.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.Sheetname.Tooltip" ) );
     props.setLook( wSheetname );
     wSheetname.addModifyListener( lsMod );
@@ -702,7 +703,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlPassword.top = new FormAttachment( wProtectSheet, margin );
     fdlPassword.right = new FormAttachment( middle, -margin );
     wlPassword.setLayoutData(fdlPassword);
-    wPassword = new PasswordTextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPassword = new PasswordTextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wPassword.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.Password.Tooltip" ) );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
@@ -798,7 +799,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdbTempDir.top = new FormAttachment( wUseTempFiles, margin );
     wbTempDir.setLayoutData(fdbTempDir);
 
-    wTempDirectory = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTempDirectory = new TextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTempDirectory.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.TempDirectory.Tooltip" ) );
     props.setLook( wTempDirectory );
     wTempDirectory.addModifyListener( lsMod );
@@ -863,7 +864,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdbTemplateFilename.top = new FormAttachment( wTemplate, 0 );
     wbTemplateFilename.setLayoutData(fdbTemplateFilename);
 
-    wTemplateFilename = new TextVar( pipelineMeta, wTemplateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTemplateFilename = new TextVar( variables, wTemplateGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTemplateFilename );
     wTemplateFilename.addModifyListener( lsMod );
     FormData fdTemplateFilename = new FormData();
@@ -973,7 +974,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlHeaderFontSize.top = new FormAttachment( wHeaderFontName, margin );
     fdlHeaderFontSize.right = new FormAttachment( middle, -margin );
     wlHeaderFontSize.setLayoutData(fdlHeaderFontSize);
-    wHeaderFontSize = new TextVar( pipelineMeta, wFontHeaderGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHeaderFontSize = new TextVar( variables, wFontHeaderGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wHeaderFontSize.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.HeaderFontSize.Tooltip" ) );
     props.setLook( wHeaderFontSize );
     wHeaderFontSize.addModifyListener( lsMod );
@@ -1116,7 +1117,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlHeaderRowHeight.top = new FormAttachment( wHeaderBackGroundColor, margin );
     fdlHeaderRowHeight.right = new FormAttachment( middle, -margin );
     wlHeaderRowHeight.setLayoutData(fdlHeaderRowHeight);
-    wHeaderRowHeight = new TextVar( pipelineMeta, wFontHeaderGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHeaderRowHeight = new TextVar( variables, wFontHeaderGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wHeaderRowHeight.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.HeaderRowHeight.Tooltip" ) );
     props.setLook( wHeaderRowHeight );
     wHeaderRowHeight.addModifyListener( lsMod );
@@ -1153,7 +1154,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdbImage.right = new FormAttachment( 100, 0 );
     fdbImage.top = new FormAttachment( wHeaderAlignment, margin );
     wbImage.setLayoutData(fdbImage);
-    wbImage.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wImage, pipelineMeta,
+    wbImage.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wImage, variables,
       new String[] { "*.png", "*.*" },
       new String[] {
         BaseMessages.getString( PKG, "ExcelOutputDialog.FileType.PNGFiles" ),
@@ -1172,7 +1173,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlImage.right = new FormAttachment( middle, -margin );
     wlImage.setLayoutData(fdlImage);
 
-    wImage = new TextVar( pipelineMeta, wFontHeaderGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wImage = new TextVar( variables, wFontHeaderGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wImage );
     wImage.addModifyListener( lsMod );
     FormData fdImage = new FormData();
@@ -1231,7 +1232,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     fdlRowFontSize.top = new FormAttachment( wRowFontName, margin );
     fdlRowFontSize.right = new FormAttachment( middle, -margin );
     wlRowFontSize.setLayoutData(fdlRowFontSize);
-    wRowFontSize = new TextVar( pipelineMeta, wFontRowGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowFontSize = new TextVar( variables, wFontRowGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wRowFontSize.setToolTipText( BaseMessages.getString( PKG, "ExcelOutputDialog.RowFontSize.Tooltip" ) );
     props.setLook( wRowFontSize );
     wRowFontSize.addModifyListener( lsMod );
@@ -1356,7 +1357,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
 
     wFields =
       new TableView(
-        pipelineMeta, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -1372,7 +1373,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -1419,17 +1420,17 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wTemplateFilename.addSelectionListener( lsDef );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) ) );
-    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( pipelineMeta.environmentSubstitute( wTemplateFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
+    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( variables.environmentSubstitute( wTemplateFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*.xls", "*.*" },
       new String[] {
         BaseMessages.getString( PKG, "System.FileType.ExcelFiles" ),
         BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
       true )
     );
-    wbTemplateFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTemplateFilename, pipelineMeta,
+    wbTemplateFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTemplateFilename, variables,
       new String[] { "*.xls", "*.*" },
       new String[] {
         BaseMessages.getString( PKG, "System.FileType.ExcelFiles" ),
@@ -1738,7 +1739,7 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           if ( v.isNumber() ) {

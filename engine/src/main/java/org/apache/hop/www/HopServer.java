@@ -167,6 +167,8 @@ public class HopServer {
 
       org.apache.hop.server.HopServer hopServer = new org.apache.hop.server.HopServer( hostname + ":" + port, hostname, port, null, null );
 
+      // TODO: configure the variables in HopServerConfig()
+      //
       config = new HopServerConfig();
       config.setHopServer( hopServer );
     }

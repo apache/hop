@@ -29,6 +29,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -41,7 +42,10 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 public class MergeRowsMetaCheckTest {
@@ -55,6 +59,7 @@ public class MergeRowsMetaCheckTest {
   private TransformMeta referenceTransformMeta;
   private TransformMeta comparisonTransformMeta;
   private List<ICheckResult> remarks;
+  private IVariables variables;
 
   protected IRowMeta generateRowMetaEmpty() {
     return new RowMeta();
@@ -91,16 +96,15 @@ public class MergeRowsMetaCheckTest {
     when( comparisonTransformMeta.getName() ).thenReturn( COMPARISON_TRANSFORM_NAME );
     meta.getTransformIOMeta().getInfoStreams().get( 0 ).setTransformMeta( referenceTransformMeta );
     meta.getTransformIOMeta().getInfoStreams().get( 1 ).setTransformMeta( comparisonTransformMeta );
-
     remarks = new ArrayList<>();
   }
 
   @Test
   public void testCheckInputRowsBothEmpty() throws HopTransformException {
-    when( pipelineMeta.getPrevTransformFields( REFERENCE_TRANSFORM_NAME ) ).thenReturn( generateRowMetaEmpty() );
-    when( pipelineMeta.getPrevTransformFields( COMPARISON_TRANSFORM_NAME ) ).thenReturn( generateRowMetaEmpty() );
+    when( pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(REFERENCE_TRANSFORM_NAME) ) ).thenReturn( generateRowMetaEmpty() );
+    when( pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(COMPARISON_TRANSFORM_NAME) ) ).thenReturn( generateRowMetaEmpty() );
 
-    meta.check( remarks, pipelineMeta, transformMeta, (RowMeta) null, new String[ 0 ], new String[ 0 ],
+    meta.check( remarks, pipelineMeta, transformMeta, null, new String[ 0 ], new String[ 0 ],
       (RowMeta) null, new Variables(), null );
 
     assertNotNull( remarks );
@@ -110,8 +114,8 @@ public class MergeRowsMetaCheckTest {
 
   @Test
   public void testCheckInputRowsBothNonEmpty() throws HopTransformException {
-    when( pipelineMeta.getPrevTransformFields( REFERENCE_TRANSFORM_NAME ) ).thenReturn( generateRowMeta10Strings() );
-    when( pipelineMeta.getPrevTransformFields( COMPARISON_TRANSFORM_NAME ) ).thenReturn( generateRowMeta10Strings() );
+    when( pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(REFERENCE_TRANSFORM_NAME) ) ).thenReturn( generateRowMeta10Strings() );
+    when( pipelineMeta.getPrevTransformFields(any(IVariables.class), eq(COMPARISON_TRANSFORM_NAME) ) ).thenReturn( generateRowMeta10Strings() );
 
     meta.check( remarks, pipelineMeta, transformMeta, (RowMeta) null, new String[ 0 ], new String[ 0 ], (RowMeta) null, new Variables(), null );
 
@@ -122,8 +126,8 @@ public class MergeRowsMetaCheckTest {
 
   @Test
   public void testCheckInputRowsEmptyAndNonEmpty() throws HopTransformException {
-    when( pipelineMeta.getPrevTransformFields( REFERENCE_TRANSFORM_NAME ) ).thenReturn( generateRowMetaEmpty() );
-    when( pipelineMeta.getPrevTransformFields( COMPARISON_TRANSFORM_NAME ) ).thenReturn( generateRowMeta10Strings() );
+    when( pipelineMeta.getPrevTransformFields(any(), eq(REFERENCE_TRANSFORM_NAME) ) ).thenReturn( generateRowMetaEmpty() );
+    when( pipelineMeta.getPrevTransformFields(any(), eq(COMPARISON_TRANSFORM_NAME) ) ).thenReturn( generateRowMeta10Strings() );
 
     meta.check( remarks, pipelineMeta, transformMeta, (RowMeta) null, new String[ 0 ], new String[ 0 ], (RowMeta) null, new Variables(), null );
 
@@ -134,10 +138,10 @@ public class MergeRowsMetaCheckTest {
 
   @Test
   public void testCheckInputRowsDifferentRowMetaTypes() throws HopTransformException {
-    when( pipelineMeta.getPrevTransformFields( REFERENCE_TRANSFORM_NAME ) ).thenReturn( generateRowMeta10MixedTypes() );
-    when( pipelineMeta.getPrevTransformFields( COMPARISON_TRANSFORM_NAME ) ).thenReturn( generateRowMeta10Strings() );
+    when( pipelineMeta.getPrevTransformFields( any(), eq(REFERENCE_TRANSFORM_NAME) ) ).thenReturn( generateRowMeta10MixedTypes() );
+    when( pipelineMeta.getPrevTransformFields( any(), eq(COMPARISON_TRANSFORM_NAME) ) ).thenReturn( generateRowMeta10Strings() );
 
-    meta.check( remarks, pipelineMeta, transformMeta, (RowMeta) null, new String[ 0 ], new String[ 0 ],
+    meta.check( remarks, pipelineMeta, transformMeta, null, new String[ 0 ], new String[ 0 ],
       (RowMeta) null, new Variables(), null );
 
     assertNotNull( remarks );

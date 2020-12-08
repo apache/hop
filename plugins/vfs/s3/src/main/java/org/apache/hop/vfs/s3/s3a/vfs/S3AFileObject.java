@@ -25,7 +25,7 @@ import org.apache.hop.vfs.s3.s3common.S3CommonFileObject;
 
 public class S3AFileObject extends S3CommonFileObject {
 
-  S3AFileObject( final AbstractFileName name, final S3AFileSystem fileSystem ) {
-    super( name, fileSystem );
+  S3AFileObject(final AbstractFileName name, final S3AFileSystem fileSystem) {
+    super(name, fileSystem);
   }
 }

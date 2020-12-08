@@ -34,6 +34,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.StringEvaluationResult;
 import org.apache.hop.core.util.StringEvaluator;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileField;
@@ -68,6 +69,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
 
   private Shell shell;
 
+  private final IVariables variables;
   private TextFileInputMeta meta;
 
   private int samples;
@@ -92,9 +94,10 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
    * Creates a new dialog that will handle the wait while we're finding out what tables, views etc we can reach in the
    * database.
    */
-  public TextFileCSVImportProgressDialog( Shell shell, TextFileInputMeta meta, PipelineMeta pipelineMeta,
+  public TextFileCSVImportProgressDialog( Shell shell, IVariables variables, TextFileInputMeta meta, PipelineMeta pipelineMeta,
                                           InputStreamReader reader, int samples, boolean replaceMeta ) {
     this.shell = shell;
+    this.variables = variables;
     this.meta = meta;
     this.reader = reader;
     this.samples = samples;
@@ -167,7 +170,7 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
     int nrFields = meta.inputFields.length;
 
     IRowMeta outputRowMeta = new RowMeta();
-    meta.getFields( outputRowMeta, null, null, null, pipelineMeta, null );
+    meta.getFields( outputRowMeta, null, null, null, variables, null );
 
     // Remove the storage meta-data (don't go for lazy conversion during scan)
     for ( IValueMeta valueMeta : outputRowMeta.getValueMetaList() ) {
@@ -297,19 +300,19 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
         debug = "convert line #" + linenr + " to row";
       }
       IRowMeta rowMeta = new RowMeta();
-      meta.getFields( rowMeta, "transformName", null, null, pipelineMeta, null );
+      meta.getFields( rowMeta, "transformName", null, null, variables, null );
       // Remove the storage meta-data (don't go for lazy conversion during scan)
       for ( IValueMeta valueMeta : rowMeta.getValueMetaList() ) {
         valueMeta.setStorageMetadata( null );
         valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       }
 
-      String delimiter = pipelineMeta.environmentSubstitute( meta.content.separator );
-      String enclosure = pipelineMeta.environmentSubstitute( meta.content.enclosure );
-      String escapeCharacter = pipelineMeta.environmentSubstitute( meta.content.escapeCharacter );
+      String delimiter = variables.environmentSubstitute( meta.content.separator );
+      String enclosure = variables.environmentSubstitute( meta.content.enclosure );
+      String escapeCharacter = variables.environmentSubstitute( meta.content.escapeCharacter );
       Object[] r =
         TextFileInputUtils.convertLineToRow( log, new TextFileLine( line, fileLineNumber, null ), strinfo, null, 0,
-          outputRowMeta, convertRowMeta, FileInputList.createFilePathList( pipelineMeta, meta.inputFiles.fileName,
+          outputRowMeta, convertRowMeta, FileInputList.createFilePathList( variables, meta.inputFiles.fileName,
             meta.inputFiles.fileMask, meta.inputFiles.excludeFileMask, meta.inputFiles.fileRequired, meta
               .inputFiles.includeSubFolderBoolean() )[ 0 ], rownumber, delimiter, enclosure, escapeCharacter, null,
           new BaseFileInputAdditionalField(), null, null, false, null, null, null, null, null, failOnParseError );

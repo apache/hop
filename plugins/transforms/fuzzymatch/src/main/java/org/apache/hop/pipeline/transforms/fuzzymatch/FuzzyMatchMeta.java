@@ -567,7 +567,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
 
       // Starting from selected fields in ...
       // Check the fields from the previous stream!
-      String mainField = pipelineMeta.environmentSubstitute( getMainStreamField() );
+      String mainField = variables.environmentSubstitute( getMainStreamField() );
       int idx = prev.indexOfValue( mainField );
       if ( idx < 0 ) {
         cr =
@@ -594,7 +594,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
       remarks.add( cr );
 
       // Check the fields from the lookup stream!
-      String lookupField = pipelineMeta.environmentSubstitute( getLookupField() );
+      String lookupField = variables.environmentSubstitute( getLookupField() );
 
       int idx = info.indexOfValue( lookupField );
       if ( idx < 0 ) {

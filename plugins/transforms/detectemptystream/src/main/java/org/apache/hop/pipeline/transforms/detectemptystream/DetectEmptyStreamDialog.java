@@ -24,6 +24,7 @@ package org.apache.hop.pipeline.transforms.detectemptystream;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -41,8 +42,8 @@ public class DetectEmptyStreamDialog extends BaseTransformDialog implements ITra
 
   private final DetectEmptyStreamMeta input;
 
-  public DetectEmptyStreamDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public DetectEmptyStreamDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (DetectEmptyStreamMeta) in;
   }
 

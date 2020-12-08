@@ -25,6 +25,7 @@ package org.apache.hop.beam.transforms.window;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -48,8 +49,8 @@ public class BeamTimestampDialog extends BaseTransformDialog implements ITransfo
   private Combo wFieldName;
   private Button wReading;
 
-  public BeamTimestampDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public BeamTimestampDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (BeamTimestampMeta) in;
   }
 
@@ -75,7 +76,7 @@ public class BeamTimestampDialog extends BaseTransformDialog implements ITransfo
 
     String[] fieldNames;
     try {
-      fieldNames = pipelineMeta.getPrevTransformFields( transformMeta ).getFieldNames();
+      fieldNames = pipelineMeta.getPrevTransformFields( variables, transformMeta ).getFieldNames();
     } catch( HopException e ) {
       log.logError("Error getting fields from previous transforms", e);
       fieldNames = new String[] {};

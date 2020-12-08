@@ -31,6 +31,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -68,6 +70,7 @@ public class DatabaseMetaTest {
 
   private DatabaseMeta databaseMeta;
   private IDatabase iDatabase;
+  private IVariables variables;
 
   @BeforeClass
   public static void setUpOnce() throws HopPluginException, HopException {
@@ -82,6 +85,7 @@ public class DatabaseMetaTest {
     databaseMeta = new DatabaseMeta();
     iDatabase = mock( IDatabase.class );
     databaseMeta.setIDatabase( iDatabase );
+    variables = Variables.getADefaultVariableSpace();
   }
 
   @Test
@@ -131,10 +135,10 @@ public class DatabaseMetaTest {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     GenericDatabaseMeta odbm = new GenericDatabaseMeta();
     doCallRealMethod().when( databaseMeta ).setIDatabase( any( IDatabase.class ) );
-    doCallRealMethod().when( databaseMeta ).getFeatureSummary();
+    doCallRealMethod().when( databaseMeta ).getFeatureSummary(variables);
     doCallRealMethod().when( databaseMeta ).getAttributes();
     databaseMeta.setIDatabase( odbm );
-    List<RowMetaAndData> result = databaseMeta.getFeatureSummary();
+    List<RowMetaAndData> result = databaseMeta.getFeatureSummary(variables);
     assertNotNull( result );
     for ( RowMetaAndData rmd : result ) {
       assertEquals( 2, rmd.getRowMeta().size() );

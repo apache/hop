@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.javafilter;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -58,8 +59,8 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
   private Map<String, Integer> inputFields;
   private ColumnInfo[] colinf;
 
-  public JavaFilterDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public JavaFilterDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
 
     // The order here is important... currentMeta is looked at for changes
     input = (JavaFilterMeta) in;
@@ -190,7 +191,7 @@ public class JavaFilterDialog extends BaseTransformDialog implements ITransformD
     fdlCondition.right = new FormAttachment( middle, -margin );
     wlCondition.setLayoutData( fdlCondition );
     wCondition =
-      new StyledTextComp( pipelineMeta, wSettingsGroup, SWT.MULTI
+      new StyledTextComp( variables, wSettingsGroup, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wCondition );
     wCondition.addModifyListener( lsMod );

@@ -27,23 +27,19 @@ import org.apache.hop.vfs.s3.s3common.S3CommonFileProvider;
 
 public class S3FileProvider extends S3CommonFileProvider {
 
-  /**
-   * The scheme this provider was designed to support
-   */
+  /** The scheme this provider was designed to support */
   public static final String SCHEME = "s3";
 
-  /**
-   * User Information.
-   */
+  /** User Information. */
   public static final String ATTR_USER_INFO = "UI";
 
   public S3FileProvider() {
     super();
-    setFileNameParser( S3FileNameParser.getInstance() );
+    setFileNameParser(S3FileNameParser.getInstance());
   }
 
-  public FileSystem doCreateFileSystem( final FileName name, final FileSystemOptions fileSystemOptions ) {
-    return new S3FileSystem( name, fileSystemOptions );
+  public FileSystem doCreateFileSystem(
+      final FileName name, final FileSystemOptions fileSystemOptions) {
+    return new S3FileSystem(name, fileSystemOptions);
   }
-
 }

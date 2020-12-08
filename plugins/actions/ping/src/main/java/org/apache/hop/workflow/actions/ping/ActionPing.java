@@ -317,10 +317,10 @@ public class ActionPing extends ActionBase implements Cloneable, IAction {
     return retval;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( hostname ) ) {
-      String realServername = workflowMeta.environmentSubstitute( hostname );
+      String realServername = environmentSubstitute( hostname );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
       references.add( reference );

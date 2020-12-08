@@ -19,6 +19,7 @@ package org.apache.hop.pipeline.transforms.fake;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -55,8 +56,8 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
   private final FakeMeta input;
   private ModifyListener lsMod;
 
-  public FakeDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public FakeDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (FakeMeta) in;
   }
 
@@ -110,7 +111,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
     fdlLocale.right = new FormAttachment( middle, -margin );
     fdlLocale.top = new FormAttachment( wTransformName, margin );
     wlLocale.setLayoutData( fdlLocale );
-    wLocale = new ComboVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLocale = new ComboVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLocale.setItems( FakeMeta.getFakerLocales() );
     wLocale.setText( transformName );
     props.setLook( wLocale );
@@ -139,7 +140,7 @@ public class FakeDialog extends BaseTransformDialog implements ITransformDialog 
     columns[1].setComboValuesSelectionListener( this::getComboValues );
     columns[2].setComboValuesSelectionListener( this::getComboValues );
 
-    wFields = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columns, input.getFields().size(), lsMod, props );
+    wFields = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columns, input.getFields().size(), lsMod, props );
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wLocale, 2*margin );

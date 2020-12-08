@@ -164,7 +164,7 @@ public class HopGuiPipelineRunDelegate {
     int debugAnswer = PipelineDebugDialog.DEBUG_CONFIG;
 
     if ( debug || preview ) {
-      PipelineDebugDialog pipelineDebugDialog = new PipelineDebugDialog( hopGui.getShell(), pipelineDebugMeta );
+      PipelineDebugDialog pipelineDebugDialog = new PipelineDebugDialog( hopGui.getShell(), pipelineGraph.getVariables(), pipelineDebugMeta );
       debugAnswer = pipelineDebugDialog.open();
       if ( debugAnswer == PipelineDebugDialog.DEBUG_CANCEL ) {
         // If we cancel the debug dialog, we don't go further with the execution either.
@@ -177,7 +177,7 @@ public class HopGuiPipelineRunDelegate {
     variableMap.putAll( executionConfiguration.getVariablesMap() ); // the default
 
     executionConfiguration.setVariablesMap( variableMap );
-    executionConfiguration.getUsedVariables( pipelineMeta );
+    executionConfiguration.getUsedVariables( pipelineGraph.getVariables(), pipelineMeta );
 
     executionConfiguration.setLogLevel( logLevel );
 
@@ -193,13 +193,6 @@ public class HopGuiPipelineRunDelegate {
       pipelineGraph.pipelineGridDelegate.addPipelineGrid();
       pipelineGraph.pipelineLogDelegate.addPipelineLog();
       pipelineGraph.extraViewTabFolder.setSelection( 0 );
-
-      // Set the named parameters
-      Map<String, String> paramMap = executionConfiguration.getParametersMap();
-      for ( String key : paramMap.keySet() ) {
-        pipelineMeta.setParameterValue( key, Const.NVL( paramMap.get( key ), "" ) );
-      }
-      pipelineMeta.activateParameters();
 
       // Set the log level
       //

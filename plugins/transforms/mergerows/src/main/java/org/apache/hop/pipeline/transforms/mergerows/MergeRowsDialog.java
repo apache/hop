@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -66,8 +67,8 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
 
   private final MergeRowsMeta input;
 
-  public MergeRowsDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public MergeRowsDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (MergeRowsMeta) in;
   }
 
@@ -234,7 +235,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
 
     wKeys =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKeys,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKeys,
         nrKeyRows, lsMod, props );
 
     FormData fdKeys = new FormData();
@@ -263,7 +264,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
 
     wValues =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciValues,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciValues,
         nrValueRows, lsMod, props );
 
     FormData fdValues = new FormData();
@@ -396,7 +397,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     try {
       TransformMeta transformMeta = pipelineMeta.findTransform( wReference.getText() );
       if ( transformMeta != null ) {
-        IRowMeta prev = pipelineMeta.getTransformFields( transformMeta );
+        IRowMeta prev = pipelineMeta.getTransformFields( variables, transformMeta );
         if ( prev != null ) {
           BaseTransformDialog.getFieldsFromPrevious( prev, wKeys, 1, new int[] { 1 }, new int[] {}, -1, -1, null );
         }
@@ -412,7 +413,7 @@ public class MergeRowsDialog extends BaseTransformDialog implements ITransformDi
     try {
       TransformMeta transformMeta = pipelineMeta.findTransform( wReference.getText() );
       if ( transformMeta != null ) {
-        IRowMeta prev = pipelineMeta.getTransformFields( transformMeta );
+        IRowMeta prev = pipelineMeta.getTransformFields( variables, transformMeta );
         if ( prev != null ) {
           BaseTransformDialog.getFieldsFromPrevious( prev, wValues, 1, new int[] { 1 }, new int[] {}, -1, -1, null );
         }

@@ -266,15 +266,15 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     }
 
     @Override
-    public String getFieldDefinition(IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                     boolean addFieldname, boolean addCr) {
+    public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
+                                      boolean addFieldName, boolean addCr) {
         String retval = "";
 
         String fieldname = v.getName();
         int length = v.getLength();
         int precision = v.getPrecision();
 
-        if (addFieldname) {
+        if ( addFieldName ) {
             retval += fieldname + " ";
         }
 
@@ -431,7 +431,7 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
     @Override
     public boolean checkIndexExists(Database database, String schemaName, String tableName, String[] idxFields) throws HopDatabaseException {
 
-        String schemaTable = database.getDatabaseMeta().getQuotedSchemaTableCombination(schemaName, tableName);
+        String schemaTable = database.getDatabaseMeta().getQuotedSchemaTableCombination( database, schemaName, tableName);
 
         boolean[] exists = new boolean[idxFields.length];
         for (int i = 0; i < exists.length; i++) {
@@ -550,20 +550,6 @@ public class MsSqlServerDatabaseMeta extends BaseDatabaseMeta implements IDataba
         string = string.replace("\\n", "'+char(13)+'");
         string = string.replace("\\r", "'+char(10)+'");
         return "'" + string + "'";
-    }
-
-    @Override
-    public Long getNextBatchIdUsingLockTables(DatabaseMeta dbm, Database ldb, String schemaName, String tableName,
-                                              String fieldName) throws HopDatabaseException {
-        Long rtn = null;
-        // Make sure we lock that table to avoid concurrency issues
-        ldb.lockTables(new String[]{dbm.getQuotedSchemaTableCombination(schemaName, tableName),});
-        try {
-            rtn = ldb.getNextValue(null, schemaName, tableName, fieldName);
-        } finally {
-            ldb.unlockTables(new String[]{tableName,});
-        }
-        return rtn;
     }
 
     @Override

@@ -129,7 +129,7 @@ public class ActionAbortDialog extends ActionDialog implements IActionDialog {
     fdlMessageAbort.top = new FormAttachment( wName, margin );
     wlMessageAbort.setLayoutData( fdlMessageAbort );
 
-    wMessageAbort = new TextVar( this.getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMessageAbort = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMessageAbort );
     wMessageAbort.setToolTipText( BaseMessages.getString( PKG, "ActionAbortDialog.MessageAbort.Tooltip" ) );
     wMessageAbort.addModifyListener( lsMod );

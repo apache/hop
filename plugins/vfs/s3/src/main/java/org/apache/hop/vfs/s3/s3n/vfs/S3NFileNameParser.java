@@ -37,7 +37,6 @@ import org.apache.commons.vfs2.provider.VfsComponentContext;
  * @author asimoes
  * @since 09-11-2017
  */
-
 public class S3NFileNameParser extends AbstractFileNameParser {
   private static final S3NFileNameParser INSTANCE = new S3NFileNameParser();
 
@@ -49,21 +48,22 @@ public class S3NFileNameParser extends AbstractFileNameParser {
     return INSTANCE;
   }
 
-  public FileName parseUri( VfsComponentContext context, FileName base, String uri ) throws FileSystemException {
+  public FileName parseUri(VfsComponentContext context, FileName base, String uri)
+      throws FileSystemException {
     StringBuilder name = new StringBuilder();
 
-    String scheme = UriParser.extractScheme( uri, name );
-    UriParser.canonicalizePath( name, 0, name.length(), this );
+    String scheme = UriParser.extractScheme(uri, name);
+    UriParser.canonicalizePath(name, 0, name.length(), this);
 
     // Normalize separators in the path
-    UriParser.fixSeparators( name );
+    UriParser.fixSeparators(name);
 
     // Normalise the path
-    FileType fileType = UriParser.normalisePath( name );
+    FileType fileType = UriParser.normalisePath(name);
 
     // Extract bucket name
-    final String bucketName = UriParser.extractFirstElement( name );
+    final String bucketName = UriParser.extractFirstElement(name);
 
-    return new S3NFileName( scheme, bucketName, name.toString(), fileType );
+    return new S3NFileName(scheme, bucketName, name.toString(), fileType);
   }
 }

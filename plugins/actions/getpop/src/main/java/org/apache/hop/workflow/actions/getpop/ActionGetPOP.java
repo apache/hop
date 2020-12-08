@@ -1170,10 +1170,10 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       AndValidator.putValidators( ActionValidatorUtils.integerValidator() ) );
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( servername ) ) {
-      String realServername = workflowMeta.environmentSubstitute( servername );
+      String realServername = environmentSubstitute( servername );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
       references.add( reference );

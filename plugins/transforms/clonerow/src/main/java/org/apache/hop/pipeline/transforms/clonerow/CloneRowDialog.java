@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -64,8 +65,8 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
 
   private boolean gotPreviousFields = false;
 
-  public CloneRowDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public CloneRowDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (CloneRowMeta) in;
   }
 
@@ -129,7 +130,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     fdlnrClone.top = new FormAttachment( wTransformName, margin * 2 );
     wlnrClone.setLayoutData(fdlnrClone);
 
-    wnrClone = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wnrClone = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wnrClone );
     wnrClone.setToolTipText( BaseMessages.getString( PKG, "CloneRowDialog.nrClone.Tooltip" ) );
     wnrClone.addModifyListener( lsMod );
@@ -244,7 +245,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     fdlcloneFlagField.top = new FormAttachment( waddCloneFlag, margin * 2 );
     wlcloneFlagField.setLayoutData(fdlcloneFlagField);
 
-    wcloneFlagField = new TextVar( pipelineMeta, wOutpuFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wcloneFlagField = new TextVar( variables, wOutpuFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wcloneFlagField );
     wcloneFlagField.setToolTipText( BaseMessages.getString( PKG, "CloneRowDialog.cloneFlagField.Tooltip" ) );
     wcloneFlagField.addModifyListener( lsMod );
@@ -288,7 +289,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
     fdlcloneFlagField.top = new FormAttachment( waddCloneNum, margin );
     wlCloneNumField.setLayoutData(fdlcloneFlagField);
 
-    wCloneNumField = new TextVar( pipelineMeta, wOutpuFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCloneNumField = new TextVar( variables, wOutpuFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCloneNumField );
     wCloneNumField.setToolTipText( BaseMessages.getString( PKG, "CloneRowDialog.cloneNumField.Tooltip" ) );
     wCloneNumField.addModifyListener( lsMod );
@@ -350,7 +351,7 @@ public class CloneRowDialog extends BaseTransformDialog implements ITransformDia
       try {
         String field = wNrCloneField.getText();
         wNrCloneField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wNrCloneField.setItems( r.getFieldNames() );
         }

@@ -27,6 +27,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -63,8 +64,8 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
   private Label wlKeyNameFieldName;
   private CCombo wKeyNameFieldName;
 
-  public PGPEncryptStreamDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public PGPEncryptStreamDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (PGPEncryptStreamMeta) in;
   }
 
@@ -154,7 +155,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
     if ( wbbGpgExe != null ) {
       // Listen to the browse button next to the file name
       //
-      wbbGpgExe.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGPGLocation, pipelineMeta,
+      wbbGpgExe.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGPGLocation, variables,
               new String[] {"*" },
               new String[] {
                       BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
@@ -162,7 +163,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
       );
     }
 
-    wGPGLocation = new TextVar( pipelineMeta, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wGPGLocation = new TextVar( variables, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wGPGLocation.setToolTipText( BaseMessages.getString( PKG, "PGPEncryptStreamDialog.GPGLocationField.Tooltip" ) );
     props.setLook( wGPGLocation );
     wGPGLocation.addModifyListener( lsMod );
@@ -182,7 +183,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
     fdlKeyName.top = new FormAttachment( wGPGLocation, margin );
     wlKeyName.setLayoutData(fdlKeyName);
 
-    wKeyName = new TextVar( pipelineMeta, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wKeyName = new TextVar( variables, wGPGGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wKeyName.setToolTipText( BaseMessages.getString( PKG, "PGPEncryptStreamDialog.KeyNameField.Tooltip" ) );
     props.setLook( wKeyName );
     wKeyName.addModifyListener( lsMod );
@@ -297,7 +298,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
     fdlResult.top = new FormAttachment( wStreamFieldName, margin * 2 );
     wlResult.setLayoutData(fdlResult);
 
-    wResult = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResult = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wResult.setToolTipText( BaseMessages.getString( PKG, "PGPEncryptStreamDialog.ResultField.Tooltip" ) );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
@@ -399,7 +400,7 @@ public class PGPEncryptStreamDialog extends BaseTransformDialog implements ITran
         wStreamFieldName.removeAll();
         String Keyfieldvalue = wKeyNameFieldName.getText();
         wKeyNameFieldName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wStreamFieldName.setItems( r.getFieldNames() );
           wKeyNameFieldName.setItems( r.getFieldNames() );

@@ -28,6 +28,7 @@ import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -68,8 +69,8 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
 
   private Button wSendOneStatement;
 
-  public ExecSqlRowDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ExecSqlRowDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ExecSqlRowMeta) in;
   }
 
@@ -423,7 +424,7 @@ public class ExecSqlRowDialog extends BaseTransformDialog implements ITransformD
       try {
         String sqlfield = wSqlFieldName.getText();
         wSqlFieldName.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wSqlFieldName.removeAll();
           wSqlFieldName.setItems( r.getFieldNames() );

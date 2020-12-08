@@ -25,6 +25,7 @@ package org.apache.hop.pipeline.transforms.getsubfolders;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -85,8 +86,8 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
   private Label wlInclRownumField;
   private TextVar wInclRownumField;
 
-  public GetSubFoldersDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public GetSubFoldersDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (GetSubFoldersMeta) in;
   }
 
@@ -207,7 +208,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     fdlFoldernameField.right = new FormAttachment(middle, -2 * margin);
     wlFilenameField.setLayoutData(fdlFoldernameField);
 
-    wFoldernameField = new ComboVar( pipelineMeta, wOriginFolders, SWT.BORDER | SWT.READ_ONLY );
+    wFoldernameField = new ComboVar( variables, wOriginFolders, SWT.BORDER | SWT.READ_ONLY );
     wFoldernameField.setEditable( true );
     props.setLook( wFoldernameField );
     wFoldernameField.addModifyListener(lsMod);
@@ -268,7 +269,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     fdbaFoldername.top = new FormAttachment(wOriginFolders, margin);
     wbaFoldername.setLayoutData(fdbaFoldername);
 
-    wFoldername = new TextVar( pipelineMeta, wFolderComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFoldername = new TextVar( variables, wFolderComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFoldername );
     wFoldername.addModifyListener(lsMod);
     FormData fdFoldername = new FormData();
@@ -321,7 +322,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
 
     wFoldernameList =
       new TableView(
-        pipelineMeta, wFolderComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, colinfo.length, lsMod,
+        variables, wFolderComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, colinfo.length, lsMod,
         props );
     props.setLook( wFoldernameList );
     FormData fdFoldernameList = new FormData();
@@ -409,7 +410,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     fdlInclRownumField.left = new FormAttachment( wInclRownum, margin);
     fdlInclRownumField.top = new FormAttachment( 0, 2 * margin);
     wlInclRownumField.setLayoutData(fdlInclRownumField);
-    wInclRownumField = new TextVar( pipelineMeta, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclRownumField = new TextVar( variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclRownumField );
     wInclRownumField.addModifyListener(lsMod);
     FormData fdInclRownumField = new FormData();
@@ -504,7 +505,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
         wFoldernameList.setRowNums();
       } );
 
-    wbbFoldername.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFoldername, pipelineMeta ) );
+    wbbFoldername.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wFoldername, variables ) );
 
     // Detect X or ALT-F4 or something that kills this window...
     shell.addShellListener( new ShellAdapter() {
@@ -629,7 +630,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     GetSubFoldersMeta oneMeta = new GetSubFoldersMeta();
     getInfo( oneMeta );
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
@@ -639,7 +640,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
     if ( previewSize > 0 ) {
       PipelinePreviewProgressDialog progressDialog =
         new PipelinePreviewProgressDialog(
-          shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+          shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
       progressDialog.open();
 
       if ( !progressDialog.isCancelled() ) {
@@ -656,7 +657,7 @@ public class GetSubFoldersDialog extends BaseTransformDialog implements ITransfo
 
         PreviewRowsDialog prd =
           new PreviewRowsDialog(
-            shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+            shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
             .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
         prd.open();
       }

@@ -25,15 +25,14 @@ package org.apache.hop.vfs.s3.s3common;
 
 import org.apache.hop.core.config.HopConfig;
 
-/**
- * Class that handles operations dealing with hop property file.
- */
+/** Class that handles operations dealing with hop property file. */
 public class S3HopProperty {
-  // TODO: figure out a way to allow this plugin to add default values to the global list of variables
+  // TODO: figure out a way to allow this plugin to add default values to the global list of
+  // variables
   //
   public static final String S3VFS_PART_SIZE = "HOP_S3_VFS_PART_SIZE";
 
   public String getPartSize() {
-    return HopConfig.getInstance().findDescribedVariableValue( S3VFS_PART_SIZE );
+    return HopConfig.getInstance().findDescribedVariableValue(S3VFS_PART_SIZE);
   }
 }

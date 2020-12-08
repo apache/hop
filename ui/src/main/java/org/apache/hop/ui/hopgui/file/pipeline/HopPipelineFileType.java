@@ -24,6 +24,7 @@ package org.apache.hop.ui.hopgui.file.pipeline;
 
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
+import org.apache.hop.core.extension.HopExtensionPoint;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.gui.plugin.action.GuiAction;
 import org.apache.hop.core.gui.plugin.action.GuiActionType;
@@ -137,7 +138,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
       
       // Inform those that want to know about it that we loaded a pipeline
       //
-      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), "PipelineAfterOpen", pipelineMeta );
+      ExtensionPointHandler.callExtensionPoint( hopGui.getLog(), HopExtensionPoint.PipelineAfterOpen.id, pipelineMeta );
 
       return typeHandler;
     } catch ( Exception e ) {
@@ -154,7 +155,7 @@ public class HopPipelineFileType<T extends PipelineMeta> extends HopFileTypeBase
 
       // Create the empty pipeline
       //
-      PipelineMeta pipelineMeta = new PipelineMeta( parentVariableSpace );
+      PipelineMeta pipelineMeta = new PipelineMeta();
       pipelineMeta.setName( "New pipeline" );
 
       // Pass the MetaStore for reference lookups

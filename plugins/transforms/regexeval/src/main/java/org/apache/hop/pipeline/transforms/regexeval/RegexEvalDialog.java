@@ -30,6 +30,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -70,8 +72,8 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
   private Label wlFields;
   private TableView wFields;
 
-  public RegexEvalDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public RegexEvalDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (RegexEvalMeta) in;
   }
 
@@ -188,7 +190,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     // Output Fieldame
 
-    wResultField = new LabelTextVar( pipelineMeta, wTransformSettings,
+    wResultField = new LabelTextVar( variables, wTransformSettings,
       BaseMessages.getString( PKG, "RegexEvalDialog.ResultField.Label" ),
       BaseMessages.getString( PKG, "RegexEvalDialog.ResultField.Tooltip" ) );
 
@@ -296,7 +298,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     Composite wBottom = new Composite(wSash, SWT.NONE);
     props.setLook(wBottom);
 
-    wScript = new StyledTextComp( pipelineMeta, wGeneralComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wScript = new StyledTextComp( variables, wGeneralComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     wScript.setText( BaseMessages.getString( PKG, "RegexEvalDialog.Script.Label" ) );
     props.setLook( wScript, Props.WIDGET_STYLE_FIXED );
     wScript.addModifyListener( lsMod );
@@ -371,7 +373,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     wFields =
       new TableView(
-        pipelineMeta, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columnInfo, fieldsRows, lsMod, props );
+        variables, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columnInfo, fieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -658,7 +660,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // Clear the existing list, and reload
     wFieldEvaluate.removeAll();
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         for ( String item : r.getFieldNames() ) {
           wFieldEvaluate.add( item );
@@ -802,7 +804,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     RegexEvalMeta meta = new RegexEvalMeta();
     setRegexOptions( meta );
     RegexEvalHelperDialog d =
-      new RegexEvalHelperDialog( shell, pipelineMeta, meta.getScript(), meta.getRegexOptions(), meta
+      new RegexEvalHelperDialog( shell, new Variables(), pipelineMeta, meta.getScript(), meta.getRegexOptions(), meta
         .isCanonicalEqualityFlagSet() );
     wScript.setText( d.open() );
   }

@@ -79,13 +79,13 @@ public class BeamHop {
           if ( exists == null ) {
             // Class should be in the classpath since we put it there
             //
-            Class<?> stepPluginClass = Class.forName( stepPluginClassName );
-            Transform annotation = stepPluginClass.getAnnotation( Transform.class );
+            Class<?> transformPluginClass = Class.forName( stepPluginClassName );
+            Transform annotation = transformPluginClass.getAnnotation( Transform.class );
 
             // The plugin class is already in the classpath so we simply call Class.forName() on it.
             //
-            // LOG.info( "Registering transform plugin class: " + stepPluginClass );
-            stepPluginType.handlePluginAnnotation( stepPluginClass, annotation, new ArrayList<String>(), true, null );
+            // LOG.info( "Registering transform plugin class: " + transformPluginClass );
+            stepPluginType.handlePluginAnnotation( transformPluginClass, annotation, new ArrayList<String>(), true, null );
           } else {
             LOG.debug( "Plugin " + stepPluginClassName + " is already registered" );
           }

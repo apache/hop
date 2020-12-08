@@ -160,7 +160,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     // Server port line
     wServerName =
       new LabelTextVar(
-    		  getWorkflowMeta(), wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Server.Label" ), BaseMessages
+    		  variables, wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Server.Label" ), BaseMessages
         .getString( PKG, "ActionSyslog.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
@@ -173,7 +173,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     // Server port line
     wPort =
       new LabelTextVar(
-    		  getWorkflowMeta(), wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Port.Label" ), BaseMessages
+    		  variables, wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Port.Label" ), BaseMessages
         .getString( PKG, "ActionSyslog.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
@@ -339,7 +339,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     fdlDatePattern.right = new FormAttachment( middle, -margin );
     fdlDatePattern.top = new FormAttachment( wAddTimestamp, margin );
     wlDatePattern.setLayoutData(fdlDatePattern);
-    wDatePattern = new ComboVar( getWorkflowMeta(), wMessageGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wDatePattern = new ComboVar( variables, wMessageGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wDatePattern.setItems( Const.getDateFormats() );
     props.setLook( wDatePattern );
     FormData fdDatePattern = new FormData();
@@ -461,8 +461,8 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = getWorkflowMeta().environmentSubstitute( wServerName.getText() );
-    int nrPort = Const.toInt( getWorkflowMeta().environmentSubstitute( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
+    String hostname = variables.environmentSubstitute( wServerName.getText() );
+    int nrPort = Const.toInt( variables.environmentSubstitute( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
 
     try {
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( hostname ), nrPort );

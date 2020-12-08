@@ -67,7 +67,7 @@ public class DetectEmptyStream extends BaseTransform<DetectEmptyStreamMeta, Dete
 
       if ( first ) {
         // input stream is empty !
-        data.outputRowMeta = getPipelineMeta().getPrevTransformFields( getTransformMeta() );
+        data.outputRowMeta = getPipelineMeta().getPrevTransformFields( this, getTransformMeta() );
         putRow( data.outputRowMeta, buildOneRow() ); // copy row to possible alternate rowset(s).
 
         if ( checkFeedback( getLinesRead() ) ) {

@@ -170,8 +170,8 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
       // determine column sort order according to field mapping
       // thus the columns in the generated datafile are always in the same order and have the same size as in the
       // targetTable
-      this.tableRowMeta = this.meta.getRequiredFields( this.getPipelineMeta() );
-      IRowMeta streamRowMeta = this.getPipelineMeta().getPrevTransformFields( this.getTransformMeta() );
+      this.tableRowMeta = this.meta.getRequiredFields( this );
+      IRowMeta streamRowMeta = this.getPipelineMeta().getPrevTransformFields( this, this.getTransformMeta() );
       this.columnSortOrder = new ArrayList<Integer>( this.tableRowMeta.size() );
       for ( int i = 0; i < this.tableRowMeta.size(); i++ ) {
         IValueMeta column = this.tableRowMeta.getValueMeta( i );
@@ -344,7 +344,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     builder.setRecordFormat( FastloadControlBuilder.RECORD_VARTEXT );
     try {
       builder.define(
-        this.meta.getRequiredFields( this.getPipelineMeta() ), meta.getTableFieldList(), resolveFileName( this.meta
+        this.meta.getRequiredFields( this ), meta.getTableFieldList(), resolveFileName( this.meta
           .getDataFile().getValue() ) );
     } catch ( Exception ex ) {
       throw new HopException( "Error defining data file!", ex );
@@ -352,7 +352,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     builder.show();
     builder.beginLoading( this.meta.getDbMeta().getPreferredSchemaName(), this.meta.getTargetTable().getValue() );
 
-    builder.insert( this.meta.getRequiredFields( this.getPipelineMeta() ), meta.getTableFieldList(), this.meta
+    builder.insert( this.meta.getRequiredFields( this ), meta.getTableFieldList(), this.meta
       .getTargetTable().getValue() );
     builder.endLoading();
     builder.logoff();

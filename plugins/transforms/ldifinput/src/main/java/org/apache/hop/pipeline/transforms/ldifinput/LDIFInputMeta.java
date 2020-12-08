@@ -954,7 +954,7 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransformMeta<L
       remarks.add( cr );
     }
 
-    FileInputList fileInputList = getFiles( pipelineMeta );
+    FileInputList fileInputList = getFiles( variables );
     if ( fileInputList == null || fileInputList.getFiles().size() == 0 ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
@@ -983,7 +983,7 @@ public class LDIFInputMeta extends BaseTransformMeta implements ITransformMeta<L
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.

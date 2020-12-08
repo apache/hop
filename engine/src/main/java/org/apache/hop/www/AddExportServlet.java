@@ -161,7 +161,7 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           //
           workflowMeta.setMetadataProvider( metadataProvider );
 
-          final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
+          final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
           // store it all in the map...
           //
@@ -170,15 +170,6 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           // Apply the execution configuration...
           //
           log.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
-          workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
-
-          // Also copy the parameters over...
-          //
-          Map<String, String> params = workflowExecutionConfiguration.getParametersMap();
-          for ( String param : params.keySet() ) {
-            String value = params.get( param );
-            workflowMeta.setParameterValue( param, value );
-          }
 
         } else {
           // Read the execution configuration information
@@ -191,13 +182,12 @@ public class AddExportServlet extends BaseHttpServlet implements IHopServerPlugi
           //
           PipelineMeta pipelineMeta = new PipelineMeta( fileUrl, metadataProvider, true, Variables.getADefaultVariableSpace() );
 
-
           serverObjectId = UUID.randomUUID().toString();
           servletLoggingObject.setContainerObjectId( serverObjectId );
           servletLoggingObject.setLogLevel( executionConfiguration.getLogLevel() );
 
           String runConfigurationName = executionConfiguration.getRunConfiguration();
-          IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta );
+          IPipelineEngine<PipelineMeta> pipeline = PipelineEngineFactory.createPipelineEngine( variables, runConfigurationName, metadataProvider, pipelineMeta );
           pipeline.setParent( servletLoggingObject );
 
           // store it all in the map...

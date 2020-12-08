@@ -48,7 +48,7 @@ public class ResourceUtil {
    *
    * @param zipFilename             The ZIP file to put the content in
    * @param resourceExportInterface the interface to serialize
-   * @param variables                   the space to use for variable replacement
+   * @param variables                   the variables to use for variable replacement
    * @param metadataProvider               the metadataProvider to load from
    * @return The full VFS filename reference to the serialized export interface XML file in the ZIP archive.
    * @throws HopException in case anything goes wrong during serialization

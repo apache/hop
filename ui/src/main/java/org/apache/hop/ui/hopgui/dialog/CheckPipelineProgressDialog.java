@@ -59,9 +59,9 @@ public class CheckPipelineProgressDialog {
   /**
    * Creates a new dialog that will handle the wait while checking a pipeline...
    */
-  public CheckPipelineProgressDialog( Shell shell, PipelineMeta pipelineMeta, List<ICheckResult> remarks,
+  public CheckPipelineProgressDialog( Shell shell, IVariables variables, PipelineMeta pipelineMeta, List<ICheckResult> remarks,
                                       boolean onlySelected ) {
-    this( shell, pipelineMeta, remarks, onlySelected, pipelineMeta, HopGui.getInstance().getMetadataProvider() );
+    this( shell, pipelineMeta, remarks, onlySelected, variables, HopGui.getInstance().getMetadataProvider() );
   }
 
   /**

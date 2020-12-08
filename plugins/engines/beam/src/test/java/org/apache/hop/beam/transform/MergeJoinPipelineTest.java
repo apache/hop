@@ -39,7 +39,7 @@ public class MergeJoinPipelineTest extends PipelineTestBase {
     );
 
     try {
-      createRunPipeline( pipelineMeta );
+      createRunPipeline( variables, pipelineMeta );
     } catch(Exception e) {
       e.printStackTrace();
       throw e;

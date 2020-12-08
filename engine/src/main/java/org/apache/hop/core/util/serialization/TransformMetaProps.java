@@ -120,7 +120,7 @@ public class TransformMetaProps<Meta extends ITransformMeta> {
   }
 
   /**
-   * Allows specifying a variable space to be used when applying property values to
+   * Allows specifying a variable variables to be used when applying property values to
    * a transformMeta.
    */
   public TransformMetaProps withVariables( IVariables variables ) {

@@ -26,6 +26,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -78,8 +79,8 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
 
   private final AddSequenceMeta input;
 
-  public AddSequenceDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public AddSequenceDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (AddSequenceMeta) in;
   }
 
@@ -199,7 +200,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     fdbSchema.right = new FormAttachment( 100, 0 );
     wbSchema.setLayoutData(fdbSchema);
 
-    wSchema = new TextVar( pipelineMeta, gDatabase, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, gDatabase, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsMod );
     FormData fdSchema = new FormData();
@@ -226,7 +227,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     fdbSequence.top = new FormAttachment( wbSchema, margin );
     wbSequence.setLayoutData(fdbSequence);
 
-    wSeqname = new TextVar( pipelineMeta, gDatabase, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeqname = new TextVar( variables, gDatabase, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSeqname.setText( "" );
     props.setLook( wSeqname );
     wSeqname.addModifyListener( lsMod );
@@ -300,7 +301,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     fdlStartAt.right = new FormAttachment( middle, -margin );
     fdlStartAt.top = new FormAttachment( wCounterName, margin );
     wlStartAt.setLayoutData( fdlStartAt );
-    wStartAt = new TextVar( pipelineMeta, gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wStartAt = new TextVar( variables, gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wStartAt.setText( "" );
     props.setLook( wStartAt );
     wStartAt.addModifyListener( lsMod );
@@ -319,7 +320,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     fdlIncrBy.right = new FormAttachment( middle, -margin );
     fdlIncrBy.top = new FormAttachment( wStartAt, margin );
     wlIncrBy.setLayoutData( fdlIncrBy );
-    wIncrBy = new TextVar( pipelineMeta, gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIncrBy = new TextVar( variables, gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wIncrBy.setText( "" );
     props.setLook( wIncrBy );
     wIncrBy.addModifyListener( lsMod );
@@ -338,7 +339,7 @@ public class AddSequenceDialog extends BaseTransformDialog implements ITransform
     fdlMaxVal.right = new FormAttachment( middle, -margin );
     fdlMaxVal.top = new FormAttachment( wIncrBy, margin );
     wlMaxVal.setLayoutData( fdlMaxVal );
-    wMaxVal = new TextVar( pipelineMeta, gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaxVal = new TextVar( variables, gCounter, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wMaxVal.setText( "" );
     props.setLook( wMaxVal );
     wMaxVal.addModifyListener( lsMod );

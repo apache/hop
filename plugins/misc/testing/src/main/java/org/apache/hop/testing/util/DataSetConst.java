@@ -45,7 +45,6 @@ import org.apache.hop.testing.xp.RowCollection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -137,7 +136,7 @@ public class DataSetConst {
       log.logDetailed( "Found " + resultCollection.getRows().size() + " results for data comparing in transform '" + location.getTransformName() + "', fields: " + resultRowMeta.toString() );
 
       DataSet goldenDataSet = unitTest.getGoldenDataSet( log, metadataProvider, location );
-      List<Object[]> goldenRows = goldenDataSet.getAllRows( log, location );
+      List<Object[]> goldenRows = goldenDataSet.getAllRows( pipeline, log, location );
       IRowMeta goldenRowMeta = goldenDataSet.getMappedDataSetFieldsRowMeta( location );
 
       log.logDetailed( "Found " + goldenRows.size() + " golden rows '" + location.getTransformName() + "', fields: " + goldenRowMeta );

@@ -29,8 +29,8 @@ public class S3CommonFileInputStream extends MonitorInputStream {
 
   private S3Object s3Object;
 
-  public S3CommonFileInputStream( InputStream in, S3Object s3Object ) {
-    super( in );
+  public S3CommonFileInputStream(InputStream in, S3Object s3Object) {
+    super(in);
     this.s3Object = s3Object;
   }
 

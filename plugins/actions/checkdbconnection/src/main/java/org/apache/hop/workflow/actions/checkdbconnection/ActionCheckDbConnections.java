@@ -347,8 +347,8 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( connections != null ) {
       for ( int i = 0; i < connections.length; i++ ) {
         DatabaseMeta connection = connections[ i ];

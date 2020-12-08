@@ -73,17 +73,16 @@ public class RowGeneratorUnitTest {
     transformMeta.setName( "ROW_TRANSFORM_META" );
     RowGeneratorData data = (RowGeneratorData) transformMeta.getTransform().getTransformData();
 
-    // add variable to pipeline variable space
+    // add variable to pipeline variable variables
     Map<String, String> map = new HashMap<>();
     map.put( "ROW_LIMIT", "1440" );
     PipelineMeta pipelineMeta = spy( new PipelineMeta() );
-    pipelineMeta.injectVariables( map );
     when( pipelineMeta.findTransform( anyString() ) ).thenReturn( transformMeta );
 
-    Pipeline pipeline = spy( new LocalPipelineEngine( pipelineMeta, null ) );
+    Pipeline pipeline = spy( new LocalPipelineEngine( pipelineMeta ) );
     when( pipeline.getLogChannelId() ).thenReturn( "ROW_LIMIT" );
 
-    //prepare row generator, substitutes variable by value from pipeline variable space
+    //prepare row generator, substitutes variable by value from pipeline variable variables
     rowGenerator = spy( new RowGenerator( transformMeta, meta, data, 0, pipelineMeta, pipeline ) );
     rowGenerator.initializeVariablesFrom( pipeline );
     rowGenerator.init();

@@ -270,7 +270,7 @@ public class WorkflowEntryGetPOPTest {
    */
   @Test
   public void testEnvVariablesAreSubstitutedForFolders() {
-    // create variables and add them to the variable space
+    // create variables and add them to the variable variables
     String outputVariableName = "myOutputVar";
     String outputVariableValue = "myOutputFolder";
     String attachmentVariableName = "myAttachmentVar";

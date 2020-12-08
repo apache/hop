@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -158,8 +159,8 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
   private boolean getModulesListError = false; /* True if error getting modules list */
 
-  public SalesforceUpdateDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, in, pipelineMeta, sname );
+  public SalesforceUpdateDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, in, pipelineMeta, sname );
     input = (SalesforceUpdateMeta) in;
     inputFields = new HashMap<String, Integer>();
   }
@@ -251,7 +252,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wConnectionGroup.setLayout( connectionGroupLayout );
 
     // Webservice URL
-    wURL = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wURL = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceUpdateDialog.URL.Label" ),
       BaseMessages.getString( PKG, "SalesforceUpdateDialog.URL.Tooltip" ) );
     props.setLook( wURL );
@@ -263,7 +264,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wURL.setLayoutData( fdURL );
 
     // UserName line
-    wUserName = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wUserName = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceUpdateDialog.User.Label" ),
       BaseMessages.getString( PKG, "SalesforceUpdateDialog.User.Tooltip" ) );
     props.setLook( wUserName );
@@ -275,7 +276,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     wUserName.setLayoutData( fdUserName );
 
     // Password line
-    wPassword = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wPassword = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceUpdateDialog.Password.Label" ),
       BaseMessages.getString( PKG, "SalesforceUpdateDialog.Password.Tooltip" ), true );
     props.setLook( wPassword );
@@ -329,7 +330,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     fdlTimeOut.top = new FormAttachment( wSettingsGroup, margin );
     fdlTimeOut.right = new FormAttachment( middle, -margin );
     wlTimeOut.setLayoutData( fdlTimeOut );
-    wTimeOut = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
     fdTimeOut = new FormData();
@@ -387,7 +388,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     fdlBatchSize.top = new FormAttachment( wRollbackAllChangesOnError, margin );
     fdlBatchSize.right = new FormAttachment( middle, -margin );
     wlBatchSize.setLayoutData( fdlBatchSize );
-    wBatchSize = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBatchSize = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBatchSize );
     wBatchSize.addModifyListener( lsMod );
     fdBatchSize = new FormData();
@@ -405,7 +406,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     fdlModule.top = new FormAttachment( wBatchSize, margin );
     fdlModule.right = new FormAttachment( middle, -margin );
     wlModule.setLayoutData( fdlModule );
-    wModule = new ComboVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wModule = new ComboVar( variables, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wModule.setEditable( true );
     props.setLook( wModule );
     wModule.addModifyListener( lsTableMod );
@@ -475,7 +476,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
       .getString( PKG, "SalesforceUpdateDialog.ColumnInfo.UseExternalId.Tooltip" ) );
     tableFieldColumns.add( ciReturn[0] );
     wReturn =
-      new TableView( pipelineMeta, wGeneralComp, SWT.BORDER
+      new TableView( variables, wGeneralComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn, UpInsRows, lsMod, props );
 
     wDoMapping = new Button( wGeneralComp, SWT.PUSH );
@@ -509,7 +510,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -626,7 +627,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
 
   private void getUpdate() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           tableItem.setText( 3, "N" );
@@ -763,15 +764,15 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     getInfo( meta );
 
     SalesforceConnection connection = null;
-    String url = pipelineMeta.environmentSubstitute( meta.getTargetUrl() );
+    String url = variables.environmentSubstitute( meta.getTargetUrl() );
     try {
-      String selectedModule = pipelineMeta.environmentSubstitute( meta.getModule() );
+      String selectedModule = variables.environmentSubstitute( meta.getModule() );
 
       // Define a new Salesforce connection
       connection =
-        new SalesforceConnection( log, url, pipelineMeta.environmentSubstitute( meta.getUsername() ),
-          Utils.resolvePassword( pipelineMeta, meta.getPassword() ) );
-      int realTimeOut = Const.toInt( pipelineMeta.environmentSubstitute( meta.getTimeout() ), 0 );
+        new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+          Utils.resolvePassword( variables, meta.getPassword() ) );
+      int realTimeOut = Const.toInt( variables.environmentSubstitute( meta.getTimeout() ), 0 );
       connection.setTimeOut( realTimeOut );
       // connect to Salesforce
       connection.connect();
@@ -805,7 +806,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     IRowMeta targetFields = new RowMeta();
 
     try {
-      sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      sourceFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
     } catch ( HopException e ) {
       new ErrorDialog( shell, BaseMessages.getString(
         PKG, "SalesforceUpdateDialog.DoMapping.UnableToFindSourceFields.Title" ), BaseMessages.getString(
@@ -935,15 +936,15 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
       try {
         SalesforceUpdateMeta meta = new SalesforceUpdateMeta();
         getInfo( meta );
-        String url = pipelineMeta.environmentSubstitute( meta.getTargetUrl() );
+        String url = variables.environmentSubstitute( meta.getTargetUrl() );
 
         String selectedField = meta.getModule();
         wModule.removeAll();
 
         // Define a new Salesforce connection
         connection =
-          new SalesforceConnection( log, url, pipelineMeta.environmentSubstitute( meta.getUsername() ),
-            Utils.resolvePassword( pipelineMeta, meta.getPassword() ) );
+          new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+            Utils.resolvePassword( variables, meta.getPassword() ) );
         // connect to Salesforce
         connection.connect();
         // return
@@ -989,7 +990,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
           if ( wModule.isDisposed() ) {
             return;
           }
-          String selectedModule = pipelineMeta.environmentSubstitute( wModule.getText() );
+          String selectedModule = variables.environmentSubstitute( wModule.getText() );
           if ( !Utils.isEmpty( selectedModule ) ) {
             try {
               // loop through the objects and find build the list of fields

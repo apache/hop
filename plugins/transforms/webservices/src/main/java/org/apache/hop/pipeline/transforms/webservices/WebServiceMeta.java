@@ -87,7 +87,7 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
   private String operationRequestName;
 
   /**
-   * The name-space of the operation
+   * The name-variables of the operation
    */
   private String operationNamespace;
 
@@ -390,7 +390,7 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
       return param;
     }
 
-    // if we are ignoring the name space prefix
+    // if we are ignoring the name variables prefix
     if ( ignoreWsNsPrefix ) {
 
       // we split the wsName and set it to the last element of what was parsed

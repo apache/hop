@@ -225,14 +225,14 @@ public class OracleRDBDatabaseMeta extends BaseDatabaseMeta implements IDatabase
 
   @Override
   public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoinc,
-                                    boolean addFieldname, boolean addCr ) {
+                                    boolean addFieldName, boolean addCr ) {
     StringBuilder retval = new StringBuilder( 128 );
 
     String fieldname = v.getName();
     int length = v.getLength();
     int precision = v.getPrecision();
 
-    if ( addFieldname ) {
+    if ( addFieldName ) {
       retval.append( fieldname ).append( ' ' );
     }
 

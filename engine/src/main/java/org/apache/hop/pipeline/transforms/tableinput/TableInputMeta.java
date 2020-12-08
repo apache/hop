@@ -288,7 +288,7 @@ public class TableInputMeta
       remarks.add( cr );
 
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareVariablesWith( variables );
       super.databases = new Database[] { db }; // keep track of it for canceling purposes...
 
       try {
@@ -410,14 +410,14 @@ public class TableInputMeta
   }
 
   @Override
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     // Find the lookupfields...
     IRowMeta out = new RowMeta();
     // TODO: this builds, but does it work in all cases.
-    getFields( out, transformMeta.getName(), new IRowMeta[] { info }, null, pipelineMeta, metadataProvider );
+    getFields( out, transformMeta.getName(), new IRowMeta[] { info }, null, variables, metadataProvider );
 
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {

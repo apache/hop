@@ -30,6 +30,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -89,8 +90,8 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
 
   private final Map<String, Integer> inputFields;
 
-  public DBProcDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public DBProcDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (DBProcMeta) in;
     inputFields = new HashMap<>();
   }
@@ -211,7 +212,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
     fdlProcName.top = new FormAttachment( wConnection, margin * 2 );
     wlProcName.setLayoutData( fdlProcName );
 
-    wProcName = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProcName = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wProcName );
     wProcName.addModifyListener( lsMod );
     FormData fdProcName = new FormData();
@@ -302,7 +303,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
         BaseMessages.getString( PKG, "DBProcDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         ValueMetaFactory.getValueMetaNames() ),
     };
-    wFields = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, fieldColumns, nrRows, lsMod, props );
+    wFields = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, fieldColumns, nrRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -318,7 +319,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -475,7 +476,7 @@ public class DBProcDialog extends BaseTransformDialog implements ITransformDialo
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           tableItem.setText( 2, "IN" );

@@ -63,7 +63,7 @@ public class PrioritizeStreamsDialog extends BaseTransformDialog implements ITra
   private TableView wFields;
   private FormData fdlFields, fdFields;
 
-  public PrioritizeStreamsDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public PrioritizeStreamsDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (PrioritizeStreamsMeta) in;
   }
@@ -143,7 +143,7 @@ public class PrioritizeStreamsDialog extends BaseTransformDialog implements ITra
         ColumnInfo.COLUMN_TYPE_CCOMBO, previousTransforms, false );
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

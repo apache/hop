@@ -78,7 +78,6 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     Map<String, String> vars = new HashMap<>();
     vars.put( "max.sz", "10" );
-    pipelineMeta.injectVariables( vars );
 
     umi = new UpdateMeta();
     ud = new UpdateData();
@@ -88,12 +87,12 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     transformMeta = new TransformMeta( deletePid, "delete", umi );
     Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
+    pipeline.injectVariables( vars );
     pipelineMeta.addTransform( transformMeta );
     mockHelper = new TransformMockHelper<>( "Update", UpdateMeta.class, UpdateData.class );
     Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( ILoggingObject.class ) ) ).thenReturn( mockHelper.iLogChannel );
 
     upd = new Update( transformMeta, umi, ud, 1, pipelineMeta, pipeline );
-    upd.copyVariablesFrom( pipelineMeta );
 
     List<String> attributes =
       Arrays.asList( "schemaName", "tableName", "commitSize", "errorIgnored", "ignoreFlagField",

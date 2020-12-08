@@ -125,7 +125,7 @@ public class GetWorkflowImageServlet extends BaseHttpServlet implements IHopServ
     HopSvgGraphics2D graphics2D = HopSvgGraphics2D.newDocument();
 
     SvgGc gc = new SvgGc( graphics2D, new Point(maximum.x,maximum.y), 32, 0, 0 );
-    WorkflowPainter workflowPainter = new WorkflowPainter( gc, workflowMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(), 32, 1, 0, "Arial", 10, 1.0d );
+    WorkflowPainter workflowPainter = new WorkflowPainter( gc, variables, workflowMeta, maximum, null, null, null, null, null, new ArrayList<AreaOwner>(), 32, 1, 0, "Arial", 10, 1.0d );
     workflowPainter.setMagnification( magnification );
     workflowPainter.drawWorkflow();
 

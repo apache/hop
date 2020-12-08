@@ -61,6 +61,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class TableOutputDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TableOutputMeta.class; // Needed by Translator
@@ -131,8 +132,8 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
   /**
    * Constructor.
    */
-  public TableOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public TableOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (TableOutputMeta) in;
     inputFields = new HashMap<>();
   }
@@ -212,7 +213,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     fdbSchema.right = new FormAttachment( 100, 0 );
     wbSchema.setLayoutData( fdbSchema );
 
-    wSchema = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsTableMod );
     FormData fdSchema = new FormData();
@@ -239,7 +240,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     fdbTable.top = new FormAttachment( wbSchema, margin );
     wbTable.setLayoutData( fdbTable );
 
-    wTable = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTable = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsTableMod );
     FormData fdTable = new FormData();
@@ -257,7 +258,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     fdlCommit.right = new FormAttachment( middle, -margin );
     fdlCommit.top = new FormAttachment( wbTable, margin );
     wlCommit.setLayoutData( fdlCommit );
-    wCommit = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCommit = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCommit );
     FormData fdCommit = new FormData();
     fdCommit.left = new FormAttachment( middle, 0 );
@@ -387,7 +388,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     fdlPartField.left = new FormAttachment( 0, 0 );
     fdlPartField.right = new FormAttachment( middle, -margin );
     wlPartField.setLayoutData( fdlPartField );
-    wPartField = new ComboVar( pipelineMeta, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPartField = new ComboVar( variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPartField );
     FormData fdPartField = new FormData();
     fdPartField.top = new FormAttachment( wlPartField,  0, SWT.CENTER );
@@ -517,7 +518,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     fdlNameField.top = new FormAttachment( wNameInField, margin );
     fdlNameField.right = new FormAttachment( middle, -margin );
     wlNameField.setLayoutData( fdlNameField );
-    wNameField = new ComboVar( pipelineMeta, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wNameField = new ComboVar( variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wNameField );
     FormData fdNameField = new FormData();
     fdNameField.left = new FormAttachment( middle, 0 );
@@ -593,7 +594,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     fdlReturnField.right = new FormAttachment( middle, -margin );
     fdlReturnField.top = new FormAttachment( wReturnKeys, margin );
     wlReturnField.setLayoutData( fdlReturnField );
-    wReturnField = new TextVar( pipelineMeta, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReturnField = new TextVar( variables, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wReturnField );
     FormData fdReturnField = new FormData();
     fdReturnField.left = new FormAttachment( middle, 0 );
@@ -648,7 +649,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
     tableFieldColumns.add( ciFields[ 0 ] );
     wFields =
-      new TableView( pipelineMeta, wFieldsComp, SWT.BORDER
+      new TableView( variables, wFieldsComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciFields, UpInsRows, null, props );
 
     wGetFields = new Button( wFieldsComp, SWT.PUSH );
@@ -692,7 +693,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -789,7 +790,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       try {
         String field = wNameField.getText();
         String partfield = wPartField.getText();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wNameField.setItems( r.getFieldNames() );
           wPartField.setItems( r.getFieldNames() );
@@ -821,7 +822,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     IRowMeta targetFields;
 
     try {
-      sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      sourceFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "TableOutputDialog.DoMapping.UnableToFindSourceFields.Title" ),
@@ -831,10 +832,10 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
 
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
-    input.setTableName( pipelineMeta.environmentSubstitute( wTable.getText() ) );
+    input.setTableName( variables.environmentSubstitute( wTable.getText() ) );
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
-      targetFields = transformMetaInterface.getRequiredFields( pipelineMeta );
+      targetFields = transformMetaInterface.getRequiredFields( variables );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "TableOutputDialog.DoMapping.UnableToFindTargetFields.Title" ),
@@ -1006,8 +1007,8 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
 
               IRowMeta r =
                 db.getTableFieldsMeta(
-                  pipelineMeta.environmentSubstitute( schemaName ),
-                  pipelineMeta.environmentSubstitute( tableName ) );
+                  variables.environmentSubstitute( schemaName ),
+                  variables.environmentSubstitute( tableName ) );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();
                 if ( null != fieldNames ) {
@@ -1284,7 +1285,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
         logDebug( BaseMessages.getString( PKG, "TableOutputDialog.Log.LookingAtConnection", databaseMeta.toString() ) );
       }
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -1305,7 +1306,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
    */
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
       }
@@ -1324,7 +1325,7 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
     try {
       TableOutputMeta info = new TableOutputMeta();
       getInfo( info );
-      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( info.isTableNameInField() && !info.isTableNameInTable() && info.getTableNameField().length() > 0 ) {
         int idx = prev.indexOfValue( info.getTableNameField() );
         if ( idx >= 0 ) {
@@ -1365,10 +1366,10 @@ public class TableOutputDialog extends BaseTransformDialog implements ITransform
       }
 
       if ( isValidRowMeta( prev ) ) {
-        SqlStatement sql = info.getSqlStatements( pipelineMeta, transformMeta, prev, pk, autoInc, pk );
+        SqlStatement sql = info.getSqlStatements( variables, pipelineMeta, transformMeta, prev, pk, autoInc, pk );
         if ( !sql.hasError() ) {
           if ( sql.hasSql() ) {
-            SqlEditor sqledit = new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql.getSql() );
+            SqlEditor sqledit = new SqlEditor( shell, SWT.NONE, variables,  info.getDatabaseMeta(), DbCache.getInstance(), sql.getSql() );
             sqledit.open();
           } else {
             String message = BaseMessages.getString( PKG, "TableOutputDialog.NoSQL.DialogMessage" );

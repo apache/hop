@@ -134,7 +134,7 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
     // fdbFilename.height = 22;
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -144,8 +144,8 @@ public class ActionFileExistsDialog extends ActionDialog implements IActionDialo
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( getWorkflowMeta().environmentSubstitute( wFilename.getText() ) ) );
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog(shell, wFilename, getWorkflowMeta(), EXTENSIONS, FILETYPES, false));
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog(shell, wFilename, variables, EXTENSIONS, FILETYPES, false));
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

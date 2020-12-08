@@ -272,7 +272,7 @@ public class BaseDatabaseMetaTest {
     ResultSet rs = Mockito.mock( ResultSet.class );
     DatabaseMetaData dmd = Mockito.mock( DatabaseMetaData.class );
     DatabaseMeta dm = Mockito.mock( DatabaseMeta.class );
-    Mockito.when( dm.getQuotedSchemaTableCombination( "", "FOO" ) ).thenReturn( "FOO" );
+    Mockito.when( dm.getQuotedSchemaTableCombination( db, "", "FOO" ) ).thenReturn( "FOO" );
     Mockito.when( rs.next() ).thenAnswer( (Answer<Boolean>) invocation -> {
       rowCnt++;
       return new Boolean( rowCnt < 3 );

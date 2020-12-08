@@ -988,7 +988,7 @@ public class TextFileOutputMeta
    * Since the exported pipeline that runs this will reside in a ZIP file, we can't reference files relatively. So
    * what this does is turn the name of the base path into an absolute path.
    *
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
@@ -1268,12 +1268,12 @@ public class TextFileOutputMeta
     return retval;
   }
 
-  public String[] getFilePaths( final boolean showSamples ) {
+  public String[] getFilePaths( IVariables variables, final boolean showSamples ) {
     final TransformMeta parentTransformMeta = getParentTransformMeta();
     if ( parentTransformMeta != null ) {
       final PipelineMeta parentPipelineMeta = parentTransformMeta.getParentPipelineMeta();
       if ( parentPipelineMeta != null ) {
-        return getFiles( parentPipelineMeta, showSamples );
+        return getFiles( variables, showSamples );
       }
     }
     return new String[] {};

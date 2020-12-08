@@ -260,11 +260,11 @@ public class JoinRowsMeta extends BaseTransformMeta implements ITransformMeta<Jo
       TransformMeta mainTransform = pipelineMeta.findTransform( getMainTransformName() );
       rowMeta.clear();
       if ( mainTransform != null ) {
-        rowMeta.addRowMeta( pipelineMeta.getTransformFields( mainTransform ) );
+        rowMeta.addRowMeta( pipelineMeta.getTransformFields( variables, mainTransform ) );
       }
       for ( TransformMeta transform : transforms ) {
         if ( mainTransform == null || !transform.equals( mainTransform ) ) {
-          rowMeta.addRowMeta( pipelineMeta.getTransformFields( transform ) );
+          rowMeta.addRowMeta( pipelineMeta.getTransformFields( variables, transform ) );
         }
       }
     }
@@ -283,7 +283,7 @@ public class JoinRowsMeta extends BaseTransformMeta implements ITransformMeta<Jo
       remarks.add( cr );
 
       // Check the sort directory
-      String realDirectory = pipelineMeta.environmentSubstitute( directory );
+      String realDirectory = variables.environmentSubstitute( directory );
       File f = new File( realDirectory );
       if ( f.exists() ) {
         if ( f.isDirectory() ) {

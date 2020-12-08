@@ -204,7 +204,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wlFieldName.setLayoutData(fdlFieldName);
 
     wFieldName =
-      new TextVar( getWorkflowMeta(), wSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobSimpleEval.FieldName.Tooltip" ) );
     props.setLook( wFieldName );
     wFieldName.addModifyListener( lsMod );
@@ -225,7 +225,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wlVariableName.setLayoutData(fdlVariableName);
 
     wVariableName =
-      new TextVar( getWorkflowMeta(), wSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSource, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobSimpleEval.Variable.Tooltip" ) );
     props.setLook( wVariableName );
     wVariableName.addModifyListener( lsMod );
@@ -271,7 +271,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     fdlMask.top = new FormAttachment( wFieldType, margin );
     wlMask.setLayoutData( fdlMask );
 
-    wMask = new ComboVar( getWorkflowMeta(), wSource, SWT.BORDER | SWT.READ_ONLY );
+    wMask = new ComboVar( variables, wSource, SWT.BORDER | SWT.READ_ONLY );
     wMask.setItems( Const.getDateFormats() );
     wMask.setEditable( true );
     props.setLook( wMask );
@@ -425,7 +425,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wlCompareValue.setLayoutData(fdlCompareValue);
 
     wCompareValue =
-      new TextVar( getWorkflowMeta(), wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobSimpleEval.CompareValue.Tooltip" ) );
     props.setLook( wCompareValue );
     wCompareValue.addModifyListener( lsMod );
@@ -446,7 +446,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wlMinValue.setLayoutData(fdlMinValue);
 
     wMinValue =
-      new TextVar( getWorkflowMeta(), wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobSimpleEval.MinValue.Tooltip" ) );
     props.setLook( wMinValue );
     wMinValue.addModifyListener( lsMod );
@@ -467,7 +467,7 @@ public class ActionSimpleEvalDialog extends ActionDialog implements IActionDialo
     wlMaxValue.setLayoutData(fdlMaxValue);
 
     wMaxValue =
-      new TextVar( getWorkflowMeta(), wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobSimpleEval.MaxValue.Tooltip" ) );
     props.setLook( wMaxValue );
     wMaxValue.addModifyListener( lsMod );

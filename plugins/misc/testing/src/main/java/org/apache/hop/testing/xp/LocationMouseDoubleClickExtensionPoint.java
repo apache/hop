@@ -72,14 +72,12 @@ public class LocationMouseDoubleClickExtensionPoint implements IExtensionPoint<H
     HopGui hopGui = HopGui.getInstance();
     try {
       List<DataSet> dataSets = hopGui.getMetadataProvider().getSerializer( DataSet.class ).loadAll();
-      for ( DataSet dataSet : dataSets ) {
-        dataSet.initializeVariablesFrom( pipelineMeta );
-      }
 
       Map<String, IRowMeta> transformFieldsMap = new HashMap<>();
       for ( TransformMeta transformMeta : pipelineMeta.getTransforms() ) {
         try {
-          IRowMeta transformFields = pipelineMeta.getTransformFields( transformMeta );
+          IRowMeta transformFields =
+              pipelineMeta.getTransformFields(pipelineGraph.getVariables(), transformMeta);
           transformFieldsMap.put( transformMeta.getName(), transformFields );
         } catch ( Exception e ) {
           // Ignore GUI errors...

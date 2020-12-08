@@ -97,7 +97,7 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
         data.oneMeta = data.oneRowSet.getRowMeta();
       } else {
         data.one = null;
-        data.oneMeta = getPipelineMeta().getTransformFields( infoStreams.get( 0 ).getTransformName() );
+        data.oneMeta = getPipelineMeta().getTransformFields( this, infoStreams.get( 0 ).getTransformName() );
       }
 
       data.two = getRowFrom( data.twoRowSet );
@@ -105,7 +105,7 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
         data.twoMeta = data.twoRowSet.getRowMeta();
       } else {
         data.two = null;
-        data.twoMeta = getPipelineMeta().getTransformFields( infoStreams.get( 1 ).getTransformName() );
+        data.twoMeta = getPipelineMeta().getTransformFields( this, infoStreams.get( 1 ).getTransformName() );
       }
 
       // just for speed: oneMeta+twoMeta
@@ -395,9 +395,6 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
     return true;
   }
 
-  /**
-   * @see ITransform#init(org.apache.hop.pipeline.transform.ITransform, org.apache.hop.pipeline.transform.ITransformData)
-   */
   public boolean init() {
 
     if ( super.init() ) {

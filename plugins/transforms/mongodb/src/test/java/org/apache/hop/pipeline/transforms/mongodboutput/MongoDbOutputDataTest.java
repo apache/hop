@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
 
 public class MongoDbOutputDataTest {
 
-  @Mock private IVariables space;
+  @Mock private IVariables variables;
   @Mock private MongoClientWrapper client;
   @Mock private MongoCollectionWrapper collection;
   @Mock private IRowMeta rowMeta;
@@ -68,10 +68,10 @@ public class MongoDbOutputDataTest {
   @Before
   public void before() {
     MockitoAnnotations.initMocks(this);
-    when(space.environmentSubstitute(any(String.class)))
+    when(variables.environmentSubstitute(any(String.class)))
         .thenAnswer(
             (Answer<String>) invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
-    when(space.environmentSubstitute(any(String.class)))
+    when(variables.environmentSubstitute(any(String.class)))
         .thenAnswer(
             (Answer<String>) invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
   }
@@ -218,7 +218,7 @@ public class MongoDbOutputDataTest {
 
     MongoDbOutputData data = new MongoDbOutputData();
     data.setMongoFields(Arrays.asList(field1, field2));
-    data.init(space);
+    data.init(variables);
 
     List<MongoDbOutputMeta.MongoField> fields = data.getMongoFields();
     assertThat(fields.size(), equalTo(2));
@@ -241,7 +241,7 @@ public class MongoDbOutputDataTest {
     when(valueMeta.isString()).thenReturn(false);
     try {
       MongoDbOutputData.getQueryObject(
-          Arrays.asList(field1), rowMeta, row, space, MongoDbOutputData.MongoTopLevel.RECORD);
+          Arrays.asList(field1), rowMeta, row, variables, MongoDbOutputData.MongoTopLevel.RECORD);
       fail("expected an exception, can't construct query from non-string.");
     } catch (Exception e) {
       assertThat(e, instanceOf(HopException.class));
@@ -250,7 +250,7 @@ public class MongoDbOutputDataTest {
     when(valueMeta.isString()).thenReturn(true);
     assertThat(
         MongoDbOutputData.getQueryObject(
-            Arrays.asList(field1), rowMeta, row, space, MongoDbOutputData.MongoTopLevel.RECORD),
+            Arrays.asList(field1), rowMeta, row, variables, MongoDbOutputData.MongoTopLevel.RECORD),
         equalTo((DBObject) JSON.parse(query)));
   }
 

@@ -357,10 +357,10 @@ public class ActionWaitForFile extends ActionBase implements Cloneable, IAction 
     this.addFilenameToResult = addFilenameToResult;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( filename ) ) {
-      String realFileName = workflowMeta.environmentSubstitute( filename );
+      String realFileName = environmentSubstitute( filename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
       references.add( reference );

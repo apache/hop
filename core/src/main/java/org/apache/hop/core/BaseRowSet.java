@@ -231,11 +231,11 @@ abstract class BaseRowSet implements Comparable<IRowSet>, IRowSet {
 
     lock.readLock().lock();
     try {
-      str = new StringBuilder( originTransformName )
+      str = new StringBuilder( Const.NVL(originTransformName, "?") )
         .append( "." )
         .append( originTransformCopy )
         .append( " - " )
-        .append( destinationTransformName )
+        .append( Const.NVL(destinationTransformName, "?") )
         .append( "." )
         .append( destinationTransformCopy );
 

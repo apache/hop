@@ -177,7 +177,7 @@ public class ActionCheckDbConnectionsDialog extends ActionDialog implements IAct
 
     wFields =
       new TableView(
-    		  this.getWorkflowMeta(), shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    		  variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );

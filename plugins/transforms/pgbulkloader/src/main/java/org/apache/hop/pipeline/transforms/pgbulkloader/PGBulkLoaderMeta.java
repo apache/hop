@@ -22,7 +22,11 @@
 
 package org.apache.hop.pipeline.transforms.pgbulkloader;
 
-import org.apache.hop.core.*;
+import org.apache.hop.core.CheckResult;
+import org.apache.hop.core.Const;
+import org.apache.hop.core.ICheckResult;
+import org.apache.hop.core.IProvidesDatabaseConnectionInformation;
+import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.annotations.Transform;
 import org.apache.hop.core.database.Database;
 import org.apache.hop.core.database.DatabaseMeta;
@@ -318,7 +322,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareVariablesWith( variables );
       try {
         db.connect();
 
@@ -334,8 +338,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
 
           // Check fields in table
           String schemaTable =
-            databaseMeta.getQuotedSchemaTableCombination(
-              pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta.environmentSubstitute( tableName ) );
+            databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName);
           IRowMeta r = db.getTableFields( schemaTable );
           if ( r != null ) {
             cr =
@@ -444,7 +447,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
     }
   }
 
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) throws HopTransformException {
     SqlStatement retval = new SqlStatement( transformMeta.getName(), databaseMeta, null ); // default: nothing to do!
 
@@ -467,13 +470,12 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
 
         if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( pipelineMeta );
+          db.shareVariablesWith( variables );
           try {
             db.connect();
 
             String schemaTable =
-              databaseMeta.getQuotedSchemaTableCombination(
-                pipelineMeta.environmentSubstitute( schemaName ), pipelineMeta.environmentSubstitute( tableName ) );
+                databaseMeta.getQuotedSchemaTableCombination(variables, schemaName, tableName);
             String sql = db.getDDL( schemaTable, tableFields, null, false, null, true );
 
             if ( sql.length() == 0 ) {
@@ -499,7 +501,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev, String[] input, String[] output, IRowMeta info, IHopMetadataProvider metadataProvider )
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev, String[] input,
+                             String[] output, IRowMeta info, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
     if ( prev != null ) {
@@ -511,7 +514,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
-            .getDatabaseName(), pipelineMeta.environmentSubstitute( tableName ), fieldTable[ i ],
+            .getDatabaseName(), variables.environmentSubstitute( tableName ), fieldTable[ i ],
             fieldStream[ i ], v != null ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
@@ -545,7 +548,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
         db.connect();
 
         if ( !Utils.isEmpty( realTableName ) ) {
-          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( realSchemaName, realTableName );
+          String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, realSchemaName, realTableName );
 
           // Check if this table exists...
           if ( db.checkTableExists( schemaTable ) ) {

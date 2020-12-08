@@ -96,8 +96,8 @@ public class XMLOutputTest {
     xmlOutputData.fieldnrs = initFieldNmrs( rowWithData.length );
     xmlOutputData.OpenedNewFile = true;
 
-    TransformMeta stepMeta = new TransformMeta( "TransformMetaId", "TransformMetaName", xmlOutputMeta );
-    xmlOutput = spy( new XmlOutput( stepMeta, xmlOutputMeta, xmlOutputData, 0, stepMockHelper.pipelineMeta, stepMockHelper.pipeline ) );
+    TransformMeta transformMeta = new TransformMeta( "TransformMetaId", "TransformMetaName", xmlOutputMeta );
+    xmlOutput = spy( new XmlOutput( transformMeta, xmlOutputMeta, xmlOutputData, 0, stepMockHelper.pipelineMeta, stepMockHelper.pipeline ) );
   }
 
   @Test

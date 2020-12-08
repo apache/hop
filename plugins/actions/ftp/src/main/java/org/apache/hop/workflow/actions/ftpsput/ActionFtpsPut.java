@@ -544,7 +544,7 @@ public class ActionFtpsPut extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
     if ( !Utils.isEmpty( serverName ) ) {
-      String realServerName = workflowMeta.environmentSubstitute( serverName );
+      String realServerName = environmentSubstitute( serverName );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realServerName, ResourceType.SERVER ) );
       references.add( reference );

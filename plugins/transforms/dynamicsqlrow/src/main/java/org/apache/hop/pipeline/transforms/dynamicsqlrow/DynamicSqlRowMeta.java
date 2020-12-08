@@ -375,12 +375,12 @@ public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMe
     return new DynamicSqlRowData();
   }
 
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     IRowMeta out = prev.clone();
-    getFields( out, transformMeta.getName(), new IRowMeta[] { info, }, null, pipelineMeta, metadataProvider );
+    getFields( out, transformMeta.getName(), new IRowMeta[] { info, }, null, variables, metadataProvider );
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {
         IValueMeta outvalue = out.getValueMeta( i );

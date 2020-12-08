@@ -272,8 +272,8 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( connection != null ) {
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( connection.getHostname(), ResourceType.SERVER ) );

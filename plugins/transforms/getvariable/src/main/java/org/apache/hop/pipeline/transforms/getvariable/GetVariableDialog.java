@@ -27,6 +27,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -57,8 +58,8 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
 
   private final GetVariableMeta input;
 
-  public GetVariableDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public GetVariableDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (GetVariableMeta) in;
   }
 
@@ -113,7 +114,7 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     wOk.addListener( SWT.Selection, e -> ok() );
     wGet = new Button( this.shell, 8 );
     wGet.setText( BaseMessages.getString( PKG, "System.Button.GetVariables" ) );
-    wGet.addListener( 13, e -> getVariables() );
+    wGet.addListener( 13, e -> grabVariables() );
     wPreview = new Button( this.shell, 8 );
     wPreview.setText( BaseMessages.getString( PKG, "System.Button.Preview" ) );
     wPreview.setEnabled( !isReceivingInput);
@@ -165,7 +166,7 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
 
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -287,12 +288,12 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
       GetVariableMeta oneMeta = new GetVariableMeta();
       getInfo( oneMeta );
 
-      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
+      PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
         oneMeta, wTransformName.getText() );
 
       // We always just want to preview a single output row
       //
-      PipelinePreviewProgressDialog progressDialog = new PipelinePreviewProgressDialog( shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { 1 } );
+      PipelinePreviewProgressDialog progressDialog = new PipelinePreviewProgressDialog( shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { 1 } );
       progressDialog.open();
 
       if ( !progressDialog.isCancelled() ) {
@@ -310,7 +311,7 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
 
         PreviewRowsDialog prd =
           new PreviewRowsDialog(
-            shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+            shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
             .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
         prd.open();
 
@@ -323,18 +324,18 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     }
   }
 
-  private void getVariables() {
+  private void grabVariables() {
 
     if ( pipelineMeta == null ) {
       return;
     }
-    String[] key = pipelineMeta.listVariables();
+    String[] key = variables.listVariables();
     int size = key.length;
     String[] val = new String[ size ];
     wFields.removeAll();
 
     for ( int i = 0; i < size; i++ ) {
-      val[ i ] = pipelineMeta.environmentSubstitute( key[ i ] );
+      val[ i ] = variables.environmentSubstitute( key[ i ] );
       TableItem tableItem = new TableItem( wFields.table, 0 );
       tableItem.setText( 1, key[ i ] );
       tableItem.setText( 2, "${" + key[ i ] + "}" );

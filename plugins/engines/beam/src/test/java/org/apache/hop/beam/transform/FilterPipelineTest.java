@@ -39,7 +39,7 @@ public class FilterPipelineTest extends org.apache.hop.beam.transform.PipelineTe
     );
 
     try {
-      createRunPipeline( pipelineMeta );
+      createRunPipeline( variables, pipelineMeta );
     } catch(Exception e) {
       e.printStackTrace();
       throw e;

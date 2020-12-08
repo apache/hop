@@ -76,9 +76,9 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
 
   private Object[] prevRow = null; // A pre-allocated spot for the previous row
 
-  public GetXmlData(TransformMeta stepMeta, GetXmlDataMeta meta, GetXmlDataData data, int copyNr, PipelineMeta transMeta,
+  public GetXmlData(TransformMeta transformMeta, GetXmlDataMeta meta, GetXmlDataData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline trans ) {
-    super( stepMeta, meta, data, copyNr, transMeta, trans );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, trans );
   }
 
   protected boolean setDocument( String StringXML, FileObject file, boolean IsInXMLField, boolean readurl )

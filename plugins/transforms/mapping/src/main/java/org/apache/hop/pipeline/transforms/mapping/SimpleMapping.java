@@ -123,7 +123,11 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
 
     SimpleMappingData simpleMappingData = getData();
     // Create the pipeline from meta-data...
-    simpleMappingData.mappingPipeline = new LocalPipelineEngine( simpleMappingData.mappingPipelineMeta, this );
+    simpleMappingData.mappingPipeline = new LocalPipelineEngine( simpleMappingData.mappingPipelineMeta, this, this );
+
+    // Copy the parameters over...
+    //
+    simpleMappingData.mappingPipeline.copyParametersFromDefinitions( simpleMappingData.mappingPipelineMeta );
 
     // Set the parameters values in the mapping.
     //
@@ -227,7 +231,7 @@ public class SimpleMapping extends BaseTransform<SimpleMappingMeta, SimpleMappin
       try {
         // Pass the MetaStore down to the metadata object...
         //
-        data.mappingPipelineMeta = SimpleMappingMeta.loadMappingMeta( meta, getMetadataProvider(), this, meta.getMappingParameters().isInheritingAllVariables() );
+        data.mappingPipelineMeta = SimpleMappingMeta.loadMappingMeta( meta, getMetadataProvider(), this );
         if ( data.mappingPipelineMeta != null ) { // Do we have a mapping at all?
 
           // OK, now prepare the execution of the mapping.

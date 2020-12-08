@@ -27,6 +27,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -93,8 +94,8 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
   private boolean gotPreviousFields = false;
   private boolean gotLookupFields = false;
 
-  public FuzzyMatchDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public FuzzyMatchDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (FuzzyMatchMeta) in;
   }
 
@@ -210,7 +211,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     fdlLookupField.right = new FormAttachment( middle, -2 * margin );
     wlLookupField.setLayoutData(fdlLookupField);
 
-    wLookupField = new ComboVar( pipelineMeta, wLookupGroup, SWT.BORDER | SWT.READ_ONLY );
+    wLookupField = new ComboVar( variables, wLookupGroup, SWT.BORDER | SWT.READ_ONLY );
     wLookupField.setEditable( true );
     props.setLook( wLookupField );
     wLookupField.addModifyListener( lsMod );
@@ -261,7 +262,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     fdlMainStreamField.right = new FormAttachment( middle, -2 * margin );
     wlMainStreamField.setLayoutData(fdlMainStreamField);
 
-    wMainStreamField = new ComboVar( pipelineMeta, wMainStreamGroup, SWT.BORDER | SWT.READ_ONLY );
+    wMainStreamField = new ComboVar( variables, wMainStreamGroup, SWT.BORDER | SWT.READ_ONLY );
     wMainStreamField.setEditable( true );
     props.setLook( wMainStreamField );
     wMainStreamField.addModifyListener( lsMod );
@@ -386,7 +387,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     fdlminValue.top = new FormAttachment( wGetCloserValue, margin );
     fdlminValue.right = new FormAttachment( middle, -margin );
     wlMinValue.setLayoutData(fdlminValue);
-    wMinValue = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMinValue = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMinValue );
     wMinValue.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.minValue.Tooltip" ) );
     wMinValue.addModifyListener( lsMod );
@@ -404,7 +405,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     fdlmaxValue.top = new FormAttachment( wMinValue, margin );
     fdlmaxValue.right = new FormAttachment( middle, -margin );
     wlMaxValue.setLayoutData(fdlmaxValue);
-    wMaxValue = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaxValue = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMaxValue );
     wMaxValue.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.maxValue.Tooltip" ) );
     wMaxValue.addModifyListener( lsMod );
@@ -422,7 +423,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     fdlseparator.top = new FormAttachment( wMaxValue, margin );
     fdlseparator.right = new FormAttachment( middle, -margin );
     wlSeparator.setLayoutData(fdlseparator);
-    wSeparator = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeparator = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSeparator );
     wSeparator.addModifyListener( lsMod );
     FormData fdseparator = new FormData();
@@ -497,7 +498,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     fdlmatchField.top = new FormAttachment(wSettingsGroup, margin );
     fdlmatchField.right = new FormAttachment( middle, -margin );
     wlmatchField.setLayoutData(fdlmatchField);
-    wMatchField = new TextVar( pipelineMeta, wOutputFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMatchField = new TextVar( variables, wOutputFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMatchField );
     wMatchField.addModifyListener( lsMod );
     FormData fdmatchField = new FormData();
@@ -514,7 +515,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     fdlvalueField.top = new FormAttachment( wMatchField, margin );
     fdlvalueField.right = new FormAttachment( middle, -margin );
     wlValueField.setLayoutData(fdlvalueField);
-    wValueField = new TextVar( pipelineMeta, wOutputFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wValueField = new TextVar( variables, wOutputFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wValueField );
     wValueField.setToolTipText( BaseMessages.getString( PKG, "FuzzyMatchDialog.valueField.Tooltip" ) );
     wValueField.addModifyListener( lsMod );
@@ -564,7 +565,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
         false );
 
     wReturn =
-      new TableView( pipelineMeta, wFieldsComp, SWT.BORDER
+      new TableView( variables, wFieldsComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn, UpInsRows, lsMod, props );
 
     FormData fdReturn = new FormData();
@@ -759,7 +760,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
       try {
         wMainStreamField.removeAll();
 
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wMainStreamField.setItems( r.getFieldNames() );
         }
@@ -781,7 +782,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
       try {
         wLookupField.removeAll();
 
-        IRowMeta r = pipelineMeta.getTransformFields( wTransform.getText() );
+        IRowMeta r = pipelineMeta.getTransformFields( variables, wTransform.getText() );
         if ( r != null ) {
           wLookupField.setItems( r.getFieldNames() );
         }
@@ -864,10 +865,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
       == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER
       || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
       == FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY ) {
-      if ( Const.toDouble( pipelineMeta.environmentSubstitute( wMinValue.getText() ), 0 ) > 1 ) {
+      if ( Const.toDouble( variables.environmentSubstitute( wMinValue.getText() ), 0 ) > 1 ) {
         wMinValue.setText( String.valueOf( 1 ) );
       }
-      if ( Const.toDouble( pipelineMeta.environmentSubstitute( wMaxValue.getText() ), 0 ) > 1 ) {
+      if ( Const.toDouble( variables.environmentSubstitute( wMaxValue.getText() ), 0 ) > 1 ) {
         wMaxValue.setText( String.valueOf( 1 ) );
       }
     }
@@ -885,7 +886,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
     try {
       String transformFrom = wTransform.getText();
       if ( !Utils.isEmpty( transformFrom ) ) {
-        IRowMeta r = pipelineMeta.getTransformFields( transformFrom );
+        IRowMeta r = pipelineMeta.getTransformFields( variables, transformFrom );
         if ( r != null && !r.isEmpty() ) {
           BaseTransformDialog.getFieldsFromPrevious( r, wReturn, 1, new int[] { 1 }, new int[] { 4 }, -1, -1, null );
         } else {
@@ -913,7 +914,7 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
       TransformMeta lookupTransformMeta = pipelineMeta.findTransform( wTransform.getText() );
       if ( lookupTransformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getTransformFields( lookupTransformMeta );
+          IRowMeta row = pipelineMeta.getTransformFields( variables, lookupTransformMeta );
           Map<String, Integer> lookupFields = new HashMap<>();
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {

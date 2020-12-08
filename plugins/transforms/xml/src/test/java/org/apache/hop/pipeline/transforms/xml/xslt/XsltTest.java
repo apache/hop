@@ -265,8 +265,8 @@ public class XsltTest extends TestCase {
     //
     // Create a new transformation...
     //
-    PipelineMeta transMeta = new PipelineMeta();
-    transMeta.setName( "xslt" );
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName( "xslt" );
 
     PluginRegistry registry = PluginRegistry.getInstance();
 
@@ -279,7 +279,7 @@ public class XsltTest extends TestCase {
     // Set the information of the injector.
     String injectorPid = registry.getPluginId( TransformPluginType.class, im );
     TransformMeta injectorTransform = new TransformMeta( injectorPid, injectorTransformName, im );
-    transMeta.addTransform( injectorTransform );
+    pipelineMeta.addTransform( injectorTransform );
 
     //
     // Create a XSLT step
@@ -289,7 +289,7 @@ public class XsltTest extends TestCase {
 
     String xsltPid = registry.getPluginId( TransformPluginType.class, xm );
     TransformMeta xsltTransform = new TransformMeta( xsltPid, xsltName, xm );
-    transMeta.addTransform( xsltTransform );
+    pipelineMeta.addTransform( xsltTransform );
 
     TextFileInputField[] fields = new TextFileInputField[3];
 
@@ -336,7 +336,7 @@ public class XsltTest extends TestCase {
     xm.setXSLFactory( xslFactory );
 
     PipelineHopMeta hi = new PipelineHopMeta( injectorTransform, xsltTransform );
-    transMeta.addPipelineHop( hi );
+    pipelineMeta.addPipelineHop( hi );
 
     //
     // Create a dummy step 1
@@ -346,13 +346,13 @@ public class XsltTest extends TestCase {
 
     String dummyPid1 = registry.getPluginId( TransformPluginType.class, dm1 );
     TransformMeta dummyTransform1 = new TransformMeta( dummyPid1, dummyTransformName1, dm1 );
-    transMeta.addTransform( dummyTransform1 );
+    pipelineMeta.addTransform( dummyTransform1 );
 
     PipelineHopMeta hi1 = new PipelineHopMeta( xsltTransform, dummyTransform1 );
-    transMeta.addPipelineHop( hi1 );
+    pipelineMeta.addPipelineHop( hi1 );
 
     // Now execute the transformation...
-    Pipeline trans = new LocalPipelineEngine( transMeta );
+    Pipeline trans = new LocalPipelineEngine( pipelineMeta );
 
     trans.prepareExecution(  );
 

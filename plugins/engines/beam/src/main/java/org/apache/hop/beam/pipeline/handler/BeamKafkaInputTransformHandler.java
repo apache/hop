@@ -34,6 +34,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -43,8 +44,8 @@ import java.util.Map;
 
 public class BeamKafkaInputTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamKafkaInputTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, true, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamKafkaInputTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, true, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -58,24 +59,24 @@ public class BeamKafkaInputTransformHandler extends BeamBaseTransformHandler imp
     // Output rows (fields selection)
     //
     IRowMeta outputRowMeta = new RowMeta();
-    beamConsumeMeta.getFields( outputRowMeta, transformMeta.getName(), null, null, pipelineMeta, null );
+    beamConsumeMeta.getFields( outputRowMeta, transformMeta.getName(), null, null, variables, null );
 
     String[] parameters = new String[beamConsumeMeta.getConfigOptions().size()];
     String[] values = new String[beamConsumeMeta.getConfigOptions().size()];
     String[] types = new String[beamConsumeMeta.getConfigOptions().size()];
     for (int i=0;i<parameters.length;i++) {
       ConfigOption option = beamConsumeMeta.getConfigOptions().get( i );
-      parameters[i] = pipelineMeta.environmentSubstitute( option.getParameter() );
-      values[i] = pipelineMeta.environmentSubstitute( option.getValue() );
+      parameters[i] = variables.environmentSubstitute( option.getParameter() );
+      values[i] = variables.environmentSubstitute( option.getValue() );
       types[i] = option.getType()==null ? ConfigOption.Type.String.name() : option.getType().name();
     }
 
     BeamKafkaInputTransform beamInputTransform = new BeamKafkaInputTransform(
       transformMeta.getName(),
       transformMeta.getName(),
-      pipelineMeta.environmentSubstitute( beamConsumeMeta.getBootstrapServers() ),
-      pipelineMeta.environmentSubstitute( beamConsumeMeta.getTopics() ),
-      pipelineMeta.environmentSubstitute( beamConsumeMeta.getGroupId() ),
+      variables.environmentSubstitute( beamConsumeMeta.getBootstrapServers() ),
+      variables.environmentSubstitute( beamConsumeMeta.getTopics() ),
+      variables.environmentSubstitute( beamConsumeMeta.getGroupId() ),
       beamConsumeMeta.isUsingProcessingTime(),
       beamConsumeMeta.isUsingLogAppendTime(),
       beamConsumeMeta.isUsingCreateTime(),

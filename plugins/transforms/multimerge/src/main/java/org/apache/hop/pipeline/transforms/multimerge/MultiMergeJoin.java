@@ -149,7 +149,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
       row = getRowFrom( rowSet );
       data.rows[ j ] = row;
       if ( row == null ) {
-        rowMeta = getPipelineMeta().getTransformFields( inputTransformName );
+        rowMeta = getPipelineMeta().getTransformFields( this, inputTransformName );
         data.metas[ j ] = rowMeta;
       } else {
         queueEntry.row = row;

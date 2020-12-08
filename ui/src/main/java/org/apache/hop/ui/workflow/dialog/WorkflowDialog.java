@@ -31,6 +31,7 @@ import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.workflow.WorkflowMeta;
@@ -47,7 +48,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -88,10 +88,9 @@ public class WorkflowDialog extends Dialog {
   private Button wNameFilenameSync;
   private Text wFilename;
 
-  private Button wBatchPipeline;
-
   protected Button wOk, wCancel;
 
+  private final IVariables variables;
   private WorkflowMeta workflowMeta;
 
   private Shell shell;
@@ -144,8 +143,9 @@ public class WorkflowDialog extends Dialog {
 
   private ArrayList<IWorkflowDialogPlugin> extraTabs;
 
-  public WorkflowDialog( Shell parent, int style, WorkflowMeta workflowMeta ) {
+  public WorkflowDialog( Shell parent, int style, IVariables variables, WorkflowMeta workflowMeta ) {
     super( parent, style );
+    this.variables = variables;
     this.workflowMeta = workflowMeta;
     this.props = PropsUi.getInstance();
   }
@@ -550,7 +550,7 @@ public class WorkflowDialog extends Dialog {
 
     wParamFields =
       new TableView(
-        workflowMeta, wParamComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wParamComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -590,22 +590,6 @@ public class WorkflowDialog extends Dialog {
     props.setLook( wSettingsComp );
     wSettingsComp.setLayout( LogLayout );
 
-    Label wlBatchPipeline = new Label( wSettingsComp, SWT.RIGHT );
-    wlBatchPipeline.setText( BaseMessages.getString( PKG, "WorkflowDialog.PassBatchID.Label" ) );
-    props.setLook( wlBatchPipeline );
-    FormData fdlBatchPipeline = new FormData();
-    fdlBatchPipeline.left = new FormAttachment( 0, 0 );
-    fdlBatchPipeline.top = new FormAttachment( 0, margin );
-    fdlBatchPipeline.right = new FormAttachment( middle, -margin );
-    wlBatchPipeline.setLayoutData( fdlBatchPipeline );
-    wBatchPipeline = new Button( wSettingsComp, SWT.CHECK );
-    props.setLook( wBatchPipeline );
-    wBatchPipeline.setToolTipText( BaseMessages.getString( PKG, "WorkflowDialog.PassBatchID.Tooltip" ) );
-    FormData fdBatchPipeline = new FormData();
-    fdBatchPipeline.left = new FormAttachment( middle, 0 );
-    fdBatchPipeline.top = new FormAttachment( 0, margin );
-    fdBatchPipeline.right = new FormAttachment( 100, 0 );
-    wBatchPipeline.setLayoutData( fdBatchPipeline );
 
     FormData fdLogComp = new FormData();
     fdLogComp.left = new FormAttachment( 0, 0 );
@@ -654,8 +638,6 @@ public class WorkflowDialog extends Dialog {
     if ( workflowMeta.getModifiedDate() != null && workflowMeta.getModifiedDate() != null ) {
       wModDate.setText( workflowMeta.getModifiedDate().toString() );
     }
-
-    wBatchPipeline.setSelection( workflowMeta.isBatchIdPassed() );
 
     // The named parameters
     String[] parameters = workflowMeta.listParameters();
@@ -708,7 +690,7 @@ public class WorkflowDialog extends Dialog {
     }
 
     // Clear and add parameters
-    workflowMeta.eraseParameters();
+    workflowMeta.removeAllParameters();
     int nrNonEmptyFields = wParamFields.nrNonEmpty();
     for ( int i = 0; i < nrNonEmptyFields; i++ ) {
       TableItem item = wParamFields.getNonEmpty( i );
@@ -719,9 +701,6 @@ public class WorkflowDialog extends Dialog {
         // Ignore the duplicate parameter.
       }
     }
-    workflowMeta.activateParameters();
-
-    workflowMeta.setBatchIdPassed( wBatchPipeline.getSelection() );
 
     for ( IWorkflowDialogPlugin extraTab : extraTabs ) {
       extraTab.ok( workflowMeta );

@@ -181,21 +181,21 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    * May return more than one Hop row if an array is being expanded/unwound
    *
    * @param mongoObj the mongo document
-   * @param space variables to use
+   * @param variables variables to use
    * @return populated Hop row(s)
    * @throws HopException if a problem occurs
    */
-  public Object[][] mongoDocumentToHop(DBObject mongoObj, IVariables space) throws HopException {
+  public Object[][] mongoDocumentToHop(DBObject mongoObj, IVariables variables) throws HopException {
 
     Object[][] result = null;
 
     if (m_expansionHandler != null) {
-      m_expansionHandler.reset(space);
+      m_expansionHandler.reset(variables);
 
       if (mongoObj instanceof BasicDBObject) {
-        result = m_expansionHandler.convertToHopValue((BasicDBObject) mongoObj, space);
+        result = m_expansionHandler.convertToHopValue((BasicDBObject) mongoObj, variables);
       } else {
-        result = m_expansionHandler.convertToHopValue((BasicDBList) mongoObj, space);
+        result = m_expansionHandler.convertToHopValue((BasicDBList) mongoObj, variables);
       }
     } else {
       result = new Object[1][];
@@ -206,7 +206,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     Object value;
     for (MongoField f : m_userFields) {
       value = null;
-      f.reset(space);
+      f.reset(variables);
 
       if (mongoObj instanceof BasicDBObject) {
         value = f.convertToHopValue((BasicDBObject) mongoObj);

@@ -120,7 +120,7 @@ public class KafkaProducerOutputMeta extends BaseTransformMeta implements ITrans
 
 
   @Override public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                                   IVariables space, IHopMetadataProvider metadataProvider ) {
+                                   IVariables variables, IHopMetadataProvider metadataProvider ) {
     // Default: nothing changes to rowMeta
   }
 

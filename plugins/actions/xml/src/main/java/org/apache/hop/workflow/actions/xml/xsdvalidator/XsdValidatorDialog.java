@@ -160,7 +160,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     fdbxmlFilename.right = new FormAttachment( 100, 0 );
     fdbxmlFilename.top = new FormAttachment( wAllowExternalEntities, 0 );
     wbxmlFilename.setLayoutData(fdbxmlFilename);
-    wxmlFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wxmlFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wxmlFilename );
     wxmlFilename.addModifyListener( lsMod );
     FormData fdxmlFilename = new FormData();
@@ -170,14 +170,14 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     wxmlFilename.setLayoutData(fdxmlFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) ) );
+    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( variables.environmentSubstitute( wxmlFilename.getText() ) ) );
 
     wbxmlFilename.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
         if ( wxmlFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wxmlFilename.getText() ) );
+          dialog.setFileName( variables.environmentSubstitute( wxmlFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XML );
         if ( dialog.open() != null ) {
@@ -202,7 +202,7 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     fdbxsdFilename.right = new FormAttachment( 100, 0 );
     fdbxsdFilename.top = new FormAttachment( wxmlFilename, 0 );
     wbxsdFilename.setLayoutData(fdbxsdFilename);
-    wxsdFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wxsdFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wxsdFilename );
     wxsdFilename.addModifyListener( lsMod );
     FormData fdxsdFilename = new FormData();
@@ -212,14 +212,14 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     wxsdFilename.setLayoutData(fdxsdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxsdFilename.addModifyListener( e -> wxsdFilename.setToolTipText( workflowMeta.environmentSubstitute( wxsdFilename.getText() ) ) );
+    wxsdFilename.addModifyListener( e -> wxsdFilename.setToolTipText( variables.environmentSubstitute( wxsdFilename.getText() ) ) );
 
     wbxsdFilename.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xsd;*.XSD", "*" } );
         if ( wxsdFilename.getText() != null ) {
-          dialog.setFileName( workflowMeta.environmentSubstitute( wxsdFilename.getText() ) );
+          dialog.setFileName( variables.environmentSubstitute( wxsdFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XSD );
         if ( dialog.open() != null ) {

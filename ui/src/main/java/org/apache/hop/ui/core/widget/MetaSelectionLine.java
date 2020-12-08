@@ -378,9 +378,9 @@ public class MetaSelectionLine<T extends IHopMetadata> extends Composite {
   }
 
   /**
-   * Gets space
+   * Gets variables
    *
-   * @return value of space
+   * @return value of variables
    */
   public IVariables getSpace() {
     return variables;

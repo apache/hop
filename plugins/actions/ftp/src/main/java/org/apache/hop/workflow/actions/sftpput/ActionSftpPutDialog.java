@@ -223,7 +223,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdlServerName.top = new FormAttachment( wName, margin );
     fdlServerName.right = new FormAttachment( middle, -margin );
     wlServerName.setLayoutData(fdlServerName);
-    wServerName = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wServerName = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
     FormData fdServerName = new FormData();
@@ -241,7 +241,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdlServerPort.top = new FormAttachment( wServerName, margin );
     fdlServerPort.right = new FormAttachment( middle, -margin );
     wlServerPort.setLayoutData(fdlServerPort);
-    wServerPort = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wServerPort = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wServerPort );
     wServerPort.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.Port.Tooltip" ) );
     wServerPort.addModifyListener( lsMod );
@@ -260,7 +260,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdlUserName.top = new FormAttachment( wServerPort, margin );
     fdlUserName.right = new FormAttachment( middle, -margin );
     wlUserName.setLayoutData(fdlUserName);
-    wUserName = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUserName = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUserName );
     wUserName.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.Username.Tooltip" ) );
     wUserName.addModifyListener( lsMod );
@@ -279,7 +279,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdlPassword.top = new FormAttachment( wUserName, margin );
     fdlPassword.right = new FormAttachment( middle, -margin );
     wlPassword.setLayoutData(fdlPassword);
-    wPassword = new PasswordTextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPassword = new PasswordTextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
     FormData fdPassword = new FormData();
@@ -331,7 +331,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     // fdbKeyFilename.height = 22;
     wbKeyFilename.setLayoutData(fdbKeyFilename);
 
-    wKeyFilename = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wKeyFilename = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wKeyFilename.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.KeyFilename.Tooltip" ) );
     props.setLook( wKeyFilename );
     wKeyFilename.addModifyListener( lsMod );
@@ -341,14 +341,14 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdKeyFilename.right = new FormAttachment( wbKeyFilename, -margin );
     wKeyFilename.setLayoutData(fdKeyFilename);
 
-    wbKeyFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wKeyFilename, workflowMeta,
+    wbKeyFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wKeyFilename, variables,
       new String[] { "*.pem", "*" }, FILETYPES, true )
     );
 
     // keyfilePass line
     wkeyfilePass =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.keyfilePass.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.keyfilePass.Label" ), BaseMessages
         .getString( PKG, "JobSFTPPUT.keyfilePass.Tooltip" ), true );
     props.setLook( wkeyfilePass );
     wkeyfilePass.addModifyListener( lsMod );
@@ -384,7 +384,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     } );
 
     // Proxy host line
-    wProxyHost = new LabelTextVar( workflowMeta, wServerSettings,
+    wProxyHost = new LabelTextVar( variables, wServerSettings,
       BaseMessages.getString( PKG, "JobSFTPPUT.ProxyHost.Label" ),
       BaseMessages.getString( PKG, "JobSFTPPUT.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
@@ -398,7 +398,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     // Proxy port line
     wProxyPort =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.ProxyPort.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.ProxyPort.Label" ), BaseMessages
         .getString( PKG, "JobSFTPPUT.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
@@ -411,7 +411,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     // Proxy username line
     wProxyUsername =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.ProxyUsername.Label" ),
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.ProxyUsername.Label" ),
         BaseMessages.getString( PKG, "JobSFTPPUT.ProxyUsername.Tooltip" ) );
     props.setLook( wProxyUsername );
     wProxyUsername.addModifyListener( lsMod );
@@ -424,7 +424,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     // Proxy password line
     wProxyPassword =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.ProxyPassword.Label" ),
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobSFTPPUT.ProxyPassword.Label" ),
         BaseMessages.getString( PKG, "JobSFTPPUT.ProxyPassword.Tooltip" ), true );
     props.setLook( wProxyPassword );
     wProxyPassword.addModifyListener( lsMod );
@@ -589,7 +589,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wbLocalDirectory.setLayoutData(fdbLocalDirectory);
     wbLocalDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wLocalDirectory, workflowMeta ) );
 
-    wLocalDirectory = new TextVar( workflowMeta, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLocalDirectory = new TextVar( variables, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLocalDirectory );
     wLocalDirectory.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.LocalDir.Tooltip" ) );
     wLocalDirectory.addModifyListener( lsMod );
@@ -608,7 +608,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     fdlWildcard.top = new FormAttachment( wbLocalDirectory, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
-    wWildcard = new TextVar( workflowMeta, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( variables, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWildcard );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.Wildcard.Tooltip" ) );
     wWildcard.addModifyListener( lsMod );
@@ -689,7 +689,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
 
     wbMovetoDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFolder, workflowMeta ) );
 
-    wDestinationFolder = new TextVar( workflowMeta, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+    wDestinationFolder = new TextVar( variables, wSourceFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobSFTPPUT.DestinationFolder.Tooltip" ) );
     props.setLook( wDestinationFolder );
     wDestinationFolder.addModifyListener( lsMod );
@@ -700,7 +700,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wDestinationFolder.setLayoutData(fdDestinationFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wDestinationFolder.addModifyListener( e -> wDestinationFolder.setToolTipText( workflowMeta.environmentSubstitute( wDestinationFolder.getText() ) ) );
+    wDestinationFolder.addModifyListener( e -> wDestinationFolder.setToolTipText( variables.environmentSubstitute( wDestinationFolder.getText() ) ) );
 
     // Create destination folder if necessary ...
     wlCreateDestinationFolder = new Label(wSourceFiles, SWT.RIGHT );
@@ -779,7 +779,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
     wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
 
     // Target (remote) folder
-    wScpDirectory = new TextVar( workflowMeta, wTargetFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wScpDirectory = new TextVar( variables, wTargetFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wScpDirectory );
     wScpDirectory.setToolTipText( BaseMessages.getString( PKG, "JobSFTPPUT.RemoteDir.Tooltip" ) );
     wScpDirectory.addModifyListener( lsMod );
@@ -945,20 +945,20 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
       if ( sftpclient == null ) {
         // Create sftp client to host ...
         sftpclient = new SftpClient(
-          InetAddress.getByName( workflowMeta.environmentSubstitute( wServerName.getText() ) ),
-          Const.toInt( workflowMeta.environmentSubstitute( wServerPort.getText() ), 22 ),
-          workflowMeta.environmentSubstitute( wUserName.getText() ),
-          workflowMeta.environmentSubstitute( wKeyFilename.getText() ),
-          workflowMeta.environmentSubstitute( wkeyfilePass.getText() ) );
+          InetAddress.getByName( variables.environmentSubstitute( wServerName.getText() ) ),
+          Const.toInt( variables.environmentSubstitute( wServerPort.getText() ), 22 ),
+          variables.environmentSubstitute( wUserName.getText() ),
+          variables.environmentSubstitute( wKeyFilename.getText() ),
+          variables.environmentSubstitute( wkeyfilePass.getText() ) );
         // Set proxy?
-        String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
+        String realProxyHost = variables.environmentSubstitute( wProxyHost.getText() );
         if ( !Utils.isEmpty( realProxyHost ) ) {
           // Set proxy
           sftpclient.setProxy(
             realProxyHost,
-            workflowMeta.environmentSubstitute( wProxyPort.getText() ),
-            workflowMeta.environmentSubstitute( wProxyUsername.getText() ),
-            workflowMeta.environmentSubstitute( wProxyPassword.getText() ),
+            variables.environmentSubstitute( wProxyPort.getText() ),
+            variables.environmentSubstitute( wProxyUsername.getText() ),
+            variables.environmentSubstitute( wProxyPassword.getText() ),
             wProxyType.getText() );
         }
         // login to ftp host ...
@@ -991,7 +991,7 @@ public class ActionSftpPutDialog extends ActionDialog implements IActionDialog {
   }
 
   private void checkRemoteFolder() {
-    String changeFtpFolder = getWorkflowMeta().environmentSubstitute( wScpDirectory.getText() );
+    String changeFtpFolder = variables.environmentSubstitute( wScpDirectory.getText() );
     if ( !Utils.isEmpty( changeFtpFolder ) ) {
       if ( connectToSftp( true, changeFtpFolder ) ) {
         MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );

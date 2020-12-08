@@ -208,8 +208,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
     data.keytypes = new int[ keyFields.length ];
 
     String schemaTable =
-      meta.getDatabaseMeta().getQuotedSchemaTableCombination(
-        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ) );
+      meta.getDatabaseMeta().getQuotedSchemaTableCombination( this, meta.getSchemaName(), meta.getTableName() );
 
     IRowMeta fields = data.db.getTableFields( schemaTable );
     if ( fields != null ) {
@@ -441,9 +440,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       // The schema/table
       //
       sql += " FROM "
-        + dbMeta.getQuotedSchemaTableCombination(
-        environmentSubstitute( meta.getSchemaName() ),
-        environmentSubstitute( meta.getTableName() ) );
+        + dbMeta.getQuotedSchemaTableCombination( this, meta.getSchemaName(), meta.getTableName() );
 
       // order by?
       if ( meta.getOrderByClause() != null && meta.getOrderByClause().length() != 0 ) {

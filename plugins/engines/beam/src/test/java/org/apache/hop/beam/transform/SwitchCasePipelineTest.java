@@ -39,7 +39,7 @@ public class SwitchCasePipelineTest extends org.apache.hop.beam.transform.Pipeli
     );
 
     try {
-      createRunPipeline( pipelineMeta );
+      createRunPipeline( variables, pipelineMeta );
     } catch(Exception e) {
       e.printStackTrace();
       throw e;

@@ -46,6 +46,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class TableExistsDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = TableExistsMeta.class; // Needed by Translator
@@ -60,8 +61,8 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
 
   private final TableExistsMeta input;
 
-  public TableExistsDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public TableExistsDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (TableExistsMeta) in;
   }
 
@@ -137,7 +138,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
       }
     } );
 
-    wSchemaname = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "TableExistsDialog.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
@@ -299,7 +300,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     try {
 
       wTableName.removeAll();
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         r.getFieldNames();
 
@@ -323,7 +324,7 @@ public class TableExistsDialog extends BaseTransformDialog implements ITransform
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
       Database database = new Database( loggingObject, databaseMeta );
-      database.shareVariablesWith( pipelineMeta );
+      database.shareVariablesWith( variables );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

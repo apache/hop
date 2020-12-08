@@ -41,6 +41,7 @@ import org.apache.hop.core.spreadsheet.IKSheet;
 import org.apache.hop.core.spreadsheet.IKWorkbook;
 import org.apache.hop.core.spreadsheet.KCellType;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -55,6 +56,7 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
 import org.apache.hop.ui.core.widget.VariableButtonListenerFactory;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.dialog.PipelinePreviewProgressDialog;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.pipeline.transform.ComponentSelectionListener;
@@ -195,8 +197,8 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private Text wExtensionFieldName;
   private Text wSizeFieldName;
 
-  public ExcelInputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ExcelInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ExcelInputMeta) in;
   }
 
@@ -336,7 +338,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdbaFilename.top = new FormAttachment( wSpreadSheetType, margin );
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -370,7 +372,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdlExcludeFilemask.top = new FormAttachment( wFilemask, margin );
     fdlExcludeFilemask.right = new FormAttachment( middle, -margin );
     wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
-    wExcludeFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExcludeFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExcludeFilemask );
     wExcludeFilemask.addModifyListener( lsMod );
     FormData fdExcludeFilemask = new FormData();
@@ -485,7 +487,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wAccField = new CCombo(gAccepting, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     IRowMeta previousFields;
     try {
-      previousFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      previousFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
     } catch ( HopTransformException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "ExcelInputDialog.ErrorDialog.UnableToGetInputFields.Title" ),
@@ -541,7 +543,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     colinfo[ 4 ].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.IncludeSubDirs.Tooltip" ) );
 
     wFilenameList =
-      new TableView( pipelineMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, input
+      new TableView( variables, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, input
         .getFileName().length, lsMod, props );
     props.setLook( wFilenameList );
     FormData fdFilenameList = new FormData();
@@ -608,7 +610,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
         false );
 
     wSheetnameList =
-      new TableView( pipelineMeta, wSheetComp, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER, shinfo, input
+      new TableView( variables, wSheetComp, SWT.FULL_SELECTION | SWT.MULTI | SWT.BORDER, shinfo, input
         .getSheetName().length, lsMod, props );
     props.setLook( wSheetnameList );
     fdFilenameList = new FormData();
@@ -867,7 +869,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     colinf[ 5 ].setToolTip( BaseMessages.getString( PKG, "ExcelInputDialog.Repeat.Tooltip" ) );
 
     wFields =
-      new TableView( pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+      new TableView( variables, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
     wFields.setSize( FieldsWidth, FieldsHeight );
     wFields.addModifyListener( arg0 -> checkAlerts() );
 
@@ -974,12 +976,12 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     } );
 
     // Whenever something changes, set the tooltip to the expanded version of the filename:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
 
     // Listen to the Browse... button
     wbbFilename.addListener( SWT.Selection, e -> {
       if ( !Utils.isEmpty( wFilemask.getText() ) || !Utils.isEmpty( wExcludeFilemask.getText() ) ) { // A mask: a directory!
-        BaseDialog.presentDirectoryDialog( shell, wFilename, pipelineMeta );
+        BaseDialog.presentDirectoryDialog( shell, wFilename, variables );
       } else {
         String[] extentions;
         SpreadSheetType type = SpreadSheetType.getStpreadSheetTypeByDescription( wSpreadSheetType.getText() );
@@ -999,7 +1001,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
             break;
         }
 
-        BaseDialog.presentFileDialog( shell, wFilename, pipelineMeta,
+        BaseDialog.presentFileDialog( shell, wFilename, variables,
           extentions,
           new String[] {
             BaseMessages.getString( PKG, "ExcelInputDialog.FilterNames.ExcelFiles" ),
@@ -1515,7 +1517,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdlWarningDestExt.right = new FormAttachment( wWarningExt, -margin );
     wlWarningExt.setLayoutData(fdlWarningDestExt);
 
-    wWarningDestDir = new TextVar( pipelineMeta, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWarningDestDir = new TextVar( variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWarningDestDir );
     wWarningDestDir.addModifyListener( lsMod );
     FormData fdWarningDestDir = new FormData();
@@ -1525,11 +1527,11 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     wWarningDestDir.setLayoutData(fdWarningDestDir);
 
     // Listen to the Browse... button
-    wbbWarningDestDir.addListener( SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wWarningDestDir, pipelineMeta) );
+    wbbWarningDestDir.addListener( SWT.Selection, e->BaseDialog.presentDirectoryDialog( shell, wWarningDestDir, variables) );
 
     // Listen to the Variable... button
     wbvWarningDestDir.addSelectionListener( VariableButtonListenerFactory.getSelectionAdapter(
-      shell, wWarningDestDir, pipelineMeta ) );
+      shell, wWarningDestDir, variables ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
     wWarningDestDir.addModifyListener( getModifyListenerTooltipText( wWarningDestDir ) );
@@ -1582,7 +1584,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdlErrorDestExt.right = new FormAttachment( wErrorExt, -margin );
     wlErrorExt.setLayoutData(fdlErrorDestExt);
 
-    wErrorDestDir = new TextVar( pipelineMeta, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wErrorDestDir = new TextVar( variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrorDestDir );
     wErrorDestDir.addModifyListener( lsMod );
     FormData fdErrorDestDir = new FormData();
@@ -1597,7 +1599,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     // Listen to the Variable... button
     wbvErrorDestDir.addSelectionListener( VariableButtonListenerFactory.getSelectionAdapter(
-      shell, wErrorDestDir, pipelineMeta ) );
+      shell, wErrorDestDir, variables ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
     wErrorDestDir.addModifyListener( getModifyListenerTooltipText( wErrorDestDir ) );
@@ -1650,7 +1652,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     fdlLineNrDestExt.right = new FormAttachment( wLineNrExt, -margin );
     wlLineNrExt.setLayoutData(fdlLineNrDestExt);
 
-    wLineNrDestDir = new TextVar( pipelineMeta, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLineNrDestDir = new TextVar( variables, wErrorComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLineNrDestDir );
     wLineNrDestDir.addModifyListener( lsMod );
     FormData fdLineNrDestDir = new FormData();
@@ -1665,7 +1667,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
     // Listen to the Variable... button
     wbvLineNrDestDir.addSelectionListener( VariableButtonListenerFactory.getSelectionAdapter(
-      shell, wLineNrDestDir, pipelineMeta ) );
+      shell, wLineNrDestDir, variables ) );
 
     // Whenever something changes, set the tooltip to the expanded version of the directory:
     wLineNrDestDir.addModifyListener( getModifyListenerTooltipText( wLineNrDestDir ) );
@@ -1699,7 +1701,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       return;
     }
 
-    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(),
+    PipelineMeta previewMeta = PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(),
       oneMeta, wTransformName.getText() );
 
     EnterNumberDialog numberDialog =
@@ -1710,7 +1712,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     if ( previewSize > 0 ) {
       PipelinePreviewProgressDialog progressDialog =
         new PipelinePreviewProgressDialog(
-          shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+          shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
       progressDialog.open();
 
       Pipeline pipeline = progressDialog.getPipeline();
@@ -1729,7 +1731,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
 
       PreviewRowsDialog prd =
         new PreviewRowsDialog(
-          shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+          shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
           .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
       prd.open();
     }
@@ -1744,7 +1746,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
     ExcelInputMeta info = new ExcelInputMeta();
     getInfo( info );
 
-    FileInputList fileList = info.getFileList( pipelineMeta );
+    FileInputList fileList = info.getFileList( variables );
     for ( FileObject fileObject : fileList.getFiles() ) {
       try {
         IKWorkbook workbook =
@@ -1806,7 +1808,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
       }
     }
 
-    FileInputList fileList = info.getFileList( pipelineMeta );
+    FileInputList fileList = info.getFileList( variables );
     for ( FileObject file : fileList.getFiles() ) {
       try {
         IKWorkbook workbook =
@@ -1932,7 +1934,7 @@ public class ExcelInputDialog extends BaseTransformDialog implements ITransformD
   private void showFiles() {
     ExcelInputMeta eii = new ExcelInputMeta();
     getInfo( eii );
-    String[] files = eii.getFilePaths( pipelineMeta );
+    String[] files = eii.getFilePaths(HopGui.getInstance().getVariables());
     if ( files.length > 0 ) {
       EnterSelectionDialog esd =
         new EnterSelectionDialog( shell, files,

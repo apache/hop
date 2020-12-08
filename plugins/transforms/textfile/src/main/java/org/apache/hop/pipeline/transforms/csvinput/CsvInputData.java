@@ -174,7 +174,7 @@ public class CsvInputData extends BaseTransformData implements ITransformData {
       //
       resizeByteBufferArray();
 
-      // Also read another chunk of data, now that we have the space for it...
+      // Also read another chunk of data, now that we have the variables for it...
       //
       int n = readBufferFromFile();
 

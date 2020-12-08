@@ -50,11 +50,11 @@ public class Kjube {
   public static final String DEFAULT_ERROR_CODES_VARIABLE_NAME = "${KJUBE_ERROR_CODES_FIELD}";
 
   /**
-   * Determines whether or not a character is considered a space. A character is considered a space in Hop if it is a
-   * space, a tab, a newline or a cariage return.
+   * Determines whether or not a character is considered a variables. A character is considered a variables in Hop if it is a
+   * variables, a tab, a newline or a cariage return.
    *
-   * @param c The character to verify if it is a space.
-   * @return true if the character is a space. false otherwise.
+   * @param c The character to verify if it is a variables.
+   * @return true if the character is a variables. false otherwise.
    */
   public static final boolean isSpace( char c ) {
     return c == ' ' || c == '\t' || c == '\r' || c == '\n' || Character.isWhitespace( c );

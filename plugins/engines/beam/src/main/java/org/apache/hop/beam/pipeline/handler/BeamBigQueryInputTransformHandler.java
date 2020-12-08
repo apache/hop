@@ -33,6 +33,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -40,15 +41,37 @@ import org.apache.hop.pipeline.transform.TransformMeta;
 import java.util.List;
 import java.util.Map;
 
-public class BeamBigQueryInputTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
+public class BeamBigQueryInputTransformHandler extends BeamBaseTransformHandler
+    implements IBeamTransformHandler {
 
-  public BeamBigQueryInputTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, true, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamBigQueryInputTransformHandler(
+      IVariables variables,
+      IBeamPipelineEngineRunConfiguration runConfiguration,
+      IHopMetadataProvider metadataProvider,
+      PipelineMeta pipelineMeta,
+      List<String> transformPluginClasses,
+      List<String> xpPluginClasses) {
+    super(
+        variables,
+        runConfiguration,
+        true,
+        false,
+        metadataProvider,
+        pipelineMeta,
+        transformPluginClasses,
+        xpPluginClasses);
   }
 
-  @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
-                                         Pipeline pipeline, IRowMeta rowMeta, List<TransformMeta> previousTransforms,
-                                         PCollection<HopRow> input ) throws HopException {
+  @Override
+  public void handleTransform(
+      ILogChannel log,
+      TransformMeta transformMeta,
+      Map<String, PCollection<HopRow>> stepCollectionMap,
+      Pipeline pipeline,
+      IRowMeta rowMeta,
+      List<TransformMeta> previousTransforms,
+      PCollection<HopRow> input)
+      throws HopException {
 
     // Input handling
     //
@@ -57,22 +80,21 @@ public class BeamBigQueryInputTransformHandler extends BeamBaseTransformHandler 
     // Output rows (fields selection)
     //
     IRowMeta outputRowMeta = new RowMeta();
-    beamInputMeta.getFields( outputRowMeta, transformMeta.getName(), null, null, pipelineMeta, null );
+    beamInputMeta.getFields(outputRowMeta, transformMeta.getName(), null, null, variables, null);
 
-    BeamBQInputTransform beamInputTransform = new BeamBQInputTransform(
-      transformMeta.getName(),
-      transformMeta.getName(),
-      pipelineMeta.environmentSubstitute( beamInputMeta.getProjectId() ),
-      pipelineMeta.environmentSubstitute( beamInputMeta.getDatasetId() ),
-      pipelineMeta.environmentSubstitute( beamInputMeta.getTableId() ),
-      pipelineMeta.environmentSubstitute( beamInputMeta.getQuery() ),
-      JsonRowMeta.toJson( outputRowMeta ),
-      transformPluginClasses,
-      xpPluginClasses
-    );
-    PCollection<HopRow> afterInput = pipeline.apply( beamInputTransform );
-    stepCollectionMap.put( transformMeta.getName(), afterInput );
-    log.logBasic( "Handled transform (BQ INPUT) : " + transformMeta.getName() );
-
+    BeamBQInputTransform beamInputTransform =
+        new BeamBQInputTransform(
+            transformMeta.getName(),
+            transformMeta.getName(),
+            variables.environmentSubstitute(beamInputMeta.getProjectId()),
+            variables.environmentSubstitute(beamInputMeta.getDatasetId()),
+            variables.environmentSubstitute(beamInputMeta.getTableId()),
+            variables.environmentSubstitute(beamInputMeta.getQuery()),
+            JsonRowMeta.toJson(outputRowMeta),
+            transformPluginClasses,
+            xpPluginClasses);
+    PCollection<HopRow> afterInput = pipeline.apply(beamInputTransform);
+    stepCollectionMap.put(transformMeta.getName(), afterInput);
+    log.logBasic("Handled transform (BQ INPUT) : " + transformMeta.getName());
   }
 }

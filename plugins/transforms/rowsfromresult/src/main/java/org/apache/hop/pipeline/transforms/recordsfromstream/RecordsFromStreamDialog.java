@@ -22,6 +22,7 @@
  ******************************************************************************/
 package org.apache.hop.pipeline.transforms.recordsfromstream;
 
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transforms.rowsfromresult.RowsFromResultDialog;
@@ -34,9 +35,11 @@ public class RecordsFromStreamDialog extends RowsFromResultDialog {
     return BaseMessages.getString( PKG, "RecordsFromStreamDialog.Shell.Title" );
   }
 
-  public RecordsFromStreamDialog( final Shell parent, final Object in,
+  public RecordsFromStreamDialog( final Shell parent,
+                                  final IVariables variables,
+                                  final Object in,
                                   final PipelineMeta pipelineMeta,
                                   final String sname ) {
-    super( parent, in, pipelineMeta, sname );
+    super( parent, variables, in, pipelineMeta, sname );
   }
 }
