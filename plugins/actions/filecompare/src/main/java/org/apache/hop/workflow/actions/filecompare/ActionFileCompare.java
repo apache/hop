@@ -120,11 +120,11 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
   }
 
   public String getRealFilename1() {
-    return environmentSubstitute( getFilename1() );
+    return resolve( getFilename1() );
   }
 
   public String getRealFilename2() {
-    return environmentSubstitute( getFilename2() );
+    return resolve( getFilename2() );
   }
 
   /**
@@ -278,8 +278,8 @@ public class ActionFileCompare extends ActionBase implements Cloneable, IAction 
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( ( !Utils.isEmpty( filename1 ) ) && ( !Utils.isEmpty( filename2 ) ) ) {
-      String realFilename1 = environmentSubstitute( filename1 );
-      String realFilename2 = environmentSubstitute( filename2 );
+      String realFilename1 = resolve( filename1 );
+      String realFilename2 = resolve( filename2 );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFilename1, ResourceType.FILE ) );
       reference.getEntries().add( new ResourceEntry( realFilename2, ResourceType.FILE ) );

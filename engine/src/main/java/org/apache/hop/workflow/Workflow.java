@@ -296,7 +296,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
         // Create a new variable name variables as we want workflows to have their own set of variables.
         // initialize from parentWorkflow or null
         //
-        initializeVariablesFrom(parentWorkflow);
+        initializeFrom(parentWorkflow);
         setInternalHopVariables();
         copyParametersFromDefinitions(workflowMeta);
         activateParameters(this);
@@ -563,14 +563,14 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
 
       // Track the fact that we are going to launch the next action...
       ActionResult jerBefore = new ActionResult( null, null, BaseMessages.getString( PKG, "Workflow.Comment.WorkflowStarted" ), reason,
-        actionMeta.getName(), actionMeta.getNr(), environmentSubstitute( actionMeta.getAction().getFilename() ) );
+        actionMeta.getName(), actionMeta.getNr(), resolve( actionMeta.getAction().getFilename() ) );
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerBefore ) );
 
       ClassLoader cl = Thread.currentThread().getContextClassLoader();
       Thread.currentThread().setContextClassLoader( action.getClass().getClassLoader() );
       // Execute this entry...
       IAction cloneJei = (IAction) action.clone();
-      ( (IVariables) cloneJei ).copyVariablesFrom( this );
+      ( (IVariables) cloneJei ).copyFrom( this );
       cloneJei.setMetadataProvider( metadataProvider );
       cloneJei.setParentWorkflow( this );
       cloneJei.setParentWorkflowMeta( this.getWorkflowMeta() );
@@ -625,7 +625,7 @@ public abstract class Workflow extends Variables implements IVariables, INamedPa
       //
       ActionResult jerAfter =
         new ActionResult( newResult, cloneJei.getLogChannel().getLogChannelId(), BaseMessages.getString( PKG,
-          "Workflow.Comment.WorkflowFinished" ), null, actionMeta.getName(), actionMeta.getNr(), environmentSubstitute(
+          "Workflow.Comment.WorkflowFinished" ), null, actionMeta.getName(), actionMeta.getNr(), resolve(
           actionMeta.getAction().getFilename() ) );
       workflowTracker.addWorkflowTracker( new WorkflowTracker( workflowMeta, jerAfter ) );
       synchronized ( actionResults ) {

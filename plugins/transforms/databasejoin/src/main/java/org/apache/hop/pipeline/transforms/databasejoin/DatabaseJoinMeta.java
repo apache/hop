@@ -283,7 +283,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
     try {
       add =
           db.getQueryFields(
-              variables.environmentSubstitute(sql), true, param, new Object[param.size()]);
+              variables.resolve(sql), true, param, new Object[param.size()]);
     } catch (HopDatabaseException dbe) {
       throw new HopTransformException(
           BaseMessages.getString(PKG, "DatabaseJoinMeta.Exception.UnableToDetermineQueryFields")
@@ -305,7 +305,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
         db.connect();
         add =
             db.getQueryFields(
-                variables.environmentSubstitute(sql), true, param, new Object[param.size()]);
+                variables.resolve(sql), true, param, new Object[param.size()]);
         for (int i = 0; i < add.size(); i++) {
           IValueMeta v = add.getValueMeta(i);
           v.setOrigin(name);
@@ -375,7 +375,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
 
           IRowMeta r =
               db.getQueryFields(
-                  variables.environmentSubstitute(sql), true, param, new Object[param.size()]);
+                  variables.resolve(sql), true, param, new Object[param.size()]);
           if (r != null) {
             cr =
                 new CheckResult(
@@ -390,7 +390,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
             remarks.add(cr);
           }
 
-          int q = db.countParameters(variables.environmentSubstitute(sql));
+          int q = db.countParameters(variables.resolve(sql));
           if (q != parameterField.length) {
             errorMessage =
                 BaseMessages.getString(
@@ -513,7 +513,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
         db.connect();
         fields =
             db.getQueryFields(
-                variables.environmentSubstitute(sql), true, param, new Object[param.size()]);
+                variables.resolve(sql), true, param, new Object[param.size()]);
       } catch (HopDatabaseException dbe) {
         logError(
             BaseMessages.getString(PKG, "DatabaseJoinMeta.Log.DatabaseErrorOccurred")
@@ -579,7 +579,7 @@ public class DatabaseJoinMeta extends BaseTransformMeta
                 outvalue.getName(),
                 outvalue.getName(),
                 transformMeta.getName(),
-                variables.environmentSubstitute(sql),
+                variables.resolve(sql),
                 BaseMessages.getString(PKG, "DatabaseJoinMeta.DatabaseImpact.Title"));
         impact.add(di);
       }

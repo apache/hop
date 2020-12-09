@@ -29,7 +29,6 @@ import org.apache.hop.core.encryption.Encr;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
-import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
@@ -1104,9 +1103,9 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       // connect...
       if (wUsingAuthentication.getSelection()) {
         connection.connect(
-            variables.environmentSubstitute(meta.getUserName()),
+            variables.resolve(meta.getUserName()),
             Encr.decryptPasswordOptionallyEncrypted(
-                variables.environmentSubstitute(meta.getPassword())));
+                variables.resolve(meta.getPassword())));
       } else {
         connection.connect();
       }
@@ -1411,15 +1410,15 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
       connection = new LdapConnection(log, variables, meta, null);
       // connect ...
       if (wUsingAuthentication.getSelection()) {
-        String username = variables.environmentSubstitute(wUserName.getText());
+        String username = variables.resolve(wUserName.getText());
         String password =
             Encr.decryptPasswordOptionallyEncrypted(
-                variables.environmentSubstitute(wPassword.getText()));
+                variables.resolve(wPassword.getText()));
         connection.connect(username, password);
       } else {
         connection.connect();
       }
-      return connection.getFields(variables.environmentSubstitute(wBaseDN.getText()));
+      return connection.getFields(variables.resolve(wBaseDN.getText()));
     } finally {
       if (connection != null) {
         try {
@@ -1586,7 +1585,7 @@ public class LdapOutputDialog extends BaseTransformDialog implements ITransformD
             if (wBaseDN.isDisposed()) {
               return;
             }
-            String baseDn = variables.environmentSubstitute(wBaseDN.getText());
+            String baseDn = variables.resolve(wBaseDN.getText());
             if (!Utils.isEmpty(baseDn)) {
               try {
                 IRowMeta fields = getLDAPFields();

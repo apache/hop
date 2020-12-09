@@ -32,10 +32,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Check if a table exists in a Database *
@@ -131,9 +129,9 @@ public class TableExists extends BaseTransform<TableExistsMeta, TableExistsData>
       }
 
       data.db = new Database( this, meta.getDatabase() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
       if ( !Utils.isEmpty( meta.getSchemaname() ) ) {
-        data.realSchemaname = environmentSubstitute( meta.getSchemaname() );
+        data.realSchemaname = resolve( meta.getSchemaname() );
       }
 
       try {

@@ -588,7 +588,7 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       try {
         db.connect();
 
@@ -979,8 +979,8 @@ public class SynchronizeAfterMergeMeta extends BaseTransformMeta implements ITra
   }
 
   public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
-    String realTableName = variables.environmentSubstitute( tableName );
-    String realSchemaName = variables.environmentSubstitute( schemaName );
+    String realTableName = variables.resolve( tableName );
+    String realSchemaName = variables.resolve( schemaName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );

@@ -275,7 +275,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
 
       // Connect to the database
       try {
@@ -286,7 +286,7 @@ public class ExecSql extends BaseTransform<ExecSqlMeta, ExecSqlData> implements 
         }
 
         if ( meta.isReplaceVariables() ) {
-          data.sql = environmentSubstitute( meta.getSql() );
+          data.sql = resolve( meta.getSql() );
         } else {
           data.sql = meta.getSql();
         }

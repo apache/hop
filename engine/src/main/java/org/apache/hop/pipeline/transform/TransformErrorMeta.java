@@ -289,23 +289,23 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
   public IRowMeta getErrorRowMeta( IVariables variables ) {
     IRowMeta row = new RowMeta();
 
-    String nrErr = variables.environmentSubstitute( getNrErrorsValuename() );
+    String nrErr = variables.resolve( getNrErrorsValuename() );
     if ( !Utils.isEmpty( nrErr ) ) {
       IValueMeta v = new ValueMetaInteger( nrErr );
       v.setLength( 3 );
       row.addValueMeta( v );
     }
-    String errDesc = variables.environmentSubstitute( getErrorDescriptionsValuename() );
+    String errDesc = variables.resolve( getErrorDescriptionsValuename() );
     if ( !Utils.isEmpty( errDesc ) ) {
       IValueMeta v = new ValueMetaString( errDesc );
       row.addValueMeta( v );
     }
-    String errFields = variables.environmentSubstitute( getErrorFieldsValuename() );
+    String errFields = variables.resolve( getErrorFieldsValuename() );
     if ( !Utils.isEmpty( errFields ) ) {
       IValueMeta v = new ValueMetaString( errFields );
       row.addValueMeta( v );
     }
-    String errCodes = variables.environmentSubstitute( getErrorCodesValuename() );
+    String errCodes = variables.resolve( getErrorCodesValuename() );
     if ( !Utils.isEmpty( errCodes ) ) {
       IValueMeta v = new ValueMetaString( errCodes );
       row.addValueMeta( v );
@@ -318,22 +318,22 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
     long nrErrors, String errorDescriptions, String fieldNames, String errorCodes) {
     int index = startIndex;
 
-    String nrErr = variables.environmentSubstitute( getNrErrorsValuename() );
+    String nrErr = variables.resolve( getNrErrorsValuename() );
     if ( !Utils.isEmpty( nrErr ) ) {
       row[ index ] = new Long( nrErrors );
       index++;
     }
-    String errDesc = variables.environmentSubstitute( getErrorDescriptionsValuename() );
+    String errDesc = variables.resolve( getErrorDescriptionsValuename() );
     if ( !Utils.isEmpty( errDesc ) ) {
       row[ index ] = errorDescriptions;
       index++;
     }
-    String errFields = variables.environmentSubstitute( getErrorFieldsValuename() );
+    String errFields = variables.resolve( getErrorFieldsValuename() );
     if ( !Utils.isEmpty( errFields ) ) {
       row[ index ] = fieldNames;
       index++;
     }
-    String errCodes = variables.environmentSubstitute( getErrorCodesValuename() );
+    String errCodes = variables.resolve( getErrorCodesValuename() );
     if ( !Utils.isEmpty( errCodes ) ) {
       row[ index ] = errorCodes;
       index++;

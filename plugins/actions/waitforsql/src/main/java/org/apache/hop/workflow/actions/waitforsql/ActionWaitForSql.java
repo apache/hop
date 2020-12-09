@@ -280,7 +280,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     Database dbchecked = null;
     try {
       dbchecked = new Database( this, connection );
-      dbchecked.shareVariablesWith( this );
+      dbchecked.shareWith( this );
       dbchecked.connect( null );
     } finally {
       if ( dbchecked != null ) {
@@ -295,8 +295,8 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     result.setResult( false );
     result.setNrErrors( 1 );
     String realCustomSql = null;
-    String realTablename = environmentSubstitute( tableName );
-    String realSchemaname = environmentSubstitute( schemaName );
+    String realTablename = resolve( tableName );
+    String realSchemaname = resolve( schemaName );
 
     if ( connection == null ) {
       logError( BaseMessages.getString( PKG, "ActionWaitForSQL.NoDbConnection" ) );
@@ -311,7 +311,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
 
       realCustomSql = customSql;
       if ( isUseVars ) {
-        realCustomSql = environmentSubstitute( realCustomSql );
+        realCustomSql = resolve( realCustomSql );
       }
       if ( log.isDebug() ) {
         logDebug( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.EnteredCustomSQL", realCustomSql ) );
@@ -337,15 +337,15 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
       // starttime (in seconds)
       long timeStart = System.currentTimeMillis() / 1000;
 
-      int nrRowsLimit = Const.toInt( environmentSubstitute( rowsCountValue ), 0 );
+      int nrRowsLimit = Const.toInt( resolve( rowsCountValue ), 0 );
       if ( log.isDetailed() ) {
         logDetailed( BaseMessages.getString( PKG, "ActionWaitForSQL.Log.nrRowsLimit", "" + nrRowsLimit ) );
       }
 
       long iMaximumTimeout =
-        Const.toInt( environmentSubstitute( maximumTimeout ), Const.toInt( DEFAULT_MAXIMUM_TIMEOUT, 0 ) );
+        Const.toInt( resolve( maximumTimeout ), Const.toInt( DEFAULT_MAXIMUM_TIMEOUT, 0 ) );
       long iCycleTime =
-        Const.toInt( environmentSubstitute( checkCycleTime ), Const.toInt( DEFAULT_CHECK_CYCLE_TIME, 0 ) );
+        Const.toInt( resolve( checkCycleTime ), Const.toInt( DEFAULT_CHECK_CYCLE_TIME, 0 ) );
 
       //
       // Sanity check on some values, and complain on insanity
@@ -437,7 +437,7 @@ public class ActionWaitForSql extends ActionBase implements Cloneable, IAction {
     List<Object[]> ar = null;
     IRowMeta rowMeta = null;
     Database db = new Database( this, connection );
-    db.shareVariablesWith( this );
+    db.shareWith( this );
     try {
       db.connect();
       if ( isCustomSql ) {

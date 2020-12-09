@@ -134,7 +134,7 @@ public class SubPipelineExecutor {
     subPipeline.setParentPipeline( this.parentPipeline );
     subPipeline.setLogLevel( this.parentPipeline.getLogLevel() );
     if ( this.shareVariables ) {
-      subPipeline.shareVariablesWith( this.parentPipeline );
+      subPipeline.shareWith( this.parentPipeline );
     }
 
     subPipeline.setInternalHopVariables( this.parentPipeline );
@@ -161,7 +161,7 @@ public class SubPipelineExecutor {
 
         value = rowMetaAndData.getString( idx, "" );
       } else {
-        value = this.parentPipeline.environmentSubstitute( inputValue );
+        value = this.parentPipeline.resolve( inputValue );
       }
 
       if ( Const.indexOfString( variable, parameterNames ) < 0 ) {

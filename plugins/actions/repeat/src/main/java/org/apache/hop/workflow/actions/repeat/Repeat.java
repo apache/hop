@@ -135,7 +135,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     // So now we execute the transformation or workflow and continue until the variable has a
     // certain value.
     //
-    String realFilename = environmentSubstitute(filename);
+    String realFilename = resolve(filename);
     if (StringUtils.isEmpty(realFilename)) {
       throw new HopException("Please specify a transformation or workflow to repeat");
     }
@@ -143,7 +143,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     long delayInMs = -1;
 
     if (StringUtils.isNotEmpty(delay)) {
-      String realDelay = environmentSubstitute(delay);
+      String realDelay = resolve(delay);
       delayInMs = Const.toLong(realDelay, -1);
       if (delayInMs < 0) {
         throw new HopException("Unable to parse delay for string: " + realDelay);
@@ -261,16 +261,16 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     pipeline.setParentWorkflow(getParentWorkflow());
     pipeline.setParent( this );
     if (keepingValues && previousResult != null) {
-      pipeline.copyVariablesFrom(previousResult.variables);
+      pipeline.copyFrom(previousResult.variables);
     } else {
-      pipeline.initializeVariablesFrom(getParentWorkflow());
+      pipeline.initializeFrom(getParentWorkflow());
 
       // Also copy the parameters over...
       //
       pipeline.copyParametersFromDefinitions( pipelineMeta);
     }
     pipeline.getPipelineMeta().setInternalHopVariables(pipeline);
-    pipeline.injectVariables(getVariablesMap(pipeline, previousResult));
+    pipeline.setVariables(getVariablesMap(pipeline, previousResult));
 
     // TODO: check this!
     INamedParameters previousParams =
@@ -319,7 +319,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     //
     Date currentDate = new Date();
 
-    String filename = environmentSubstitute(logFileBase);
+    String filename = resolve(logFileBase);
     if (logFileDateAdded) {
       filename += "_" + new SimpleDateFormat("yyyyMMdd").format(currentDate);
     }
@@ -329,7 +329,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     if (logFileRepetitionAdded) {
       filename += "_" + new DecimalFormat("0000").format(repetitionNr);
     }
-    filename += "." + environmentSubstitute(logFileExtension);
+    filename += "." + resolve(logFileExtension);
 
     String logChannelId = loggingObject.getLogChannelId();
     LogChannelFileWriter fileWriter =
@@ -350,14 +350,14 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     Map<String, String> variablesMap = new HashMap<>();
 
     if (keepingValues && previousResult != null) {
-      for (String variableName : previousResult.variables.listVariables()) {
+      for (String variableName : previousResult.variables.getVariableNames()) {
         variablesMap.put(variableName, previousResult.variables.getVariable(variableName));
       }
     } else {
       // Initialize the values of the defined parameters in the workflow entry
       //
       for (ParameterDetails parameter : parameters) {
-        String value = environmentSubstitute(parameter.getField());
+        String value = resolve(parameter.getField());
         variablesMap.put(parameter.getName(), value);
       }
     }
@@ -377,11 +377,11 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       this
     );
     workflow.setParentWorkflow(getParentWorkflow());
-    workflow.setParentVariableSpace(this);
+    workflow.setParentVariables(this);
     if (keepingValues && previousResult != null) {
-      workflow.copyVariablesFrom(previousResult.variables);
+      workflow.copyFrom(previousResult.variables);
     } else {
-      workflow.initializeVariablesFrom(this);
+      workflow.initializeFrom(this);
 
       // Also copy the parameters over...
       //
@@ -389,7 +389,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     }
 
     workflow.getWorkflowMeta().setInternalHopVariables(workflow);
-    workflow.injectVariables(getVariablesMap(workflow, previousResult));
+    workflow.setVariables(getVariablesMap(workflow, previousResult));
 
     // TODO: check this!
     INamedParameters previousParams = previousResult == null ? null : (INamedParameters) previousResult.variables;
@@ -455,7 +455,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
       if (Const.indexOfString(parameter.getName(), parameterNames) >= 0) {
         // Set this parameter
         //
-        String value = environmentSubstitute(parameter.getField());
+        String value = resolve(parameter.getField());
         try {
           subParams.setParameterValue(parameter.getName(), value);
         } catch (UnknownParamException e) {
@@ -485,12 +485,12 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
     // See if there's a flag set.
     //
     if (StringUtils.isNotEmpty(variableName)) {
-      String realVariable = variables.environmentSubstitute(variableName);
+      String realVariable = variables.resolve(variableName);
       String value = variables.getVariable(realVariable);
       if (StringUtil.isEmpty(value)) {
         return false;
       }
-      String realValue = environmentSubstitute(variableValue);
+      String realValue = resolve(variableValue);
 
       // If we didn't specify any specific value, the variable is simply set.
       //
@@ -594,7 +594,7 @@ public class Repeat extends ActionBase implements IAction, Cloneable {
   @Override
   public IHasFilename loadReferencedObject(
       int index, IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
-    String realFilename = variables.environmentSubstitute(filename);
+    String realFilename = variables.resolve(filename);
     if (isPipeline(realFilename)) {
       return loadPipeline(realFilename, metadataProvider, variables);
     } else if (isWorkflow(realFilename)) {

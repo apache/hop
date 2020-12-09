@@ -23,7 +23,6 @@
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
-import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Optional;
 import com.google.common.collect.ContiguousSet;
@@ -353,7 +352,7 @@ public class MemoryGroupByAggregationTest {
 
     // Spy on transform, regrettable but we need to easily inject rows
     MemoryGroupBy transform = spy( new MemoryGroupBy( transformMeta, meta, data, 0, pipelineMeta, mock( Pipeline.class ) ) );
-    transform.copyVariablesFrom( variables );
+    transform.copyFrom( variables );
     doNothing().when( transform ).putRow( (IRowMeta) any(), (Object[]) any() );
     doNothing().when( transform ).setOutputDone();
 

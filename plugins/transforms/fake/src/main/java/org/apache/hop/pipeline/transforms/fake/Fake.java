@@ -49,7 +49,7 @@ public class Fake extends BaseTransform<FakeMeta, FakeData> implements ITransfor
   @Override public boolean init() {
 
     if ( StringUtils.isNotEmpty(meta.getLocale())) {
-      data.faker = new Faker(new Locale(environmentSubstitute(meta.getLocale())));
+      data.faker = new Faker(new Locale( resolve(meta.getLocale())));
     } else {
       data.faker = new Faker();
     }

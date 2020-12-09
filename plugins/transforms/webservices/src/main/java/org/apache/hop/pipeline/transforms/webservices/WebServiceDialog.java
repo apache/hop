@@ -179,13 +179,13 @@ public class WebServiceDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void loadWebService( String anURI ) throws HopException {
-    anURI = variables.environmentSubstitute( anURI );
+    anURI = variables.resolve( anURI );
 
     try {
       if ( wProxyHost.getText() != null && !"".equals( wProxyHost.getText() ) ) {
         Properties systemProperties = System.getProperties();
-        systemProperties.setProperty( "http.proxyHost", variables.environmentSubstitute( wProxyHost.getText() ) );
-        systemProperties.setProperty( "http.proxyPort", variables.environmentSubstitute( wProxyPort.getText() ) );
+        systemProperties.setProperty( "http.proxyHost", variables.resolve( wProxyHost.getText() ) );
+        systemProperties.setProperty( "http.proxyPort", variables.resolve( wProxyPort.getText() ) );
       }
       wsdl = new Wsdl( new URI( anURI ), null, null, wHttpLogin.getText(), wHttpPassword.getText() );
     } catch ( Exception e ) {

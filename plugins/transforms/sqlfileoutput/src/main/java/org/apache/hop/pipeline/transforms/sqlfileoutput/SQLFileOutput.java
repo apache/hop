@@ -35,10 +35,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
@@ -179,7 +177,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
   }
 
   public String buildFilename() {
-    return meta.buildFilename( this, environmentSubstitute( meta.getFileName() ), getCopy(), data.splitnr );
+    return meta.buildFilename( this, resolve( meta.getFileName() ), getCopy(), data.splitnr );
   }
 
   public boolean openNewFile() {
@@ -216,7 +214,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           logDetailed( "Opening output stream in encoding: " + meta.getEncoding() );
         }
         data.writer =
-          new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ), environmentSubstitute( meta
+          new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ), resolve( meta
             .getEncoding() ) );
       } else {
         if ( log.isBasic() ) {
@@ -285,7 +283,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           return false;
         }
         data.db = new Database( this, meta.getDatabaseMeta() );
-        data.db.shareVariablesWith( this );
+        data.db.shareWith( this );
 
         logBasic( "Connected to database [" + meta.getDatabaseMeta() + "]" );
 
@@ -294,7 +292,7 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           FileObject parentfolder = null;
           try {
             // Get parent folder
-            String filename = environmentSubstitute( meta.getFileName() );
+            String filename = resolve( meta.getFileName() );
             parentfolder = HopVfs.getFileObject( filename).getParent();
             if ( !parentfolder.exists() ) {
               log.logBasic( "Folder parent", "Folder parent " + parentfolder.getName() + " does not exist !" );
@@ -323,8 +321,8 @@ public class SQLFileOutput extends BaseTransform<SQLFileOutputMeta,SQLFileOutput
           }
         }
 
-        tableName = environmentSubstitute( meta.getTablename() );
-        schemaName = environmentSubstitute( meta.getSchemaName() );
+        tableName = resolve( meta.getTablename() );
+        schemaName = resolve( meta.getSchemaName() );
 
         if ( Utils.isEmpty( tableName ) ) {
           throw new HopTransformException( "The tablename is not defined (empty)" );

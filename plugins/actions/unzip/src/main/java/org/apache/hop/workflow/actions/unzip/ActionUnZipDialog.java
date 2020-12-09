@@ -267,7 +267,7 @@ public class ActionUnZipDialog extends ActionDialog implements IActionDialog {
     wZipFilename.setLayoutData(fdZipFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wZipFilename.addModifyListener( e -> wZipFilename.setToolTipText( variables.environmentSubstitute( wZipFilename.getText() ) ) );
+    wZipFilename.addModifyListener( e -> wZipFilename.setToolTipText( variables.resolve( wZipFilename.getText() ) ) );
 
     wbZipFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wZipFilename, variables,
       new String[] { "*.zip;*.ZIP", "*.jar;*.JAR", "*" }, FILETYPES, true )

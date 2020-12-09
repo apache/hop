@@ -312,7 +312,7 @@ public class SalesforceUpsert extends SalesforceTransform<SalesforceUpsertMeta, 
     if ( super.init() ) {
 
       try {
-        String salesfoceIdFieldname = environmentSubstitute( meta.getSalesforceIDFieldName() );
+        String salesfoceIdFieldname = resolve( meta.getSalesforceIDFieldName() );
         if ( !Utils.isEmpty( salesfoceIdFieldname ) ) {
           data.realSalesforceFieldName = salesfoceIdFieldname;
         }
@@ -322,7 +322,7 @@ public class SalesforceUpsert extends SalesforceTransform<SalesforceUpsertMeta, 
         // Now connect ...
         data.connection.connect();
         if ( data.mapData ) { // check if user wants data mapping. If so, get the (fieldName --> dataType) mapping
-          Field[] fields = data.connection.getObjectFields( environmentSubstitute( meta.getModule() ) );
+          Field[] fields = data.connection.getObjectFields( resolve( meta.getModule() ) );
           if ( fields != null ) {
             data.dataTypeMap = mapDataTypesToFields( fields );
           }

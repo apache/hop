@@ -1209,7 +1209,7 @@ public class JsonInputTest {
 
     jsonInput.addRowSetToInputRowSets( input );
     jsonInput.setInputRowMeta( rowMeta );
-    jsonInput.initializeVariablesFrom( variables );
+    jsonInput.initializeFrom( variables );
 
     jsonInput.init();
     return jsonInput;

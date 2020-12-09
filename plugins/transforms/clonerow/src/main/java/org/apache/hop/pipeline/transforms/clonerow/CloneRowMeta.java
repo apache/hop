@@ -202,7 +202,7 @@ public class CloneRowMeta extends BaseTransformMeta implements ITransformMeta<Cl
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Output field (boolean) ?
     if ( addcloneflag ) {
-      String realfieldValue = variables.environmentSubstitute( cloneflagfield );
+      String realfieldValue = variables.resolve( cloneflagfield );
       if ( !Utils.isEmpty( realfieldValue ) ) {
         IValueMeta v = new ValueMetaBoolean( realfieldValue );
         v.setOrigin( origin );
@@ -211,7 +211,7 @@ public class CloneRowMeta extends BaseTransformMeta implements ITransformMeta<Cl
     }
     // Output clone row number
     if ( addclonenum ) {
-      String realfieldValue = variables.environmentSubstitute( clonenumfield );
+      String realfieldValue = variables.resolve( clonenumfield );
       if ( !Utils.isEmpty( realfieldValue ) ) {
         IValueMeta v = new ValueMetaInteger( realfieldValue );
         v.setOrigin( origin );

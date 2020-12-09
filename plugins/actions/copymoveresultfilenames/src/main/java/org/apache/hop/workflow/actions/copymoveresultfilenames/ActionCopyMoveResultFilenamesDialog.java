@@ -221,7 +221,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wFoldername.setLayoutData(fdFoldername);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( variables.environmentSubstitute( wFoldername.getText() ) ) );
+    wFoldername.addModifyListener( e -> wFoldername.setToolTipText( variables.resolve( wFoldername.getText() ) ) );
 
     wbFoldername.addListener( SWT.Selection, e -> BaseDialog.presentDirectoryDialog( shell, wFoldername, variables ) );
 
@@ -509,7 +509,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.environmentSubstitute( wWildcard.getText() ) ) );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.resolve( wWildcard.getText() ) ) );
 
     // wWildcardExclude
     wlWildcardExclude = new Label(wLimitTo, SWT.RIGHT );
@@ -533,7 +533,7 @@ public class ActionCopyMoveResultFilenamesDialog extends ActionDialog implements
     wWildcardExclude.setLayoutData(fdWildcardExclude);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( variables.environmentSubstitute( wWildcardExclude.getText() ) ) );
+    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( variables.resolve( wWildcardExclude.getText() ) ) );
 
     FormData fdLimitTo = new FormData();
     fdLimitTo.left = new FormAttachment( 0, margin );

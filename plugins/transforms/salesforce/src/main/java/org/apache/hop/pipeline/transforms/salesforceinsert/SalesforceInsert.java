@@ -269,7 +269,7 @@ public class SalesforceInsert extends SalesforceTransform<SalesforceInsertMeta, 
 
     if ( super.init() ) {
       try {
-        String salesfoceIdFieldname = environmentSubstitute( meta.getSalesforceIDFieldName() );
+        String salesfoceIdFieldname = resolve( meta.getSalesforceIDFieldName() );
         if ( !Utils.isEmpty( salesfoceIdFieldname ) ) {
           data.realSalesforceFieldName = salesfoceIdFieldname;
         }

@@ -48,7 +48,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Map;
 import java.util.UUID;
 
 @Path( "/carte/pipeline" )
@@ -135,7 +134,7 @@ public class PipelineResource {
       PipelineExecutionConfiguration executionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
       // Set the appropriate logging, variables, arguments, replay date, ...
       // etc.
-      pipeline.injectVariables( executionConfiguration.getVariablesMap() );
+      pipeline.setVariables( executionConfiguration.getVariablesMap() );
       pipeline.setPreviousResult( executionConfiguration.getPreviousResult() );
 
       pipeline.prepareExecution();

@@ -86,7 +86,7 @@ public class InsertUpdateMetaTest {
 
     Map<String, String> vars = new HashMap<>();
     vars.put( "max.sz", "10" );
-    pipeline.injectVariables( vars );
+    pipeline.setVariables( vars );
 
     pipelineMeta.addTransform( transformMeta );
     upd = new InsertUpdate( transformMeta, umi, ud, 1, pipelineMeta, pipeline );

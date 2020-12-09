@@ -22,7 +22,6 @@
 
 package org.apache.hop.testing.xp;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
@@ -42,7 +41,6 @@ import org.apache.hop.testing.PipelineUnitTest;
 import org.apache.hop.testing.PipelineUnitTestDatabaseReplacement;
 import org.apache.hop.testing.PipelineUnitTestSetLocation;
 import org.apache.hop.testing.PipelineUnitTestTweak;
-import org.apache.hop.testing.VariableValue;
 import org.apache.hop.testing.util.DataSetConst;
 
 import java.io.ByteArrayInputStream;
@@ -83,8 +81,8 @@ public class PipelineMetaModifier {
     // Replace certain connections with another
     //
     for ( PipelineUnitTestDatabaseReplacement dbReplacement : unitTest.getDatabaseReplacements() ) {
-      String sourceDatabaseName = variables.environmentSubstitute( dbReplacement.getOriginalDatabaseName() );
-      String replacementDatabaseName = variables.environmentSubstitute( dbReplacement.getReplacementDatabaseName() );
+      String sourceDatabaseName = variables.resolve( dbReplacement.getOriginalDatabaseName() );
+      String replacementDatabaseName = variables.resolve( dbReplacement.getReplacementDatabaseName() );
 
       DatabaseMeta sourceDatabaseMeta = copyPipelineMeta.findDatabase( sourceDatabaseName );
       DatabaseMeta replacementDatabaseMeta = copyPipelineMeta.findDatabase( replacementDatabaseName );

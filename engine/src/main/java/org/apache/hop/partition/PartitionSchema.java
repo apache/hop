@@ -18,13 +18,7 @@
 package org.apache.hop.partition;
 
 import org.apache.hop.core.Const;
-import org.apache.hop.core.changed.ChangedFlag;
-import org.apache.hop.core.exception.HopValueException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
@@ -32,7 +26,6 @@ import org.apache.hop.metadata.api.IHopMetadata;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A partition schema allow you to partition a transform according into a number of partitions that run independendly. It
@@ -105,7 +98,7 @@ public class PartitionSchema extends HopMetadataBase implements Cloneable, IHopM
   }
 
   public List<String> calculatePartitionIds(IVariables variables) {
-    int nrPartitions = Const.toInt( variables.environmentSubstitute( numberOfPartitions ), 0 );
+    int nrPartitions = Const.toInt( variables.resolve( numberOfPartitions ), 0 );
     if ( dynamicallyDefined ) {
       List<String> list = new ArrayList<>();
       for ( int i = 0; i < nrPartitions; i++ ) {

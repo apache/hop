@@ -243,16 +243,16 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wDetachedFilename.setLayoutData(fdDetachedFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wDetachedFilename.addModifyListener( e -> wDetachedFilename.setToolTipText( variables.environmentSubstitute( wDetachedFilename.getText() ) ) );
+    wDetachedFilename.addModifyListener( e -> wDetachedFilename.setToolTipText( variables.resolve( wDetachedFilename.getText() ) ) );
 
     wbDetachedFilename.addListener( SWT.Selection, e->  BaseDialog.presentFileDialog( shell, wDetachedFilename, variables, EXTENSIONS, FILETYPES, false ) );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
     wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables, EXTENSIONS, FILETYPES, false ) );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wGPGLocation.addModifyListener( e -> wGPGLocation.setToolTipText( variables.environmentSubstitute( wGPGLocation.getText() ) ) );
+    wGPGLocation.addModifyListener( e -> wGPGLocation.setToolTipText( variables.resolve( wGPGLocation.getText() ) ) );
     wbGPGLocation.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGPGLocation, variables, EXTENSIONS, FILETYPES, false ) );
 
     FormData fdSettings = new FormData();

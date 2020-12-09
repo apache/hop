@@ -44,7 +44,7 @@ public class HopRunCalculateFilenameExtensionPoint implements IExtensionPoint<Ho
       if ( !fileObject.exists() ) {
         // Try to prepend with ${PROJECT_HOME}
         //
-        String alternativeFilename = hopRun.getVariables().environmentSubstitute( "${PROJECT_HOME}/" + hopRun.getFilename() );
+        String alternativeFilename = hopRun.getVariables().resolve( "${PROJECT_HOME}/" + hopRun.getFilename() );
         fileObject = HopVfs.getFileObject( alternativeFilename );
         if ( fileObject.exists() ) {
           hopRun.setRealFilename(alternativeFilename);

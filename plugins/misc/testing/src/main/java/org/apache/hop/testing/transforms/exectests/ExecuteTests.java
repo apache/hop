@@ -157,7 +157,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
 
         // 3. Pass execution details...
         //
-        testPipeline.initializeVariablesFrom( this );
+        testPipeline.initializeFrom( this );
         testPipeline.setLogLevel( getPipeline().getLogLevel() );
         testPipeline.setMetadataProvider( getMetadataProvider() );
 

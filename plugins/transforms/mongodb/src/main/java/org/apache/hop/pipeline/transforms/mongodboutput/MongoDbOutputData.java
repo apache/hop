@@ -1008,7 +1008,7 @@ public class MongoDbOutputData extends BaseTransformData implements ITransformDa
     int numArrays = 0;
 
     for (MongoDbOutputMeta.MongoField field : fieldDefs) {
-      String mongoPath = vars.environmentSubstitute(field.m_mongoDocPath);
+      String mongoPath = vars.resolve(field.m_mongoDocPath);
 
       if (StringUtils.isEmpty(mongoPath)) {
         numRecords++;

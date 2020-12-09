@@ -28,9 +28,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -84,7 +82,7 @@ public class Delay extends BaseTransform<DelayMeta, DelayData> implements ITrans
           data.Multiple = 1;
       }
 
-      String timeOut = environmentSubstitute( meta.getTimeOut() );
+      String timeOut = resolve( meta.getTimeOut() );
       data.timeout = Const.toInt( timeOut, 0 );
 
       if ( log.isDebug() ) {

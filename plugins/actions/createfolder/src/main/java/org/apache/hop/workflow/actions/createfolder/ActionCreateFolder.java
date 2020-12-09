@@ -111,7 +111,7 @@ public class ActionCreateFolder extends ActionBase implements Cloneable, IAction
   }
 
   public String getRealFoldername() {
-    return environmentSubstitute( getFoldername() );
+    return resolve( getFoldername() );
   }
 
   public Result execute( Result previousResult, int nr ) {

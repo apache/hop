@@ -31,8 +31,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -69,14 +67,14 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> implemen
       data.addInfosToRow = ( meta.isAddCloneFlag() || meta.isAddCloneNum() );
 
       if ( meta.isAddCloneFlag() ) {
-        String realflagfield = environmentSubstitute( meta.getCloneFlagField() );
+        String realflagfield = resolve( meta.getCloneFlagField() );
         if ( Utils.isEmpty( realflagfield ) ) {
           logError( BaseMessages.getString( PKG, "CloneRow.Error.CloneFlagFieldMissing" ) );
           throw new HopException( BaseMessages.getString( PKG, "CloneRow.Error.CloneFlagFieldMissing" ) );
         }
       }
       if ( meta.isAddCloneNum() ) {
-        String realnumfield = environmentSubstitute( meta.getCloneNumField() );
+        String realnumfield = resolve( meta.getCloneNumField() );
         if ( Utils.isEmpty( realnumfield ) ) {
           logError( BaseMessages.getString( PKG, "CloneRow.Error.CloneNumFieldMissing" ) );
           throw new HopException( BaseMessages.getString( PKG, "CloneRow.Error.CloneNumFieldMissing" ) );
@@ -101,7 +99,7 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> implemen
           }
         }
       } else {
-        String nrclonesString = environmentSubstitute( meta.getNrClones() );
+        String nrclonesString = resolve( meta.getNrClones() );
         data.nrclones = Const.toInt( nrclonesString, 0 );
         if ( log.isDebug() ) {
           logDebug( BaseMessages.getString( PKG, "CloneRow.Log.NrClones", "" + data.nrclones ) );

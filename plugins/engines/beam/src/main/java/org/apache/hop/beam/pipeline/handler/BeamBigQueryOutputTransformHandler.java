@@ -54,9 +54,9 @@ public class BeamBigQueryOutputTransformHandler extends BeamBaseTransformHandler
 
     BeamBQOutputTransform beamOutputTransform = new BeamBQOutputTransform(
       beamOutputTransformMeta.getName(),
-      variables.environmentSubstitute( beamOutputMeta.getProjectId() ),
-      variables.environmentSubstitute( beamOutputMeta.getDatasetId() ),
-      variables.environmentSubstitute( beamOutputMeta.getTableId() ),
+      variables.resolve( beamOutputMeta.getProjectId() ),
+      variables.resolve( beamOutputMeta.getDatasetId() ),
+      variables.resolve( beamOutputMeta.getTableId() ),
       beamOutputMeta.isCreatingIfNeeded(),
       beamOutputMeta.isTruncatingTable(),
       beamOutputMeta.isFailingIfNotEmpty(),

@@ -181,13 +181,13 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
             PKG, "ReplaceString.Exception.FieldTypeNotString", meta.getFieldInStream()[ i ] ) );
         }
 
-        data.outStreamNrs[ i ] = environmentSubstitute( meta.getFieldOutStream()[ i ] );
+        data.outStreamNrs[ i ] = resolve( meta.getFieldOutStream()[ i ] );
 
         data.patterns[ i ] =
           buildPattern(
             meta.getUseRegEx()[ i ] != ReplaceStringMeta.USE_REGEX_YES,
             meta.getCaseSensitive()[ i ] == ReplaceStringMeta.CASE_SENSITIVE_YES,
-            meta.getWholeWord()[ i ] == ReplaceStringMeta.WHOLE_WORD_YES, environmentSubstitute( meta
+            meta.getWholeWord()[ i ] == ReplaceStringMeta.WHOLE_WORD_YES, resolve( meta
               .getReplaceString()[ i ] ),
             meta.isUnicode()[ i ] == ReplaceStringMeta.IS_UNICODE_YES );
 
@@ -200,7 +200,7 @@ public class ReplaceString extends BaseTransform<ReplaceStringMeta, ReplaceStrin
           }
         } else {
           data.replaceFieldIndex[ i ] = -1;
-          data.replaceByString[ i ] = environmentSubstitute( meta.getReplaceByString()[ i ] );
+          data.replaceByString[ i ] = resolve( meta.getReplaceByString()[ i ] );
         }
         data.setEmptyString[ i ] = meta.isSetEmptyString()[ i ];
 

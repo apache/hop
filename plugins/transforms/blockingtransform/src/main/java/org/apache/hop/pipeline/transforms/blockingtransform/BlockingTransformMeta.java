@@ -95,7 +95,7 @@ public class BlockingTransformMeta extends BaseTransformMeta implements ITransfo
 
     if ( prev != null && prev.size() > 0 ) {
       // Check the sort directory
-      String realDirectory = variables.environmentSubstitute( directory );
+      String realDirectory = variables.resolve( directory );
 
       File f = new File( realDirectory );
       if ( f.exists() ) {

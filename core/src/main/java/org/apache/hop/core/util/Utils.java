@@ -157,7 +157,7 @@ public class Utils {
    * @return resolved decrypted password
    */
   public static String resolvePassword( IVariables variables, String password ) {
-    String resolvedPassword = variables.environmentSubstitute( password );
+    String resolvedPassword = variables.resolve( password );
     if ( resolvedPassword != null ) {
       // returns resolved decrypted password
       return Encr.decryptPasswordOptionallyEncrypted( resolvedPassword );

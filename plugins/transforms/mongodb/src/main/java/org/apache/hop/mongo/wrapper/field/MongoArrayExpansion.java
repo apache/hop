@@ -98,7 +98,7 @@ public class MongoArrayExpansion {
     tempParts.clear();
 
     for (String part : pathParts) {
-      tempParts.add(variables.environmentSubstitute(part));
+      tempParts.add(variables.resolve(part));
     }
 
     // reset sub fields

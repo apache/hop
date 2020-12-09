@@ -38,10 +38,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.List;
 
@@ -383,7 +381,7 @@ public class YamlInput extends BaseTransform<YamlInputMeta,YamlInputData> implem
       data.rowMeta = new RowMeta();
       for ( int i = 0; i < data.nrInputFields; i++ ) {
         YamlInputField field = meta.getInputFields()[ i ];
-        String path = environmentSubstitute( field.getPath() );
+        String path = resolve( field.getPath() );
 
         try {
           IValueMeta valueMeta = ValueMetaFactory.createValueMeta( path, field.getType() );

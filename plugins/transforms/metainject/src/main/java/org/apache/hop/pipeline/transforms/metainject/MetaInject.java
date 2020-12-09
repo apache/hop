@@ -129,7 +129,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> im
         injectPipeline.setParentWorkflow( getPipeline().getParentWorkflow() ); // See PDI-13224
       }
       injectPipeline.copyParametersFromDefinitions( data.pipelineMeta );
-      injectPipeline.copyVariablesFrom( this );
+      injectPipeline.copyFrom( this );
 
       getPipeline().addExecutionStoppedListener(e -> injectPipeline.stopAll());
 
@@ -199,7 +199,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> im
     if ( log.isDetailed() ) {
       logDetailed( "XML of transformation after injection: " + data.pipelineMeta.getXml() );
     }
-    String targetFile = environmentSubstitute( meta.getTargetFile() );
+    String targetFile = resolve( meta.getTargetFile() );
     if ( !Utils.isEmpty( targetFile ) ) {
       writeInjectedHpl( targetFile );
     }

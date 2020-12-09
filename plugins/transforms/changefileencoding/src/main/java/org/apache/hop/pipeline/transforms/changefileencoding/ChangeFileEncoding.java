@@ -104,13 +104,13 @@ public class ChangeFileEncoding extends BaseTransform<ChangeFileEncodingMeta, Ch
       }
 
       // Check source encoding
-      data.sourceEncoding = environmentSubstitute( meta.getSourceEncoding() );
+      data.sourceEncoding = resolve( meta.getSourceEncoding() );
 
       // if(Utils.isEmpty(data.sourceEncoding)) {
       // throw new HopException(BaseMessages.getString(PKG, "ChangeFileEncoding.Exception.SourceEncodingEmpty"));
       // }
       // Check target encoding
-      data.targetEncoding = environmentSubstitute( meta.getTargetEncoding() );
+      data.targetEncoding = resolve( meta.getTargetEncoding() );
 
       if ( Utils.isEmpty( data.targetEncoding ) ) {
         throw new HopException( BaseMessages.getString( PKG, "ChangeFileEncoding.Exception.TargetEncodingEmpty" ) );

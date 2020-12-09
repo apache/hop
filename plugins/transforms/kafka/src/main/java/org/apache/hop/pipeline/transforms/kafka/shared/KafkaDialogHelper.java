@@ -109,7 +109,7 @@ public class KafkaDialogHelper {
       localMeta.setDirectBootstrapServers( directBootstrapServers );
       localMeta.setConfig( config );
       localMeta.setParentTransformMeta( parentMeta );
-      kafkaConsumer = kafkaFactory.consumer( localMeta, variables::environmentSubstitute );
+      kafkaConsumer = kafkaFactory.consumer( localMeta, variables::resolve );
       Map<String, List<PartitionInfo>> topicMap = kafkaConsumer.listTopics();
       return topicMap;
     } catch ( Exception e ) {

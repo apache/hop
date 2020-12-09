@@ -164,19 +164,19 @@ public class CreditCardValidatorMeta extends BaseTransformMeta implements ITrans
 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    String realresultfieldname = variables.environmentSubstitute( resultfieldname );
+    String realresultfieldname = variables.resolve( resultfieldname );
     if ( !Utils.isEmpty( realresultfieldname ) ) {
       IValueMeta v = new ValueMetaBoolean( realresultfieldname );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
-    String realcardtype = variables.environmentSubstitute( cardtype );
+    String realcardtype = variables.resolve( cardtype );
     if ( !Utils.isEmpty( realcardtype ) ) {
       IValueMeta v = new ValueMetaString( realcardtype );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
-    String realnotvalidmsg = variables.environmentSubstitute( notvalidmsg );
+    String realnotvalidmsg = variables.resolve( notvalidmsg );
     if ( !Utils.isEmpty( notvalidmsg ) ) {
       IValueMeta v = new ValueMetaString( realnotvalidmsg );
       v.setOrigin( name );
@@ -216,7 +216,7 @@ public class CreditCardValidatorMeta extends BaseTransformMeta implements ITrans
     CheckResult cr;
     String errorMessage = "";
 
-    String realresultfieldname = variables.environmentSubstitute( resultfieldname );
+    String realresultfieldname = variables.resolve( resultfieldname );
     if ( Utils.isEmpty( realresultfieldname ) ) {
       errorMessage = BaseMessages.getString( PKG, "CreditCardValidatorMeta.CheckResult.ResultFieldMissing" );
       cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );

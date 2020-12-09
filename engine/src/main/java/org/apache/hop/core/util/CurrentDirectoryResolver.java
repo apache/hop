@@ -57,8 +57,8 @@ public class CurrentDirectoryResolver {
    */
   public IVariables resolveCurrentDirectory( IVariables parentVariables, String filename ) {
     Variables tmpSpace = new Variables();
-    tmpSpace.setParentVariableSpace( parentVariables );
-    tmpSpace.initializeVariablesFrom( parentVariables );
+    tmpSpace.setParentVariables( parentVariables );
+    tmpSpace.initializeFrom( parentVariables );
 
     if ( filename != null ) {
       try {

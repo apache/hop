@@ -80,7 +80,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     final StringBuilder builder = new StringBuilder();
     try {
       final FileObject fileObject =
-        HopVfs.getFileObject( environmentSubstitute( this.meta.getFastloadPath().getValue() ) );
+        HopVfs.getFileObject( resolve( this.meta.getFastloadPath().getValue() ) );
       final String fastloadExec = HopVfs.getFilename( fileObject );
       builder.append( fastloadExec );
     } catch ( Exception e ) {
@@ -90,7 +90,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     if ( StringUtils.isNotBlank( this.meta.getLogFile().getValue() ) ) {
       try {
         FileObject fileObject =
-          HopVfs.getFileObject( environmentSubstitute( this.meta.getLogFile().getValue() ) );
+          HopVfs.getFileObject( resolve( this.meta.getLogFile().getValue() ) );
         builder.append( " -e " );
         builder.append( "\"" + HopVfs.getFilename( fileObject ) + "\"" );
       } catch ( Exception e ) {
@@ -315,7 +315,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     try {
       controlFile = new File( resolveFileName( this.meta.getControlFile().getValue() ) );
       control = FileUtils.openInputStream( controlFile );
-      controlContent = environmentSubstitute( FileUtils.readFileToString( controlFile ) );
+      controlContent = resolve( FileUtils.readFileToString( controlFile ) );
     } catch ( IOException e ) {
       throw new HopException( "Cannot open control file [path=" + controlFile + "]", e );
     }
@@ -402,7 +402,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    * @throws IOException ...
    */
   private String resolveFileName( final String fileName ) throws HopException {
-    final FileObject fileObject = HopVfs.getFileObject( environmentSubstitute( fileName ) );
+    final FileObject fileObject = HopVfs.getFileObject( resolve( fileName ) );
     return HopVfs.getFilename( fileObject );
   }
 }

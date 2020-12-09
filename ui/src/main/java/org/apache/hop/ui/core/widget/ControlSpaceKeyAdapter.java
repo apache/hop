@@ -47,7 +47,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 public class ControlSpaceKeyAdapter extends KeyAdapter {
 
@@ -226,7 +225,7 @@ public class ControlSpaceKeyAdapter extends KeyAdapter {
   }
 
   public static final String[] getVariableNames( IVariables variables ) {
-    String[] variableNames = variables.listVariables();
+    String[] variableNames = variables.getVariableNames();
     for ( int i = 0; i < variableNames.length; i++ ) {
       for ( int j = 0; j < Const.DEPRECATED_VARIABLES.length; j++ ) {
         if ( variableNames[ i ].equals( Const.DEPRECATED_VARIABLES[ j ] ) ) {

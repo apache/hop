@@ -493,8 +493,8 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     DecimalFormat df = new DecimalFormat( "00000" );
 
     // Replace possible environment variables...
-    String retval = variables.environmentSubstitute( fileName );
-    String realextension = variables.environmentSubstitute( extension );
+    String retval = variables.resolve( fileName );
+    String realextension = variables.resolve( extension );
 
     Date now = new Date();
 
@@ -754,7 +754,7 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if ( !Utils.isEmpty( fileName ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName ) );
         fileName = resourceNamingInterface.nameResource( fileObject, variables, true );
       }
 

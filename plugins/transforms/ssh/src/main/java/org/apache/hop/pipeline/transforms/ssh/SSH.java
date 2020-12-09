@@ -86,7 +86,7 @@ public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<S
           data.nrInputFields = 0;
           meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
           data.nrOutputFields = data.outputRowMeta.size();
-          data.commands = environmentSubstitute( meta.getCommand() );
+          data.commands = resolve( meta.getCommand() );
         }
       } else {
         setOutputDone(); // signal end to receiver(s)
@@ -189,17 +189,17 @@ public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<S
   public boolean init() {
 
     if ( super.init() ) {
-      String servername = environmentSubstitute( meta.getServerName() );
-      int nrPort = Const.toInt( environmentSubstitute( meta.getPort() ), 22 );
-      String username = environmentSubstitute( meta.getuserName() );
+      String servername = resolve( meta.getServerName() );
+      int nrPort = Const.toInt( resolve( meta.getPort() ), 22 );
+      String username = resolve( meta.getuserName() );
       String password = Utils.resolvePassword( variables, meta.getpassword() );
-      String keyFilename = environmentSubstitute( meta.getKeyFileName() );
-      String passphrase = environmentSubstitute( meta.getPassphrase() );
-      int timeOut = Const.toInt( environmentSubstitute( meta.getTimeOut() ), 0 );
-      String proxyhost = environmentSubstitute( meta.getProxyHost() );
-      int proxyport = Const.toInt( environmentSubstitute( meta.getProxyPort() ), 0 );
-      String proxyusername = environmentSubstitute( meta.getProxyUsername() );
-      String proxypassword = environmentSubstitute( meta.getProxyPassword() );
+      String keyFilename = resolve( meta.getKeyFileName() );
+      String passphrase = resolve( meta.getPassphrase() );
+      int timeOut = Const.toInt( resolve( meta.getTimeOut() ), 0 );
+      String proxyhost = resolve( meta.getProxyHost() );
+      int proxyport = Const.toInt( resolve( meta.getProxyPort() ), 0 );
+      String proxyusername = resolve( meta.getProxyUsername() );
+      String proxypassword = resolve( meta.getProxyPassword() );
 
       // Check target server
       if ( Utils.isEmpty( servername ) ) {
@@ -213,12 +213,12 @@ public class SSH extends BaseTransform<SSHMeta, SSHData> implements ITransform<S
       }
 
       // Get output fields
-      data.stdOutField = environmentSubstitute( meta.getStdOutFieldName() );
+      data.stdOutField = resolve( meta.getStdOutFieldName() );
       if ( Utils.isEmpty( data.stdOutField ) ) {
         logError( BaseMessages.getString( PKG, "SSH.Error.StdOutFieldNameMissing" ) );
         return false;
       }
-      data.stdTypeField = environmentSubstitute( meta.getStdErrFieldName() );
+      data.stdTypeField = resolve( meta.getStdErrFieldName() );
 
       try {
         // Open connection

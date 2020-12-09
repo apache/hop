@@ -32,10 +32,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Sample rows. Filter rows based on line number
@@ -63,8 +61,8 @@ public class SampleRows extends BaseTransform<SampleRowsMeta, SampleRowsData> im
     if ( first ) {
       first = false;
 
-      String realRange = environmentSubstitute( meta.getLinesRange() );
-      data.addlineField = ( !Utils.isEmpty( environmentSubstitute( meta.getLineNumberField() ) ) );
+      String realRange = resolve( meta.getLinesRange() );
+      data.addlineField = ( !Utils.isEmpty( resolve( meta.getLineNumberField() ) ) );
 
       // get the RowMeta
       data.previousRowMeta = getInputRowMeta().clone();

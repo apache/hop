@@ -154,7 +154,7 @@ public class JoinRowsDialog extends BaseTransformDialog implements ITransformDia
     } );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( variables.environmentSubstitute( wSortDir.getText() ) ) );
+    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( variables.resolve( wSortDir.getText() ) ) );
 
     // Table line...
     Label wlPrefix = new Label(shell, SWT.RIGHT);

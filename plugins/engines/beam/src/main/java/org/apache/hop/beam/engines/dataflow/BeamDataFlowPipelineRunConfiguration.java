@@ -201,45 +201,45 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
   @Override public PipelineOptions getPipelineOptions() throws HopException {
     DataflowPipelineOptions options = PipelineOptionsFactory.as( DataflowPipelineOptions.class );
 
-    options.setProject( environmentSubstitute( getGcpProjectId() ) );
-    options.setAppName( environmentSubstitute( getGcpAppName() ) );
-    options.setStagingLocation( environmentSubstitute( getGcpStagingLocation() ) );
+    options.setProject( resolve( getGcpProjectId() ) );
+    options.setAppName( resolve( getGcpAppName() ) );
+    options.setStagingLocation( resolve( getGcpStagingLocation() ) );
     if ( StringUtils.isNotEmpty( getGcpInitialNumberOfWorkers() ) ) {
-      int numWorkers = Const.toInt( environmentSubstitute( getGcpInitialNumberOfWorkers() ), -1 );
+      int numWorkers = Const.toInt( resolve( getGcpInitialNumberOfWorkers() ), -1 );
       if ( numWorkers >= 0 ) {
         options.setNumWorkers( numWorkers );
       }
     }
     if ( StringUtils.isNotEmpty( getGcpMaximumNumberOfWorkers() ) ) {
-      int numWorkers = Const.toInt( environmentSubstitute( getGcpMaximumNumberOfWorkers() ), -1 );
+      int numWorkers = Const.toInt( resolve( getGcpMaximumNumberOfWorkers() ), -1 );
       if ( numWorkers >= 0 ) {
         options.setMaxNumWorkers( numWorkers );
       }
     }
     if ( StringUtils.isNotEmpty( getGcpWorkerMachineType() ) ) {
-      String machineType = environmentSubstitute( getGcpWorkerMachineType() );
+      String machineType = resolve( getGcpWorkerMachineType() );
       options.setWorkerMachineType( machineType );
     }
     if ( StringUtils.isNotEmpty( getGcpWorkerDiskType() ) ) {
-      String diskType = environmentSubstitute( getGcpWorkerDiskType() );
+      String diskType = resolve( getGcpWorkerDiskType() );
       options.setWorkerDiskType( diskType );
     }
     if ( StringUtils.isNotEmpty( getGcpDiskSizeGb() ) ) {
-      int diskSize = Const.toInt( environmentSubstitute( getGcpDiskSizeGb() ), -1 );
+      int diskSize = Const.toInt( resolve( getGcpDiskSizeGb() ), -1 );
       if ( diskSize >= 0 ) {
         options.setDiskSizeGb( diskSize );
       }
     }
     if ( StringUtils.isNotEmpty( getGcpZone() ) ) {
-      String zone = environmentSubstitute( getGcpZone() );
+      String zone = resolve( getGcpZone() );
       options.setZone( zone );
     }
     if ( StringUtils.isNotEmpty( getGcpRegion() ) ) {
-      String region = environmentSubstitute( getGcpRegion() );
+      String region = resolve( getGcpRegion() );
       options.setRegion( region );
     }
     if ( StringUtils.isNotEmpty( getGcpAutoScalingAlgorithm() ) ) {
-      String algorithmCode = environmentSubstitute( getGcpAutoScalingAlgorithm() );
+      String algorithmCode = resolve( getGcpAutoScalingAlgorithm() );
       try {
 
         DataflowPipelineWorkerPoolOptions.AutoscalingAlgorithmType algorithm = DataflowPipelineWorkerPoolOptions.AutoscalingAlgorithmType.valueOf( algorithmCode );
@@ -250,7 +250,7 @@ public class BeamDataFlowPipelineRunConfiguration extends BeamPipelineRunConfigu
     }
 
     if (StringUtils.isNotEmpty( getFatJar() )) {
-      options.setFilesToStage( Arrays.asList( environmentSubstitute(fatJar)) );
+      options.setFilesToStage( Arrays.asList( resolve(fatJar)) );
     }
     
     return options;

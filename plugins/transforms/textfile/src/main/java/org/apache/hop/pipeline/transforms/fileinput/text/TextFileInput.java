@@ -27,9 +27,7 @@ import org.apache.hop.core.playlist.FilePlayListAll;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.file.BaseFileInputTransform;
 import org.apache.hop.pipeline.transforms.file.IBaseFileInputReader;
@@ -73,9 +71,9 @@ public class TextFileInput
     data.fileType = meta.getFileTypeNr();
 
     // Handle the possibility of a variable substitution
-    data.separator = environmentSubstitute( meta.content.separator );
-    data.enclosure = environmentSubstitute( meta.content.enclosure );
-    data.escapeCharacter = environmentSubstitute( meta.content.escapeCharacter );
+    data.separator = resolve( meta.content.separator );
+    data.enclosure = resolve( meta.content.enclosure );
+    data.escapeCharacter = resolve( meta.content.escapeCharacter );
     // CSV without separator defined
     if ( meta.content.fileType.equalsIgnoreCase( "CSV" ) && ( meta.content.separator == null || meta.content.separator
       .isEmpty() ) ) {

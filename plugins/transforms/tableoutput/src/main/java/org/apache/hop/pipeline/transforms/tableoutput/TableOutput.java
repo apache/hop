@@ -164,7 +164,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     if ( meta.isTableNameInField() ) {
       // Cache the position of the table name field
       if ( data.indexOfTableNameField < 0 ) {
-        String realTablename = environmentSubstitute( meta.getTableNameField() );
+        String realTablename = resolve( meta.getTableNameField() );
         data.indexOfTableNameField = rowMeta.indexOfValue( realTablename );
         if ( data.indexOfTableNameField < 0 ) {
           String message = "Unable to find table name field [" + realTablename + "] in input row";
@@ -190,7 +190,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       // Initialize some stuff!
       if ( data.indexOfPartitioningField < 0 ) {
         data.indexOfPartitioningField =
-          rowMeta.indexOfValue( environmentSubstitute( meta.getPartitioningField() ) );
+          rowMeta.indexOfValue( resolve( meta.getPartitioningField() ) );
         if ( data.indexOfPartitioningField < 0 ) {
           throw new HopTransformException( "Unable to find field ["
             + meta.getPartitioningField() + "] in the input row!" );
@@ -211,7 +211,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
       Object partitioningValueData = rowMeta.getDate( r, data.indexOfPartitioningField );
       tableName =
-        environmentSubstitute( meta.getTableName() )
+        resolve( meta.getTableName() )
           + "_" + data.dateFormater.format( (Date) partitioningValueData );
       insertRowData = r;
     } else {
@@ -237,7 +237,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
     if ( insertStatement == null ) {
       String sql =
         data.db
-          .getInsertStatement( environmentSubstitute( meta.getSchemaName() ), tableName, data.insertRowMeta );
+          .getInsertStatement( resolve( meta.getSchemaName() ), tableName, data.insertRowMeta );
       if ( log.isDetailed() ) {
         logDetailed( "Prepared statement : " + sql );
       }
@@ -465,7 +465,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
 
     if ( super.init() ) {
       try {
-        data.commitSize = Integer.parseInt( environmentSubstitute( meta.getCommitSize() ) );
+        data.commitSize = Integer.parseInt( resolve( meta.getCommitSize() ) );
 
         data.databaseMeta = meta.getDatabaseMeta();
         IDatabase dbInterface = data.databaseMeta.getIDatabase();
@@ -515,7 +515,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         }
 
         data.db = new Database( this, meta.getDatabaseMeta() );
-        data.db.shareVariablesWith( this );
+        data.db.shareWith( this );
 
         data.db.connect( getPartitionId() );
 
@@ -531,7 +531,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
         data.db.setCommit( data.commitSize );
 
         if ( !meta.isPartitioningEnabled() && !meta.isTableNameInField() ) {
-          data.tableName = environmentSubstitute( meta.getTableName() );
+          data.tableName = resolve( meta.getTableName() );
         }
 
         return true;
@@ -550,7 +550,7 @@ public class TableOutput extends BaseTransform<TableOutputMeta, TableOutputData>
       //
       if ( meta.truncateTable()
         && ( ( getCopy() == 0 ) || !Utils.isEmpty( getPartitionId() ) ) ) {
-        data.db.truncateTable( environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta
+        data.db.truncateTable( resolve( meta.getSchemaName() ), resolve( meta
           .getTableName() ) );
 
       }

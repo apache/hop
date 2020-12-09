@@ -135,7 +135,7 @@ public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> imple
       for ( int i = 0; i < meta.getInputFields().length; i++ ) {
         LDIFInputField ldifInputField = meta.getInputFields()[ i ];
         // Get the Attribut to look for
-        String AttributValue = environmentSubstitute( ldifInputField.getAttribut() );
+        String AttributValue = resolve( ldifInputField.getAttribut() );
 
         String Value = GetValue( data.attributes_LDIF, AttributValue );
 
@@ -334,7 +334,7 @@ public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> imple
           }
 
         } // End if first
-        String filename = environmentSubstitute( getInputRowMeta().getString( data.readrow, data.indexOfFilenameField ) );
+        String filename = resolve( getInputRowMeta().getString( data.readrow, data.indexOfFilenameField ) );
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "LDIFInput.Log.FilenameInStream", meta
             .getDynamicFilenameField(), filename ) );
@@ -455,7 +455,7 @@ public class LDIFInput extends BaseTransform<LDIFInputMeta, LDIFInputData> imple
           data.convertRowMeta = data.outputRowMeta.cloneToType( IValueMeta.TYPE_STRING );
 
           data.nrInputFields = meta.getInputFields().length;
-          data.multiValueSeparator = environmentSubstitute( meta.getMultiValuedSeparator() );
+          data.multiValueSeparator = resolve( meta.getMultiValuedSeparator() );
         } catch ( Exception e ) {
           logError( "Error initializing transform: " + e.toString() );
            e.printStackTrace();

@@ -23,7 +23,6 @@
 package org.apache.hop.www;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.hop.base.AbstractMeta;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannelFileWriter;
@@ -73,10 +72,10 @@ public abstract class BaseWorkflowServlet extends BodyHttpServlet {
     final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
     // Setting variables
-    workflow.initializeVariablesFrom( null );
+    workflow.initializeFrom( null );
     workflow.getWorkflowMeta().setMetadataProvider( metadataProvider );
     workflow.getWorkflowMeta().setInternalHopVariables( workflow );
-    workflow.injectVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
+    workflow.setVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
 
     copyWorkflowParameters( workflow, workflowExecutionConfiguration.getParametersMap() );
 

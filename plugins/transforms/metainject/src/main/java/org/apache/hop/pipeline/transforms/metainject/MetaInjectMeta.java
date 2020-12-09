@@ -30,7 +30,6 @@ import org.apache.hop.core.injection.InjectionSupported;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
-import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
@@ -320,7 +319,7 @@ public class MetaInjectMeta extends BaseTransformMeta
         resolver.resolveCurrentDirectory(
             variables, injectMeta.getParentTransformMeta(), injectMeta.getFileName());
 
-    String realFilename = tmpSpace.environmentSubstitute(injectMeta.getFileName());
+    String realFilename = tmpSpace.resolve(injectMeta.getFileName());
     try {
       // OK, load the meta-data from file...
       //
@@ -357,7 +356,7 @@ public class MetaInjectMeta extends BaseTransformMeta
   @Override public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
 
     List<ResourceReference> references = new ArrayList<>(5);
-    String realFilename = variables.environmentSubstitute(fileName);
+    String realFilename = variables.resolve(fileName);
     ResourceReference reference = new ResourceReference(transformMeta);
     references.add(reference);
 

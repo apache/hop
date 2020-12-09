@@ -192,7 +192,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           // The compression output stream may also archive entries. For this we create the filename
           // (with appropriate extension) and add it as an entry to the output stream. For providers
           // that do not archive entries, they should use the default no-op implementation.
-          compressionOutputStream.addEntry( filename, environmentSubstitute( meta.getExtension() ) );
+          compressionOutputStream.addEntry( filename, resolve( meta.getExtension() ) );
 
           if ( log.isDetailed() ) {
             if ( !Utils.isEmpty( meta.getEncoding() ) ) {
@@ -220,7 +220,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           OutputStream fileOutputStream = getOutputStream( filename, this, true );
           ICompressionProvider compressionProvider = getCompressionProvider();
           CompressionOutputStream compressionOutputStream = compressionProvider.createOutputStream( fileOutputStream );
-          compressionOutputStream.addEntry( filename, environmentSubstitute( meta.getExtension() ) );
+          compressionOutputStream.addEntry( filename, resolve( meta.getExtension() ) );
           BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( compressionOutputStream, 5000 );
 
           fileStreams.setFileOutputStream( fileOutputStream );
@@ -257,7 +257,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         if ( filename == null ) {
           throw new HopFileException( BaseMessages.getString( PKG, "TextFileOutput.Exception.FileNameNotSet" ) );
         }
-        filename = buildFilename( environmentSubstitute( filename ), true );
+        filename = buildFilename( resolve( filename ), true );
       }
     } else {
       data.fileNameFieldIndex = getInputRowMeta().indexOfValue( meta.getFileNameField() );
@@ -271,7 +271,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         throw new HopFileException( BaseMessages.getString( PKG, "TextFileOutput.Exception.FileNameNotSet" ) );
       }
 
-      filename = buildFilename( environmentSubstitute( data.fileName ), true );
+      filename = buildFilename( resolve( data.fileName ), true );
     }
     return filename;
   }
@@ -318,7 +318,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
       return true;
     } else {
-      if ( ( data.writer == null ) && !Utils.isEmpty( environmentSubstitute( meta.getEndedLine() ) ) ) {
+      if ( ( data.writer == null ) && !Utils.isEmpty( resolve( meta.getEndedLine() ) ) ) {
         initServletStreamWriter();
         initBinaryDataFields();
       }
@@ -412,7 +412,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         if ( data.outputRowMeta != null && meta.isFooterEnabled() ) {
           writeHeader();
         }
-      } else if ( !Utils.isEmpty( environmentSubstitute( meta.getEndedLine() ) ) && !meta.isFileNameInField() ) {
+      } else if ( !Utils.isEmpty( resolve( meta.getEndedLine() ) ) && !meta.isFileNameInField() ) {
         String filename = getOutputFileName( null );
         initFileStreamWriter( filename );
         initBinaryDataFields();
@@ -694,7 +694,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   protected boolean writeEndedLine() {
     boolean retval = false;
     try {
-      String sLine = environmentSubstitute( meta.getEndedLine() );
+      String sLine = resolve( meta.getEndedLine() );
       if ( sLine != null ) {
         if ( sLine.trim().length() > 0 ) {
           data.writer.write( getBinaryString( sLine ) );
@@ -827,8 +827,8 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           initOutput();
         } catch ( Exception e ) {
           logError( "Couldn't open file "
-            + HopVfs.getFriendlyURI( getParentVariableSpace().environmentSubstitute( meta.getFileName() ) )
-            + "." + getParentVariableSpace().environmentSubstitute( meta.getExtension() ), e );
+            + HopVfs.getFriendlyURI( getParentVariables().resolve( meta.getFileName() ) )
+            + "." + getParentVariables().resolve( meta.getExtension() ), e );
           setErrors( 1L );
           stopAll();
         }
@@ -866,23 +866,23 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
       if ( data.hasEncoding ) {
         if ( !Utils.isEmpty( meta.getSeparator() ) ) {
-          data.binarySeparator = environmentSubstitute( meta.getSeparator() ).getBytes( meta.getEncoding() );
+          data.binarySeparator = resolve( meta.getSeparator() ).getBytes( meta.getEncoding() );
         }
         if ( !Utils.isEmpty( meta.getEnclosure() ) ) {
-          data.binaryEnclosure = environmentSubstitute( meta.getEnclosure() ).getBytes( meta.getEncoding() );
+          data.binaryEnclosure = resolve( meta.getEnclosure() ).getBytes( meta.getEncoding() );
         }
         if ( !Utils.isEmpty( meta.getNewline() ) ) {
           data.binaryNewline = meta.getNewline().getBytes( meta.getEncoding() );
         }
       } else {
         if ( !Utils.isEmpty( meta.getSeparator() ) ) {
-          data.binarySeparator = environmentSubstitute( meta.getSeparator() ).getBytes();
+          data.binarySeparator = resolve( meta.getSeparator() ).getBytes();
         }
         if ( !Utils.isEmpty( meta.getEnclosure() ) ) {
-          data.binaryEnclosure = environmentSubstitute( meta.getEnclosure() ).getBytes();
+          data.binaryEnclosure = resolve( meta.getEnclosure() ).getBytes();
         }
         if ( !Utils.isEmpty( meta.getNewline() ) ) {
-          data.binaryNewline = environmentSubstitute( meta.getNewline() ).getBytes();
+          data.binaryNewline = resolve( meta.getNewline() ).getBytes();
         }
       }
 

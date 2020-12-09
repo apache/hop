@@ -81,7 +81,7 @@ public class RowGeneratorUnitTest {
 
     //prepare row generator, substitutes variable by value from pipeline variable variables
     rowGenerator = spy( new RowGenerator( transformMeta, data, 0, pipelineMeta, pipeline ) );
-    rowGenerator.initializeVariablesFrom( pipeline );
+    rowGenerator.initializeFrom( pipeline );
     rowGenerator.init();
   }
 

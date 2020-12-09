@@ -134,7 +134,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
   public int getCommitSize( IVariables vs ) {
     // this happens when the transform is created via API and no setDefaults was called
     commitSize = ( commitSize == null ) ? "0" : commitSize;
-    return Integer.parseInt( vs.environmentSubstitute( commitSize ) );
+    return Integer.parseInt( vs.resolve( commitSize ) );
   }
 
   /**
@@ -347,7 +347,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       try {
         db.connect();
 
@@ -490,7 +490,7 @@ public class DeleteMeta extends BaseTransformMeta implements ITransformMeta<Dele
       if ( prev != null && prev.size() > 0 ) {
         if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( variables );
+          db.shareWith( variables );
           try {
             db.connect();
 

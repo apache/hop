@@ -89,7 +89,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
           }
         } else {
           // Check is keyname is provided
-          data.keyName = environmentSubstitute( meta.getKeyName() );
+          data.keyName = resolve( meta.getKeyName() );
 
           if ( Utils.isEmpty( data.keyName ) ) {
             throw new HopException( BaseMessages.getString( PKG, "PGPEncryptStream.Error.KeyNameMissing" ) );
@@ -173,7 +173,7 @@ public class PGPEncryptStream extends BaseTransform<PGPEncryptStreamMeta, PGPEnc
 
       try {
         // initiate a new GPG encryptor
-        data.gpg = new GPG( environmentSubstitute( meta.getGPGLocation() ), log );
+        data.gpg = new GPG( resolve( meta.getGPGLocation() ), log );
       } catch ( Exception e ) {
         logError( BaseMessages.getString( PKG, "PGPEncryptStream.Init.Error" ), e );
         return false;

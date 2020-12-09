@@ -69,7 +69,7 @@ public class MemoryMetadataSerializer<T extends IHopMetadata> implements IHopMet
     T t = objectMap.get( name );
 
     if ( t instanceof IVariables ) {
-      ( (IVariables) t ).initializeVariablesFrom( variables );
+      ( (IVariables) t ).initializeFrom( variables );
     }
 
     return t;

@@ -313,7 +313,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wFilename1.setLayoutData(fdFilename1);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename1.addModifyListener( e -> wFilename1.setToolTipText( variables.environmentSubstitute( wFilename1.getText() ) ) );
+    wFilename1.addModifyListener( e -> wFilename1.setToolTipText( variables.resolve( wFilename1.getText() ) ) );
 
     wbFilename1.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename1, variables,
       new String[] { "*" }, FILETYPES, true )
@@ -359,7 +359,7 @@ public class ActionFoldersCompareDialog extends ActionDialog implements IActionD
     wFilename2.setLayoutData(fdFilename2);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename2.addModifyListener( e -> wFilename2.setToolTipText( variables.environmentSubstitute( wFilename2.getText() ) ) );
+    wFilename2.addModifyListener( e -> wFilename2.setToolTipText( variables.resolve( wFilename2.getText() ) ) );
 
     wbFilename2.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename2, variables,
       new String[] { "*" }, FILETYPES, true )

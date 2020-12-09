@@ -337,11 +337,11 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   }
 
   private void selectWorkflowFile() {
-    String curFile = variables.environmentSubstitute( wPath.getText() );
+    String curFile = variables.resolve( wPath.getText() );
 
     String parentFolder = null;
     try {
-      parentFolder = HopVfs.getFileObject( variables.environmentSubstitute( pipelineMeta.getFilename() ) ).getParent().toString();
+      parentFolder = HopVfs.getFileObject( variables.resolve( pipelineMeta.getFilename() ) ).getParent().toString();
     } catch ( Exception e ) {
       // Take no action
     }
@@ -364,7 +364,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   }
 
   private void loadWorkflowFile( String fname ) throws HopException {
-    executorWorkflowMeta = new WorkflowMeta( variables.environmentSubstitute( fname ) );
+    executorWorkflowMeta = new WorkflowMeta( variables.resolve( fname ) );
     executorWorkflowMeta.clearChanged();
   }
 
@@ -945,7 +945,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
       || wGroupTime == null ) {
       return;
     }
-    boolean enableSize = Const.toInt( variables.environmentSubstitute( wGroupSize.getText() ), -1 ) >= 0;
+    boolean enableSize = Const.toInt( variables.resolve( wGroupSize.getText() ), -1 ) >= 0;
     boolean enableField = !Utils.isEmpty( wGroupField.getText() );
     // boolean enableTime = Const.toInt(variables.environmentSubstitute(wGroupTime.getText()), -1)>0;
 

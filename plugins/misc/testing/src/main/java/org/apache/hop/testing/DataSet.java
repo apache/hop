@@ -213,7 +213,7 @@ public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata 
       // Local folder
       folder = ".";
     } else {
-      folder = variables.environmentSubstitute( folder );
+      folder = variables.resolve( folder );
     }
 
     if ( !folder.endsWith( File.separator ) ) {

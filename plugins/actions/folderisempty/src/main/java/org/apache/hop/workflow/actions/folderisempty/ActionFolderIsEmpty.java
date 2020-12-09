@@ -136,7 +136,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealFoldername() {
-    return environmentSubstitute( getFoldername() );
+    return resolve( getFoldername() );
   }
 
   public String getWildcard() {
@@ -144,7 +144,7 @@ public class ActionFolderIsEmpty extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealWildcard() {
-    return environmentSubstitute( getWildcard() );
+    return resolve( getWildcard() );
   }
 
   public void setWildcard( String wildcard ) {

@@ -146,11 +146,11 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
   public boolean init() {
 
     if ( super.init() ) {
-      data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
-      data.realSequenceName = environmentSubstitute( meta.getSequenceName() );
+      data.realSchemaName = resolve( meta.getSchemaName() );
+      data.realSequenceName = resolve( meta.getSequenceName() );
       if ( meta.isDatabaseUsed() ) {
         Database db = new Database( this, meta.getDatabaseMeta() );
-        db.shareVariablesWith( this );
+        db.shareWith( this );
         data.setDb( db );
         try {
           data.getDb().connect( getPartitionId() );
@@ -165,26 +165,26 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
         // Do the environment translations of the counter values.
         boolean doAbort = false;
         try {
-          data.start = Long.parseLong( environmentSubstitute( meta.getStartAt() ) );
+          data.start = Long.parseLong( resolve( meta.getStartAt() ) );
         } catch ( NumberFormatException ex ) {
           logError( BaseMessages.getString( PKG, "AddSequence.Log.CouldNotParseCounterValue", "start", meta
-            .getStartAt(), environmentSubstitute( meta.getStartAt() ), ex.getMessage() ) );
+            .getStartAt(), resolve( meta.getStartAt() ), ex.getMessage() ) );
           doAbort = true;
         }
 
         try {
-          data.increment = Long.parseLong( environmentSubstitute( meta.getIncrementBy() ) );
+          data.increment = Long.parseLong( resolve( meta.getIncrementBy() ) );
         } catch ( NumberFormatException ex ) {
           logError( BaseMessages.getString( PKG, "AddSequence.Log.CouldNotParseCounterValue", "increment", meta
-            .getIncrementBy(), environmentSubstitute( meta.getIncrementBy() ), ex.getMessage() ) );
+            .getIncrementBy(), resolve( meta.getIncrementBy() ), ex.getMessage() ) );
           doAbort = true;
         }
 
         try {
-          data.maximum = Long.parseLong( environmentSubstitute( meta.getMaxValue() ) );
+          data.maximum = Long.parseLong( resolve( meta.getMaxValue() ) );
         } catch ( NumberFormatException ex ) {
           logError( BaseMessages.getString( PKG, "AddSequence.Log.CouldNotParseCounterValue", "increment", meta
-            .getMaxValue(), environmentSubstitute( meta.getMaxValue() ), ex.getMessage() ) );
+            .getMaxValue(), resolve( meta.getMaxValue() ), ex.getMessage() ) );
           doAbort = true;
         }
 
@@ -192,7 +192,7 @@ public class AddSequence extends BaseTransform<AddSequenceMeta, AddSequenceData>
           return false;
         }
 
-        String realCounterName = environmentSubstitute( meta.getCounterName() );
+        String realCounterName = resolve( meta.getCounterName() );
         if ( !Utils.isEmpty( realCounterName ) ) {
           data.setLookup( "@@sequence:" + meta.getCounterName() );
         } else {

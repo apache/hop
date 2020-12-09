@@ -40,7 +40,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
 import java.util.List;
@@ -159,7 +158,7 @@ public class TableExistsMeta extends BaseTransformMeta implements ITransformMeta
     // Output field (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
       IValueMeta v =
-        new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
+        new ValueMetaBoolean( variables.resolve( resultfieldname ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }

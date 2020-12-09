@@ -2258,7 +2258,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
     String cop = nd.open();
     if (!Utils.isEmpty(cop)) {
 
-      int copies = Const.toInt(hopGui.getVariables().environmentSubstitute(cop), -1);
+      int copies = Const.toInt(hopGui.getVariables().resolve(cop), -1);
       if (copies > 1 && !multipleOK) {
         cop = "1";
 
@@ -3677,7 +3677,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
               return false;
             }
 
-            filename = hopGui.getVariables().environmentSubstitute(filename);
+            filename = hopGui.getVariables().resolve(filename);
             saveAs(filename);
           } else {
             save();
@@ -4068,7 +4068,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       }
 
       final int sampleSize =
-          Const.toInt(pipeline.environmentSubstitute(lprConfig.getSampleSize()), 100);
+          Const.toInt(pipeline.resolve(lprConfig.getSampleSize()), 100);
       if (sampleSize <= 0) {
         return;
       }
@@ -4651,7 +4651,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
 
   public String buildTabName() throws HopException {
     String tabName = null;
-    String realFilename = variables.environmentSubstitute(pipelineMeta.getFilename());
+    String realFilename = variables.resolve(pipelineMeta.getFilename());
     if (StringUtils.isEmpty(realFilename)) {
       tabName = pipelineMeta.getName();
     } else {
@@ -4712,7 +4712,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
                     fileType.getFilterNames(),
                     true);
             if (filename != null) {
-              filename = hopGui.getVariables().environmentSubstitute(filename);
+              filename = hopGui.getVariables().resolve(filename);
               saveAs(filename);
             }
           }

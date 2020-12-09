@@ -219,8 +219,8 @@ public class ActionCheckFilesLocked extends ActionBase implements Cloneable, IAc
   private void ProcessFile( String filename, String wildcard ) {
 
     FileObject filefolder = null;
-    String realFilefoldername = environmentSubstitute( filename );
-    String realwilcard = environmentSubstitute( wildcard );
+    String realFilefoldername = resolve( filename );
+    String realwilcard = resolve( wildcard );
 
     try {
       filefolder = HopVfs.getFileObject( realFilefoldername );

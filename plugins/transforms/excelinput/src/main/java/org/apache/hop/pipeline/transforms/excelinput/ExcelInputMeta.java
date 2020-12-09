@@ -943,35 +943,35 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
 
     if ( getShortFileNameField() != null && getShortFileNameField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getShortFileNameField() ) );
+        new ValueMetaString( variables.resolve( getShortFileNameField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getExtensionField() != null && getExtensionField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getExtensionField() ) );
+        new ValueMetaString( variables.resolve( getExtensionField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getPathField() != null && getPathField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getPathField() ) );
+        new ValueMetaString( variables.resolve( getPathField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getSizeField() != null && getSizeField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaInteger( variables.environmentSubstitute( getSizeField() ) );
+        new ValueMetaInteger( variables.resolve( getSizeField() ) );
       v.setOrigin( name );
       v.setLength( 9 );
       row.addValueMeta( v );
     }
     if ( isHiddenField() != null && isHiddenField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaBoolean( variables.environmentSubstitute( isHiddenField() ) );
+        new ValueMetaBoolean( variables.resolve( isHiddenField() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -979,13 +979,13 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
     if ( getLastModificationDateField() != null && getLastModificationDateField().length() > 0 ) {
       IValueMeta v =
         new ValueMetaDate(
-          variables.environmentSubstitute( getLastModificationDateField() ) );
+          variables.resolve( getLastModificationDateField() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getUriField() != null && getUriField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getUriField() ) );
+        new ValueMetaString( variables.resolve( getUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -993,7 +993,7 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
 
     if ( getRootUriField() != null && getRootUriField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getRootUriField() ) );
+        new ValueMetaString( variables.resolve( getRootUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -1452,7 +1452,7 @@ public class ExcelInputMeta extends BaseTransformMeta implements ITransformMeta<
         // Replace the filename ONLY (folder or filename)
         //
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName[ i ] ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName[ i ] ) );
           fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }

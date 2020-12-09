@@ -191,7 +191,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
       List<String> variableValues = new ArrayList<>();
       List<Integer> variableTypes = new ArrayList<>();
 
-      String realFilename = environmentSubstitute( filename );
+      String realFilename = resolve( filename );
       if ( !Utils.isEmpty( realFilename ) ) {
         try ( InputStream is = HopVfs.getInputStream( realFilename );
               // for UTF8 properties files
@@ -241,8 +241,8 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
         int type = variableTypes.get( i );
 
         if ( replaceVars ) {
-          varname = environmentSubstitute( varname );
-          value = environmentSubstitute( value );
+          varname = resolve( varname );
+          value = resolve( value );
         }
 
         // OK, where do we set this value...
@@ -428,7 +428,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     if ( variableName != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < variableName.length; i++ ) {
-        String filename = environmentSubstitute( variableName[ i ] );
+        String filename = resolve( variableName[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

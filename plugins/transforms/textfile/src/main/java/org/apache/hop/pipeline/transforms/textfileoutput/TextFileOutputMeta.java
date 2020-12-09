@@ -499,7 +499,7 @@ public class TextFileOutputMeta
    * @return At how many rows to split into another file.
    */
   public int getSplitEvery( IVariables varSpace ) {
-    return Const.toInt( varSpace == null ? splitEveryRows : varSpace.environmentSubstitute( splitEveryRows ), 0 );
+    return Const.toInt( varSpace == null ? splitEveryRows : varSpace.resolve( splitEveryRows ), 0 );
   }
 
   /**
@@ -817,8 +817,8 @@ public class TextFileOutputMeta
   public String buildFilename( String filename, String extension, IVariables variables, int transformnr, String partnr,
                                int splitnr, boolean ziparchive, TextFileOutputMeta meta ) {
 
-    final String realFileName = variables.environmentSubstitute( filename );
-    final String realExtension = variables.environmentSubstitute( extension );
+    final String realFileName = variables.resolve( filename );
+    final String realExtension = variables.resolve( extension );
     return buildFilename( variables, realFileName, realExtension, Integer.toString( transformnr ), partnr, Integer
       .toString( splitnr ), new Date(), ziparchive, true, meta );
   }
@@ -1006,7 +1006,7 @@ public class TextFileOutputMeta
       if ( !fileNameInField ) {
 
         if ( !Utils.isEmpty( fileName ) ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName ) );
           fileName = iResourceNaming.nameResource( fileObject, variables, true );
         }
       }
@@ -1108,8 +1108,8 @@ public class TextFileOutputMeta
 
   private String[] getFiles( final IVariables variables, final boolean showSamples ) {
 
-    String realFileName = variables.environmentSubstitute( fileName );
-    String realExtension = variables.environmentSubstitute( extension );
+    String realFileName = variables.resolve( fileName );
+    String realExtension = variables.resolve( extension );
 
     return getFiles( realFileName, realExtension, showSamples );
   }
@@ -1177,8 +1177,8 @@ public class TextFileOutputMeta
     final IVariables variables, final String transformnr, final String partnr, final String splitnr,
     final boolean ziparchive, final boolean showSamples ) {
 
-    String realFileName = variables.environmentSubstitute( fileName );
-    String realExtension = variables.environmentSubstitute( extension );
+    String realFileName = variables.resolve( fileName );
+    String realExtension = variables.resolve( extension );
 
     return buildFilename( realFileName, realExtension, transformnr, partnr, splitnr, new Date(), ziparchive, showSamples );
   }

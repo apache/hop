@@ -316,7 +316,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.db.setLookup(
-        environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta.getTableName() ),
+        resolve( meta.getSchemaName() ), resolve( meta.getTableName() ),
         meta.getTableKeyField(), meta.getKeyCondition(), meta.getReturnValueField(),
         meta.getReturnValueNewName(), meta.getOrderByClause(), meta.isFailingOnMultipleResults()
       );
@@ -609,7 +609,7 @@ public class DatabaseLookup extends BaseTransform<DatabaseLookupMeta, DatabaseLo
   }
 
   private void connectDatabase( Database database ) throws HopDatabaseException {
-    database.shareVariablesWith( this );
+    database.shareWith( this );
     database.connect( getPartitionId() );
 
     database.setCommit( 100 ); // we never get a commit, but it just turns off auto-commit.

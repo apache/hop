@@ -1890,7 +1890,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       String fullname;
       String extension = "hwf";
       if ( StringUtils.isNotEmpty( getFilename() ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( getFilename() ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( getFilename() ) );
         originalPath = fileObject.getParent().getName().getPath();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getName().getPath();

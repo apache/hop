@@ -237,8 +237,8 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
       logChannel.logBasic( "Executing this workflow using the Remote Workflow Engine with run configuration '" + workflowRunConfiguration.getName() + "'" );
 
-      serverPollDelay = Const.toLong( environmentSubstitute( remoteWorkflowRunConfiguration.getServerPollDelay() ), 1000L );
-      serverPollInterval = Const.toLong( environmentSubstitute( remoteWorkflowRunConfiguration.getServerPollInterval() ), 2000L );
+      serverPollDelay = Const.toLong( resolve( remoteWorkflowRunConfiguration.getServerPollDelay() ), 1000L );
+      serverPollInterval = Const.toLong( resolve( remoteWorkflowRunConfiguration.getServerPollInterval() ), 2000L );
 
       hopServer = metadataProvider.getSerializer( HopServer.class ).load( hopServerName );
       if ( hopServer == null ) {
@@ -357,7 +357,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       }
       // Overwrite with all the other variables we know off
       //
-      for ( String var : listVariables() ) {
+      for ( String var : getVariableNames() ) {
         executionConfiguration.getVariablesMap().put( var, getVariable( var ) );
       }
 

@@ -89,7 +89,7 @@ public class WriteToLog extends BaseTransform<WriteToLogMeta, WriteToLogData> im
       }
       data.fieldnr = data.fieldnrs.length;
       data.loglevel = meta.getLogLevelByDesc();
-      data.logmessage = Const.NVL( this.environmentSubstitute( meta.getLogMessage() ), "" );
+      data.logmessage = Const.NVL( this.resolve( meta.getLogMessage() ), "" );
       if ( !Utils.isEmpty( data.logmessage ) ) {
         data.logmessage += Const.CR + Const.CR;
       }

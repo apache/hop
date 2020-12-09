@@ -259,8 +259,8 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
         StringUtils.isNotEmpty( meta.getTableId() ) ) {
 
         Table table = bigQuery.getTable(
-          variables.environmentSubstitute( meta.getDatasetId() ),
-          variables.environmentSubstitute( meta.getTableId() )
+          variables.resolve( meta.getDatasetId() ),
+          variables.resolve( meta.getTableId() )
         );
 
         TableDefinition definition = table.getDefinition();

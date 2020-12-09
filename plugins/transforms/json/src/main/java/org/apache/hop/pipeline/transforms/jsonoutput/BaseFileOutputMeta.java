@@ -26,9 +26,7 @@ package org.apache.hop.pipeline.transforms.jsonoutput;
 import org.apache.hop.core.injection.Injection;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -177,8 +175,8 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
 
   private String[] getFiles( final IVariables variables, final boolean showSamples ) {
 
-    String realFileName = variables.environmentSubstitute( fileName );
-    String realExtension = variables.environmentSubstitute( extension );
+    String realFileName = variables.resolve( fileName );
+    String realExtension = variables.resolve( extension );
 
     return getFiles( realFileName, realExtension, showSamples );
   }
@@ -245,8 +243,8 @@ public abstract class BaseFileOutputMeta extends BaseTransformMeta {
     final IVariables variables, final String stepnr, final String partnr, final String splitnr,
     final boolean ziparchive, final boolean showSamples ) {
 
-    String realFileName = variables.environmentSubstitute( fileName );
-    String realExtension = variables.environmentSubstitute( extension );
+    String realFileName = variables.resolve( fileName );
+    String realExtension = variables.resolve( extension );
 
     return buildFilename( realFileName, realExtension, stepnr, partnr, splitnr, new Date(), ziparchive, showSamples );
   }

@@ -44,7 +44,6 @@ import org.apache.hop.pipeline.transform.*;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.util.List;
 
@@ -283,7 +282,7 @@ public class JoinRowsMeta extends BaseTransformMeta implements ITransformMeta<Jo
       remarks.add( cr );
 
       // Check the sort directory
-      String realDirectory = variables.environmentSubstitute( directory );
+      String realDirectory = variables.resolve( directory );
       File f = new File( realDirectory );
       if ( f.exists() ) {
         if ( f.isDirectory() ) {

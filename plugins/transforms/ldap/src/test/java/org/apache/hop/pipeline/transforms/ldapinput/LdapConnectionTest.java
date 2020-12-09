@@ -61,7 +61,7 @@ public class LdapConnectionTest {
     meta.setHost("localhost");
     meta.setPort("1389");
 
-    when(variables.environmentSubstitute(Matchers.<String>any()))
+    when(variables.resolve(Matchers.<String>any()))
         .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     LdapConnection connection;
@@ -80,7 +80,7 @@ public class LdapConnectionTest {
     meta.setHost("localhost");
     meta.setPort("1389");
 
-    when(variables.environmentSubstitute(Matchers.<String>any()))
+    when(variables.resolve(Matchers.<String>any()))
         .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     expectedEx.expect(HopException.class);
@@ -103,7 +103,7 @@ public class LdapConnectionTest {
     meta.setUseCertificate(true);
     meta.setTrustAllCertificates(true);
 
-    when(variables.environmentSubstitute(Matchers.<String>any()))
+    when(variables.resolve(Matchers.<String>any()))
         .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     LdapConnection connection;
@@ -128,7 +128,7 @@ public class LdapConnectionTest {
     meta.setUseCertificate(true);
     meta.setTrustAllCertificates(false);
 
-    when(variables.environmentSubstitute(Matchers.<String>any()))
+    when(variables.resolve(Matchers.<String>any()))
         .thenAnswer(AdditionalAnswers.returnsFirstArg());
 
     LdapConnection connection;

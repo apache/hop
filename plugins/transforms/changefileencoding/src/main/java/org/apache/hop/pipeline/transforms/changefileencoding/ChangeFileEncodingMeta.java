@@ -227,7 +227,7 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta implements ITransf
       cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
-    String realSourceEncoding = variables.environmentSubstitute( getSourceEncoding() );
+    String realSourceEncoding = variables.resolve( getSourceEncoding() );
     if ( Utils.isEmpty( realSourceEncoding ) ) {
       errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.SourceEncodingMissing" );
       cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
@@ -237,7 +237,7 @@ public class ChangeFileEncodingMeta extends BaseTransformMeta implements ITransf
       cr = new CheckResult( CheckResult.TYPE_RESULT_OK, errorMessage, transformMeta );
       remarks.add( cr );
     }
-    String realTargetEncoding = variables.environmentSubstitute( getTargetEncoding() );
+    String realTargetEncoding = variables.resolve( getTargetEncoding() );
     if ( Utils.isEmpty( realTargetEncoding ) ) {
       errorMessage = BaseMessages.getString( PKG, "ChangeFileEncodingMeta.CheckResult.TargetEncodingMissing" );
       cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );

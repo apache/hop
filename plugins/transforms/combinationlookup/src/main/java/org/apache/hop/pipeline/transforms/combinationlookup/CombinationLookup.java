@@ -668,8 +668,8 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
   @Override
   public boolean init() {
     if ( super.init() ) {
-      data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
-      data.realTableName = environmentSubstitute( meta.getTableName() );
+      data.realSchemaName = resolve( meta.getSchemaName() );
+      data.realTableName = resolve( meta.getTableName() );
 
       if ( meta.getCacheSize() > 0 ) {
         data.cache = new HashMap<>( (int) ( meta.getCacheSize() * 1.5 ) );
@@ -681,7 +681,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
       try {
         data.db.connect( getPartitionId() );
 

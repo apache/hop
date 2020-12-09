@@ -309,14 +309,14 @@ public class CheckSumMeta extends BaseTransformMeta implements ITransformMeta<Ch
     if ( !Utils.isEmpty( resultfieldName ) ) {
       IValueMeta v = null;
       if ( checksumtype.equals( TYPE_CRC32 ) || checksumtype.equals( TYPE_ADLER32 ) ) {
-        v = new ValueMetaInteger( variables.environmentSubstitute( resultfieldName ) );
+        v = new ValueMetaInteger( variables.resolve( resultfieldName ) );
       } else {
         switch ( resultType ) {
           case RESULT_TYPE_BINARY:
-            v = new ValueMetaBinary( variables.environmentSubstitute( resultfieldName ) );
+            v = new ValueMetaBinary( variables.resolve( resultfieldName ) );
             break;
           default:
-            v = new ValueMetaString( variables.environmentSubstitute( resultfieldName ) );
+            v = new ValueMetaString( variables.resolve( resultfieldName ) );
             break;
         }
       }

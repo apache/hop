@@ -78,8 +78,8 @@ public class FieldSplitter extends BaseTransform<FieldSplitterMeta, FieldSplitte
       //
       data.conversionMeta = data.outputMeta.cloneToType( IValueMeta.TYPE_STRING );
 
-      data.delimiter = environmentSubstitute( meta.getDelimiter() );
-      data.enclosure = environmentSubstitute( meta.getEnclosure() );
+      data.delimiter = resolve( meta.getDelimiter() );
+      data.enclosure = resolve( meta.getEnclosure() );
     }
 
     // reserve room

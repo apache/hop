@@ -66,17 +66,17 @@ public class BeamKafkaInputTransformHandler extends BeamBaseTransformHandler imp
     String[] types = new String[beamConsumeMeta.getConfigOptions().size()];
     for (int i=0;i<parameters.length;i++) {
       ConfigOption option = beamConsumeMeta.getConfigOptions().get( i );
-      parameters[i] = variables.environmentSubstitute( option.getParameter() );
-      values[i] = variables.environmentSubstitute( option.getValue() );
+      parameters[i] = variables.resolve( option.getParameter() );
+      values[i] = variables.resolve( option.getValue() );
       types[i] = option.getType()==null ? ConfigOption.Type.String.name() : option.getType().name();
     }
 
     BeamKafkaInputTransform beamInputTransform = new BeamKafkaInputTransform(
       transformMeta.getName(),
       transformMeta.getName(),
-      variables.environmentSubstitute( beamConsumeMeta.getBootstrapServers() ),
-      variables.environmentSubstitute( beamConsumeMeta.getTopics() ),
-      variables.environmentSubstitute( beamConsumeMeta.getGroupId() ),
+      variables.resolve( beamConsumeMeta.getBootstrapServers() ),
+      variables.resolve( beamConsumeMeta.getTopics() ),
+      variables.resolve( beamConsumeMeta.getGroupId() ),
       beamConsumeMeta.isUsingProcessingTime(),
       beamConsumeMeta.isUsingLogAppendTime(),
       beamConsumeMeta.isUsingCreateTime(),

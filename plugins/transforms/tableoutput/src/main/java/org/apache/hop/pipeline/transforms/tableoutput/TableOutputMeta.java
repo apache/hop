@@ -481,7 +481,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
     // Just add the returning key field...
     if ( returningGeneratedKeys && generatedKeyField != null && generatedKeyField.length() > 0 ) {
       IValueMeta key =
-        new ValueMetaInteger( variables.environmentSubstitute( generatedKeyField ) );
+        new ValueMetaInteger( variables.resolve( generatedKeyField ) );
       key.setOrigin( origin );
       row.addValueMeta( key );
     }
@@ -497,7 +497,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
       remarks.add( cr );
 
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       try {
         db.connect();
 
@@ -507,8 +507,8 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
         remarks.add( cr );
 
         if ( !Utils.isEmpty( tableName ) ) {
-          String realSchemaName = db.environmentSubstitute( schemaName );
-          String realTableName = db.environmentSubstitute( tableName );
+          String realSchemaName = db.resolve( schemaName );
+          String realTableName = db.resolve( tableName );
           String schemaTable =
             databaseMeta.getQuotedSchemaTableCombination( variables, realSchemaName, realTableName );
           // Check if this table exists...
@@ -728,7 +728,7 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
       if ( prev != null && prev.size() > 0 ) {
         if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( variables );
+          db.shareWith( variables );
           try {
             db.connect();
 
@@ -761,8 +761,8 @@ public class TableOutputMeta extends BaseTransformMeta implements ITransformMeta
   }
 
   public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
-    String realTableName = variables.environmentSubstitute( tableName );
-    String realSchemaName = variables.environmentSubstitute( schemaName );
+    String realTableName = variables.resolve( tableName );
+    String realSchemaName = variables.resolve( schemaName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );

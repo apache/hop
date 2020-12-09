@@ -95,10 +95,10 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     IVariables tmpSpace = r.resolveCurrentDirectory( getVarSpaceOnlyWithRequiredParentVars( variables ),
       executorMeta.getParentTransformMeta(), executorMeta.getFilename() );
 
-    String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFilename() );
+    String realFilename = tmpSpace.resolve( executorMeta.getFilename() );
     if ( variables != null ) {
       // This is a parent pipeline and parent variable should work here. A child file name can be resolved via parent variables.
-      realFilename = variables.environmentSubstitute( realFilename );
+      realFilename = variables.resolve( realFilename );
     }
     try {
       // OK, load the meta-data from file...
@@ -134,15 +134,15 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     if ( mappingVariables != null ) {
       for ( int i = 0; i < mappingVariables.length; i++ ) {
         String mappingVariable = mappingVariables[ i ];
-        parameters.put( mappingVariable, parent.environmentSubstitute( inputFields[ i ] ) );
+        parameters.put( mappingVariable, parent.resolve( inputFields[ i ] ) );
         //If inputField value is not empty then create it in variables of transform(Parent)
-        if ( !Utils.isEmpty( Const.trim( parent.environmentSubstitute( inputFields[ i ] ) ) ) ) {
-          parent.setVariable( mappingVariable, parent.environmentSubstitute( inputFields[ i ] ) );
+        if ( !Utils.isEmpty( Const.trim( parent.resolve( inputFields[ i ] ) ) ) ) {
+          parent.setVariable( mappingVariable, parent.resolve( inputFields[ i ] ) );
         }
       }
     }
 
-    for ( String variableName : parent.listVariables() ) {
+    for ( String variableName : parent.getVariableNames() ) {
       // When the child parameter does exist in the parent parameters, overwrite the child parameter by the
       // parent parameter.
       if ( parameters.containsKey( variableName ) ) {
@@ -248,7 +248,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     if ( toSpace == null ) {
       return;
     }
-    String[] variableNames = toSpace.listVariables();
+    String[] variableNames = toSpace.getVariableNames();
     for ( String variable : variableNames ) {
       if ( fromSpace.getVariable( variable ) == null ) {
         fromSpace.setVariable( variable, toSpace.getVariable( variable ) );
@@ -260,7 +260,7 @@ public abstract class TransformWithMappingMeta<Main extends ITransform, Data ext
     if ( replaceBy == null ) {
       return;
     }
-    String[] variableNames = replaceBy.listVariables();
+    String[] variableNames = replaceBy.getVariableNames();
     for ( String variableName : variableNames ) {
       if ( childPipelineMeta.getVariable( variableName ) != null && !isInternalVariable( variableName, type ) ) {
         childPipelineMeta.setVariable( variableName, replaceBy.getVariable( variableName ) );

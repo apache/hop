@@ -901,7 +901,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
         type = IValueMeta.TYPE_STRING;
       }
       try {
-        IValueMeta v = ValueMetaFactory.createValueMeta( variables.environmentSubstitute( field.getName() ), type );
+        IValueMeta v = ValueMetaFactory.createValueMeta( variables.resolve( field.getName() ), type );
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
         v.setOrigin( name );
@@ -916,7 +916,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     }
 
     if ( includeFilename ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( filenameField ));
+      IValueMeta v = new ValueMetaString( variables.resolve( filenameField ));
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -924,7 +924,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     }
 
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ));
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ));
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -933,50 +933,50 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
 
     if ( getShortFileNameField() != null && getShortFileNameField().length() > 0 ) {
       IValueMeta v =
-          new ValueMetaString( variables.environmentSubstitute( getShortFileNameField() ));
+          new ValueMetaString( variables.resolve( getShortFileNameField() ));
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getExtensionField() != null && getExtensionField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getExtensionField() ));
+      IValueMeta v = new ValueMetaString( variables.resolve( getExtensionField() ));
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getPathField() != null && getPathField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getPathField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getPathField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getSizeField() != null && getSizeField().length() > 0 ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( getSizeField() ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( getSizeField() ) );
       v.setOrigin( name );
       v.setLength( 9 );
       r.addValueMeta( v );
     }
     if ( isHiddenField() != null && isHiddenField().length() > 0 ) {
-      IValueMeta v = new ValueMetaBoolean( variables.environmentSubstitute( isHiddenField() ) );
+      IValueMeta v = new ValueMetaBoolean( variables.resolve( isHiddenField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getLastModificationDateField() != null && getLastModificationDateField().length() > 0 ) {
       IValueMeta v =
-          new ValueMetaDate( variables.environmentSubstitute( getLastModificationDateField() ));
+          new ValueMetaDate( variables.resolve( getLastModificationDateField() ));
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getUriField() != null && getUriField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getUriField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getRootUriField() != null && getRootUriField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getRootUriField() ));
+      IValueMeta v = new ValueMetaString( variables.resolve( getRootUriField() ));
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );

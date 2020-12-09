@@ -322,7 +322,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       try {
         db.connect();
 
@@ -470,7 +470,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
 
         if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( variables );
+          db.shareWith( variables );
           try {
             db.connect();
 
@@ -514,7 +514,7 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
         DatabaseImpact ii =
           new DatabaseImpact(
             DatabaseImpact.TYPE_IMPACT_READ_WRITE, pipelineMeta.getName(), transformMeta.getName(), databaseMeta
-            .getDatabaseName(), variables.environmentSubstitute( tableName ), fieldTable[ i ],
+            .getDatabaseName(), variables.resolve( tableName ), fieldTable[ i ],
             fieldStream[ i ], v != null ? v.getOrigin() : "?", "", "Type = " + v.toStringMeta() );
         impact.add( ii );
       }
@@ -539,8 +539,8 @@ public class PGBulkLoaderMeta extends BaseTransformMeta implements ITransformMet
   }
 
   public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
-    String realTableName = variables.environmentSubstitute( tableName );
-    String realSchemaName = variables.environmentSubstitute( schemaName );
+    String realTableName = variables.resolve( tableName );
+    String realSchemaName = variables.resolve( schemaName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );

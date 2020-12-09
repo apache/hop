@@ -70,7 +70,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta,RegexEvalData> implem
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Let's check that Result Field is given
-      if ( Utils.isEmpty( environmentSubstitute( meta.getResultFieldName() ) ) ) {
+      if ( Utils.isEmpty( resolve( meta.getResultFieldName() ) ) ) {
         if ( !meta.isAllowCaptureGroupsFlagSet() ) {
           // Result field is missing !
           logError( BaseMessages.getString( PKG, "RegexEval.Log.ErrorResultFieldMissing" ) );
@@ -226,7 +226,7 @@ public class RegexEval extends BaseTransform<RegexEvalMeta,RegexEvalData> implem
       // Regular expression
       String regularexpression = meta.getScript();
       if ( meta.isUseVariableInterpolationFlagSet() ) {
-        regularexpression = environmentSubstitute( meta.getScript() );
+        regularexpression = resolve( meta.getScript() );
       }
       if ( log.isDetailed() ) {
         logDetailed( BaseMessages.getString( PKG, "RegexEval.Log.Regexp" ) + " " + options + regularexpression );

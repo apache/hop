@@ -22,15 +22,11 @@
 
 package org.apache.hop.pipeline;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.vfs2.FileObject;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
-import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.engine.IPipelineEngine;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -46,11 +42,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
@@ -63,7 +54,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith( MockitoJUnitRunner.class )
 public class PipelineTest {
@@ -393,7 +383,7 @@ public class PipelineTest {
     Pipeline pipelineTest = new LocalPipelineEngine();
     boolean hasFilename = true;
     boolean hasRepoDir = false;
-    pipelineTest.copyVariablesFrom( null );
+    pipelineTest.copyFrom( null );
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );
     pipelineTest.setInternalEntryCurrentDirectory( hasFilename );
@@ -405,7 +395,7 @@ public class PipelineTest {
   @Test
   public void testSetInternalEntryCurrentDirectoryWithoutFilename() {
     Pipeline pipelineTest = new LocalPipelineEngine();
-    pipelineTest.copyVariablesFrom( null );
+    pipelineTest.copyFrom( null );
     boolean hasFilename = false;
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, "Original value defined at run execution" );
     pipelineTest.setVariable( Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY, "file:///C:/SomeFilenameDirectory" );

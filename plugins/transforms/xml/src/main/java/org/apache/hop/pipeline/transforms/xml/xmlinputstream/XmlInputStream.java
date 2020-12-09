@@ -247,7 +247,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
 
     // Get the filename field index...
     //
-    String filenameValue = environmentSubstitute( meta.getFilename() );
+    String filenameValue = resolve( meta.getFilename() );
     index = getInputRowMeta().indexOfValue( filenameValue );
     if ( index < 0 ) {
       // try using this value as a path if not found in incoming hops
@@ -608,7 +608,7 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
       data.staxInstance.setProperty( "javax.xml.stream.isCoalescing", false );
       data.filenr = 0;
       if ( getPipelineMeta().findNrPrevTransforms( getTransformMeta() ) == 0 && !meta.sourceFromInput ) {
-        String filename = environmentSubstitute( meta.getFilename() );
+        String filename = resolve( meta.getFilename() );
         if ( Utils.isEmpty( filename ) ) {
           logError( BaseMessages.getString( PKG, "XMLInputStream.MissingFilename.Message" ) );
           return false;
@@ -619,9 +619,9 @@ public class XmlInputStream extends BaseTransform<XmlInputStreamMeta, XmlInputSt
         data.filenames = null;
       }
 
-      data.nrRowsToSkip = Const.toLong( this.environmentSubstitute( meta.getNrRowsToSkip() ), 0 );
-      data.rowLimit = Const.toLong( this.environmentSubstitute( meta.getRowLimit() ), 0 );
-      data.encoding = this.environmentSubstitute( meta.getEncoding() );
+      data.nrRowsToSkip = Const.toLong( this.resolve( meta.getNrRowsToSkip() ), 0 );
+      data.rowLimit = Const.toLong( this.resolve( meta.getRowLimit() ), 0 );
+      data.encoding = this.resolve( meta.getEncoding() );
 
       data.outputRowMeta = new RowMeta();
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );

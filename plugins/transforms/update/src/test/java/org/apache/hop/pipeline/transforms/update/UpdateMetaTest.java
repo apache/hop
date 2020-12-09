@@ -87,7 +87,7 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     transformMeta = new TransformMeta( deletePid, "delete", umi );
     Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
-    pipeline.injectVariables( vars );
+    pipeline.setVariables( vars );
     pipelineMeta.addTransform( transformMeta );
     mockHelper = new TransformMockHelper<>( "Update", UpdateMeta.class, UpdateData.class );
     Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( ILoggingObject.class ) ) ).thenReturn( mockHelper.iLogChannel );

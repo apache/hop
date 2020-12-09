@@ -27,7 +27,6 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
@@ -237,12 +236,12 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     // If the filename is an absolute path, just return that.
     //
     if (pipelineFilename.startsWith( "/" ) || pipelineFilename.startsWith( "file:///" )) {
-      return variables.environmentSubstitute( pipelineFilename ); // to make sure
+      return variables.resolve( pipelineFilename ); // to make sure
     }
 
     // We're dealing with a relative path vs the base path
     //
-    String baseFilePath = variables.environmentSubstitute( basePath );
+    String baseFilePath = variables.resolve( basePath );
     if ( StringUtils.isEmpty( baseFilePath ) ) {
       // See if the base path environment variable is set
       //
@@ -450,7 +449,7 @@ public class PipelineUnitTest extends HopMetadataBase implements Cloneable, IHop
     if ( StringUtils.isEmpty( base ) ) {
       base = variables.getVariable( DataSetConst.VARIABLE_HOP_UNIT_TESTS_FOLDER );
     }
-    base = variables.environmentSubstitute( base );
+    base = variables.resolve( base );
     if ( StringUtils.isNotEmpty( base ) ) {
       // See if the base path is present in the filename
       // Then replace the filename

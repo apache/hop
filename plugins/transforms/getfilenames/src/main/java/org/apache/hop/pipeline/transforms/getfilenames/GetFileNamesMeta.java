@@ -531,7 +531,7 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
     row.addValueMeta( rooturi );
 
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -759,7 +759,7 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
         // Replace the filename ONLY (folder or filename)
         //
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName[ i ] ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName[ i ] ) );
           fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }

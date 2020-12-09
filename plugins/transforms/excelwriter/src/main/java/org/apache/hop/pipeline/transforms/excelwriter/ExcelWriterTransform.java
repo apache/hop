@@ -102,7 +102,7 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
           prepareNextOutputFile();
         } catch ( HopException e ) {
           logError( BaseMessages.getString( PKG, "ExcelWriterTransform.Exception.CouldNotPrepareFile",
-            environmentSubstitute( meta.getFileName() ) ) );
+            resolve( meta.getFileName() ) ) );
           setErrors( 1L );
           stopAll();
           return false;
@@ -803,12 +803,12 @@ public class ExcelWriterTransform extends BaseTransform<ExcelWriterTransformMeta
     if ( super.init() ) {
       data.splitnr = 0;
       data.datalines = 0;
-      data.realSheetname = environmentSubstitute( meta.getSheetname() );
-      data.realTemplateSheetName = environmentSubstitute( meta.getTemplateSheetName() );
-      data.realTemplateFileName = environmentSubstitute( meta.getTemplateFileName() );
-      data.realStartingCell = environmentSubstitute( meta.getStartingCell() );
+      data.realSheetname = resolve( meta.getSheetname() );
+      data.realTemplateSheetName = resolve( meta.getTemplateSheetName() );
+      data.realTemplateFileName = resolve( meta.getTemplateFileName() );
+      data.realStartingCell = resolve( meta.getStartingCell() );
       data.realPassword = Utils.resolvePassword( variables, meta.getPassword() );
-      data.realProtectedBy = environmentSubstitute( meta.getProtectedBy() );
+      data.realProtectedBy = resolve( meta.getProtectedBy() );
 
       data.shiftExistingCells = ExcelWriterTransformMeta.ROW_WRITE_PUSH_DOWN.equals( meta.getRowWritingMethod() );
       data.createNewSheet = ExcelWriterTransformMeta.IF_SHEET_EXISTS_CREATE_NEW.equals( meta.getIfSheetExists() );

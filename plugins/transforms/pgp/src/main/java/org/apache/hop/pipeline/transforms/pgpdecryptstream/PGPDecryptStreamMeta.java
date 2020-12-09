@@ -196,7 +196,7 @@ public class PGPDecryptStreamMeta extends BaseTransformMeta implements ITransfor
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Output fields (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( resultfieldname ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( resultfieldname ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }

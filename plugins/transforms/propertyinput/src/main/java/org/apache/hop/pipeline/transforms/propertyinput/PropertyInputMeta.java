@@ -897,7 +897,7 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
       }
       try {
         IValueMeta v =
-          ValueMetaFactory.createValueMeta( variables.environmentSubstitute( field.getName() ), type );
+          ValueMetaFactory.createValueMeta( variables.resolve( field.getName() ), type );
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
         v.setOrigin( name );
@@ -910,7 +910,7 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
         throw new HopTransformException( e );
       }
     }
-    String realFilenameField = variables.environmentSubstitute( filenameField );
+    String realFilenameField = variables.resolve( filenameField );
     if ( includeFilename && !Utils.isEmpty( realFilenameField ) ) {
       IValueMeta v = new ValueMetaString( realFilenameField );
       v.setLength( 500 );
@@ -919,14 +919,14 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
       r.addValueMeta( v );
     }
 
-    String realRowNumberField = variables.environmentSubstitute( rowNumberField );
+    String realRowNumberField = variables.resolve( rowNumberField );
     if ( includeRowNumber && !Utils.isEmpty( realRowNumberField ) ) {
       IValueMeta v = new ValueMetaInteger( realRowNumberField );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
-    String realSectionField = variables.environmentSubstitute( iniSectionField );
+    String realSectionField = variables.resolve( iniSectionField );
     if ( includeIniSection && !Utils.isEmpty( realSectionField ) ) {
       IValueMeta v = new ValueMetaString( realSectionField );
       v.setLength( 500 );
@@ -938,45 +938,45 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
 
     if ( getShortFileNameField() != null && getShortFileNameField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getShortFileNameField() ) );
+        new ValueMetaString( variables.resolve( getShortFileNameField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getExtensionField() != null && getExtensionField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getExtensionField() ) );
+        new ValueMetaString( variables.resolve( getExtensionField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getPathField() != null && getPathField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getPathField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getPathField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getSizeField() != null && getSizeField().length() > 0 ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( getSizeField() ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( getSizeField() ) );
       v.setOrigin( name );
       v.setLength( 9 );
       r.addValueMeta( v );
     }
     if ( isHiddenField() != null && isHiddenField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaBoolean( variables.environmentSubstitute( isHiddenField() ) );
+        new ValueMetaBoolean( variables.resolve( isHiddenField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getLastModificationDateField() != null && getLastModificationDateField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaDate( variables.environmentSubstitute( getLastModificationDateField() ) );
+        new ValueMetaDate( variables.resolve( getLastModificationDateField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getUriField() != null && getUriField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getUriField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -984,7 +984,7 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
 
     if ( getRootUriField() != null && getRootUriField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getRootUriField() ) );
+        new ValueMetaString( variables.resolve( getRootUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -1087,7 +1087,7 @@ public class PropertyInputMeta extends BaseTransformMeta implements ITransformMe
       //
       if ( !filefield ) {
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName[ i ] ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName[ i ] ) );
           fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }

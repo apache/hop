@@ -447,7 +447,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wUploadFile.setLayoutData(fdUploadFile);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wUploadFile.addModifyListener( e -> wUploadFile.setToolTipText( variables.environmentSubstitute( wUploadFile.getText() ) ) );
+    wUploadFile.addModifyListener( e -> wUploadFile.setToolTipText( variables.resolve( wUploadFile.getText() ) ) );
 
     wbUploadFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wUploadFile, variables,
       new String[] { "*" }, FILETYPES, true )

@@ -154,7 +154,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wConnectTimeOut.setLayoutData(fdConnectTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( variables.environmentSubstitute( wConnectTimeOut.getText() ) ) );
+    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( variables.resolve( wConnectTimeOut.getText() ) ) );
 
     // Read timeout line
     Label wlReadTimeOut = new Label(shell, SWT.RIGHT);
@@ -177,7 +177,7 @@ public class WebServiceAvailableDialog extends BaseTransformDialog implements IT
     wReadTimeOut.setLayoutData(fdReadTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( variables.environmentSubstitute( wReadTimeOut.getText() ) ) );
+    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( variables.resolve( wReadTimeOut.getText() ) ) );
 
     // Result fieldname ...
     Label wlResult = new Label(shell, SWT.RIGHT);

@@ -185,7 +185,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @Override
   public String getRealFilename() {
-    return environmentSubstitute( getFilename() );
+    return resolve( getFilename() );
   }
 
   public String getLogFilename() {
@@ -364,7 +364,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     if ( setLogfile ) {
       pipelineLogLevel = logFileLevel;
 
-      realLogFilename = environmentSubstitute( getLogFilename() );
+      realLogFilename = resolve( getLogFilename() );
 
       // We need to check here the log filename
       // if we do not have one, we must fail
@@ -395,7 +395,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    logDetailed( BaseMessages.getString( PKG, "ActionPipeline.Log.OpeningPipeline", environmentSubstitute( getFilename() ) ) );
+    logDetailed( BaseMessages.getString( PKG, "ActionPipeline.Log.OpeningPipeline", resolve( getFilename() ) ) );
 
     // Load the pipeline only once for the complete loop!
     // Throws an exception if it was not possible to load the pipeline, for example if the XML file doesn't exist.
@@ -443,7 +443,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
             if ( Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
               // There is no field name specified.
               //
-              String value = Const.NVL( environmentSubstitute( parameterValues[ idx ] ), "" );
+              String value = Const.NVL( resolve( parameterValues[ idx ] ), "" );
               namedParam.setParameterValue( parameters[ idx ], value );
             } else {
               // something filled in, in the field column...
@@ -503,7 +503,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
                   // We have a parameter
                   if ( Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
                     namedParam.setParameterValue( parameters[ idx ], Const.NVL(
-                      environmentSubstitute( parameterValues[ idx ] ), "" ) );
+                      resolve( parameterValues[ idx ] ), "" ) );
                   } else {
                     String fieldValue = "";
 
@@ -527,7 +527,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
                   // We have a parameter
                   if ( Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
                     namedParam.setParameterValue( parameters[ idx ], Const.NVL(
-                      environmentSubstitute( parameterValues[ idx ] ), "" ) );
+                      resolve( parameterValues[ idx ] ), "" ) );
                   } else {
                     String fieldValue = "";
 
@@ -553,7 +553,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           throw new HopException( "This action needs a run configuration to use to execute the specified pipeline" );
         }
 
-        runConfiguration = environmentSubstitute( runConfiguration );
+        runConfiguration = resolve( runConfiguration );
         log.logBasic( BaseMessages.getString( PKG, "ActionPipeline.RunConfig.Message", runConfiguration ));
 
         // Create the pipeline from meta-data
@@ -564,7 +564,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         // set the parent workflow on the pipeline, variables are taken from here...
         //
         pipeline.setParentWorkflow( parentWorkflow );
-        pipeline.setParentVariableSpace( parentWorkflow );
+        pipeline.setParentVariables( parentWorkflow );
         pipeline.setLogLevel( pipelineLogLevel );
         pipeline.setPreviousResult( previousResult );
 
@@ -573,7 +573,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
         // Handle parameters...
         //
-        pipeline.initializeVariablesFrom( null );
+        pipeline.initializeFrom( null );
         pipeline.copyParametersFromDefinitions( pipelineMeta );
 
         // Pass the parameter values and activate...
@@ -667,7 +667,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
       IVariables tmpSpace = r.resolveCurrentDirectory( variables, parentWorkflow, getFilename() );
 
-      String realFilename = tmpSpace.environmentSubstitute( getFilename() );
+      String realFilename = tmpSpace.resolve( getFilename() );
 
       pipelineMeta = new PipelineMeta( realFilename, metadataProvider, true, this );
 
@@ -698,7 +698,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @Override
   public List<SqlStatement> getSqlStatements( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
-    this.copyVariablesFrom( variables );
+    this.copyFrom( variables );
     PipelineMeta pipelineMeta = getPipelineMeta( metadataProvider, this );
 
     return pipelineMeta.getSqlStatements(variables);
@@ -729,7 +729,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       // During this phase, the variable variables hasn't been initialized yet - it seems
       // to happen during the execute. As such, we need to use the workflow meta's resolution
       // of the variables.
-      String realFileName = variables.environmentSubstitute( filename );
+      String realFileName = variables.resolve( filename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.ACTIONFILE ) );
       references.add( reference );
@@ -762,7 +762,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     //
     // First load the pipeline metadata...
     //
-    copyVariablesFrom( variables );
+    copyFrom( variables );
     PipelineMeta pipelineMeta = getPipelineMeta( metadataProvider, variables );
 
     // Also go down into the pipeline and export the files there. (mapping recursively down)

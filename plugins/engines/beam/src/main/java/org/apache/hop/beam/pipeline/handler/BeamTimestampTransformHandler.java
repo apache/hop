@@ -64,7 +64,7 @@ public class BeamTimestampTransformHandler extends BeamBaseTransformHandler impl
       new TimestampFn(
         transformMeta.getName(),
         JsonRowMeta.toJson( rowMeta ),
-        variables.environmentSubstitute( beamTimestampMeta.getFieldName() ),
+        variables.resolve( beamTimestampMeta.getFieldName() ),
         beamTimestampMeta.isReadingTimestamp(),
         transformPluginClasses,
         xpPluginClasses

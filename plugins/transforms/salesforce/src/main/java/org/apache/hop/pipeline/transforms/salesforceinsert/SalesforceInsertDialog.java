@@ -828,12 +828,12 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   }
 
   private SalesforceConnection getConnection() throws HopException {
-    String url = variables.environmentSubstitute( wURL.getText() );
+    String url = variables.resolve( wURL.getText() );
     // Define a new Salesforce connection
     SalesforceConnection connection =
-      new SalesforceConnection( log, url, variables.environmentSubstitute( wUserName.getText() ),
+      new SalesforceConnection( log, url, variables.resolve( wUserName.getText() ),
         Utils.resolvePassword( variables, wPassword.getText() ) );
-    int realTimeOut = Const.toInt( variables.environmentSubstitute( wTimeOut.getText() ), 0 );
+    int realTimeOut = Const.toInt( variables.resolve( wTimeOut.getText() ), 0 );
     connection.setTimeOut( realTimeOut );
     // connect to Salesforce
     connection.connect();
@@ -843,7 +843,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
   private String[] getFieldNames() throws HopException {
     SalesforceConnection connection = null;
-    String selectedModule = variables.environmentSubstitute( wModule.getText() );
+    String selectedModule = variables.resolve( wModule.getText() );
     try {
       // Define a new Salesforce connection
       connection = getConnection();
@@ -888,7 +888,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
     try {
       SalesforceConnection connection = getConnection();
-      Field[] fields = connection.getObjectFields( variables.environmentSubstitute( wModule.getText() ) );
+      Field[] fields = connection.getObjectFields( variables.resolve( wModule.getText() ) );
       String[] fieldNames = connection.getFields( fields );
 
       FieldType dateType = FieldType.date;
@@ -1027,7 +1027,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
           if ( wModule.isDisposed() ) {
             return;
           }
-          String selectedModule = variables.environmentSubstitute( wModule.getText() );
+          String selectedModule = variables.resolve( wModule.getText() );
           if ( !Utils.isEmpty( selectedModule ) ) {
             try {
               // loop through the objects and find build the list of fields

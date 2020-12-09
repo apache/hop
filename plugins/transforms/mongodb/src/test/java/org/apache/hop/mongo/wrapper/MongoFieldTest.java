@@ -55,7 +55,7 @@ public class MongoFieldTest {
   @Before
   public void before() throws HopPluginException {
     MockitoAnnotations.initMocks(this);
-    when(variables.environmentSubstitute(any(String.class)))
+    when(variables.resolve(any(String.class)))
         .thenAnswer(
             new Answer<String>() {
               @Override

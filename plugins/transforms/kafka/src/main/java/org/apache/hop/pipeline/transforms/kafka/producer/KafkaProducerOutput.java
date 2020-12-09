@@ -68,12 +68,12 @@ public class KafkaProducerOutput extends BaseTransform<KafkaProducerOutputMeta, 
       return false;
     }
     if ( first ) {
-      data.keyFieldIndex = getInputRowMeta().indexOfValue( environmentSubstitute( meta.getKeyField() ) );
-      data.messageFieldIndex = getInputRowMeta().indexOfValue( environmentSubstitute( meta.getMessageField() ) );
+      data.keyFieldIndex = getInputRowMeta().indexOfValue( resolve( meta.getKeyField() ) );
+      data.messageFieldIndex = getInputRowMeta().indexOfValue( resolve( meta.getMessageField() ) );
       IValueMeta keyValueMeta = getInputRowMeta().getValueMeta( data.keyFieldIndex );
       IValueMeta msgValueMeta = getInputRowMeta().getValueMeta( data.messageFieldIndex );
 
-      data.kafkaProducer = kafkaFactory.producer( meta, this::environmentSubstitute,
+      data.kafkaProducer = kafkaFactory.producer( meta, this::resolve,
         KafkaConsumerField.Type.fromValueMeta( keyValueMeta ),
         KafkaConsumerField.Type.fromValueMeta( msgValueMeta ) );
 
@@ -88,9 +88,9 @@ public class KafkaProducerOutput extends BaseTransform<KafkaProducerOutputMeta, 
     ProducerRecord<Object, Object> producerRecord;
     // allow for null keys
     if ( data.keyFieldIndex < 0 || r[ data.keyFieldIndex ] == null || StringUtils.isEmpty( r[ data.keyFieldIndex ].toString() ) ) {
-      producerRecord = new ProducerRecord<>( environmentSubstitute( meta.getTopic() ), r[ data.messageFieldIndex ] );
+      producerRecord = new ProducerRecord<>( resolve( meta.getTopic() ), r[ data.messageFieldIndex ] );
     } else {
-      producerRecord = new ProducerRecord<>( environmentSubstitute( meta.getTopic() ), r[ data.keyFieldIndex ],
+      producerRecord = new ProducerRecord<>( resolve( meta.getTopic() ), r[ data.keyFieldIndex ],
         r[ data.messageFieldIndex ] );
     }
 

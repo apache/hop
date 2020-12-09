@@ -223,7 +223,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
   /** This way we can actually use environment variables to parse the real filename */
   private void calculateRealFilename() throws HopException {
-    realFilename = variables.environmentSubstitute(filename);
+    realFilename = variables.resolve(filename);
 
     ExtensionPointHandler.callExtensionPoint(
         log, variables, HopExtensionPoint.HopRunCalculateFilename.id, this );
@@ -236,13 +236,13 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       PipelineMeta pipelineMeta) {
     try {
       String pipelineRunConfigurationName =
-          variables.environmentSubstitute(configuration.getRunConfiguration());
+          variables.resolve(configuration.getRunConfiguration());
       IPipelineEngine<PipelineMeta> pipeline =
           PipelineEngineFactory.createPipelineEngine(
               variables, pipelineRunConfigurationName, metadataProvider, pipelineMeta);
       pipeline.getPipelineMeta().setInternalHopVariables(pipeline);
-      pipeline.initializeVariablesFrom(null);
-      pipeline.injectVariables(configuration.getVariablesMap());
+      pipeline.initializeFrom(null);
+      pipeline.setVariables(configuration.getVariablesMap());
 
       // configure the variables and parameters
       //
@@ -309,13 +309,13 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       WorkflowMeta workflowMeta) {
     try {
       String runConfigurationName =
-          variables.environmentSubstitute(configuration.getRunConfiguration());
+          variables.resolve(configuration.getRunConfiguration());
       IWorkflowEngine<WorkflowMeta> workflow =
           WorkflowEngineFactory.createWorkflowEngine(
               variables, runConfigurationName, metadataProvider, workflowMeta, null);
-      workflow.initializeVariablesFrom(null);
+      workflow.initializeFrom(null);
       workflow.getWorkflowMeta().setInternalHopVariables(workflow);
-      workflow.injectVariables(configuration.getVariablesMap());
+      workflow.setVariables(configuration.getVariablesMap());
 
       workflow.setLogLevel(configuration.getLogLevel());
 
@@ -346,7 +346,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
       INamedParameterDefinitions namedParams)
       throws HopException {
 
-    realRunConfigurationName = variables.environmentSubstitute(runConfigurationName);
+    realRunConfigurationName = variables.resolve(runConfigurationName);
     configuration.setRunConfiguration(realRunConfigurationName);
     configuration.setLogLevel(determineLogLevel());
 
@@ -356,7 +356,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
   }
 
   private LogLevel determineLogLevel() {
-    return LogLevel.getLogLevelForCode(variables.environmentSubstitute(level));
+    return LogLevel.getLogLevelForCode(variables.resolve(level));
   }
 
   private void configureHopServer(IExecutionConfiguration configuration, String name)
@@ -447,7 +447,7 @@ public class HopRun implements Runnable, IHasHopMetadataProvider {
 
     // Copy variables over to the pipeline or workflow
     //
-    variables.injectVariables(configuration.getVariablesMap());
+    variables.setVariables(configuration.getVariablesMap());
 
     // Set the parameter values
     //

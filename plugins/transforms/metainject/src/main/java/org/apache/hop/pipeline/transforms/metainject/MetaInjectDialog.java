@@ -813,7 +813,7 @@ public class MetaInjectDialog extends BaseTransformDialog implements ITransformD
   }
 
   private void loadPipelineFile(String filename) throws HopException {
-    String realFilename = variables.environmentSubstitute(filename);
+    String realFilename = variables.resolve(filename);
     injectPipelineMeta = new PipelineMeta(realFilename, metadataProvider, true, variables);
     injectPipelineMeta.clearChanged();
   }

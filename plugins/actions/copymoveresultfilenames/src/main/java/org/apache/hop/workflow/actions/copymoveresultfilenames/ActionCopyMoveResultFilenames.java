@@ -222,7 +222,7 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
   }
 
   public String getRealWildcard() {
-    return environmentSubstitute( getWildcard() );
+    return resolve( getWildcard() );
   }
 
   public void setWildcard( String wildcard ) {
@@ -346,22 +346,22 @@ public class ActionCopyMoveResultFilenames extends ActionBase implements Cloneab
 
     String realdestinationFolder = null;
     if ( !deleteFile ) {
-      realdestinationFolder = environmentSubstitute( getDestinationFolder() );
+      realdestinationFolder = resolve( getDestinationFolder() );
 
       if ( !createDestinationFolder( realdestinationFolder ) ) {
         return result;
       }
     }
     if ( !Utils.isEmpty( wildcard ) ) {
-      wildcardPattern = Pattern.compile( environmentSubstitute( wildcard ) );
+      wildcardPattern = Pattern.compile( resolve( wildcard ) );
     }
     if ( !Utils.isEmpty( wildcardExclude ) ) {
-      wildcardExcludePattern = Pattern.compile( environmentSubstitute( wildcardExclude ) );
+      wildcardExcludePattern = Pattern.compile( resolve( wildcardExclude ) );
     }
 
     if ( previousResult != null ) {
       nrErrors = 0;
-      limitFiles = Const.toInt( environmentSubstitute( getNrErrorsLessThan() ), 10 );
+      limitFiles = Const.toInt( resolve( getNrErrorsLessThan() ), 10 );
       nrErrors = 0;
       nrSuccess = 0;
       successConditionBroken = false;

@@ -163,9 +163,9 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
 
     public void init(IVariables vars, boolean updateFromEnv) {
       if (updateFromEnv) {
-        environUpdatedFieldName = vars.environmentSubstitute(m_incomingFieldName);
-        environUpdateMongoDocPath = vars.environmentSubstitute(m_mongoDocPath);
-        environUpdateModifierOperation = vars.environmentSubstitute(m_modifierUpdateOperation);
+        environUpdatedFieldName = vars.resolve(m_incomingFieldName);
+        environUpdateMongoDocPath = vars.resolve(m_mongoDocPath);
+        environUpdateModifierOperation = vars.resolve(m_modifierUpdateOperation);
       }
       m_pathList = new ArrayList<>();
 

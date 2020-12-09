@@ -511,7 +511,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
           meta.setHeaderEnabled( true );
         }
       } else {
-        String templateFilename = environmentSubstitute( meta.getTemplateFileName() );
+        String templateFilename = resolve( meta.getTemplateFileName() );
         try ( FileObject templateFile = HopVfs.getFileObject( templateFilename ) ) {
           // create the openFile from the template
           Workbook templateWorkbook = Workbook.getWorkbook( HopVfs.getInputStream( templateFile ), data.ws );
@@ -682,12 +682,12 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
 
     if ( super.init() ) {
       data.splitnr = 0;
-      data.realSheetname = environmentSubstitute( meta.getSheetname() );
+      data.realSheetname = resolve( meta.getSheetname() );
 
       data.ws = new WorkbookSettings();
       if ( meta.isUseTempFiles() ) {
         data.ws.setUseTemporaryFileDuringWrite( true );
-        String realdir = environmentSubstitute( meta.getTempDirectory() );
+        String realdir = resolve( meta.getTempDirectory() );
         if ( !Utils.isEmpty( realdir ) ) {
           File file = new File( realdir );
           if ( !file.exists() ) {
@@ -698,8 +698,8 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
         }
       }
       data.ws.setLocale( Locale.getDefault() );
-      data.Headerrowheight = Const.toInt( environmentSubstitute( meta.getHeaderRowHeight() ), -1 );
-      data.realHeaderImage = environmentSubstitute( meta.getHeaderImage() );
+      data.Headerrowheight = Const.toInt( resolve( meta.getHeaderRowHeight() ), -1 );
+      data.realHeaderImage = resolve( meta.getHeaderImage() );
       if ( !Utils.isEmpty( meta.getEncoding() ) ) {
         data.ws.setEncoding( meta.getEncoding() );
       }
@@ -756,7 +756,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
 
   private void setFonts() throws Exception {
     // --- Set Header font
-    int headerFontSize = Const.toInt( environmentSubstitute( meta.getHeaderFontSize() ), ExcelOutputMeta.DEFAULT_FONT_SIZE );
+    int headerFontSize = Const.toInt( resolve( meta.getHeaderFontSize() ), ExcelOutputMeta.DEFAULT_FONT_SIZE );
     // Set font name
     FontName headerFontName = ExcelFontMap.getFontName( meta.getHeaderFontName() );
     // Set UnderlineStyle
@@ -810,7 +810,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
 
     // --- Set rows font
     // Set font size
-    int rowFontSize = Const.toInt( environmentSubstitute( meta.getRowFontSize() ), ExcelOutputMeta.DEFAULT_FONT_SIZE );
+    int rowFontSize = Const.toInt( resolve( meta.getRowFontSize() ), ExcelOutputMeta.DEFAULT_FONT_SIZE );
     // Set font name
     FontName rowFontName = ExcelFontMap.getFontName( meta.getRowFontName() );
 

@@ -117,7 +117,7 @@ public class UserDefinedJavaClassMeta extends BaseTransformMeta implements ITran
 
   static {
     IVariables vs = new Variables();
-    vs.initializeVariablesFrom( null ); // sets up the default variables
+    vs.initializeFrom( null ); // sets up the default variables
     String maxSizeStr = vs.getVariable( UserDefinedJavaClass.HOP_DEFAULT_CLASS_CACHE_SIZE, "100" );
     int maxCacheSize = -1;
     try {

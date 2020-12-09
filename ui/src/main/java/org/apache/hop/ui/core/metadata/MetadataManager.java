@@ -216,7 +216,7 @@ public class MetadataManager<T extends IHopMetadata> {
   
   private void initializeElementVariables( T element ) {
     if ( element instanceof IVariables ) {
-      ( (IVariables) element ).initializeVariablesFrom( variables );
+      ( (IVariables) element ).initializeFrom( variables );
     }
   }
 

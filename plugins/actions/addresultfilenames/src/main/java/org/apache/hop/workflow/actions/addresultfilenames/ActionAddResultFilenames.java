@@ -226,8 +226,8 @@ public class ActionAddResultFilenames extends ActionBase implements Cloneable, I
 
     boolean rcode = true;
     FileObject filefolder = null;
-    String realFilefoldername = environmentSubstitute( filename );
-    String realwildcard = environmentSubstitute( wildcard );
+    String realFilefoldername = resolve( filename );
+    String realwildcard = resolve( wildcard );
 
     try {
       filefolder = HopVfs.getFileObject( realFilefoldername );

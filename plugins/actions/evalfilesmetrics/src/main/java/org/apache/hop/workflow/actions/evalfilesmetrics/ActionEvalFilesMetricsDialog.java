@@ -395,7 +395,7 @@ public class ActionEvalFilesMetricsDialog extends ActionDialog implements IActio
     wSourceFileFolder.setLayoutData(fdSourceFileFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( variables.environmentSubstitute( wSourceFileFolder.getText() ) ) );
+    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( variables.resolve( wSourceFileFolder.getText() ) ) );
 
     wbSourceFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wSourceFileFolder, variables,
       new String[] { "*" }, FILETYPES, true )

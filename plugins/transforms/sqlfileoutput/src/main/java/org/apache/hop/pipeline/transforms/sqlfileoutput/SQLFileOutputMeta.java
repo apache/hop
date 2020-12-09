@@ -452,7 +452,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
     }
 
     if ( extension != null && extension.length() != 0 ) {
-      retval += "." + variables.environmentSubstitute( extension );
+      retval += "." + variables.resolve( extension );
     }
 
     return retval;
@@ -714,7 +714,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
       if ( prev != null && prev.size() > 0 ) {
         if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( variables );
+          db.shareWith( variables );
           try {
             db.connect();
 
@@ -747,8 +747,8 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
   }
 
   public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
-    String realTableName = variables.environmentSubstitute( tableName );
-    String realSchemaName = variables.environmentSubstitute( schemaName );
+    String realTableName = variables.resolve( tableName );
+    String realSchemaName = variables.resolve( schemaName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
@@ -823,7 +823,7 @@ public class SQLFileOutputMeta extends BaseTransformMeta implements ITransformMe
       // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.data
       // To : /home/matt/test/files/foo/bar.data
       //
-      FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
+      FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName ) );
 
       // If the file doesn't exist, forget about this effort too!
       //

@@ -334,7 +334,7 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
 
     if ( getOperationType() != OPERATION_TYPE_WRITE_TO_FILE ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( this.getOutputValue() ) );
+        new ValueMetaString( variables.resolve( this.getOutputValue() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -391,14 +391,14 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     CheckResult cr;
     if ( getOperationType() != JsonOutputMeta.OPERATION_TYPE_WRITE_TO_FILE ) {
       // We need to have output field name
-      if ( Utils.isEmpty( variables.environmentSubstitute( getOutputValue() ) ) ) {
+      if ( Utils.isEmpty( variables.resolve( getOutputValue() ) ) ) {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
             "JsonOutput.Error.MissingOutputFieldName" ), transformMeta );
         remarks.add( cr );
       }
     }
-    if ( Utils.isEmpty( variables.environmentSubstitute( getFileName() ) ) ) {
+    if ( Utils.isEmpty( variables.resolve( getFileName() ) ) ) {
       cr =
         new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
           "JsonOutput.Error.MissingTargetFilename" ), transformMeta );

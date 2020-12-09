@@ -394,7 +394,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
           FileObject file = null;
           try {
             // XML source is a file.
-            file = HopVfs.getFileObject( environmentSubstitute( Fieldvalue ) );
+            file = HopVfs.getFileObject( resolve( Fieldvalue ) );
 
             if ( meta.isIgnoreEmptyFile() && file.getContent().getSize() == 0 ) {
               logBasic( BaseMessages.getString( PKG, "GetXMLData.Error.FileSizeZero", "" + file.getName() ) );
@@ -926,7 +926,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
       for ( int i = 0; i < data.nrInputFields; i++ ) {
         GetXmlDataField xmlDataField = meta.getInputFields()[i];
         // Resolve variable substitution
-        String XPathValue = environmentSubstitute( xmlDataField.getXPath() );
+        String XPathValue = resolve( xmlDataField.getXPath() );
         if ( xmlDataField.getElementType() == GetXmlDataField.ELEMENT_TYPE_ATTRIBUT ) {
           // We have an attribute
           // do we need to add leading @?
@@ -947,7 +947,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
         xmlDataField.setResolvedXPath( XPathValue );
       }
 
-      data.PathValue = environmentSubstitute( meta.getLoopXPath() );
+      data.PathValue = resolve( meta.getLoopXPath() );
       if ( Utils.isEmpty( data.PathValue ) ) {
         logError( BaseMessages.getString( PKG, "GetXMLData.Error.EmptyPath" ) );
         return false;
@@ -959,7 +959,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
         logDetailed( BaseMessages.getString( PKG, "GetXMLData.Log.LoopXPath", data.PathValue ) );
       }
 
-      data.prunePath = environmentSubstitute( meta.getPrunePath() );
+      data.prunePath = resolve( meta.getPrunePath() );
       if ( data.prunePath != null ) {
         if ( Utils.isEmpty( data.prunePath.trim() ) ) {
           data.prunePath = null;

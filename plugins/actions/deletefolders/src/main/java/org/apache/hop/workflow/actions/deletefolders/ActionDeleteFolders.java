@@ -177,7 +177,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     nrSuccess = 0;
     successConditionBroken = false;
     successConditionBrokenExit = false;
-    nrLimitFolders = Const.toInt( environmentSubstitute( getLimitFolders() ), 10 );
+    nrLimitFolders = Const.toInt( resolve( getLimitFolders() ), 10 );
 
     if ( argFromPrevious && log.isDetailed() ) {
         logDetailed( BaseMessages.getString( PKG, "ActionDeleteFolders.FoundPreviousRows", String
@@ -215,7 +215,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
           result.setNrLinesDeleted( nrSuccess );
           return result;
         }
-        String realfilename = environmentSubstitute( arguments[ i ] );
+        String realfilename = resolve( arguments[ i ] );
         if ( !Utils.isEmpty( realfilename ) ) {
           if ( deleteFolder( realfilename ) ) {
             updateSuccess();
@@ -370,7 +370,7 @@ public class ActionDeleteFolders extends ActionBase implements Cloneable, IActio
     if ( arguments != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < arguments.length; i++ ) {
-        String filename = environmentSubstitute( arguments[ i ] );
+        String filename = resolve( arguments[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

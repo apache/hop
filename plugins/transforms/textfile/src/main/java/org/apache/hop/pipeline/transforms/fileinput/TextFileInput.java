@@ -1196,11 +1196,11 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
       int errorFileIndex =
         ( StringUtils.isBlank( meta.getFileErrorField() ) ) ? -1 : addValueMeta( rowMeta, this
-          .environmentSubstitute( meta.getFileErrorField() ) );
+          .resolve( meta.getFileErrorField() ) );
 
       int errorMessageIndex =
         StringUtils.isBlank( meta.getFileErrorMessageField() ) ? -1 : addValueMeta( rowMeta, this
-          .environmentSubstitute( meta.getFileErrorMessageField() ) );
+          .resolve( meta.getFileErrorMessageField() ) );
 
       try {
         Object[] rowData = getRow();
@@ -1547,9 +1547,9 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       data.fileType = meta.getFileTypeNr();
 
       // Handle the possibility of a variable substitution
-      data.separator = environmentSubstitute( meta.getSeparator() );
-      data.enclosure = environmentSubstitute( meta.getEnclosure() );
-      data.escapeCharacter = environmentSubstitute( meta.getEscapeCharacter() );
+      data.separator = resolve( meta.getSeparator() );
+      data.enclosure = resolve( meta.getEnclosure() );
+      data.escapeCharacter = resolve( meta.getEscapeCharacter() );
 
       // Add additional fields
       if ( !Utils.isEmpty( meta.getShortFileNameField() ) ) {
@@ -1589,11 +1589,11 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
     List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<>( 2 );
     if ( meta.getLineNumberFilesDestinationDirectory() != null ) {
       dataErrorLineHandlers
-        .add( new FileErrorHandlerContentLineNumber( getPipeline().getExecutionStartDate(), environmentSubstitute( meta
+        .add( new FileErrorHandlerContentLineNumber( getPipeline().getExecutionStartDate(), resolve( meta
           .getLineNumberFilesDestinationDirectory() ), meta.getLineNumberFilesExtension(), meta.getEncoding(), this ) );
     }
     if ( meta.getErrorFilesDestinationDirectory() != null ) {
-      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionStartDate(), environmentSubstitute(
+      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionStartDate(), resolve(
         meta.getErrorFilesDestinationDirectory() ), meta.getErrorLineFilesExtension(), meta.getEncoding(), this ) );
     }
     data.dataErrorLineHandler = new CompositeFileErrorHandler( dataErrorLineHandlers );

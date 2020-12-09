@@ -23,15 +23,11 @@
 
 package org.apache.hop.pipeline.transforms.synchronizeaftermerge;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.database.GenericDatabaseMeta;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -70,7 +66,7 @@ public class SynchronizeAfterMergeTest {
     doCallRealMethod().when( transform ).init();
     doReturn( transformMeta ).when( transform ).getTransformMeta();
     doReturn( pipelineMeta ).when( transform ).getPipelineMeta();
-    doReturn( "120" ).when( transform ).environmentSubstitute( "${commit.size}" );
+    doReturn( "120" ).when( transform ).resolve( "${commit.size}" );
 
     transform.setPipelineMeta( pipelineMeta );
     transform.setTransformMeta( transformMeta );

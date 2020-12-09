@@ -1185,9 +1185,9 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
       // connect...
       if (wUsingAuthentication.getSelection()) {
         connection.connect(
-            variables.environmentSubstitute(meta.getUserName()),
+            variables.resolve(meta.getUserName()),
             Encr.decryptPasswordOptionallyEncrypted(
-                variables.environmentSubstitute(meta.getPassword())));
+                variables.resolve(meta.getPassword())));
       } else {
         connection.connect();
       }
@@ -1231,10 +1231,10 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
       // connect ...
       if (meta.isUseAuthentication()) {
-        String username = variables.environmentSubstitute(meta.getUserName());
+        String username = variables.resolve(meta.getUserName());
         String password =
             Encr.decryptPasswordOptionallyEncrypted(
-                variables.environmentSubstitute(meta.getPassword()));
+                variables.resolve(meta.getPassword()));
         connection.connect(username, password);
       } else {
         connection.connect();
@@ -1242,7 +1242,7 @@ public class LdapInputDialog extends BaseTransformDialog implements ITransformDi
 
       // return fields
       RowMeta listattributes =
-          connection.getFields(variables.environmentSubstitute(meta.getSearchBase()));
+          connection.getFields(variables.resolve(meta.getSearchBase()));
       String[] fieldsName = new String[listattributes.size()];
       for (int i = 0; i < listattributes.size(); i++) {
 

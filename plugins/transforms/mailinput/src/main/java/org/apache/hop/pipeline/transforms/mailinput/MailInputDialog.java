@@ -1166,7 +1166,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     Listener lsTest = e -> test();
     wTest.addListener( SWT.Selection, lsTest);
     wGet.addListener( SWT.Selection, e -> getFields() );
-    Listener lsTestIMAPFolder = e -> checkFolder(variables.environmentSubstitute(wIMAPFolder.getText()));
+    Listener lsTestIMAPFolder = e -> checkFolder(variables.resolve(wIMAPFolder.getText()));
     wTestIMAPFolder.addListener( SWT.Selection, lsTestIMAPFolder);
 
     Listener lsSelectFolder = e -> selectFolder(wIMAPFolder);
@@ -1591,11 +1591,11 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     }
 
     if ( !retval ) {
-      String realserver = variables.environmentSubstitute( wServerName.getText() );
-      String realuser = variables.environmentSubstitute( wUserName.getText() );
+      String realserver = variables.resolve( wServerName.getText() );
+      String realuser = variables.resolve( wUserName.getText() );
       String realpass = Utils.resolvePassword( variables, wPassword.getText() );
-      String realProxyUsername = variables.environmentSubstitute( wProxyUsername.getText() );
-      int realport = Const.toInt( variables.environmentSubstitute( wPort.getText() ), -1 );
+      String realProxyUsername = variables.resolve( wProxyUsername.getText() );
+      int realport = Const.toInt( variables.resolve( wPort.getText() ), -1 );
 
       try {
         mailConn =

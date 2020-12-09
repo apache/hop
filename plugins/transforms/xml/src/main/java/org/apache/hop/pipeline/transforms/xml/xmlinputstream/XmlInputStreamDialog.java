@@ -980,7 +980,7 @@ public class XmlInputStreamDialog extends BaseTransformDialog implements ITransf
           FileDialog dialog = new FileDialog( shell, SWT.OPEN );
           dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
           if ( wFilename.getText() != null ) {
-            String fname = variables.environmentSubstitute( wFilename.getText() );
+            String fname = variables.resolve( wFilename.getText() );
             dialog.setFileName( fname );
           }
 

@@ -220,7 +220,7 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> im
     // Open the query with the optional parameters received from the source transforms.
     String sql = null;
     if ( meta.isVariableReplacementActive() ) {
-      sql = environmentSubstitute( meta.getSql() );
+      sql = resolve( meta.getSql() );
     } else {
       sql = meta.getSql();
     }
@@ -323,9 +323,9 @@ public class TableInput extends BaseTransform<TableInputMeta, TableInputData> im
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
 
-      data.db.setQueryLimit( Const.toInt( environmentSubstitute( meta.getRowLimit() ), 0 ) );
+      data.db.setQueryLimit( Const.toInt( resolve( meta.getRowLimit() ), 0 ) );
 
       try {
         data.db.connect( getPartitionId() );

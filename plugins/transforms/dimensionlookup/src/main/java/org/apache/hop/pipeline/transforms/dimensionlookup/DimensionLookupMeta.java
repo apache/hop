@@ -1067,7 +1067,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
 
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
 
       try {
         db.connect();
@@ -1259,7 +1259,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
 
     if ( databaseMeta != null ) {
       Database db = createDatabaseObject();
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
 
       try {
         db.connect();
@@ -1468,7 +1468,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
           String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
           if ( !Utils.isEmpty( schemaTable ) ) {
             Database db = createDatabaseObject();
-            db.shareVariablesWith( variables );
+            db.shareWith( variables );
             try {
               db.connect();
 
@@ -1610,7 +1610,7 @@ public class DimensionLookupMeta extends BaseTransformMeta implements ITransform
               if ( sql.length() == 0 ) {
                 retval.setSql( null );
               } else {
-                retval.setSql( variables.environmentSubstitute( sql ) );
+                retval.setSql( variables.resolve( sql ) );
               }
             } catch ( HopDatabaseException dbe ) {
               retval.setError( BaseMessages.getString( PKG, "DimensionLookupMeta.ReturnValue.ErrorOccurred" ) + dbe

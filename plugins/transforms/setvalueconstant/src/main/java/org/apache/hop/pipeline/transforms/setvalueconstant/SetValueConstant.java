@@ -31,10 +31,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.util.List;
 
@@ -106,7 +104,7 @@ public class SetValueConstant extends BaseTransform<SetValueConstantMeta, SetVal
           } else {
             // set specified value
             if ( meta.isUseVars() ) {
-              data.getRealReplaceByValues()[ i ] = environmentSubstitute( meta.getField( i ).getReplaceValue() );
+              data.getRealReplaceByValues()[ i ] = resolve( meta.getField( i ).getReplaceValue() );
             } else {
               data.getRealReplaceByValues()[ i ] = meta.getField( i ).getReplaceValue();
             }

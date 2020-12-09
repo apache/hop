@@ -130,11 +130,11 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     Result result = previousResult;
     result.setResult( false );
 
-    String realURL = environmentSubstitute( getURL() );
+    String realURL = resolve( getURL() );
 
     if ( !Utils.isEmpty( realURL ) ) {
-      int connectTimeOut = Const.toInt( environmentSubstitute( getConnectTimeOut() ), 0 );
-      int readTimeOut = Const.toInt( environmentSubstitute( getReadTimeOut() ), 0 );
+      int connectTimeOut = Const.toInt( resolve( getConnectTimeOut() ), 0 );
+      int readTimeOut = Const.toInt( resolve( getReadTimeOut() ), 0 );
       InputStream in = null;
       try {
 

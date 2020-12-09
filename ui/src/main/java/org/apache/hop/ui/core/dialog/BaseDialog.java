@@ -182,7 +182,7 @@ public abstract class BaseDialog extends Dialog {
       dialog.setFileName( HopVfs.getFilename( fileObject ) );
     }
     if ( variables != null && textVar != null && textVar.getText() != null ) {
-      dialog.setFileName( variables.environmentSubstitute( textVar.getText() ) );
+      dialog.setFileName( variables.resolve( textVar.getText() ) );
     }
 
     AtomicBoolean doIt = new AtomicBoolean( true );
@@ -242,7 +242,7 @@ public abstract class BaseDialog extends Dialog {
     }
     directoryDialog.setText( BaseMessages.getString( PKG, "BaseDialog.OpenDirectory" ) );
     if ( textVar != null && variables != null && textVar.getText() != null ) {
-      directoryDialog.setFilterPath( variables.environmentSubstitute( textVar.getText() ) );
+      directoryDialog.setFilterPath( variables.resolve( textVar.getText() ) );
     }
     String directoryName = null;
 

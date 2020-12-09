@@ -51,10 +51,10 @@ public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, 
       return false;
     }
 
-    String realUrl = environmentSubstitute( meta.getTargetUrl() );
-    String realUsername = environmentSubstitute( meta.getUsername() );
-    String realPassword = environmentSubstitute( meta.getPassword() );
-    String realModule = environmentSubstitute( meta.getModule() );
+    String realUrl = resolve( meta.getTargetUrl() );
+    String realUsername = resolve( meta.getUsername() );
+    String realPassword = resolve( meta.getPassword() );
+    String realModule = resolve( meta.getModule() );
 
     if ( Utils.isEmpty( realUrl ) ) {
       log.logError( BaseMessages.getString( PKG, "SalesforceTransform.TargetURLMissing.Error" ) );
@@ -76,7 +76,7 @@ public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, 
       // The final step should call data.connection.connect(), as other settings may set additional options
       data.connection = new SalesforceConnection( log, realUrl, realUsername, realPassword );
       data.connection.setModule( realModule );
-      data.connection.setTimeOut( Const.toInt( environmentSubstitute( meta.getTimeout() ), 0 ) );
+      data.connection.setTimeOut( Const.toInt( resolve( meta.getTimeout() ), 0 ) );
       data.connection.setUsingCompression( meta.isCompression() );
     } catch ( HopException ke ) {
       logError( BaseMessages.getString( PKG, "SalesforceInput.Log.ErrorOccurredDuringTransformInitialize" )

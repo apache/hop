@@ -118,7 +118,7 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealFilename() {
-    return environmentSubstitute( getFilename() );
+    return resolve( getFilename() );
   }
 
   public Result execute( Result previousResult, int nr ) {
@@ -193,7 +193,7 @@ public class ActionDeleteFile extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( filename ) ) {
-      String realFileName = environmentSubstitute( filename );
+      String realFileName = resolve( filename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
       references.add( reference );

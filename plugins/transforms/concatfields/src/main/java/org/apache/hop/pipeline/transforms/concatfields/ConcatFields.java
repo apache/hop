@@ -214,10 +214,10 @@ public class ConcatFields extends BaseTransform<ConcatFieldsMeta, ConcatFieldsDa
     data.stringEnclosure = "";
 
     if ( !StringUtil.isEmpty( meta.getSeparator() ) ) {
-      data.stringSeparator = environmentSubstitute( meta.getSeparator() );
+      data.stringSeparator = resolve( meta.getSeparator() );
     }
     if ( !StringUtil.isEmpty( meta.getEnclosure() ) ) {
-      data.stringEnclosure = environmentSubstitute( meta.getEnclosure() );
+      data.stringEnclosure = resolve( meta.getEnclosure() );
     }
 
     data.stringNullValue = new String[meta.getOutputFields().length];

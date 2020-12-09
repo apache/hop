@@ -41,10 +41,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.Wsdl;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameterList;
@@ -423,8 +421,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
     cachedMeta = meta;
 
     try {
-      cachedWsdl = new Wsdl( new java.net.URI( data.realUrl ), null, null, environmentSubstitute( meta.getHttpLogin() ),
-        Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( meta.getHttpPassword() ) ) );
+      cachedWsdl = new Wsdl( new java.net.URI( data.realUrl ), null, null, resolve( meta.getHttpLogin() ),
+        Encr.decryptPasswordOptionallyEncrypted( resolve( meta.getHttpPassword() ) ) );
     } catch ( Exception e ) {
       throw new HopTransformException( BaseMessages.getString( PKG, "WebServices.ERROR0013.ExceptionLoadingWSDL" ), e );
     }
@@ -467,14 +465,14 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
   private HttpClient getHttpClient( HttpClientContext context ) {
     HttpClientManager.HttpClientBuilderFacade clientBuilder = HttpClientManager.getInstance().createBuilder();
 
-    String login = environmentSubstitute( meta.getHttpLogin() );
+    String login = resolve( meta.getHttpLogin() );
     if ( StringUtils.isNotBlank( login ) ) {
       clientBuilder.setCredentials( login,
-        Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( meta.getHttpPassword() ) ) );
+        Encr.decryptPasswordOptionallyEncrypted( resolve( meta.getHttpPassword() ) ) );
     }
     int proxyPort = 0;
     if ( StringUtils.isNotBlank( meta.getProxyHost() ) ) {
-      proxyPort = Const.toInt( environmentSubstitute( meta.getProxyPort() ), 8080 );
+      proxyPort = Const.toInt( resolve( meta.getProxyPort() ), 8080 );
       clientBuilder.setProxy( meta.getProxyHost(), proxyPort );
     }
     CloseableHttpClient httpClient = clientBuilder.build();
@@ -497,7 +495,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
   public boolean init() {
 
     data.indexMap = new Hashtable<>();
-    data.realUrl = environmentSubstitute( meta.getUrl() );
+    data.realUrl = resolve( meta.getUrl() );
 
     return super.init();
   }

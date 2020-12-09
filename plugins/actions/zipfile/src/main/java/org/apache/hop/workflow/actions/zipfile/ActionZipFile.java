@@ -523,7 +523,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
                     relativeName = fullName;
                   }
                 } else if ( isFromPrevious ) {
-                  int depth = determineDepth( environmentSubstitute( storedSourcePathDepth ) );
+                  int depth = determineDepth( resolve( storedSourcePathDepth ) );
                   relativeName = determineZipfilenameForDepth( fullName, depth );
                 } else {
                   relativeName = fileList[ i ].getName().getBaseName();
@@ -733,7 +733,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
 
   private File getFile( final String filename ) {
     try {
-      String uri = HopVfs.getFileObject( environmentSubstitute( filename ) ).getName().getPath();
+      String uri = HopVfs.getFileObject( resolve( filename ) ).getName().getPath();
       return new File( uri );
     } catch ( HopFileException ex ) {
       logError( "Error in Fetching URI for File: " + filename, ex );
@@ -761,7 +761,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     String realWildcard = null;
     String realWildcardExclude = null;
     String realTargetdirectory;
-    String realMovetodirectory = environmentSubstitute( movetoDirectory );
+    String realMovetodirectory = resolve( movetoDirectory );
 
     // Sanity check
     boolean SanityControlOK = true;
@@ -872,10 +872,10 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
       if ( !Utils.isEmpty( sourceDirectory ) ) {
         // get values from action
         realZipfilename =
-          getFullFilename( environmentSubstitute( zipFilename ), addDate, addTime, specifyFormat, dateTimeFormat );
-        realWildcard = environmentSubstitute( wildCard );
-        realWildcardExclude = environmentSubstitute( excludeWildCard );
-        realTargetdirectory = environmentSubstitute( sourceDirectory );
+          getFullFilename( resolve( zipFilename ), addDate, addTime, specifyFormat, dateTimeFormat );
+        realWildcard = resolve( wildCard );
+        realWildcardExclude = resolve( excludeWildCard );
+        realTargetdirectory = resolve( sourceDirectory );
 
         boolean success = processRowFile( parentWorkflow, result, realZipfilename, realWildcard, realWildcardExclude,
           realTargetdirectory, realMovetodirectory, createParentFolder );
@@ -907,7 +907,7 @@ public class ActionZipFile extends ActionBase implements Cloneable, IAction {
     }
 
     // Replace possible environment variables...
-    String realfilename = environmentSubstitute( filename );
+    String realfilename = resolve( filename );
     int lenstring = realfilename.length();
     int lastindexOfDot = realfilename.lastIndexOf( '.' );
     if ( lastindexOfDot == -1 ) {

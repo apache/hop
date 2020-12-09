@@ -404,7 +404,7 @@ public class PipelineMetaTest {
     PipelineMeta meta = new PipelineMeta();
 
     IVariables variables = Mockito.mock( IVariables.class );
-    Mockito.when( variables.listVariables() ).thenReturn( new String[ 0 ] );
+    Mockito.when( variables.getVariableNames() ).thenReturn( new String[ 0 ] );
 
     meta.loadXml( workflowNode, null, metadataProvider, false, variables );
     meta.setInternalHopVariables( variables );

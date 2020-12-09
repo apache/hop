@@ -160,7 +160,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.environmentSubstitute( wWildcard.getText() ) ) );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.resolve( wWildcard.getText() ) ) );
 
     // wWildcardExclude
     wlWildcardExclude = new Label( shell, SWT.RIGHT );
@@ -184,7 +184,7 @@ public class ActionDeleteResultFilenamesDialog extends ActionDialog implements I
     wWildcardExclude.setLayoutData(fdWildcardExclude);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( variables.environmentSubstitute( wWildcardExclude.getText() ) ) );
+    wWildcardExclude.addModifyListener( e -> wWildcardExclude.setToolTipText( variables.resolve( wWildcardExclude.getText() ) ) );
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

@@ -31,9 +31,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -171,11 +169,11 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
           logError( BaseMessages.getString( PKG, "ColumnExists.Error.TablenameMissing" ) );
           return false;
         }
-        data.tableName = environmentSubstitute( meta.getTablename() );
+        data.tableName = resolve( meta.getTablename() );
       }
       data.schemaname = meta.getSchemaname();
       if ( !Utils.isEmpty( data.schemaname ) ) {
-        data.schemaname = environmentSubstitute( data.schemaname );
+        data.schemaname = resolve( data.schemaname );
       }
 
       if ( Utils.isEmpty( meta.getResultFieldName() ) ) {
@@ -183,7 +181,7 @@ public class ColumnExists extends BaseTransform<ColumnExistsMeta, ColumnExistsDa
         return false;
       }
       data.db = new Database( this, meta.getDatabase() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
       try {
         data.db.connect( getPartitionId() );
 

@@ -66,7 +66,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
       throw new HopException( "Please specify a window type in Beam Window transform '" + transformMeta.getName() + "'" );
     }
 
-    String duration = variables.environmentSubstitute( beamWindowMeta.getDuration() );
+    String duration = variables.resolve( beamWindowMeta.getDuration() );
     long durationSeconds = Const.toLong( duration, -1L );
 
     PCollection<HopRow> stepPCollection;
@@ -87,7 +87,7 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
         throw new HopException( "Please specify a valid positive window size (duration) for Beam window transform '" + transformMeta.getName() + "'" );
       }
 
-      String every = variables.environmentSubstitute( beamWindowMeta.getEvery() );
+      String every = variables.resolve( beamWindowMeta.getEvery() );
       long everySeconds = Const.toLong( every, -1L );
 
       SlidingWindows slidingWindows = SlidingWindows
@@ -122,9 +122,9 @@ public class BeamWindowTransformHandler extends BeamBaseTransformHandler impleme
 
       WindowInfoFn windowInfoFn = new WindowInfoFn(
         transformMeta.getName(),
-        variables.environmentSubstitute( beamWindowMeta.getMaxWindowField() ),
-        variables.environmentSubstitute( beamWindowMeta.getStartWindowField() ),
-        variables.environmentSubstitute( beamWindowMeta.getMaxWindowField() ),
+        variables.resolve( beamWindowMeta.getMaxWindowField() ),
+        variables.resolve( beamWindowMeta.getStartWindowField() ),
+        variables.resolve( beamWindowMeta.getMaxWindowField() ),
         JsonRowMeta.toJson( inputRowMeta ),
         transformPluginClasses,
         xpPluginClasses

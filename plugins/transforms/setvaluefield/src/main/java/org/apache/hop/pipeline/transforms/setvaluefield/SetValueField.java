@@ -31,10 +31,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 /**
  * Set value field with another value field.
@@ -80,12 +78,12 @@ public class SetValueField extends BaseTransform<SetValueFieldMeta, SetValueFiel
           }
         }
 
-        data.indexOfField[ i ] = data.outputRowMeta.indexOfValue( environmentSubstitute( meta.getFieldName()[ i ] ) );
+        data.indexOfField[ i ] = data.outputRowMeta.indexOfValue( resolve( meta.getFieldName()[ i ] ) );
         if ( data.indexOfField[ i ] < 0 ) {
           throw new HopTransformException( BaseMessages.getString(
             PKG, "SetValueField.Log.CouldNotFindFieldInRow", meta.getFieldName()[ i ] ) );
         }
-        String sourceField = environmentSubstitute(
+        String sourceField = resolve(
           meta.getReplaceByFieldValue() != null && meta.getReplaceByFieldValue().length > 0
             ? meta.getReplaceByFieldValue()[ i ] : null
         );

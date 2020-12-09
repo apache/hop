@@ -153,9 +153,9 @@ public class FileInputList {
     FileInputList fileInputList = new FileInputList();
 
     // Replace possible environment variables...
-    final String[] realfile = variables.environmentSubstitute( fileName );
-    final String[] realmask = variables.environmentSubstitute( fileMask );
-    final String[] realExcludeMask = variables.environmentSubstitute( excludeFileMask );
+    final String[] realfile = variables.resolve( fileName );
+    final String[] realmask = variables.resolve( fileMask );
+    final String[] realExcludeMask = variables.resolve( excludeFileMask );
 
     for ( int i = 0; i < realfile.length; i++ ) {
       final String onefile = realfile[ i ];
@@ -292,7 +292,7 @@ public class FileInputList {
     FileInputList fileInputList = new FileInputList();
 
     // Replace possible environment variables...
-    final String[] realfolder = variables.environmentSubstitute( folderName );
+    final String[] realfolder = variables.resolve( folderName );
 
     for ( int i = 0; i < realfolder.length; i++ ) {
       final String onefile = realfolder[ i ];

@@ -68,10 +68,10 @@ public class MongoDbOutputDataTest {
   @Before
   public void before() {
     MockitoAnnotations.initMocks(this);
-    when(variables.environmentSubstitute(any(String.class)))
+    when(variables.resolve(any(String.class)))
         .thenAnswer(
             (Answer<String>) invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
-    when(variables.environmentSubstitute(any(String.class)))
+    when(variables.resolve(any(String.class)))
         .thenAnswer(
             (Answer<String>) invocationOnMock -> (String) invocationOnMock.getArguments()[0]);
   }

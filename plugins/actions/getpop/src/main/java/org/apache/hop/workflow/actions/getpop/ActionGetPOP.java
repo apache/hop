@@ -335,7 +335,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealPort() {
-    return environmentSubstitute( getPort() );
+    return resolve( getPort() );
   }
 
   public void setPort( String sslport ) {
@@ -503,7 +503,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealFirstMails() {
-    return environmentSubstitute( getFirstMails() );
+    return resolve( getFirstMails() );
   }
 
   public void setServerName( String servername ) {
@@ -553,23 +553,23 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealOutputDirectory() {
-    return environmentSubstitute( getOutputDirectory() );
+    return resolve( getOutputDirectory() );
   }
 
   public String getRealFilenamePattern() {
-    return environmentSubstitute( getFilenamePattern() );
+    return resolve( getFilenamePattern() );
   }
 
   public String getRealUsername() {
-    return environmentSubstitute( getUserName() );
+    return resolve( getUserName() );
   }
 
   public String getRealServername() {
-    return environmentSubstitute( getServerName() );
+    return resolve( getServerName() );
   }
 
   public String getRealProxyUsername() {
-    return environmentSubstitute( geProxyUsername() );
+    return resolve( geProxyUsername() );
   }
 
   public String geProxyUsername() {
@@ -597,7 +597,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealAttachmentFolder() {
-    return environmentSubstitute( getAttachmentFolder() );
+    return resolve( getAttachmentFolder() );
   }
 
   public void setAttachmentFolder( String folderName ) {
@@ -729,7 +729,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       String targetAttachmentFolder = createOutputDirectory( ActionGetPOP.FOLDER_ATTACHMENTS );
 
       // Check destination folder
-      String realMoveToIMAPFolder = environmentSubstitute( getMoveToIMAPFolder() );
+      String realMoveToIMAPFolder = resolve( getMoveToIMAPFolder() );
       if ( getProtocol().equals( MailConnectionMeta.PROTOCOL_STRING_IMAP )
         && ( getActionType() == MailConnectionMeta.ACTION_TYPE_MOVE )
         || ( getActionType() == MailConnectionMeta.ACTION_TYPE_GET
@@ -747,7 +747,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
         case MailConnectionMeta.CONDITION_DATE_EQUAL:
         case MailConnectionMeta.CONDITION_DATE_GREATER:
         case MailConnectionMeta.CONDITION_DATE_SMALLER:
-          String realBeginDate = environmentSubstitute( getReceivedDate1() );
+          String realBeginDate = resolve( getReceivedDate1() );
           if ( Utils.isEmpty( realBeginDate ) ) {
             throw new HopException( BaseMessages.getString(
               PKG, "JobGetMailsFromPOP.Error.ReceivedDateSearchTermEmpty" ) );
@@ -755,13 +755,13 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
           beginDate = df.parse( realBeginDate );
           break;
         case MailConnectionMeta.CONDITION_DATE_BETWEEN:
-          realBeginDate = environmentSubstitute( getReceivedDate1() );
+          realBeginDate = resolve( getReceivedDate1() );
           if ( Utils.isEmpty( realBeginDate ) ) {
             throw new HopException( BaseMessages.getString(
               PKG, "JobGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty" ) );
           }
           beginDate = df.parse( realBeginDate );
-          String realEndDate = environmentSubstitute( getReceivedDate2() );
+          String realEndDate = resolve( getReceivedDate2() );
           if ( Utils.isEmpty( realEndDate ) ) {
             throw new HopException( BaseMessages.getString(
               PKG, "JobGetMailsFromPOP.Error.ReceivedDatesSearchTermEmpty" ) );
@@ -776,8 +776,8 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       String realusername = getRealUsername();
       String realpassword = getRealPassword( getPassword() );
       String realFilenamePattern = getRealFilenamePattern();
-      int realport = Const.toInt( environmentSubstitute( sslport ), -1 );
-      String realIMAPFolder = environmentSubstitute( getIMAPFolder() );
+      int realport = Const.toInt( resolve( sslport ), -1 );
+      String realIMAPFolder = resolve( getIMAPFolder() );
       String realProxyUsername = getRealProxyUsername();
 
       initVariables();
@@ -796,22 +796,22 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
       }
 
       // apply search term?
-      String realSearchSender = environmentSubstitute( getSenderSearchTerm() );
+      String realSearchSender = resolve( getSenderSearchTerm() );
       if ( !Utils.isEmpty( realSearchSender ) ) {
         // apply FROM
         mailConn.setSenderTerm( realSearchSender, isNotTermSenderSearch() );
       }
-      String realSearchReceipient = environmentSubstitute( getReceipientSearch() );
+      String realSearchReceipient = resolve( getReceipientSearch() );
       if ( !Utils.isEmpty( realSearchReceipient ) ) {
         // apply TO
         mailConn.setReceipientTerm( realSearchReceipient );
       }
-      String realSearchSubject = environmentSubstitute( getSubjectSearch() );
+      String realSearchSubject = resolve( getSubjectSearch() );
       if ( !Utils.isEmpty( realSearchSubject ) ) {
         // apply Subject
         mailConn.setSubjectTerm( realSearchSubject, isNotTermSubjectSearch() );
       }
-      String realSearchBody = environmentSubstitute( getBodySearch() );
+      String realSearchBody = resolve( getBodySearch() );
       if ( !Utils.isEmpty( realSearchBody ) ) {
         // apply body
         mailConn.setBodyTerm( realSearchBody, isNotTermBodySearch() );
@@ -1145,7 +1145,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   private void initVariables() {
     // Attachment wildcard
     attachementPattern = null;
-    String realAttachmentWildcard = environmentSubstitute( getAttachmentWildcard() );
+    String realAttachmentWildcard = resolve( getAttachmentWildcard() );
     if ( !Utils.isEmpty( realAttachmentWildcard ) ) {
       attachementPattern = Pattern.compile( realAttachmentWildcard );
     }
@@ -1173,7 +1173,7 @@ public class ActionGetPOP extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( servername ) ) {
-      String realServername = environmentSubstitute( servername );
+      String realServername = resolve( servername );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
       references.add( reference );

@@ -168,10 +168,10 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
       data.cx = ContextFactory.getGlobal().enterContext();
 
       try {
-        String optimizationLevelAsString = environmentSubstitute( meta.getOptimizationLevel() );
+        String optimizationLevelAsString = resolve( meta.getOptimizationLevel() );
         if ( !Utils.isEmpty( Const.trim( optimizationLevelAsString ) ) ) {
           data.cx.setOptimizationLevel( Integer.parseInt( optimizationLevelAsString.trim() ) );
-          logBasic( BaseMessages.getString( PKG, "ScriptValuesMod.Optimization.Level", environmentSubstitute( meta
+          logBasic( BaseMessages.getString( PKG, "ScriptValuesMod.Optimization.Level", resolve( meta
             .getOptimizationLevel() ) ) );
         } else {
           data.cx.setOptimizationLevel( Integer.parseInt( ScriptValuesMetaMod.OPTIMIZATION_LEVEL_DEFAULT ) );
@@ -180,7 +180,7 @@ public class ScriptValuesMod extends BaseTransform<ScriptValuesMetaMod, ScriptVa
         }
       } catch ( NumberFormatException nfe ) {
         throw new HopTransformException( BaseMessages.getString(
-          PKG, "ScriptValuesMetaMod.Exception.NumberFormatException", environmentSubstitute( meta
+          PKG, "ScriptValuesMetaMod.Exception.NumberFormatException", resolve( meta
             .getOptimizationLevel() ) ) );
       } catch ( IllegalArgumentException iae ) {
         throw new HopException( iae.getMessage() );

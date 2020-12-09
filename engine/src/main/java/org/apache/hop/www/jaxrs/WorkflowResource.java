@@ -181,9 +181,9 @@ public class WorkflowResource {
 
       // Setting variables
       //
-      workflow.initializeVariablesFrom( null );
+      workflow.initializeFrom( null );
       workflow.getWorkflowMeta().setInternalHopVariables( workflow );
-      workflow.injectVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
+      workflow.setVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
 
       // Also copy the parameters over...
       //

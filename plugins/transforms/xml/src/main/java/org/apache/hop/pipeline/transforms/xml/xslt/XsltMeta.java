@@ -318,7 +318,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
       IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Output field (String)
-    IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getResultfieldname() ));
+    IValueMeta v = new ValueMetaString( variables.resolve( getResultfieldname() ));
     v.setOrigin( name );
     inputRowMeta.addValueMeta( v );
   }
@@ -421,7 +421,7 @@ public class XsltMeta extends BaseTransformMeta implements ITransformMeta<Xslt, 
 
       } else {
         // Check if it's exist and it's a file
-        String RealFilename = variables.environmentSubstitute( xslFilename );
+        String RealFilename = variables.resolve( xslFilename );
         File f = new File( RealFilename );
 
         if ( f.exists() ) {

@@ -293,7 +293,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     Result result = previousResult;
     result.setResult( false );
 
-    String vfsFilename = environmentSubstitute( filename );
+    String vfsFilename = resolve( filename );
     FileObject fileObject = null;
     // Let's check the filename ...
     if ( !Utils.isEmpty( vfsFilename ) ) {
@@ -337,13 +337,13 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 .getDatabaseName() ) );
               return result;
             }
-            db.shareVariablesWith( this );
+            db.shareWith( this );
             try {
               db.connect();
               // Get schemaname
-              String realSchemaname = environmentSubstitute( schemaname );
+              String realSchemaname = resolve( schemaname );
               // Get tablename
-              String realTablename = environmentSubstitute( tableName );
+              String realTablename = resolve( tableName );
 
               // Add schemaname (Most the time Schemaname.Tablename)
               if ( schemaname != null ) {
@@ -370,7 +370,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 }
                 // Check Specific Code page
                 if ( codepage.equals( "Specific" ) ) {
-                  String realCodePage = environmentSubstitute( codepage );
+                  String realCodePage = resolve( codepage );
                   if ( specificcodepage.length() < 0 ) {
                     logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.SpecificCodePageMissing" ) );
                     return result;
@@ -383,7 +383,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 }
 
                 // Check Error file
-                String realErrorFile = environmentSubstitute( errorfilename );
+                String realErrorFile = resolve( errorfilename );
                 if ( realErrorFile != null ) {
                   File errorfile = new File( realErrorFile );
                   if ( errorfile.exists() && !adddatetime ) {
@@ -448,7 +448,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 if ( UseCodepage.length() > 0 ) {
                   SqlBulkLoad = SqlBulkLoad + "," + UseCodepage;
                 }
-                String realFormatFile = environmentSubstitute( formatfilename );
+                String realFormatFile = resolve( formatfilename );
                 if ( realFormatFile != null ) {
                   SqlBulkLoad = SqlBulkLoad + ", FORMATFILE='" + realFormatFile + "'";
                 }
@@ -617,11 +617,11 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealLineterminated() {
-    return environmentSubstitute( getLineterminated() );
+    return resolve( getLineterminated() );
   }
 
   public String getRealFieldTerminator() {
-    return environmentSubstitute( getFieldTerminator() );
+    return resolve( getFieldTerminator() );
   }
 
   public void setStartFile( int startfile ) {
@@ -665,7 +665,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealOrderBy() {
-    return environmentSubstitute( getOrderBy() );
+    return resolve( getOrderBy() );
   }
 
   public void setAddFileToResult( boolean addfiletoresultin ) {

@@ -936,7 +936,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
 
     // Whenever something changes, set the tooltip to the expanded version
     // of the filename:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {
@@ -944,7 +944,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
         if ( !Utils.isEmpty( wFilemask.getText() ) || !Utils.isEmpty( wExcludeFilemask.getText() ) ) {
           DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
           if ( wFilename.getText() != null ) {
-            String fpath = variables.environmentSubstitute( wFilename.getText() );
+            String fpath = variables.resolve( wFilename.getText() );
             dialog.setFilterPath( fpath );
           }
 
@@ -956,7 +956,7 @@ public class LDIFInputDialog extends BaseTransformDialog implements ITransformDi
           FileDialog dialog = new FileDialog( shell, SWT.OPEN );
           dialog.setFilterExtensions( new String[] { "*ldif;*.LDIF", "*" } );
           if ( wFilename.getText() != null ) {
-            String fname = variables.environmentSubstitute( wFilename.getText() );
+            String fname = variables.resolve( wFilename.getText() );
             dialog.setFileName( fname );
           }
 

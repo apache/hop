@@ -54,10 +54,10 @@ public class BeamKafkaOutputTransformHandler extends BeamBaseTransformHandler im
 
     BeamKafkaOutputTransform beamOutputTransform = new BeamKafkaOutputTransform(
       beamOutputTransformMeta.getName(),
-      variables.environmentSubstitute( beamProduceMeta.getBootstrapServers() ),
-      variables.environmentSubstitute( beamProduceMeta.getTopic() ),
-      variables.environmentSubstitute( beamProduceMeta.getKeyField() ),
-      variables.environmentSubstitute( beamProduceMeta.getMessageField() ),
+      variables.resolve( beamProduceMeta.getBootstrapServers() ),
+      variables.resolve( beamProduceMeta.getTopic() ),
+      variables.resolve( beamProduceMeta.getKeyField() ),
+      variables.resolve( beamProduceMeta.getMessageField() ),
       JsonRowMeta.toJson( rowMeta ),
       transformPluginClasses,
       xpPluginClasses

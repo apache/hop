@@ -230,7 +230,7 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
     if ( connections != null ) {
       for ( int i = 0; i < connections.length && !parentWorkflow.isStopped(); i++ ) {
         Database db = new Database( this, connections[ i ] );
-        db.shareVariablesWith( this );
+        db.shareWith( this );
         try {
           db.connect();
 
@@ -239,7 +239,7 @@ public class ActionCheckDbConnections extends ActionBase implements Cloneable, I
               .getDatabaseName(), connections[ i ].getName() ) );
           }
 
-          int iMaximumTimeout = Const.toInt( environmentSubstitute( waitfors[ i ] ), 0 );
+          int iMaximumTimeout = Const.toInt( resolve( waitfors[ i ] ), 0 );
           if ( iMaximumTimeout > 0 ) {
 
             int multiple = 1;

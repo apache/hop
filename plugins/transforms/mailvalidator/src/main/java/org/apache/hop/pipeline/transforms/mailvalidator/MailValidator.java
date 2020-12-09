@@ -31,12 +31,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
-
-import javax.xml.crypto.Data;
 
 /**
  * Check if an email address is valid *
@@ -72,7 +68,7 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // check result fieldname
-      data.realResultFieldName = environmentSubstitute( meta.getResultFieldName() );
+      data.realResultFieldName = resolve( meta.getResultFieldName() );
       if ( Utils.isEmpty( data.realResultFieldName ) ) {
         throw new HopException( BaseMessages.getString( PKG, "MailValidator.Error.ResultFieldNameMissing" ) );
       }
@@ -86,8 +82,8 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
           throw new HopException( BaseMessages.getString( PKG, "MailValidator.Error.EMailNotValidMsgMissing" ) );
         }
 
-        data.msgValidMail = environmentSubstitute( meta.getEMailValideMsg() );
-        data.msgNotValidMail = environmentSubstitute( meta.getEMailNotValideMsg() );
+        data.msgValidMail = resolve( meta.getEMailValideMsg() );
+        data.msgNotValidMail = resolve( meta.getEMailNotValideMsg() );
       }
 
       // Check is email address field is provided
@@ -95,7 +91,7 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
         throw new HopException( BaseMessages.getString( PKG, "MailValidator.Error.FilenameFieldMissing" ) );
       }
 
-      data.realResultErrorsFieldName = environmentSubstitute( meta.getErrorsField() );
+      data.realResultErrorsFieldName = resolve( meta.getErrorsField() );
 
       // cache the position of the field
       if ( data.indexOfeMailField < 0 ) {
@@ -124,13 +120,13 @@ public class MailValidator extends BaseTransform<MailValidatorMeta, MailValidato
           }
         }
         // get Timeout
-        data.timeout = Const.toInt( environmentSubstitute( meta.getTimeOut() ), 0 );
+        data.timeout = Const.toInt( resolve( meta.getTimeOut() ), 0 );
 
         // get email sender
-        data.realemailSender = environmentSubstitute( meta.geteMailSender() );
+        data.realemailSender = resolve( meta.geteMailSender() );
 
         // get default SMTP server
-        data.realdefaultSMTPServer = environmentSubstitute( meta.getDefaultSMTP() );
+        data.realdefaultSMTPServer = resolve( meta.getDefaultSMTP() );
       }
 
     } // End If first

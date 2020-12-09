@@ -536,7 +536,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
           DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
           if ( ci != null ) {
             Database db = new Database( loggingObject, ci );
-            db.shareVariablesWith( variables );
+            db.shareWith( variables );
             try {
               db.connect();
 
@@ -774,7 +774,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     DatabaseMeta ci = pipelineMeta.findDatabase( wConnection.getText() );
     if ( ci != null ) {
       Database db = new Database( loggingObject, ci );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       try {
         db.connect();
 

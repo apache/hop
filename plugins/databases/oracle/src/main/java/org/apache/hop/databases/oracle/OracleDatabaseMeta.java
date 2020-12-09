@@ -589,7 +589,7 @@ public class OracleDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     @Override
     public String getTablespaceDDL(IVariables variables, DatabaseMeta databaseMeta, String tablespace) {
         if (!Utils.isEmpty(tablespace)) {
-            return "TABLESPACE " + databaseMeta.quoteField(variables.environmentSubstitute(tablespace));
+            return "TABLESPACE " + databaseMeta.quoteField(variables.resolve(tablespace));
         } else {
             return "";
         }

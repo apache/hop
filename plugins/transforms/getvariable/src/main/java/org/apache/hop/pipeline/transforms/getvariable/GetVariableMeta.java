@@ -160,7 +160,7 @@ public class GetVariableMeta extends BaseTransformMeta implements ITransformMeta
     for ( int i = 0; i < fieldDefinitions.length; i++ ) {
       String variableString = fieldDefinitions[ i ].getVariableString();
       if ( variableString != null ) {
-        String string = variables.environmentSubstitute( variableString );
+        String string = variables.resolve( variableString );
         if ( string.length() > length ) {
           length = string.length();
         }

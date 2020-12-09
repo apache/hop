@@ -266,7 +266,7 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
                                   String origin, IVariables variables ) throws HopTransformException {
     if ( field != null && !StringUtils.isEmpty( field.getOutputName() ) ) {
       try {
-        String value = variables.environmentSubstitute( field.getOutputName() );
+        String value = variables.resolve( field.getOutputName() );
         IValueMeta v = ValueMetaFactory.createValueMeta( value,
           field.getOutputType().getIValueMetaType() );
         v.setOrigin( origin );
@@ -371,7 +371,7 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     try {
       PipelineMeta pipelineMeta = mappingMetaRetriever.get( this, metadataProvider, variables );
       if ( !StringUtils.isEmpty( getSubTransform() ) ) {
-        String realSubTransformName = variables.environmentSubstitute( getSubTransform() );
+        String realSubTransformName = variables.resolve( getSubTransform() );
         rowMeta.addRowMeta( pipelineMeta.getPrevTransformFields( variables, realSubTransformName ) );
         pipelineMeta.getTransforms().stream().filter( transformMeta -> transformMeta.getName().equals( realSubTransformName ) )
           .findFirst()
@@ -394,7 +394,7 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
                      IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
     long duration = Long.MIN_VALUE;
     try {
-      duration = Long.parseLong( variables.environmentSubstitute( getBatchDuration() ) );
+      duration = Long.parseLong( variables.resolve( getBatchDuration() ) );
     } catch ( NumberFormatException e ) {
       remarks.add( new CheckResult(
         ICheckResult.TYPE_RESULT_ERROR,
@@ -404,7 +404,7 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
 
     long size = Long.MIN_VALUE;
     try {
-      size = Long.parseLong( variables.environmentSubstitute( getBatchSize() ) );
+      size = Long.parseLong( variables.resolve( getBatchSize() ) );
     } catch ( NumberFormatException e ) {
       remarks.add( new CheckResult(
         ICheckResult.TYPE_RESULT_ERROR,

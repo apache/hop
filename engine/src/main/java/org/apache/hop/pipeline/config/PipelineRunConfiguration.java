@@ -20,16 +20,13 @@ package org.apache.hop.pipeline.config;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.VariableValueDescription;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
-import org.apache.hop.pipeline.PipelineMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @HopMetadata(
   key = "pipeline-run-configuration",
@@ -123,7 +120,7 @@ public class PipelineRunConfiguration extends HopMetadataBase implements Cloneab
   public void applyToVariables( IVariables variables ) {
     for ( VariableValueDescription vvd : configurationVariables ) {
       if ( StringUtils.isNotEmpty( vvd.getName() ) ) {
-        variables.setVariable( vvd.getName(), variables.environmentSubstitute( vvd.getValue() ) );
+        variables.setVariable( vvd.getName(), variables.resolve( vvd.getValue() ) );
       }
     }
   }

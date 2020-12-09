@@ -624,7 +624,7 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
       }
       try {
         IValueMeta v =
-          ValueMetaFactory.createValueMeta( variables.environmentSubstitute( field.getName() ), type );
+          ValueMetaFactory.createValueMeta( variables.resolve( field.getName() ), type );
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
         v.setOrigin( name );
@@ -639,14 +639,14 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
     }
 
     if ( includeTargetURL && !Utils.isEmpty( targetURLField ) ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( targetURLField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( targetURLField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeModule && !Utils.isEmpty( moduleField ) ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( moduleField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( moduleField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -654,26 +654,26 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
     }
 
     if ( includeSQL && !Utils.isEmpty( sqlField ) ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( sqlField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( sqlField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeTimestamp && !Utils.isEmpty( timestampField ) ) {
-      IValueMeta v = new ValueMetaDate( variables.environmentSubstitute( timestampField ) );
+      IValueMeta v = new ValueMetaDate( variables.resolve( timestampField ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( includeRowNumber && !Utils.isEmpty( rowNumberField ) ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeDeletionDate && !Utils.isEmpty( deletionDateField ) ) {
-      IValueMeta v = new ValueMetaDate( variables.environmentSubstitute( deletionDateField ) );
+      IValueMeta v = new ValueMetaDate( variables.resolve( deletionDateField ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }

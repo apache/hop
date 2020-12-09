@@ -1420,8 +1420,8 @@ public class ExcelOutputDialog extends BaseTransformDialog implements ITransform
     wTemplateFilename.addSelectionListener( lsDef );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
-    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( variables.environmentSubstitute( wTemplateFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
+    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( variables.resolve( wTemplateFilename.getText() ) ) );
 
     wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*.xls", "*.*" },

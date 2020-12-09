@@ -320,7 +320,7 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
-    String realResultFieldName = variables.environmentSubstitute( resultfieldname );
+    String realResultFieldName = variables.resolve( resultfieldname );
     if ( ResultAsString ) {
       IValueMeta v = new ValueMetaString( realResultFieldName );
       v.setLength( 100, -1 );
@@ -333,7 +333,7 @@ public class MailValidatorMeta extends BaseTransformMeta implements ITransformMe
       r.addValueMeta( v );
     }
 
-    String realErrorsFieldName = variables.environmentSubstitute( errorsFieldName );
+    String realErrorsFieldName = variables.resolve( errorsFieldName );
     if ( !Utils.isEmpty( realErrorsFieldName ) ) {
       IValueMeta v = new ValueMetaString( realErrorsFieldName );
       v.setLength( 100, -1 );

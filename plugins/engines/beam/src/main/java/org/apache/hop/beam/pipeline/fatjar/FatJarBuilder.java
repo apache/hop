@@ -104,7 +104,7 @@ public class FatJarBuilder {
 
     // The real target file to write to...
     //
-    String realTargetJarFile = variables.environmentSubstitute(targetJarFile);
+    String realTargetJarFile = variables.resolve(targetJarFile);
 
     try {
       byte[] buffer = new byte[ 1024 ];

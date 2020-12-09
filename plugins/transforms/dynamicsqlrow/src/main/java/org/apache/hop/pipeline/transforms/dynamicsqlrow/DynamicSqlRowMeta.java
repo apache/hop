@@ -241,7 +241,7 @@ public class DynamicSqlRowMeta extends BaseTransformMeta implements ITransformMe
     IRowMeta add = null;
     String realSql = sql;
     if ( replacevars ) {
-      realSql = variables.environmentSubstitute( realSql );
+      realSql = variables.resolve( realSql );
     }
     try {
       add = db.getQueryFields( realSql, false );

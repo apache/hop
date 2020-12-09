@@ -29,10 +29,8 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
@@ -596,7 +594,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     }
     wRunConfiguration.setItems(entries.toArray(new String[0]));
     if (StringUtils.isNotEmpty(action.getRunConfigurationName())) {
-      String realFilename = variables.environmentSubstitute(wFilename.getText());
+      String realFilename = variables.resolve(wFilename.getText());
       try {
         if (this.action.isPipeline(realFilename)) {
           wRunConfiguration.setText(

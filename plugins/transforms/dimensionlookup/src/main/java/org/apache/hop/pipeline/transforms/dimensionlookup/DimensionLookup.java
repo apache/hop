@@ -1686,8 +1686,8 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
       data.minDate = meta.getMinDate();
       data.maxDate = meta.getMaxDate();
 
-      data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
-      data.realTableName = environmentSubstitute( meta.getTableName() );
+      data.realSchemaName = resolve( meta.getSchemaName() );
+      data.realTableName = resolve( meta.getTableName() );
 
       data.startDateChoice = DimensionLookupMeta.START_DATE_ALTERNATIVE_NONE;
       if ( meta.isUsingStartDateAlternative() ) {
@@ -1698,7 +1698,7 @@ public class DimensionLookup extends BaseTransform<DimensionLookupMeta, Dimensio
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
       try {
         data.db.connect( getPartitionId() );
 

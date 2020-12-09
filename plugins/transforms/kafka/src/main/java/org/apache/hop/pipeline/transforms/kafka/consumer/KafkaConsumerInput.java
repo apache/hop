@@ -86,13 +86,13 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
       log.logError( "Error determining output row metadata", e );
     }
 
-    data.batch = Const.toInt( environmentSubstitute( meta.getBatchSize() ), -1 );
+    data.batch = Const.toInt( resolve( meta.getBatchSize() ), -1 );
 
     data.consumer = buildKafkaConsumer(this, meta);
 
     // Subscribe to the topics...
     //
-    Set<String> topics = meta.getTopics().stream().map( this::environmentSubstitute ).collect( Collectors.toSet() );
+    Set<String> topics = meta.getTopics().stream().map( this::resolve ).collect( Collectors.toSet() );
     data.consumer.subscribe( topics );
 
     // Load and start the single threader transformation
@@ -111,7 +111,7 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
     try {
 
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
-      String realFilename = environmentSubstitute( meta.getFilename() );
+      String realFilename = resolve( meta.getFilename() );
       PipelineMeta subTransMeta = new PipelineMeta( realFilename, metadataProvider, true, this);
       subTransMeta.setMetadataProvider( metadataProvider );
       subTransMeta.setFilename( meta.getFilename() );
@@ -197,28 +197,28 @@ public class KafkaConsumerInput extends BaseTransform<KafkaConsumerInputMeta, Ka
     // Set all the configuration options...
     //
     for (String option : meta.getConfig().keySet()) {
-      String value = variables.environmentSubstitute( meta.getConfig().get( option ) );
+      String value = variables.resolve( meta.getConfig().get( option ) );
       if ( StringUtils.isNotEmpty( value ) ) {
-        config.put(option, variables.environmentSubstitute( value) );
+        config.put(option, variables.resolve( value) );
       }
     }
 
     // The basics
     //
-    config.put( ConsumerConfig.GROUP_ID_CONFIG, variables.environmentSubstitute( Const.NVL(meta.getConsumerGroup(), "kettle") ));
-    config.put( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, variables.environmentSubstitute( meta.getDirectBootstrapServers() ));
+    config.put( ConsumerConfig.GROUP_ID_CONFIG, variables.resolve( Const.NVL(meta.getConsumerGroup(), "kettle") ));
+    config.put( ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, variables.resolve( meta.getDirectBootstrapServers() ));
     config.put( ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, meta.isAutoCommit() );
 
     // Timeout : max batch wait
     //
-    int timeout = Const.toInt(variables.environmentSubstitute( meta.getBatchDuration()), 0);
+    int timeout = Const.toInt(variables.resolve( meta.getBatchDuration()), 0);
     if (timeout>0) {
       config.put( ConsumerConfig.FETCH_MAX_WAIT_MS_CONFIG, timeout);
     }
 
     // The batch size : max poll size
     //
-    int batch = Const.toInt( variables.environmentSubstitute( meta.getBatchSize() ), 0 );
+    int batch = Const.toInt( variables.resolve( meta.getBatchSize() ), 0 );
     if (batch>0) {
       config.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, batch);
     }

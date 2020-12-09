@@ -336,7 +336,7 @@ public class TransformMeta implements
     if ( parentPipelineMeta != null ) {
       // Return -1 to indicate that the variable or string value couldn't be converted to number
       //
-      copiesCache = Const.toInt( variables.environmentSubstitute( copiesString ), -1 );
+      copiesCache = Const.toInt( variables.resolve( copiesString ), -1 );
     } else {
       copiesCache = Const.toInt( copiesString, 1 );
     }

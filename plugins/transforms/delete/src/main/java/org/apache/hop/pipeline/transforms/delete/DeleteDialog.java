@@ -430,8 +430,8 @@ public class DeleteDialog extends BaseTransformDialog implements ITransformDialo
 
               IRowMeta r =
                 db.getTableFieldsMeta(
-                  variables.environmentSubstitute( schemaName ),
-                  variables.environmentSubstitute( tableName ) );
+                  variables.resolve( schemaName ),
+                  variables.resolve( tableName ) );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();
                 if ( null != fieldNames ) {

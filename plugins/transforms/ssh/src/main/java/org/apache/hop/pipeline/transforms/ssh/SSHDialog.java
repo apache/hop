@@ -294,7 +294,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
         dialog.setFilterExtensions( new String[] { "*.pem", "*" } );
         if ( wPrivateKey.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wPrivateKey.getText() ) );
+          dialog.setFileName( variables.resolve( wPrivateKey.getText() ) );
         }
         dialog.setFilterNames( new String[] {
           BaseMessages.getString( PKG, "System.FileType.PEMFiles" ),
@@ -763,16 +763,16 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String servername = variables.environmentSubstitute( wServerName.getText() );
-    int nrPort = Const.toInt( variables.environmentSubstitute( wPort.getText() ), 22 );
-    String username = variables.environmentSubstitute( wUserName.getText() );
+    String servername = variables.resolve( wServerName.getText() );
+    int nrPort = Const.toInt( variables.resolve( wPort.getText() ), 22 );
+    String username = variables.resolve( wUserName.getText() );
     String password = Utils.resolvePassword( variables, wPassword.getText() );
-    String keyFilename = variables.environmentSubstitute( wPrivateKey.getText() );
-    String passphrase = variables.environmentSubstitute( wPassphrase.getText() );
-    int timeOut = Const.toInt( variables.environmentSubstitute( wTimeOut.getText() ), 0 );
-    String proxyhost = variables.environmentSubstitute( wProxyHost.getText() );
-    int proxyport = Const.toInt( variables.environmentSubstitute( wProxyPort.getText() ), 0 );
-    String proxyusername = variables.environmentSubstitute( wProxyUsername.getText() );
+    String keyFilename = variables.resolve( wPrivateKey.getText() );
+    String passphrase = variables.resolve( wPassphrase.getText() );
+    int timeOut = Const.toInt( variables.resolve( wTimeOut.getText() ), 0 );
+    String proxyhost = variables.resolve( wProxyHost.getText() );
+    int proxyport = Const.toInt( variables.resolve( wProxyPort.getText() ), 0 );
+    String proxyusername = variables.resolve( wProxyUsername.getText() );
     String proxypassword = Utils.resolvePassword( variables, wProxyPassword.getText() );
 
     Connection conn = null;

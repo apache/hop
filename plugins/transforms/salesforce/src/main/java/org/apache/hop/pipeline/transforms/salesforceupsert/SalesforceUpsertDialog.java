@@ -885,13 +885,13 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     getModulesListError = true;
     SalesforceUpsertMeta meta = new SalesforceUpsertMeta();
     getInfo( meta );
-    String url = variables.environmentSubstitute( meta.getTargetUrl() );
-    String selectedModule = variables.environmentSubstitute( meta.getModule() );
+    String url = variables.resolve( meta.getTargetUrl() );
+    String selectedModule = variables.resolve( meta.getModule() );
     // Define a new Salesforce connection
     SalesforceConnection connection =
-      new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+      new SalesforceConnection( log, url, variables.resolve( meta.getUsername() ),
               Utils.resolvePassword( variables, meta.getPassword() ) );
-    int realTimeOut = Const.toInt( variables.environmentSubstitute( meta.getTimeout() ), 0 );
+    int realTimeOut = Const.toInt( variables.resolve( meta.getTimeout() ), 0 );
     connection.setTimeOut( realTimeOut );
     Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
     try {
@@ -1065,14 +1065,14 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       try {
         SalesforceUpsertMeta meta = new SalesforceUpsertMeta();
         getInfo( meta );
-        String url = variables.environmentSubstitute( meta.getTargetUrl() );
+        String url = variables.resolve( meta.getTargetUrl() );
 
         String selectedField = wModule.getText();
         wModule.removeAll();
 
         // Define a new Salesforce connection
         connection =
-          new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+          new SalesforceConnection( log, url, variables.resolve( meta.getUsername() ),
             Utils.resolvePassword( variables, meta.getPassword() ) );
         // connect to Salesforce
         connection.connect();
@@ -1108,7 +1108,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       ColumnInfo colInfo = tableFieldColumns.get( i );
       colInfo.setComboValues( new String[] {} );
     }
-    String selectedModule = variables.environmentSubstitute( wModule.getText() );
+    String selectedModule = variables.resolve( wModule.getText() );
     if ( !Utils.isEmpty( selectedModule ) ) {
       try {
         // loop through the objects and find build the list of fields

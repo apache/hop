@@ -192,7 +192,7 @@ public class ManageEnvironmentsOptionPlugin implements IConfigOptions {
       return;
     }
     for (String environmentConfigFilename : environment.getConfigurationFiles()) {
-      String realEnvConfFilename = variables.environmentSubstitute(environmentConfigFilename);
+      String realEnvConfFilename = variables.resolve(environmentConfigFilename);
       DescribedVariablesConfigFile variablesConfigFile = new DescribedVariablesConfigFile( realEnvConfFilename );
       // Create the config file if it doesn't exist
       if (!new File(realEnvConfFilename).exists()) {

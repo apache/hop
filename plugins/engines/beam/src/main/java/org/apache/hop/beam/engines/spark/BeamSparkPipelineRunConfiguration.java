@@ -194,53 +194,53 @@ public class BeamSparkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     SparkPipelineOptions options = PipelineOptionsFactory.as( SparkPipelineOptions.class );
 
     if ( StringUtils.isNotEmpty( getSparkMaster() ) ) {
-      options.setSparkMaster( environmentSubstitute( getSparkMaster() ) );
+      options.setSparkMaster( resolve( getSparkMaster() ) );
     }
     if ( StringUtils.isNotEmpty( getSparkBatchIntervalMillis() ) ) {
-      long interval = Const.toLong( environmentSubstitute( getSparkBatchIntervalMillis() ), -1L );
+      long interval = Const.toLong( resolve( getSparkBatchIntervalMillis() ), -1L );
       if ( interval >= 0 ) {
         options.setBatchIntervalMillis( interval );
       }
     }
     if ( StringUtils.isNotEmpty( getSparkCheckpointDir() ) ) {
-      options.setCheckpointDir( environmentSubstitute( getSparkCheckpointDir() ) );
+      options.setCheckpointDir( resolve( getSparkCheckpointDir() ) );
     }
     if ( StringUtils.isNotEmpty( getSparkCheckpointDurationMillis() ) ) {
-      long duration = Const.toLong( environmentSubstitute( getSparkCheckpointDurationMillis() ), -1L );
+      long duration = Const.toLong( resolve( getSparkCheckpointDurationMillis() ), -1L );
       if ( duration >= 0 ) {
         options.setCheckpointDurationMillis( duration );
       }
     }
     if ( StringUtils.isNotEmpty( getSparkMaxRecordsPerBatch() ) ) {
-      long records = Const.toLong( environmentSubstitute( getSparkMaxRecordsPerBatch() ), -1L );
+      long records = Const.toLong( resolve( getSparkMaxRecordsPerBatch() ), -1L );
       if ( records >= 0 ) {
         options.setMaxRecordsPerBatch( records );
       }
     }
     if ( StringUtils.isNotEmpty( getSparkMinReadTimeMillis() ) ) {
-      long readTime = Const.toLong( environmentSubstitute( getSparkMinReadTimeMillis() ), -1L );
+      long readTime = Const.toLong( resolve( getSparkMinReadTimeMillis() ), -1L );
       if ( readTime >= 0 ) {
         options.setMinReadTimeMillis( readTime );
       }
     }
     if ( StringUtils.isNotEmpty( getSparkReadTimePercentage() ) ) {
-      double percentage = Const.toDouble( environmentSubstitute( getSparkReadTimePercentage() ), -1.0 );
+      double percentage = Const.toDouble( resolve( getSparkReadTimePercentage() ), -1.0 );
       if ( percentage >= 0 ) {
         options.setReadTimePercentage( percentage / 100 );
       }
     }
     if ( StringUtils.isNotEmpty( getSparkBundleSize() ) ) {
-      long bundleSize = Const.toLong( environmentSubstitute( getSparkBundleSize() ), -1L );
+      long bundleSize = Const.toLong( resolve( getSparkBundleSize() ), -1L );
       if ( bundleSize >= 0 ) {
         options.setBundleSize( bundleSize );
       }
     }
     if ( StringUtils.isNotEmpty( getSparkStorageLevel() ) ) {
-      options.setStorageLevel( environmentSubstitute( getSparkStorageLevel() ) );
+      options.setStorageLevel( resolve( getSparkStorageLevel() ) );
     }
 
     if (StringUtils.isNotEmpty( getFatJar() )) {
-      options.setFilesToStage( Arrays.asList(environmentSubstitute(fatJar)) );
+      options.setFilesToStage( Arrays.asList( resolve(fatJar)) );
     }
 
 

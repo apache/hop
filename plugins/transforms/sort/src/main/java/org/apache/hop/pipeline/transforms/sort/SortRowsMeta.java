@@ -427,7 +427,7 @@ public class SortRowsMeta extends BaseTransformMeta implements ITransformMeta<So
       }
 
       // Check the sort directory
-      String realDirectory = variables.environmentSubstitute( directory );
+      String realDirectory = variables.resolve( directory );
 
       File f = new File( realDirectory );
       if ( f.exists() ) {

@@ -257,21 +257,21 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
 
     boolean successOK = false;
 
-    int nrRowsLimit = Const.toInt( environmentSubstitute( limit ), 0 );
+    int nrRowsLimit = Const.toInt( resolve( limit ), 0 );
     if ( log.isDetailed() ) {
       logDetailed( BaseMessages.getString( PKG, "ActionEvalTableContent.Log.nrRowsLimit", "" + nrRowsLimit ) );
     }
 
     if ( connection != null ) {
       Database db = new Database( this, connection );
-      db.shareVariablesWith( this );
+      db.shareWith( this );
       try {
         db.connect();
 
         if (useCustomSql) {
           String realCustomSql = customSql;
           if ( useVars ) {
-            realCustomSql = environmentSubstitute( realCustomSql );
+            realCustomSql = resolve( realCustomSql );
           }
           if ( log.isDebug() ) {
             logDebug( BaseMessages.getString( PKG, "ActionEvalTableContent.Log.EnteredCustomSQL", realCustomSql ) );
@@ -285,8 +285,8 @@ public class ActionEvalTableContent extends ActionBase implements Cloneable, IAc
           }
 
         } else {
-          String realTablename = environmentSubstitute( tableName );
-          String realSchemaname = environmentSubstitute( schemaname );
+          String realTablename = resolve( tableName );
+          String realSchemaname = resolve( schemaname );
 
           if ( !Utils.isEmpty( realTablename ) ) {
             if ( !Utils.isEmpty( realSchemaname ) ) {

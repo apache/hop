@@ -61,7 +61,7 @@ public class BeamPublisherTransformHandler extends BeamBaseTransformHandler impl
 
     BeamPublishTransform beamOutputTransform = new BeamPublishTransform(
       transformMeta.getName(),
-      variables.environmentSubstitute( publishMeta.getTopic() ),
+      variables.resolve( publishMeta.getTopic() ),
       publishMeta.getMessageType(),
       publishMeta.getMessageField(),
       JsonRowMeta.toJson( rowMeta ),

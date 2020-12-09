@@ -770,8 +770,8 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String retval = variables.environmentSubstitute( fileName );
-    String realextension = variables.environmentSubstitute( extension );
+    String retval = variables.resolve( fileName );
+    String realextension = variables.resolve( extension );
 
     Date now = new Date();
 
@@ -961,11 +961,11 @@ public class ExcelWriterTransformMeta extends BaseTransformMeta implements ITran
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if ( !Utils.isEmpty( fileName ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName ) );
         fileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
       if ( !Utils.isEmpty( templateFileName ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( templateFileName ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( templateFileName ) );
         templateFileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
 

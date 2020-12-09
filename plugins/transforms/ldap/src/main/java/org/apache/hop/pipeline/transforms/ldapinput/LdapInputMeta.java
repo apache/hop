@@ -685,7 +685,7 @@ public class LdapInputMeta extends BaseTransformMeta
       try {
         IValueMeta v =
             ValueMetaFactory.createValueMeta(
-                variables.environmentSubstitute(field.getName()), type);
+                variables.resolve(field.getName()), type);
         v.setLength(field.getLength(), field.getPrecision());
         v.setOrigin(name);
         r.addValueMeta(v);
@@ -695,7 +695,7 @@ public class LdapInputMeta extends BaseTransformMeta
     }
 
     if (includeRowNumber) {
-      IValueMeta v = new ValueMetaInteger(variables.environmentSubstitute(rowNumberField));
+      IValueMeta v = new ValueMetaInteger(variables.resolve(rowNumberField));
       v.setLength(IValueMeta.DEFAULT_INTEGER_LENGTH, 0);
       v.setOrigin(name);
       r.addValueMeta(v);

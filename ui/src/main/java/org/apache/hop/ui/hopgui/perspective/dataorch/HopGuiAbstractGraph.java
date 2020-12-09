@@ -22,7 +22,6 @@
 
 package org.apache.hop.ui.hopgui.perspective.dataorch;
 
-import org.apache.hop.core.gui.IGuiPosition;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.gui.plugin.key.GuiKeyboardShortcut;
 import org.apache.hop.core.variables.IVariables;
@@ -39,7 +38,6 @@ import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.swt.widgets.Shell;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -85,7 +83,7 @@ public abstract class HopGuiAbstractGraph extends Composite {
     this.parentComposite = parent;
     this.hopGui = hopGui;
     this.variables = new Variables();
-    this.variables.copyVariablesFrom( hopGui.getVariables() );
+    this.variables.copyFrom( hopGui.getVariables() );
     this.parentTabItem = parentTabItem;
     defaultFont = parentTabItem.getFont();
     changedState = false;

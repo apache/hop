@@ -764,15 +764,15 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     getInfo( meta );
 
     SalesforceConnection connection = null;
-    String url = variables.environmentSubstitute( meta.getTargetUrl() );
+    String url = variables.resolve( meta.getTargetUrl() );
     try {
-      String selectedModule = variables.environmentSubstitute( meta.getModule() );
+      String selectedModule = variables.resolve( meta.getModule() );
 
       // Define a new Salesforce connection
       connection =
-        new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+        new SalesforceConnection( log, url, variables.resolve( meta.getUsername() ),
           Utils.resolvePassword( variables, meta.getPassword() ) );
-      int realTimeOut = Const.toInt( variables.environmentSubstitute( meta.getTimeout() ), 0 );
+      int realTimeOut = Const.toInt( variables.resolve( meta.getTimeout() ), 0 );
       connection.setTimeOut( realTimeOut );
       // connect to Salesforce
       connection.connect();
@@ -936,14 +936,14 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
       try {
         SalesforceUpdateMeta meta = new SalesforceUpdateMeta();
         getInfo( meta );
-        String url = variables.environmentSubstitute( meta.getTargetUrl() );
+        String url = variables.resolve( meta.getTargetUrl() );
 
         String selectedField = meta.getModule();
         wModule.removeAll();
 
         // Define a new Salesforce connection
         connection =
-          new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+          new SalesforceConnection( log, url, variables.resolve( meta.getUsername() ),
             Utils.resolvePassword( variables, meta.getPassword() ) );
         // connect to Salesforce
         connection.connect();
@@ -990,7 +990,7 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
           if ( wModule.isDisposed() ) {
             return;
           }
-          String selectedModule = variables.environmentSubstitute( wModule.getText() );
+          String selectedModule = variables.resolve( wModule.getText() );
           if ( !Utils.isEmpty( selectedModule ) ) {
             try {
               // loop through the objects and find build the list of fields

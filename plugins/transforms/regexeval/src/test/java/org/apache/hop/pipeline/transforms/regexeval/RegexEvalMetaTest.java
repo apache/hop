@@ -104,7 +104,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
     when( mockInputRowMeta.indexOfValue( resultField ) ).thenReturn( -1 );
     IValueMeta mockValueMeta = mock( IValueMeta.class );
     String mockName = "MOCK_NAME";
-    when( mockVariableSpace.environmentSubstitute( resultField ) ).thenReturn( mockName );
+    when( mockVariableSpace.resolve( resultField ) ).thenReturn( mockName );
     when( mockInputRowMeta.getValueMeta( 0 ) ).thenReturn( mockValueMeta );
     regexEvalMeta.setReplacefields( true );
     regexEvalMeta.getFields( mockInputRowMeta, name, null, null, mockVariableSpace, null );
@@ -144,7 +144,7 @@ public class RegexEvalMetaTest implements IInitializer<ITransform> {
     when( mockInputRowMeta.indexOfValue( fieldName ) ).thenReturn( -1 );
     IValueMeta mockValueMeta = mock( IValueMeta.class );
     String mockName = "MOCK_NAME";
-    when( mockVariableSpace.environmentSubstitute( fieldName ) ).thenReturn( mockName );
+    when( mockVariableSpace.resolve( fieldName ) ).thenReturn( mockName );
     when( mockInputRowMeta.getValueMeta( 0 ) ).thenReturn( mockValueMeta );
     regexEvalMeta.setReplacefields( true );
     regexEvalMeta.setAllowCaptureGroupsFlag( true );

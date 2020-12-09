@@ -129,9 +129,9 @@ public class GetServerSequence extends BaseTransform<GetServerSequenceMeta, GetS
   public boolean init(){
 
     if ( super.init() ) {
-      data.increment = Const.toLong( environmentSubstitute( meta.getIncrement() ), 1000 );
-      data.hopServer = getPipelineMeta().findHopServer( environmentSubstitute( meta.getHopServerName() ) );
-      data.sequenceName = environmentSubstitute( meta.getSequenceName() );
+      data.increment = Const.toLong( resolve( meta.getIncrement() ), 1000 );
+      data.hopServer = getPipelineMeta().findHopServer( resolve( meta.getHopServerName() ) );
+      data.sequenceName = resolve( meta.getSequenceName() );
       data.value = -1;
 
       return true;

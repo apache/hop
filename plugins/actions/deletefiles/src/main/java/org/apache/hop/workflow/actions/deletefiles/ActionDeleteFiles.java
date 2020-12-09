@@ -181,7 +181,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
     Multimap<String, String> pathToMaskMap = populateDataForJobExecution( resultRows );
 
     for ( Map.Entry<String, String> pathToMask : pathToMaskMap.entries() ) {
-      final String filePath = environmentSubstitute( pathToMask.getKey() );
+      final String filePath = resolve( pathToMask.getKey() );
       if ( filePath.trim().isEmpty() ) {
         // Relative paths are permitted, and providing an empty path means deleting all files inside a root pdi-folder.
         // It is much more likely to be a mistake than a desirable action, so we don't delete anything (see PDI-15181)
@@ -189,7 +189,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
           logDetailed( BaseMessages.getString( PKG, "ActionDeleteFiles.NoPathProvided" ) );
         }
       } else {
-        final String fileMask = environmentSubstitute( pathToMask.getValue() );
+        final String fileMask = resolve( pathToMask.getValue() );
 
         if ( parentWorkflow.isStopped() ) {
           break;
@@ -433,7 +433,7 @@ public class ActionDeleteFiles extends ActionBase implements Cloneable, IAction 
     if ( arguments != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < arguments.length; i++ ) {
-        String filename = environmentSubstitute( arguments[ i ] );
+        String filename = resolve( arguments[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

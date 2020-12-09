@@ -39,8 +39,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.math.BigDecimal;
@@ -165,7 +163,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
       // Fill a hashtable with the key strings and the position(s) of the field(s) in the row to take.
       // Store the indexes in a List so that we can accommodate multiple key/value pairs...
       //
-      String keyValue = environmentSubstitute( field.getKeyValue() );
+      String keyValue = resolve( field.getKeyValue() );
       List<Integer> indexes = data.keyValue.get( keyValue );
       if ( indexes == null ) {
         indexes = new ArrayList<>( 2 );

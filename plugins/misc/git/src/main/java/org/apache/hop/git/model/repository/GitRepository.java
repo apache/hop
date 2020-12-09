@@ -78,7 +78,7 @@ public class GitRepository extends HopMetadataBase implements Cloneable, IHopMet
    * @return directory path
    */
   public String getPhysicalDirectory(IVariables variables) {
-    return variables.environmentSubstitute(directory);
+    return variables.resolve(directory);
   }
 
   public String getName() {

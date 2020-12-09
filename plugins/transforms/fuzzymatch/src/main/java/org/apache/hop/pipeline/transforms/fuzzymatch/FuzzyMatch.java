@@ -45,8 +45,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.Iterator;
@@ -87,7 +85,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> im
       if ( firstRun ) {
         data.infoMeta = rowSet.getRowMeta().clone();
         // Check lookup field
-        int indexOfLookupField = data.infoMeta.indexOfValue( environmentSubstitute( meta.getLookupField() ) );
+        int indexOfLookupField = data.infoMeta.indexOfValue( resolve( meta.getLookupField() ) );
         if ( indexOfLookupField < 0 ) {
           // The field is unreachable !
           throw new HopException( BaseMessages.getString(
@@ -174,7 +172,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> im
         data.outputRowMeta, getTransformName(), new IRowMeta[] { data.infoMeta }, null, this, metadataProvider );
 
       // Check lookup field
-      data.indexOfMainField = getInputRowMeta().indexOfValue( environmentSubstitute( meta.getMainStreamField() ) );
+      data.indexOfMainField = getInputRowMeta().indexOfValue( resolve( meta.getMainStreamField() ) );
       if ( data.indexOfMainField < 0 ) {
         // The field is unreachable !
         throw new HopException( BaseMessages.getString( PKG, "FuzzyMatch.Exception.CouldnotFindMainField", meta
@@ -531,7 +529,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> im
       }
 
       // Checks output fields
-      String matchField = environmentSubstitute( meta.getOutputMatchField() );
+      String matchField = resolve( meta.getOutputMatchField() );
       if ( Utils.isEmpty( matchField ) ) {
         logError( BaseMessages.getString( PKG, "FuzzyMatch.Error.OutputMatchFieldMissing" ) );
         return false;
@@ -541,7 +539,7 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> im
       // only when the fieldname is provided
       // and user want to return the closer value
       data.addValueFieldName =
-        ( !Utils.isEmpty( environmentSubstitute( meta.getOutputValueField() ) ) && meta.isGetCloserValue() );
+        ( !Utils.isEmpty( resolve( meta.getOutputValueField() ) ) && meta.isGetCloserValue() );
 
       // Set the number of fields to cache
       // default value is one
@@ -565,16 +563,16 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> im
         case FuzzyMatchMeta.OPERATION_TYPE_LEVENSHTEIN:
         case FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN:
         case FuzzyMatchMeta.OPERATION_TYPE_NEEDLEMAN_WUNSH:
-          data.minimalDistance = Const.toInt( environmentSubstitute( meta.getMinimalValue() ), 0 );
+          data.minimalDistance = Const.toInt( resolve( meta.getMinimalValue() ), 0 );
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "FuzzyMatch.Log.MinimalDistance", data.minimalDistance ) );
           }
-          data.maximalDistance = Const.toInt( environmentSubstitute( meta.getMaximalValue() ), 5 );
+          data.maximalDistance = Const.toInt( resolve( meta.getMaximalValue() ), 5 );
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "FuzzyMatch.Log.MaximalDistance", data.maximalDistance ) );
           }
           if ( !meta.isGetCloserValue() ) {
-            data.valueSeparator = environmentSubstitute( meta.getSeparator() );
+            data.valueSeparator = resolve( meta.getSeparator() );
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString( PKG, "FuzzyMatch.Log.Separator", data.valueSeparator ) );
             }
@@ -583,16 +581,16 @@ public class FuzzyMatch extends BaseTransform<FuzzyMatchMeta, FuzzyMatchData> im
         case FuzzyMatchMeta.OPERATION_TYPE_JARO:
         case FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER:
         case FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY:
-          data.minimalSimilarity = Const.toDouble( environmentSubstitute( meta.getMinimalValue() ), 0 );
+          data.minimalSimilarity = Const.toDouble( resolve( meta.getMinimalValue() ), 0 );
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "FuzzyMatch.Log.MinimalSimilarity", data.minimalSimilarity ) );
           }
-          data.maximalSimilarity = Const.toDouble( environmentSubstitute( meta.getMaximalValue() ), 1 );
+          data.maximalSimilarity = Const.toDouble( resolve( meta.getMaximalValue() ), 1 );
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "FuzzyMatch.Log.MaximalSimilarity", data.maximalSimilarity ) );
           }
           if ( !meta.isGetCloserValue() ) {
-            data.valueSeparator = environmentSubstitute( meta.getSeparator() );
+            data.valueSeparator = resolve( meta.getSeparator() );
             if ( isDetailed() ) {
               logDetailed( BaseMessages.getString( PKG, "FuzzyMatch.Log.Separator", data.valueSeparator ) );
             }

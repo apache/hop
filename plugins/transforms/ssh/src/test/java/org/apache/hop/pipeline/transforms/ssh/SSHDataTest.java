@@ -118,7 +118,7 @@ public class SSHDataTest {
     when( fileObject.getContent() ).thenReturn( fileContent );
     when( fileContent.getSize() ).thenReturn( 1000L );
     when( fileContent.getInputStream() ).thenReturn( new ByteArrayInputStream( new byte[] { 1, 2, 3, 4, 5 } ) );
-    when( variables.environmentSubstitute( passPhrase ) ).thenReturn( passPhrase );
+    when( variables.resolve( passPhrase ) ).thenReturn( passPhrase );
     when( connection.authenticateWithPublicKey( eq( username ), Matchers.<char[]>any(), eq( passPhrase ) ) ).thenReturn( true );
     SSHData.OpenConnection( server, port, username, null, true, keyFilePath,
       passPhrase, 0, variables, null, 0, null, null );

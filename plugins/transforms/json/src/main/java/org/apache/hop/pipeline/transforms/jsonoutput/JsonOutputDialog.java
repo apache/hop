@@ -351,7 +351,7 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
         dialog.setFilterExtensions( new String[] { "*.js", "*.JS", "*" } );
         if ( wFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wFilename.getText() ) );
         }
         dialog.setFilterNames( new String[] { BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
           BaseMessages.getString( PKG, "System.FileType.CSVFiles" ),

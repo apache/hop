@@ -80,11 +80,11 @@ public class BeamOutputTransformHandler extends BeamBaseTransformHandler impleme
 
     BeamOutputTransform beamOutputTransform = new BeamOutputTransform(
       beamOutputTransformMeta.getName(),
-      variables.environmentSubstitute( beamOutputMeta.getOutputLocation() ),
-      variables.environmentSubstitute( beamOutputMeta.getFilePrefix() ),
-      variables.environmentSubstitute( beamOutputMeta.getFileSuffix() ),
-      variables.environmentSubstitute( outputFileDefinition.getSeparator() ),
-      variables.environmentSubstitute( outputFileDefinition.getEnclosure() ),
+      variables.resolve( beamOutputMeta.getOutputLocation() ),
+      variables.resolve( beamOutputMeta.getFilePrefix() ),
+      variables.resolve( beamOutputMeta.getFileSuffix() ),
+      variables.resolve( outputFileDefinition.getSeparator() ),
+      variables.resolve( outputFileDefinition.getEnclosure() ),
       beamOutputMeta.isWindowed(),
       JsonRowMeta.toJson( rowMeta ),
       transformPluginClasses,

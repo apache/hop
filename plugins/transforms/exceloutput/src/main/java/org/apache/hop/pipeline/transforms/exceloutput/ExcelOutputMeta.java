@@ -1026,8 +1026,8 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String retval = variables.environmentSubstitute( fileName );
-    String realextension = variables.environmentSubstitute( extension );
+    String retval = variables.resolve( fileName );
+    String realextension = variables.resolve( extension );
 
     Date now = new Date();
 
@@ -1253,7 +1253,7 @@ public class ExcelOutputMeta extends BaseTransformMeta implements ITransformMeta
       // So let's change the filename from relative to absolute by grabbing the file object...
       //
       if ( !Utils.isEmpty( fileName ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName ) );
         fileName = iResourceNaming.nameResource( fileObject, variables, true );
       }
 

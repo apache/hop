@@ -466,9 +466,9 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = variables.environmentSubstitute( wServerName.getText() );
+    String hostname = variables.resolve( wServerName.getText() );
     int nrPort =
-      Const.toInt( variables.environmentSubstitute( "" + wPort.getText() ), ActionSNMPTrap.DEFAULT_PORT );
+      Const.toInt( variables.resolve( "" + wPort.getText() ), ActionSNMPTrap.DEFAULT_PORT );
 
     try {
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( hostname ), nrPort );

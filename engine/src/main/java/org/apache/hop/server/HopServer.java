@@ -280,7 +280,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   public String getServerAndPort(IVariables variables) {
     String realHostname;
 
-    realHostname = variables.environmentSubstitute( hostname );
+    realHostname = variables.resolve( hostname );
 
     if ( !Utils.isEmpty( realHostname ) ) {
       return realHostname + getPortSpecification(variables);
@@ -421,7 +421,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   }
 
   public String getPortSpecification(IVariables variables) {
-    String realPort = variables.environmentSubstitute( port );
+    String realPort = variables.resolve( port );
     String portSpec = ":" + realPort;
     if ( Utils.isEmpty( realPort ) || port.equals( "80" ) ) {
       portSpec = "";
@@ -433,14 +433,14 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   public String constructUrl( IVariables variables, String serviceAndArguments ) throws UnsupportedEncodingException {
     String realHostname = null;
     String proxyHostname = null;
-    realHostname = variables.environmentSubstitute( hostname );
-    proxyHostname = variables.environmentSubstitute( getProxyHostname() );
+    realHostname = variables.resolve( hostname );
+    proxyHostname = variables.resolve( getProxyHostname() );
     if ( !Utils.isEmpty( proxyHostname ) && realHostname.equals( "localhost" ) ) {
       realHostname = "127.0.0.1";
     }
 
     if ( !StringUtils.isBlank( webAppName ) ) {
-      serviceAndArguments = "/" + variables.environmentSubstitute( getWebAppName() ) + serviceAndArguments;
+      serviceAndArguments = "/" + variables.resolve( getWebAppName() ) + serviceAndArguments;
     }
 
     String result =
@@ -479,7 +479,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
       method.releaseConnection();
       if ( log.isDetailed() ) {
         log.logDetailed( BaseMessages.getString( PKG, "HopServer.DETAILED_SentXmlToService", service,
-          variables.environmentSubstitute( hostname ) ) );
+          variables.resolve( hostname ) ) );
       }
     }
   }
@@ -548,7 +548,7 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
         method.releaseConnection();
         if ( log.isDetailed() ) {
           log.logDetailed( BaseMessages.getString( PKG, "HopServer.DETAILED_SentExportToService",
-            RegisterPackageServlet.CONTEXT_PATH, variables.environmentSubstitute( hostname ) ) );
+            RegisterPackageServlet.CONTEXT_PATH, variables.resolve( hostname ) ) );
         }
       }
     }
@@ -589,11 +589,11 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
 
   private void addCredentials( IVariables variables, HttpClientContext context ) {
 
-    String host = variables.environmentSubstitute( hostname );
-    int port = Const.toInt( variables.environmentSubstitute( this.port ), 80 );
-    String userName = variables.environmentSubstitute( username );
-    String password = Encr.decryptPasswordOptionallyEncrypted( variables.environmentSubstitute( this.password ) );
-    String proxyHost = variables.environmentSubstitute( proxyHostname );
+    String host = variables.resolve( hostname );
+    int port = Const.toInt( variables.resolve( this.port ), 80 );
+    String userName = variables.resolve( username );
+    String password = Encr.decryptPasswordOptionallyEncrypted( variables.resolve( this.password ) );
+    String proxyHost = variables.resolve( proxyHostname );
 
     CredentialsProvider provider = new BasicCredentialsProvider();
     UsernamePasswordCredentials credentials = new UsernamePasswordCredentials( userName, password );
@@ -611,11 +611,11 @@ public class HopServer extends HopMetadataBase implements Cloneable, IXml, IHopM
   }
 
   private void addProxy( IVariables variables, HttpClientContext context ) {
-    String proxyHost = variables.environmentSubstitute( this.proxyHostname );
-    String proxyPort = variables.environmentSubstitute( this.proxyPort );
-    String nonProxyHosts = variables.environmentSubstitute( this.nonProxyHosts );
+    String proxyHost = variables.resolve( this.proxyHostname );
+    String proxyPort = variables.resolve( this.proxyPort );
+    String nonProxyHosts = variables.resolve( this.nonProxyHosts );
 
-    String hostName = variables.environmentSubstitute( this.hostname );
+    String hostName = variables.resolve( this.hostname );
     if ( Utils.isEmpty( proxyHost ) || Utils.isEmpty( proxyPort ) ) {
       return;
     }

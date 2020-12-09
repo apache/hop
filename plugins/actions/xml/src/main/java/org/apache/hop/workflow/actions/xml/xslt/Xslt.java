@@ -243,11 +243,11 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealxmlfilename() {
-    return environmentSubstitute( getxmlFilename() );
+    return resolve( getxmlFilename() );
   }
 
   public String getoutputfilename() {
-    return environmentSubstitute( getoutputFilename() );
+    return resolve( getoutputFilename() );
   }
 
   public boolean isFilenamesFromPrevious() {
@@ -259,7 +259,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealxslfilename() {
-    return environmentSubstitute( getxslFilename() );
+    return resolve( getxslFilename() );
   }
 
   public Result execute(Result previousResult, int nr ) throws HopException {
@@ -272,7 +272,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     if ( nrOutputProps > 0 ) {
       outputProperties = new Properties();
       for ( int i = 0; i < nrOutputProps; i++ ) {
-        outputProperties.put( getOutputPropertyName()[i], environmentSubstitute( getOutputPropertyValue()[i] ) );
+        outputProperties.put( getOutputPropertyName()[i], resolve( getOutputPropertyValue()[i] ) );
       }
       setOutputProperties = true;
     }
@@ -283,8 +283,8 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
       nameOfParams = new String[nrParams];
       valueOfParams = new String[nrParams];
       for ( int i = 0; i < nrParams; i++ ) {
-        String name = environmentSubstitute( getParameterName()[i] );
-        String value = environmentSubstitute( getParameterField()[i] );
+        String name = resolve( getParameterName()[i] );
+        String value = resolve( getParameterField()[i] );
         if ( Utils.isEmpty( value ) ) {
           throw new HopTransformException( BaseMessages.getString( PKG, "Xslt.Exception.ParameterFieldMissing", name, i ) );
         }
@@ -560,8 +560,8 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( ( !Utils.isEmpty( xslfilename ) ) && ( !Utils.isEmpty( xmlfilename ) ) ) {
-      String realXmlFileName = variables.environmentSubstitute( xmlfilename );
-      String realXslFileName = variables.environmentSubstitute( xslfilename );
+      String realXmlFileName = variables.resolve( xmlfilename );
+      String realXslFileName = variables.resolve( xslfilename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realXmlFileName, ResourceEntry.ResourceType.FILE ) );
       reference.getEntries().add( new ResourceEntry( realXslFileName, ResourceEntry.ResourceType.FILE ) );

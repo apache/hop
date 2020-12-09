@@ -150,11 +150,11 @@ public class ActionMsgBoxInfo extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealTitleMessage() {
-    return environmentSubstitute( getTitleMessage() );
+    return resolve( getTitleMessage() );
   }
 
   public String getRealBodyMessage() {
-    return environmentSubstitute( getBodyMessage() );
+    return resolve( getBodyMessage() );
   }
 
   public String getTitleMessage() {

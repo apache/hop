@@ -127,11 +127,11 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
 
 
   public String getRealxmlfilename() {
-    return environmentSubstitute( getxmlFilename() );
+    return resolve( getxmlFilename() );
   }
 
   public String getRealxsdfilename() {
-    return environmentSubstitute( getxsdFilename() );
+    return resolve( getxsdFilename() );
   }
 
   public Result execute(Result previousResult, int nr ) {
@@ -263,8 +263,8 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( ( !Utils.isEmpty( xsdfilename ) ) && ( !Utils.isEmpty( xmlfilename ) ) ) {
-      String realXmlFileName = environmentSubstitute( xmlfilename );
-      String realXsdFileName = environmentSubstitute( xsdfilename );
+      String realXmlFileName = resolve( xmlfilename );
+      String realXsdFileName = resolve( xsdfilename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realXmlFileName, ResourceEntry.ResourceType.FILE ) );
       reference.getEntries().add( new ResourceEntry( realXsdFileName, ResourceEntry.ResourceType.FILE ) );

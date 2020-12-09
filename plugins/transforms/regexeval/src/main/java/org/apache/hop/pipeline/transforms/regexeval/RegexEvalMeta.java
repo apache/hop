@@ -414,7 +414,7 @@ public class RegexEvalMeta extends BaseTransformMeta implements ITransformMeta<R
           int replaceIndex = inputRowMeta.indexOfValue( resultfieldname );
           if ( replaceIndex < 0 ) {
             IValueMeta v =
-              new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
+              new ValueMetaBoolean( variables.resolve( resultfieldname ) );
             v.setOrigin( name );
             inputRowMeta.addValueMeta( v );
           } else {
@@ -426,7 +426,7 @@ public class RegexEvalMeta extends BaseTransformMeta implements ITransformMeta<R
           }
         } else {
           IValueMeta v =
-            new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
+            new ValueMetaBoolean( variables.resolve( resultfieldname ) );
           v.setOrigin( name );
           inputRowMeta.addValueMeta( v );
         }

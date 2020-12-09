@@ -272,7 +272,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
         }
       }
       data.db.prepareInsert(
-        data.insertRowMeta, environmentSubstitute( meta.getSchemaName() ), environmentSubstitute( meta
+        data.insertRowMeta, resolve( meta.getSchemaName() ), resolve( meta
           .getTableName() ) );
 
       if ( !meta.isUpdateBypassed() ) {
@@ -464,7 +464,7 @@ public class InsertUpdate extends BaseTransform<InsertUpdateMeta, InsertUpdateDa
           return false;
         }
         data.db = new Database( this, meta.getDatabaseMeta() );
-        data.db.shareVariablesWith( this );
+        data.db.shareWith( this );
         data.db.connect(getPartitionId());
         data.db.setCommit( meta.getCommitSize( this ) );
 

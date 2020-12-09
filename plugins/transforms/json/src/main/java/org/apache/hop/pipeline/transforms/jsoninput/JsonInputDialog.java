@@ -315,7 +315,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
           // directory!
           DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
           if ( wFilename.getText() != null ) {
-            String fpath = variables.environmentSubstitute( wFilename.getText() );
+            String fpath = variables.resolve( wFilename.getText() );
             dialog.setFilterPath( fpath );
           }
 
@@ -327,7 +327,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
           FileDialog dialog = new FileDialog( shell, SWT.OPEN );
           dialog.setFilterExtensions( new String[] { "*.js;*.JS;*.json;*.JSON", "*" } );
           if ( wFilename.getText() != null ) {
-            String fname = variables.environmentSubstitute( wFilename.getText() );
+            String fname = variables.resolve( wFilename.getText() );
             dialog.setFileName( fname );
           }
 
@@ -1363,7 +1363,7 @@ public class JsonInputDialog extends BaseTransformDialog implements ITransformDi
     try {
       // Call new get fields dialog
       if ( wFilenameList.getItemCount() > 0 ) {
-        String filename = variables.environmentSubstitute( wFilenameList.getItem( 0 )[ 0 ] );
+        String filename = variables.resolve( wFilenameList.getItem( 0 )[ 0 ] );
         List<String> paths = new ArrayList<>();
         for ( int i = 0; i < wFields.table.getItems().length; i++ ) {
           TableItem item = wFields.table.getItem( i );

@@ -124,7 +124,7 @@ public class SyslogMessage extends BaseTransform<SyslogMessageMeta, SyslogMessag
   public boolean init() {
 
     if ( super.init() ) {
-      String servername = environmentSubstitute( meta.getServerName() );
+      String servername = resolve( meta.getServerName() );
 
       // Check target server
       if ( Utils.isEmpty( servername ) ) {
@@ -137,11 +137,11 @@ public class SyslogMessage extends BaseTransform<SyslogMessageMeta, SyslogMessag
         return false;
       }
 
-      int nrPort = Const.toInt( environmentSubstitute( meta.getPort() ), SyslogDefs.DEFAULT_PORT );
+      int nrPort = Const.toInt( resolve( meta.getPort() ), SyslogDefs.DEFAULT_PORT );
 
       if ( meta.isAddTimestamp() ) {
         // add timestamp to message
-        data.datePattern = environmentSubstitute( meta.getDatePattern() );
+        data.datePattern = resolve( meta.getDatePattern() );
         if ( Utils.isEmpty( data.datePattern ) ) {
           logError( BaseMessages.getString( PKG, "SyslogMessage.DatePatternEmpty" ) );
           return false;

@@ -64,7 +64,7 @@ public class VariablesTest {
   @Test
   public void testinItializeVariablesFrom() {
     final Variables variablesMock = mock( Variables.class );
-    doCallRealMethod().when( variablesMock ).initializeVariablesFrom( any( IVariables.class ) );
+    doCallRealMethod().when( variablesMock ).initializeFrom( any( IVariables.class ) );
 
     @SuppressWarnings( "unchecked" ) final Map<String, String> propertiesMock = mock( Map.class );
     when( variablesMock.getProperties() ).thenReturn( propertiesMock );
@@ -86,7 +86,7 @@ public class VariablesTest {
       }
     } ).when( propertiesMock ).put( anyString(), anyString() );
 
-    variablesMock.initializeVariablesFrom( null );
+    variablesMock.initializeFrom( null );
   }
 
   private void modifySystemproperties() {
@@ -123,7 +123,7 @@ public class VariablesTest {
       for ( int i = 0; i < 300; i++ ) {
         String key = "key" + i;
         variables.setVariable( key, "value" );
-        assertEquals( variables.environmentSubstitute( "${" + key + "}" ), "value" );
+        assertEquals( variables.resolve( "${" + key + "}" ), "value" );
       }
       return true;
     };
@@ -137,10 +137,10 @@ public class VariablesTest {
     rm.addValueMeta( new ValueMetaString( "FieldTwo" ) );
 
     Variables vars = new Variables();
-    assertNull( vars.fieldSubstitute( null, rm, rowData ) );
-    assertEquals( "", vars.fieldSubstitute( "", rm, rowData ) );
-    assertEquals( "DataOne", vars.fieldSubstitute( "?{FieldOne}", rm, rowData ) );
-    assertEquals( "TheDataOne", vars.fieldSubstitute( "The?{FieldOne}", rm, rowData ) );
+    assertNull( vars.resolve( null, rm, rowData ) );
+    assertEquals( "", vars.resolve( "", rm, rowData ) );
+    assertEquals( "DataOne", vars.resolve( "?{FieldOne}", rm, rowData ) );
+    assertEquals( "TheDataOne", vars.resolve( "The?{FieldOne}", rm, rowData ) );
   }
 
   @Test
@@ -149,13 +149,13 @@ public class VariablesTest {
     vars.setVariable( "VarOne", "DataOne" );
     vars.setVariable( "VarTwo", "DataTwo" );
 
-    assertNull( vars.environmentSubstitute( (String) null ) );
-    assertEquals( "", vars.environmentSubstitute( "" ) );
-    assertEquals( "DataTwo", vars.environmentSubstitute( "${VarTwo}" ) );
-    assertEquals( "DataTwoEnd", vars.environmentSubstitute( "${VarTwo}End" ) );
+    assertNull( vars.resolve( (String) null ) );
+    assertEquals( "", vars.resolve( "" ) );
+    assertEquals( "DataTwo", vars.resolve( "${VarTwo}" ) );
+    assertEquals( "DataTwoEnd", vars.resolve( "${VarTwo}End" ) );
 
-    assertEquals( 0, vars.environmentSubstitute( new String[ 0 ] ).length );
+    assertEquals( 0, vars.resolve( new String[ 0 ] ).length );
     assertArrayEquals( new String[] { "DataOne", "TheDataOne" },
-      vars.environmentSubstitute( new String[] { "${VarOne}", "The${VarOne}" } ) );
+      vars.resolve( new String[] { "${VarOne}", "The${VarOne}" } ) );
   }
 }

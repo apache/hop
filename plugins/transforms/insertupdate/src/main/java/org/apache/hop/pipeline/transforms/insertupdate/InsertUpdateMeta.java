@@ -179,7 +179,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransformMet
   public int getCommitSize( IVariables vs ) {
     //this happens when the transform is created via API and no setDefaults was called
     commitSize = ( commitSize == null ) ? "0" : commitSize;
-    return Integer.parseInt( vs.environmentSubstitute( commitSize ) );
+    return Integer.parseInt( vs.resolve( commitSize ) );
   }
 
   /**
@@ -488,7 +488,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransformMet
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       try {
         db.connect();
 
@@ -692,7 +692,7 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransformMet
 
         if ( !Utils.isEmpty( tableName ) ) {
           Database db = new Database( loggingObject, databaseMeta );
-          db.shareVariablesWith( variables );
+          db.shareWith( variables );
           try {
             db.connect();
 
@@ -800,8 +800,8 @@ public class InsertUpdateMeta extends BaseTransformMeta implements ITransformMet
   }
 
   public IRowMeta getRequiredFields( IVariables variables ) throws HopException {
-    String realSchemaName = variables.environmentSubstitute( schemaName );
-    String realTableName = variables.environmentSubstitute( tableName );
+    String realSchemaName = variables.resolve( schemaName );
+    String realTableName = variables.resolve( tableName );
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );

@@ -177,12 +177,12 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
     result.setNrErrors( 1 );
     result.setResult( false );
 
-    String realEmailAddress = environmentSubstitute( emailAddress );
+    String realEmailAddress = resolve( emailAddress );
     if ( Utils.isEmpty( realEmailAddress ) ) {
       logError( BaseMessages.getString( PKG, "ActionMailValidator.Error.EmailEmpty" ) );
       return result;
     }
-    String realSender = environmentSubstitute( emailSender );
+    String realSender = resolve( emailSender );
     if ( smtpCheck ) {
       // check sender
       if ( Utils.isEmpty( realSender ) ) {
@@ -191,8 +191,8 @@ public class ActionMailValidator extends ActionBase implements Cloneable, IActio
       }
     }
 
-    String realDefaultSMTP = environmentSubstitute( defaultSMTP );
-    int timeOut = Const.toInt( environmentSubstitute( timeout ), 0 );
+    String realDefaultSMTP = resolve( defaultSMTP );
+    int timeOut = Const.toInt( resolve( timeout ), 0 );
 
     // Split the mail-address: separated by variables
     String[] mailsCheck = realEmailAddress.split( " " );

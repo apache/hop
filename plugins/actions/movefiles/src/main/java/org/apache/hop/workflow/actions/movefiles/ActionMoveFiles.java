@@ -282,7 +282,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     nrSuccess = 0;
     successConditionBroken = false;
     successConditionBrokenExit = false;
-    limitFiles = Const.toInt( environmentSubstitute( getNrErrorsLessThan() ), 10 );
+    limitFiles = Const.toInt( resolve( getNrErrorsLessThan() ), 10 );
 
     if ( log.isDetailed() ) {
       if ( simulate ) {
@@ -293,7 +293,7 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    String MoveToFolder = environmentSubstitute( destinationFolder );
+    String MoveToFolder = resolve( destinationFolder );
     // Get source and destination files, also wildcard
     String[] vSourceFileFolder = sourceFileFolder;
     String[] vDestinationFileFolder = destinationFileFolder;
@@ -464,9 +464,9 @@ public class ActionMoveFiles extends ActionBase implements Cloneable, IAction {
     FileObject Currentfile = null;
 
     // Get real source, destination file and wildcard
-    String realSourceFilefoldername = environmentSubstitute( sourcefilefoldername );
-    String realDestinationFilefoldername = environmentSubstitute( destinationfilefoldername );
-    String realWildcard = environmentSubstitute( wildcard );
+    String realSourceFilefoldername = resolve( sourcefilefoldername );
+    String realDestinationFilefoldername = resolve( destinationfilefoldername );
+    String realWildcard = resolve( wildcard );
 
     try {
       sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername );

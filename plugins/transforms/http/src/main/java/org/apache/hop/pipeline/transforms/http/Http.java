@@ -305,7 +305,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> implements ITransfor
 
         // cache the position of the field
         if ( data.indexOfUrlField < 0 ) {
-          String realUrlfieldName = environmentSubstitute( meta.getUrlField() );
+          String realUrlfieldName = resolve( meta.getUrlField() );
           data.indexOfUrlField = getInputRowMeta().indexOfValue( realUrlfieldName );
           if ( data.indexOfUrlField < 0 ) {
             // The field is unreachable !
@@ -315,7 +315,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> implements ITransfor
           }
         }
       } else {
-        data.realUrl = environmentSubstitute( meta.getUrl() );
+        data.realUrl = resolve( meta.getUrl() );
       }
 
       // check for headers
@@ -339,7 +339,7 @@ public class Http extends BaseTransform<HttpMeta, HttpData> implements ITransfor
 
         data.header_parameters_nrs[ i ] = fieldIndex;
         data.headerParameters[ i ] =
-          new BasicNameValuePair( environmentSubstitute( meta.getHeaderParameter()[ i ] ),
+          new BasicNameValuePair( resolve( meta.getHeaderParameter()[ i ] ),
             data.outputRowMeta.getString( r,
               data.header_parameters_nrs[ i ] ) );
       }
@@ -382,13 +382,13 @@ public class Http extends BaseTransform<HttpMeta, HttpData> implements ITransfor
 
     if ( super.init() ) {
       // get authentication settings once
-      data.realProxyHost = environmentSubstitute( meta.getProxyHost() );
-      data.realProxyPort = Const.toInt( environmentSubstitute( meta.getProxyPort() ), 8080 );
-      data.realHttpLogin = environmentSubstitute( meta.getHttpLogin() );
+      data.realProxyHost = resolve( meta.getProxyHost() );
+      data.realProxyPort = Const.toInt( resolve( meta.getProxyPort() ), 8080 );
+      data.realHttpLogin = resolve( meta.getHttpLogin() );
       data.realHttpPassword = Utils.resolvePassword( variables, meta.getHttpPassword() );
 
-      data.realSocketTimeout = Const.toInt( environmentSubstitute( meta.getSocketTimeout() ), -1 );
-      data.realConnectionTimeout = Const.toInt( environmentSubstitute( meta.getSocketTimeout() ), -1 );
+      data.realSocketTimeout = Const.toInt( resolve( meta.getSocketTimeout() ), -1 );
+      data.realConnectionTimeout = Const.toInt( resolve( meta.getSocketTimeout() ), -1 );
 
       return true;
     }

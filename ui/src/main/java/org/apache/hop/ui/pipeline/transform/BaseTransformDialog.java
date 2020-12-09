@@ -559,7 +559,7 @@ public class BaseTransformDialog extends Dialog {
   public static final ModifyListener getModifyListenerTooltipText(final TextVar textField) {
     return e -> {
       // maybe replace this with extra arguments
-      textField.setToolTipText(variables.environmentSubstitute(textField.getText()));
+      textField.setToolTipText(variables.resolve(textField.getText()));
     };
   }
 

@@ -259,13 +259,13 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
       if ( outputStringField ) {
         // Output field (String)
         IValueMeta v =
-          new ValueMetaString( variables.environmentSubstitute( getResultfieldname() ) );
+          new ValueMetaString( variables.resolve( getResultfieldname() ) );
         inputRowMeta.addValueMeta( v );
       } else {
 
         // Output field (boolean)
         IValueMeta v =
-          new ValueMetaBoolean( variables.environmentSubstitute( getResultfieldname() ) );
+          new ValueMetaBoolean( variables.resolve( getResultfieldname() ) );
         inputRowMeta.addValueMeta( v );
       }
 
@@ -273,7 +273,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
     // Add String Field that contain validation message (most the time, errors)
     if ( addValidationMessage && !Utils.isEmpty( validationMessageField ) ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( validationMessageField ) );
+        new ValueMetaString( variables.resolve( validationMessageField ) );
       inputRowMeta.addValueMeta( v );
     }
 
@@ -394,7 +394,7 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
       // To : /home/matt/test/files/foo/bar.xsd
       //
       if ( !Utils.isEmpty( xsdFilename ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( xsdFilename ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( xsdFilename ) );
         xsdFilename = resourceNamingInterface.nameResource( fileObject, variables, true );
         return xsdFilename;
       }

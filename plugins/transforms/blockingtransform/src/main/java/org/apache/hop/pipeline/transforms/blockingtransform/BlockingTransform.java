@@ -77,7 +77,7 @@ public class BlockingTransform extends BaseTransform<BlockingTransformMeta, Bloc
 
       try {
         FileObject fileObject =
-          HopVfs.createTempFile( meta.getPrefix(), ".tmp", environmentSubstitute( meta.getDirectory() ) );
+          HopVfs.createTempFile( meta.getPrefix(), ".tmp", resolve( meta.getDirectory() ) );
 
         data.files.add( fileObject ); // Remember the files!
         OutputStream outputStream = HopVfs.getOutputStream( fileObject, false );

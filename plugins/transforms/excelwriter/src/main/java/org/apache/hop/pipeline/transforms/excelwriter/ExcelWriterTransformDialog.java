@@ -1287,21 +1287,21 @@ public class ExcelWriterTransformDialog extends BaseTransformDialog implements I
     wTemplateFilename.addSelectionListener( lsDef );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() )
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() )
       + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.Filename.Tooltip" ) ) );
-    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( variables.environmentSubstitute( wTemplateFilename.getText() ) ) );
+    wTemplateFilename.addModifyListener( e -> wTemplateFilename.setToolTipText( variables.resolve( wTemplateFilename.getText() ) ) );
 
-    wSheetname.addModifyListener( e -> wSheetname.setToolTipText( variables.environmentSubstitute( wSheetname.getText() )
+    wSheetname.addModifyListener( e -> wSheetname.setToolTipText( variables.resolve( wSheetname.getText() )
       + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.Sheetname.Tooltip" ) ) );
 
-    wTemplateSheetname.addModifyListener( e -> wTemplateSheetname.setToolTipText( variables.environmentSubstitute( wTemplateSheetname.getText() ) ) );
+    wTemplateSheetname.addModifyListener( e -> wTemplateSheetname.setToolTipText( variables.resolve( wTemplateSheetname.getText() ) ) );
 
-    wStartingCell.addModifyListener( e -> wStartingCell.setToolTipText( variables.environmentSubstitute( wStartingCell.getText() )
+    wStartingCell.addModifyListener( e -> wStartingCell.setToolTipText( variables.resolve( wStartingCell.getText() )
       + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.StartingCell.Tooltip" ) ) );
 
     wPassword.addModifyListener( e -> wPassword.setToolTipText( BaseMessages.getString( PKG, "ExcelWriterDialog.Password.Tooltip" ) ) );
 
-    wProtectedBy.addModifyListener( e -> wProtectedBy.setToolTipText( variables.environmentSubstitute( wProtectedBy.getText() )
+    wProtectedBy.addModifyListener( e -> wProtectedBy.setToolTipText( variables.resolve( wProtectedBy.getText() )
       + "\n\n" + BaseMessages.getString( PKG, "ExcelWriterDialog.ProtectedBy.Tooltip" ) ) );
 
     wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,

@@ -53,7 +53,7 @@ public class TransformOptionTest {
 
   @Before
   public void setup() {
-    when( variables.environmentSubstitute( anyString() ) ).thenAnswer( incovacationMock -> {
+    when( variables.resolve( anyString() ) ).thenAnswer( incovacationMock -> {
       Object[] arguments = incovacationMock.getArguments();
       return (String) arguments[ 0 ];
     } );

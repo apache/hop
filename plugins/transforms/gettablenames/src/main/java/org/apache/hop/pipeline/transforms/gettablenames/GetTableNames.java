@@ -395,14 +395,14 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
         logError( BaseMessages.getString( PKG, "GetTableNames.Error.TablenameFieldNameMissing" ) );
         return false;
       }
-      String realSchemaName = environmentSubstitute( meta.getSchemaName() );
+      String realSchemaName = resolve( meta.getSchemaName() );
       if ( !Utils.isEmpty( realSchemaName ) ) {
         data.realSchemaName = realSchemaName;
       }
-      data.realTableNameFieldName = environmentSubstitute( meta.getTablenameFieldName() );
-      data.realObjectTypeFieldName = environmentSubstitute( meta.getObjectTypeFieldName() );
-      data.realIsSystemObjectFieldName = environmentSubstitute( meta.isSystemObjectFieldName() );
-      data.realSqlCreationFieldName = environmentSubstitute( meta.getSqlCreationFieldName() );
+      data.realTableNameFieldName = resolve( meta.getTablenameFieldName() );
+      data.realObjectTypeFieldName = resolve( meta.getObjectTypeFieldName() );
+      data.realIsSystemObjectFieldName = resolve( meta.isSystemObjectFieldName() );
+      data.realSqlCreationFieldName = resolve( meta.getSqlCreationFieldName() );
       if ( !meta.isIncludeCatalog()
         && !meta.isIncludeSchema() && !meta.isIncludeTable() && !meta.isIncludeView()
         && !meta.isIncludeProcedure() && !meta.isIncludeSynonym() ) {
@@ -423,7 +423,7 @@ public class GetTableNames extends BaseTransform<GetTableNamesMeta, GetTableName
       }
 
       data.db = new Database( this, meta.getDatabase() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
       try {
         data.db.connect( getPartitionId() );
 

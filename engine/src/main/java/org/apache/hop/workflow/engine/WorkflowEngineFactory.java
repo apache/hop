@@ -65,7 +65,7 @@ public class WorkflowEngineFactory {
 
     // Copy the variables from the metadata
     //
-    workflowEngine.initializeVariablesFrom(variables);
+    workflowEngine.initializeFrom(variables);
 
     // Copy the parameters from the metadata...
     //

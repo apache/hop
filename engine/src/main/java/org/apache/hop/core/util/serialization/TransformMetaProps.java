@@ -256,7 +256,7 @@ public class TransformMetaProps<Meta extends ITransformMeta> {
 
   private Object envSubs( Object value ) {
     if ( value instanceof String ) {
-      return variables.environmentSubstitute( value.toString() );
+      return variables.resolve( value.toString() );
     }
     return value;
   }

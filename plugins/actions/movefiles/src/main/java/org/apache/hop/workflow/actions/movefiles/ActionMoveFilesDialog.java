@@ -388,7 +388,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wSourceFileFolder.setLayoutData( fdSourceFileFolder );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( variables.environmentSubstitute( wSourceFileFolder.getText() ) ) );
+    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( variables.resolve( wSourceFileFolder.getText() ) ) );
 
     wbSourceFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wSourceFileFolder, variables,
       new String[] { "*" }, FILETYPES, true )
@@ -898,7 +898,7 @@ public class ActionMoveFilesDialog extends ActionDialog implements IActionDialog
     wDestinationFolder.setLayoutData(fdDestinationFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wDestinationFolder.addModifyListener( e -> wDestinationFolder.setToolTipText( variables.environmentSubstitute( wDestinationFolder.getText() ) ) );
+    wDestinationFolder.addModifyListener( e -> wDestinationFolder.setToolTipText( variables.resolve( wDestinationFolder.getText() ) ) );
     wbDestinationFolder.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFolder, variables ) );
 
     // Create destination folder/parent folder

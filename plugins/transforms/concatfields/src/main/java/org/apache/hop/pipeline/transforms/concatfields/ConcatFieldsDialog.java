@@ -444,7 +444,7 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
     // Whenever something changes, set the tooltip to the expanded version:
     wTargetFieldName.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent e ) {
-        wTargetFieldName.setToolTipText( variables.environmentSubstitute( wTargetFieldName.getText() ) );
+        wTargetFieldName.setToolTipText( variables.resolve( wTargetFieldName.getText() ) );
       }
     } );
 

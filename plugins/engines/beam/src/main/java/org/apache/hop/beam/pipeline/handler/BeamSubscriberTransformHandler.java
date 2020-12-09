@@ -67,8 +67,8 @@ public class BeamSubscriberTransformHandler extends BeamBaseTransformHandler imp
     BeamSubscribeTransform subscribeTransform = new BeamSubscribeTransform(
       transformMeta.getName(),
       transformMeta.getName(),
-      variables.environmentSubstitute( inputMeta.getSubscription() ),
-      variables.environmentSubstitute( inputMeta.getTopic() ),
+      variables.resolve( inputMeta.getSubscription() ),
+      variables.resolve( inputMeta.getTopic() ),
       inputMeta.getMessageType(),
       rowMetaJson,
       transformPluginClasses,

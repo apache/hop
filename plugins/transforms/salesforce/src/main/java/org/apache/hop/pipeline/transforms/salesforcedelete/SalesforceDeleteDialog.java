@@ -595,16 +595,16 @@ public class SalesforceDeleteDialog extends SalesforceTransformDialog {
       try {
         SalesforceDeleteMeta meta = new SalesforceDeleteMeta();
         getInfo( meta );
-        String url = variables.environmentSubstitute( meta.getTargetUrl() );
+        String url = variables.resolve( meta.getTargetUrl() );
 
         String selectedField = wModule.getText();
         wModule.removeAll();
 
         // Define a new Salesforce connection
         connection =
-          new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+          new SalesforceConnection( log, url, variables.resolve( meta.getUsername() ),
             Utils.resolvePassword( variables, meta.getPassword() ) );
-        int realTimeOut = Const.toInt( variables.environmentSubstitute( meta.getTimeout() ), 0 );
+        int realTimeOut = Const.toInt( variables.resolve( meta.getTimeout() ), 0 );
         connection.setTimeOut( realTimeOut );
         // connect to Salesforce
         connection.connect();

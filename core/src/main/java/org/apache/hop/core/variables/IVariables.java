@@ -34,44 +34,43 @@ import java.util.Map;
  */
 public interface IVariables {
   /**
-   * Initialize variable variables using the defaults, copy over the variables from the parent (using copyVariablesFrom()),
-   * after this the "injected" variables should be inserted (injectVariables()).
+   * Initializes this IVariables object by copying over the variables from the specified parent (using copyFrom()).
    * <p>
    * The parent is set as parent variable variables.
    *
    * @param parent the parent to start from, or null if root.
    */
-  void initializeVariablesFrom( IVariables parent );
+  void initializeFrom( IVariables parent );
 
   /**
-   * Copy the variables from another variables, without initializing with the defaults. This does not affect any parent
+   * Copy the variables from another IVariables object, without initializing with the defaults. This does not affect any parent
    * relationship.
    *
    * @param variables the variables to copy the variables from.
    */
-  void copyVariablesFrom( IVariables variables );
+  void copyFrom( IVariables variables );
 
   /**
-   * Share a variable variables from another variable variables. This means that the object should take over the variables used as
+   * Share a variable variables from another IVariables. This means that the object should take over the variables used as
    * argument.
    *
-   * @param variables Variable variables to be shared.
+   * @param variables IVariables to be shared.
    */
-  void shareVariablesWith( IVariables variables );
+  void shareWith( IVariables variables );
 
   /**
    * Get the parent of the variable variables.
    *
    * @return the parent.
    */
-  IVariables getParentVariableSpace();
+  IVariables getParentVariables();
 
   /**
    * Set the parent variable variables
    *
    * @param parent The parent variable variables to set
    */
-  void setParentVariableSpace( IVariables parent );
+  void setParentVariables( IVariables parent );
 
   /**
    * Sets a variable in the Hop Variables list.
@@ -107,14 +106,14 @@ public interface IVariables {
    * @param defaultValue The default value to return.
    * @return
    */
-  boolean getBooleanValueOfVariable( String variableName, boolean defaultValue );
+  boolean getVariableBoolean( String variableName, boolean defaultValue );
 
   /**
    * List the variables (not the values) that are currently in the variable variables.
    *
    * @return Array of String variable names.
    */
-  String[] listVariables();
+  String[] getVariableNames();
 
   /**
    * Substitute the string using the current variable variables.
@@ -122,7 +121,7 @@ public interface IVariables {
    * @param aString The string to substitute.
    * @return The substituted string.
    */
-  String environmentSubstitute( String aString );
+  String resolve( String aString );
 
   /**
    * Replaces environment variables in an array of strings.
@@ -132,16 +131,14 @@ public interface IVariables {
    * @param string The array of strings that wants its variables to be replaced.
    * @return the array with the environment variables replaced.
    */
-  public String[] environmentSubstitute( String[] string );
+  String[] resolve( String[] string );
 
   /**
-   * Inject variables. The behaviour should be that the properties object will be stored and at the time the
-   * IVariables is initialized (or upon calling this method if the variables is already initialized). After injecting the
-   * link of the properties object should be removed.
+   * Set all the variables specified in the map.
    *
-   * @param prop Properties object containing key-value pairs.
+   * @param map A strings Map containing 'key-value' pairs with 'key' being the name of the variable and 'value' being the variable value.
    */
-  void injectVariables( Map<String, String> prop );
+  void setVariables( Map<String, String> map );
 
   /**
    * Substitutes field values in <code>aString</code>. Field values are of the form "?{<field name>}". The values are
@@ -154,5 +151,5 @@ public interface IVariables {
    * @return the string with the substitution applied.
    * @throws HopValueException In case there is a String conversion error
    */
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException;
+  String resolve( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException;
 }

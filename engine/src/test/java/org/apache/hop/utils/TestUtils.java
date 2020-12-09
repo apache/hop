@@ -75,7 +75,7 @@ public class TestUtils {
   public static String createRamFile( String path, IVariables variables ) {
     if ( variables == null ) {
       variables = new Variables();
-      variables.initializeVariablesFrom( null );
+      variables.initializeFrom( null );
     }
     try {
       FileObject file = HopVfs.getFileObject( "ram://" + path );
@@ -93,7 +93,7 @@ public class TestUtils {
   public static FileObject getFileObject( String vfsPath, IVariables variables ) {
     if ( variables == null ) {
       variables = new Variables();
-      variables.initializeVariablesFrom( null );
+      variables.initializeFrom( null );
     }
     try {
       return HopVfs.getFileObject( vfsPath );

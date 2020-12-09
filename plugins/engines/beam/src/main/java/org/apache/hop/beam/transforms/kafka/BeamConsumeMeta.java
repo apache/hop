@@ -115,11 +115,11 @@ public class BeamConsumeMeta extends BaseTransformMeta implements ITransformMeta
   @Override public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform, IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
 
-    IValueMeta keyValueMeta = new ValueMetaString( variables.environmentSubstitute( keyField ) );
+    IValueMeta keyValueMeta = new ValueMetaString( variables.resolve( keyField ) );
     keyValueMeta.setOrigin( name );
     inputRowMeta.addValueMeta( keyValueMeta );
 
-    IValueMeta messageValueMeta = new ValueMetaString( variables.environmentSubstitute( messageField ) );
+    IValueMeta messageValueMeta = new ValueMetaString( variables.resolve( messageField ) );
     messageValueMeta.setOrigin( name );
     inputRowMeta.addValueMeta( messageValueMeta );
   }

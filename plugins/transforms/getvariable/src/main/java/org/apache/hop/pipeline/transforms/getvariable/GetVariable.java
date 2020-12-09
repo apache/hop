@@ -30,7 +30,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.List;
@@ -88,7 +87,7 @@ public class GetVariable extends BaseTransform<GetVariableMeta, GetVariableData>
       int fieldsLength = meta.getFieldDefinitions().length;
       data.extraData = new Object[ fieldsLength ];
       for ( int i = 0; i < fieldsLength; i++ ) {
-        String newValue = environmentSubstitute( meta.getFieldDefinitions()[ i ].getVariableString() );
+        String newValue = resolve( meta.getFieldDefinitions()[ i ].getVariableString() );
         if ( log.isDetailed() ) {
           logDetailed( "field [" + meta.getFieldDefinitions()[ i ].getFieldName() + "] has value [" + newValue + "]" );
         }

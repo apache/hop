@@ -1789,10 +1789,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   static void setRootScopeVariable( IPipelineEngine pipeline, String variableName, String variableValue ) {
     pipeline.setVariable( variableName, variableValue );
 
-    IVariables parentSpace = pipeline.getParentVariableSpace();
+    IVariables parentSpace = pipeline.getParentVariables();
     while ( parentSpace != null ) {
       parentSpace.setVariable( variableName, variableValue );
-      parentSpace = parentSpace.getParentVariableSpace();
+      parentSpace = parentSpace.getParentVariables();
     }
   }
 
@@ -1807,7 +1807,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   static void setParentScopeVariable( IPipelineEngine pipeline, String variableName, String variableValue ) {
     pipeline.setVariable( variableName, variableValue );
 
-    IVariables parentSpace = pipeline.getParentVariableSpace();
+    IVariables parentSpace = pipeline.getParentVariables();
     if ( parentSpace != null ) {
       parentSpace.setVariable( variableName, variableValue );
     }
@@ -1816,10 +1816,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   static void setGrandParentScopeVariable( IPipelineEngine pipeline, String variableName, String variableValue ) {
     pipeline.setVariable( variableName, variableValue );
 
-    IVariables parentSpace = pipeline.getParentVariableSpace();
+    IVariables parentSpace = pipeline.getParentVariables();
     if ( parentSpace != null ) {
       parentSpace.setVariable( variableName, variableValue );
-      IVariables grandParentSpace = parentSpace.getParentVariableSpace();
+      IVariables grandParentSpace = parentSpace.getParentVariables();
       if ( grandParentSpace != null ) {
         grandParentSpace.setVariable( variableName, variableValue );
       }

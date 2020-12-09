@@ -90,7 +90,7 @@ public class ModifyActionLogLevelExtensionPoint implements IExtensionPoint<IWork
       IVariables referenceVariables = (IVariables) rootDataMap.get( STRING_REFERENCE_VARIABLE_SPACE );
       if ( referenceVariables == null ) {
         referenceVariables = new Variables();
-        referenceVariables.initializeVariablesFrom( workflow );
+        referenceVariables.initializeFrom( workflow );
         rootDataMap.put( STRING_REFERENCE_VARIABLE_SPACE, referenceVariables );
       }
       referenceSpace = referenceVariables;
@@ -201,7 +201,7 @@ public class ModifyActionLogLevelExtensionPoint implements IExtensionPoint<IWork
 
                     IVariables variables = (IVariables) action;
                     // See the variables set differently from the parent workflow
-                    for ( String var : variables.listVariables() ) {
+                    for ( String var : variables.getVariableNames() ) {
                       if ( !variablesToIgnore.contains( var ) ) {
                         String value = variables.getVariable( var );
                         String refValue = referenceSpace.getVariable( var );

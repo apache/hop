@@ -63,7 +63,7 @@ public class HopGuiDescribedVariableSearchable implements ISearchable<DescribedV
   @Override public ISearchableCallback getSearchCallback() {
     return ( searchable, searchResult ) -> {
 
-      String realConfigFilename = HopGui.getInstance().getVariables().environmentSubstitute( configFilename );
+      String realConfigFilename = HopGui.getInstance().getVariables().resolve( configFilename );
 
       if (realConfigFilename==null) {
         HopGui.getInstance().menuToolsEditConfigVariables();

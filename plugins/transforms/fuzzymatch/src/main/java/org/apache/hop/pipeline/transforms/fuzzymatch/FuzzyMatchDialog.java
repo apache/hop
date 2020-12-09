@@ -865,10 +865,10 @@ public class FuzzyMatchDialog extends BaseTransformDialog implements ITransformD
       == FuzzyMatchMeta.OPERATION_TYPE_JARO_WINKLER
       || FuzzyMatchMeta.getAlgorithmTypeByDesc( wAlgorithm.getText() )
       == FuzzyMatchMeta.OPERATION_TYPE_PAIR_SIMILARITY ) {
-      if ( Const.toDouble( variables.environmentSubstitute( wMinValue.getText() ), 0 ) > 1 ) {
+      if ( Const.toDouble( variables.resolve( wMinValue.getText() ), 0 ) > 1 ) {
         wMinValue.setText( String.valueOf( 1 ) );
       }
-      if ( Const.toDouble( variables.environmentSubstitute( wMaxValue.getText() ), 0 ) > 1 ) {
+      if ( Const.toDouble( variables.resolve( wMaxValue.getText() ), 0 ) > 1 ) {
         wMaxValue.setText( String.valueOf( 1 ) );
       }
     }

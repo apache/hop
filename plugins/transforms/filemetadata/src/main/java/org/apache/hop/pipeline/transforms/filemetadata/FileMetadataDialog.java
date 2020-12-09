@@ -381,7 +381,7 @@ public class FileMetadataDialog extends BaseTransformDialog implements ITransfor
         FileDialog dialog = new FileDialog(shell, SWT.OPEN);
         dialog.setFilterExtensions(new String[]{"*.txt;*.csv", "*.csv", "*.txt", "*"});
         if (wFilename.getText() != null) {
-          String fileName = variables.environmentSubstitute(wFilename.getText());
+          String fileName = variables.resolve(wFilename.getText());
           dialog.setFileName(fileName);
         }
 

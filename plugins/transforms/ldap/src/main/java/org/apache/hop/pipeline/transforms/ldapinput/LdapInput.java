@@ -348,7 +348,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     for (int i = 0; i < meta.getInputFields().length; i++) {
       LdapInputField field = meta.getInputFields()[i];
       // get real attribute name
-      String name = environmentSubstitute(field.getAttribute());
+      String name = resolve(field.getAttribute());
       field.setRealAttribute(name);
 
       // specify attributes to be returned in binary format
@@ -371,9 +371,9 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     }
 
     if (meta.isUseAuthentication()) {
-      String username = environmentSubstitute(meta.getUserName());
+      String username = resolve(meta.getUserName());
       String password =
-          Encr.decryptPasswordOptionallyEncrypted(environmentSubstitute(meta.getPassword()));
+          Encr.decryptPasswordOptionallyEncrypted( resolve(meta.getPassword()));
       data.connection.connect(username, password);
     } else {
       data.connection.connect();
@@ -385,7 +385,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     }
     // Set the page size?
     if (meta.isPaging()) {
-      data.connection.setPagingSize(Const.toInt(environmentSubstitute(meta.getPageSize()), -1));
+      data.connection.setPagingSize(Const.toInt( resolve(meta.getPageSize()), -1));
     }
   }
 
@@ -413,12 +413,12 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     if (super.init()) {
       data.rownr = 1L;
       // Get multi valued field separator
-      data.multiValuedFieldSeparator = environmentSubstitute(meta.getMultiValuedSeparator());
+      data.multiValuedFieldSeparator = resolve(meta.getMultiValuedSeparator());
       data.nrFields = meta.getInputFields().length;
       // Set the filter string
-      data.staticFilter = environmentSubstitute(meta.getFilterString());
+      data.staticFilter = resolve(meta.getFilterString());
       // Set the search base
-      data.staticSearchBase = environmentSubstitute(meta.getSearchBase());
+      data.staticSearchBase = resolve(meta.getSearchBase());
 
       data.dynamic = (meta.isDynamicSearch() || meta.isDynamicFilter());
       try {

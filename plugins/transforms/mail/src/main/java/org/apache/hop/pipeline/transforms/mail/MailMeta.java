@@ -803,7 +803,7 @@ public class MailMeta extends BaseTransformMeta implements ITransformMeta<Mail, 
           PKG, "MailMeta.CheckResult.ServerOk" ), transformMeta );
       remarks.add( cr );
       // is the field exists?
-      if ( prev.indexOfValue( variables.environmentSubstitute( server ) ) < 0 ) {
+      if ( prev.indexOfValue( variables.resolve( server ) ) < 0 ) {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_WARNING, BaseMessages.getString(
             PKG, "MailMeta.CheckResult.ServerFieldNotFound", server ), transformMeta );

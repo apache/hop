@@ -57,10 +57,10 @@ public abstract class SalesforceTransformDialog extends BaseTransformDialog impl
       getInfo( meta );
 
       // get real values
-      String realURL = variables.environmentSubstitute( meta.getTargetUrl() );
-      realUsername = variables.environmentSubstitute( meta.getUsername() );
+      String realURL = variables.resolve( meta.getTargetUrl() );
+      realUsername = variables.resolve( meta.getUsername() );
       String realPassword = Utils.resolvePassword( variables, meta.getPassword() );
-      int realTimeOut = Const.toInt( variables.environmentSubstitute( meta.getTimeout() ), 0 );
+      int realTimeOut = Const.toInt( variables.resolve( meta.getTimeout() ), 0 );
 
       connection = new SalesforceConnection( log, realURL, realUsername, realPassword );
       connection.setTimeOut( realTimeOut );

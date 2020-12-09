@@ -170,14 +170,14 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     wxmlFilename.setLayoutData(fdxmlFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( variables.environmentSubstitute( wxmlFilename.getText() ) ) );
+    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( variables.resolve( wxmlFilename.getText() ) ) );
 
     wbxmlFilename.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
         if ( wxmlFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wxmlFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wxmlFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XML );
         if ( dialog.open() != null ) {
@@ -212,14 +212,14 @@ public class XsdValidatorDialog extends ActionDialog implements IActionDialog {
     wxsdFilename.setLayoutData(fdxsdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxsdFilename.addModifyListener( e -> wxsdFilename.setToolTipText( variables.environmentSubstitute( wxsdFilename.getText() ) ) );
+    wxsdFilename.addModifyListener( e -> wxsdFilename.setToolTipText( variables.resolve( wxsdFilename.getText() ) ) );
 
     wbxsdFilename.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xsd;*.XSD", "*" } );
         if ( wxsdFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wxsdFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wxsdFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XSD );
         if ( dialog.open() != null ) {

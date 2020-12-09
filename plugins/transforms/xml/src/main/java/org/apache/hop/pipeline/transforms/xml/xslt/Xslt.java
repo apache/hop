@@ -130,7 +130,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransfor
         }
 
         // Check if XSL File exists!
-        data.xslfilename = environmentSubstitute( meta.getXslFilename() );
+        data.xslfilename = resolve( meta.getXslFilename() );
         FileObject file = null;
         try {
           file = HopVfs.getFileObject( data.xslfilename );
@@ -161,7 +161,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransfor
       if ( nrOutputProps > 0 ) {
         data.outputProperties = new Properties();
         for ( int i = 0; i < nrOutputProps; i++ ) {
-          data.outputProperties.put( meta.getOutputPropertyName()[i], environmentSubstitute( meta
+          data.outputProperties.put( meta.getOutputPropertyName()[i], resolve( meta
               .getOutputPropertyValue()[i] ) );
         }
         data.setOutputProperties = true;
@@ -173,8 +173,8 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransfor
         data.indexOfParams = new int[data.nrParams];
         data.nameOfParams = new String[data.nrParams];
         for ( int i = 0; i < data.nrParams; i++ ) {
-          String name = environmentSubstitute( meta.getParameterName()[i] );
-          String field = environmentSubstitute( meta.getParameterField()[i] );
+          String name = resolve( meta.getParameterName()[i] );
+          String field = resolve( meta.getParameterField()[i] );
           if ( Utils.isEmpty( field ) ) {
             throw new HopTransformException( BaseMessages
                 .getString( PKG, "Xslt.Exception.ParameterFieldMissing", name, i ) );

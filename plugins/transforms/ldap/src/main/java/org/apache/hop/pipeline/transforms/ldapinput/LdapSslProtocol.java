@@ -44,7 +44,7 @@ public class LdapSslProtocol extends LdapProtocol {
     super(log, variables, meta, binaryAttributes);
 
     if (meta.isUseCertificate()) {
-      trustStorePath = variables.environmentSubstitute(meta.getTrustStorePath());
+      trustStorePath = variables.resolve(meta.getTrustStorePath());
       trustStorePassword = Utils.resolvePassword(variables, meta.getTrustStorePassword());
       trustAllCertificates = meta.isTrustAllCertificates();
     } else {

@@ -144,22 +144,22 @@ public class StringCut extends BaseTransform<StringCutMeta, StringCutData> imple
 
       data.outStreamNrs = new String[ meta.getFieldInStream().length ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.outStreamNrs[ i ] = environmentSubstitute( meta.getFieldOutStream()[ i ] );
+        data.outStreamNrs[ i ] = resolve( meta.getFieldOutStream()[ i ] );
       }
 
       data.cutFrom = new int[ meta.getFieldInStream().length ];
       data.cutTo = new int[ meta.getFieldInStream().length ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        if ( Utils.isEmpty( environmentSubstitute( meta.getCutFrom()[ i ] ) ) ) {
+        if ( Utils.isEmpty( resolve( meta.getCutFrom()[ i ] ) ) ) {
           data.cutFrom[ i ] = 0;
         } else {
-          data.cutFrom[ i ] = Const.toInt( environmentSubstitute( meta.getCutFrom()[ i ] ), 0 );
+          data.cutFrom[ i ] = Const.toInt( resolve( meta.getCutFrom()[ i ] ), 0 );
         }
 
-        if ( Utils.isEmpty( environmentSubstitute( meta.getCutTo()[ i ] ) ) ) {
+        if ( Utils.isEmpty( resolve( meta.getCutTo()[ i ] ) ) ) {
           data.cutTo[ i ] = 0;
         } else {
-          data.cutTo[ i ] = Const.toInt( environmentSubstitute( meta.getCutTo()[ i ] ), 0 );
+          data.cutTo[ i ] = Const.toInt( resolve( meta.getCutTo()[ i ] ), 0 );
         }
 
       } // end for

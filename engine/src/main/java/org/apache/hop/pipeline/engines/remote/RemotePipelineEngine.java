@@ -216,8 +216,8 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
 
       logChannel.logBasic( "Executing this pipeline using the Remote Pipeline Engine with run configuration '" + pipelineRunConfiguration.getName() + "'" );
 
-      serverPollDelay = Const.toLong( environmentSubstitute( remotePipelineRunConfiguration.getServerPollDelay() ), 1000L );
-      serverPollInterval = Const.toLong( environmentSubstitute( remotePipelineRunConfiguration.getServerPollInterval() ), 2000L );
+      serverPollDelay = Const.toLong( resolve( remotePipelineRunConfiguration.getServerPollDelay() ), 1000L );
+      serverPollInterval = Const.toLong( resolve( remotePipelineRunConfiguration.getServerPollInterval() ), 2000L );
 
       hopServer = metadataProvider.getSerializer( HopServer.class ).load( hopServerName );
       if ( hopServer == null ) {
@@ -269,7 +269,7 @@ public class RemotePipelineEngine extends Variables implements IPipelineEngine<P
     }
     // Overwrite with all the other variables we know off
     //
-    for ( String var : listVariables() ) {
+    for ( String var : getVariableNames() ) {
       vars.put( var, getVariable( var ) );
     }
 

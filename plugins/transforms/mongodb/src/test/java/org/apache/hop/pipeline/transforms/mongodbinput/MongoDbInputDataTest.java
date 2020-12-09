@@ -95,10 +95,10 @@ public class MongoDbInputDataTest {
     when(meta.getFieldsName()).thenReturn(fields);
 
     IVariables vars = mock(IVariables.class);
-    when(vars.environmentSubstitute(dbName)).thenReturn(dbName);
-    when(vars.environmentSubstitute(collection)).thenReturn(collection);
-    when(vars.environmentSubstitute(query)).thenReturn(query);
-    when(vars.environmentSubstitute(fields)).thenReturn(fields);
+    when(vars.resolve(dbName)).thenReturn(dbName);
+    when(vars.resolve(collection)).thenReturn(collection);
+    when(vars.resolve(query)).thenReturn(query);
+    when(vars.resolve(fields)).thenReturn(fields);
 
     int docsToSample = 1;
 
@@ -152,10 +152,10 @@ public class MongoDbInputDataTest {
     when(meta.getFieldsName()).thenReturn(fields);
 
     IVariables vars = mock(IVariables.class);
-    when(vars.environmentSubstitute(dbName)).thenReturn(dbName);
-    when(vars.environmentSubstitute(collection)).thenReturn(collection);
-    when(vars.environmentSubstitute(query)).thenReturn(query);
-    when(vars.environmentSubstitute(fields)).thenReturn(fields);
+    when(vars.resolve(dbName)).thenReturn(dbName);
+    when(vars.resolve(collection)).thenReturn(collection);
+    when(vars.resolve(query)).thenReturn(query);
+    when(vars.resolve(fields)).thenReturn(fields);
 
     int docsToSample = 1;
 
@@ -207,10 +207,10 @@ public class MongoDbInputDataTest {
     when(meta.getFieldsName()).thenReturn(fields);
 
     IVariables vars = mock(IVariables.class);
-    when(vars.environmentSubstitute(dbName)).thenReturn(dbName);
-    when(vars.environmentSubstitute(collection)).thenReturn(collection);
-    when(vars.environmentSubstitute(query)).thenReturn(query);
-    when(vars.environmentSubstitute(fields)).thenReturn(fields);
+    when(vars.resolve(dbName)).thenReturn(dbName);
+    when(vars.resolve(collection)).thenReturn(collection);
+    when(vars.resolve(query)).thenReturn(query);
+    when(vars.resolve(fields)).thenReturn(fields);
 
     int docsToSample = 1;
 
@@ -257,10 +257,10 @@ public class MongoDbInputDataTest {
     when(meta.getFieldsName()).thenReturn(fields);
 
     IVariables vars = mock(IVariables.class);
-    when(vars.environmentSubstitute(dbName)).thenReturn(dbName);
-    when(vars.environmentSubstitute(collection)).thenReturn(collection);
-    when(vars.environmentSubstitute(query)).thenReturn(query);
-    when(vars.environmentSubstitute(fields)).thenReturn(fields);
+    when(vars.resolve(dbName)).thenReturn(dbName);
+    when(vars.resolve(collection)).thenReturn(collection);
+    when(vars.resolve(query)).thenReturn(query);
+    when(vars.resolve(fields)).thenReturn(fields);
 
     int docsToSample = 1;
 
@@ -309,10 +309,10 @@ public class MongoDbInputDataTest {
     when(meta.getFieldsName()).thenReturn(fields);
 
     IVariables vars = mock(IVariables.class);
-    when(vars.environmentSubstitute(dbName)).thenReturn(dbName);
-    when(vars.environmentSubstitute(collection)).thenReturn(collection);
-    when(vars.environmentSubstitute(query)).thenReturn(query);
-    when(vars.environmentSubstitute(fields)).thenReturn(fields);
+    when(vars.resolve(dbName)).thenReturn(dbName);
+    when(vars.resolve(collection)).thenReturn(collection);
+    when(vars.resolve(query)).thenReturn(query);
+    when(vars.resolve(fields)).thenReturn(fields);
 
     int docsToSample = 1;
 
@@ -353,10 +353,10 @@ public class MongoDbInputDataTest {
     when(meta.getFieldsName()).thenReturn(fields);
 
     IVariables vars = mock(IVariables.class);
-    when(vars.environmentSubstitute(dbName)).thenReturn(dbName);
-    when(vars.environmentSubstitute(collection)).thenReturn(collection);
-    when(vars.environmentSubstitute(query)).thenReturn(query);
-    when(vars.environmentSubstitute(fields)).thenReturn(fields);
+    when(vars.resolve(dbName)).thenReturn(dbName);
+    when(vars.resolve(collection)).thenReturn(collection);
+    when(vars.resolve(query)).thenReturn(query);
+    when(vars.resolve(fields)).thenReturn(fields);
 
     int docsToSample = 1;
 

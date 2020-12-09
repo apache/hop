@@ -116,7 +116,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
       throw new HopException("Error encoding row as XML", e);
     }
 
-    long intervalMs = Const.toLong(variables.environmentSubstitute(meta.getIntervalInMs()), -1L);
+    long intervalMs = Const.toLong(variables.resolve(meta.getIntervalInMs()), -1L);
     if (intervalMs < 0) {
       throw new HopException(
           "The interval in milliseconds is expected to be >= 0, not '"
@@ -150,9 +150,9 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
       SyntheticUnboundedSource unboundedSource = new SyntheticUnboundedSource(options);
       Read.Unbounded<KV<byte[], byte[]>> unboundedReader = Read.from(unboundedSource);
       PCollection<KV<byte[], byte[]>> sourceInput = pipeline.apply(unboundedReader);
-      String currentTimeField = variables.environmentSubstitute(meta.getRowTimeField());
+      String currentTimeField = variables.resolve(meta.getRowTimeField());
       int currentTimeFieldIndex = rowMeta.indexOfValue(currentTimeField);
-      String previousTimeField = variables.environmentSubstitute(meta.getLastTimeField());
+      String previousTimeField = variables.resolve(meta.getLastTimeField());
       int previousTimeFieldIndex = rowMeta.indexOfValue(previousTimeField);
 
       afterInput =
@@ -172,7 +172,7 @@ public class BeamRowGeneratorTransformHandler extends BeamBaseTransformHandler
 
       // A fixed number of records
       //
-      long numRecords = Const.toLong(variables.environmentSubstitute(meta.getRowLimit()), -1L);
+      long numRecords = Const.toLong(variables.resolve(meta.getRowLimit()), -1L);
       if (numRecords < 0) {
         throw new HopException(
             "Please specify a valid number of records to generate, not '"

@@ -269,13 +269,13 @@ public class StringOperations extends BaseTransform<StringOperationsMeta, String
       // padding char
       data.padChar = new String[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.padChar[ i ] = environmentSubstitute( meta.getPadChar()[ i ] );
+        data.padChar[ i ] = resolve( meta.getPadChar()[ i ] );
       }
 
       // padding len
       data.padLen = new int[ data.nrFieldsInStream ];
       for ( int i = 0; i < meta.getFieldInStream().length; i++ ) {
-        data.padLen[ i ] = Const.toInt( environmentSubstitute( meta.getPadLen()[ i ] ), 0 );
+        data.padLen[ i ] = Const.toInt( resolve( meta.getPadLen()[ i ] ), 0 );
       }
       // InitCap?
       data.initCap = new int[ data.nrFieldsInStream ];

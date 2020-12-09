@@ -262,13 +262,13 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
         if ( connection != null ) {
           // User has specified a connection, We can continue ...
           Database db = new Database( this, connection );
-          db.shareVariablesWith( this );
+          db.shareWith( this );
           try {
             db.connect();
             // Get schemaname
-            String realSchemaname = environmentSubstitute( schemaName );
+            String realSchemaname = resolve( schemaName );
             // Get tablename
-            String realTablename = environmentSubstitute( tableName );
+            String realTablename = resolve( tableName );
 
             if ( db.checkTableExists( realTablename ) ) {
               // The table existe, We can continue ...
@@ -426,7 +426,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealFilename() {
-    String RealFile = environmentSubstitute( getFilename() );
+    String RealFile = resolve( getFilename() );
     return RealFile.replace( '\\', '/' );
   }
 
@@ -447,7 +447,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealLineterminated() {
-    return environmentSubstitute( getLineTerminated() );
+    return resolve( getLineTerminated() );
   }
 
   public String getSeparator() {
@@ -459,11 +459,11 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealSeparator() {
-    return environmentSubstitute( getSeparator() );
+    return resolve( getSeparator() );
   }
 
   public String getRealEnclosed() {
-    return environmentSubstitute( getEnclosed() );
+    return resolve( getEnclosed() );
   }
 
   public void setLimitLines( String limitLines ) {
@@ -475,7 +475,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealLimitlines() {
-    return environmentSubstitute( getLimitLines() );
+    return resolve( getLimitLines() );
   }
 
   public void setListColumn( String listcolumn ) {
@@ -487,7 +487,7 @@ public class ActionMysqlBulkFile extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealListColumn() {
-    return environmentSubstitute( getListColumn() );
+    return resolve( getListColumn() );
   }
 
   public void setAddFileToResult( boolean addfiletoresultin ) {

@@ -516,60 +516,60 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   /**
    * Copies variables from a given variable variables to this action
    *
-   * @see IVariables#copyVariablesFrom(IVariables)
+   * @see IVariables#copyFrom(IVariables)
    */
   @Override
-  public void copyVariablesFrom( IVariables variables ) {
-    this.variables.copyVariablesFrom( variables );
+  public void copyFrom( IVariables variables ) {
+    this.variables.copyFrom( variables );
   }
 
   /**
    * Substitutes any variable values into the given string, and returns the resolved string
    *
    * @return the string with any environment variables resolved and substituted
-   * @see IVariables#environmentSubstitute(java.lang.String)
+   * @see IVariables#resolve(java.lang.String)
    */
   @Override
-  public String environmentSubstitute( String aString ) {
-    return variables.environmentSubstitute( aString );
+  public String resolve( String aString ) {
+    return variables.resolve( aString );
   }
 
   /**
    * Substitutes any variable values into each of the given strings, and returns an array containing the resolved
    * string(s)
    *
-   * @see IVariables#environmentSubstitute(java.lang.String[])
+   * @see IVariables#resolve(java.lang.String[])
    */
   @Override
-  public String[] environmentSubstitute( String[] aString ) {
-    return variables.environmentSubstitute( aString );
+  public String[] resolve( String[] aString ) {
+    return variables.resolve( aString );
   }
 
   @Override
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
-    return variables.fieldSubstitute( aString, rowMeta, rowData );
+  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
+    return variables.resolve( aString, rowMeta, rowData );
   }
 
   /**
    * Gets the parent variable variables
    *
    * @return the parent variable variables
-   * @see IVariables#getParentVariableSpace()
+   * @see IVariables#getParentVariables()
    */
   @Override
-  public IVariables getParentVariableSpace() {
-    return variables.getParentVariableSpace();
+  public IVariables getParentVariables() {
+    return variables.getParentVariables();
   }
 
   /**
    * Sets the parent variable variables
    *
-   * @see IVariables#setParentVariableSpace(
+   * @see IVariables#setParentVariables(
    *IVariables)
    */
   @Override
-  public void setParentVariableSpace( IVariables parent ) {
-    variables.setParentVariableSpace( parent );
+  public void setParentVariables( IVariables parent ) {
+    variables.setParentVariables( parent );
   }
 
   /**
@@ -601,12 +601,12 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @param variableName the name of the variable to interrogate
    * @return a boolean representation of the specified variable after performing any necessary substitution
    * @boolean defaultValue the value to use if the specified variable is unassigned.
-   * @see IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
+   * @see IVariables#getVariableBoolean(java.lang.String, boolean)
    */
   @Override
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
+  public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
     if ( !Utils.isEmpty( variableName ) ) {
-      String value = environmentSubstitute( variableName );
+      String value = resolve( variableName );
       if ( !Utils.isEmpty( value ) ) {
         return ValueMetaString.convertStringToBoolean( value );
       }
@@ -617,23 +617,23 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   /**
    * Sets the values of the action's variables to the values from the parent variables
    *
-   * @see IVariables#initializeVariablesFrom(
+   * @see IVariables#initializeFrom(
    *IVariables)
    */
   @Override
-  public void initializeVariablesFrom( IVariables parent ) {
-    variables.initializeVariablesFrom( parent );
+  public void initializeFrom( IVariables parent ) {
+    variables.initializeFrom( parent );
   }
 
   /**
    * Gets a list of variable names for the action
    *
    * @return a list of variable names
-   * @see IVariables#listVariables()
+   * @see IVariables#getVariableNames()
    */
   @Override
-  public String[] listVariables() {
-    return variables.listVariables();
+  public String[] getVariableNames() {
+    return variables.getVariableNames();
   }
 
   /**
@@ -650,10 +650,10 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Shares a variable variables from another variable variables. This means that the object should take over the variables used as
    * argument.
    *
-   * @see IVariables#shareVariablesWith(IVariables)
+   * @see IVariables#shareWith(IVariables)
    */
   @Override
-  public void shareVariablesWith( IVariables variables ) {
+  public void shareWith( IVariables variables ) {
     this.variables = variables;
   }
 
@@ -662,11 +662,11 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * time the IVariables is initialized (or upon calling this method if the variables is already initialized). After
    * injecting the link of the properties object should be removed.
    *
-   * @see IVariables#injectVariables(java.util.Map)
+   * @see IVariables#setVariables(java.util.Map)
    */
   @Override
-  public void injectVariables( Map<String, String> prop ) {
-    variables.injectVariables( prop );
+  public void setVariables( Map<String, String> map ) {
+    variables.setVariables( map );
   }
 
   /**

@@ -239,7 +239,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
   private List<VariableValue> getVariableValues( IVariables variables ) {
 
     List<VariableValue> variableValues = new ArrayList<>();
-    for ( String variable : variables.listVariables() ) {
+    for ( String variable : variables.getVariableNames() ) {
       String value = variables.getVariable( variable );
       variableValues.add( new VariableValue( variable, value ) );
     }

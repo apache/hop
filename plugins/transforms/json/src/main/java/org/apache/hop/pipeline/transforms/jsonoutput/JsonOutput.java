@@ -197,7 +197,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
           throw new HopException( BaseMessages.getString( PKG, "JsonOutput.Exception.FieldNotFound" ) );
         }
         JsonOutputField field = meta.getOutputFields()[ i ];
-        field.setElementName( environmentSubstitute( field.getElementName() ) );
+        field.setElementName( resolve( field.getElementName() ) );
       }
     }
 
@@ -253,7 +253,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
 
       if ( data.outputValue ) {
         // We need to have output field name
-        if ( Utils.isEmpty( environmentSubstitute( meta.getOutputValue() ) ) ) {
+        if ( Utils.isEmpty( resolve( meta.getOutputValue() ) ) ) {
           logError( BaseMessages.getString( PKG, "JsonOutput.Error.MissingOutputFieldName" ) );
           stopAll();
           setErrors( 1 );
@@ -278,8 +278,8 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
         }
 
       }
-      data.realBlocName = Const.NVL( environmentSubstitute( meta.getJsonBloc() ), "" );
-      data.nrRowsInBloc = Const.toInt( environmentSubstitute( meta.getNrRowsInBloc() ), 0 );
+      data.realBlocName = Const.NVL( resolve( meta.getJsonBloc() ), "" );
+      data.nrRowsInBloc = Const.toInt( resolve( meta.getNrRowsInBloc() ), 0 );
       return true;
     }
 
@@ -356,7 +356,7 @@ public class JsonOutput extends BaseTransform<JsonOutputMeta, JsonOutputData> im
 
       if ( !Utils.isEmpty( meta.getEncoding() ) ) {
         data.writer =
-          new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ), environmentSubstitute( meta
+          new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ), resolve( meta
             .getEncoding() ) );
       } else {
         data.writer = new OutputStreamWriter( new BufferedOutputStream( outputStream, 5000 ) );

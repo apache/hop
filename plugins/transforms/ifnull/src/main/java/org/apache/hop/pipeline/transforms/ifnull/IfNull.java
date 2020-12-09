@@ -32,7 +32,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.util.ArrayList;
@@ -94,8 +93,8 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
               throw new HopException( BaseMessages.getString( PKG, "IfNull.Log.CanNotFindField", meta.getFields()[ i ]
                 .getFieldName() ) );
             }
-            data.defaultValues[ i ] = environmentSubstitute( meta.getFields()[ i ].getReplaceValue() );
-            data.defaultMasks[ i ] = environmentSubstitute( meta.getFields()[ i ].getReplaceMask() );
+            data.defaultValues[ i ] = resolve( meta.getFields()[ i ].getReplaceValue() );
+            data.defaultMasks[ i ] = resolve( meta.getFields()[ i ].getReplaceMask() );
             data.setEmptyString[ i ] = meta.getFields()[ i ].isSetEmptyString();
           }
         } else {
@@ -123,8 +122,8 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
             }
 
             data.ListTypes.put( meta.getValueTypes()[ i ].getTypeName(), i );
-            data.defaultValues[ i ] = environmentSubstitute( meta.getValueTypes()[ i ].getTypereplaceValue() );
-            data.defaultMasks[ i ] = environmentSubstitute( meta.getValueTypes()[ i ].getTypereplaceMask() );
+            data.defaultValues[ i ] = resolve( meta.getValueTypes()[ i ].getTypereplaceValue() );
+            data.defaultMasks[ i ] = resolve( meta.getValueTypes()[ i ].getTypereplaceMask() );
             data.setEmptyString[ i ] = meta.getValueTypes()[ i ].isSetTypeEmptyString();
           }
 
@@ -146,8 +145,8 @@ public class IfNull extends BaseTransform<IfNullMeta,IfNullData> implements ITra
         }
 
       } else {
-        data.realReplaceByValue = environmentSubstitute( meta.getReplaceAllByValue() );
-        data.realconversionMask = environmentSubstitute( meta.getReplaceAllMask() );
+        data.realReplaceByValue = resolve( meta.getReplaceAllByValue() );
+        data.realconversionMask = resolve( meta.getReplaceAllMask() );
         data.realSetEmptyString = meta.isSetEmptyStringAll();
 
         // Consider all fields in input stream

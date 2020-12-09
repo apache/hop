@@ -563,7 +563,7 @@ public class SQLFileOutputDialog extends BaseTransformDialog implements ITransfo
       public void widgetSelected( SelectionEvent e ) {
         SQLFileOutputMeta tfoi = new SQLFileOutputMeta();
         getInfo( tfoi );
-        String[] files = tfoi.getFiles( variables, variables.environmentSubstitute( wFilename.getText() ) );
+        String[] files = tfoi.getFiles( variables, variables.resolve( wFilename.getText() ) );
         if ( files != null && files.length > 0 ) {
           EnterSelectionDialog esd = new EnterSelectionDialog( shell, files,
             BaseMessages.getString( PKG, "SQLFileOutputDialog.SelectOutputFiles.DialogTitle" ),

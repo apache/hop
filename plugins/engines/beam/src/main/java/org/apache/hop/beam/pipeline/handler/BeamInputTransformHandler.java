@@ -62,13 +62,13 @@ public class BeamInputTransformHandler extends BeamBaseTransformHandler implemen
     if ( inputFileDefinition == null ) {
       throw new HopException( "We couldn't find or load the Beam Input transform file definition" );
     }
-    String fileInputLocation = variables.environmentSubstitute( beamInputMeta.getInputLocation() );
+    String fileInputLocation = variables.resolve( beamInputMeta.getInputLocation() );
 
     BeamInputTransform beamInputTransform = new BeamInputTransform(
       transformMeta.getName(),
       transformMeta.getName(),
       fileInputLocation,
-      variables.environmentSubstitute( inputFileDefinition.getSeparator() ),
+      variables.resolve( inputFileDefinition.getSeparator() ),
       JsonRowMeta.toJson( fileRowMeta ),
       transformPluginClasses,
       xpPluginClasses

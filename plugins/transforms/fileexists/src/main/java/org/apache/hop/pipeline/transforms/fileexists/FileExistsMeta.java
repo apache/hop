@@ -160,14 +160,14 @@ public class FileExistsMeta extends BaseTransformMeta implements ITransformMeta<
     // Output fields (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
       IValueMeta v =
-        new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
+        new ValueMetaBoolean( variables.resolve( resultfieldname ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
 
     if ( includefiletype && !Utils.isEmpty( filetypefieldname ) ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( filetypefieldname ) );
+        new ValueMetaString( variables.resolve( filetypefieldname ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }

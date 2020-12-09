@@ -321,12 +321,12 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // Address of the Flink Master where the Pipeline should be executed. Can either be of the form \"host:port\" or one of the special values [local], [collection] or [auto].")
     if ( StringUtils.isNotEmpty( getFlinkMaster() ) ) {
-      options.setFlinkMaster( environmentSubstitute( options.getFlinkMaster() ) );
+      options.setFlinkMaster( resolve( options.getFlinkMaster() ) );
     }
 
     // The degree of parallelism to be used when distributing operations onto workers. If the parallelism is not set, the configured Flink default is used, or 1 if none can be found.")
     if ( StringUtils.isNotEmpty( getFlinkParallelism() ) ) {
-      int value = Const.toInt( environmentSubstitute( getFlinkParallelism() ), -1 );
+      int value = Const.toInt( resolve( getFlinkParallelism() ), -1 );
       if ( value > 0 ) {
         options.setParallelism( value );
       }
@@ -334,7 +334,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // The interval in milliseconds at which to trigger checkpoints of the running pipeline. Default: No checkpointing.")
     if ( StringUtils.isNotEmpty( getFlinkCheckpointingInterval() ) ) {
-      long value = Const.toLong( environmentSubstitute( getFlinkCheckpointingInterval() ), -1L );
+      long value = Const.toLong( resolve( getFlinkCheckpointingInterval() ), -1L );
       if ( value > 0 ) {
         options.setCheckpointingInterval( value );
       }
@@ -342,7 +342,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // The checkpointing mode that defines consistency guarantee.")
     if ( StringUtils.isNotEmpty( getFlinkCheckpointingMode() ) ) {
-      String modeString = environmentSubstitute( getFlinkCheckpointingMode() );
+      String modeString = resolve( getFlinkCheckpointingMode() );
       try {
         CheckpointingMode mode = CheckpointingMode.valueOf( modeString );
         if ( mode != null ) {
@@ -355,7 +355,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // The maximum time in milliseconds that a checkpoint may take before being discarded.")
     if ( StringUtils.isNotEmpty( getFlinkCheckpointTimeoutMillis() ) ) {
-      long value = Const.toLong( environmentSubstitute( getFlinkCheckpointTimeoutMillis() ), -1L );
+      long value = Const.toLong( resolve( getFlinkCheckpointTimeoutMillis() ), -1L );
       if ( value > 0 ) {
         options.setCheckpointTimeoutMillis( value );
       }
@@ -363,7 +363,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // The minimal pause in milliseconds before the next checkpoint is triggered.")
     if ( StringUtils.isNotEmpty( getFlinkMinPauseBetweenCheckpoints() ) ) {
-      long value = Const.toLong( environmentSubstitute( getFlinkMinPauseBetweenCheckpoints() ), -1L );
+      long value = Const.toLong( resolve( getFlinkMinPauseBetweenCheckpoints() ), -1L );
       if ( value > 0 ) {
         options.setMinPauseBetweenCheckpoints( value );
       }
@@ -372,7 +372,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     // Sets the number of times that failed tasks are re-executed. A value of zero effectively disables fault tolerance. A value of -1 indicates that the system default value (as defined in the
     // configuration) should be used.")
     if ( StringUtils.isNotEmpty( getFlinkNumberOfExecutionRetries() ) ) {
-      int value = Const.toInt( environmentSubstitute( getFlinkNumberOfExecutionRetries() ), -1 );
+      int value = Const.toInt( resolve( getFlinkNumberOfExecutionRetries() ), -1 );
       if ( value >= 0 ) {
         options.setNumberOfExecutionRetries( value );
       }
@@ -380,7 +380,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // Sets the delay in milliseconds between executions. A value of {@code -1} indicates that the default value should be used.")
     if ( StringUtils.isNotEmpty( getFlinkExecutionRetryDelay() ) ) {
-      long value = Const.toLong( environmentSubstitute( getFlinkExecutionRetryDelay() ), -1L );
+      long value = Const.toLong( resolve( getFlinkExecutionRetryDelay() ), -1L );
       if ( value > 0 ) {
         options.setExecutionRetryDelay( value );
       }
@@ -388,35 +388,35 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // Sets the behavior of reusing objects.")
     if ( StringUtils.isNotEmpty( getFlinkObjectReuse() ) ) {
-      String str = environmentSubstitute( getFlinkObjectReuse() );
+      String str = resolve( getFlinkObjectReuse() );
       boolean value = "Y".equalsIgnoreCase( str ) || "TRUE".equalsIgnoreCase( str );
       options.setObjectReuse( value );
     }
 
     // Enable/disable Beam metrics in Flink Runner")
     if ( StringUtils.isNotEmpty( getFlinkDisableMetrics() ) ) {
-      String str = environmentSubstitute( getFlinkDisableMetrics() );
+      String str = resolve( getFlinkDisableMetrics() );
       boolean value = "Y".equalsIgnoreCase( str ) || "TRUE".equalsIgnoreCase( str );
       options.setDisableMetrics( !value );
     }
 
     // Enables or disables externalized checkpoints. Works in conjunction with CheckpointingInterval")
     if ( StringUtils.isNotEmpty( getFlinkExternalizedCheckpointsEnabled() ) ) {
-      String str = environmentSubstitute( getFlinkExternalizedCheckpointsEnabled() );
+      String str = resolve( getFlinkExternalizedCheckpointsEnabled() );
       boolean value = "Y".equalsIgnoreCase( str ) || "TRUE".equalsIgnoreCase( str );
       options.setExternalizedCheckpointsEnabled( value );
     }
 
     // Sets the behavior of externalized checkpoints on cancellation.")
     if ( StringUtils.isNotEmpty( getFlinkRetainExternalizedCheckpointsOnCancellation() ) ) {
-      String str = environmentSubstitute( getFlinkRetainExternalizedCheckpointsOnCancellation() );
+      String str = resolve( getFlinkRetainExternalizedCheckpointsOnCancellation() );
       boolean value = "Y".equalsIgnoreCase( str ) || "TRUE".equalsIgnoreCase( str );
       options.setRetainExternalizedCheckpointsOnCancellation( value );
     }
 
     // The maximum number of elements in a bundle.")
     if ( StringUtils.isNotEmpty( getFlinkMaxBundleSize() ) ) {
-      long value = Const.toLong( environmentSubstitute( getFlinkMaxBundleSize() ), -1L );
+      long value = Const.toLong( resolve( getFlinkMaxBundleSize() ), -1L );
       if ( value > 0 ) {
         options.setMaxBundleSize( value );
       }
@@ -424,7 +424,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // The maximum time to wait before finalising a bundle (in milliseconds).")
     if ( StringUtils.isNotEmpty( getFlinkMaxBundleTimeMills() ) ) {
-      long value = Const.toLong( environmentSubstitute( getFlinkMaxBundleTimeMills() ), -1L );
+      long value = Const.toLong( resolve( getFlinkMaxBundleTimeMills() ), -1L );
       if ( value > 0 ) {
         options.setMaxBundleSize( value );
       }
@@ -432,21 +432,21 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // Fail on checkpointing errors?
     if ( StringUtils.isNotEmpty( getFlinkFailingOnCheckpointingErrors() )) {
-      String str = environmentSubstitute( getFlinkFailingOnCheckpointingErrors() );
+      String str = resolve( getFlinkFailingOnCheckpointingErrors() );
       boolean value = "Y".equalsIgnoreCase( str ) || "TRUE".equalsIgnoreCase( str );
       options.setFailOnCheckpointingErrors( value );
     }
 
     // If set, shutdown sources when their watermark reaches +Inf.")
     if ( StringUtils.isNotEmpty( getFlinkShutdownSourcesAfterIdleMs() ) ) {
-      String str = environmentSubstitute( getFlinkShutdownSourcesAfterIdleMs() );
+      String str = resolve( getFlinkShutdownSourcesAfterIdleMs() );
       long value = Const.toLong( str, -1L );
       options.setShutdownSourcesAfterIdleMs( value );
     }
 
     // Interval in milliseconds for sending latency tracking marks from the sources to the sinks. Interval value <= 0 disables the feature.")
     if ( StringUtils.isNotEmpty( getFlinkLatencyTrackingInterval() ) ) {
-      long value = Const.toLong( environmentSubstitute( getFlinkLatencyTrackingInterval() ), -1L );
+      long value = Const.toLong( resolve( getFlinkLatencyTrackingInterval() ), -1L );
       if ( value > 0 ) {
         options.setLatencyTrackingInterval( value );
       }
@@ -454,7 +454,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
 
     // The interval in milliseconds for automatic watermark emission.")
     if ( StringUtils.isNotEmpty( getFlinkAutoWatermarkInterval() ) ) {
-      long value = Const.toLong( environmentSubstitute( getFlinkAutoWatermarkInterval() ), -1L );
+      long value = Const.toLong( resolve( getFlinkAutoWatermarkInterval() ), -1L );
       if ( value > 0 ) {
         options.setAutoWatermarkInterval( value );
       }
@@ -463,7 +463,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     // Flink mode for data exchange of batch pipelines. Reference {@link org.apache.flink.api.common.ExecutionMode}.
     // Set this to BATCH_FORCED if pipelines get blocked, see https://issues.apache.org/jira/browse/FLINK-10672")
     if ( StringUtils.isNotEmpty( getFlinkExecutionModeForBatch() ) ) {
-      String modeString = environmentSubstitute( getFlinkExecutionModeForBatch() );
+      String modeString = resolve( getFlinkExecutionModeForBatch() );
       ExecutionMode mode = ExecutionMode.valueOf( modeString );
       try {
         options.setExecutionModeForBatch( modeString );
@@ -473,7 +473,7 @@ public class BeamFlinkPipelineRunConfiguration extends BeamPipelineRunConfigurat
     }
 
     if (StringUtils.isNotEmpty( getFatJar() )) {
-      options.setFilesToStage( Arrays.asList(environmentSubstitute(fatJar)) );
+      options.setFilesToStage( Arrays.asList( resolve(fatJar)) );
     }
 
     return options;

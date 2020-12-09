@@ -37,7 +37,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.sql.SQLException;
@@ -81,7 +80,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> implements ITr
         }
       }
 
-      data.db.setProcLookup( environmentSubstitute( meta.getProcedure() ), meta.getArgument(), meta
+      data.db.setProcLookup( resolve( meta.getProcedure() ), meta.getArgument(), meta
         .getArgumentDirection(), meta.getArgumentType(), meta.getResultName(), meta.getResultType() );
     }
 
@@ -195,7 +194,7 @@ public class DBProc extends BaseTransform<DBProcMeta, DBProcData> implements ITr
       }
 
       data.db = new Database( this, meta.getDatabase() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
       try {
         data.db.connect( getPartitionId() );
 

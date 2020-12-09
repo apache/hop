@@ -218,7 +218,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
     Pipeline pipeline = createPipeline();
 
     pipeline.setParent( parent );
-    pipeline.setParentVariableSpace( parent );
+    pipeline.setParentVariables( parent );
 
     return pipeline;
   }
@@ -228,7 +228,7 @@ public class ScriptValueAddFunctions_SetVariableScopeTest {
     Pipeline pipeline = createPipeline();
 
     pipeline.setParentWorkflow( parent );
-    pipeline.setParentVariableSpace( parent );
+    pipeline.setParentVariables( parent );
 
     return pipeline;
   }

@@ -126,7 +126,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
 
     try {
       FileObject fileObject =
-        HopVfs.createTempFile( meta.getPrefix(), ".tmp", environmentSubstitute( meta.getDirectory() ));
+        HopVfs.createTempFile( meta.getPrefix(), ".tmp", resolve( meta.getDirectory() ));
 
       data.files.add( fileObject ); // Remember the files!
       OutputStream outputStream = HopVfs.getOutputStream( fileObject, false );
@@ -530,7 +530,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
       return false;
     }
 
-    data.sortSize = Const.toInt( environmentSubstitute( meta.getSortSize() ), -1 );
+    data.sortSize = Const.toInt( resolve( meta.getSortSize() ), -1 );
     data.freeMemoryPctLimit = Const.toInt( meta.getFreeMemoryLimit(), -1 );
     if ( data.sortSize <= 0 && data.freeMemoryPctLimit <= 0 ) {
       // Prefer the memory limit as it should never fail
@@ -546,7 +546,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
     //
     data.rowbuffer = new ArrayList<>( 5000 );
 
-    data.compressFiles = getBooleanValueOfVariable( meta.getCompressFilesVariable(), meta.getCompressFiles() );
+    data.compressFiles = getVariableBoolean( meta.getCompressFilesVariable(), meta.getCompressFiles() );
 
     data.tempRows = new ArrayList<>();
 

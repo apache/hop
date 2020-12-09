@@ -93,7 +93,7 @@ public class UniqueRows extends BaseTransform<UniqueRowsMeta, UniqueRowsData> im
         }
       }
       if ( data.sendDuplicateRows && !Utils.isEmpty( meta.getErrorDescription() ) ) {
-        data.realErrorDescription = environmentSubstitute( meta.getErrorDescription() );
+        data.realErrorDescription = resolve( meta.getErrorDescription() );
       }
     }
 

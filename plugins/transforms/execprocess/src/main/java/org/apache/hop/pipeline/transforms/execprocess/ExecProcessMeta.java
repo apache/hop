@@ -213,21 +213,21 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IHopMetadataProvider metadataProvider) throws HopTransformException {
     // Output fields (String)
-    String realOutputFieldname = variables.environmentSubstitute(resultfieldname);
+    String realOutputFieldname = variables.resolve(resultfieldname);
     if (!Utils.isEmpty(realOutputFieldname)) {
       IValueMeta v = new ValueMetaString(realOutputFieldname);
       v.setLength(100, -1);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    String realerrofieldname = variables.environmentSubstitute(errorfieldname);
+    String realerrofieldname = variables.resolve(errorfieldname);
     if (!Utils.isEmpty(realerrofieldname)) {
       IValueMeta v = new ValueMetaString(realerrofieldname);
       v.setLength(100, -1);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    String realexitvaluefieldname = variables.environmentSubstitute(exitvaluefieldname);
+    String realexitvaluefieldname = variables.resolve(exitvaluefieldname);
     if (!Utils.isEmpty(realexitvaluefieldname)) {
       IValueMeta v = new ValueMetaInteger(realexitvaluefieldname);
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0);

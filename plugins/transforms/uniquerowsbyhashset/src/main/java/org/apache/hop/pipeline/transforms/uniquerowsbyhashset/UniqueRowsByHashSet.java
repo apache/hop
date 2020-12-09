@@ -29,10 +29,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 public class UniqueRowsByHashSet extends BaseTransform<UniqueRowsByHashSetMeta, UniqueRowsByHashSetData> implements ITransform<UniqueRowsByHashSetMeta, UniqueRowsByHashSetData> {
   private static final Class<?> PKG = UniqueRowsByHashSetMeta.class; // Needed by Translator
@@ -84,7 +82,7 @@ public class UniqueRowsByHashSet extends BaseTransform<UniqueRowsByHashSetMeta, 
         }
       }
       if ( data.sendDuplicateRows && !Utils.isEmpty( meta.getErrorDescription() ) ) {
-        data.realErrorDescription = environmentSubstitute( meta.getErrorDescription() );
+        data.realErrorDescription = resolve( meta.getErrorDescription() );
       }
     }
 

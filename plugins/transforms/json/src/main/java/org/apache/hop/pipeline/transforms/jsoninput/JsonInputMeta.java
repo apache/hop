@@ -159,45 +159,45 @@ public class JsonInputMeta
       // TextFileInput is the same, this can be refactored further
       if ( shortFilenameField != null ) {
         IValueMeta v =
-          new ValueMetaString( variables.environmentSubstitute( shortFilenameField ) );
+          new ValueMetaString( variables.resolve( shortFilenameField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
       if ( extensionField != null ) {
         IValueMeta v =
-          new ValueMetaString( variables.environmentSubstitute( extensionField ) );
+          new ValueMetaString( variables.resolve( extensionField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
       if ( pathField != null ) {
-        IValueMeta v = new ValueMetaString( variables.environmentSubstitute( pathField ) );
+        IValueMeta v = new ValueMetaString( variables.resolve( pathField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
       if ( sizeField != null ) {
-        IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( sizeField ) );
+        IValueMeta v = new ValueMetaInteger( variables.resolve( sizeField ) );
         v.setOrigin( name );
         v.setLength( 9 );
         r.addValueMeta( v );
       }
       if ( hiddenField != null ) {
         IValueMeta v =
-          new ValueMetaBoolean( variables.environmentSubstitute( hiddenField ) );
+          new ValueMetaBoolean( variables.resolve( hiddenField ) );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
 
       if ( lastModificationField != null ) {
         IValueMeta v =
-          new ValueMetaDate( variables.environmentSubstitute( lastModificationField ) );
+          new ValueMetaDate( variables.resolve( lastModificationField ) );
         v.setOrigin( name );
         r.addValueMeta( v );
       }
       if ( uriField != null ) {
-        IValueMeta v = new ValueMetaString( variables.environmentSubstitute( uriField ) );
+        IValueMeta v = new ValueMetaString( variables.resolve( uriField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
@@ -205,7 +205,7 @@ public class JsonInputMeta
 
       if ( rootUriField != null ) {
         IValueMeta v =
-          new ValueMetaString( variables.environmentSubstitute( rootUriField ) );
+          new ValueMetaString( variables.resolve( rootUriField ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         r.addValueMeta( v );
@@ -831,7 +831,7 @@ public class JsonInputMeta
     }
 
     if ( includeFilename ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( filenameField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( filenameField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -839,7 +839,7 @@ public class JsonInputMeta
     }
 
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       rowMeta.addValueMeta( v );

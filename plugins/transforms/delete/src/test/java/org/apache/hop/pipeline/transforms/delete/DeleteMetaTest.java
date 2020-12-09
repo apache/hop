@@ -124,7 +124,7 @@ public class DeleteMetaTest implements IInitializer<ITransformMeta> {
 
     Map<String, String> vars = new HashMap<>();
     vars.put( "max.sz", "10" );
-    pipeline.injectVariables( vars );
+    pipeline.setVariables( vars );
 
     pipelineMeta.addTransform( transformMeta );
     del = new Delete( transformMeta, meta, data, 1, pipelineMeta, pipeline );

@@ -106,12 +106,12 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
     IValueMeta extra = null;
 
     if ( !Utils.isEmpty( getOutputField() ) ) {
-      extra = new ValueMetaString( variables.environmentSubstitute( getOutputField() ) );
+      extra = new ValueMetaString( variables.resolve( getOutputField() ) );
       extra.setOrigin( origin );
       r.addValueMeta( extra );
     } else {
       if ( !Utils.isEmpty( getInputField() ) ) {
-        extra = r.searchValueMeta( variables.environmentSubstitute( getInputField() ) );
+        extra = r.searchValueMeta( variables.resolve( getInputField() ) );
       }
     }
 
@@ -137,7 +137,7 @@ public class Edi2XmlMeta extends BaseTransformMeta implements ITransformMeta<Edi
     }
 
     // is the input field there?
-    String realInputField = variables.environmentSubstitute( getInputField() );
+    String realInputField = variables.resolve( getInputField() );
     if ( prev.searchValueMeta( realInputField ) != null ) {
       cr = new CheckResult( CheckResult.TYPE_RESULT_OK, "Transform is seeing input field: " + realInputField, transformMeta );
       remarks.add( cr );

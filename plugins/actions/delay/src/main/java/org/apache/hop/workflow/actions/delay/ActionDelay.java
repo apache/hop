@@ -209,7 +209,7 @@ public class ActionDelay extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealMaximumTimeout() {
-    return Const.trim( environmentSubstitute( getMaximumTimeout() ) );
+    return Const.trim( resolve( getMaximumTimeout() ) );
   }
 
   @Deprecated

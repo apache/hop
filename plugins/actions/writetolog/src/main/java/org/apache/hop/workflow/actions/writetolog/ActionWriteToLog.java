@@ -292,12 +292,12 @@ public class ActionWriteToLog extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealLogMessage() {
-    return Const.NVL( environmentSubstitute( getLogMessage() ), "" );
+    return Const.NVL( resolve( getLogMessage() ), "" );
 
   }
 
   public String getRealLogSubject() {
-    return Const.NVL( environmentSubstitute( getLogSubject() ), "" );
+    return Const.NVL( resolve( getLogSubject() ), "" );
   }
 
   public String getLogMessage() {

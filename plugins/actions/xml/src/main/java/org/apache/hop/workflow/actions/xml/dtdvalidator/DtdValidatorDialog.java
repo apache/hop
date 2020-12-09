@@ -151,14 +151,14 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     wxmlFilename.setLayoutData(fdxmlFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( variables.environmentSubstitute( wxmlFilename.getText() ) ) );
+    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( variables.resolve( wxmlFilename.getText() ) ) );
 
     wbxmlFilename.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
         if ( wxmlFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wxmlFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wxmlFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XML );
         if ( dialog.open() != null ) {
@@ -218,14 +218,14 @@ public class DtdValidatorDialog extends ActionDialog implements IActionDialog {
     wdtdFilename.setLayoutData(fddtdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wdtdFilename.addModifyListener( e -> wdtdFilename.setToolTipText( variables.environmentSubstitute( wdtdFilename.getText() ) ) );
+    wdtdFilename.addModifyListener( e -> wdtdFilename.setToolTipText( variables.resolve( wdtdFilename.getText() ) ) );
 
     wbdtdFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.dtd;*.DTD", "*" } );
         if ( wdtdFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wdtdFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wdtdFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_DTD );
         if ( dialog.open() != null ) {

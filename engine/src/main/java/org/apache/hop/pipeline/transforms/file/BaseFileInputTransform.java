@@ -239,11 +239,11 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
     List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<>( 2 );
     if ( meta.errorHandling.lineNumberFilesDestinationDirectory != null ) {
       dataErrorLineHandlers.add( new FileErrorHandlerContentLineNumber( getPipeline().getExecutionStartDate(),
-        environmentSubstitute( meta.errorHandling.lineNumberFilesDestinationDirectory ),
+        resolve( meta.errorHandling.lineNumberFilesDestinationDirectory ),
         meta.errorHandling.lineNumberFilesExtension, meta.getEncoding(), this ) );
     }
     if ( meta.errorHandling.errorFilesDestinationDirectory != null ) {
-      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionStartDate(), environmentSubstitute(
+      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionStartDate(), resolve(
         meta.errorHandling.errorFilesDestinationDirectory ), meta.errorHandling.errorFilesExtension, meta.getEncoding(), this ) );
     }
     data.dataErrorLineHandler = new CompositeFileErrorHandler( dataErrorLineHandlers );
@@ -366,11 +366,11 @@ public abstract class BaseFileInputTransform<Meta extends BaseFileInputMeta, Dat
 
       int errorFileIndex =
         ( StringUtils.isBlank( meta.errorHandling.fileErrorField ) ) ? -1 : BaseFileInputTransformUtils.addValueMeta(
-          getTransformName(), rowMeta, this.environmentSubstitute( meta.errorHandling.fileErrorField ) );
+          getTransformName(), rowMeta, this.resolve( meta.errorHandling.fileErrorField ) );
 
       int errorMessageIndex =
         StringUtils.isBlank( meta.errorHandling.fileErrorMessageField ) ? -1 : BaseFileInputTransformUtils.addValueMeta(
-          getTransformName(), rowMeta, this.environmentSubstitute( meta.errorHandling.fileErrorMessageField ) );
+          getTransformName(), rowMeta, this.resolve( meta.errorHandling.fileErrorMessageField ) );
 
       try {
         Object[] rowData = getRow();

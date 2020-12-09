@@ -43,7 +43,7 @@ public class HopMetadataDefaultObjectFactory implements IHopMetadataObjectFactor
       if (parentObject!=null) {
         if (parentObject instanceof IVariables ) {
           if (object instanceof IVariables) {
-            ((IVariables)object).initializeVariablesFrom( (IVariables) parentObject );
+            ((IVariables)object).initializeFrom( (IVariables) parentObject );
           }
         }
       }

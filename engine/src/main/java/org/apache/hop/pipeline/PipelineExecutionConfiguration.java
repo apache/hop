@@ -30,7 +30,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
@@ -125,7 +124,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
   public void setVariablesMap( IVariables variablesMap ) {
     this.variablesMap = new HashMap<>();
 
-    for ( String name : variablesMap.listVariables() ) {
+    for ( String name : variablesMap.getVariableNames() ) {
       String value = variablesMap.getVariable( name );
       this.variablesMap.put( name, value );
     }
@@ -134,12 +133,12 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
   public void getAllVariables( IVariables variables, PipelineMeta pipelineMeta ) {
     Properties sp = new Properties();
 
-    String[] keys = variables.listVariables();
+    String[] keys = variables.getVariableNames();
     for ( int i = 0; i < keys.length; i++ ) {
       sp.put( keys[ i ], variables.getVariable( keys[ i ] ) );
     }
 
-    String[] vars = variables.listVariables();
+    String[] vars = variables.getVariableNames();
     if ( vars != null && vars.length > 0 ) {
       HashMap<String, String> newVariables = new HashMap<>();
 
@@ -164,7 +163,7 @@ public class PipelineExecutionConfiguration implements IExecutionConfiguration {
   public void getUsedVariables( IVariables variables, PipelineMeta pipelineMeta ) {
     Properties sp = new Properties();
 
-    String[] keys = variables.listVariables();
+    String[] keys = variables.getVariableNames();
     for ( int i = 0; i < keys.length; i++ ) {
       if (StringUtils.isNotEmpty(keys[i])) {
         sp.put( keys[ i ], Const.NVL(variables.getVariable( keys[ i ] ), "") );

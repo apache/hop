@@ -136,7 +136,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wHostname.setLayoutData(fdHostname);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wHostname.addModifyListener( e -> wHostname.setToolTipText( variables.environmentSubstitute( wHostname.getText() ) ) );
+    wHostname.addModifyListener( e -> wHostname.setToolTipText( variables.resolve( wHostname.getText() ) ) );
 
     Label wlPingType = new Label(shell, SWT.RIGHT);
     wlPingType.setText( BaseMessages.getString( PKG, "JobPing.PingType.Label" ) );

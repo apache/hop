@@ -225,7 +225,7 @@ public class Database implements IVariables, ILoggingObject {
     this.databaseMeta = databaseMeta;
 
     if (parentObject instanceof IVariables) {
-      shareVariablesWith((IVariables) parentObject);
+      shareWith((IVariables) parentObject);
     }
 
     log = new LogChannel(this, parentObject);
@@ -404,7 +404,7 @@ public class Database implements IVariables, ILoggingObject {
 
       // See if we need to execute extra SQL statements...
       //
-      String sql = environmentSubstitute(databaseMeta.getConnectSql());
+      String sql = resolve(databaseMeta.getConnectSql());
 
       // only execute if the SQL is not empty, null and is not just a bunch of
       // spaces, tabs, CR etc.
@@ -469,12 +469,12 @@ public class Database implements IVariables, ILoggingObject {
     }
 
     try {
-      String url = environmentSubstitute(databaseMeta.getURL(this));
+      String url = resolve(databaseMeta.getURL(this));
 
-      String username = environmentSubstitute(databaseMeta.getUsername());
+      String username = resolve(databaseMeta.getUsername());
       String password =
           Encr.decryptPasswordOptionallyEncrypted(
-              environmentSubstitute(databaseMeta.getPassword()));
+              resolve(databaseMeta.getPassword()));
 
       Properties properties = databaseMeta.getConnectionProperties(this);
 
@@ -488,7 +488,7 @@ public class Database implements IVariables, ILoggingObject {
             // Handle MSSQL Instance name. Would rather this was handled in the dialect
             // but cannot (without refactor) get to variablespace for variable substitution from
             // a BaseDatabaseMeta subclass.
-            String instance = environmentSubstitute(databaseMeta.getSqlServerInstance());
+            String instance = resolve(databaseMeta.getSqlServerInstance());
             if (!Utils.isEmpty(instance)) {
               url += ";instanceName=" + instance;
             }
@@ -3889,7 +3889,7 @@ public class Database implements IVariables, ILoggingObject {
     String schemaname = schemanamein;
     if (schemaname == null) {
       if (databaseMeta.useSchemaNameForTableList()) {
-        schemaname = environmentSubstitute(databaseMeta.getUsername()).toUpperCase();
+        schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
       }
     }
     Map<String, Collection<String>> tableMap = new HashMap<>();
@@ -4006,7 +4006,7 @@ public class Database implements IVariables, ILoggingObject {
     String schemaname = schemanamein;
     if (schemaname == null) {
       if (databaseMeta.useSchemaNameForTableList()) {
-        schemaname = environmentSubstitute(databaseMeta.getUsername()).toUpperCase();
+        schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
       }
     }
 
@@ -4108,7 +4108,7 @@ public class Database implements IVariables, ILoggingObject {
     String schemaname = schemanamein;
     if (schemaname == null) {
       if (databaseMeta.useSchemaNameForTableList()) {
-        schemaname = environmentSubstitute(databaseMeta.getUsername()).toUpperCase();
+        schemaname = resolve(databaseMeta.getUsername()).toUpperCase();
       }
     }
     Map<String, Collection<String>> synonymMap = new HashMap<>();
@@ -4391,34 +4391,34 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   @Override
-  public void copyVariablesFrom(IVariables variables) {
-    variables.copyVariablesFrom(variables);
+  public void copyFrom( IVariables variables) {
+    variables.copyFrom(variables);
   }
 
   @Override
-  public String environmentSubstitute(String aString) {
-    return variables.environmentSubstitute(aString);
+  public String resolve( String aString) {
+    return variables.resolve(aString);
   }
 
   @Override
-  public String[] environmentSubstitute(String[] aString) {
-    return variables.environmentSubstitute(aString);
+  public String[] resolve( String[] aString) {
+    return variables.resolve(aString);
   }
 
   @Override
-  public String fieldSubstitute(String aString, IRowMeta rowMeta, Object[] rowData)
+  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData)
       throws HopValueException {
-    return variables.fieldSubstitute(aString, rowMeta, rowData);
+    return variables.resolve(aString, rowMeta, rowData);
   }
 
   @Override
-  public IVariables getParentVariableSpace() {
-    return variables.getParentVariableSpace();
+  public IVariables getParentVariables() {
+    return variables.getParentVariables();
   }
 
   @Override
-  public void setParentVariableSpace(IVariables parent) {
-    variables.setParentVariableSpace(parent);
+  public void setParentVariables( IVariables parent) {
+    variables.setParentVariables(parent);
   }
 
   @Override
@@ -4432,9 +4432,9 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   @Override
-  public boolean getBooleanValueOfVariable(String variableName, boolean defaultValue) {
+  public boolean getVariableBoolean( String variableName, boolean defaultValue) {
     if (!Utils.isEmpty(variableName)) {
-      String value = environmentSubstitute(variableName);
+      String value = resolve(variableName);
       if (!Utils.isEmpty(value)) {
         return ValueMetaBase.convertStringToBoolean(value);
       }
@@ -4443,13 +4443,13 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   @Override
-  public void initializeVariablesFrom(IVariables parent) {
-    variables.initializeVariablesFrom(parent);
+  public void initializeFrom( IVariables parent) {
+    variables.initializeFrom(parent);
   }
 
   @Override
-  public String[] listVariables() {
-    return variables.listVariables();
+  public String[] getVariableNames() {
+    return variables.getVariableNames();
   }
 
   @Override
@@ -4458,13 +4458,13 @@ public class Database implements IVariables, ILoggingObject {
   }
 
   @Override
-  public void shareVariablesWith(IVariables variables) {
+  public void shareWith( IVariables variables) {
     this.variables = variables;
   }
 
   @Override
-  public void injectVariables(Map<String, String> prop) {
-    variables.injectVariables(prop);
+  public void setVariables( Map<String, String> map ) {
+    variables.setVariables( map );
   }
 
   public RowMetaAndData callProcedure(

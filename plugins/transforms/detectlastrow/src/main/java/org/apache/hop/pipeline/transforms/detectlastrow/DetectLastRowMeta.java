@@ -93,7 +93,7 @@ public class DetectLastRowMeta extends BaseTransformMeta implements ITransformMe
 
     if ( !Utils.isEmpty( resultfieldname ) ) {
       IValueMeta v =
-        new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
+        new ValueMetaBoolean( variables.resolve( resultfieldname ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }

@@ -237,19 +237,19 @@ public class ActionSyslog extends ActionBase implements Cloneable, IAction {
     result.setNrErrors( 1 );
     result.setResult( false );
 
-    String servername = environmentSubstitute( getServerName() );
+    String servername = resolve( getServerName() );
 
     if ( Utils.isEmpty( servername ) ) {
       logError( BaseMessages.getString( PKG, "ActionSyslog.MissingServerName" ) );
     }
 
-    String messageString = environmentSubstitute( getMessage() );
+    String messageString = resolve( getMessage() );
 
     if ( Utils.isEmpty( messageString ) ) {
       logError( BaseMessages.getString( PKG, "ActionSyslog.MissingMessage" ) );
     }
 
-    int nrPort = Const.toInt( environmentSubstitute( getPort() ), SyslogDefs.DEFAULT_PORT );
+    int nrPort = Const.toInt( resolve( getPort() ), SyslogDefs.DEFAULT_PORT );
 
     SyslogIF syslog = null;
     try {
@@ -257,7 +257,7 @@ public class ActionSyslog extends ActionBase implements Cloneable, IAction {
 
       if ( isAddTimestamp() ) {
         // add timestamp to message
-        pattern = environmentSubstitute( getDatePattern() );
+        pattern = resolve( getDatePattern() );
         if ( Utils.isEmpty( pattern ) ) {
           logError( BaseMessages.getString( PKG, "ActionSyslog.DatePatternEmpty" ) );
           throw new HopException( BaseMessages.getString( PKG, "ActionSyslog.DatePatternEmpty" ) );

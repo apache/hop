@@ -68,8 +68,8 @@ public interface ICsvInputAwareTransformDialog {
       logError( BaseMessages.getString( "Dialog.ErrorGettingFields.Message" ) );
       return fieldNames;
     }
-    final String delimiter = getVariables().environmentSubstitute( meta.getDelimiter() );
-    final String enclosure = getVariables().environmentSubstitute( meta.getEnclosure() );
+    final String delimiter = getVariables().resolve( meta.getDelimiter() );
+    final String enclosure = getVariables().resolve( meta.getEnclosure() );
 
     final EncodingType encodingType = EncodingType.guessEncodingType( reader.getEncoding() );
 
@@ -124,7 +124,7 @@ public interface ICsvInputAwareTransformDialog {
   default InputStreamReader getReader( final ICsvInputAwareMeta meta, final InputStream inputStream ) {
     InputStreamReader reader = null;
     try {
-      String realEncoding = getVariables().environmentSubstitute( meta.getEncoding() );
+      String realEncoding = getVariables().resolve( meta.getEncoding() );
       if ( Utils.isEmpty( realEncoding ) ) {
         reader = new InputStreamReader( inputStream );
       } else {

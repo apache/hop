@@ -1362,18 +1362,18 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       wFields.removeAll();
 
       // get real values
-      String realModule = variables.environmentSubstitute( meta.getModule() );
-      String realURL = variables.environmentSubstitute( meta.getTargetUrl() );
-      String realUsername = variables.environmentSubstitute( meta.getUsername() );
+      String realModule = variables.resolve( meta.getModule() );
+      String realURL = variables.resolve( meta.getTargetUrl() );
+      String realUsername = variables.resolve( meta.getUsername() );
       String realPassword = Utils.resolvePassword( variables, meta.getPassword() );
-      int realTimeOut = Const.toInt( variables.environmentSubstitute( meta.getTimeout() ), 0 );
+      int realTimeOut = Const.toInt( variables.resolve( meta.getTimeout() ), 0 );
 
       connection = new SalesforceConnection( log, realURL, realUsername, realPassword );
       connection.setTimeOut( realTimeOut );
       String[] fieldsName = null;
       if ( meta.isSpecifyQuery() ) {
         // Free hand SOQL
-        String realQuery = variables.environmentSubstitute( meta.getQuery() );
+        String realQuery = variables.resolve( meta.getQuery() );
         connection.setSQL( realQuery );
         connection.connect();
         // We are connected, so let's query
@@ -1803,11 +1803,11 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
       try {
         SalesforceInputMeta meta = new SalesforceInputMeta();
         getInfo( meta );
-        String url = variables.environmentSubstitute( meta.getTargetUrl() );
+        String url = variables.resolve( meta.getTargetUrl() );
 
         // Define a new Salesforce connection
         connection =
-          new SalesforceConnection( log, url, variables.environmentSubstitute( meta.getUsername() ),
+          new SalesforceConnection( log, url, variables.resolve( meta.getUsername() ),
             Utils.resolvePassword( variables, meta.getPassword() ) );
         // connect to Salesforce
         connection.connect();
@@ -1845,7 +1845,7 @@ public class SalesforceInputDialog extends SalesforceTransformDialog {
     if ( wSpecifyQuery.getSelection() ) {
       control = wQuery;
     }
-    control.setToolTipText( variables.environmentSubstitute( control.getText() ) );
+    control.setToolTipText( variables.resolve( control.getText() ) );
   }
 
   public void setPosition() {

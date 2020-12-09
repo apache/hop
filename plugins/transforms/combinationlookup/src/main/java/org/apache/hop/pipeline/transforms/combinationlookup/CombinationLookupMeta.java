@@ -913,7 +913,7 @@ public class CombinationLookupMeta extends BaseTransformMeta implements ITransfo
                 crSeq += Const.CR;
               }
             }
-            retval.setSql( variables.environmentSubstitute( crTable + cr_uniqIndex + crIndex + crSeq ) );
+            retval.setSql( variables.resolve( crTable + cr_uniqIndex + crIndex + crSeq ) );
           } catch ( HopException e ) {
             retval.setError( BaseMessages.getString( PKG, "CombinationLookupMeta.ReturnValue.ErrorOccurred" )
               + Const.CR + e.getMessage() );

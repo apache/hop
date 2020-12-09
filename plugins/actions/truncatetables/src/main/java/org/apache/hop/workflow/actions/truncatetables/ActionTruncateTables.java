@@ -224,7 +224,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
     }
     if ( connection != null ) {
       Database db = new Database( this, connection );
-      db.shareVariablesWith( this );
+      db.shareWith( this );
       try {
         db.connect();
         if ( argFromPrevious && rows != null ) { // Copy the input row to the (command line) arguments
@@ -255,8 +255,8 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
 
         } else if ( tableNames != null ) {
           for ( int i = 0; i < tableNames.length && !parentWorkflow.isStopped() && continueProcess; i++ ) {
-            String realTablename = environmentSubstitute( tableNames[ i ] );
-            String realSchemaname = environmentSubstitute( schemaNames[ i ] );
+            String realTablename = resolve( tableNames[ i ] );
+            String realSchemaname = resolve( schemaNames[ i ] );
             if ( !Utils.isEmpty( realTablename ) ) {
               if ( log.isDetailed() ) {
                 logDetailed( BaseMessages.getString(
@@ -334,7 +334,7 @@ public class ActionTruncateTables extends ActionBase implements Cloneable, IActi
     if ( tableNames != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < tableNames.length; i++ ) {
-        String filename = environmentSubstitute( tableNames[ i ] );
+        String filename = resolve( tableNames[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

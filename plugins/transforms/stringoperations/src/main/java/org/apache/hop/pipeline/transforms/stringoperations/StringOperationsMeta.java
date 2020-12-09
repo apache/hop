@@ -456,7 +456,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
     // Add new field?
     for ( int i = 0; i < fieldOutStream.length; i++ ) {
       IValueMeta v;
-      String outputField = variables.environmentSubstitute( fieldOutStream[ i ] );
+      String outputField = variables.resolve( fieldOutStream[ i ] );
       if ( !Utils.isEmpty( outputField ) ) {
         // Add a new field
         v = new ValueMetaString( outputField );
@@ -471,7 +471,7 @@ public class StringOperationsMeta extends BaseTransformMeta implements ITransfor
         v.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
         int paddingType = getPaddingType()[ i ];
         if ( paddingType == PADDING_LEFT || paddingType == PADDING_RIGHT ) {
-          int padLen = Const.toInt( variables.environmentSubstitute( getPadLen()[ i ] ), 0 );
+          int padLen = Const.toInt( variables.resolve( getPadLen()[ i ] ), 0 );
           if ( padLen > v.getLength() ) {
             // alter meta data
             v.setLength( padLen );

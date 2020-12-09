@@ -242,7 +242,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
     wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*.txt", "*.csv", "*"  }, FILETYPES, true )
@@ -722,7 +722,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
         Database database = new Database( loggingObject, databaseMeta );
-        database.shareVariablesWith( variables );
+        database.shareWith( variables );
         try {
           database.connect();
           IRowMeta row =

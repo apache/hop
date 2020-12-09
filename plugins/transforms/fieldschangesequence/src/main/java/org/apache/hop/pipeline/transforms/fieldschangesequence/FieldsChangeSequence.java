@@ -30,9 +30,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -94,8 +92,8 @@ public class FieldsChangeSequence extends BaseTransform<FieldsChangeSequenceMeta
         }
       }
 
-      data.startAt = Const.toInt( environmentSubstitute( meta.getStart() ), 1 );
-      data.incrementBy = Const.toInt( environmentSubstitute( meta.getIncrement() ), 1 );
+      data.startAt = Const.toInt( resolve( meta.getStart() ), 1 );
+      data.incrementBy = Const.toInt( resolve( meta.getIncrement() ), 1 );
       data.seq = data.startAt;
     } // end if first
 

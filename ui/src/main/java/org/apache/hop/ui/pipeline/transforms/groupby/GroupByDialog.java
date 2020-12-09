@@ -249,7 +249,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     } );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( variables.environmentSubstitute( wSortDir.getText() ) ) );
+    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( variables.resolve( wSortDir.getText() ) ) );
 
     // Prefix line...
     wlPrefix = new Label( shell, SWT.RIGHT );

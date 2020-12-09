@@ -142,7 +142,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
   }
 
   public String getRealWildcard() {
-    return environmentSubstitute( getWildcard() );
+    return resolve( getWildcard() );
   }
 
   public void setWildcard( String wildcard ) {
@@ -177,9 +177,9 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
               ResultFile resultFile = it.next();
               FileObject file = resultFile.getFile();
               if ( file != null && file.exists() ) {
-                if ( CheckFileWildcard( file.getName().getBaseName(), environmentSubstitute( wildcard ), true )
+                if ( CheckFileWildcard( file.getName().getBaseName(), resolve( wildcard ), true )
                   && !CheckFileWildcard(
-                  file.getName().getBaseName(), environmentSubstitute( wildcardExclude ), false ) ) {
+                  file.getName().getBaseName(), resolve( wildcardExclude ), false ) ) {
                   // Remove file from result files list
                   result.getResultFiles().remove( resultFile.getFile().toString() );
 

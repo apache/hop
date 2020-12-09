@@ -344,7 +344,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
     wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*.txt", "*.csv", "*" }, FILETYPES, true )
@@ -538,7 +538,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFormatFilename.setLayoutData(fdFormatFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFormatFilename.addModifyListener( e -> wFormatFilename.setToolTipText( variables.environmentSubstitute( wFormatFilename.getText() ) ) );
+    wFormatFilename.addModifyListener( e -> wFormatFilename.setToolTipText( variables.resolve( wFormatFilename.getText() ) ) );
 
     wbFormatFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFormatFilename, variables,
       new String[] { "*.txt", "*.csv", "*" }, FILETYPES, true )
@@ -791,7 +791,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wErrorFilename.setLayoutData(fdErrorFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wErrorFilename.addModifyListener( e -> wErrorFilename.setToolTipText( variables.environmentSubstitute( wErrorFilename.getText() ) ) );
+    wErrorFilename.addModifyListener( e -> wErrorFilename.setToolTipText( variables.resolve( wErrorFilename.getText() ) ) );
     wbErrorFilename.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wErrorFilename, variables ) );
 
     // Add Date time
@@ -1183,7 +1183,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
         Database database = new Database( loggingObject, databaseMeta );
-        database.shareVariablesWith( variables );
+        database.shareWith( variables );
         try {
           database.connect();
           IRowMeta row =

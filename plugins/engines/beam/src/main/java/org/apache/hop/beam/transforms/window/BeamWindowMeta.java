@@ -98,19 +98,19 @@ public class BeamWindowMeta extends BaseTransformMeta implements ITransformMeta<
     throws HopTransformException {
 
     if ( StringUtils.isNotEmpty( startWindowField ) ) {
-      ValueMetaDate valueMeta = new ValueMetaDate( variables.environmentSubstitute( startWindowField ) );
+      ValueMetaDate valueMeta = new ValueMetaDate( variables.resolve( startWindowField ) );
       valueMeta.setOrigin( name );
       valueMeta.setConversionMask( ValueMetaBase.DEFAULT_DATE_FORMAT_MASK );
       inputRowMeta.addValueMeta( valueMeta );
     }
     if ( StringUtils.isNotEmpty( endWindowField ) ) {
-      ValueMetaDate valueMeta = new ValueMetaDate( variables.environmentSubstitute( endWindowField ) );
+      ValueMetaDate valueMeta = new ValueMetaDate( variables.resolve( endWindowField ) );
       valueMeta.setOrigin( name );
       valueMeta.setConversionMask( ValueMetaBase.DEFAULT_DATE_FORMAT_MASK );
       inputRowMeta.addValueMeta( valueMeta );
     }
     if ( StringUtils.isNotEmpty( maxWindowField ) ) {
-      ValueMetaDate valueMeta = new ValueMetaDate( variables.environmentSubstitute( maxWindowField ) );
+      ValueMetaDate valueMeta = new ValueMetaDate( variables.resolve( maxWindowField ) );
       valueMeta.setOrigin( name );
       valueMeta.setConversionMask( ValueMetaBase.DEFAULT_DATE_FORMAT_MASK );
       inputRowMeta.addValueMeta( valueMeta );

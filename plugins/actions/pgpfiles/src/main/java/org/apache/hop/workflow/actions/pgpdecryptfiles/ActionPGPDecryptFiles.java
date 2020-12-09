@@ -291,7 +291,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
       nrSuccess = 0;
       successConditionBroken = false;
       successConditionBrokenExit = false;
-      limitFiles = Const.toInt( environmentSubstitute( getNrErrorsLessThan() ), 10 );
+      limitFiles = Const.toInt( resolve( getNrErrorsLessThan() ), 10 );
 
       if ( includeSubFolders ) {
         if ( isDetailed() ) {
@@ -299,7 +299,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
         }
       }
 
-      String MoveToFolder = environmentSubstitute( destinationFolder );
+      String MoveToFolder = resolve( destinationFolder );
       // Get source and destination files, also wildcard
       String[] vSourceFileFolder = sourceFileFolder;
       String[] vpassphrase = passphrase;
@@ -344,7 +344,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
         }
       }
 
-      gpg = new GPG( environmentSubstitute( gpgLocation ), log );
+      gpg = new GPG( resolve( gpgLocation ), log );
 
       if ( argFromPrevious ) {
         if ( isDetailed() ) {
@@ -372,7 +372,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
           // Get source and destination file names, also wildcard
           String vSourceFileFolderPrevious = resultRow.getString( 0, null );
           String vWildcardPrevious =
-            Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( resultRow.getString( 1, null ) ) );
+            Encr.decryptPasswordOptionallyEncrypted( resolve( resultRow.getString( 1, null ) ) );
           String vpassphrasePrevious = resultRow.getString( 2, null );
           String vDestinationFileFolderPrevious = resultRow.getString( 3, null );
 
@@ -422,7 +422,7 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
 
             if ( !ProcessFileFolder(
               vSourceFileFolder[ i ], Encr
-                .decryptPasswordOptionallyEncrypted( environmentSubstitute( vpassphrase[ i ] ) ),
+                .decryptPasswordOptionallyEncrypted( resolve( vpassphrase[ i ] ) ),
               vDestinationFileFolder[ i ], vwildcard[ i ], parentWorkflow, result, MoveToFolder ) ) {
               // Update Errors
               updateErrors();
@@ -487,9 +487,9 @@ public class ActionPGPDecryptFiles extends ActionBase implements Cloneable, IAct
     FileObject Currentfile = null;
 
     // Get real source, destination file and wildcard
-    String realSourceFilefoldername = environmentSubstitute( sourcefilefoldername );
-    String realDestinationFilefoldername = environmentSubstitute( destinationfilefoldername );
-    String realWildcard = environmentSubstitute( wildcard );
+    String realSourceFilefoldername = resolve( sourcefilefoldername );
+    String realDestinationFilefoldername = resolve( destinationfilefoldername );
+    String realWildcard = resolve( wildcard );
 
     try {
 

@@ -121,7 +121,7 @@ public class PrepareExecutionPipelineServlet extends BaseHttpServlet implements 
         PipelineExecutionConfiguration executionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
         // Set the appropriate logging, variables, arguments, replay date, ...
         // etc.
-        pipeline.injectVariables( executionConfiguration.getVariablesMap() );
+        pipeline.setVariables( executionConfiguration.getVariablesMap() );
         pipeline.setPreviousResult( executionConfiguration.getPreviousResult() );
 
         try {

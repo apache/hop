@@ -505,7 +505,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
 
     // Whenever something changes, set the tooltip to the expanded version
     // of the filename:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {
@@ -514,7 +514,7 @@ public class XsdValidatorDialog extends BaseTransformDialog implements ITransfor
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*xsd;*.XSD", "*" } );
         if ( wFilename.getText() != null ) {
-          String fname = variables.environmentSubstitute( wFilename.getText() );
+          String fname = variables.resolve( wFilename.getText() );
           dialog.setFileName( fname );
         }
 

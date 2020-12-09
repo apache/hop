@@ -107,11 +107,11 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealxmlfilename() {
-    return environmentSubstitute( xmlfilename );
+    return resolve( xmlfilename );
   }
 
   public String getRealDTDfilename() {
-    return environmentSubstitute( dtdfilename );
+    return resolve( dtdfilename );
   }
 
   public Result execute(Result previousResult, int nr ) {
@@ -177,8 +177,8 @@ public class DtdValidator extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( ( !Utils.isEmpty( dtdfilename ) ) && ( !Utils.isEmpty( xmlfilename ) ) ) {
-      String realXmlFileName = variables.environmentSubstitute( xmlfilename );
-      String realXsdFileName = variables.environmentSubstitute( dtdfilename );
+      String realXmlFileName = variables.resolve( xmlfilename );
+      String realXsdFileName = variables.resolve( dtdfilename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realXmlFileName, ResourceEntry.ResourceType.FILE ) );
       reference.getEntries().add( new ResourceEntry( realXsdFileName, ResourceEntry.ResourceType.FILE ) );

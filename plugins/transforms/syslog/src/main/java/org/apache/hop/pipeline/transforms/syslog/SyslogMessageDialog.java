@@ -473,8 +473,8 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = variables.environmentSubstitute( wServerName.getText() );
-    int nrPort = Const.toInt( variables.environmentSubstitute( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
+    String hostname = variables.resolve( wServerName.getText() );
+    int nrPort = Const.toInt( variables.resolve( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
 
     try {
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( hostname ), nrPort );

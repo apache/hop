@@ -86,7 +86,7 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
         } else {
           // Check is passphrase is provided
           data.passPhrase =
-            Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( meta.getPassphrase() ) );
+            Encr.decryptPasswordOptionallyEncrypted( resolve( meta.getPassphrase() ) );
           if ( Utils.isEmpty( data.passPhrase ) ) {
             throw new HopException( BaseMessages.getString( PKG, "PGPDecryptStream.Error.PassphraseMissing" ) );
           }
@@ -166,7 +166,7 @@ public class PGPDecryptStream extends BaseTransform<PGPDecryptStreamMeta, PGPDec
 
       try {
         // initiate a new GPG encryptor
-        data.gpg = new GPG( environmentSubstitute( meta.getGPGLocation() ), log );
+        data.gpg = new GPG( resolve( meta.getGPGLocation() ), log );
       } catch ( Exception e ) {
         logError( BaseMessages.getString( PKG, "PGPDecryptStream.Init.Error" ), e );
         return false;

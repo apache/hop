@@ -407,16 +407,16 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     result.setResult( false );
 
     // Target
-    String realServername = environmentSubstitute( serverName );
+    String realServername = resolve( serverName );
     String realPassword = Utils.resolvePassword( variables, password );
-    int realPort = Const.toInt( environmentSubstitute( port ), DEFAULT_PORT );
-    int realResponseTimeOut = Const.toInt( environmentSubstitute( responseTimeOut ), DEFAULT_RESPONSE_TIME_OUT );
+    int realPort = Const.toInt( resolve( port ), DEFAULT_PORT );
+    int realResponseTimeOut = Const.toInt( resolve( responseTimeOut ), DEFAULT_RESPONSE_TIME_OUT );
     int realConnectionTimeOut =
-      Const.toInt( environmentSubstitute( connectionTimeOut ), DEFAULT_CONNECTION_TIME_OUT );
+      Const.toInt( resolve( connectionTimeOut ), DEFAULT_CONNECTION_TIME_OUT );
 
     // Sender
-    String realSenderServerName = environmentSubstitute( senderServerName );
-    String realSenderServiceName = environmentSubstitute( senderServiceName );
+    String realSenderServerName = resolve( senderServerName );
+    String realSenderServiceName = resolve( senderServiceName );
 
     try {
       if ( Utils.isEmpty( realServername ) ) {
@@ -424,7 +424,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
           PKG, "JobSendNagiosPassiveCheck.Error.TargetServerMissing" ) );
       }
 
-      String realMessageString = environmentSubstitute( message );
+      String realMessageString = resolve( message );
 
       if ( Utils.isEmpty( realMessageString ) ) {
         throw new HopException( BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Error.MessageMissing" ) );
@@ -505,7 +505,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( serverName ) ) {
-      String realServername = environmentSubstitute( serverName );
+      String realServername = resolve( serverName );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
       references.add( reference );

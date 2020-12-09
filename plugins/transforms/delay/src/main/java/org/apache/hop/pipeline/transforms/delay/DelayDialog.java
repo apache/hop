@@ -106,7 +106,7 @@ public class DelayDialog extends BaseTransformDialog implements ITransformDialog
     wTimeout.setLayoutData(fdTimeout);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wTimeout.addModifyListener( e -> wTimeout.setToolTipText( variables.environmentSubstitute( wTimeout.getText() ) ) );
+    wTimeout.addModifyListener( e -> wTimeout.setToolTipText( variables.resolve( wTimeout.getText() ) ) );
 
     wScaleTime = new CCombo( shell, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wScaleTime.add( BaseMessages.getString( PKG, "DelayDialog.MSScaleTime.Label" ) );

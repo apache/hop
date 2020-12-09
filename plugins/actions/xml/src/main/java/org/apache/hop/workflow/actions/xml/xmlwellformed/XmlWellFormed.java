@@ -192,7 +192,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     nrErrors = 0;
     NrWellFormed = 0;
     NrBadFormed = 0;
-    limitFiles = Const.toInt( environmentSubstitute( getNrErrorsLessThan() ), 10 );
+    limitFiles = Const.toInt( resolve( getNrErrorsLessThan() ), 10 );
     successConditionBroken = false;
     successConditionBrokenExit = false;
 
@@ -337,7 +337,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     FileObject CurrentFile = null;
 
     // Get real source file and wilcard
-    String realSourceFilefoldername = environmentSubstitute( sourcefilefoldername );
+    String realSourceFilefoldername = resolve( sourcefilefoldername );
     if ( Utils.isEmpty( realSourceFilefoldername ) ) {
       logError( BaseMessages.getString( PKG, "JobXMLWellFormed.log.FileFolderEmpty", sourcefilefoldername ) );
       // Update Errors
@@ -345,7 +345,7 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
 
       return entrystatus;
     }
-    String realWildcard = environmentSubstitute( wildcard );
+    String realWildcard = resolve( wildcard );
 
     try {
       sourcefilefolder = HopVfs.getFileObject( realSourceFilefoldername );

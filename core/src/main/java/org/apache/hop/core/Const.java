@@ -379,7 +379,7 @@ public class Const {
   /*
    * Deprecated variables array.
    * Variables in this array will display with the prefix (deprecated) and will be moved
-   * at the bottom of the variables dropdown when pressing ctrl+variables
+   * at the bottom of the variables dropdown when pressing ctrl+space
    * */
   public static final String[] DEPRECATED_VARIABLES = new String[] {
     Const.INTERNAL_VARIABLE_PIPELINE_FILENAME_DIRECTORY,

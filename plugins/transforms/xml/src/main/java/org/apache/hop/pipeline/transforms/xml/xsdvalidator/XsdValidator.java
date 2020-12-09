@@ -113,7 +113,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
             // Is XSD file exists ?
             FileObject xsdfile = null;
             try {
-              xsdfile = HopVfs.getFileObject( environmentSubstitute( meta.getXSDFilename() ) );
+              xsdfile = HopVfs.getFileObject( resolve( meta.getXSDFilename() ) );
               if ( !xsdfile.exists() ) {
                 logError( BaseMessages.getString( PKG, "XsdValidator.Log.Error.XSDFileNotExists" ) );
                 throw new HopTransformException( BaseMessages.getString( PKG, "XsdValidator.Exception.XSDFileNotExists" ) );
@@ -172,7 +172,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
       String xsdfilename = null;
 
       if ( meta.getXSDSource().equals( meta.SPECIFY_FILENAME ) ) {
-        xsdfilename = environmentSubstitute( meta.getXSDFilename() );
+        xsdfilename = resolve( meta.getXSDFilename() );
       } else if ( meta.getXSDSource().equals( meta.SPECIFY_FIELDNAME ) ) {
         // Get the XSD field value
         xsdfilename = getInputRowMeta().getString( row, data.xsdindex );
@@ -267,10 +267,10 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
         // Output type=String
         if ( isvalid ) {
           outputRowData =
-              RowDataUtil.addValueData( row, getInputRowMeta().size(), environmentSubstitute( meta.getIfXmlValid() ) );
+              RowDataUtil.addValueData( row, getInputRowMeta().size(), resolve( meta.getIfXmlValid() ) );
         } else {
           outputRowData =
-              RowDataUtil.addValueData( row, getInputRowMeta().size(), environmentSubstitute( meta.getIfXmlInvalid() ) );
+              RowDataUtil.addValueData( row, getInputRowMeta().size(), resolve( meta.getIfXmlInvalid() ) );
         }
       } else {
         outputRowData = RowDataUtil.addValueData( row, getInputRowMeta().size(), isvalid );

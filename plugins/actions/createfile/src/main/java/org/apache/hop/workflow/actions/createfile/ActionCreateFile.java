@@ -121,7 +121,7 @@ public class ActionCreateFile extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealFilename() {
-    return environmentSubstitute( getFilename() );
+    return resolve( getFilename() );
   }
 
   public Result execute( Result previousResult, int nr ) throws HopException {

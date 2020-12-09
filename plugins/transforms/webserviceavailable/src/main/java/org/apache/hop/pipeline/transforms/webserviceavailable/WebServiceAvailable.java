@@ -31,10 +31,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -166,8 +164,8 @@ public class WebServiceAvailable extends BaseTransform<WebServiceAvailableMeta, 
         logError( BaseMessages.getString( PKG, "WebServiceAvailable.Error.ResultFieldMissing" ) );
         return false;
       }
-      data.connectTimeOut = Const.toInt( environmentSubstitute( meta.getConnectTimeOut() ), 0 );
-      data.readTimeOut = Const.toInt( environmentSubstitute( meta.getReadTimeOut() ), 0 );
+      data.connectTimeOut = Const.toInt( resolve( meta.getConnectTimeOut() ), 0 );
+      data.readTimeOut = Const.toInt( resolve( meta.getReadTimeOut() ), 0 );
       return true;
     }
     return false;

@@ -540,7 +540,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
 
     setParent( parent );
 
-    initializeVariablesFrom( variables );
+    initializeFrom( variables );
   }
 
   /**
@@ -621,7 +621,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
 
       this.log = new LogChannel( pipelineMeta );
 
-      initializeVariablesFrom( parent );
+      initializeFrom( parent );
 
       this.activateParameters(this);
 
@@ -908,7 +908,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
           // Copy the variables of the pipeline to the transform...
           // don't share. Each copy of the transform has its own variables.
           //
-          transform.initializeVariablesFrom( this );
+          transform.initializeFrom( this );
 
           // Pass the metadataProvider to the transforms runtime
           //
@@ -1228,7 +1228,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
 
       // Calculate the maximum number of snapshots to be kept in memory
       //
-      String limitString = environmentSubstitute( pipelineMeta.getTransformPerformanceCapturingSizeLimit() );
+      String limitString = resolve( pipelineMeta.getTransformPerformanceCapturingSizeLimit() );
       if ( Utils.isEmpty( limitString ) ) {
         limitString = EnvUtil.getSystemProperty( Const.HOP_TRANSFORM_PERFORMANCE_SNAPSHOT_LIMIT );
       }
@@ -2324,11 +2324,11 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * Copies variables from a given variable variables to this pipeline.
    *
    * @param variables the variable variables
-   * @see IVariables#copyVariablesFrom(IVariables)
+   * @see IVariables#copyFrom(IVariables)
    */
   @Override
-  public void copyVariablesFrom( IVariables variables ) {
-    this.variables.copyVariablesFrom( variables );
+  public void copyFrom( IVariables variables ) {
+    this.variables.copyFrom( variables );
   }
 
   /**
@@ -2336,11 +2336,11 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    *
    * @param aString the string to resolve against environment variables
    * @return the string after variables have been resolved/susbstituted
-   * @see IVariables#environmentSubstitute(java.lang.String)
+   * @see IVariables#resolve(java.lang.String)
    */
   @Override
-  public String environmentSubstitute( String aString ) {
-    return variables.environmentSubstitute( aString );
+  public String resolve( String aString ) {
+    return variables.resolve( aString );
   }
 
   /**
@@ -2349,40 +2349,40 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    *
    * @param aString an array of strings to resolve against environment variables
    * @return the array of strings after variables have been resolved/susbstituted
-   * @see IVariables#environmentSubstitute(java.lang.String[])
+   * @see IVariables#resolve(java.lang.String[])
    */
   @Override
-  public String[] environmentSubstitute( String[] aString ) {
-    return variables.environmentSubstitute( aString );
+  public String[] resolve( String[] aString ) {
+    return variables.resolve( aString );
   }
 
   @Override
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
+  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
-    return variables.fieldSubstitute( aString, rowMeta, rowData );
+    return variables.resolve( aString, rowMeta, rowData );
   }
 
   /**
    * Gets the parent variable variables.
    *
    * @return the parent variable variables
-   * @see IVariables#getParentVariableSpace()
+   * @see IVariables#getParentVariables()
    */
   @Override
-  public IVariables getParentVariableSpace() {
-    return variables.getParentVariableSpace();
+  public IVariables getParentVariables() {
+    return variables.getParentVariables();
   }
 
   /**
    * Sets the parent variable variables.
    *
    * @param parent the new parent variable variables
-   * @see IVariables#setParentVariableSpace(
+   * @see IVariables#setParentVariables(
    *IVariables)
    */
   @Override
-  public void setParentVariableSpace( IVariables parent ) {
-    variables.setParentVariableSpace( parent );
+  public void setParentVariables( IVariables parent ) {
+    variables.setParentVariables( parent );
   }
 
   /**
@@ -2417,12 +2417,12 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * @param variableName the variable name
    * @param defaultValue the default value
    * @return a boolean representation of the specified variable after performing any necessary substitution
-   * @see IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
+   * @see IVariables#getVariableBoolean(java.lang.String, boolean)
    */
   @Override
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
+  public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
     if ( !Utils.isEmpty( variableName ) ) {
-      String value = environmentSubstitute( variableName );
+      String value = resolve( variableName );
       if ( !Utils.isEmpty( value ) ) {
         return ValueMetaString.convertStringToBoolean( value );
       }
@@ -2434,23 +2434,23 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * Sets the values of the pipeline's variables to the values from the parent variables.
    *
    * @param parent the parent
-   * @see IVariables#initializeVariablesFrom(
+   * @see IVariables#initializeFrom(
    *IVariables)
    */
   @Override
-  public void initializeVariablesFrom( IVariables parent ) {
-    variables.initializeVariablesFrom( parent );
+  public void initializeFrom( IVariables parent ) {
+    variables.initializeFrom( parent );
   }
 
   /**
    * Gets a list of variable names for the pipeline.
    *
    * @return a list of variable names
-   * @see IVariables#listVariables()
+   * @see IVariables#getVariableNames()
    */
   @Override
-  public String[] listVariables() {
-    return variables.listVariables();
+  public String[] getVariableNames() {
+    return variables.getVariableNames();
   }
 
   /**
@@ -2470,10 +2470,10 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * argument.
    *
    * @param variables the variable variables
-   * @see IVariables#shareVariablesWith(IVariables)
+   * @see IVariables#shareWith(IVariables)
    */
   @Override
-  public void shareVariablesWith( IVariables variables ) {
+  public void shareWith( IVariables variables ) {
     this.variables = variables;
   }
 
@@ -2482,12 +2482,12 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * time the IVariables is initialized (or upon calling this method if the variables is already initialized). After
    * injecting the link of the properties object should be removed.
    *
-   * @param prop the property map
-   * @see IVariables#injectVariables(java.util.Map)
+   * @param map the property map
+   * @see IVariables#setVariables(java.util.Map)
    */
   @Override
-  public void injectVariables( Map<String, String> prop ) {
-    variables.injectVariables( prop );
+  public void setVariables( Map<String, String> map ) {
+    variables.setVariables( map );
   }
 
   /**

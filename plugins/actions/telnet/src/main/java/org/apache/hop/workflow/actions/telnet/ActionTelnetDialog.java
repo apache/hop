@@ -131,7 +131,7 @@ public class ActionTelnetDialog extends ActionDialog implements IActionDialog {
     wHostname.setLayoutData(fdHostname);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wHostname.addModifyListener( e -> wHostname.setToolTipText( variables.environmentSubstitute( wHostname.getText() ) ) );
+    wHostname.addModifyListener( e -> wHostname.setToolTipText( variables.resolve( wHostname.getText() ) ) );
 
     Label wlPort = new Label(shell, SWT.RIGHT);
     wlPort.setText( BaseMessages.getString( PKG, "JobTelnet.Port.Label" ) );

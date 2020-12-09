@@ -74,12 +74,12 @@ public class ExecuteTestsMeta extends BaseTransformMeta implements ITransformMet
                                    IVariables variables, IHopMetadataProvider metadataProvider ) {
     IRowMeta rowMeta = UnitTestResult.getRowMeta();
     int index = 0;
-    rowMeta.getValueMeta( index++ ).setName( variables.environmentSubstitute( pipelineNameField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.environmentSubstitute( unitTestNameField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.environmentSubstitute( dataSetNameField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.environmentSubstitute( transformNameField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.environmentSubstitute( errorField ) );
-    rowMeta.getValueMeta( index++ ).setName( variables.environmentSubstitute( commentField ) );
+    rowMeta.getValueMeta( index++ ).setName( variables.resolve( pipelineNameField ) );
+    rowMeta.getValueMeta( index++ ).setName( variables.resolve( unitTestNameField ) );
+    rowMeta.getValueMeta( index++ ).setName( variables.resolve( dataSetNameField ) );
+    rowMeta.getValueMeta( index++ ).setName( variables.resolve( transformNameField ) );
+    rowMeta.getValueMeta( index++ ).setName( variables.resolve( errorField ) );
+    rowMeta.getValueMeta( index++ ).setName( variables.resolve( commentField ) );
 
     inputRowMeta.clear();
     inputRowMeta.addRowMeta( rowMeta );

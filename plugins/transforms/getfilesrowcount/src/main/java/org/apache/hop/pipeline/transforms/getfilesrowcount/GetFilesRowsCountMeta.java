@@ -508,13 +508,13 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     IValueMeta v =
-      new ValueMetaInteger( variables.environmentSubstitute( rowsCountFieldName ) );
+      new ValueMetaInteger( variables.resolve( rowsCountFieldName ) );
     v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
     v.setOrigin( name );
     r.addValueMeta( v );
 
     if ( includeFilesCount ) {
-      v = new ValueMetaInteger( variables.environmentSubstitute( filesCountFieldName ) );
+      v = new ValueMetaInteger( variables.resolve( filesCountFieldName ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -612,7 +612,7 @@ public class GetFilesRowsCountMeta extends BaseTransformMeta implements ITransfo
       //
       if ( !filefield ) {
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName[ i ] ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName[ i ] ) );
           fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }

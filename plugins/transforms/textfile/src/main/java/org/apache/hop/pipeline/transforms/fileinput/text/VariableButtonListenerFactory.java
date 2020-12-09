@@ -49,7 +49,7 @@ public class VariableButtonListenerFactory {
                                                             final IVariables variables ) {
     return new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
-        String[] keys = variables.listVariables();
+        String[] keys = variables.getVariableNames();
         Arrays.sort( keys );
 
         int size = keys.length;

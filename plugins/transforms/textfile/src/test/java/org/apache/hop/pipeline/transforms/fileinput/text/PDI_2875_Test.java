@@ -23,7 +23,6 @@
 package org.apache.hop.pipeline.transforms.fileinput.text;
 
 import org.apache.hop.core.HopEnvironment;
-import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
@@ -90,6 +89,6 @@ public class PDI_2875_Test {
     TextFileInput transform = spy( new TextFileInput( smh.transformMeta, meta, data, 0, smh.pipelineMeta, smh.pipeline ) );
     transform.setVariable( VAR_NAME, "value" );
     transform.init();
-    verify( transform, times( 2 ) ).environmentSubstitute( EXPRESSION );
+    verify( transform, times( 2 ) ).resolve( EXPRESSION );
   }
 }

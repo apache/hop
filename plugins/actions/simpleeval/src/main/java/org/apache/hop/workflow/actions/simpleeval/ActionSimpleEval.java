@@ -403,7 +403,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         }
         // get first row
         resultRow = rows.get( 0 );
-        String realfieldname = environmentSubstitute( fieldname );
+        String realfieldname = resolve( fieldname );
         int indexOfField = -1;
         indexOfField = resultRow.getRowMeta().indexOfValue( realfieldname );
         if ( indexOfField == -1 ) {
@@ -448,7 +448,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             return result;
           }
         }
-        sourcevalue = environmentSubstitute( getVariableWithSpec() );
+        sourcevalue = resolve( getVariableWithSpec() );
         break;
       default:
         break;
@@ -459,12 +459,12 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     }
 
     boolean success = false;
-    String realCompareValue = environmentSubstitute( comparevalue );
+    String realCompareValue = resolve( comparevalue );
     if ( realCompareValue == null ) {
       realCompareValue = "";
     }
-    String realMinValue = environmentSubstitute( minvalue );
-    String realMaxValue = environmentSubstitute( maxvalue );
+    String realMinValue = resolve( minvalue );
+    String realMaxValue = resolve( maxvalue );
 
     switch ( fieldtype ) {
       case FIELD_TYPE_STRING:
@@ -732,7 +732,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         }
         break;
       case FIELD_TYPE_DATE_TIME:
-        String realMask = environmentSubstitute( mask );
+        String realMask = resolve( mask );
         SimpleDateFormat df = new SimpleDateFormat();
         if ( !Utils.isEmpty( realMask ) ) {
           df.applyPattern( realMask );

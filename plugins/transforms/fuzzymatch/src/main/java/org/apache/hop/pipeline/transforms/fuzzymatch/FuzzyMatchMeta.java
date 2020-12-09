@@ -463,12 +463,12 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // Add match field
     IValueMeta v =
-      new ValueMetaString( variables.environmentSubstitute( getOutputMatchField() ) );
+      new ValueMetaString( variables.resolve( getOutputMatchField() ) );
     v.setOrigin( name );
     v.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
     inputRowMeta.addValueMeta( v );
 
-    String mainField = variables.environmentSubstitute( getOutputValueField() );
+    String mainField = variables.resolve( getOutputValueField() );
     if ( !Utils.isEmpty( mainField ) && isGetCloserValue() ) {
       switch ( getAlgorithmType() ) {
         case FuzzyMatchMeta.OPERATION_TYPE_DAMERAU_LEVENSHTEIN:
@@ -567,7 +567,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
 
       // Starting from selected fields in ...
       // Check the fields from the previous stream!
-      String mainField = variables.environmentSubstitute( getMainStreamField() );
+      String mainField = variables.resolve( getMainStreamField() );
       int idx = prev.indexOfValue( mainField );
       if ( idx < 0 ) {
         cr =
@@ -594,7 +594,7 @@ public class FuzzyMatchMeta extends BaseTransformMeta implements ITransformMeta<
       remarks.add( cr );
 
       // Check the fields from the lookup stream!
-      String lookupField = variables.environmentSubstitute( getLookupField() );
+      String lookupField = variables.resolve( getLookupField() );
 
       int idx = info.indexOfValue( lookupField );
       if ( idx < 0 ) {

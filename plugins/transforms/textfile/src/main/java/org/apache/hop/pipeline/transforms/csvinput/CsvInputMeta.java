@@ -262,7 +262,7 @@ public class CsvInputMeta
         if ( lazyConversionActive ) {
           valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
         }
-        valueMeta.setStringEncoding( variables.environmentSubstitute( encoding ) );
+        valueMeta.setStringEncoding( variables.resolve( encoding ) );
 
         // In case we want to convert Strings...
         // Using a copy of the valueMeta object means that the inner and outer representation format is the same.
@@ -442,7 +442,7 @@ public class CsvInputMeta
       // transform meta data.
       //
       reference.getEntries().add(
-        new ResourceEntry( variables.environmentSubstitute( filename ), ResourceType.FILE ) );
+        new ResourceEntry( variables.resolve( filename ), ResourceType.FILE ) );
     }
     return references;
   }
@@ -469,7 +469,7 @@ public class CsvInputMeta
 
   @Override
   public String[] getFilePaths( IVariables variables ) {
-    return new String[] { variables.environmentSubstitute( filename ), };
+    return new String[] { variables.resolve( filename ), };
   }
 
   @Override
@@ -635,7 +635,7 @@ public class CsvInputMeta
         // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( filename ) );
 
         // If the file doesn't exist, forget about this effort too!
         //
@@ -674,7 +674,7 @@ public class CsvInputMeta
 
   @Override
   public FileObject getHeaderFileObject( final IVariables variables ) {
-    final String filename = variables.environmentSubstitute( getFilename() );
+    final String filename = variables.resolve( getFilename() );
     try {
       return HopVfs.getFileObject( filename );
     } catch ( final HopFileException e ) {

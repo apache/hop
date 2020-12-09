@@ -347,17 +347,17 @@ public class HttpMeta extends BaseTransformMeta implements ITransformMeta<Http, 
     }
     if ( !Utils.isEmpty( resultCodeFieldName ) ) {
       IValueMeta v =
-        new ValueMetaInteger( variables.environmentSubstitute( resultCodeFieldName ) );
+        new ValueMetaInteger( variables.resolve( resultCodeFieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
     if ( !Utils.isEmpty( responseTimeFieldName ) ) {
       IValueMeta v =
-        new ValueMetaInteger( variables.environmentSubstitute( responseTimeFieldName ) );
+        new ValueMetaInteger( variables.resolve( responseTimeFieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
-    String headerFieldName = variables.environmentSubstitute( responseHeaderFieldName );
+    String headerFieldName = variables.resolve( responseHeaderFieldName );
     if ( !Utils.isEmpty( headerFieldName ) ) {
       IValueMeta v =
         new ValueMetaString( headerFieldName );

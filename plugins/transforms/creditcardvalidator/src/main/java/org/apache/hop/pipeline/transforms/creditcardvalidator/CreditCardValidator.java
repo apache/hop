@@ -31,8 +31,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -91,13 +89,13 @@ public class CreditCardValidator extends BaseTransform<CreditCardValidatorMeta, 
             PKG, "CreditCardValidator.Exception.CouldnotFindField", meta.getDynamicField() ) );
         }
       }
-      data.realResultFieldname = environmentSubstitute( meta.getResultFieldName() );
+      data.realResultFieldname = resolve( meta.getResultFieldName() );
       if ( Utils.isEmpty( data.realResultFieldname ) ) {
         throw new HopException( BaseMessages
           .getString( PKG, "CreditCardValidator.Exception.ResultFieldMissing" ) );
       }
-      data.realCardTypeFieldname = environmentSubstitute( meta.getCardType() );
-      data.realNotValidMsgFieldname = environmentSubstitute( meta.getNotValidMsg() );
+      data.realCardTypeFieldname = resolve( meta.getCardType() );
+      data.realNotValidMsgFieldname = resolve( meta.getNotValidMsg() );
 
     } // End If first
 

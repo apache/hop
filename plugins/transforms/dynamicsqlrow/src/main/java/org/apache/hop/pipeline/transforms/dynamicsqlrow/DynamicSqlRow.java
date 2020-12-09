@@ -73,7 +73,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
     String sqlTemp = getInputRowMeta().getString( rowData, data.indexOfSqlField);
     String sql = null;
     if ( meta.isVariableReplace() ) {
-      sql = environmentSubstitute( sqlTemp );
+      sql = resolve( sqlTemp );
     } else {
       sql = sqlTemp;
     }
@@ -292,7 +292,7 @@ public class DynamicSqlRow extends BaseTransform<DynamicSqlRowMeta, DynamicSqlRo
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
       try {
         data.db.connect( getPartitionId() );
 

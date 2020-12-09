@@ -51,7 +51,7 @@ public class TextFileFilterProcessor {
     } else {
       filtersString = new String[ filters.length ];
       for ( int f = 0; f < filters.length; f++ ) {
-        filtersString[ f ] = variables.environmentSubstitute( filters[ f ].getFilterString() );
+        filtersString[ f ] = variables.resolve( filters[ f ].getFilterString() );
       }
     }
   }

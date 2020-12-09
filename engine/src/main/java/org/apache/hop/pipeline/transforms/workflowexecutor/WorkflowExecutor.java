@@ -182,7 +182,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     data.executorWorkflow = createWorkflow( data.executorWorkflowMeta, this );
 
-    data.executorWorkflow.initializeVariablesFrom( this );
+    data.executorWorkflow.initializeFrom( this );
     data.executorWorkflow.setParentPipeline( getPipeline() );
     data.executorWorkflow.setLogLevel( getLogLevel() );
     data.executorWorkflow.setInternalHopVariables();
@@ -307,7 +307,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
   @VisibleForTesting
   IWorkflowEngine<WorkflowMeta> createWorkflow( WorkflowMeta workflowMeta, ILoggingObject parentLogging ) throws HopException {
 
-    return WorkflowEngineFactory.createWorkflowEngine( this, environmentSubstitute(meta.getRunConfigurationName()), metadataProvider, workflowMeta, parentLogging );
+    return WorkflowEngineFactory.createWorkflowEngine( this, resolve(meta.getRunConfigurationName()), metadataProvider, workflowMeta, parentLogging );
   }
 
   @VisibleForTesting
@@ -344,7 +344,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           // The value is provided by a static String or variable expression as an Input value
           //
           if (StringUtils.isNotEmpty( variableInput )) {
-            variableValue = this.environmentSubstitute( variableInput );
+            variableValue = this.resolve( variableInput );
           }
         }
 
@@ -376,14 +376,14 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           //
           data.groupSize = -1;
           if ( !Utils.isEmpty( meta.getGroupSize() ) ) {
-            data.groupSize = Const.toInt( environmentSubstitute( meta.getGroupSize() ), -1 );
+            data.groupSize = Const.toInt( resolve( meta.getGroupSize() ), -1 );
           }
 
           // Is there a grouping time set?
           //
           data.groupTime = -1;
           if ( !Utils.isEmpty( meta.getGroupTime() ) ) {
-            data.groupTime = Const.toInt( environmentSubstitute( meta.getGroupTime() ), -1 );
+            data.groupTime = Const.toInt( resolve( meta.getGroupTime() ), -1 );
           }
           data.groupTimeStart = System.currentTimeMillis();
 
@@ -391,7 +391,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           //
           data.groupField = null;
           if ( !Utils.isEmpty( meta.getGroupField() ) ) {
-            data.groupField = environmentSubstitute( meta.getGroupField() );
+            data.groupField = resolve( meta.getGroupField() );
           }
 
           // That's all for now...

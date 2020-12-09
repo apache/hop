@@ -47,7 +47,6 @@ import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
-import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
@@ -488,7 +487,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
     CurrentDirectoryResolver r = new CurrentDirectoryResolver();
     IVariables tmpSpace = r.resolveCurrentDirectory( variables, executorMeta.getParentTransformMeta(), executorMeta.getFilename() );
 
-    String realFilename = tmpSpace.environmentSubstitute( executorMeta.getFilename() );
+    String realFilename = tmpSpace.resolve( executorMeta.getFilename() );
 
     // OK, load the meta-data from file...
     //
@@ -546,7 +545,7 @@ public class WorkflowExecutorMeta extends BaseTransformMeta implements ITransfor
   @Override
   public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
     List<ResourceReference> references = new ArrayList<>( 5 );
-    String realFilename = variables.environmentSubstitute( filename );
+    String realFilename = variables.resolve( filename );
     ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 

@@ -226,7 +226,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
           @Override
           public void modifyText(ModifyEvent e) {
             wHostnameField.setToolTipText(
-                variables.environmentSubstitute(wHostnameField.getText()));
+                variables.resolve(wHostnameField.getText()));
           }
         });
     fd = new FormData();
@@ -254,7 +254,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
-            wPortField.setToolTipText(variables.environmentSubstitute(wPortField.getText()));
+            wPortField.setToolTipText(variables.resolve(wPortField.getText()));
           }
         });
     fd = new FormData();
@@ -425,7 +425,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     wConnectTimeout.addModifyListener(
         e ->
             wConnectTimeout.setToolTipText(
-                variables.environmentSubstitute(wConnectTimeout.getText())));
+                variables.resolve(wConnectTimeout.getText())));
     lastControl = connectTimeoutL;
 
     // socket timeout
@@ -449,7 +449,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     wSocketTimeout.addModifyListener(
         e ->
             wSocketTimeout.setToolTipText(
-                variables.environmentSubstitute(wSocketTimeout.getText())));
+                variables.resolve(wSocketTimeout.getText())));
     lastControl = wSocketTimeout;
 
     fd = new FormData();
@@ -497,7 +497,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     wDbNameField.addModifyListener(
         e -> {
           currentMeta.setChanged();
-          wDbNameField.setToolTipText(variables.environmentSubstitute(wDbNameField.getText()));
+          wDbNameField.setToolTipText(variables.resolve(wDbNameField.getText()));
         });
 
     fd = new FormData();
@@ -537,7 +537,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
             currentMeta.setChanged();
 
             wCollectionField.setToolTipText(
-                variables.environmentSubstitute(wCollectionField.getText()));
+                variables.resolve(wCollectionField.getText()));
           }
         });
     fd = new FormData();
@@ -567,7 +567,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
           @Override
           public void modifyText(ModifyEvent e) {
             wBatchInsertSizeField.setToolTipText(
-                variables.environmentSubstitute(wBatchInsertSizeField.getText()));
+                variables.resolve(wBatchInsertSizeField.getText()));
           }
         });
     fd = new FormData();
@@ -761,7 +761,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
         new ModifyListener() {
           @Override
           public void modifyText(ModifyEvent e) {
-            wTimeout.setToolTipText(variables.environmentSubstitute(wTimeout.getText()));
+            wTimeout.setToolTipText(variables.resolve(wTimeout.getText()));
           }
         });
 
@@ -806,7 +806,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
           public void modifyText(ModifyEvent e) {
             currentMeta.setChanged();
             wReadPreference.setToolTipText(
-                variables.environmentSubstitute(wReadPreference.getText()));
+                variables.resolve(wReadPreference.getText()));
           }
         });
     wReadPreference.add(NamedReadPreference.PRIMARY.getName());
@@ -838,7 +838,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
           @Override
           public void modifyText(ModifyEvent e) {
             wWriteRetries.setToolTipText(
-                variables.environmentSubstitute(wWriteRetries.getText()));
+                variables.resolve(wWriteRetries.getText()));
           }
         });
 
@@ -1283,8 +1283,8 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void setupCollectionNamesForDB(boolean quiet) {
-    final String hostname = variables.environmentSubstitute(wHostnameField.getText());
-    final String dB = variables.environmentSubstitute(wDbNameField.getText());
+    final String hostname = variables.resolve(wHostnameField.getText());
+    final String dB = variables.resolve(wDbNameField.getText());
 
     String current = wCollectionField.getText();
     wCollectionField.removeAll();
@@ -1347,7 +1347,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void setupCustomWriteConcernNames() {
-    String hostname = variables.environmentSubstitute(wHostnameField.getText());
+    String hostname = variables.resolve(wHostnameField.getText());
 
     if (!StringUtils.isEmpty(hostname)) {
       MongoDbOutputMeta meta = new MongoDbOutputMeta();
@@ -1401,7 +1401,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     String current = wDbNameField.getText();
     wDbNameField.removeAll();
 
-    String hostname = variables.environmentSubstitute(wHostnameField.getText());
+    String hostname = variables.resolve(wHostnameField.getText());
 
     if (!StringUtils.isEmpty(hostname)) {
       try {
@@ -1580,7 +1580,7 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
     try {
       // Initialize Variable variables to allow for environment substitution during doc preview.
       IVariables vs = new Variables();
-      vs.initializeVariablesFrom(variables);
+      vs.initializeFrom(variables);
       boolean hasTopLevelJSONDocInsert =
           MongoDbOutputData.scanForInsertTopLevelJSONDoc(mongoFields);
 
@@ -1694,9 +1694,9 @@ public class MongoDbOutputDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void showIndexInfo() {
-    String hostname = variables.environmentSubstitute(wHostnameField.getText());
-    String dbName = variables.environmentSubstitute(wDbNameField.getText());
-    String collection = variables.environmentSubstitute(wCollectionField.getText());
+    String hostname = variables.resolve(wHostnameField.getText());
+    String dbName = variables.resolve(wDbNameField.getText());
+    String collection = variables.resolve(wCollectionField.getText());
 
     if (!StringUtils.isEmpty(hostname)) {
       MongoClient conn = null;

@@ -122,7 +122,7 @@ public class ActionDelayDialog extends ActionDialog implements IActionDialog {
     wMaximumTimeout.setLayoutData(fdMaximumTimeout);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wMaximumTimeout.addModifyListener( e -> wMaximumTimeout.setToolTipText( variables.environmentSubstitute( wMaximumTimeout.getText() ) ) );
+    wMaximumTimeout.addModifyListener( e -> wMaximumTimeout.setToolTipText( variables.resolve( wMaximumTimeout.getText() ) ) );
 
     // Scale time
 

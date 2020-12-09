@@ -542,7 +542,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
           if ( !( subj == null ) ) {
             String separator = "";
             if ( !Utils.isEmpty( meta.getValueField()[ i ] ) ) {
-              separator = environmentSubstitute( meta.getValueField()[ i ] );
+              separator = resolve( meta.getValueField()[ i ] );
             }
 
             StringBuilder sb = (StringBuilder) value;
@@ -778,7 +778,7 @@ public class GroupBy extends BaseTransform<GroupByMeta, GroupByData> implements 
   void addToBuffer( Object[] row ) throws HopFileException {
     data.bufferList.add( row );
     if ( data.bufferList.size() > 5000 && data.rowsOnFile == 0 ) {
-      String pathToTmp = environmentSubstitute( getMeta().getDirectory() );
+      String pathToTmp = resolve( getMeta().getDirectory() );
       try {
         File ioFile = new File( pathToTmp );
         if ( !ioFile.exists() ) {

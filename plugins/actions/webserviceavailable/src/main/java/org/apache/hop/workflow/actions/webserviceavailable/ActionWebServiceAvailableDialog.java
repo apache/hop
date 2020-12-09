@@ -132,7 +132,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wURL.setLayoutData(fdURL);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wURL.addModifyListener( e -> wURL.setToolTipText( variables.environmentSubstitute( wURL.getText() ) ) );
+    wURL.addModifyListener( e -> wURL.setToolTipText( variables.resolve( wURL.getText() ) ) );
 
     // connect timeout line
     Label wlConnectTimeOut = new Label(shell, SWT.RIGHT);
@@ -156,7 +156,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wConnectTimeOut.setLayoutData(fdConnectTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( variables.environmentSubstitute( wConnectTimeOut.getText() ) ) );
+    wConnectTimeOut.addModifyListener( e -> wConnectTimeOut.setToolTipText( variables.resolve( wConnectTimeOut.getText() ) ) );
 
     // Read timeout line
     Label wlReadTimeOut = new Label(shell, SWT.RIGHT);
@@ -179,7 +179,7 @@ public class ActionWebServiceAvailableDialog extends ActionDialog implements IAc
     wReadTimeOut.setLayoutData(fdReadTimeOut);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( variables.environmentSubstitute( wReadTimeOut.getText() ) ) );
+    wReadTimeOut.addModifyListener( e -> wReadTimeOut.setToolTipText( variables.resolve( wReadTimeOut.getText() ) ) );
 
     Button wOk = new Button(shell, SWT.PUSH);
     wOk.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );

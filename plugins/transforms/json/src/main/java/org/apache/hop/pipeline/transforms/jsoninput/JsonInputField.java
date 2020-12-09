@@ -111,7 +111,7 @@ public class JsonInputField extends BaseFileField implements Cloneable {
       type = IValueMeta.TYPE_STRING;
     }
     IValueMeta v =
-        ValueMetaFactory.createValueMeta( vspace != null ? vspace.environmentSubstitute( getName() ) : getName(), type );
+        ValueMetaFactory.createValueMeta( vspace != null ? vspace.resolve( getName() ) : getName(), type );
     v.setLength( getLength() );
     v.setPrecision( getPrecision() );
     v.setOrigin( fieldOriginTransformName );

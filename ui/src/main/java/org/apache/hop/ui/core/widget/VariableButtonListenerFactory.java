@@ -29,7 +29,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
 
 import java.util.Arrays;
 
@@ -70,7 +69,7 @@ public class VariableButtonListenerFactory {
 
   // Listen to the Variable... button
   public static final String getVariableName( Shell shell, IVariables variables ) {
-    String[] keys = variables.listVariables();
+    String[] keys = variables.getVariableNames();
     Arrays.sort( keys );
 
     int size = keys.length;

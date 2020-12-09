@@ -204,9 +204,9 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
         } else {
           if ( meta.isResolveValueVariable() ) {
             if ( data.propfiles ) {
-              value = environmentSubstitute( data.pro.getProperty( key ) );
+              value = resolve( data.pro.getProperty( key ) );
             } else {
-              value = environmentSubstitute( data.iniSection.fetch( key ) ); // for INI files
+              value = resolve( data.iniSection.fetch( key ) ); // for INI files
             }
           } else {
             if ( data.propfiles ) {
@@ -266,7 +266,7 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
 
       // See if we need to add the section for INI files ...
       if ( meta.includeIniSection() && !Utils.isEmpty( meta.getINISectionField() ) ) {
-        r[ data.totalpreviousfields + rowIndex++ ] = environmentSubstitute( data.iniSection.getName() );
+        r[ data.totalpreviousfields + rowIndex++ ] = resolve( data.iniSection.getName() );
       }
       // Possibly add short filename...
       if ( meta.getShortFileNameField() != null && meta.getShortFileNameField().length() > 0 ) {
@@ -494,11 +494,11 @@ public class PropertyInput extends BaseTransform<PropertyInputMeta, PropertyInpu
 
     if ( super.init() ) {
 
-      String realEncoding = environmentSubstitute( meta.getEncoding() );
+      String realEncoding = resolve( meta.getEncoding() );
       if ( !Utils.isEmpty( realEncoding ) ) {
         data.realEncoding = realEncoding;
       }
-      String realSection = environmentSubstitute( meta.getSection() );
+      String realSection = resolve( meta.getSection() );
       if ( !Utils.isEmpty( realSection ) ) {
         data.realSection = realSection;
       }

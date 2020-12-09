@@ -473,7 +473,7 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
     }
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
-    input.setTableName( variables.environmentSubstitute( wTable.getText() ) );
+    input.setTableName( variables.resolve( wTable.getText() ) );
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
       targetFields = transformMetaInterface.getRequiredFields( variables );
@@ -707,8 +707,8 @@ public class InsertUpdateDialog extends BaseTransformDialog implements ITransfor
 
               IRowMeta r =
                 db.getTableFieldsMeta(
-                  variables.environmentSubstitute( schemaName ),
-                  variables.environmentSubstitute( tableName ) );
+                  variables.resolve( schemaName ),
+                  variables.resolve( tableName ) );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();
                 if ( null != fieldNames ) {

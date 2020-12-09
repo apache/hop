@@ -159,7 +159,7 @@ public class BlockingTransformDialog extends BaseTransformDialog implements ITra
     wSpoolDir.setLayoutData(fdSpoolDir);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSpoolDir.addModifyListener( e -> wSpoolDir.setToolTipText( variables.environmentSubstitute( wSpoolDir.getText() ) ) );
+    wSpoolDir.addModifyListener( e -> wSpoolDir.setToolTipText( variables.resolve( wSpoolDir.getText() ) ) );
 
     wbSpoolDir.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSpoolDir, variables ) );
 

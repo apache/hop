@@ -137,23 +137,23 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
       IVariables variables, IHopMetadataProvider metadataProvider ) {
     int defaultStringLenNameValueElements =
-        Const.toInt( variables.environmentSubstitute( defaultStringLen ), new Integer( DEFAULT_STRING_LEN ) );
+        Const.toInt( variables.resolve( defaultStringLen ), new Integer( DEFAULT_STRING_LEN ) );
 
     if ( includeFilenameField ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( filenameField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( filenameField ) );
       v.setLength( DEFAULT_STRING_LEN_FILENAME );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeRowNumberField ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeXmlDataTypeNumericField ) {
       IValueMeta vdtn =
-          new ValueMetaInteger( variables.environmentSubstitute( xmlDataTypeNumericField ) );
+          new ValueMetaInteger( variables.resolve( xmlDataTypeNumericField ) );
       vdtn.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
       vdtn.setOrigin( name );
       r.addValueMeta( vdtn );
@@ -161,7 +161,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
 
     if ( includeXmlDataTypeDescriptionField ) {
       IValueMeta vdtd =
-          new ValueMetaString( variables.environmentSubstitute( xmlDataTypeDescriptionField ) );
+          new ValueMetaString( variables.resolve( xmlDataTypeDescriptionField ) );
       vdtd.setLength( 25 );
       vdtd.setOrigin( name );
       r.addValueMeta( vdtd );
@@ -169,7 +169,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
 
     if ( includeXmlLocationLineField ) {
       IValueMeta vline =
-          new ValueMetaInteger( variables.environmentSubstitute( xmlLocationLineField ) );
+          new ValueMetaInteger( variables.resolve( xmlLocationLineField ) );
       vline.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
       vline.setOrigin( name );
       r.addValueMeta( vline );
@@ -177,7 +177,7 @@ public class XmlInputStreamMeta extends BaseTransformMeta implements ITransformM
 
     if ( includeXmlLocationColumnField ) {
       IValueMeta vcol =
-          new ValueMetaInteger( variables.environmentSubstitute( xmlLocationColumnField ) );
+          new ValueMetaInteger( variables.resolve( xmlLocationColumnField ) );
       vcol.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH );
       vcol.setOrigin( name );
       r.addValueMeta( vcol );

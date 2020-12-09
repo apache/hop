@@ -168,7 +168,7 @@ public class CubeOutput extends BaseTransform<CubeOutputMeta, CubeOutputData> im
 
   private void prepareFile() throws HopFileException {
     try {
-      String filename = environmentSubstitute( meta.getFilename() );
+      String filename = resolve( meta.getFilename() );
       if ( meta.isAddToResultFiles() ) {
         // Add this to the result file names...
         ResultFile resultFile =

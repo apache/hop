@@ -388,7 +388,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
 
   protected void setSqlToolTip() {
     if ( wVariables.getSelection() ) {
-      wSql.setToolTipText( variables.environmentSubstitute( wSql.getText() ) );
+      wSql.setToolTipText( variables.resolve( wSql.getText() ) );
     }
   }
 
@@ -497,7 +497,7 @@ public class TableInputDialog extends BaseTransformDialog implements ITransformD
             break;
           case SWT.YES:
             Database db = new Database( loggingObject, inf );
-            db.shareVariablesWith( variables );
+            db.shareWith( variables );
             try {
               db.connect();
               IRowMeta fields = db.getQueryFields( sql, false );

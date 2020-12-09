@@ -43,10 +43,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
@@ -55,7 +53,6 @@ import org.json.simple.JSONObject;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManagerFactory;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
@@ -360,7 +357,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> implements ITransfor
         }
         // cache the position of the field
         if ( data.indexOfUrlField < 0 ) {
-          String realUrlfieldName = environmentSubstitute( meta.getUrlField() );
+          String realUrlfieldName = resolve( meta.getUrlField() );
           data.indexOfUrlField = data.inputRowMeta.indexOfValue( realUrlfieldName );
           if ( data.indexOfUrlField < 0 ) {
             // The field is unreachable !
@@ -369,11 +366,11 @@ public class Rest extends BaseTransform<RestMeta, RestData> implements ITransfor
         }
       } else {
         // Static URL
-        data.realUrl = environmentSubstitute( meta.getUrl() );
+        data.realUrl = resolve( meta.getUrl() );
       }
       // Check Method
       if ( meta.isDynamicMethod() ) {
-        String field = environmentSubstitute( meta.getMethodFieldName() );
+        String field = resolve( meta.getMethodFieldName() );
         if ( Utils.isEmpty( field ) ) {
           throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.MethodFieldMissing" ) );
         }
@@ -391,8 +388,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> implements ITransfor
         data.headerNames = new String[ nrargs ];
         for ( int i = 0; i < nrargs; i++ ) {
           // split into body / header
-          data.headerNames[ i ] = environmentSubstitute( meta.getHeaderName()[ i ] );
-          String field = environmentSubstitute( meta.getHeaderField()[ i ] );
+          data.headerNames[ i ] = resolve( meta.getHeaderName()[ i ] );
+          String field = resolve( meta.getHeaderField()[ i ] );
           if ( Utils.isEmpty( field ) ) {
             throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.HeaderFieldEmpty" ) );
           }
@@ -411,8 +408,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> implements ITransfor
           data.paramNames = new String[ nrparams ];
           data.indexOfParamFields = new int[ nrparams ];
           for ( int i = 0; i < nrparams; i++ ) {
-            data.paramNames[ i ] = environmentSubstitute( meta.getParameterName()[ i ] );
-            String field = environmentSubstitute( meta.getParameterField()[ i ] );
+            data.paramNames[ i ] = resolve( meta.getParameterName()[ i ] );
+            String field = resolve( meta.getParameterField()[ i ] );
             if ( Utils.isEmpty( field ) ) {
               throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.ParamFieldEmpty" ) );
             }
@@ -429,8 +426,8 @@ public class Rest extends BaseTransform<RestMeta, RestData> implements ITransfor
           data.matrixParamNames = new String[ nrmatrixparams ];
           data.indexOfMatrixParamFields = new int[ nrmatrixparams ];
           for ( int i = 0; i < nrmatrixparams; i++ ) {
-            data.matrixParamNames[ i ] = environmentSubstitute( meta.getMatrixParameterName()[ i ] );
-            String field = environmentSubstitute( meta.getMatrixParameterField()[ i ] );
+            data.matrixParamNames[ i ] = resolve( meta.getMatrixParameterName()[ i ] );
+            String field = resolve( meta.getMatrixParameterField()[ i ] );
             if ( Utils.isEmpty( field ) ) {
               throw new HopException( BaseMessages.getString( PKG, "Rest.Exception.MatrixParamFieldEmpty" ) );
             }
@@ -445,7 +442,7 @@ public class Rest extends BaseTransform<RestMeta, RestData> implements ITransfor
 
       // Do we need to set body
       if ( RestMeta.isActiveBody( meta.getMethod() ) ) {
-        String field = environmentSubstitute( meta.getBodyField() );
+        String field = resolve( meta.getBodyField() );
         if ( !Utils.isEmpty( field ) ) {
           data.indexOfBodyField = data.inputRowMeta.indexOfValue( field );
           if ( data.indexOfBodyField < 0 ) {
@@ -488,27 +485,27 @@ public class Rest extends BaseTransform<RestMeta, RestData> implements ITransfor
   public boolean init() {
 
     if ( super.init() ) {
-      data.resultFieldName = environmentSubstitute( meta.getFieldName() );
-      data.resultCodeFieldName = environmentSubstitute( meta.getResultCodeFieldName() );
-      data.resultResponseFieldName = environmentSubstitute( meta.getResponseTimeFieldName() );
-      data.resultHeaderFieldName = environmentSubstitute( meta.getResponseHeaderFieldName() );
+      data.resultFieldName = resolve( meta.getFieldName() );
+      data.resultCodeFieldName = resolve( meta.getResultCodeFieldName() );
+      data.resultResponseFieldName = resolve( meta.getResponseTimeFieldName() );
+      data.resultHeaderFieldName = resolve( meta.getResponseHeaderFieldName() );
 
       // get authentication settings once
-      data.realProxyHost = environmentSubstitute( meta.getProxyHost() );
-      data.realProxyPort = Const.toInt( environmentSubstitute( meta.getProxyPort() ), 8080 );
-      data.realHttpLogin = environmentSubstitute( meta.getHttpLogin() );
-      data.realHttpPassword = Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( meta.getHttpPassword() ) );
+      data.realProxyHost = resolve( meta.getProxyHost() );
+      data.realProxyPort = Const.toInt( resolve( meta.getProxyPort() ), 8080 );
+      data.realHttpLogin = resolve( meta.getHttpLogin() );
+      data.realHttpPassword = Encr.decryptPasswordOptionallyEncrypted( resolve( meta.getHttpPassword() ) );
 
       if ( !meta.isDynamicMethod() ) {
-        data.method = environmentSubstitute( meta.getMethod() );
+        data.method = resolve( meta.getMethod() );
         if ( Utils.isEmpty( data.method ) ) {
           logError( BaseMessages.getString( PKG, "Rest.Error.MethodMissing" ) );
           return false;
         }
       }
 
-      data.trustStoreFile = environmentSubstitute( meta.getTrustStoreFile() );
-      data.trustStorePassword = environmentSubstitute( meta.getTrustStorePassword() );
+      data.trustStoreFile = resolve( meta.getTrustStoreFile() );
+      data.trustStorePassword = resolve( meta.getTrustStorePassword() );
 
       String applicationType = Const.NVL( meta.getApplicationType(), "" );
       if ( applicationType.equals( RestMeta.APPLICATION_TYPE_XML ) ) {

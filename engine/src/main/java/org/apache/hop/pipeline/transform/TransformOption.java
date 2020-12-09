@@ -63,8 +63,8 @@ public class TransformOption {
   public static void checkInteger( List<ICheckResult> remarks, TransformMeta transformMeta, IVariables variables,
                                    String identifier, String value ) {
     try {
-      if ( !StringUtil.isEmpty( variables.environmentSubstitute( value ) ) ) {
-        Integer.parseInt( variables.environmentSubstitute( value ) );
+      if ( !StringUtil.isEmpty( variables.resolve( value ) ) ) {
+        Integer.parseInt( variables.resolve( value ) );
       }
     } catch ( NumberFormatException e ) {
       remarks.add( new CheckResult(
@@ -77,8 +77,8 @@ public class TransformOption {
   public static void checkLong( List<ICheckResult> remarks, TransformMeta transformMeta, IVariables variables,
                                 String identifier, String value ) {
     try {
-      if ( !StringUtil.isEmpty( variables.environmentSubstitute( value ) ) ) {
-        Long.parseLong( variables.environmentSubstitute( value ) );
+      if ( !StringUtil.isEmpty( variables.resolve( value ) ) ) {
+        Long.parseLong( variables.resolve( value ) );
       }
     } catch ( NumberFormatException e ) {
       remarks.add( new CheckResult(
@@ -90,8 +90,8 @@ public class TransformOption {
 
   public static void checkBoolean( List<ICheckResult> remarks, TransformMeta transformMeta, IVariables variables,
                                    String identifier, String value ) {
-    if ( !StringUtil.isEmpty( variables.environmentSubstitute( value ) ) && null == BooleanUtils
-      .toBooleanObject( variables.environmentSubstitute( value ) ) ) {
+    if ( !StringUtil.isEmpty( variables.resolve( value ) ) && null == BooleanUtils
+      .toBooleanObject( variables.resolve( value ) ) ) {
       remarks.add( new CheckResult(
         ICheckResult.TYPE_RESULT_ERROR,
         BaseMessages.getString( PKG, "TransformOption.CheckResult.NotABoolean", identifier ),

@@ -293,12 +293,12 @@ public class TeraFastMeta extends AbstractTransformMeta implements ITransformMet
   public IRowMeta getRequiredFields( final IVariables variables ) throws HopException {
     if ( !this.useControlFile.getValue() ) {
       final Database database = connectToDatabase();
-      database.shareVariablesWith( variables );
+      database.shareWith( variables );
 
       IRowMeta fields =
         database.getTableFieldsMeta(
           StringUtils.EMPTY,
-          variables.environmentSubstitute( this.targetTable.getValue() ) );
+          variables.resolve( this.targetTable.getValue() ) );
       database.disconnect();
       if ( fields == null ) {
         throw new HopException( MESSAGES.getString( "TeraFastMeta.Exception.TableNotFound" ) );

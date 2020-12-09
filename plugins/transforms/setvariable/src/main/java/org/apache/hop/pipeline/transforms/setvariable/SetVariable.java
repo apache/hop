@@ -96,7 +96,7 @@ public class SetVariable extends BaseTransform<SetVariableMeta,SetVariableData> 
     //
     String value = null;
     if ( usedefault ) {
-      value = environmentSubstitute( meta.getDefaultValue()[ i ] );
+      value = resolve( meta.getDefaultValue()[ i ] );
     } else {
       int index = data.outputMeta.indexOfValue( meta.getFieldName()[ i ] );
       if ( index < 0 ) {

@@ -69,9 +69,9 @@ public class HttpUtil {
   public static String constructUrl( IVariables variables, String hostname, String port, String webAppName,
                                      String serviceAndArguments, boolean isSecure )
     throws UnsupportedEncodingException {
-    String realHostname = variables.environmentSubstitute( hostname );
+    String realHostname = variables.resolve( hostname );
     if ( !StringUtils.isEmpty( webAppName ) ) {
-      serviceAndArguments = "/" + variables.environmentSubstitute( webAppName ) + serviceAndArguments;
+      serviceAndArguments = "/" + variables.resolve( webAppName ) + serviceAndArguments;
     }
     String protocol = isSecure ? PROTOCOL_SECURE : PROTOCOL_UNSECURE;
     String retval = protocol + "://" + realHostname + getPortSpecification( variables, port ) + serviceAndArguments;
@@ -80,7 +80,7 @@ public class HttpUtil {
   }
 
   public static String getPortSpecification( IVariables variables, String port ) {
-    String realPort = variables.environmentSubstitute( port );
+    String realPort = variables.resolve( port );
     String portSpec = ":" + realPort;
     if ( Utils.isEmpty( realPort ) || port.equals( "80" ) ) {
       portSpec = "";

@@ -59,7 +59,7 @@ public class GenerateFatJarConfigPlugin implements IConfigOptions {
   }
 
   private void createFatJar( ILogChannel log, IVariables variables ) throws HopException {
-    String realFatJarFilename = variables.environmentSubstitute( fatJarFilename );
+    String realFatJarFilename = variables.resolve( fatJarFilename );
     log.logBasic( "Generating a Hop fat jar file in : " + realFatJarFilename);
 
     List<String> installedJarFilenames = HopBeamGuiPlugin.findInstalledJarFilenames();

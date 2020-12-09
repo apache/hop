@@ -484,11 +484,11 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     jscx = ContextFactory.getGlobal().enterContext();
     jsscope = jscx.initStandardObjects( null, false );
     try {
-      jscx.setOptimizationLevel( Integer.valueOf( variables.environmentSubstitute( optimizationLevel ) ) );
+      jscx.setOptimizationLevel( Integer.valueOf( variables.resolve( optimizationLevel ) ) );
     } catch ( NumberFormatException nfe ) {
       errorMessage =
         "Error with optimization level.  Could not convert the value of "
-          + variables.environmentSubstitute( optimizationLevel ) + " to an integer.";
+          + variables.resolve( optimizationLevel ) + " to an integer.";
       cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } catch ( IllegalArgumentException iae ) {

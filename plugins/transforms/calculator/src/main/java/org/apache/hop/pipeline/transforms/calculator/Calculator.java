@@ -486,7 +486,7 @@ public class Calculator extends BaseTransform<CalculatorMeta, CalculatorData> im
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_SUBSTITUTE_VARIABLE: // variable substitution in string
-            calcData[ index ] = environmentSubstitute( dataA.toString() );
+            calcData[ index ] = resolve( dataA.toString() );
             resultType = CalculatorMetaFunction.calcDefaultResultType[ calcType ];
             break;
           case CalculatorMetaFunction.CALC_UNESCAPE_XML: // UnescapeXML( A )

@@ -120,7 +120,7 @@ public class HopGuiWorkflowActionContext extends BaseGuiContextHandler
           action.loadReferencedObject(
               index, workflowMeta.getMetadataProvider(), workflowGraph.getVariables());
       if (hasFilename != null) {
-        String filename = workflowGraph.getVariables().environmentSubstitute(hasFilename.getFilename());
+        String filename = workflowGraph.getVariables().resolve(hasFilename.getFilename());
 
         // Is this object already loaded?
         //

@@ -124,7 +124,7 @@ public class HopGuiPipelineTransformContext extends BaseGuiContextHandler
               index, pipelineMeta.getMetadataProvider(), pipelineGraph.getVariables());
       if (hasFilename != null) {
         String filename =
-            pipelineGraph.getVariables().environmentSubstitute(hasFilename.getFilename());
+            pipelineGraph.getVariables().resolve(hasFilename.getFilename());
 
         // Is this object already loaded?
         //

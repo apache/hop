@@ -354,7 +354,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
 
   private void loadPipelineFile(String fname) throws HopException {
     mappingPipelineMeta =
-        new PipelineMeta(variables.environmentSubstitute(fname), metadataProvider, true, variables);
+        new PipelineMeta(variables.resolve(fname), metadataProvider, true, variables);
     mappingPipelineMeta.clearChanged();
   }
 

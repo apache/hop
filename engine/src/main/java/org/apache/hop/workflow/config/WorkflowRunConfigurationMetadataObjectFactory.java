@@ -50,7 +50,7 @@ public class WorkflowRunConfigurationMetadataObjectFactory implements IHopMetada
       engineRunConfiguration.setEnginePluginName( plugin.getName() );
 
       if (parentObject!=null && (parentObject instanceof IVariables )) {
-        engineRunConfiguration.initializeVariablesFrom( (IVariables) parentObject );
+        engineRunConfiguration.initializeFrom( (IVariables) parentObject );
       }
 
       return engineRunConfiguration;

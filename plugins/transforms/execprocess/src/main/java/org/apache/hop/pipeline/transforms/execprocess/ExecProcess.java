@@ -31,8 +31,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.io.BufferedReader;
@@ -248,7 +246,7 @@ public class ExecProcess extends BaseTransform<ExecProcessMeta, ExecProcessData>
     if ( delim == null ) {
       delim = "";
     } else {
-      delim = environmentSubstitute( delim );
+      delim = resolve( delim );
     }
 
     while ( ( line = b.readLine() ) != null ) {

@@ -373,7 +373,7 @@ public class ReplaceStringMeta extends BaseTransformMeta implements ITransformMe
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     int nrFields = fieldInStream == null ? 0 : fieldInStream.length;
     for ( int i = 0; i < nrFields; i++ ) {
-      String fieldName = variables.environmentSubstitute( fieldOutStream[ i ] );
+      String fieldName = variables.resolve( fieldOutStream[ i ] );
       IValueMeta valueMeta;
       if ( !Utils.isEmpty( fieldOutStream[ i ] ) ) {
         // We have a new field

@@ -116,7 +116,7 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealPort() {
-    return environmentSubstitute( getPort() );
+    return resolve( getPort() );
   }
 
   public void setPort( String port ) {
@@ -132,7 +132,7 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealHostname() {
-    return environmentSubstitute( getHostname() );
+    return resolve( getHostname() );
   }
 
   public String getTimeOut() {
@@ -140,7 +140,7 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealTimeOut() {
-    return environmentSubstitute( getTimeOut() );
+    return resolve( getTimeOut() );
   }
 
   public void setTimeOut( String timeout ) {
@@ -190,7 +190,7 @@ public class ActionTelnet extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( hostname ) ) {
-      String realServername = environmentSubstitute( hostname );
+      String realServername = resolve( hostname );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
       references.add( reference );

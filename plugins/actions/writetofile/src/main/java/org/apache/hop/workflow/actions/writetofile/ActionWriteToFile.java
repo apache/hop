@@ -145,7 +145,7 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
   }
 
   public String getRealFilename() {
-    return environmentSubstitute( getFilename() );
+    return resolve( getFilename() );
   }
 
   public Result execute( Result previousResult, int nr ) {
@@ -156,8 +156,8 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
     String realFilename = getRealFilename();
     if ( !Utils.isEmpty( realFilename ) ) {
 
-      String content = environmentSubstitute( getContent() );
-      String encoding = environmentSubstitute( getEncoding() );
+      String content = resolve( getContent() );
+      String encoding = resolve( getEncoding() );
 
       OutputStreamWriter osw = null;
       OutputStream os = null;
@@ -267,7 +267,7 @@ public class ActionWriteToFile extends ActionBase implements Cloneable, IAction 
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( getFilename() ) ) {
-      String realFileName = environmentSubstitute( getFilename() );
+      String realFileName = resolve( getFilename() );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
       references.add( reference );

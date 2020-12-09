@@ -250,7 +250,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
 
     // Whenever something changes, set the tooltip to the expanded version:
     wFilename.addModifyListener(
-        e -> wFilename.setToolTipText(variables.environmentSubstitute(wFilename.getText())));
+        e -> wFilename.setToolTipText(variables.resolve(wFilename.getText())));
 
     wbFilename.addListener(
         SWT.Selection,
@@ -734,7 +734,7 @@ public class ActionMysqlBulkLoadDialog extends ActionDialog implements IActionDi
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
       if (databaseMeta != null) {
         Database database = new Database(loggingObject, databaseMeta);
-        database.shareVariablesWith(variables);
+        database.shareWith(variables);
         try {
           database.connect();
           String schemaTable =

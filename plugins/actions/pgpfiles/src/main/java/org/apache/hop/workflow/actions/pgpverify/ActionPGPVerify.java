@@ -159,17 +159,17 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
     FileObject detachedSignature = null;
     try {
 
-      String realFilename = environmentSubstitute( getFilename() );
+      String realFilename = resolve( getFilename() );
       if ( Utils.isEmpty( realFilename ) ) {
         logError( BaseMessages.getString( PKG, "JobPGPVerify.FilenameMissing" ) );
         return result;
       }
       file = HopVfs.getFileObject( realFilename );
 
-      GPG gpg = new GPG( environmentSubstitute( getGPGLocation() ), log );
+      GPG gpg = new GPG( resolve( getGPGLocation() ), log );
 
       if ( useDetachedfilename() ) {
-        String signature = environmentSubstitute( getDetachedfilename() );
+        String signature = resolve( getDetachedfilename() );
 
         if ( Utils.isEmpty( signature ) ) {
           logError( BaseMessages.getString( PKG, "JobPGPVerify.DetachedSignatureMissing" ) );
@@ -209,7 +209,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( gpgLocation ) ) {
-      String realFileName = environmentSubstitute( gpgLocation );
+      String realFileName = resolve( gpgLocation );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
       references.add( reference );
@@ -247,7 +247,7 @@ public class ActionPGPVerify extends ActionBase implements Cloneable, IAction {
         // From : ${FOLDER}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( gpgLocation ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( gpgLocation ) );
 
         // If the file doesn't exist, forget about this effort too!
         //

@@ -31,7 +31,6 @@ import org.apache.hop.ui.core.gui.GuiResource;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionListener;
@@ -187,7 +186,7 @@ public class TextVar extends Composite {
         if ( Utils.isEmpty( tip ) ) {
           tip = toolTipText;
         }
-        textField.setToolTipText( variables.environmentSubstitute( tip ) );
+        textField.setToolTipText( variables.resolve( tip ) );
       }
     };
   }

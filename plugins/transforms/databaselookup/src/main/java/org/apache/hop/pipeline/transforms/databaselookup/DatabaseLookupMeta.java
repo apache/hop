@@ -574,7 +574,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
 
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       databases = new Database[] { db }; // Keep track of this one for cancelQuery
 
       try {
@@ -720,7 +720,7 @@ public class DatabaseLookupMeta extends BaseTransformMeta implements ITransformM
 
       try {
         db.connect();
-        String realTableName = variables.environmentSubstitute( tableName );
+        String realTableName = variables.resolve( tableName );
         String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, realTableName );
         fields = db.getTableFields( schemaTable );
 

@@ -263,7 +263,7 @@ public class CsvInput
 
         // Get the filename field index...
         //
-        String filenameField = environmentSubstitute( meta.getFilenameField() );
+        String filenameField = resolve( meta.getFilenameField() );
         index = getInputRowMeta().indexOfValue( filenameField );
         if ( index < 0 ) {
           throw new HopException( BaseMessages.getString(
@@ -440,9 +440,9 @@ public class CsvInput
   }
 
   String[] readFieldNamesFromFile( String fileName, CsvInputMeta csvInputMeta ) throws HopException {
-    String delimiter = environmentSubstitute( csvInputMeta.getDelimiter() );
-    String enclosure = environmentSubstitute( csvInputMeta.getEnclosure() );
-    String realEncoding = environmentSubstitute( csvInputMeta.getEncoding() );
+    String delimiter = resolve( csvInputMeta.getDelimiter() );
+    String enclosure = resolve( csvInputMeta.getEnclosure() );
+    String realEncoding = resolve( csvInputMeta.getEncoding() );
 
     try ( FileObject fileObject = HopVfs.getFileObject( fileName );
           BOMInputStream inputStream =
@@ -834,14 +834,14 @@ public class CsvInput
 
     if ( super.init() ) {
       // PDI-10242 see if a variable is used as encoding value
-      String realEncoding = environmentSubstitute( meta.getEncoding() );
-      data.preferredBufferSize = Integer.parseInt( environmentSubstitute( meta.getBufferSize() ) );
+      String realEncoding = resolve( meta.getEncoding() );
+      data.preferredBufferSize = Integer.parseInt( resolve( meta.getBufferSize() ) );
 
       // If the transform doesn't have any previous transforms, we just get the filename.
       // Otherwise, we'll grab the list of file names later...
       //
       if ( getPipelineMeta().findNrPrevTransforms( getTransformMeta() ) == 0 ) {
-        String filename = environmentSubstitute( meta.getFilename() );
+        String filename = resolve( meta.getFilename() );
 
         if ( Utils.isEmpty( filename ) ) {
           logError( BaseMessages.getString( PKG, "CsvInput.MissingFilename.Message" ) );
@@ -861,12 +861,12 @@ public class CsvInput
       // PDI-2489 - set the delimiter byte value to the code point of the
       // character as represented in the input file's encoding
       try {
-        data.delimiter = data.encodingType.getBytes( environmentSubstitute( meta.getDelimiter() ), realEncoding );
+        data.delimiter = data.encodingType.getBytes( resolve( meta.getDelimiter() ), realEncoding );
 
         if ( Utils.isEmpty( meta.getEnclosure() ) ) {
           data.enclosure = null;
         } else {
-          data.enclosure = data.encodingType.getBytes( environmentSubstitute( meta.getEnclosure() ), realEncoding );
+          data.enclosure = data.encodingType.getBytes( resolve( meta.getEnclosure() ), realEncoding );
         }
 
       } catch ( UnsupportedEncodingException e ) {

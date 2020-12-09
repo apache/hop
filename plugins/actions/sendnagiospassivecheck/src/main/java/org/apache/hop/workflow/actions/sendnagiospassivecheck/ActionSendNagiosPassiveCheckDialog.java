@@ -448,11 +448,11 @@ public class ActionSendNagiosPassiveCheckDialog extends ActionDialog implements 
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = variables.environmentSubstitute( wServerName.getText() );
+    String hostname = variables.resolve( wServerName.getText() );
     int nrPort =
       Const.toInt(
-    		  variables.environmentSubstitute( "" + wPort.getText() ), ActionSendNagiosPassiveCheck.DEFAULT_PORT );
-    int realConnectionTimeOut = Const.toInt( variables.environmentSubstitute( wConnectionTimeOut.getText() ), -1 );
+    		  variables.resolve( "" + wPort.getText() ), ActionSendNagiosPassiveCheck.DEFAULT_PORT );
+    int realConnectionTimeOut = Const.toInt( variables.resolve( wConnectionTimeOut.getText() ), -1 );
 
     try {
       SocketUtil.connectToHost( hostname, nrPort, realConnectionTimeOut );

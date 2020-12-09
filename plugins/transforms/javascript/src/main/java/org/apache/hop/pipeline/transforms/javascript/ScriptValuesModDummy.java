@@ -203,30 +203,30 @@ public class ScriptValuesModDummy implements ITransform {
   public void resumeRunning() {
   }
 
-  public void copyVariablesFrom( IVariables variables ) {
+  public void copyFrom( IVariables variables ) {
   }
 
-  public String environmentSubstitute( String aString ) {
+  public String resolve( String aString ) {
     return null;
   }
 
-  public String[] environmentSubstitute( String[] string ) {
+  public String[] resolve( String[] string ) {
     return null;
   }
 
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
+  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     return null;
   }
 
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
+  public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
     return false;
   }
 
-  public IVariables getParentVariableSpace() {
+  public IVariables getParentVariables() {
     return null;
   }
 
-  public void setParentVariableSpace( IVariables parent ) {
+  public void setParentVariables( IVariables parent ) {
   }
 
   public String getVariable( String variableName, String defaultValue ) {
@@ -237,20 +237,20 @@ public class ScriptValuesModDummy implements ITransform {
     return null;
   }
 
-  public void initializeVariablesFrom( IVariables parent ) {
+  public void initializeFrom( IVariables parent ) {
   }
 
-  public void injectVariables( Map<String, String> prop ) {
+  public void setVariables( Map<String, String> map ) {
   }
 
-  public String[] listVariables() {
+  public String[] getVariableNames() {
     return null;
   }
 
   public void setVariable( String variableName, String variableValue ) {
   }
 
-  public void shareVariablesWith( IVariables variables ) {
+  public void shareWith( IVariables variables ) {
   }
 
   public IRowMeta getInputRowMeta() {

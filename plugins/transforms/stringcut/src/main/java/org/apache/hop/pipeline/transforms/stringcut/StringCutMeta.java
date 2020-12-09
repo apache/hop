@@ -194,7 +194,7 @@ public class StringCutMeta extends BaseTransformMeta implements ITransformMeta<S
     for ( int i = 0; i < fieldOutStream.length; i++ ) {
       IValueMeta v;
       if ( !Utils.isEmpty( fieldOutStream[ i ] ) ) {
-        v = new ValueMetaString( variables.environmentSubstitute( fieldOutStream[ i ] ) );
+        v = new ValueMetaString( variables.resolve( fieldOutStream[ i ] ) );
         v.setLength( 100, -1 );
         v.setOrigin( name );
         inputRowMeta.addValueMeta( v );

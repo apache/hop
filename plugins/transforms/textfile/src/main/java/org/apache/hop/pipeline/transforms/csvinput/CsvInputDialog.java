@@ -799,7 +799,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
   private InputStreamReader getReader( final CsvInputMeta meta, final InputStream inputStream ) {
     InputStreamReader reader = null;
     try {
-      String filename = variables.environmentSubstitute( meta.getFilename() );
+      String filename = variables.resolve( meta.getFilename() );
 
       FileObject fileObject = HopVfs.getFileObject( filename );
       if ( !( fileObject instanceof LocalFile ) ) {
@@ -809,7 +809,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
         throw new HopException( BaseMessages.getString( PKG, "CsvInput.Log.OnlyLocalFilesAreSupported" ) );
       }
 
-      String realEncoding = variables.environmentSubstitute( meta.getEncoding() );
+      String realEncoding = variables.resolve( meta.getEncoding() );
       if ( Utils.isEmpty( realEncoding ) ) {
         reader = new InputStreamReader( inputStream );
       } else {
@@ -830,7 +830,7 @@ public class CsvInputDialog extends BaseTransformDialog implements ITransformDia
   private InputStream getInputStream( final CsvInputMeta meta ) {
     InputStream inputStream = null;
     try {
-      final String filename = variables.environmentSubstitute( meta.getFilename() );
+      final String filename = variables.resolve( meta.getFilename() );
 
       final FileObject fileObject = HopVfs.getFileObject( filename );
       if ( !( fileObject instanceof LocalFile ) ) {

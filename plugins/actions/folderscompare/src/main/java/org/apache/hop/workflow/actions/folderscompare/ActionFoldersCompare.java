@@ -174,15 +174,15 @@ public class ActionFoldersCompare extends ActionBase implements Cloneable, IActi
   }
 
   public String getRealWildcard() {
-    return environmentSubstitute( getWildcard() );
+    return resolve( getWildcard() );
   }
 
   public String getRealFilename1() {
-    return environmentSubstitute( getFilename1() );
+    return resolve( getFilename1() );
   }
 
   public String getRealFilename2() {
-    return environmentSubstitute( getFilename2() );
+    return resolve( getFilename2() );
   }
 
   /**

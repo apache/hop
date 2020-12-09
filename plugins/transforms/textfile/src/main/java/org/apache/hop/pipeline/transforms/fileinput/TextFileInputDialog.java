@@ -2529,9 +2529,9 @@ public class TextFileInputDialog extends BaseTransformDialog implements ITransfo
     StringBuilder lineStringBuilder = new StringBuilder( 256 );
     int fileFormatType = meta.getFileFormatTypeNr();
 
-    String delimiter = variables.environmentSubstitute( meta.getSeparator() );
-    String enclosure = variables.environmentSubstitute( meta.getEnclosure() );
-    String escapeCharacter = variables.environmentSubstitute( meta.getEscapeCharacter() );
+    String delimiter = variables.resolve( meta.getSeparator() );
+    String enclosure = variables.resolve( meta.getEnclosure() );
+    String escapeCharacter = variables.resolve( meta.getEscapeCharacter() );
 
     if ( textFileList.nrOfFiles() > 0 ) {
       int clearFields = meta.hasHeader() ? SWT.YES : SWT.NO;

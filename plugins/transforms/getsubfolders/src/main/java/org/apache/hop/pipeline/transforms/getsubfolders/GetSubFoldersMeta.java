@@ -333,13 +333,13 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMe
 
     // childrens
     IValueMeta childrens =
-      new ValueMetaInteger( variables.environmentSubstitute( "childrens" ) );
+      new ValueMetaInteger( variables.resolve( "childrens" ) );
     childrens.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
     childrens.setOrigin( name );
     row.addValueMeta( childrens );
 
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -487,7 +487,7 @@ public class GetSubFoldersMeta extends BaseTransformMeta implements ITransformMe
       //
       if ( !isFoldernameDynamic ) {
         for ( int i = 0; i < folderName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( folderName[ i ] ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( folderName[ i ] ) );
           folderName[ i ] = iResourceNaming.nameResource( fileObject, variables, true );
         }
       }

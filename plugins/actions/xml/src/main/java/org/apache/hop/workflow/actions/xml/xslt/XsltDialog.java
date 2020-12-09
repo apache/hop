@@ -230,14 +230,14 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wxmlFilename.setLayoutData(fdxmlFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( variables.environmentSubstitute( wxmlFilename.getText() ) ) );
+    wxmlFilename.addModifyListener( e -> wxmlFilename.setToolTipText( variables.resolve( wxmlFilename.getText() ) ) );
 
     wbxmlFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
         if ( wxmlFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wxmlFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wxmlFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XML );
         if ( dialog.open() != null ) {
@@ -272,14 +272,14 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wxslFilename.setLayoutData(fdxslFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wxslFilename.addModifyListener( e -> wxslFilename.setToolTipText( variables.environmentSubstitute( wxslFilename.getText() ) ) );
+    wxslFilename.addModifyListener( e -> wxslFilename.setToolTipText( variables.resolve( wxslFilename.getText() ) ) );
 
     wbxslFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xsl;*.XSL", "*.xslt;*.XSLT", "*" } );
         if ( wxslFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wxslFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wxslFilename.getText() ) );
         }
         dialog.setFilterNames( FILETYPES_XSL );
         if ( dialog.open() != null ) {
@@ -301,7 +301,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
       public void widgetSelected( SelectionEvent e ) {
         DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
         if ( wOutputFilename.getText() != null ) {
-          ddialog.setFilterPath( variables.environmentSubstitute( wOutputFilename.getText() ) );
+          ddialog.setFilterPath( variables.resolve( wOutputFilename.getText() ) );
         }
 
         // Calling open() will open and run the dialog.
@@ -338,7 +338,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
       public void widgetSelected( SelectionEvent e ) {
         DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
         if ( wOutputFilename.getText() != null ) {
-          ddialog.setFilterPath( variables.environmentSubstitute( wOutputFilename.getText() ) );
+          ddialog.setFilterPath( variables.resolve( wOutputFilename.getText() ) );
         }
 
         // Calling open() will open and run the dialog.
@@ -363,7 +363,7 @@ public class XsltDialog extends ActionDialog implements IActionDialog {
     wOutputFilename.setLayoutData(fdOutputFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wOutputFilename.addModifyListener( e -> wOutputFilename.setToolTipText( variables.environmentSubstitute( wOutputFilename.getText() ) ) );
+    wOutputFilename.addModifyListener( e -> wOutputFilename.setToolTipText( variables.resolve( wOutputFilename.getText() ) ) );
 
     FormData fdFiles = new FormData();
     fdFiles.left = new FormAttachment( 0, margin );

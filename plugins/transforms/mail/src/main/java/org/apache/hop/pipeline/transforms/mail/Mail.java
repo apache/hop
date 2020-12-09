@@ -337,13 +337,13 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
             }
           }
         }
-        data.zipFileLimit = Const.toLong( environmentSubstitute( meta.getZipLimitSize() ), 0 );
+        data.zipFileLimit = Const.toLong( resolve( meta.getZipLimitSize() ), 0 );
         if ( data.zipFileLimit > 0 ) {
           data.zipFileLimit = data.zipFileLimit * 1048576; // Mo
         }
 
         if ( !meta.isZipFilenameDynamic() ) {
-          data.ZipFilename = environmentSubstitute( meta.getZipFilename() );
+          data.ZipFilename = resolve( meta.getZipFilename() );
         }
 
         // Attached files
@@ -371,8 +371,8 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
           }
         } else {
           // static attached filenames
-          data.realSourceFileFoldername = environmentSubstitute( meta.getSourceFileFoldername() );
-          data.realSourceWildcard = environmentSubstitute( meta.getSourceWildcard() );
+          data.realSourceFileFoldername = resolve( meta.getSourceFileFoldername() );
+          data.realSourceWildcard = resolve( meta.getSourceWildcard() );
         }
       }
 
@@ -382,8 +382,8 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
         data.embeddedMimePart = new HashSet<>();
         try {
           for ( int i = 0; i < meta.getEmbeddedImages().length; i++ ) {
-            String imageFile = environmentSubstitute( meta.getEmbeddedImages()[ i ] );
-            String contentID = environmentSubstitute( meta.getContentIds()[ i ] );
+            String imageFile = resolve( meta.getEmbeddedImages()[ i ] );
+            String contentID = resolve( meta.getContentIds()[ i ] );
             image = HopVfs.getFileObject( imageFile );
 
             if ( image.exists() && image.getType() == FileType.FILE ) {

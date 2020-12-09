@@ -172,7 +172,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta implements  ITransfo
 
     // include row number
     if ( includeRowNumber ) {
-      v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -249,7 +249,7 @@ public class SplitFieldToRowsMeta extends BaseTransformMeta implements  ITransfo
       remarks.add( cr );
     }
     if ( includeRowNumber ) {
-      if ( Utils.isEmpty( variables.environmentSubstitute( rowNumberField ) ) ) {
+      if ( Utils.isEmpty( variables.resolve( rowNumberField ) ) ) {
         cr =
           new CheckResult( CheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
             PKG, "SplitFieldToRowsMeta.CheckResult.RowNumberFieldMissing" ), transformMeta );

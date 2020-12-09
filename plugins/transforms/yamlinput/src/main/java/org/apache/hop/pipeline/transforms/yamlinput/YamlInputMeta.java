@@ -601,7 +601,7 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransformMeta<Y
       if ( type == IValueMeta.TYPE_NONE ) {
         type = IValueMeta.TYPE_STRING;
       }
-      String valueName = variables.environmentSubstitute( field.getName() );
+      String valueName = variables.resolve( field.getName() );
       IValueMeta v;
       try {
         v = ValueMetaFactory.createValueMeta( valueName, type );
@@ -619,7 +619,7 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransformMeta<Y
     }
 
     if ( includeFilename ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( filenameField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( filenameField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
@@ -627,7 +627,7 @@ public class YamlInputMeta extends BaseTransformMeta implements ITransformMeta<Y
     }
 
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );

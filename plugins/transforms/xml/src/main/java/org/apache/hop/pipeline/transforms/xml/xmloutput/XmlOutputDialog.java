@@ -759,14 +759,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wFilename.addSelectionListener( lsDef );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
     wbFilename.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
         dialog.setFilterExtensions( new String[] { "*.xml", "*.txt", "*.csv", "*" } );
         if ( wFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wFilename.getText() ) );
         }
         dialog.setFilterNames( new String[] { BaseMessages.getString( PKG, "System.FileType.XMLFiles" ),
           BaseMessages.getString( PKG, "System.FileType.TextFiles" ),

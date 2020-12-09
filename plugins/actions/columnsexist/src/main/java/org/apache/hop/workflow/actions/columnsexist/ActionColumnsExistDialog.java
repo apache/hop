@@ -456,13 +456,13 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
       if (databaseMeta != null) {
         Database database = new Database(loggingObject, databaseMeta);
-        database.shareVariablesWith(variables);
+        database.shareWith(variables);
         try {
           database.connect();
           IRowMeta row =
               database.getTableFieldsMeta(
-                  variables.environmentSubstitute(wSchemaname.getText()),
-                  variables.environmentSubstitute(wTablename.getText()));
+                  variables.resolve(wSchemaname.getText()),
+                  variables.resolve(wTablename.getText()));
           if (row != null) {
             String[] available = row.getFieldNames();
 
@@ -500,7 +500,7 @@ public class ActionColumnsExistDialog extends ActionDialog implements IActionDia
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase(wConnection.getText());
     if (databaseMeta != null) {
       Database database = new Database(loggingObject, databaseMeta);
-      database.shareVariablesWith(variables);
+      database.shareWith(variables);
       try {
         database.connect();
         String[] schemas = database.getSchemas();

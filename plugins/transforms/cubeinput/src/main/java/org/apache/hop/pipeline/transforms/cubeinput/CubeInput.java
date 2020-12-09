@@ -56,7 +56,7 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> imple
 
     if ( first ) {
       first = false;
-      realRowLimit = Const.toInt( environmentSubstitute( meta.getRowLimit() ), 0 );
+      realRowLimit = Const.toInt( resolve( meta.getRowLimit() ), 0 );
     }
 
     try {
@@ -88,7 +88,7 @@ public class CubeInput extends BaseTransform<CubeInputMeta, CubeInputData> imple
 
     if ( super.init() ) {
       try {
-        String filename = environmentSubstitute( meta.getFilename() );
+        String filename = resolve( meta.getFilename() );
 
         // Add filename to result filenames ?
         if ( meta.isAddResultFile() ) {

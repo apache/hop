@@ -351,12 +351,12 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
     result.setNrErrors( 1 );
     result.setResult( false );
 
-    String servername = environmentSubstitute( serverName );
-    int nrPort = Const.toInt( environmentSubstitute( "" + port ), DEFAULT_PORT );
-    String Oid = environmentSubstitute( oid );
-    int timeOut = Const.toInt( environmentSubstitute( "" + timeout ), DEFAULT_TIME_OUT );
-    int retry = Const.toInt( environmentSubstitute( "" + nrretry ), 1 );
-    String messageString = environmentSubstitute( message );
+    String servername = resolve( serverName );
+    int nrPort = Const.toInt( resolve( "" + port ), DEFAULT_PORT );
+    String Oid = resolve( oid );
+    int timeOut = Const.toInt( resolve( "" + timeout ), DEFAULT_TIME_OUT );
+    int retry = Const.toInt( resolve( "" + nrretry ), 1 );
+    String messageString = resolve( message );
 
     Snmp snmp = null;
 
@@ -368,7 +368,7 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
       ResponseEvent response = null;
       if ( targettype.equals( targetTypeCode[ 0 ] ) ) {
         // Community target
-        String community = environmentSubstitute( comString );
+        String community = resolve( comString );
 
         CommunityTarget target = new CommunityTarget();
         PDUv1 pdu1 = new PDUv1();
@@ -397,9 +397,9 @@ public class ActionSNMPTrap extends ActionBase implements Cloneable, IAction {
 
       } else {
         // User target
-        String userName = environmentSubstitute( user );
-        String passPhrase = environmentSubstitute( passphrase );
-        String engineID = environmentSubstitute( engineid );
+        String userName = resolve( user );
+        String passPhrase = resolve( passphrase );
+        String engineID = resolve( engineid );
 
         UserTarget usertarget = new UserTarget();
         transMap.listen();

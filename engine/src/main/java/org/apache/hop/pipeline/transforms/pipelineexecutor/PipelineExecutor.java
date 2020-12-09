@@ -258,7 +258,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
   @VisibleForTesting
   IPipelineEngine<PipelineMeta> createInternalPipeline() throws HopException {
 
-    String runConfigurationName = environmentSubstitute( meta.getRunConfigurationName() );
+    String runConfigurationName = resolve( meta.getRunConfigurationName() );
     IPipelineEngine<PipelineMeta> executorPipeline = PipelineEngineFactory.createPipelineEngine( this, runConfigurationName, metadataProvider, getData().getExecutorPipelineMeta() );
     executorPipeline.setParentPipeline( getPipeline() );
     executorPipeline.setParent(this);
@@ -459,13 +459,13 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
           // How many rows do we group together for the pipeline?
           if ( !Utils.isEmpty( meta.getGroupSize() ) ) {
-            pipelineExecutorData.groupSize = Const.toInt( environmentSubstitute( meta.getGroupSize() ), -1 );
+            pipelineExecutorData.groupSize = Const.toInt( resolve( meta.getGroupSize() ), -1 );
           } else {
             pipelineExecutorData.groupSize = -1;
           }
           // Is there a grouping time set?
           if ( !Utils.isEmpty( meta.getGroupTime() ) ) {
-            pipelineExecutorData.groupTime = Const.toInt( environmentSubstitute( meta.getGroupTime() ), -1 );
+            pipelineExecutorData.groupTime = Const.toInt( resolve( meta.getGroupTime() ), -1 );
           } else {
             pipelineExecutorData.groupTime = -1;
           }
@@ -473,7 +473,7 @@ public class PipelineExecutor extends BaseTransform<PipelineExecutorMeta, Pipeli
 
           // Is there a grouping field set?
           if ( !Utils.isEmpty( meta.getGroupField() ) ) {
-            pipelineExecutorData.groupField = environmentSubstitute( meta.getGroupField() );
+            pipelineExecutorData.groupField = resolve( meta.getGroupField() );
           }
           // That's all for now...
           return true;

@@ -253,14 +253,14 @@ public class ActionUnZip extends ActionBase implements Cloneable, IAction {
     List<RowMetaAndData> rows = result.getRows();
     RowMetaAndData resultRow = null;
 
-    String realFilenameSource = environmentSubstitute( zipFilename );
-    String realWildcardSource = environmentSubstitute( wildcardSource );
-    String realWildcard = environmentSubstitute( wildcard );
-    String realWildcardExclude = environmentSubstitute( wildcardExclude );
-    String realTargetdirectory = environmentSubstitute( sourcedirectory );
-    String realMovetodirectory = environmentSubstitute( movetodirectory );
+    String realFilenameSource = resolve( zipFilename );
+    String realWildcardSource = resolve( wildcardSource );
+    String realWildcard = resolve( wildcard );
+    String realWildcardExclude = resolve( wildcardExclude );
+    String realTargetdirectory = resolve( sourcedirectory );
+    String realMovetodirectory = resolve( movetodirectory );
 
-    limitFiles = Const.toInt( environmentSubstitute( getLimit() ), 10 );
+    limitFiles = Const.toInt( resolve( getLimit() ), 10 );
     nrErrors = 0;
     nrSuccess = 0;
     successConditionBroken = false;

@@ -35,9 +35,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifactDirectXMLLexer;
 import org.apache.hop.pipeline.transforms.edi2xml.grammar.FastSimpleGenericEdifactDirectXMLParser;
@@ -73,8 +71,8 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> implements 
 
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
-      String realInputField = environmentSubstitute( meta.getInputField() );
-      String realOutputField = environmentSubstitute( meta.getOutputField() );
+      String realInputField = resolve( meta.getInputField() );
+      String realOutputField = resolve( meta.getOutputField() );
 
       data.inputFieldIndex = getInputRowMeta().indexOfValue( realInputField );
 
@@ -145,7 +143,7 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> implements 
 
       if ( getTransformMeta().isDoingErrorHandling() ) {
         putError(
-          getInputRowMeta(), r, 1L, errorMessage.toString(), environmentSubstitute( meta.getInputField() ),
+          getInputRowMeta(), r, 1L, errorMessage.toString(), resolve( meta.getInputField() ),
           "MALFORMED_EDI" );
       } else {
         logError( errorMessage.toString() );
@@ -169,7 +167,7 @@ public class Edi2Xml extends BaseTransform<Edi2XmlMeta, Edi2XmlData> implements 
 
       if ( getTransformMeta().isDoingErrorHandling() ) {
         putError(
-          getInputRowMeta(), r, 1L, errorMessage.toString(), environmentSubstitute( meta.getInputField() ),
+          getInputRowMeta(), r, 1L, errorMessage.toString(), resolve( meta.getInputField() ),
           "MALFORMED_EDI" );
       } else {
         logError( errorMessage.toString() );

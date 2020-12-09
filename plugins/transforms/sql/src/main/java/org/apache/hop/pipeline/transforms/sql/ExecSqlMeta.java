@@ -342,7 +342,7 @@ public class ExecSqlMeta extends BaseTransformMeta implements ITransformMeta<Exe
       remarks.add( cr );
 
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       databases = new Database[] { db }; // keep track of it for
       // cancelling purposes...
 

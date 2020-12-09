@@ -386,21 +386,21 @@ public class HttpPostMeta extends BaseTransformMeta implements ITransformMeta<Ht
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !Utils.isEmpty( fieldName ) ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( fieldName ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( fieldName ) );
       inputRowMeta.addValueMeta( v );
     }
 
     if ( !Utils.isEmpty( resultCodeFieldName ) ) {
       IValueMeta v =
-        new ValueMetaInteger( variables.environmentSubstitute( resultCodeFieldName ) );
+        new ValueMetaInteger( variables.resolve( resultCodeFieldName ) );
       inputRowMeta.addValueMeta( v );
     }
     if ( !Utils.isEmpty( responseTimeFieldName ) ) {
       IValueMeta v =
-        new ValueMetaInteger( variables.environmentSubstitute( responseTimeFieldName ) );
+        new ValueMetaInteger( variables.resolve( responseTimeFieldName ) );
       inputRowMeta.addValueMeta( v );
     }
-    String headerFieldName = variables.environmentSubstitute( responseHeaderFieldName );
+    String headerFieldName = variables.resolve( responseHeaderFieldName );
     if ( !Utils.isEmpty( headerFieldName ) ) {
       IValueMeta v =
         new ValueMetaString( headerFieldName );

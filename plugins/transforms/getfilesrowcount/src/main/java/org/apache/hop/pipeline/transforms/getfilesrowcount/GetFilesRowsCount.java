@@ -327,7 +327,7 @@ public class GetFilesRowsCount
           }
         } else {
 
-          data.separator = environmentSubstitute( meta.getRowSeparator() ).charAt( 0 );
+          data.separator = resolve( meta.getRowSeparator() ).charAt( 0 );
 
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "GetFilesRowsCount.Log.Separator.Title" ), BaseMessages

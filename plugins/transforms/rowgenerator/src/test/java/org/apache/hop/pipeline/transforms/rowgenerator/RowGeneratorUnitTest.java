@@ -24,21 +24,15 @@ package org.apache.hop.pipeline.transforms.rowgenerator;
 
 import org.apache.hop.core.HopEnvironment;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopTransformException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEngineEnvironment;
-import org.apache.hop.metadata.serializer.memory.MemoryMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.ITransformMeta;
-import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -82,13 +76,13 @@ public class RowGeneratorUnitTest {
     // add variable to pipeline variable variables
     Map<String, String> map = new HashMap<>();
     map.put( "ROW_LIMIT", "1440" );
-    pipeline.injectVariables( map );
+    pipeline.setVariables( map );
 
     when( pipeline.getLogChannelId() ).thenReturn( "ROW_LIMIT" );
 
     //prepare row generator, substitutes variable by value from pipeline variable variables
     rowGenerator = spy( new RowGenerator( transformMeta, meta, data, 0, pipelineMeta, pipeline ) );
-    rowGenerator.initializeVariablesFrom( pipeline );
+    rowGenerator.initializeFrom( pipeline );
     rowGenerator.init();
   }
 

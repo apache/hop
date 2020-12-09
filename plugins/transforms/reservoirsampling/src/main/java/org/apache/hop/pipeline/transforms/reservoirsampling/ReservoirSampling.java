@@ -28,10 +28,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.reservoirsampling.ReservoirSamplingData.PROC_MODE;
 
 import java.util.Arrays;
@@ -92,8 +90,8 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
 
       // Initialize the data object
       data.setOutputRowMeta( getInputRowMeta().clone() );
-      String sampleSize = environmentSubstitute( meta.getSampleSize() );
-      String seed = environmentSubstitute( meta.getSeed() );
+      String sampleSize = resolve( meta.getSampleSize() );
+      String seed = resolve( meta.getSeed() );
       data.initialize( Integer.valueOf( sampleSize ), Integer.valueOf( seed ) );
 
       // no real reason to determine the output fields here
@@ -115,7 +113,7 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
         int numRows = ( samples != null ) ? samples.size() : 0;
         logBasic( this.getTransformName()
           + " Actual/Sample: " + numRows + "/" + data.m_k + " Seed:"
-          + environmentSubstitute( meta.m_randomSeed ) );
+          + resolve( meta.m_randomSeed ) );
         if ( samples != null ) {
           for ( int i = 0; i < samples.size(); i++ ) {
             Object[] sample = samples.get( i );

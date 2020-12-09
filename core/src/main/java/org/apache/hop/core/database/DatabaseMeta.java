@@ -34,7 +34,6 @@ import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.ExecutorUtil;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.HopMetadata;
 import org.apache.hop.metadata.api.HopMetadataBase;
@@ -568,16 +567,16 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       return getManualUrl();
     }
 
-    String hostname = variables.environmentSubstitute(getHostname());
-    String port = variables.environmentSubstitute(getPort());
-    String databaseName = variables.environmentSubstitute(getDatabaseName());
+    String hostname = variables.resolve(getHostname());
+    String port = variables.resolve(getPort());
+    String databaseName = variables.resolve(getDatabaseName());
 
     String baseUrl =
         iDatabase.getURL(
-            variables.environmentSubstitute(hostname),
-            variables.environmentSubstitute(port),
-            variables.environmentSubstitute(databaseName));
-    String url = variables.environmentSubstitute(baseUrl);
+            variables.resolve(hostname),
+            variables.resolve(port),
+            variables.resolve(databaseName));
+    String url = variables.resolve(baseUrl);
 
     if (iDatabase.supportsOptionsInURL()) {
       url = appendExtraOptions(variables, url, getExtraOptions());
@@ -644,9 +643,9 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
         }
 
         urlBuilder
-            .append(variables.environmentSubstitute(parameter))
+            .append(variables.resolve(parameter))
             .append(valueSeparator)
-            .append(variables.environmentSubstitute(value));
+            .append(variables.resolve(value));
         first = false;
       }
     }
@@ -687,8 +686,8 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
     for (String option : map.keySet()) {
       String value = map.get(option);
       properties.put(
-          variables.environmentSubstitute(option),
-          variables.environmentSubstitute(Const.NVL(value, "")));
+          variables.resolve(option),
+          variables.resolve(Const.NVL(value, "")));
     }
 
     return properties;
@@ -980,7 +979,7 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
   }
 
   public String getDriverClass(IVariables variables) {
-    return variables.environmentSubstitute(iDatabase.getDriverClass());
+    return variables.resolve(iDatabase.getDriverClass());
   }
 
   public String stripCR(String sbsql) {
@@ -1112,16 +1111,16 @@ public class DatabaseMeta extends HopMetadataBase implements Cloneable, IHopMeta
       IVariables variables, String schemaName, String tableName) {
     if (Utils.isEmpty(schemaName)) {
       if (Utils.isEmpty(getPreferredSchemaName())) {
-        return quoteField(variables.environmentSubstitute(tableName)); // no need to look further
+        return quoteField(variables.resolve(tableName)); // no need to look further
       } else {
         return iDatabase.getSchemaTableCombination(
-            quoteField(variables.environmentSubstitute(getPreferredSchemaName())),
-            quoteField(variables.environmentSubstitute(tableName)));
+            quoteField(variables.resolve(getPreferredSchemaName())),
+            quoteField(variables.resolve(tableName)));
       }
     } else {
       return iDatabase.getSchemaTableCombination(
-          quoteField(variables.environmentSubstitute(schemaName)),
-          quoteField(variables.environmentSubstitute(tableName)));
+          quoteField(variables.resolve(schemaName)),
+          quoteField(variables.resolve(tableName)));
     }
   }
 

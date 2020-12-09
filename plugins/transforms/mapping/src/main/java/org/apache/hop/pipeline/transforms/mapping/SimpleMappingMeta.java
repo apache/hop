@@ -307,7 +307,7 @@ public class SimpleMappingMeta extends TransformWithMappingMeta<SimpleMapping, S
 
   @Override public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
     List<ResourceReference> references = new ArrayList<>( 5 );
-    String realFilename = variables.environmentSubstitute( filename );
+    String realFilename = variables.resolve( filename );
     ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 

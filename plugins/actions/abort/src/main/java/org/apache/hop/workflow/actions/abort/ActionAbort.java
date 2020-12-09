@@ -108,7 +108,7 @@ public class ActionAbort extends ActionBase implements Cloneable, IAction {
   @Override
   public Result execute( Result result, int nr ) {
     try {
-   	  String msg = environmentSubstitute( getMessageAbort() );
+   	  String msg = resolve( getMessageAbort() );
 
       if ( msg == null ) {
         msg = BaseMessages.getString( PKG, "ActionAbort.Meta.CheckResult.Label" );

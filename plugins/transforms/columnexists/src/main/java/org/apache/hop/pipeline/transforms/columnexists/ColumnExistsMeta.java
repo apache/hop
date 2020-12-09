@@ -209,7 +209,7 @@ public class ColumnExistsMeta extends BaseTransformMeta implements ITransformMet
     throws HopTransformException {
     // Output field (String)
     if ( !Utils.isEmpty( resultfieldname ) ) {
-      IValueMeta v = new ValueMetaBoolean( variables.environmentSubstitute( resultfieldname ) );
+      IValueMeta v = new ValueMetaBoolean( variables.resolve( resultfieldname ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }

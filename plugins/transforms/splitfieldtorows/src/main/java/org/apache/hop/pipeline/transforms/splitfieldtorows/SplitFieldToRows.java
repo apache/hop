@@ -55,7 +55,7 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
       data.outputRowMeta = getInputRowMeta().clone();
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
-      String realSplitFieldName = environmentSubstitute( meta.getSplitField() );
+      String realSplitFieldName = resolve( meta.getSplitField() );
       data.fieldnr = rowMeta.indexOfValue( realSplitFieldName );
 
       int numErrors = 0;
@@ -76,7 +76,7 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
       }
 
       if ( meta.includeRowNumber() ) {
-        String realRowNumberField = environmentSubstitute( meta.getRowNumberField() );
+        String realRowNumberField = resolve( meta.getRowNumberField() );
         if ( Utils.isEmpty( realRowNumberField ) ) {
           logError( BaseMessages.getString( PKG, "SplitFieldToRows.Exception.RownrFieldMissing" ) );
           numErrors++;
@@ -150,9 +150,9 @@ public class SplitFieldToRows extends BaseTransform<SplitFieldToRowsMeta, SplitF
       try {
         String delimiter = Const.nullToEmpty( meta.getDelimiter() );
         if ( meta.isDelimiterRegex() ) {
-          data.delimiterPattern = Pattern.compile( environmentSubstitute( delimiter ) );
+          data.delimiterPattern = Pattern.compile( resolve( delimiter ) );
         } else {
-          data.delimiterPattern = Pattern.compile( Pattern.quote( environmentSubstitute( delimiter ) ) );
+          data.delimiterPattern = Pattern.compile( Pattern.quote( resolve( delimiter ) ) );
         }
       } catch ( PatternSyntaxException pse ) {
         log.logError( pse.getMessage() );

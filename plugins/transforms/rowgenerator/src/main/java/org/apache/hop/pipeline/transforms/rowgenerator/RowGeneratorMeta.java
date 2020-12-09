@@ -294,7 +294,7 @@ public class RowGeneratorMeta extends BaseTransformMeta
               transformMeta);
       remarks.add(cr);
 
-      String strLimit = variables.environmentSubstitute(rowLimit);
+      String strLimit = variables.resolve(rowLimit);
       if (Const.toLong(strLimit, -1L) <= 0) {
         cr =
             new CheckResult(

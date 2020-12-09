@@ -190,10 +190,10 @@ public class ReservoirSamplingDialog extends BaseTransformDialog implements ITra
     } );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    mWSampleSize.addModifyListener(e -> mWSampleSize.setToolTipText( variables.environmentSubstitute( mWSampleSize.getText() ) ) );
+    mWSampleSize.addModifyListener(e -> mWSampleSize.setToolTipText( variables.resolve( mWSampleSize.getText() ) ) );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    mWSeed.addModifyListener(e -> mWSeed.setToolTipText( variables.environmentSubstitute( mWSeed.getText() ) ) );
+    mWSeed.addModifyListener(e -> mWSeed.setToolTipText( variables.resolve( mWSeed.getText() ) ) );
 
     // Set the shell size, based upon previous time...
     setSize();

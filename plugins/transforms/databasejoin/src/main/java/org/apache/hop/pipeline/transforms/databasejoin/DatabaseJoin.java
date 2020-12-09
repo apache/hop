@@ -202,7 +202,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
 
       try {
         data.db.connect( getPartitionId() );
@@ -213,7 +213,7 @@ public class DatabaseJoin extends BaseTransform<DatabaseJoinMeta, DatabaseJoinDa
 
         String sql = meta.getSql();
         if ( meta.isVariableReplace() ) {
-          sql = environmentSubstitute( sql );
+          sql = resolve( sql );
         }
         // Prepare the SQL statement
         data.pstmt = data.db.prepareSql( sql );

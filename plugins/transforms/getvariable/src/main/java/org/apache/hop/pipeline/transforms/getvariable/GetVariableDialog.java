@@ -329,13 +329,13 @@ public class GetVariableDialog extends BaseTransformDialog implements ITransform
     if ( pipelineMeta == null ) {
       return;
     }
-    String[] key = variables.listVariables();
+    String[] key = variables.getVariableNames();
     int size = key.length;
     String[] val = new String[ size ];
     wFields.removeAll();
 
     for ( int i = 0; i < size; i++ ) {
-      val[ i ] = variables.environmentSubstitute( key[ i ] );
+      val[ i ] = variables.resolve( key[ i ] );
       TableItem tableItem = new TableItem( wFields.table, 0 );
       tableItem.setText( 1, key[ i ] );
       tableItem.setText( 2, "${" + key[ i ] + "}" );

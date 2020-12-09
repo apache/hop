@@ -60,8 +60,8 @@ public class TextFileInputMetaTest {
     inputMeta = spy( inputMeta );
     variables = mock( IVariables.class );
 
-    doReturn( "<def>" ).when( variables ).environmentSubstitute( anyString() );
-    doReturn( FILE_NAME_VALID_PATH ).when( variables ).environmentSubstitute( FILE_NAME_VALID_PATH );
+    doReturn( "<def>" ).when( variables ).resolve( anyString() );
+    doReturn( FILE_NAME_VALID_PATH ).when( variables ).resolve( FILE_NAME_VALID_PATH );
     FileObject mockedFileObject = mock( FileObject.class );
     doReturn( mockedFileObject ).when( inputMeta ).getFileObject( anyString(), eq( variables ) );
   }

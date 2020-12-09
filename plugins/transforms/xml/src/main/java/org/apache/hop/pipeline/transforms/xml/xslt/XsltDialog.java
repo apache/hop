@@ -524,7 +524,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
 
     // Whenever something changes, set the tooltip to the expanded version
     // of the filename:
-    wXSLFilename.addModifyListener( e -> wXSLFilename.setToolTipText( variables.environmentSubstitute( wXSLFilename.getText() ) ) );
+    wXSLFilename.addModifyListener( e -> wXSLFilename.setToolTipText( variables.resolve( wXSLFilename.getText() ) ) );
 
     // Listen to the Browse... button
     wbbFilename.addSelectionListener( new SelectionAdapter() {
@@ -533,7 +533,7 @@ public class XsltDialog extends BaseTransformDialog implements ITransformDialog 
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xsl;*.XSL", "*.xslt;.*XSLT", "*" } );
         if ( wXSLFilename.getText() != null ) {
-          String fname = variables.environmentSubstitute( wXSLFilename.getText() );
+          String fname = variables.resolve( wXSLFilename.getText() );
           dialog.setFileName( fname );
         }
 

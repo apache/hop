@@ -1496,8 +1496,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
               IRowMeta r =
                 db.getTableFieldsMeta(
-                  variables.environmentSubstitute( schemaName ),
-                  variables.environmentSubstitute( tableName ) );
+                  variables.resolve( schemaName ),
+                  variables.resolve( tableName ) );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();
                 if ( null != fieldNames ) {
@@ -1538,7 +1538,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       try {
         db.connect();
         IRowMeta r = db.getTableFieldsMeta( wSchema.getText(), wTable.getText() );
@@ -1596,8 +1596,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
             db.connect();
             IRowMeta r =
               db.getTableFieldsMeta(
-                variables.environmentSubstitute( wSchema.getText() ),
-                variables.environmentSubstitute( wTable.getText() ) );
+                variables.resolve( wSchema.getText() ),
+                variables.resolve( wTable.getText() ) );
             if ( null != r ) {
               String[] fieldNames = r.getFieldNames();
               if ( null != fieldNames ) {

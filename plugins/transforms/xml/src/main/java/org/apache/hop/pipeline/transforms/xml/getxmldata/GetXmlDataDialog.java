@@ -1121,7 +1121,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
           // directory!
           DirectoryDialog dialog = new DirectoryDialog( shell, SWT.OPEN );
           if ( wFilename.getText() != null ) {
-            String fpath = variables.environmentSubstitute( wFilename.getText() );
+            String fpath = variables.resolve( wFilename.getText() );
             dialog.setFilterPath( fpath );
           }
 
@@ -1133,7 +1133,7 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
           FileDialog dialog = new FileDialog( shell, SWT.OPEN );
           dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
           if ( wFilename.getText() != null ) {
-            String fname = variables.environmentSubstitute( wFilename.getText() );
+            String fname = variables.resolve( wFilename.getText() );
             dialog.setFileName( fname );
           }
 
@@ -1987,12 +1987,12 @@ public class GetXmlDataDialog extends BaseTransformDialog implements ITransformD
 
     if ( dynamicXMLSource ) {
       prd =
-        new XmlInputFieldsImportProgressDialog( shell, meta, XMLSource, useURL, variables.environmentSubstitute( meta
+        new XmlInputFieldsImportProgressDialog( shell, meta, XMLSource, useURL, variables.resolve( meta
           .getLoopXPath() ) );
     } else {
       prd =
         new XmlInputFieldsImportProgressDialog( shell, meta, XMLSource, meta.getEncoding() == null ? "UTF-8" : meta
-          .getEncoding(), variables.environmentSubstitute( meta.getLoopXPath() ) );
+          .getEncoding(), variables.resolve( meta.getLoopXPath() ) );
     }
     if ( prd != null ) {
       fields = prd.open();

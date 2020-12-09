@@ -323,7 +323,7 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
 
   public void getFields( IRowMeta r, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
-    String realtablename = variables.environmentSubstitute( tablenamefieldname );
+    String realtablename = variables.resolve( tablenamefieldname );
     if ( !Utils.isEmpty( realtablename ) ) {
       IValueMeta v = new ValueMetaString( realtablename );
       v.setLength( 500 );
@@ -332,7 +332,7 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
       r.addValueMeta( v );
     }
 
-    String realObjectType = variables.environmentSubstitute( objecttypefieldname );
+    String realObjectType = variables.resolve( objecttypefieldname );
     if ( !Utils.isEmpty( realObjectType ) ) {
       IValueMeta v = new ValueMetaString( realObjectType );
       v.setLength( 500 );
@@ -340,14 +340,14 @@ public class GetTableNamesMeta extends BaseTransformMeta implements ITransformMe
       v.setOrigin( name );
       r.addValueMeta( v );
     }
-    String sysobject = variables.environmentSubstitute( issystemobjectfieldname );
+    String sysobject = variables.resolve( issystemobjectfieldname );
     if ( !Utils.isEmpty( sysobject ) ) {
       IValueMeta v = new ValueMetaBoolean( sysobject );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
-    String realSqlCreation = variables.environmentSubstitute( sqlcreationfieldname );
+    String realSqlCreation = variables.resolve( sqlcreationfieldname );
     if ( !Utils.isEmpty( realSqlCreation ) ) {
       IValueMeta v = new ValueMetaString( realSqlCreation );
       v.setLength( 500 );

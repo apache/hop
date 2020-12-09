@@ -120,7 +120,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
 
       m_batchInsertSize = 100;
 
-      String batchInsert = environmentSubstitute(meta.getBatchInsertSize());
+      String batchInsert = resolve(meta.getBatchInsertSize());
       if (!StringUtils.isEmpty(batchInsert)) {
         m_batchInsertSize = Integer.parseInt(batchInsert);
       }
@@ -434,10 +434,10 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
         m_writeRetryDelay = Const.toInt(meta.getWriteRetryDelay(), MongoDbOutputMeta.RETRY_DELAY);
       }
 
-      String hostname = environmentSubstitute(meta.getHostnames());
-      int port = Const.toInt(environmentSubstitute(meta.getPort()), 27017);
-      String db = environmentSubstitute(meta.getDbName());
-      String collection = environmentSubstitute(meta.getCollection());
+      String hostname = resolve(meta.getHostnames());
+      int port = Const.toInt( resolve(meta.getPort()), 27017);
+      String db = resolve(meta.getDbName());
+      String collection = resolve(meta.getCollection());
 
       try {
         if (StringUtils.isEmpty(db)) {
@@ -456,11 +456,11 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
                   ? BaseMessages.getString(
                       PKG,
                       "MongoDbOutput.Message.KerberosAuthentication",
-                      environmentSubstitute(meta.getAuthenticationUser()))
+                      resolve(meta.getAuthenticationUser()))
                   : BaseMessages.getString(
                       PKG,
                       "MongoDbOutput.Message.NormalAuthentication",
-                      environmentSubstitute(meta.getAuthenticationUser())));
+                      resolve(meta.getAuthenticationUser())));
 
           logBasic(authInfo);
         }
@@ -528,7 +528,7 @@ public class MongoDbOutput extends BaseTransform<MongoDbOutputMeta, MongoDbOutpu
     Set<String> expected = new HashSet<>( mongoFields.size(), 1 );
     Set<String> actual = new HashSet<>( rmi.getFieldNames().length, 1 );
     for (MongoDbOutputMeta.MongoField field : mongoFields) {
-      String mongoMatch = environmentSubstitute(field.m_incomingFieldName);
+      String mongoMatch = resolve(field.m_incomingFieldName);
       expected.add(mongoMatch);
     }
     for (int i = 0; i < rmi.size(); i++) {

@@ -587,7 +587,7 @@ public class ProjectsGuiPlugin {
       //
       IVariables hopGuiVariables = Variables.getADefaultVariableSpace();
       hopGui.setVariables(hopGuiVariables);
-      for (String variable : variables.listVariables()) {
+      for (String variable : variables.getVariableNames()) {
         String value = variables.getVariable(variable);
         if (!variable.startsWith(Const.INTERNAL_VARIABLE_PREFIX)) {
           hopGuiVariables.setVariable(variable, value);

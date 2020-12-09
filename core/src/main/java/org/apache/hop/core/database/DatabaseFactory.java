@@ -85,15 +85,15 @@ public class DatabaseFactory implements IDatabaseFactory {
     if ( databaseMeta.getIDatabase() instanceof GenericDatabaseMeta ) {
       
     	String customDriverClass = databaseMeta.getAttributes().get( GenericDatabaseMeta.ATRRIBUTE_CUSTOM_DRIVER_CLASS );
-  		append( report, "GenericDatabaseMeta.report.customUrl",  db.environmentSubstitute(  databaseMeta.getManualUrl() ) );
-  		append( report, "GenericDatabaseMeta.report.customDriverClass",  db.environmentSubstitute(  customDriverClass ) );
+  		append( report, "GenericDatabaseMeta.report.customUrl",  db.resolve(  databaseMeta.getManualUrl() ) );
+  		append( report, "GenericDatabaseMeta.report.customDriverClass",  db.resolve(  customDriverClass ) );
       
   		return report;
     }
         
-	append( report, "DatabaseMeta.report.Hostname",  db.environmentSubstitute(  databaseMeta.getHostname() ) );
-	append( report, "DatabaseMeta.report.Port",  db.environmentSubstitute( databaseMeta.getPort() ) );
-	append( report, "DatabaseMeta.report.DatabaseName",  db.environmentSubstitute( databaseMeta.getDatabaseName() ) );
+	append( report, "DatabaseMeta.report.Hostname",  db.resolve(  databaseMeta.getHostname() ) );
+	append( report, "DatabaseMeta.report.Port",  db.resolve( databaseMeta.getPort() ) );
+	append( report, "DatabaseMeta.report.DatabaseName",  db.resolve( databaseMeta.getDatabaseName() ) );
     
 	String url =  "";
 	try {

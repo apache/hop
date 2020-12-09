@@ -256,7 +256,7 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
       public void widgetSelected( SelectionEvent e ) {
         DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
         if ( wSourceFileFolder.getText() != null ) {
-          ddialog.setFilterPath( variables.environmentSubstitute( wSourceFileFolder.getText() ) );
+          ddialog.setFilterPath( variables.resolve( wSourceFileFolder.getText() ) );
         }
 
         // Calling open() will open and run the dialog.
@@ -301,14 +301,14 @@ public class XmlWellFormedDialog extends ActionDialog implements IActionDialog {
     wSourceFileFolder.setLayoutData(fdSourceFileFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( variables.environmentSubstitute( wSourceFileFolder.getText() ) ) );
+    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( variables.resolve( wSourceFileFolder.getText() ) ) );
 
     wbSourceFileFolder.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*.xml;*.XML", "*" } );
         if ( wSourceFileFolder.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wSourceFileFolder.getText() ) );
+          dialog.setFileName( variables.resolve( wSourceFileFolder.getText() ) );
         }
         dialog.setFilterNames( FILETYPES );
         if ( dialog.open() != null ) {

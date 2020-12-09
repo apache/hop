@@ -671,48 +671,48 @@ public class TextFileInputMeta
 
     if ( StringUtils.isNotBlank( additionalOutputFields.shortFilenameField ) ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.shortFilenameField ) );
+        new ValueMetaString( variables.resolve( additionalOutputFields.shortFilenameField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.extensionField ) ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.extensionField ) );
+        new ValueMetaString( variables.resolve( additionalOutputFields.extensionField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.pathField ) ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.pathField ) );
+        new ValueMetaString( variables.resolve( additionalOutputFields.pathField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.sizeField ) ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.sizeField ) );
+        new ValueMetaString( variables.resolve( additionalOutputFields.sizeField ) );
       v.setOrigin( name );
       v.setLength( 9 );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.hiddenField ) ) {
       IValueMeta v =
-        new ValueMetaBoolean( variables.environmentSubstitute( additionalOutputFields.hiddenField ) );
+        new ValueMetaBoolean( variables.resolve( additionalOutputFields.hiddenField ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
 
     if ( StringUtils.isNotBlank( additionalOutputFields.lastModificationField ) ) {
       IValueMeta v =
-        new ValueMetaDate( variables.environmentSubstitute( additionalOutputFields.lastModificationField ) );
+        new ValueMetaDate( variables.resolve( additionalOutputFields.lastModificationField ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( StringUtils.isNotBlank( additionalOutputFields.uriField ) ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( additionalOutputFields.uriField ) );
+        new ValueMetaString( variables.resolve( additionalOutputFields.uriField ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -1042,7 +1042,7 @@ public class TextFileInputMeta
             continue;
           }
 
-          FileObject fileObject = getFileObject( variables.environmentSubstitute( fileName ), variables );
+          FileObject fileObject = getFileObject( variables.resolve( fileName ), variables );
 
           inputFiles.fileName[ i ] =
             iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( inputFiles.fileMask[ i ] ) );
@@ -1136,7 +1136,7 @@ public class TextFileInputMeta
    * For testing
    */
   FileObject getFileObject( String vfsFileName, IVariables variables ) throws HopFileException {
-    return HopVfs.getFileObject( variables.environmentSubstitute( vfsFileName ) );
+    return HopVfs.getFileObject( variables.resolve( vfsFileName ) );
   }
 
   @Override

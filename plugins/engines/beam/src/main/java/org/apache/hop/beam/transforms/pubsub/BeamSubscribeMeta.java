@@ -95,8 +95,8 @@ public class BeamSubscribeMeta extends BaseTransformMeta implements ITransformMe
       throw new HopTransformException( "You need to specify the field name of the message to read" );
     }
 
-    String type = variables.environmentSubstitute( messageType );
-    String fieldName = variables.environmentSubstitute( messageField );
+    String type = variables.resolve( messageType );
+    String fieldName = variables.resolve( messageField );
 
     IValueMeta valueMeta;
     if ( BeamDefaults.PUBSUB_MESSAGE_TYPE_STRING.equalsIgnoreCase( type ) ) {

@@ -98,8 +98,8 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
     String[] parameters = copyPipelineMeta.listParameters();
     List<VariableValue> variableValues = unitTest.getVariableValues();
     for ( VariableValue variableValue : variableValues ) {
-      String key = pipeline.environmentSubstitute( variableValue.getKey() );
-      String value = pipeline.environmentSubstitute( variableValue.getValue() );
+      String key = pipeline.resolve( variableValue.getKey() );
+      String value = pipeline.resolve( variableValue.getValue() );
 
       if ( StringUtils.isEmpty( key ) ) {
         continue;
@@ -115,7 +115,7 @@ public class ChangePipelineMetaPriorToExecutionExtensionPoint implements IExtens
       }
     }
 
-    String testFilename = pipeline.environmentSubstitute( unitTest.getFilename() );
+    String testFilename = pipeline.resolve( unitTest.getFilename() );
     if ( !StringUtil.isEmpty( testFilename ) ) {
       try {
         OutputStream os = HopVfs.getOutputStream( testFilename, false );

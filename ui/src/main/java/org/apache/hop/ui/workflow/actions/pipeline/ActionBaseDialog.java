@@ -622,7 +622,7 @@ public abstract class ActionBaseDialog extends ActionDialog {
     int answer = box.open();
     if ((answer&SWT.YES)!=0) {
       try {
-        String baseName = HopVfs.getFileObject( variables.environmentSubstitute( filename ) ).getName().getBaseName();
+        String baseName = HopVfs.getFileObject( variables.resolve( filename ) ).getName().getBaseName();
         wName.setText(baseName);
       } catch(Exception e) {
         new ErrorDialog( shell, "Error", "Error extracting name from filename '"+ filename +"'", e );

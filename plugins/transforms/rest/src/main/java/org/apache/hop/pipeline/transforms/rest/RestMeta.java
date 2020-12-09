@@ -36,17 +36,14 @@ import org.apache.hop.core.row.value.ValueMetaInteger;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.*;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.w3c.dom.Node;
 
-import javax.xml.crypto.Data;
 import java.util.List;
 
 
@@ -425,24 +422,24 @@ public class RestMeta extends BaseTransformMeta implements ITransformMeta<Rest, 
   public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
                         IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !Utils.isEmpty( fieldName ) ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( fieldName ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( fieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
 
     if ( !Utils.isEmpty( resultCodeFieldName ) ) {
       IValueMeta v =
-        new ValueMetaInteger( variables.environmentSubstitute( resultCodeFieldName ) );
+        new ValueMetaInteger( variables.resolve( resultCodeFieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
     if ( !Utils.isEmpty( responseTimeFieldName ) ) {
       IValueMeta v =
-        new ValueMetaInteger( variables.environmentSubstitute( responseTimeFieldName ) );
+        new ValueMetaInteger( variables.resolve( responseTimeFieldName ) );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );
     }
-    String headerFieldName = variables.environmentSubstitute( responseHeaderFieldName );
+    String headerFieldName = variables.resolve( responseHeaderFieldName );
     if ( !Utils.isEmpty( headerFieldName ) ) {
       IValueMeta v =
         new ValueMetaString( headerFieldName );

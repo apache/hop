@@ -3401,7 +3401,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
               return false;
             }
 
-            filename = hopGui.getVariables().environmentSubstitute(filename);
+            filename = hopGui.getVariables().resolve(filename);
             saveAs(filename);
           } else {
             save();
@@ -3424,7 +3424,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
   public String buildTabName() throws HopException {
     String tabName = null;
-    String realFilename = variables.environmentSubstitute(workflowMeta.getFilename());
+    String realFilename = variables.resolve(workflowMeta.getFilename());
     if (StringUtils.isEmpty(realFilename)) {
       tabName = workflowMeta.getName();
     } else {
@@ -3698,7 +3698,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                     fileType.getFilterNames(),
                     true);
             if (filename != null) {
-              filename = hopGui.getVariables().environmentSubstitute(filename);
+              filename = hopGui.getVariables().resolve(filename);
               saveAs(filename);
             }
           }

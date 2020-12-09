@@ -82,7 +82,7 @@ public class SampleRowsMeta extends BaseTransformMeta implements ITransformMeta<
                          IVariables variables, IHopMetadataProvider metadataProvider ) throws HopTransformException {
     if ( !Utils.isEmpty( linenumfield ) ) {
 
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( linenumfield ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( linenumfield ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       inputRowMeta.addValueMeta( v );

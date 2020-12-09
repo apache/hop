@@ -31,7 +31,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
@@ -133,7 +132,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
   public void setVariablesMap( IVariables variablesMap ) {
     this.variablesMap = new HashMap<>();
 
-    for ( String name : variablesMap.listVariables() ) {
+    for ( String name : variablesMap.getVariableNames() ) {
       String value = variablesMap.getVariable( name );
       this.variablesMap.put( name, value );
     }
@@ -147,7 +146,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
   public void getUsedVariables( WorkflowMeta workflowMeta, IVariables variables ) {
     Properties properties = new Properties();
 
-    String[] keys = variables.listVariables();
+    String[] keys = variables.getVariableNames();
     for ( int i = 0; i < keys.length; i++ ) {
       if ( StringUtils.isNotEmpty( keys[ i ] ) ) {
         properties.put( keys[ i ], Const.NVL( variables.getVariable( keys[ i ] ), "" ) );

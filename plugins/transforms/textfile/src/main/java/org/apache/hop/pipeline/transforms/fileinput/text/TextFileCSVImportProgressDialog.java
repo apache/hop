@@ -307,9 +307,9 @@ public class TextFileCSVImportProgressDialog implements ICsvInputAwareImportProg
         valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_NORMAL );
       }
 
-      String delimiter = variables.environmentSubstitute( meta.content.separator );
-      String enclosure = variables.environmentSubstitute( meta.content.enclosure );
-      String escapeCharacter = variables.environmentSubstitute( meta.content.escapeCharacter );
+      String delimiter = variables.resolve( meta.content.separator );
+      String enclosure = variables.resolve( meta.content.enclosure );
+      String escapeCharacter = variables.resolve( meta.content.escapeCharacter );
       Object[] r =
         TextFileInputUtils.convertLineToRow( log, new TextFileLine( line, fileLineNumber, null ), strinfo, null, 0,
           outputRowMeta, convertRowMeta, FileInputList.createFilePathList( variables, meta.inputFiles.fileName,

@@ -806,7 +806,7 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
       }
 
       try {
-        IValueMeta v = ValueMetaFactory.createValueMeta( variables.environmentSubstitute( field.getName() ), type );
+        IValueMeta v = ValueMetaFactory.createValueMeta( variables.resolve( field.getName() ), type );
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
         v.setConversionMask( field.getFormat() );
@@ -821,14 +821,14 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
       }
     }
     if ( includeFilename ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( filenameField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( filenameField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -837,45 +837,45 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
 
     if ( getShortFileNameField() != null && getShortFileNameField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getShortFileNameField() ) );
+        new ValueMetaString( variables.resolve( getShortFileNameField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getExtensionField() != null && getExtensionField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getExtensionField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getExtensionField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getPathField() != null && getPathField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getPathField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getPathField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( isHiddenField() != null && isHiddenField().length() > 0 ) {
-      IValueMeta v = new ValueMetaBoolean( variables.environmentSubstitute( isHiddenField() ) );
+      IValueMeta v = new ValueMetaBoolean( variables.resolve( isHiddenField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getLastModificationDateField() != null && getLastModificationDateField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaDate( variables.environmentSubstitute( getLastModificationDateField() ) );
+        new ValueMetaDate( variables.resolve( getLastModificationDateField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getUriField() != null && getUriField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getUriField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getRootUriField() != null && getRootUriField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getRootUriField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getRootUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -958,7 +958,7 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
       //
       if ( !fileinfield ) {
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName[ i ] ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName[ i ] ) );
           fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }

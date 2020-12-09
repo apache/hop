@@ -151,7 +151,7 @@ public class SortRowsDialog extends BaseTransformDialog implements ITransformDia
     wSortDir.setLayoutData(fdSortDir);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( variables.environmentSubstitute( wSortDir.getText() ) ) );
+    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( variables.resolve( wSortDir.getText() ) ) );
 
     wbSortDir.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSortDir, variables ) );
 

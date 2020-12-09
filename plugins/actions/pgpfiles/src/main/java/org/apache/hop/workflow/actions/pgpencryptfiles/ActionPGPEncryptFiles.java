@@ -324,7 +324,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
       nrSuccess = 0;
       successConditionBroken = false;
       successConditionBrokenExit = false;
-      limitFiles = Const.toInt( environmentSubstitute( getNrErrorsLessThan() ), 10 );
+      limitFiles = Const.toInt( resolve( getNrErrorsLessThan() ), 10 );
 
       if ( includeSubFolders ) {
         if ( isDetailed() ) {
@@ -332,7 +332,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
       }
 
-      String MoveToFolder = environmentSubstitute( destinationFolder );
+      String MoveToFolder = resolve( destinationFolder );
       // Get source and destination files, also wildcard
       String[] vSourceFileFolder = sourceFileFolder;
       String[] vuserid = userId;
@@ -377,7 +377,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
         }
       }
 
-      gpg = new GPG( environmentSubstitute( gpgLocation ), log );
+      gpg = new GPG( resolve( gpgLocation ), log );
 
       if ( argFromPrevious ) {
         if ( isDetailed() ) {
@@ -405,7 +405,7 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
           // Get source and destination file names, also wildcard
           int vactionTypePrevious = getActionTypeByCode( resultRow.getString( 0, null ) );
           String vSourceFileFolderPrevious = resultRow.getString( 1, null );
-          String vWildcardPrevious = environmentSubstitute( resultRow.getString( 2, null ) );
+          String vWildcardPrevious = resolve( resultRow.getString( 2, null ) );
           String vuseridPrevious = resultRow.getString( 3, null );
           String vDestinationFileFolderPrevious = resultRow.getString( 4, null );
 
@@ -544,10 +544,10 @@ public class ActionPGPEncryptFiles extends ActionBase implements Cloneable, IAct
     FileObject Currentfile = null;
 
     // Get real source, destination file and wildcard
-    String realSourceFilefoldername = environmentSubstitute( sourcefilefoldername );
-    String realuserID = environmentSubstitute( userID );
-    String realDestinationFilefoldername = environmentSubstitute( destinationfilefoldername );
-    String realWildcard = environmentSubstitute( wildcard );
+    String realSourceFilefoldername = resolve( sourcefilefoldername );
+    String realuserID = resolve( userID );
+    String realDestinationFilefoldername = resolve( destinationfilefoldername );
+    String realWildcard = resolve( wildcard );
 
     try {
 

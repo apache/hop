@@ -40,7 +40,6 @@ import org.json.simple.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -120,7 +119,7 @@ public class JsonMetadataSerializer<T extends IHopMetadata> implements IHopMetad
    */
   private void inheritVariables( T t ) {
     if (t instanceof IVariables) {
-      ((IVariables)t).initializeVariablesFrom( variables );
+      ((IVariables)t).initializeFrom( variables );
     }
   }
 

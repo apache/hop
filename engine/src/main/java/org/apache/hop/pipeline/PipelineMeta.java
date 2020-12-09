@@ -3873,7 +3873,7 @@ public class PipelineMeta extends AbstractMeta
       String extension = "ktr";
       if (StringUtils.isNotEmpty(getFilename())) {
         FileObject fileObject =
-            HopVfs.getFileObject(variables.environmentSubstitute(getFilename()));
+            HopVfs.getFileObject(variables.resolve(getFilename()));
         originalPath = fileObject.getParent().getURL().toString();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getURL().toString();

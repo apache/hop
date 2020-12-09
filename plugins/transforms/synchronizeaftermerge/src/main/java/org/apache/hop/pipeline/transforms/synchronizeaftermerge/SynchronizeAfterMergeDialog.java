@@ -743,7 +743,7 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
 
     // refresh data
     input.setDatabaseMeta( pipelineMeta.findDatabase( wConnection.getText() ) );
-    input.setTableName( variables.environmentSubstitute( wTable.getText() ) );
+    input.setTableName( variables.resolve( wTable.getText() ) );
     ITransformMeta transformMetaInterface = transformMeta.getTransform();
     try {
       targetFields = transformMetaInterface.getRequiredFields( variables );
@@ -856,14 +856,14 @@ public class SynchronizeAfterMergeDialog extends BaseTransformDialog implements 
           DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
           if ( ci != null ) {
             Database db = new Database( loggingObject, ci );
-            db.shareVariablesWith( variables );
+            db.shareWith( variables );
             try {
               db.connect();
 
               IRowMeta r =
                 db.getTableFieldsMeta(
-                  variables.environmentSubstitute( schemaName ),
-                  variables.environmentSubstitute( tableName ) );
+                  variables.resolve( schemaName ),
+                  variables.resolve( tableName ) );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();
                 if ( null != fieldNames ) {

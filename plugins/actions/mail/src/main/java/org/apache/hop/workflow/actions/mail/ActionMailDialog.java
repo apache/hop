@@ -1008,7 +1008,7 @@ public class ActionMailDialog extends ActionDialog implements IActionDialog {
     wImageFilename.setLayoutData( fdImageFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( variables.environmentSubstitute( wImageFilename.getText() ) ) );
+    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( variables.resolve( wImageFilename.getText() ) ) );
 
     wbImageFilename.addListener( SWT.Selection, e-> {
         String filename = BaseDialog.presentFileDialog( shell, wImageFilename, variables,

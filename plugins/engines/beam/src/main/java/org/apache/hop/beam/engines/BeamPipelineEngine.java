@@ -188,7 +188,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     this.pipelineMeta = pipelineMeta;
     this.loggingObject = new LoggingObject( this );
     setParent( parent );
-    initializeVariablesFrom( variables );
+    initializeFrom( variables );
     copyParametersFromDefinitions( pipelineMeta );
     activateParameters(this);
   }

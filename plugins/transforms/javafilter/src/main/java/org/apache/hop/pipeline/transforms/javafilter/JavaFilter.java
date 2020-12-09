@@ -31,7 +31,6 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.apache.hop.pipeline.transform.errorhandling.IStream;
@@ -128,7 +127,7 @@ public class JavaFilter extends BaseTransform<JavaFilterMeta, JavaFilterData> im
       // Initialize evaluators etc. Only do it once.
       //
       if ( data.expressionEvaluator == null ) {
-        String realCondition = environmentSubstitute( meta.getCondition() );
+        String realCondition = resolve( meta.getCondition() );
         data.argumentIndexes = new ArrayList<>();
 
         List<String> parameterNames = new ArrayList<>();

@@ -465,7 +465,7 @@ public class ColumnExistsDialog extends BaseTransformDialog implements ITransfor
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
       Database database = new Database( loggingObject, databaseMeta );
-      database.shareVariablesWith( variables );
+      database.shareWith( variables );
       try {
         database.connect();
         String[] schemas = database.getSchemas();

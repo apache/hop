@@ -499,7 +499,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
           @Override
           public void modifyText(ModifyEvent e) {
             input.setChanged();
-            wDbName.setToolTipText(variables.environmentSubstitute(wDbName.getText()));
+            wDbName.setToolTipText(variables.resolve(wDbName.getText()));
           }
         });
 
@@ -559,7 +559,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
           public void modifyText(ModifyEvent e) {
             input.setChanged();
             wReadPreference.setToolTipText(
-                variables.environmentSubstitute(wReadPreference.getText()));
+                variables.resolve(wReadPreference.getText()));
           }
         });
 
@@ -1178,7 +1178,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
 
   private boolean checkForUnresolved(MongoDbInputMeta meta, String title) {
 
-    String query = variables.environmentSubstitute(meta.getJsonQuery());
+    String query = variables.resolve(meta.getJsonQuery());
 
     boolean notOk = (query.contains("${") || query.contains("?{"));
 
@@ -1345,7 +1345,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     String current = wDbName.getText();
     wDbName.removeAll();
 
-    String hostname = variables.environmentSubstitute(wHostname.getText());
+    String hostname = variables.resolve(wHostname.getText());
 
     if (!StringUtils.isEmpty(hostname)) {
 
@@ -1391,8 +1391,8 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void setupCollectionNamesForDB() {
-    final String hostname = variables.environmentSubstitute(wHostname.getText());
-    final String dB = variables.environmentSubstitute(wDbName.getText());
+    final String hostname = variables.resolve(wHostname.getText());
+    final String dB = variables.resolve(wDbName.getText());
 
     String current = wCollection.getText();
     wCollection.removeAll();
@@ -1451,7 +1451,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
   }
 
   private void setupTagSetComboValues() {
-    String hostname = variables.environmentSubstitute(wHostname.getText());
+    String hostname = variables.resolve(wHostname.getText());
 
     if (!StringUtils.isEmpty(hostname)) {
       MongoDbInputMeta meta = new MongoDbInputMeta();
@@ -1577,7 +1577,7 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       }
 
       if (tagSets.size() > 0) {
-        String hostname = variables.environmentSubstitute(wHostname.getText());
+        String hostname = variables.resolve(wHostname.getText());
         try {
           if (!StringUtils.isEmpty(hostname)) {
             MongoDbInputMeta meta = new MongoDbInputMeta();
@@ -1703,10 +1703,10 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
       throws HopException {
     MongoProperties.Builder propertiesBuilder =
         MongoWrapperUtil.createPropertiesBuilder(meta, vars);
-    String db = vars.environmentSubstitute(meta.getDbName());
-    String collection = vars.environmentSubstitute(meta.getCollection());
-    String query = vars.environmentSubstitute(meta.getJsonQuery());
-    String fields = vars.environmentSubstitute(meta.getFieldsName());
+    String db = vars.resolve(meta.getDbName());
+    String collection = vars.resolve(meta.getCollection());
+    String query = vars.resolve(meta.getJsonQuery());
+    String fields = vars.resolve(meta.getFieldsName());
     int numDocsToSample = docsToSample;
     if (numDocsToSample < 1) {
       numDocsToSample = 100; // default
@@ -1760,10 +1760,10 @@ public class MongoDbInputDialog extends BaseTransformDialog implements ITransfor
     MongoProperties.Builder propertiesBuilder =
         MongoWrapperUtil.createPropertiesBuilder(meta, vars);
     try {
-      String db = vars.environmentSubstitute(meta.getDbName());
-      String collection = vars.environmentSubstitute(meta.getCollection());
-      String query = vars.environmentSubstitute(meta.getJsonQuery());
-      String fields = vars.environmentSubstitute(meta.getFieldsName());
+      String db = vars.resolve(meta.getDbName());
+      String collection = vars.resolve(meta.getCollection());
+      String query = vars.resolve(meta.getJsonQuery());
+      String fields = vars.resolve(meta.getFieldsName());
       int numDocsToSample = docsToSample;
       if (numDocsToSample < 1) {
         numDocsToSample = 100; // default

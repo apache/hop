@@ -38,10 +38,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -673,7 +671,7 @@ public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMe
           }
         }
       } else {
-        data.realTableName = environmentSubstitute( meta.getTableName() );
+        data.realTableName = resolve( meta.getTableName() );
         if ( Utils.isEmpty( data.realTableName ) ) {
           throw new HopTransformException( "The table name is not specified (or the input field is empty)" );
         }
@@ -693,9 +691,9 @@ public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMe
         }
       }
 
-      data.insertValue = environmentSubstitute( meta.getOrderInsert() );
-      data.updateValue = environmentSubstitute( meta.getOrderUpdate() );
-      data.deleteValue = environmentSubstitute( meta.getOrderDelete() );
+      data.insertValue = resolve( meta.getOrderInsert() );
+      data.updateValue = resolve( meta.getOrderUpdate() );
+      data.deleteValue = resolve( meta.getOrderDelete() );
 
       data.insertRowMeta = new RowMeta();
 
@@ -839,7 +837,7 @@ public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMe
     if ( super.init() ) {
       try {
         meta.normalizeAllocationFields();
-        data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
+        data.realSchemaName = resolve( meta.getSchemaName() );
         if ( meta.istablenameInField() ) {
           if ( Utils.isEmpty( meta.gettablenameField() ) ) {
             logError( BaseMessages.getString( PKG, "SynchronizeAfterMerge.Log.Error.TableFieldnameEmpty" ) );
@@ -855,7 +853,7 @@ public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMe
           data.releaseSavepoint = false;
         }
 
-        data.commitSize = Integer.parseInt( environmentSubstitute( meta.getCommitSize() ) );
+        data.commitSize = Integer.parseInt( resolve( meta.getCommitSize() ) );
         data.batchMode = data.commitSize > 0 && meta.useBatchUpdate();
 
         // Batch updates are not supported on PostgreSQL (and look-a-likes) together with error handling (PDI-366)
@@ -877,7 +875,7 @@ public class SynchronizeAfterMerge extends BaseTransform<SynchronizeAfterMergeMe
           return false;
         }
         data.db = new Database( this, meta.getDatabaseMeta() );
-        data.db.shareVariablesWith( this );
+        data.db.shareWith( this );
         data.db.connect( getPartitionId() );
         data.db.setCommit( data.commitSize );
 

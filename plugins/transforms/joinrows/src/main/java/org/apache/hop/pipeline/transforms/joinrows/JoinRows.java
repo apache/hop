@@ -32,12 +32,9 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 
-import javax.xml.crypto.Data;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -100,7 +97,7 @@ public class JoinRows extends BaseTransform<JoinRowsMeta, JoinRowsData> implemen
       data.restart = new boolean[ rowSetsSize ];
 
       for ( int i = 1; i < rowSetsSize; i++ ) {
-        String directoryName = environmentSubstitute( meta.getDirectory() );
+        String directoryName = resolve( meta.getDirectory() );
         File file = null;
         if ( directoryName != null ) {
           file = new File( directoryName );

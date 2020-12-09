@@ -86,10 +86,10 @@ public class BeamBigQueryInputTransformHandler extends BeamBaseTransformHandler
         new BeamBQInputTransform(
             transformMeta.getName(),
             transformMeta.getName(),
-            variables.environmentSubstitute(beamInputMeta.getProjectId()),
-            variables.environmentSubstitute(beamInputMeta.getDatasetId()),
-            variables.environmentSubstitute(beamInputMeta.getTableId()),
-            variables.environmentSubstitute(beamInputMeta.getQuery()),
+            variables.resolve(beamInputMeta.getProjectId()),
+            variables.resolve(beamInputMeta.getDatasetId()),
+            variables.resolve(beamInputMeta.getTableId()),
+            variables.resolve(beamInputMeta.getQuery()),
             JsonRowMeta.toJson(outputRowMeta),
             transformPluginClasses,
             xpPluginClasses);

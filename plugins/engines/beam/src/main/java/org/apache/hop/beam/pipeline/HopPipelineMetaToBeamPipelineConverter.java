@@ -211,8 +211,8 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     PipelineOptions pipelineOptions = pipelineRunConfiguration.getPipelineOptions();
     // The generic options
     //
-    pipelineOptions.setUserAgent( pipelineRunConfiguration.environmentSubstitute( pipelineRunConfiguration.getUserAgent() ) );
-    pipelineOptions.setTempLocation( pipelineRunConfiguration.environmentSubstitute( pipelineRunConfiguration.getTempLocation() ) );
+    pipelineOptions.setUserAgent( pipelineRunConfiguration.resolve( pipelineRunConfiguration.getUserAgent() ) );
+    pipelineOptions.setTempLocation( pipelineRunConfiguration.resolve( pipelineRunConfiguration.getTempLocation() ) );
     pipelineOptions.setJobName( pipelineMeta.getName() );
 
     pipelineOptions.setRunner( runnerClass );

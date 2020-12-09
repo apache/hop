@@ -44,7 +44,6 @@ import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.TransformIOMeta;
 import org.apache.hop.pipeline.transform.ITransformIOMeta;
 import org.apache.hop.pipeline.transform.ITransform;
@@ -437,7 +436,7 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH,SSH
       remarks.add( cr );
     }
     if ( isusePrivateKey() ) {
-      String keyfilename = variables.environmentSubstitute( getKeyFileName() );
+      String keyfilename = variables.resolve( getKeyFileName() );
       if ( Utils.isEmpty( keyfilename ) ) {
         errorMessage = BaseMessages.getString( PKG, "SSHMeta.CheckResult.PrivateKeyFileNameMissing" );
         cr = new CheckResult( CheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
@@ -486,11 +485,11 @@ public class SSHMeta extends BaseTransformMeta implements ITransformMeta<SSH,SSH
       row.clear();
     }
     IValueMeta v =
-      new ValueMetaString( variables.environmentSubstitute( getStdOutFieldName() ) );
+      new ValueMetaString( variables.resolve( getStdOutFieldName() ) );
     v.setOrigin( name );
     row.addValueMeta( v );
 
-    String stderrfield = variables.environmentSubstitute( getStdErrFieldName() );
+    String stderrfield = variables.resolve( getStdErrFieldName() );
     if ( !Utils.isEmpty( stderrfield ) ) {
       v = new ValueMetaBoolean( stderrfield );
       v.setOrigin( name );

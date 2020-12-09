@@ -1415,7 +1415,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
       public void widgetSelected( SelectionEvent e ) {
         DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
         if ( wSourceFileFoldername.getText() != null ) {
-          ddialog.setFilterPath( variables.environmentSubstitute( wSourceFileFoldername.getText() ) );
+          ddialog.setFilterPath( variables.resolve( wSourceFileFoldername.getText() ) );
         }
 
         // Calling open() will open and run the dialog.
@@ -1449,14 +1449,14 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wSourceFileFoldername.setLayoutData(fdSourceFileFoldername);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFoldername.addModifyListener( e -> wSourceFileFoldername.setToolTipText( variables.environmentSubstitute( wSourceFileFoldername.getText() ) ) );
+    wSourceFileFoldername.addModifyListener( e -> wSourceFileFoldername.setToolTipText( variables.resolve( wSourceFileFoldername.getText() ) ) );
 
     wbFileFoldername.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*" } );
         if ( wSourceFileFoldername.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wSourceFileFoldername.getText() ) );
+          dialog.setFileName( variables.resolve( wSourceFileFoldername.getText() ) );
         }
         dialog.setFilterNames( FILETYPES );
         if ( dialog.open() != null ) {
@@ -1508,7 +1508,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.environmentSubstitute( wWildcard.getText() ) ) );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.resolve( wWildcard.getText() ) ) );
     FormData fdOriginFiles = new FormData();
     fdOriginFiles.left = new FormAttachment( 0, margin );
     fdOriginFiles.top = new FormAttachment(wAttachedContent, 2 * margin );
@@ -1712,14 +1712,14 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wImageFilename.setLayoutData( fdImageFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( variables.environmentSubstitute( wImageFilename.getText() ) ) );
+    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( variables.resolve( wImageFilename.getText() ) ) );
 
     wbImageFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*" } );
         if ( wImageFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wImageFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wImageFilename.getText() ) );
         }
         dialog.setFilterNames( IMAGES_FILE_TYPES );
         if ( dialog.open() != null ) {

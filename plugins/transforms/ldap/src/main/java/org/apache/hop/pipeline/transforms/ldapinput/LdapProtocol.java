@@ -68,9 +68,9 @@ public class LdapProtocol {
   public LdapProtocol(
       ILogChannel log, IVariables variables, ILdapMeta meta, Collection<String> binaryAttributes) {
     this.log = log;
-    hostname = variables.environmentSubstitute(meta.getHost());
+    hostname = variables.resolve(meta.getHost());
     port =
-        Const.toInt(variables.environmentSubstitute(meta.getPort()), LdapConnection.DEFAULT_PORT);
+        Const.toInt(variables.resolve(meta.getPort()), LdapConnection.DEFAULT_PORT);
     derefAliases = meta.getDerefAliases();
     referral = meta.getReferrals();
 

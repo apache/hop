@@ -77,13 +77,13 @@ public class LocalPipelineEngine extends Pipeline implements IPipelineEngine<Pip
 
     LocalPipelineRunConfiguration config = (LocalPipelineRunConfiguration) pipelineRunConfiguration.getEngineRunConfiguration();
 
-    int sizeRowsSet = Const.toInt( environmentSubstitute( config.getRowSetSize() ), Const.ROWS_IN_ROWSET );
+    int sizeRowsSet = Const.toInt( resolve( config.getRowSetSize() ), Const.ROWS_IN_ROWSET );
     setRowSetSize( sizeRowsSet );
     setSafeModeEnabled( config.isSafeModeEnabled() );
     setSortingTransformsTopologically( config.isSortingTransformsTopologically() );
     setGatheringMetrics( config.isGatheringMetrics() );
     setFeedbackShown( config.isFeedbackShown() );
-    setFeedbackSize( Const.toInt( environmentSubstitute( config.getFeedbackSize() ), Const.ROWS_UPDATE ) );
+    setFeedbackSize( Const.toInt( resolve( config.getFeedbackSize() ), Const.ROWS_UPDATE ) );
 
     super.prepareExecution();
   }

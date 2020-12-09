@@ -31,7 +31,6 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.IExtensionData;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.ResultFile;
-import org.apache.hop.core.RowMetaAndData;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopRowException;
 import org.apache.hop.core.exception.HopTransformException;
@@ -44,9 +43,6 @@ import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowDataUtil;
-import org.apache.hop.core.row.RowMeta;
-import org.apache.hop.core.row.value.ValueMetaDate;
-import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
@@ -428,7 +424,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       // We need a full copy of the variables to take into account internal variables
       // Like Internal.Transform.CopyNr, Internal.Transform.Partition.ID, ...
       //
-      initializeVariablesFrom(pipeline);
+      initializeFrom(pipeline);
     }
 
     log = HopLogStore.getLogChannelFactory().create( this, pipeline );
@@ -539,7 +535,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       boolean envSubFailed = false;
       try {
         maxErrors =
-          ( !Utils.isEmpty( transformErrorMeta.getMaxErrors() ) ? Long.valueOf( pipeline.environmentSubstitute( transformErrorMeta.getMaxErrors() ) ) : -1L );
+          ( !Utils.isEmpty( transformErrorMeta.getMaxErrors() ) ? Long.valueOf( pipeline.resolve( transformErrorMeta.getMaxErrors() ) ) : -1L );
       } catch ( NumberFormatException nfe ) {
         log.logError( BaseMessages.getString( PKG, "BaseTransform.Log.NumberFormatException", BaseMessages.getString(
           PKG, "BaseTransform.Property.MaxErrors.Name" ), this.transformName, ( transformErrorMeta.getMaxErrors() != null
@@ -550,7 +546,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       try {
         minRowsForMaxErrorPercent =
           ( !Utils.isEmpty( transformErrorMeta.getMinPercentRows() ) ? Long.parseLong( pipeline
-            .environmentSubstitute( transformErrorMeta.getMinPercentRows() ) ) : -1L );
+            .resolve( transformErrorMeta.getMinPercentRows() ) ) : -1L );
       } catch ( NumberFormatException nfe ) {
         log.logError( BaseMessages.getString( PKG, "BaseTransform.Log.NumberFormatException", BaseMessages.getString(
           PKG, "BaseTransform.Property.MinRowsForErrorsPercentCalc.Name" ), this.transformName, ( transformErrorMeta
@@ -561,7 +557,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
       try {
         maxPercentErrors =
           ( !Utils.isEmpty( transformErrorMeta.getMaxPercentErrors() ) ? Integer.valueOf( pipeline
-            .environmentSubstitute( transformErrorMeta.getMaxPercentErrors() ) ) : -1 );
+            .resolve( transformErrorMeta.getMaxPercentErrors() ) ) : -1 );
       } catch ( NumberFormatException nfe ) {
         log.logError( BaseMessages.getString(
           PKG, "BaseTransform.Log.NumberFormatException", BaseMessages.getString(
@@ -3139,8 +3135,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.core.variables.IVariables#copyVariablesFrom(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void copyVariablesFrom( IVariables variables ) {
-    this.variables.copyVariablesFrom( variables );
+  public void copyFrom( IVariables variables ) {
+    this.variables.copyFrom( variables );
   }
 
   /*
@@ -3149,8 +3145,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String)
    */
   @Override
-  public String environmentSubstitute( String aString ) {
-    return variables.environmentSubstitute( aString );
+  public String resolve( String aString ) {
+    return variables.resolve( aString );
   }
 
   /*
@@ -3159,14 +3155,14 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String[])
    */
   @Override
-  public String[] environmentSubstitute( String[] aString ) {
-    return variables.environmentSubstitute( aString );
+  public String[] resolve( String[] aString ) {
+    return variables.resolve( aString );
   }
 
   @Override
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData )
+  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData )
     throws HopValueException {
-    return variables.fieldSubstitute( aString, rowMeta, rowData );
+    return variables.resolve( aString, rowMeta, rowData );
   }
 
   /*
@@ -3175,8 +3171,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.core.variables.IVariables#getParentVariableSpace()
    */
   @Override
-  public IVariables getParentVariableSpace() {
-    return variables.getParentVariableSpace();
+  public IVariables getParentVariables() {
+    return variables.getParentVariables();
   }
 
   /*
@@ -3186,8 +3182,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * org.apache.hop.core.variables.IVariables#setParentVariableSpace(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void setParentVariableSpace( IVariables parent ) {
-    variables.setParentVariableSpace( parent );
+  public void setParentVariables( IVariables parent ) {
+    variables.setParentVariables( parent );
   }
 
   /*
@@ -3216,9 +3212,9 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.core.variables.IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
    */
   @Override
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
+  public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
     if ( !Utils.isEmpty( variableName ) ) {
-      String value = environmentSubstitute( variableName );
+      String value = resolve( variableName );
       if ( !Utils.isEmpty( value ) ) {
         return ValueMetaString.convertStringToBoolean( value );
       }
@@ -3230,11 +3226,11 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * (non-Javadoc)
    *
    * @see
-   * org.apache.hop.core.variables.IVariables#initializeVariablesFrom(org.apache.hop.core.variables.IVariables)
+   * org.apache.hop.core.variables.IVariables#initializeFrom(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void initializeVariablesFrom( IVariables parent ) {
-    variables.initializeVariablesFrom( parent );
+  public void initializeFrom( IVariables parent ) {
+    variables.initializeFrom( parent );
   }
 
   /*
@@ -3243,8 +3239,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.core.variables.IVariables#listVariables()
    */
   @Override
-  public String[] listVariables() {
-    return variables.listVariables();
+  public String[] getVariableNames() {
+    return variables.getVariableNames();
   }
 
   /*
@@ -3263,7 +3259,7 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.core.variables.IVariables#shareVariablesWith(org.apache.hop.core.variables.IVariables)
    */
   @Override
-  public void shareVariablesWith( IVariables variables ) {
+  public void shareWith( IVariables variables ) {
     this.variables = variables;
   }
 
@@ -3273,8 +3269,8 @@ public class BaseTransform<Meta extends ITransformMeta, Data extends ITransformD
    * @see org.apache.hop.core.variables.IVariables#injectVariables(java.util.Map)
    */
   @Override
-  public void injectVariables( Map<String, String> prop ) {
-    variables.injectVariables( prop );
+  public void setVariables( Map<String, String> map ) {
+    variables.setVariables( map );
   }
 
   /**

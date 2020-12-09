@@ -167,7 +167,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
   @Override
   public String getRealFilename() {
-    return environmentSubstitute(getFilename());
+    return resolve(getFilename());
   }
 
   public boolean isPassingExport() {
@@ -337,7 +337,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     LogLevel jobLogLevel = parentWorkflow.getLogLevel();
 
     if (setLogfile) {
-      String realLogFilename = environmentSubstitute(getLogFilename());
+      String realLogFilename = resolve(getLogFilename());
       // We need to check here the log filename
       // if we do not have one, we must fail
       if (Utils.isEmpty(realLogFilename)) {
@@ -381,7 +381,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
       // Explain what we are loading...
       //
-      logDetailed("Loading workflow from XML file : [" + environmentSubstitute(filename) + "]");
+      logDetailed("Loading workflow from XML file : [" + resolve(filename) + "]");
 
       WorkflowMeta workflowMeta = getWorkflowMeta(metadataProvider, this);
 
@@ -395,8 +395,8 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
       int iteration = 0;
 
-      copyVariablesFrom(parentWorkflow);
-      setParentVariableSpace(parentWorkflow);
+      copyFrom(parentWorkflow);
+      setParentVariables(parentWorkflow);
 
       RowMetaAndData resultRow = null;
       boolean first = true;
@@ -457,7 +457,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
 
               if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
                 namedParam.setParameterValue(
-                    parameters[idx], Const.NVL(environmentSubstitute(parameterValues[idx]), ""));
+                    parameters[idx], Const.NVL( resolve(parameterValues[idx]), ""));
               } else {
                 // something filled in, in the field column...
                 //
@@ -492,7 +492,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
                   if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
                     namedParam.setParameterValue(
                         parameters[idx],
-                        Const.NVL(environmentSubstitute(parameterValues[idx]), ""));
+                        Const.NVL( resolve(parameterValues[idx]), ""));
                   } else {
                     String fieldValue = "";
 
@@ -521,7 +521,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
                   if (Utils.isEmpty(Const.trim(parameterFieldNames[idx]))) {
                     namedParam.setParameterValue(
                         parameters[idx],
-                        Const.NVL(environmentSubstitute(parameterValues[idx]), ""));
+                        Const.NVL( resolve(parameterValues[idx]), ""));
                   } else {
                     String fieldValue = "";
 
@@ -542,13 +542,13 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
         workflow =
             WorkflowEngineFactory.createWorkflowEngine(
                 this,
-                environmentSubstitute(runConfiguration),
+                resolve(runConfiguration),
                 metadataProvider,
                 workflowMeta,
                 this);
         workflow.setParentWorkflow(parentWorkflow);
         workflow.setLogLevel(jobLogLevel);
-        workflow.shareVariablesWith(this);
+        workflow.shareWith(this);
         workflow.setInternalHopVariables();
         workflow.copyParametersFromDefinitions(workflowMeta);
         workflow.setInteractive(parentWorkflow.isInteractive());
@@ -807,7 +807,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
   @Override
   public List<SqlStatement> getSqlStatements(
       IHopMetadataProvider metadataProvider, IVariables variables) throws HopException {
-    this.copyVariablesFrom(variables);
+    this.copyFrom(variables);
     WorkflowMeta workflowMeta = getWorkflowMeta(metadataProvider, variables);
     return workflowMeta.getSqlStatements(metadataProvider, null, variables);
   }
@@ -819,7 +819,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
       IVariables tmpSpace = r.resolveCurrentDirectory(variables, parentWorkflow, getFilename());
 
-      String realFilename = tmpSpace.environmentSubstitute(getFilename());
+      String realFilename = tmpSpace.resolve(getFilename());
       workflowMeta = new WorkflowMeta(tmpSpace, realFilename, metadataProvider);
       if (workflowMeta != null) {
         workflowMeta.setMetadataProvider(metadataProvider);
@@ -845,7 +845,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
       IVariables variables, WorkflowMeta workflowMeta) {
     List<ResourceReference> references = super.getResourceDependencies(variables, workflowMeta);
     if (!Utils.isEmpty(filename)) {
-      String realFileName = environmentSubstitute(filename);
+      String realFileName = resolve(filename);
       ResourceReference reference = new ResourceReference(this);
       reference.getEntries().add(new ResourceEntry(realFileName, ResourceType.ACTIONFILE));
       references.add(reference);
@@ -881,7 +881,7 @@ public class ActionWorkflow extends ActionBase implements Cloneable, IAction {
     //
     // First load the workflow meta data...
     //
-    copyVariablesFrom(variables); // To make sure variables are available.
+    copyFrom(variables); // To make sure variables are available.
     WorkflowMeta workflowMeta = getWorkflowMeta(metadataProvider, variables);
 
     // Also go down into the workflow and export the files there. (going down

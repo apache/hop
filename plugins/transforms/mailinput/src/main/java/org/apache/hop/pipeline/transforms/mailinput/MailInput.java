@@ -36,13 +36,11 @@ import org.apache.hop.workflow.actions.getpop.MailConnectionMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import javax.mail.Header;
 import javax.mail.Message;
-import javax.xml.crypto.Data;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -121,17 +119,17 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
 
   private void applySearch( Date beginDate, Date endDate ) {
     // apply search term?
-    String realSearchSender = environmentSubstitute( meta.getSenderSearchTerm() );
+    String realSearchSender = resolve( meta.getSenderSearchTerm() );
     if ( !Utils.isEmpty( realSearchSender ) ) {
       // apply FROM
       data.mailConn.setSenderTerm( realSearchSender, meta.isNotTermSenderSearch() );
     }
-    String realSearchReceipient = environmentSubstitute( meta.getRecipientSearch() );
+    String realSearchReceipient = resolve( meta.getRecipientSearch() );
     if ( !Utils.isEmpty( realSearchReceipient ) ) {
       // apply TO
       data.mailConn.setReceipientTerm( realSearchReceipient );
     }
-    String realSearchSubject = environmentSubstitute( meta.getSubjectSearch() );
+    String realSearchSubject = resolve( meta.getSubjectSearch() );
     if ( !Utils.isEmpty( realSearchSubject ) ) {
       // apply Subject
       data.mailConn.setSubjectTerm( realSearchSubject, meta.isNotTermSubjectSearch() );
@@ -335,11 +333,11 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
         data.mailConn.openFolder( false );
       }
 
-      if ( meta.useBatch() || ( !Utils.isEmpty( environmentSubstitute( meta.getFirstMails() ) )
-        && Integer.parseInt( environmentSubstitute( meta.getFirstMails() ) ) > 0 ) ) {
+      if ( meta.useBatch() || ( !Utils.isEmpty( resolve( meta.getFirstMails() ) )
+        && Integer.parseInt( resolve( meta.getFirstMails() ) ) > 0 ) ) {
         // get data by pieces
         Integer batchSize = meta.useBatch() ? meta.getBatchSize()
-          : Integer.parseInt( environmentSubstitute( meta.getFirstMails() ) );
+          : Integer.parseInt( resolve( meta.getFirstMails() ) );
         Integer start = meta.useBatch() ? data.start : 1;
         Integer end = meta.useBatch() ? data.end : batchSize;
         data.folderIterator =
@@ -390,19 +388,19 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
     }
     data.usePOP = meta.getProtocol().equals( MailConnectionMeta.PROTOCOL_STRING_POP3 );
 
-    String realserver = environmentSubstitute( meta.getServerName() );
+    String realserver = resolve( meta.getServerName() );
     if ( meta.getProtocol().equals( MailConnectionMeta.PROTOCOL_STRING_MBOX )
       && StringUtils.startsWith( realserver, "file://" ) ) {
       realserver = StringUtils.remove( realserver, "file://" );
     }
 
-    String realusername = environmentSubstitute( meta.getUserName() );
+    String realusername = resolve( meta.getUserName() );
     String realpassword = Utils.resolvePassword( variables, meta.getPassword() );
-    int realport = Const.toInt( environmentSubstitute( meta.getPort() ), -1 );
-    String realProxyUsername = environmentSubstitute( meta.getProxyUsername() );
+    int realport = Const.toInt( resolve( meta.getPort() ), -1 );
+    String realProxyUsername = resolve( meta.getProxyUsername() );
     if ( !meta.isDynamicFolder() ) {
       //Limit field has absolute priority
-      String reallimitrow = environmentSubstitute( meta.getRowLimit() );
+      String reallimitrow = resolve( meta.getRowLimit() );
       int limit = Const.toInt( reallimitrow, 0 );
       //Limit field has absolute priority
       if ( limit == 0 ) {
@@ -421,7 +419,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
         case MailConnectionMeta.CONDITION_DATE_EQUAL:
         case MailConnectionMeta.CONDITION_DATE_GREATER:
         case MailConnectionMeta.CONDITION_DATE_SMALLER:
-          String realBeginDate = environmentSubstitute( meta.getReceivedDate1() );
+          String realBeginDate = resolve( meta.getReceivedDate1() );
           if ( Utils.isEmpty( realBeginDate ) ) {
             throw new HopException( BaseMessages.getString(
               PKG, "MailInput.Error.ReceivedDateSearchTermEmpty" ) );
@@ -429,13 +427,13 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
           beginDate = df.parse( realBeginDate );
           break;
         case MailConnectionMeta.CONDITION_DATE_BETWEEN:
-          realBeginDate = environmentSubstitute( meta.getReceivedDate1() );
+          realBeginDate = resolve( meta.getReceivedDate1() );
           if ( Utils.isEmpty( realBeginDate ) ) {
             throw new HopException( BaseMessages.getString(
               PKG, "MailInput.Error.ReceivedDatesSearchTermEmpty" ) );
           }
           beginDate = df.parse( realBeginDate );
-          String realEndDate = environmentSubstitute( meta.getReceivedDate2() );
+          String realEndDate = resolve( meta.getReceivedDate2() );
           if ( Utils.isEmpty( realEndDate ) ) {
             throw new HopException( BaseMessages.getString(
               PKG, "MailInput.Error.ReceivedDatesSearchTermEmpty" ) );
@@ -464,7 +462,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
 
       if ( !meta.isDynamicFolder() ) {
         // pass static folder name
-        String realIMAPFolder = environmentSubstitute( meta.getIMAPFolder() );
+        String realIMAPFolder = resolve( meta.getIMAPFolder() );
         // return folders list
         // including sub folders if necessary
         data.folders = getFolders( realIMAPFolder );
@@ -504,7 +502,7 @@ public class MailInput extends BaseTransform<MailInputMeta, MailInputData> imple
   }
 
   private Integer parseIntWithSubstitute( String toParse ) {
-    toParse = environmentSubstitute( toParse );
+    toParse = resolve( toParse );
     if ( !StringUtils.isEmpty( toParse ) ) {
       try {
         return Integer.parseInt( toParse );

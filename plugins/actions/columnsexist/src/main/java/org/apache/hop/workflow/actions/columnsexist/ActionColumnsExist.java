@@ -208,10 +208,10 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
     }
     if ( connection != null ) {
       Database db = getNewDatabaseFromMeta();
-      db.shareVariablesWith( this );
+      db.shareWith( this );
       try {
-        String realSchemaname = environmentSubstitute( schemaname );
-        String realTablename = environmentSubstitute( tableName );
+        String realSchemaname = resolve( schemaname );
+        String realTablename = resolve( tableName );
 
         db.connect();
 
@@ -221,7 +221,7 @@ public class ActionColumnsExist extends ActionBase implements Cloneable, IAction
           }
 
           for ( int i = 0; i < arguments.length && !parentWorkflow.isStopped(); i++ ) {
-            String realColumnname = environmentSubstitute( arguments[ i ] );
+            String realColumnname = resolve( arguments[ i ] );
 
             if ( db.checkColumnExists( realSchemaname, realTablename, realColumnname ) ) {
               if ( log.isDetailed() ) {

@@ -370,7 +370,7 @@ public class MemoryGroupBy extends BaseTransform<MemoryGroupByMeta, MemoryGroupB
           if ( !( subj == null ) ) {
             String separator = "";
             if ( !Utils.isEmpty( meta.getValueField()[ i ] ) ) {
-              separator = environmentSubstitute( meta.getValueField()[ i ] );
+              separator = resolve( meta.getValueField()[ i ] );
             }
             StringBuilder sb = (StringBuilder) value;
             if ( sb.length() > 0 ) {

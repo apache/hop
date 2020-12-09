@@ -29,7 +29,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transforms.regexeval.RegexEvalMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -440,7 +439,7 @@ public class RegexEvalHelperDialog extends Dialog {
   }
 
   private void testValues() {
-    String realScript = variables.environmentSubstitute( wRegExScript.getText() );
+    String realScript = variables.resolve( wRegExScript.getText() );
 
     for ( int i = 1; i < 5; i++ ) {
       testValue( i, false, realScript );
@@ -450,7 +449,7 @@ public class RegexEvalHelperDialog extends Dialog {
   private void testValue( int index, boolean testRegEx, String regExString ) {
     String realScript = regExString;
     if ( realScript == null ) {
-      realScript = variables.environmentSubstitute( wRegExScript.getText() );
+      realScript = variables.resolve( wRegExScript.getText() );
     }
     if ( Utils.isEmpty( realScript ) ) {
       if ( testRegEx ) {
@@ -465,19 +464,19 @@ public class RegexEvalHelperDialog extends Dialog {
     Text control = null;
     switch ( index ) {
       case 1:
-        realValue = Const.NVL( variables.environmentSubstitute( wValue1.getText() ), "" );
+        realValue = Const.NVL( variables.resolve( wValue1.getText() ), "" );
         control = wValue1;
         break;
       case 2:
-        realValue = Const.NVL( variables.environmentSubstitute( wValue2.getText() ), "" );
+        realValue = Const.NVL( variables.resolve( wValue2.getText() ), "" );
         control = wValue2;
         break;
       case 3:
-        realValue = Const.NVL( variables.environmentSubstitute( wValue3.getText() ), "" );
+        realValue = Const.NVL( variables.resolve( wValue3.getText() ), "" );
         control = wValue3;
         break;
       case 4:
-        realValue = Const.NVL( variables.environmentSubstitute( wValueGroup.getText() ), "" );
+        realValue = Const.NVL( variables.resolve( wValueGroup.getText() ), "" );
         control = wValueGroup;
         break;
       default:

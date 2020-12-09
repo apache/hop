@@ -95,7 +95,7 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
 
         // cache the position of the field
         if ( data.indexOfFoldernameField < 0 ) {
-          String realDynamicFoldername = environmentSubstitute( meta.getDynamicFoldernameField() );
+          String realDynamicFoldername = resolve( meta.getDynamicFoldernameField() );
           data.indexOfFoldernameField = data.inputRowMeta.indexOfValue( realDynamicFoldername );
           if ( data.indexOfFoldernameField < 0 ) {
             // The field is unreachable !

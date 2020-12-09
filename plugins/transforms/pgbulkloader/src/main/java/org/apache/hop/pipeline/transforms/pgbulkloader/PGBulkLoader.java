@@ -43,9 +43,7 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.postgresql.PGConnection;
 import org.postgresql.copy.PGCopyOutputStream;
@@ -125,9 +123,9 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
     contents.append( " FROM STDIN" ); // FIFO file
 
     // The "FORMAT" clause
-    contents.append( " WITH CSV DELIMITER AS '" ).append( environmentSubstitute( meta.getDelimiter() ) )
+    contents.append( " WITH CSV DELIMITER AS '" ).append( resolve( meta.getDelimiter() ) )
       .append( "' QUOTE AS '" ).append(
-      environmentSubstitute( meta.getEnclosure() ) ).append( "'" );
+      resolve( meta.getEnclosure() ) ).append( "'" );
     contents.append( ";" ).append( Const.CR );
 
     return contents.toString();
@@ -178,7 +176,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
   Database getDatabase( ILoggingObject parentObject, PGBulkLoaderMeta pgBulkLoaderMeta ) {
     DatabaseMeta dbMeta = pgBulkLoaderMeta.getDatabaseMeta();
     // If dbNameOverride is present, clone the origin db meta and override the DB name
-    String dbNameOverride = environmentSubstitute( pgBulkLoaderMeta.getDbNameOverride() );
+    String dbNameOverride = resolve( pgBulkLoaderMeta.getDbNameOverride() );
     if ( !Utils.isEmpty( dbNameOverride ) ) {
       dbMeta = (DatabaseMeta) pgBulkLoaderMeta.getDatabaseMeta().clone();
       dbMeta.setDBName( dbNameOverride.trim() );
@@ -194,7 +192,7 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
   void processTruncate() throws Exception {
     Connection connection = data.db.getConnection();
 
-    String loadAction = environmentSubstitute( meta.getLoadAction() );
+    String loadAction = resolve( meta.getLoadAction() );
 
     if ( loadAction.equalsIgnoreCase( "truncate" ) ) {
       DatabaseMeta dm = meta.getDatabaseMeta();
@@ -433,8 +431,8 @@ public class PGBulkLoader extends BaseTransform<PGBulkLoaderMeta, PGBulkLoaderDa
 
   public boolean init(){
 
-    String enclosure = environmentSubstitute( meta.getEnclosure() );
-    String separator = environmentSubstitute( meta.getDelimiter() );
+    String enclosure = resolve( meta.getEnclosure() );
+    String separator = resolve( meta.getDelimiter() );
 
     if ( super.init() ) {
 

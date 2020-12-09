@@ -29,8 +29,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -56,7 +54,7 @@ public class Abort extends BaseTransform<AbortMeta, AbortData> implements ITrans
     if ( super.init() ) {
       // Add init code here.
       nrInputRows = 0;
-      String threshold = environmentSubstitute( meta.getRowThreshold() );
+      String threshold = resolve( meta.getRowThreshold() );
       nrThresholdRows = Const.toInt( threshold, -1 );
       if ( nrThresholdRows < 0 ) {
         logError( BaseMessages.getString( PKG, "Abort.Log.ThresholdInvalid", threshold ) );
@@ -90,7 +88,7 @@ public class Abort extends BaseTransform<AbortMeta, AbortData> implements ITrans
         }
         logError( BaseMessages.getString( PKG, "Abort.Log.Wrote.AbortRow", Long.toString( nrInputRows ), abortOptionMessage, getInputRowMeta().getString( r ) ) );
 
-        String message = environmentSubstitute( meta.getMessage() );
+        String message = resolve( meta.getMessage() );
         if ( message == null || message.length() == 0 ) {
           logError( BaseMessages.getString( PKG, "Abort.Log.DefaultAbortMessage", "" + nrInputRows ) );
         } else {

@@ -663,9 +663,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
     }
 
-    props.put( "mail." + protocol + ".host", environmentSubstitute( server ) );
+    props.put( "mail." + protocol + ".host", resolve( server ) );
     if ( !Utils.isEmpty( port ) ) {
-      props.put( "mail." + protocol + ".port", environmentSubstitute( port ) );
+      props.put( "mail." + protocol + ".port", resolve( port ) );
     }
 
     if ( log.isDebug() ) {
@@ -709,9 +709,9 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       }
 
       // Set Mail sender (From)
-      String senderAddress = environmentSubstitute( replyAddress );
+      String senderAddress = resolve( replyAddress );
       if ( !Utils.isEmpty( senderAddress ) ) {
-        String senderName = environmentSubstitute( replyName );
+        String senderName = resolve( replyName );
         if ( !Utils.isEmpty( senderName ) ) {
           senderAddress = senderName + '<' + senderAddress + '>';
         }
@@ -721,10 +721,10 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       }
 
       // set Reply to addresses
-      String replyToAddress = environmentSubstitute( replyToAddresses );
+      String replyToAddress = resolve( replyToAddresses );
       if ( !Utils.isEmpty( replyToAddress ) ) {
         // Split the mail-address: variables separated
-        String[] reply_Address_List = environmentSubstitute( replyToAddress ).split( " " );
+        String[] reply_Address_List = resolve( replyToAddress ).split( " " );
         InternetAddress[] address = new InternetAddress[ reply_Address_List.length ];
         for ( int i = 0; i < reply_Address_List.length; i++ ) {
           address[ i ] = new InternetAddress( reply_Address_List[ i ] );
@@ -733,14 +733,14 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       }
 
       // Split the mail-address: variables separated
-      String[] destinations = environmentSubstitute( destination ).split( " " );
+      String[] destinations = resolve( destination ).split( " " );
       InternetAddress[] address = new InternetAddress[ destinations.length ];
       for ( int i = 0; i < destinations.length; i++ ) {
         address[ i ] = new InternetAddress( destinations[ i ] );
       }
       msg.setRecipients( Message.RecipientType.TO, address );
 
-      String realCC = environmentSubstitute( getDestinationCc() );
+      String realCC = resolve( getDestinationCc() );
       if ( !Utils.isEmpty( realCC ) ) {
         // Split the mail-address Cc: variables separated
         String[] destinationsCc = realCC.split( " " );
@@ -752,7 +752,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
         msg.setRecipients( Message.RecipientType.CC, addressCc );
       }
 
-      String realBCc = environmentSubstitute( getDestinationBCc() );
+      String realBCc = resolve( getDestinationBCc() );
       if ( !Utils.isEmpty( realBCc ) ) {
         // Split the mail-address BCc: variables separated
         String[] destinationsBCc = realBCc.split( " " );
@@ -763,7 +763,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
         msg.setRecipients( Message.RecipientType.BCC, addressBCc );
       }
-      String realSubject = environmentSubstitute( subject );
+      String realSubject = resolve( subject );
       if ( !Utils.isEmpty( realSubject ) ) {
         msg.setSubject( realSubject );
       }
@@ -771,7 +771,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       msg.setSentDate( new Date() );
       StringBuilder messageText = new StringBuilder();
       String endRow = isUseHTML() ? "<br>" : Const.CR;
-      String realComment = environmentSubstitute( comment );
+      String realComment = resolve( comment );
       if ( !Utils.isEmpty( realComment ) ) {
         messageText.append( realComment ).append( Const.CR ).append( Const.CR );
       }
@@ -828,15 +828,15 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       }
 
       if ( !onlySendComment
-        && ( !Utils.isEmpty( environmentSubstitute( contactPerson ) ) || !Utils
-        .isEmpty( environmentSubstitute( contactPhone ) ) ) ) {
+        && ( !Utils.isEmpty( resolve( contactPerson ) ) || !Utils
+        .isEmpty( resolve( contactPhone ) ) ) ) {
         messageText.append( BaseMessages.getString( PKG, "JobMail.Log.Comment.ContactInfo" ) + " :" ).append(
           endRow );
         messageText.append( "---------------------" ).append( endRow );
         messageText.append( BaseMessages.getString( PKG, "JobMail.Log.Comment.PersonToContact" ) + " : " ).append(
-          environmentSubstitute( contactPerson ) ).append( endRow );
+          resolve( contactPerson ) ).append( endRow );
         messageText.append( BaseMessages.getString( PKG, "JobMail.Log.Comment.Tel" ) + "  : " ).append(
-          environmentSubstitute( contactPhone ) ).append( endRow );
+          resolve( contactPhone ) ).append( endRow );
         messageText.append( endRow );
       }
 
@@ -913,7 +913,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
             // create a single ZIP archive of all files
             masterZipfile =
               new File( System.getProperty( "java.io.tmpdir" )
-                + Const.FILE_SEPARATOR + environmentSubstitute( zipFilename ) );
+                + Const.FILE_SEPARATOR + resolve( zipFilename ) );
             ZipOutputStream zipOutputStream = null;
             try {
               zipOutputStream = new ZipOutputStream( new FileOutputStream( masterZipfile ) );
@@ -983,8 +983,8 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
       if ( embeddedimages != null && embeddedimages.length > 0 ) {
         FileObject imageFile = null;
         for ( int i = 0; i < embeddedimages.length; i++ ) {
-          String realImageFile = environmentSubstitute( embeddedimages[ i ] );
-          String realcontenID = environmentSubstitute( contentids[ i ] );
+          String realImageFile = resolve( embeddedimages[ i ] );
+          String realcontenID = resolve( contentids[ i ] );
           if ( messageText.indexOf( "cid:" + realcontenID ) < 0 ) {
             if ( log.isDebug() ) {
               log.logDebug( "Image [" + realImageFile + "] is not used in message body!" );
@@ -1044,14 +1044,14 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
         if ( usingAuthentication ) {
           if ( !Utils.isEmpty( port ) ) {
             transport.connect(
-              environmentSubstitute( Const.NVL( server, "" ) ),
-              Integer.parseInt( environmentSubstitute( Const.NVL( port, "" ) ) ),
-              environmentSubstitute( Const.NVL( authenticationUser, "" ) ),
+              resolve( Const.NVL( server, "" ) ),
+              Integer.parseInt( resolve( Const.NVL( port, "" ) ) ),
+              resolve( Const.NVL( authenticationUser, "" ) ),
               authPass );
           } else {
             transport.connect(
-              environmentSubstitute( Const.NVL( server, "" ) ),
-              environmentSubstitute( Const.NVL( authenticationUser, "" ) ),
+              resolve( Const.NVL( server, "" ) ),
+              resolve( Const.NVL( authenticationUser, "" ) ),
               authPass );
           }
         } else {
@@ -1202,7 +1202,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    String realServername = environmentSubstitute( server );
+    String realServername = resolve( server );
     ResourceReference reference = new ResourceReference( this );
     reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
     references.add( reference );
@@ -1236,7 +1236,7 @@ public class ActionMail extends ActionBase implements Cloneable, IAction {
 
   public String getPassword( String authPassword ) {
     return Encr.decryptPasswordOptionallyEncrypted(
-      environmentSubstitute( Const.NVL( authPassword, "" ) ) );
+      resolve( Const.NVL( authPassword, "" ) ) );
   }
 
 }

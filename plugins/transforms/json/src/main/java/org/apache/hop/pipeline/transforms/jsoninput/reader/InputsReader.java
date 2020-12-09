@@ -177,7 +177,7 @@ public class InputsReader implements Iterable<InputStream> {
 
     @Override
     public FileObject tryNext() throws HopFileException {
-      String fileName = transform.environmentSubstitute( inner.next() );
+      String fileName = transform.resolve( inner.next() );
       return fileName == null ? null : HopVfs.getFileObject( fileName );
     }
   }
@@ -190,7 +190,7 @@ public class InputsReader implements Iterable<InputStream> {
 
     @Override protected InputStream tryNext() throws Exception {
       if ( hasNext() ) {
-        URL url = new URL( transform.environmentSubstitute( inner.next() ) );
+        URL url = new URL( transform.resolve( inner.next() ) );
         URLConnection connection = url.openConnection();
         return connection.getInputStream();
       }

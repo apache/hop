@@ -80,7 +80,7 @@ public class EntryCurrentDirectoryChangedListener implements ICurrentDirectoryCh
   private String reapplyCurrentDir( String oldCurrentDir, String newCurrentDir, String path ) {
     Variables vars = new Variables();
     vars.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, oldCurrentDir );
-    String newPath = vars.environmentSubstitute( path );
+    String newPath = vars.resolve( path );
     return getPath( newCurrentDir, newPath );
   }
 

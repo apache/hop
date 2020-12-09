@@ -120,7 +120,7 @@ public class SSHData extends BaseTransformData implements ITransformData {
       // authenticate
       if ( useKey ) {
         isAuthenticated =
-          conn.authenticateWithPublicKey( username, content, variables.environmentSubstitute( passPhrase ) );
+          conn.authenticateWithPublicKey( username, content, variables.resolve( passPhrase ) );
       } else {
         isAuthenticated = conn.authenticateWithPassword( username, password );
       }

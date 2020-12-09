@@ -900,8 +900,8 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
     field.m_incomingFieldName = fieldName;
     field.m_mongoDocPath = fieldName;
     IVariables vars = mock(IVariables.class);
-    when(vars.environmentSubstitute(anyString())).thenReturn(fieldName);
-    when(vars.environmentSubstitute(anyString())).thenReturn(fieldName);
+    when(vars.resolve(anyString())).thenReturn(fieldName);
+    when(vars.resolve(anyString())).thenReturn(fieldName);
     field.init(vars);
     return field;
   }
@@ -1133,7 +1133,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   private MongoDbOutput prepareMongoDbOutputMock() {
     MongoDbOutput output = EasyMock.createNiceMock(MongoDbOutput.class);
-    EasyMock.expect(output.environmentSubstitute(EasyMock.anyObject(String.class)))
+    EasyMock.expect(output.resolve(EasyMock.anyObject(String.class)))
         .andAnswer(
             () -> {
               Object[] args = EasyMock.getCurrentArguments();

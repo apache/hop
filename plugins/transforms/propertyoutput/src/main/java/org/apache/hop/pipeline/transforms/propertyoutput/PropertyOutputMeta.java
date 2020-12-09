@@ -333,7 +333,7 @@ public class PropertyOutputMeta extends BaseTransformMeta implements ITransformM
     SimpleDateFormat daf = new SimpleDateFormat();
 
     // Replace possible environment variables...
-    String retval = variables.environmentSubstitute( fileName );
+    String retval = variables.resolve( fileName );
 
     Date now = new Date();
 
@@ -563,7 +563,7 @@ public class PropertyOutputMeta extends BaseTransformMeta implements ITransformM
       //
       // In case the name of the file comes from previous transforms, forget about this!
       if ( !fileNameInField ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName ) );
 
         // If the file doesn't exist, forget about this effort too!
         //

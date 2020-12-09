@@ -567,7 +567,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wFilenamePattern.setLayoutData(fdFilenamePattern);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilenamePattern.addModifyListener( e -> wFilenamePattern.setToolTipText( variables.environmentSubstitute( wFilenamePattern.getText() ) ) );
+    wFilenamePattern.addModifyListener( e -> wFilenamePattern.setToolTipText( variables.resolve( wFilenamePattern.getText() ) ) );
 
     // Get message?
     wlGetMessage = new Label(wTargetFolder, SWT.RIGHT );
@@ -695,7 +695,7 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     wAttachmentWildcard.setLayoutData(fdAttachmentWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wAttachmentWildcard.addModifyListener( e -> wAttachmentWildcard.setToolTipText( variables.environmentSubstitute( wAttachmentWildcard.getText() ) ) );
+    wAttachmentWildcard.addModifyListener( e -> wAttachmentWildcard.setToolTipText( variables.resolve( wAttachmentWildcard.getText() ) ) );
 
     FormData fdTargetFolder = new FormData();
     fdTargetFolder.left = new FormAttachment( 0, margin );
@@ -1469,10 +1469,10 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     Listener lsTest = e -> test();
     wTest.addListener( SWT.Selection, lsTest);
 
-    Listener lsTestIMAPFolder = e -> checkFolder(variables.environmentSubstitute(wIMAPFolder.getText()));
+    Listener lsTestIMAPFolder = e -> checkFolder(variables.resolve(wIMAPFolder.getText()));
     wTestIMAPFolder.addListener( SWT.Selection, lsTestIMAPFolder);
 
-    Listener lsTestMoveToFolder = e -> checkFolder(variables.environmentSubstitute(wMoveToFolder.getText()));
+    Listener lsTestMoveToFolder = e -> checkFolder(variables.resolve(wMoveToFolder.getText()));
     wTestMoveToFolder.addListener( SWT.Selection, lsTestMoveToFolder);
 
     Listener lsSelectFolder = e -> selectFolder(wIMAPFolder);
@@ -1523,11 +1523,11 @@ public class ActionGetPOPDialog extends ActionDialog implements IActionDialog {
     }
 
     if ( !retval ) {
-      String realserver = variables.environmentSubstitute( wServerName.getText() );
-      String realuser = variables.environmentSubstitute( wUserName.getText() );
-      String realpass = action.getRealPassword( variables.environmentSubstitute( wPassword.getText() ) );
-      int realport = Const.toInt( variables.environmentSubstitute( wPort.getText() ), -1 );
-      String realproxyuser = variables.environmentSubstitute( wProxyUsername.getText() );
+      String realserver = variables.resolve( wServerName.getText() );
+      String realuser = variables.resolve( wUserName.getText() );
+      String realpass = action.getRealPassword( variables.resolve( wPassword.getText() ) );
+      int realport = Const.toInt( variables.resolve( wPort.getText() ), -1 );
+      String realproxyuser = variables.resolve( wProxyUsername.getText() );
       try {
         mailConn =
           new MailConnection(

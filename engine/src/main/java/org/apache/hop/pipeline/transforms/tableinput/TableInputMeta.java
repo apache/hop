@@ -210,9 +210,9 @@ public class TableInputMeta
     // First try without connecting to the database... (can be S L O W)
     String sNewSql = sql;
     if ( isVariableReplacementActive() ) {
-      sNewSql = db.environmentSubstitute( sql );
+      sNewSql = db.resolve( sql );
       if ( variables != null ) {
-        sNewSql = variables.environmentSubstitute( sNewSql );
+        sNewSql = variables.resolve( sNewSql );
       }
     }
 
@@ -288,7 +288,7 @@ public class TableInputMeta
       remarks.add( cr );
 
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( variables );
+      db.shareWith( variables );
       super.databases = new Database[] { db }; // keep track of it for canceling purposes...
 
       try {

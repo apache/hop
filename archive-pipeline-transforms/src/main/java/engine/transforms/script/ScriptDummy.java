@@ -213,7 +213,7 @@ public class ScriptDummy implements ITransform {
     return null;
   }
 
-  public void initializeVariablesFrom( IVariables parent ) {
+  public void initializeFrom( IVariables parent ) {
   }
 
   public void injectVariables( Map<String, String> prop ) {

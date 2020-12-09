@@ -219,7 +219,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
     Result result = previousResult;
     result.setResult( false );
 
-    String vfsFilename = environmentSubstitute( filename );
+    String vfsFilename = resolve( filename );
 
     // Let's check the filename ...
     if ( !Utils.isEmpty( vfsFilename ) ) {
@@ -255,13 +255,13 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
           if ( connection != null ) {
             // User has specified a connection, We can continue ...
             Database db = new Database( this, connection );
-            db.shareVariablesWith( this );
+            db.shareWith( this );
             try {
               db.connect();
               // Get schemaname
-              String realSchemaname = environmentSubstitute( schemaname );
+              String realSchemaname = resolve( schemaname );
               // Get tablename
-              String realTablename = environmentSubstitute( tableName );
+              String realTablename = resolve( tableName );
 
               if ( db.checkTableExists( realTablename ) ) {
                 // The table existe, We can continue ...
@@ -459,7 +459,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealEnclosed() {
-    return environmentSubstitute( getEnclosed() );
+    return resolve( getEnclosed() );
   }
 
   public void setEnclosed( String enclosed ) {
@@ -471,7 +471,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealEscaped() {
-    return environmentSubstitute( getEscaped() );
+    return resolve( getEscaped() );
   }
 
   public void setEscaped( String escaped ) {
@@ -491,15 +491,15 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealLinestarted() {
-    return environmentSubstitute( getLinestarted() );
+    return resolve( getLinestarted() );
   }
 
   public String getRealLineterminated() {
-    return environmentSubstitute( getLineterminated() );
+    return resolve( getLineterminated() );
   }
 
   public String getRealSeparator() {
-    return environmentSubstitute( getSeparator() );
+    return resolve( getSeparator() );
   }
 
   public void setIgnorelines( String ignorelines ) {
@@ -511,7 +511,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealIgnorelines() {
-    return environmentSubstitute( getIgnorelines() );
+    return resolve( getIgnorelines() );
   }
 
   public void setListattribut( String listattribut ) {
@@ -523,7 +523,7 @@ public class ActionMysqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealListattribut() {
-    return environmentSubstitute( getListattribut() );
+    return resolve( getListattribut() );
   }
 
   public void setAddFileToResult( boolean addfiletoresultin ) {

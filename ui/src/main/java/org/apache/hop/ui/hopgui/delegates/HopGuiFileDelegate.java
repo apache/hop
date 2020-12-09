@@ -72,7 +72,7 @@ public class HopGuiFileDelegate {
       if ( filename == null ) {
         return;
       }
-      fileOpen( hopGui.getVariables().environmentSubstitute( filename ) );
+      fileOpen( hopGui.getVariables().resolve( filename ) );
     } catch ( Exception e ) {
       new ErrorDialog( hopGui.getShell(), "Error", "Error opening file", e );
     }
@@ -114,7 +114,7 @@ public class HopGuiFileDelegate {
         return null;
       }
 
-      filename = hopGui.getVariables().environmentSubstitute( filename ); 
+      filename = hopGui.getVariables().resolve( filename );
             
       typeHandler.saveAs( filename );
 

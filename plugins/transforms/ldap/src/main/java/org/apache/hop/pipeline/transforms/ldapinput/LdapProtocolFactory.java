@@ -86,7 +86,7 @@ public class LdapProtocolFactory {
   public LdapProtocol createLdapProtocol(
       IVariables variables, ILdapMeta meta, Collection<String> binaryAttributes)
       throws HopException {
-    String connectionType = variables.environmentSubstitute(meta.getProtocol());
+    String connectionType = variables.resolve(meta.getProtocol());
 
     synchronized (protocols) {
       for (Class<? extends LdapProtocol> protocol : protocols) {

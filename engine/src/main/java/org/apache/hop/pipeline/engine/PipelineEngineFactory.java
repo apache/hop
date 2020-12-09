@@ -63,14 +63,14 @@ public class PipelineEngineFactory {
     // Apply the variables from the run configuration
     //
     IVariables variables = new Variables();
-    variables.copyVariablesFrom( parentVariables );
+    variables.copyFrom( parentVariables );
     pipelineRunConfiguration.applyToVariables(variables);
 
     IPipelineEngine<T> pipelineEngine = createPipelineEngine( pipelineRunConfiguration, pipelineMeta );
 
     // inherit variables from the metadata
     //
-    pipelineEngine.initializeVariablesFrom( variables );
+    pipelineEngine.initializeFrom( variables );
 
     // Copy over the parameter definitions
     //

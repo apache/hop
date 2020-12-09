@@ -52,7 +52,7 @@ public class ManageConfigFileOptionPlugin implements IConfigOptions {
 
   @Override public boolean handleOption( ILogChannel log, IHasHopMetadataProvider hasHopMetadataProvider, IVariables variables ) throws HopException {
 
-    String realConfigFile = variables.environmentSubstitute( configFile );
+    String realConfigFile = variables.resolve( configFile );
     if ( StringUtils.isEmpty( realConfigFile ) ) {
       return false;
     }

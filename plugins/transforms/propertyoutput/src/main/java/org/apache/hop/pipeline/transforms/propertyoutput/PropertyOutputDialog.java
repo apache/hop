@@ -617,7 +617,7 @@ public class PropertyOutputDialog extends BaseTransformDialog implements ITransf
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
         dialog.setFilterExtensions( new String[] { "*.txt", "*.TXT", "*" } );
         if ( wFilename.getText() != null ) {
-          dialog.setFileName( variables.environmentSubstitute( wFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wFilename.getText() ) );
         }
         dialog.setFilterNames( new String[] {
           BaseMessages.getString( PKG, "System.FileType.TextFiles" ),

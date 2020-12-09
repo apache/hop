@@ -374,11 +374,11 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
       resultRows = new ArrayList<>();
       RowMetaAndData row = new RowMetaAndData();
       row.addValue(
-        new ValueMetaString( urlFieldnameToUse ), environmentSubstitute( url ) );
+        new ValueMetaString( urlFieldnameToUse ), resolve( url ) );
       row.addValue(
-        new ValueMetaString( uploadFieldnameToUse ), environmentSubstitute( uploadFilename ) );
+        new ValueMetaString( uploadFieldnameToUse ), resolve( uploadFilename ) );
       row.addValue(
-        new ValueMetaString( destinationFieldnameToUse ), environmentSubstitute( targetFilename ) );
+        new ValueMetaString( destinationFieldnameToUse ), resolve( targetFilename ) );
       resultRows.add( row );
     }
 
@@ -397,17 +397,17 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
       InputStream input = null;
 
       try {
-        String urlToUse = environmentSubstitute( row.getString( urlFieldnameToUse, "" ) );
-        String realUploadFile = environmentSubstitute( row.getString( uploadFieldnameToUse, "" ) );
-        String realTargetFile = environmentSubstitute( row.getString( destinationFieldnameToUse, "" ) );
+        String urlToUse = resolve( row.getString( urlFieldnameToUse, "" ) );
+        String realUploadFile = resolve( row.getString( uploadFieldnameToUse, "" ) );
+        String realTargetFile = resolve( row.getString( destinationFieldnameToUse, "" ) );
 
         logBasic( BaseMessages.getString( PKG, "JobHTTP.Log.ConnectingURL", urlToUse ) );
 
         if ( !Utils.isEmpty( proxyHostname ) ) {
-          System.setProperty( "http.proxyHost", environmentSubstitute( proxyHostname ) );
-          System.setProperty( "http.proxyPort", environmentSubstitute( proxyPort ) );
+          System.setProperty( "http.proxyHost", resolve( proxyHostname ) );
+          System.setProperty( "http.proxyPort", resolve( proxyPort ) );
           if ( nonProxyHosts != null ) {
-            System.setProperty( "http.nonProxyHosts", environmentSubstitute( nonProxyHosts ) );
+            System.setProperty( "http.nonProxyHosts", resolve( nonProxyHosts ) );
           }
         }
 
@@ -415,8 +415,8 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
           Authenticator.setDefault( new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-              String realPassword = Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( password ) );
-              return new PasswordAuthentication( environmentSubstitute( username ), realPassword != null
+              String realPassword = Encr.decryptPasswordOptionallyEncrypted( resolve( password ) );
+              return new PasswordAuthentication( resolve( username ), realPassword != null
                 ? realPassword.toCharArray() : new char[] {} );
             }
           } );
@@ -432,7 +432,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
           realTargetFile += "_" + daf.format( now );
 
           if ( !Utils.isEmpty( targetFilenameExtension ) ) {
-            realTargetFile += "." + environmentSubstitute( targetFilenameExtension );
+            realTargetFile += "." + resolve( targetFilenameExtension );
           }
         }
 
@@ -451,11 +451,11 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
           for ( int j = 0; j < headerName.length; j++ ) {
             if ( !Utils.isEmpty( headerValue[ j ] ) ) {
               connection.setRequestProperty(
-                environmentSubstitute( headerName[ j ] ), environmentSubstitute( headerValue[ j ] ) );
+                resolve( headerName[ j ] ), resolve( headerValue[ j ] ) );
               if ( log.isDebug() ) {
                 log.logDebug( BaseMessages.getString(
-                  PKG, "JobHTTP.Log.HeaderSet", environmentSubstitute( headerName[ j ] ),
-                  environmentSubstitute( headerValue[ j ] ) ) );
+                  PKG, "JobHTTP.Log.HeaderSet", resolve( headerName[ j ] ),
+                  resolve( headerValue[ j ] ) ) );
               }
             }
           }
@@ -699,7 +699,7 @@ public class ActionHttp extends ActionBase implements Cloneable, IAction {
   @Override
   public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
     List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
-    String realUrl = environmentSubstitute( url );
+    String realUrl = resolve( url );
     ResourceReference reference = new ResourceReference( this );
     reference.getEntries().add( new ResourceEntry( realUrl, ResourceType.URL ) );
     references.add( reference );

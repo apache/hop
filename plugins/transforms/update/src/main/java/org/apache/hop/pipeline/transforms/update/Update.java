@@ -476,7 +476,7 @@ public class Update extends BaseTransform<UpdateMeta, UpdateData> implements ITr
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
       try {
         data.db.connect( getPartitionId() );
 

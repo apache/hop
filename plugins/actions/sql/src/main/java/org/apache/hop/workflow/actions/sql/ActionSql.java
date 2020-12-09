@@ -198,7 +198,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
     if ( connection != null ) {
       Database db = new Database( this, connection );
       FileObject sqlFile = null;
-      db.shareVariablesWith( this );
+      db.shareWith( this );
       try {
         String theSql = null;
         db.connect();
@@ -209,7 +209,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
           }
 
           try {
-            String realfilename = environmentSubstitute( sqlfilename );
+            String realfilename = resolve( sqlfilename );
             sqlFile = HopVfs.getFileObject( realfilename );
             if ( !sqlFile.exists() ) {
               logError( BaseMessages.getString( PKG, "JobSQL.SQLFileNotExist", realfilename ) );
@@ -250,7 +250,7 @@ public class ActionSql extends ActionBase implements Cloneable, IAction {
         if ( !Utils.isEmpty( theSql ) ) {
           // let it run
           if ( useVariableSubstitution ) {
-            theSql = environmentSubstitute( theSql );
+            theSql = resolve( theSql );
           }
           if ( isDetailed() ) {
             logDetailed( BaseMessages.getString( PKG, "JobSQL.Log.SQlStatement", theSql ) );
