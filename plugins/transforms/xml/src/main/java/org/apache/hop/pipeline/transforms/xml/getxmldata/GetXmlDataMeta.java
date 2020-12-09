@@ -714,7 +714,7 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     retval.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < inputFields.length; i++ ) {
       GetXmlDataField field = inputFields[i];
-      retval.append( field.getXML() );
+      retval.append( field.getXml() );
     }
     retval.append( "    </fields>" ).append( Const.CR );
 

@@ -226,28 +226,28 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 300 );
+    StringBuilder xml = new StringBuilder( 300 );
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "valuetype", getValueTypeCode( valuetype ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fieldname", fieldname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "variablename", variablename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fieldtype", getFieldTypeCode( fieldtype ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "mask", mask ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "comparevalue", comparevalue ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "minvalue", minvalue ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "maxvalue", maxvalue ) );
-    retval.append( "      " ).append(
+    xml.append( super.getXml() );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "valuetype", getValueTypeCode( valuetype ) ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "fieldname", fieldname ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "variablename", variablename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "fieldtype", getFieldTypeCode( fieldtype ) ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "mask", mask ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "comparevalue", comparevalue ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "minvalue", minvalue ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "maxvalue", maxvalue ) );
+    xml.append( "      " ).append(
       XmlHandler.addTagValue( "successcondition", getSuccessConditionCode( successcondition ) ) );
-    retval
+    xml
       .append( "      " ).append(
       XmlHandler.addTagValue(
         "successnumbercondition", getSuccessNumberConditionCode( successnumbercondition ) ) );
-    retval.append( "      " ).append(
+    xml.append( "      " ).append(
       XmlHandler.addTagValue(
         "successbooleancondition", getSuccessBooleanConditionCode( successbooleancondition ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "successwhenvarset", successwhenvarset ) );
-    return retval.toString();
+    xml.append( "      " ).append( XmlHandler.addTagValue( "successwhenvarset", successwhenvarset ) );
+    return xml.toString();
   }
 
   private static int getValueTypeByCode( String tt ) {
@@ -924,7 +924,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     }
 
     result.setResult( success );
-    // PDI-6943: this action does not set errors upon evaluation, independently of the outcome of the check
+    // This action does not set errors upon evaluation, independently of the outcome of the check
     result.setNrErrors( 0 );
     return result;
   }

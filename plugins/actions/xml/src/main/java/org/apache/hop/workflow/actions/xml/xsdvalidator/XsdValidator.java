@@ -102,15 +102,15 @@ public class XsdValidator extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
-    StringBuffer retval = new StringBuffer( 50 );
+  public String getXml() {
+    StringBuffer xml = new StringBuffer( 50 );
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "xmlfilename", xmlfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "xsdfilename", xsdfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "allowExternalEntities", allowExternalEntities ) );
+    xml.append( super.getXml() );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "xmlfilename", xmlfilename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "xsdfilename", xsdfilename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "allowExternalEntities", allowExternalEntities ) );
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {

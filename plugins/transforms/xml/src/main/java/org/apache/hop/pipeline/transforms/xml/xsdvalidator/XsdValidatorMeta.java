@@ -279,24 +279,24 @@ public class XsdValidatorMeta extends BaseTransformMeta implements ITransformMet
 
   }
 
-  public String getXML() {
-    StringBuffer retval = new StringBuffer();
+  public String getXml() {
+    StringBuffer xml = new StringBuffer();
 
-    retval.append( "    " + XmlHandler.addTagValue( "xdsfilename", xsdFilename ) );
-    retval.append( "    " + XmlHandler.addTagValue( "xmlstream", xmlStream ) );
-    retval.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultFieldname ) );
-    retval.append( "    " + XmlHandler.addTagValue( "addvalidationmsg", addValidationMessage ) );
-    retval.append( "    " + XmlHandler.addTagValue( "validationmsgfield", validationMessageField ) );
-    retval.append( "    " + XmlHandler.addTagValue( "ifxmlunvalid", ifXmlInvalid ) );
-    retval.append( "    " + XmlHandler.addTagValue( "ifxmlvalid", ifXmlValid ) );
+    xml.append( "    " + XmlHandler.addTagValue( "xdsfilename", xsdFilename ) );
+    xml.append( "    " + XmlHandler.addTagValue( "xmlstream", xmlStream ) );
+    xml.append( "    " + XmlHandler.addTagValue( "resultfieldname", resultFieldname ) );
+    xml.append( "    " + XmlHandler.addTagValue( "addvalidationmsg", addValidationMessage ) );
+    xml.append( "    " + XmlHandler.addTagValue( "validationmsgfield", validationMessageField ) );
+    xml.append( "    " + XmlHandler.addTagValue( "ifxmlunvalid", ifXmlInvalid ) );
+    xml.append( "    " + XmlHandler.addTagValue( "ifxmlvalid", ifXmlValid ) );
 
-    retval.append( "    " + XmlHandler.addTagValue( "outputstringfield", outputStringField ) );
-    retval.append( "    " + XmlHandler.addTagValue( "xmlsourcefile", xmlSourceFile ) );
-    retval.append( "    " + XmlHandler.addTagValue( "xsddefinedfield", xsdDefinedField ) );
-    retval.append( "    " + XmlHandler.addTagValue( "xsdsource", xsdSource ) );
-    retval.append( "    " + XmlHandler.addTagValue( "allowExternalEntities", allowExternalEntities ) );
+    xml.append( "    " + XmlHandler.addTagValue( "outputstringfield", outputStringField ) );
+    xml.append( "    " + XmlHandler.addTagValue( "xmlsourcefile", xmlSourceFile ) );
+    xml.append( "    " + XmlHandler.addTagValue( "xsddefinedfield", xsdDefinedField ) );
+    xml.append( "    " + XmlHandler.addTagValue( "xsdsource", xsdSource ) );
+    xml.append( "    " + XmlHandler.addTagValue( "allowExternalEntities", allowExternalEntities ) );
 
-    return retval.toString();
+    return xml.toString();
   }
 
 

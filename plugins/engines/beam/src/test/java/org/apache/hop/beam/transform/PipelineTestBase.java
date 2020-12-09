@@ -133,7 +133,7 @@ public class PipelineTestBase {
 
     /*
     FileOutputStream fos = new FileOutputStream( "/tmp/"+pipelineMeta.getName()+".ktr" );
-    fos.write( pipelineMeta.getXML().getBytes() );
+    fos.write( pipelineMeta.getXml().getBytes() );
     fos.close();
     */
 

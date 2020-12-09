@@ -27,6 +27,7 @@ import org.apache.hop.core.CheckResult;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.ICheckResult;
 import org.apache.hop.core.annotations.Transform;
+import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.injection.Injection;
@@ -245,7 +246,7 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     row.addValueMeta( v );
   }
 
-  public String getXML() {
+  @Override public String getXml() throws HopException {
     StringBuffer xml = new StringBuffer( 500 );
 
     xml.append( "    " ).append( XmlHandler.addTagValue( "encoding", encoding ) );

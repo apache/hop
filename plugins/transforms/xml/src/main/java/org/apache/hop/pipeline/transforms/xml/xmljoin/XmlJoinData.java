@@ -40,18 +40,18 @@ import org.w3c.dom.NodeList;
 public class XmlJoinData extends BaseTransformData implements ITransformData {
   public IRowMeta outputRowMeta;
 
-  public IRowSet TargetRowSet;
-  public IRowSet SourceRowSet;
+  public IRowSet targetRowSet;
+  public IRowSet sourceRowSet;
 
   public Object[] outputRowData;
 
-  public Document targetDOM;
+  public Document targetDom;
 
   public Node targetNode;
 
   public NodeList targetNodes;
 
-  public String XPathStatement;
+  public String xPathStatement;
 
   public int iSourceXMLField = -1;
   public int iCompareFieldID = -1;

@@ -126,27 +126,27 @@ public class XmlWellFormed extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
-    StringBuilder retval = new StringBuilder( 300 );
+  public String getXml() {
+    StringBuilder xml = new StringBuilder( 300 );
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubfolders ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nrErrorsLessThan ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "resultfilenames", resultFilenames ) );
-    retval.append( "      " ).append( XmlHandler.openTag( "fields" ) ).append( Const.CR );
+    xml.append( super.getXml() );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "arg_from_previous", argFromPrevious ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "include_subfolders", includeSubfolders ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "nr_errors_less_than", nrErrorsLessThan ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "success_condition", successCondition ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "resultfilenames", resultFilenames ) );
+    xml.append( "      " ).append( XmlHandler.openTag( "fields" ) ).append( Const.CR );
     if ( sourceFileFolders != null ) {
       for ( int i = 0; i < sourceFileFolders.length; i++ ) {
-        retval.append( "        " ).append( XmlHandler.openTag( "field" ) ).append( Const.CR );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", sourceFileFolders[i] ) );
-        retval.append( "          " ).append( XmlHandler.addTagValue( "wildcard", wildcard[i] ) );
-        retval.append( "        " ).append( XmlHandler.closeTag( "field" ) ).append( Const.CR );
+        xml.append( "        " ).append( XmlHandler.openTag( "field" ) ).append( Const.CR );
+        xml.append( "          " ).append( XmlHandler.addTagValue( "source_filefolder", sourceFileFolders[i] ) );
+        xml.append( "          " ).append( XmlHandler.addTagValue( "wildcard", wildcard[i] ) );
+        xml.append( "        " ).append( XmlHandler.closeTag( "field" ) ).append( Const.CR );
       }
     }
-    retval.append( "      " ).append( XmlHandler.closeTag( "fields" ) ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.closeTag( "fields" ) ).append( Const.CR );
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {

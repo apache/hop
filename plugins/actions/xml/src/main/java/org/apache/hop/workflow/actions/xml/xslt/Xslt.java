@@ -163,39 +163,39 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
-    StringBuffer retval = new StringBuffer( 50 );
+  public String getXml() {
+    StringBuffer xml = new StringBuffer( 50 );
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "xmlfilename", xmlfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "xslfilename", xslfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "outputfilename", outputfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", ifFileExists ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "filenamesfromprevious", filenamesfromprevious ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "xsltfactory", xsltfactory ) );
+    xml.append( super.getXml() );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "xmlfilename", xmlfilename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "xslfilename", xslfilename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "outputfilename", outputfilename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", ifFileExists ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "filenamesfromprevious", filenamesfromprevious ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "xsltfactory", xsltfactory ) );
 
-    retval.append( "    <parameters>" ).append( Const.CR );
+    xml.append( "    <parameters>" ).append( Const.CR );
 
     for ( int i = 0; i < parameterName.length; i++ ) {
-      retval.append( "      <parameter>" ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "field", parameterField[i] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "name", parameterName[i] ) );
-      retval.append( "      </parameter>" ).append( Const.CR );
+      xml.append( "      <parameter>" ).append( Const.CR );
+      xml.append( "        " ).append( XmlHandler.addTagValue( "field", parameterField[i] ) );
+      xml.append( "        " ).append( XmlHandler.addTagValue( "name", parameterName[i] ) );
+      xml.append( "      </parameter>" ).append( Const.CR );
     }
 
-    retval.append( "    </parameters>" ).append( Const.CR );
-    retval.append( "    <outputproperties>" ).append( Const.CR );
+    xml.append( "    </parameters>" ).append( Const.CR );
+    xml.append( "    <outputproperties>" ).append( Const.CR );
 
     for ( int i = 0; i < outputPropertyName.length; i++ ) {
-      retval.append( "      <outputproperty>" ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "name", outputPropertyName[i] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "value", outputPropertyValue[i] ) );
-      retval.append( "      </outputproperty>" ).append( Const.CR );
+      xml.append( "      <outputproperty>" ).append( Const.CR );
+      xml.append( "        " ).append( XmlHandler.addTagValue( "name", outputPropertyName[i] ) );
+      xml.append( "        " ).append( XmlHandler.addTagValue( "value", outputPropertyValue[i] ) );
+      xml.append( "      </outputproperty>" ).append( Const.CR );
     }
 
-    retval.append( "    </outputproperties>" ).append( Const.CR );
-    return retval.toString();
+    xml.append( "    </outputproperties>" ).append( Const.CR );
+    return xml.toString();
   }
 
   public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
