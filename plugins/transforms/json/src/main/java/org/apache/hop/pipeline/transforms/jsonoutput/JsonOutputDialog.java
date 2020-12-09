@@ -887,11 +887,11 @@ public class JsonOutputDialog extends BaseTransformDialog implements ITransformD
     jsometa.setAddToResult( wAddToResult.getSelection() );
     jsometa.setDoNotOpenNewFileInit( wDoNotOpenNewFileInit.getSelection() );
 
-    int nrfields = wFields.nrNonEmpty();
+    int nrFields = wFields.nrNonEmpty();
 
-    jsometa.allocate( nrfields );
+    jsometa.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       JsonOutputField field = new JsonOutputField();
 
       TableItem item = wFields.getNonEmpty( i );

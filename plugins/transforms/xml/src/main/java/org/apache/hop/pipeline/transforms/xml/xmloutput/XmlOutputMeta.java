@@ -336,17 +336,17 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     this.outputFields = outputFields;
   }
 
-  public void allocate( int nrfields ) {
-    outputFields = new XmlField[ nrfields ];
+  public void allocate( int nrFields ) {
+    outputFields = new XmlField[ nrFields ];
   }
 
   public Object clone() {
     XmlOutputMeta retval = (XmlOutputMeta) super.clone();
-    int nrfields = outputFields.length;
+    int nrFields = outputFields.length;
 
-    retval.allocate( nrfields );
+    retval.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       retval.outputFields[ i ] = (XmlField) outputFields[ i ].clone();
     }
 
@@ -389,11 +389,11 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
       setSplitEvery( Const.toInt( XmlHandler.getTagValue( transformNode, "file", "splitevery" ), 0 ) );
 
       Node fields = XmlHandler.getSubNode( transformNode, "fields" );
-      int nrfields = XmlHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
-      allocate( nrfields );
+      allocate( nrFields );
 
-      for ( int i = 0; i < nrfields; i++ ) {
+      for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
         outputFields[ i ] = new XmlField();
@@ -450,9 +450,9 @@ public class XmlOutputMeta extends BaseTransformMeta implements ITransformMeta<X
     mainElement = "Rows";
     repeatElement = "Row";
 
-    int nrfields = 0;
+    int nrFields = 0;
 
-    allocate( nrfields );
+    allocate( nrFields );
   }
 
   public String[] getFiles( IVariables variables ) {

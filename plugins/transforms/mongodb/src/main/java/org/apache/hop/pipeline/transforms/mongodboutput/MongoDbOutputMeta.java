@@ -717,10 +717,10 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
 
     Node fields = XmlHandler.getSubNode(stepnode, "mongo_fields");
     if (fields != null && XmlHandler.countNodes(fields, "mongo_field") > 0) {
-      int nrfields = XmlHandler.countNodes(fields, "mongo_field");
+      int nrFields = XmlHandler.countNodes(fields, "mongo_field");
       m_mongoFields = new ArrayList<>();
 
-      for (int i = 0; i < nrfields; i++) {
+      for (int i = 0; i < nrFields; i++) {
         Node fieldNode = XmlHandler.getSubNodeByNr(fields, "mongo_field", i);
 
         MongoField newField = new MongoField();
@@ -751,11 +751,11 @@ public class MongoDbOutputMeta extends MongoDbMeta<MongoDbOutput, MongoDbOutputD
 
     fields = XmlHandler.getSubNode(stepnode, "mongo_indexes");
     if (fields != null && XmlHandler.countNodes(fields, "mongo_index") > 0) {
-      int nrfields = XmlHandler.countNodes(fields, "mongo_index");
+      int nrFields = XmlHandler.countNodes(fields, "mongo_index");
 
       m_mongoIndexes = new ArrayList<>();
 
-      for (int i = 0; i < nrfields; i++) {
+      for (int i = 0; i < nrFields; i++) {
         Node fieldNode = XmlHandler.getSubNodeByNr(fields, "mongo_index", i);
 
         MongoIndex newIndex = new MongoIndex();

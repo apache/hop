@@ -164,10 +164,10 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
 
       Node mongo_fields = XmlHandler.getSubNode(stepnode, "mongo_fields");
       if (mongo_fields != null && XmlHandler.countNodes(mongo_fields, "mongo_field") > 0) {
-        int nrfields = XmlHandler.countNodes(mongo_fields, "mongo_field");
+        int nrFields = XmlHandler.countNodes(mongo_fields, "mongo_field");
 
         m_fields = new ArrayList<>();
-        for (int i = 0; i < nrfields; i++) {
+        for (int i = 0; i < nrFields; i++) {
           Node fieldNode = XmlHandler.getSubNodeByNr(mongo_fields, "mongo_field", i);
 
           MongoField newField = new MongoField();

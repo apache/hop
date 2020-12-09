@@ -70,10 +70,10 @@ public class SalesforceUpdate extends SalesforceTransform<SalesforceUpdateMeta, 
       data.outputBuffer = new Object[ meta.getBatchSizeInt() ][];
 
       // get total fields in the grid
-      data.nrfields = meta.getUpdateLookup().length;
+      data.nrFields = meta.getUpdateLookup().length;
 
       // Check if field list is filled
-      if ( data.nrfields == 0 ) {
+      if ( data.nrFields == 0 ) {
         throw new HopException( BaseMessages.getString( PKG,
           "SalesforceUpdateDialog.FieldsMissing.DialogMessage" ) );
       }
@@ -118,7 +118,7 @@ public class SalesforceUpdate extends SalesforceTransform<SalesforceUpdateMeta, 
         ArrayList<XmlObject> updatefields = new ArrayList<>();
 
         // Add fields to update
-        for ( int i = 0; i < data.nrfields; i++ ) {
+        for ( int i = 0; i < data.nrFields; i++ ) {
           boolean valueIsNull = data.inputRowMeta.isNull( rowData, data.fieldnrs[ i ] );
           if ( valueIsNull ) {
             // The value is null

@@ -72,10 +72,10 @@ public class SalesforceInsert extends SalesforceTransform<SalesforceInsertMeta, 
       data.outputBuffer = new Object[ meta.getBatchSizeInt() ][];
 
       // get total fields in the grid
-      data.nrfields = meta.getUpdateLookup().length;
+      data.nrFields = meta.getUpdateLookup().length;
 
       // Check if field list is filled
-      if ( data.nrfields == 0 ) {
+      if ( data.nrFields == 0 ) {
         throw new HopException( BaseMessages.getString(
           PKG, "SalesforceInsertDialog.FieldsMissing.DialogMessage" ) );
       }
@@ -121,7 +121,7 @@ public class SalesforceInsert extends SalesforceTransform<SalesforceInsertMeta, 
         ArrayList<String> fieldsToNull = new ArrayList<>();
 
         // Add fields to insert
-        for ( int i = 0; i < data.nrfields; i++ ) {
+        for ( int i = 0; i < data.nrFields; i++ ) {
           IValueMeta valueMeta = data.inputRowMeta.getValueMeta( data.fieldnrs[ i ] );
           Object value = rowData[ data.fieldnrs[ i ] ];
 

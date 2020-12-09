@@ -770,10 +770,10 @@ public class JsonInputMeta
     initArrayFields( nrFiles, nrFields );
   }
 
-  private void initArrayFields( int nrfiles, int nrfields ) {
-    setInputFields( new JsonInputField[ nrfields ] );
+  private void initArrayFields( int nrfiles, int nrFields ) {
+    setInputFields( new JsonInputField[ nrFields ] );
     inputFiles.allocate( nrfiles );
-    inputFields = new JsonInputField[ nrfields ];
+    inputFields = new JsonInputField[ nrFields ];
   }
 
   @Override

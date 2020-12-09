@@ -34,7 +34,7 @@ public class SalesforceInputDataTest {
     assertNull( data.outputRowMeta );
     assertNull( data.convertRowMeta );
     assertEquals( 0, data.recordcount );
-    assertEquals( 0, data.nrfields );
+    assertEquals( 0, data.nrFields );
     assertEquals( false, data.limitReached );
     assertEquals( 0, data.limit );
     assertEquals( 0, data.nrRecords );

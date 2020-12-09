@@ -571,11 +571,11 @@ public class ConcatFieldsDialog extends BaseTransformDialog implements ITransfor
 
     int i;
 
-    int nrfields = wFields.nrNonEmpty();
+    int nrFields = wFields.nrNonEmpty();
 
-    tfoi.allocate( nrfields );
+    tfoi.allocate( nrFields );
 
-    for ( i = 0; i < nrfields; i++ ) {
+    for ( i = 0; i < nrFields; i++ ) {
       TextFileField field = new TextFileField();
 
       TableItem item = wFields.getNonEmpty( i );

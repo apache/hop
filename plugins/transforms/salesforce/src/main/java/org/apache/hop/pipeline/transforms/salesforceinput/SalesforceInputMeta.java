@@ -577,8 +577,8 @@ public class SalesforceInputMeta extends SalesforceTransformMeta<SalesforceInput
     }
   }
 
-  public void allocate( int nrfields ) {
-    setInputFields( new SalesforceInputField[ nrfields ] );
+  public void allocate( int nrFields ) {
+    setInputFields( new SalesforceInputField[ nrFields ] );
   }
 
   public int getNrFields() {

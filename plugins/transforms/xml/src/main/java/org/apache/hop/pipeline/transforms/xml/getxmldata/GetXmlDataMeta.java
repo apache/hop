@@ -828,9 +828,9 @@ public class GetXmlDataMeta extends BaseTransformMeta implements ITransformMeta<
     }
   }
 
-  public void allocate( int nrfiles, int nrfields ) {
+  public void allocate( int nrfiles, int nrFields ) {
     allocateFiles( nrfiles );
-    inputFields = new GetXmlDataField[nrfields];
+    inputFields = new GetXmlDataField[nrFields];
   }
 
   public void allocateFiles( int nrfiles ) {

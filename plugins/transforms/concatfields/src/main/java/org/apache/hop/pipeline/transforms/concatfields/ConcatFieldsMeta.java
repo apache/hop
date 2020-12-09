@@ -277,11 +277,11 @@ public class ConcatFieldsMeta extends BaseTransformMeta  implements ITransformMe
           .getTagValue( transformNode, ConcatFieldsNodeNameSpace, "removeSelectedFields" ) );
 
     Node fields = XmlHandler.getSubNode( transformNode, "fields" );
-    int nrfields = XmlHandler.countNodes( fields, "field" );
+    int nrFields = XmlHandler.countNodes( fields, "field" );
 
-    allocate( nrfields );
+    allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
       outputFields[i] = new TextFileField();

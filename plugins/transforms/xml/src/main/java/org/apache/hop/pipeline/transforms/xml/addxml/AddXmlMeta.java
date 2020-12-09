@@ -143,22 +143,17 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     this.outputFields = outputFields;
   }
 
-  @Override
-  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    readData( transformNode );
-  }
-
-  public void allocate( int nrfields ) {
-    outputFields = new XmlField[nrfields];
+  public void allocate( int nrFields ) {
+    outputFields = new XmlField[nrFields];
   }
 
   public Object clone() {
     AddXmlMeta retval = (AddXmlMeta) super.clone();
-    int nrfields = outputFields.length;
+    int nrFields = outputFields.length;
 
-    retval.allocate( nrfields );
+    retval.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       retval.outputFields[i] = (XmlField) outputFields[i].clone();
     }
 
@@ -175,7 +170,8 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     return new AddXmlData();
   }
 
-  private void readData( Node transformNode ) throws HopXmlException {
+  @Override
+  public void loadXml(Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     try {
       encoding = XmlHandler.getTagValue( transformNode, "encoding" );
       valueName = XmlHandler.getTagValue( transformNode, "valueName" );
@@ -185,11 +181,11 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
       omitNullValues = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformNode, "file", "omitNullValues" ) );
 
       Node fields = XmlHandler.getSubNode( transformNode, "fields" );
-      int nrfields = XmlHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
-      allocate( nrfields );
+      allocate( nrFields );
 
-      for ( int i = 0; i < nrfields; i++ ) {
+      for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
         outputFields[i] = new XmlField();
@@ -219,11 +215,11 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
     valueName = "xmlvaluename";
     rootNode = "Row";
 
-    int nrfields = 0;
+    int nrFields = 0;
 
-    allocate( nrfields );
+    allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       outputFields[i] = new XmlField();
 
       outputFields[i].setFieldName( "field" + i );
@@ -250,41 +246,41 @@ public class AddXmlMeta extends BaseTransformMeta implements ITransformMeta<AddX
   }
 
   public String getXML() {
-    StringBuffer retval = new StringBuffer( 500 );
+    StringBuffer xml = new StringBuffer( 500 );
 
-    retval.append( "    " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "valueName", valueName ) );
-    retval.append( "    " ).append( XmlHandler.addTagValue( "xml_repeat_element", rootNode ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "encoding", encoding ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "valueName", valueName ) );
+    xml.append( "    " ).append( XmlHandler.addTagValue( "xml_repeat_element", rootNode ) );
 
-    retval.append( "    <file>" ).append( Const.CR );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "omitXMLheader", omitXMLheader ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "omitNullValues", omitNullValues ) );
-    retval.append( "    </file>" ).append( Const.CR );
-    retval.append( "    <fields>" ).append( Const.CR );
+    xml.append( "    <file>" ).append( Const.CR );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "omitXMLheader", omitXMLheader ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "omitNullValues", omitNullValues ) );
+    xml.append( "    </file>" ).append( Const.CR );
+    xml.append( "    <fields>" ).append( Const.CR );
     for ( int i = 0; i < outputFields.length; i++ ) {
       XmlField field = outputFields[i];
 
       if ( field.getFieldName() != null && field.getFieldName().length() != 0 ) {
-        retval.append( "      <field>" ).append( Const.CR );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "name", field.getFieldName() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "element", field.getElementName() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "type", field.getTypeDesc() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "format", field.getFormat() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "currency", field.getCurrencySymbol() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", field.getDecimalSymbol() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "group", field.getGroupingSymbol() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "nullif", field.getNullString() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "length", field.getLength() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "precision", field.getPrecision() ) );
-        retval.append( "        " ).append( XmlHandler.addTagValue( "attribute", field.isAttribute() ) );
-        retval.append( "        " ).append(
+        xml.append( "      <field>" ).append( Const.CR );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "name", field.getFieldName() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "element", field.getElementName() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "type", field.getTypeDesc() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "format", field.getFormat() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "currency", field.getCurrencySymbol() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "decimal", field.getDecimalSymbol() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "group", field.getGroupingSymbol() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "nullif", field.getNullString() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "length", field.getLength() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "precision", field.getPrecision() ) );
+        xml.append( "        " ).append( XmlHandler.addTagValue( "attribute", field.isAttribute() ) );
+        xml.append( "        " ).append(
             XmlHandler.addTagValue( "attributeParentName", field.getAttributeParentName() ) );
-        retval.append( "        </field>" ).append( Const.CR );
+        xml.append( "        </field>" ).append( Const.CR );
       }
     }
-    retval.append( "    </fields>" + Const.CR );
+    xml.append( "    </fields>" + Const.CR );
 
-    return retval.toString();
+    return xml.toString();
   }
 
 

@@ -1014,11 +1014,11 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     // Table table = wFields.table;
 
-    int nrfields = wFields.nrNonEmpty();
+    int nrFields = wFields.nrNonEmpty();
 
-    xmlOutputMeta.allocate( nrfields );
+    xmlOutputMeta.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       XmlField field = new XmlField();
 
       TableItem item = wFields.getNonEmpty( i );

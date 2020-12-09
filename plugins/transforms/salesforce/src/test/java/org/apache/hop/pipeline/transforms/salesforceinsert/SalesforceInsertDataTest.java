@@ -29,7 +29,7 @@ public class SalesforceInsertDataTest {
     SalesforceInsertData data = new SalesforceInsertData();
     assertNull( data.inputRowMeta );
     assertNull( data.outputRowMeta );
-    assertEquals( 0, data.nrfields );
+    assertEquals( 0, data.nrFields );
     assertNull( data.fieldnrs );
     assertNull( data.saveResult );
     assertNull( data.sfBuffer );

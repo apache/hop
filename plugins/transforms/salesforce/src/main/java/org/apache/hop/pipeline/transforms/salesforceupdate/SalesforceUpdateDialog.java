@@ -717,12 +717,12 @@ public class SalesforceUpdateDialog extends SalesforceTransformDialog {
     meta.setModule( Const.NVL( wModule.getText(), "Account" ) );
     meta.setBatchSize( wBatchSize.getText() );
 
-    int nrfields = wReturn.nrNonEmpty();
+    int nrFields = wReturn.nrNonEmpty();
 
-    meta.allocate( nrfields );
+    meta.allocate( nrFields );
 
     //CHECKSTYLE:Indentation:OFF
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
       meta.getUpdateLookup()[i] = item.getText( 1 );
       meta.getUpdateStream()[i] = item.getText( 2 );

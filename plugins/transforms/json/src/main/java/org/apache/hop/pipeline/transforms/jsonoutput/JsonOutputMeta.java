@@ -251,17 +251,17 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     readData( transformnode );
   }
 
-  public void allocate( int nrfields ) {
-    outputFields = new JsonOutputField[ nrfields ];
+  public void allocate( int nrFields ) {
+    outputFields = new JsonOutputField[ nrFields ];
   }
 
   public Object clone() {
     JsonOutputMeta retval = (JsonOutputMeta) super.clone();
-    int nrfields = outputFields.length;
+    int nrFields = outputFields.length;
 
-    retval.allocate( nrfields );
+    retval.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       retval.outputFields[ i ] = (JsonOutputField) outputFields[ i ].clone();
     }
 
@@ -295,11 +295,11 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
       DoNotOpenNewFileInit = "Y".equalsIgnoreCase( XmlHandler.getTagValue( transformnode, "file", "DoNotOpenNewFileInit" ) );
 
       Node fields = XmlHandler.getSubNode( transformnode, "fields" );
-      int nrfields = XmlHandler.countNodes( fields, "field" );
+      int nrFields = XmlHandler.countNodes( fields, "field" );
 
-      allocate( nrfields );
+      allocate( nrFields );
 
-      for ( int i = 0; i < nrfields; i++ ) {
+      for ( int i = 0; i < nrFields; i++ ) {
         Node fnode = XmlHandler.getSubNodeByNr( fields, "field", i );
 
         outputFields[ i ] = new JsonOutputField();
@@ -318,11 +318,11 @@ public class JsonOutputMeta extends BaseFileOutputMeta implements ITransformMeta
     nrRowsInBloc = "1";
     operationType = OPERATION_TYPE_WRITE_TO_FILE;
     extension = "js";
-    int nrfields = 0;
+    int nrFields = 0;
 
-    allocate( nrfields );
+    allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       outputFields[ i ] = new JsonOutputField();
       outputFields[ i ].setFieldName( "field" + i );
       outputFields[ i ].setElementName( "field" + i );
