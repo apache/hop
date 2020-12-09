@@ -76,7 +76,7 @@ public class Management {
   }
 
   /**
-   * @return the amount of free swap variables in bytes
+   * @return the amount of free swap space in bytes
    */
   public static long getFreeSwapSpaceSize() {
     setOperatingSystemMXBean();
@@ -92,7 +92,7 @@ public class Management {
   }
 
   /**
-   * @return the total amount of swap variables in bytes.
+   * @return the total amount of swap space in bytes.
    */
   public static long getTotalSwapSpaceSize() {
     setOperatingSystemMXBean();
