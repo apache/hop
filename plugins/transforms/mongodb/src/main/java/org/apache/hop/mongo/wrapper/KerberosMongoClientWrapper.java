@@ -39,7 +39,7 @@ import java.util.List;
  * instantiated by MongoClientWrapperFactory.
  */
 class KerberosMongoClientWrapper
-    extends org.apache.hop.mongo.wrapper.UsernamePasswordMongoClientWrapper {
+    extends UsernamePasswordMongoClientWrapper {
   private final AuthContext authContext;
 
   public KerberosMongoClientWrapper(MongoProperties props, MongoUtilLogger log)
@@ -79,7 +79,7 @@ class KerberosMongoClientWrapper
 
   @Override
   protected MongoCollectionWrapper wrap(DBCollection collection) {
-    return org.apache.hop.mongo.wrapper.KerberosInvocationHandler.wrap(
+    return KerberosInvocationHandler.wrap(
         MongoCollectionWrapper.class,
         authContext,
         new KerberosMongoCollectionWrapper(collection, authContext));
@@ -90,13 +90,13 @@ class KerberosMongoClientWrapper
   }
 
   @Override
-  public org.apache.hop.mongo.wrapper.MongoClientFactory getClientFactory(
+  public MongoClientFactory getClientFactory(
       final MongoProperties opts) {
     try {
-      return org.apache.hop.mongo.wrapper.KerberosInvocationHandler.wrap(
-          org.apache.hop.mongo.wrapper.MongoClientFactory.class,
+      return KerberosInvocationHandler.wrap(
+          MongoClientFactory.class,
           getAuthContext(opts),
-          new org.apache.hop.mongo.wrapper.DefaultMongoClientFactory());
+          new DefaultMongoClientFactory());
     } catch (MongoDbException e) {
       return super.getClientFactory(opts);
     }

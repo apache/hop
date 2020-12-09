@@ -1,26 +1,20 @@
 // CHECKSTYLE:FileLength:OFF
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.mail;
 
@@ -272,10 +266,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDestination.right = new FormAttachment( 100, -margin );
     wDestination.setLayoutData(fdDestination);
     wDestination.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -304,10 +298,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDestinationCc.right = new FormAttachment( 100, -margin );
     wDestinationCc.setLayoutData(fdDestinationCc);
     wDestinationCc.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -335,10 +329,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDestinationBCc.right = new FormAttachment( 100, -margin );
     wDestinationBCc.setLayoutData(fdDestinationBCc);
     wDestinationBCc.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -390,10 +384,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdReplyName.right = new FormAttachment( 100, -margin );
     wReplyName.setLayoutData(fdReplyName);
     wReplyName.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -422,10 +416,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdReply.right = new FormAttachment( 100, -margin );
     wReply.setLayoutData(fdReply);
     wReply.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -463,10 +457,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdReplyToAddresses.right = new FormAttachment( 100, -margin );
     wReplyToAddresses.setLayoutData(fdReplyToAddresses);
     wReplyToAddresses.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -495,10 +489,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdPerson.right = new FormAttachment( 100, -margin );
     wPerson.setLayoutData(fdPerson);
     wPerson.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -527,10 +521,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdPhone.right = new FormAttachment( 100, -margin );
     wPhone.setLayoutData(fdPhone);
     wPhone.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -602,10 +596,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdServer.right = new FormAttachment( 100, -margin );
     wServer.setLayoutData(fdServer);
     wServer.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -634,10 +628,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdPort.right = new FormAttachment( 100, -margin );
     wPort.setLayoutData(fdPort);
     wPort.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -712,10 +706,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdAuthUser.right = new FormAttachment( 100, -margin );
     wAuthUser.setLayoutData(fdAuthUser);
     wAuthUser.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -744,10 +738,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdAuthPass.right = new FormAttachment( 100, -margin );
     wAuthPass.setLayoutData(fdAuthPass);
     wAuthPass.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -947,10 +941,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdEncoding.right = new FormAttachment( 100, 0 );
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setEncodings();
@@ -1101,10 +1095,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdSubject.right = new FormAttachment( 100, -margin );
     wSubject.setLayoutData(fdSubject);
     wSubject.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1132,10 +1126,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdComment.right = new FormAttachment( 100, -margin );
     wComment.setLayoutData(fdComment);
     wComment.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1239,10 +1233,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdAttachContentField.right = new FormAttachment( 100, -margin );
     wAttachContentField.setLayoutData( fdAttachContentField );
     wAttachContentField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1270,10 +1264,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdAttachContentFileNameField.right = new FormAttachment( 100, -margin );
     wAttachContentFileNameField.setLayoutData( fdAttachContentFileNameField );
     wAttachContentFileNameField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1349,10 +1343,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdFilenameField.right = new FormAttachment( 100, -margin );
     wDynamicFilenameField.setLayoutData( fdFilenameField );
     wDynamicFilenameField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1381,10 +1375,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDynamicWildcardField.right = new FormAttachment( 100, -margin );
     wDynamicWildcardField.setLayoutData( fdDynamicWildcardField );
     wDynamicWildcardField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1598,10 +1592,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDynamicZipFileField.right = new FormAttachment( 100, -margin );
     wDynamicZipFileField.setLayoutData(fdDynamicZipFileField);
     wDynamicZipFileField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();

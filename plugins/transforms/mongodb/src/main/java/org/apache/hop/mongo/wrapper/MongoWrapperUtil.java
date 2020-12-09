@@ -31,8 +31,8 @@ import java.util.List;
 
 /** Created by bryan on 8/7/14. */
 public class MongoWrapperUtil {
-  private static org.apache.hop.mongo.wrapper.MongoWrapperClientFactory mongoWrapperClientFactory =
-      new org.apache.hop.mongo.wrapper.MongoWrapperClientFactory() {
+  private static MongoWrapperClientFactory mongoWrapperClientFactory =
+      new MongoWrapperClientFactory() {
         @Override
         public MongoClientWrapper createMongoClientWrapper(
             MongoProperties props, MongoUtilLogger log) throws MongoDbException {
@@ -41,11 +41,11 @@ public class MongoWrapperUtil {
       };
 
   public static void setMongoWrapperClientFactory(
-      org.apache.hop.mongo.wrapper.MongoWrapperClientFactory mongoWrapperClientFactory) {
+      MongoWrapperClientFactory mongoWrapperClientFactory) {
     MongoWrapperUtil.mongoWrapperClientFactory = mongoWrapperClientFactory;
   }
 
-  protected static org.apache.hop.mongo.wrapper.MongoWrapperClientFactory
+  protected static MongoWrapperClientFactory
       getMongoWrapperClientFactory() {
     return mongoWrapperClientFactory;
   }

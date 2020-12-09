@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.getpop;
 
@@ -594,35 +588,35 @@ public class MailConnection {
   }
 
   public void setFlagTermNew() {
-    addSearchTerm( new FlagTerm( new Flags( Flags.Flag.RECENT ), true ) );
+    addSearchTerm( new FlagTerm( new Flags( Flag.RECENT ), true ) );
   }
 
   public void setFlagTermOld() {
-    addSearchTerm( new FlagTerm( new Flags( Flags.Flag.RECENT ), false ) );
+    addSearchTerm( new FlagTerm( new Flags( Flag.RECENT ), false ) );
   }
 
   public void setFlagTermRead() {
-    addSearchTerm( new FlagTerm( new Flags( Flags.Flag.SEEN ), true ) );
+    addSearchTerm( new FlagTerm( new Flags( Flag.SEEN ), true ) );
   }
 
   public void setFlagTermUnread() {
-    addSearchTerm( new FlagTerm( new Flags( Flags.Flag.SEEN ), false ) );
+    addSearchTerm( new FlagTerm( new Flags( Flag.SEEN ), false ) );
   }
 
   public void setFlagTermFlagged() {
-    addSearchTerm( new FlagTerm( new Flags( Flags.Flag.FLAGGED ), true ) );
+    addSearchTerm( new FlagTerm( new Flags( Flag.FLAGGED ), true ) );
   }
 
   public void setFlagTermNotFlagged() {
-    addSearchTerm( new FlagTerm( new Flags( Flags.Flag.FLAGGED ), false ) );
+    addSearchTerm( new FlagTerm( new Flags( Flag.FLAGGED ), false ) );
   }
 
   public void setFlagTermDraft() {
-    addSearchTerm( new FlagTerm( new Flags( Flags.Flag.DRAFT ), true ) );
+    addSearchTerm( new FlagTerm( new Flags( Flag.DRAFT ), true ) );
   }
 
   public void setFlagTermNotDraft() {
-    addSearchTerm( new FlagTerm( new Flags( Flags.Flag.DRAFT ), false ) );
+    addSearchTerm( new FlagTerm( new Flags( Flag.DRAFT ), false ) );
   }
 
   /**
@@ -865,7 +859,7 @@ public class MailConnection {
    */
   public void deleteMessage() throws HopException {
     try {
-      this.message.setFlag( Flags.Flag.DELETED, true );
+      this.message.setFlag( Flag.DELETED, true );
       updateDeletedMessagesCounter();
     } catch ( Exception e ) {
       throw new HopException( BaseMessages.getString( PKG, "MailConnection.Error.DeletingMessage", ""
@@ -1058,7 +1052,7 @@ public class MailConnection {
    */
   public void deleteMessages( boolean setCounter ) throws HopException {
     try {
-      this.folder.setFlags( this.messages, new Flags( Flags.Flag.DELETED ), true );
+      this.folder.setFlags( this.messages, new Flags( Flag.DELETED ), true );
       if ( setCounter ) {
         setDeletedMessagesCounter();
       }

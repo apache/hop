@@ -1,25 +1,20 @@
 //CHECKSTYLE:FileLength:OFF
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline;
 
@@ -1963,7 +1958,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * Gets a string representation of the pipeline.
    *
    * @return the string representation of the pipeline
-   * @see java.lang.Object#toString()
+   * @see Object#toString()
    */
   @Override
   public String toString() {
@@ -2336,7 +2331,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    *
    * @param aString the string to resolve against environment variables
    * @return the string after variables have been resolved/susbstituted
-   * @see IVariables#resolve(java.lang.String)
+   * @see IVariables#resolve(String)
    */
   @Override
   public String resolve( String aString ) {
@@ -2349,7 +2344,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    *
    * @param aString an array of strings to resolve against environment variables
    * @return the array of strings after variables have been resolved/susbstituted
-   * @see IVariables#resolve(java.lang.String[])
+   * @see IVariables#resolve(String[])
    */
   @Override
   public String[] resolve( String[] aString ) {
@@ -2391,7 +2386,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * @param variableName the variable name
    * @param defaultValue the default value
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see IVariables#getVariable(java.lang.String, java.lang.String)
+   * @see IVariables#getVariable(String, String)
    */
   @Override
   public String getVariable( String variableName, String defaultValue ) {
@@ -2403,7 +2398,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    *
    * @param variableName the variable name
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see IVariables#getVariable(java.lang.String)
+   * @see IVariables#getVariable(String)
    */
   @Override
   public String getVariable( String variableName ) {
@@ -2417,7 +2412,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * @param variableName the variable name
    * @param defaultValue the default value
    * @return a boolean representation of the specified variable after performing any necessary substitution
-   * @see IVariables#getVariableBoolean(java.lang.String, boolean)
+   * @see IVariables#getVariableBoolean(String, boolean)
    */
   @Override
   public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
@@ -2458,7 +2453,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    *
    * @param variableName  the variable name
    * @param variableValue the variable value
-   * @see IVariables#setVariable(java.lang.String, java.lang.String)
+   * @see IVariables#setVariable(String, String)
    */
   @Override
   public void setVariable( String variableName, String variableValue ) {
@@ -2483,7 +2478,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * injecting the link of the properties object should be removed.
    *
    * @param map the property map
-   * @see IVariables#setVariables(java.util.Map)
+   * @see IVariables#setVariables(Map)
    */
   @Override
   public void setVariables( Map<String, String> map ) {
@@ -2643,8 +2638,8 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * @param defValue    the default value for the parameter
    * @param description the description of the parameter
    * @throws DuplicateParamException the duplicate param exception
-   * @see INamedParameters#addParameterDefinition(java.lang.String, java.lang.String,
-   * java.lang.String)
+   * @see INamedParameters#addParameterDefinition(String, String,
+   * String)
    */
   @Override
   public void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException {
@@ -2657,7 +2652,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * @param key the name of the parameter
    * @return the default value of the parameter
    * @throws UnknownParamException if the parameter does not exist
-   * @see INamedParameters#getParameterDefault(java.lang.String)
+   * @see INamedParameters#getParameterDefault(String)
    */
   @Override
   public String getParameterDefault( String key ) throws UnknownParamException {
@@ -2670,7 +2665,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * @param key the name of the parameter
    * @return the parameter description
    * @throws UnknownParamException if the parameter does not exist
-   * @see INamedParameters#getParameterDescription(java.lang.String)
+   * @see INamedParameters#getParameterDescription(String)
    */
   @Override
   public String getParameterDescription( String key ) throws UnknownParamException {
@@ -2683,7 +2678,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * @param key the name of the parameter
    * @return the parameter value
    * @throws UnknownParamException if the parameter does not exist
-   * @see INamedParameters#getParameterValue(java.lang.String)
+   * @see INamedParameters#getParameterValue(String)
    */
   @Override
   public String getParameterValue( String key ) throws UnknownParamException {
@@ -2707,7 +2702,7 @@ public abstract class Pipeline implements IVariables, INamedParameters, IHasLogC
    * @param key   the name of the parameter
    * @param value the name of the value
    * @throws UnknownParamException if the parameter does not exist
-   * @see INamedParameters#setParameterValue(java.lang.String, java.lang.String)
+   * @see INamedParameters#setParameterValue(String, String)
    */
   @Override
   public void setParameterValue( String key, String value ) throws UnknownParamException {

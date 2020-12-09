@@ -95,7 +95,7 @@ public class MongoDbOutputDataTest {
         .when(collectionWrapper)
         .createIndex(captorIndexes.capture(), captorOptions.capture());
 
-    MongoIndex index = new MongoDbOutputMeta.MongoIndex();
+    MongoIndex index = new MongoIndex();
     index.m_pathToFields = "FirstName:1";
     index.m_drop = false;
     index.m_sparse = false;
@@ -181,7 +181,7 @@ public class MongoDbOutputDataTest {
         .when(collectionWrapper)
         .createIndex(captorIndexes.capture(), any(BasicDBObject.class));
 
-    MongoIndex index = new MongoDbOutputMeta.MongoIndex();
+    MongoIndex index = new MongoIndex();
     index.m_pathToFields = "FirstName:1";
     index.m_drop = false;
     index.m_sparse = false;

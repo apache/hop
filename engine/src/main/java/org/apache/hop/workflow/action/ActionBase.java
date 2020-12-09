@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.action;
 
@@ -164,7 +158,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Checks if the Action object is equal to the specified object
    *
    * @return true if the two objects are equal, false otherwise
-   * @see java.lang.Object#equals(java.lang.Object)
+   * @see Object#equals(Object)
    */
   @Override
   public boolean equals( Object obj ) {
@@ -434,7 +428,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   /**
    * Returns a string representation of the object. For ActionBase, this method returns the name
    *
-   * @see java.lang.Object#toString()
+   * @see Object#toString()
    */
   @Override
   public String toString() {
@@ -527,7 +521,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Substitutes any variable values into the given string, and returns the resolved string
    *
    * @return the string with any environment variables resolved and substituted
-   * @see IVariables#resolve(java.lang.String)
+   * @see IVariables#resolve(String)
    */
   @Override
   public String resolve( String aString ) {
@@ -538,7 +532,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Substitutes any variable values into each of the given strings, and returns an array containing the resolved
    * string(s)
    *
-   * @see IVariables#resolve(java.lang.String[])
+   * @see IVariables#resolve(String[])
    */
   @Override
   public String[] resolve( String[] aString ) {
@@ -576,7 +570,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Gets the value of the specified variable, or returns a default value if no such variable exists
    *
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see IVariables#getVariable(java.lang.String, java.lang.String)
+   * @see IVariables#getVariable(String, String)
    */
   @Override
   public String getVariable( String variableName, String defaultValue ) {
@@ -587,7 +581,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Gets the value of the specified variable, or returns a default value if no such variable exists
    *
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see IVariables#getVariable(java.lang.String)
+   * @see IVariables#getVariable(String)
    */
   @Override
   public String getVariable( String variableName ) {
@@ -601,7 +595,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @param variableName the name of the variable to interrogate
    * @return a boolean representation of the specified variable after performing any necessary substitution
    * @boolean defaultValue the value to use if the specified variable is unassigned.
-   * @see IVariables#getVariableBoolean(java.lang.String, boolean)
+   * @see IVariables#getVariableBoolean(String, boolean)
    */
   @Override
   public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
@@ -639,7 +633,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   /**
    * Sets the value of the specified variable to the specified value
    *
-   * @see IVariables#setVariable(java.lang.String, java.lang.String)
+   * @see IVariables#setVariable(String, String)
    */
   @Override
   public void setVariable( String variableName, String variableValue ) {
@@ -662,7 +656,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * time the IVariables is initialized (or upon calling this method if the variables is already initialized). After
    * injecting the link of the properties object should be removed.
    *
-   * @see IVariables#setVariables(java.util.Map)
+   * @see IVariables#setVariables(Map)
    */
   @Override
   public void setVariables( Map<String, String> map ) {

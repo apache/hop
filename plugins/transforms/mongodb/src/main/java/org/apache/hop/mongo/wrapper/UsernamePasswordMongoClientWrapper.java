@@ -31,7 +31,7 @@ import java.util.List;
  * MongoClientWrapperFactory.
  */
 class UsernamePasswordMongoClientWrapper
-    extends org.apache.hop.mongo.wrapper.NoAuthMongoClientWrapper {
+    extends NoAuthMongoClientWrapper {
   private final String user;
 
   /**

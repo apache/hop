@@ -664,7 +664,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     boolean control = (e.stateMask & SWT.MOD1) != 0;
 
     boolean singleClick = false;
-    HopGuiWorkflowGraph.SingleClickType singleClickType = null;
+    SingleClickType singleClickType = null;
     ActionMeta singleClickAction = null;
     NotePadMeta singleClickNote = null;
     WorkflowHopMeta singleClickHop = null;
@@ -697,7 +697,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
 
         if (selectionRegion.width == 0 && selectionRegion.height == 0) {
           singleClick = true;
-          singleClickType = HopGuiWorkflowGraph.SingleClickType.Workflow;
+          singleClickType = SingleClickType.Workflow;
         }
         workflowMeta.unselectAll();
         selectInRect(workflowMeta, selectionRegion);
@@ -863,7 +863,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
                   // single click on a note: ask what needs to happen...
                   //
                   singleClick = true;
-                  singleClickType = HopGuiWorkflowGraph.SingleClickType.Note;
+                  singleClickType = SingleClickType.Note;
                   singleClickNote = selectedNote;
                 }
               } else {
@@ -921,7 +921,7 @@ public class HopGuiWorkflowGraph extends HopGuiAbstractGraph
     // Only do this "mouseUp()" if this is not part of a double click...
     //
     final boolean fSingleClick = singleClick;
-    final HopGuiWorkflowGraph.SingleClickType fSingleClickType = singleClickType;
+    final SingleClickType fSingleClickType = singleClickType;
     final ActionMeta fSingleClickAction = singleClickAction;
     final NotePadMeta fSingleClickNote = singleClickNote;
     final WorkflowHopMeta fSingleClickHop = singleClickHop;

@@ -44,7 +44,7 @@ import java.util.Set;
  * Implementation of MongoClientWrapper which uses the MONGO-CR auth mechanism. Should only be
  * instantiated by MongoClientWrapperFactory.
  */
-class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClientWrapper {
+class NoAuthMongoClientWrapper implements MongoClientWrapper {
   private static Class<?> PKG = NoAuthMongoClientWrapper.class;
   public static final int MONGO_DEFAULT_PORT = 27017;
 
@@ -55,7 +55,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
   public static final String REPL_SET_MEMBERS = "members";
 
   static MongoClientFactory clientFactory =
-      new org.apache.hop.mongo.wrapper.DefaultMongoClientFactory();
+      new DefaultMongoClientFactory();
 
   private final MongoClient mongo;
   private final MongoUtilLogger log;
@@ -145,7 +145,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
       // this can only happen if it's been explicitly set to NULL.
       throw new MongoDbException(
           BaseMessages.getString(
-              org.apache.hop.mongo.wrapper.MongoClientWrapper.class,
+              MongoClientWrapper.class,
               "MongoNoAuthWrapper.Message.Error.NoHostSet"));
     }
     return getClientFactory(props)
@@ -505,7 +505,7 @@ class NoAuthMongoClientWrapper implements org.apache.hop.mongo.wrapper.MongoClie
 
   @Override
   public <ReturnType> ReturnType perform(
-      String db, org.apache.hop.mongo.wrapper.MongoDBAction<ReturnType> action)
+      String db, MongoDBAction<ReturnType> action)
       throws MongoDbException {
     return action.perform(getDb(db));
   }

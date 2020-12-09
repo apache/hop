@@ -96,17 +96,17 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> im
     }
 
     List<TransformMeta> transforms = data.pipelineMeta.getTransforms();
-    for ( Map.Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet() ) {
+    for ( Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet() ) {
       newInjection( en.getKey(), en.getValue() );
     }
     /*
      * constants injection should be executed after transforms, because if constant should be inserted into target with array
      * in path, constants should be inserted into all arrays items
      */
-    for ( Map.Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet() ) {
+    for ( Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet() ) {
       newInjectionConstants( en.getKey(), en.getValue() );
     }
-    for ( Map.Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet() ) {
+    for ( Entry<String, ITransformMeta> en : data.transformInjectionMetasMap.entrySet() ) {
       en.getValue().searchInfoAndTargetTransforms( transforms );
     }
 
@@ -520,7 +520,7 @@ public class MetaInject extends BaseTransform<MetaInjectMeta, MetaInjectData> im
    * package-local visibility for testing purposes
    */
   PipelineMeta loadPipelineMeta() throws HopException {
-    return org.apache.hop.pipeline.transforms.metainject.MetaInjectMeta.loadPipelineMeta( meta, getPipeline().getMetadataProvider(), this );
+    return MetaInjectMeta.loadPipelineMeta( meta, getPipeline().getMetadataProvider(), this );
   }
 
 }

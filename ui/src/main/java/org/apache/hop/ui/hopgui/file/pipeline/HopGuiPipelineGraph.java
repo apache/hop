@@ -1018,7 +1018,7 @@ public class HopGuiPipelineGraph extends HopGuiAbstractGraph
       // Clicked on a hop
       //
       singleClick = true;
-      singleClickType = HopGuiPipelineGraph.SingleClickType.Hop;
+      singleClickType = SingleClickType.Hop;
       singleClickHop = clickedPipelineHop;
     }
     clickedPipelineHop = null;

@@ -1,25 +1,20 @@
 //CHECKSTYLE:FileLength:OFF
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.row.value;
 
@@ -4504,7 +4499,7 @@ public class ValueMetaBase implements IValueMeta {
 
   @SuppressWarnings( "fallthrough" )
   @Override
-  public IValueMeta getValueFromSqlType( IVariables variables, DatabaseMeta databaseMeta, String name, java.sql.ResultSetMetaData rm,
+  public IValueMeta getValueFromSqlType( IVariables variables, DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
                                          int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException {
     try {
       int length = -1;
@@ -4521,24 +4516,24 @@ public class ValueMetaBase implements IValueMeta {
         // nothing more we can do here by catch the exception.
       }
       switch ( type ) {
-        case java.sql.Types.CHAR:
-        case java.sql.Types.VARCHAR:
-        case java.sql.Types.NVARCHAR:
-        case java.sql.Types.LONGVARCHAR: // Character Large Object
+        case Types.CHAR:
+        case Types.VARCHAR:
+        case Types.NVARCHAR:
+        case Types.LONGVARCHAR: // Character Large Object
           valtype = IValueMeta.TYPE_STRING;
           if ( !ignoreLength ) {
             length = rm.getColumnDisplaySize( index );
           }
           break;
 
-        case java.sql.Types.CLOB:
-        case java.sql.Types.NCLOB:
+        case Types.CLOB:
+        case Types.NCLOB:
           valtype = IValueMeta.TYPE_STRING;
           length = DatabaseMeta.CLOB_LENGTH;
           isClob = true;
           break;
 
-        case java.sql.Types.BIGINT:
+        case Types.BIGINT:
           // verify Unsigned BIGINT overflow!
           //
           if ( signed ) {
@@ -4552,29 +4547,29 @@ public class ValueMetaBase implements IValueMeta {
           }
           break;
 
-        case java.sql.Types.INTEGER:
+        case Types.INTEGER:
           valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 2.147.483.647
           length = 9;
           break;
 
-        case java.sql.Types.SMALLINT:
+        case Types.SMALLINT:
           valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 32.767
           length = 4;
           break;
 
-        case java.sql.Types.TINYINT:
+        case Types.TINYINT:
           valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 127
           length = 2;
           break;
 
-        case java.sql.Types.DECIMAL:
-        case java.sql.Types.DOUBLE:
-        case java.sql.Types.FLOAT:
-        case java.sql.Types.REAL:
-        case java.sql.Types.NUMERIC:
+        case Types.DECIMAL:
+        case Types.DOUBLE:
+        case Types.FLOAT:
+        case Types.REAL:
+        case Types.NUMERIC:
           valtype = IValueMeta.TYPE_NUMBER;
           length = rm.getPrecision( index );
           precision = rm.getScale( index );
@@ -4585,14 +4580,14 @@ public class ValueMetaBase implements IValueMeta {
             precision = -1;
           }
 
-          if ( type == java.sql.Types.DOUBLE || type == java.sql.Types.FLOAT || type == java.sql.Types.REAL ) {
+          if ( type == Types.DOUBLE || type == Types.FLOAT || type == Types.REAL ) {
             if ( precision == 0 ) {
               precision = -1; // precision is obviously incorrect if the type if
               // Double/Float/Real
             }
 
             // If we're dealing with PostgreSQL and double precision types
-            if ( databaseMeta.getIDatabase().isPostgresVariant() && type == java.sql.Types.DOUBLE
+            if ( databaseMeta.getIDatabase().isPostgresVariant() && type == Types.DOUBLE
               && precision >= 16 && length >= 16 ) {
               precision = -1;
               length = -1;
@@ -4629,7 +4624,7 @@ public class ValueMetaBase implements IValueMeta {
 
           if ( databaseMeta.getIDatabase().isPostgresVariant() ) {
             // undefined size => arbitrary precision
-            if ( type == java.sql.Types.NUMERIC && length == 0 && precision == 0 ) {
+            if ( type == Types.NUMERIC && length == 0 && precision == 0 ) {
               valtype = IValueMeta.TYPE_BIGNUMBER;
               length = -1;
               precision = -1;
@@ -4652,18 +4647,18 @@ public class ValueMetaBase implements IValueMeta {
 
           break;
 
-        case java.sql.Types.TIMESTAMP:
+        case Types.TIMESTAMP:
           if ( databaseMeta.supportsTimestampDataType() ) {
             valtype = IValueMeta.TYPE_TIMESTAMP;
             length = rm.getScale( index );
           }
           break;
 
-        case java.sql.Types.DATE:
+        case Types.DATE:
           if ( databaseMeta.getIDatabase().isTeradataVariant() ) {
             precision = 1;
           }
-        case java.sql.Types.TIME:
+        case Types.TIME:
           valtype = IValueMeta.TYPE_DATE;
           //
           if ( databaseMeta.getIDatabase().isMySqlVariant() ) {
@@ -4678,15 +4673,15 @@ public class ValueMetaBase implements IValueMeta {
           }
           break;
 
-        case java.sql.Types.BOOLEAN:
-        case java.sql.Types.BIT:
+        case Types.BOOLEAN:
+        case Types.BIT:
           valtype = IValueMeta.TYPE_BOOLEAN;
           break;
 
-        case java.sql.Types.BINARY:
-        case java.sql.Types.BLOB:
-        case java.sql.Types.VARBINARY:
-        case java.sql.Types.LONGVARBINARY:
+        case Types.BINARY:
+        case Types.BLOB:
+        case Types.VARBINARY:
+        case Types.LONGVARBINARY:
           valtype = IValueMeta.TYPE_BINARY;
 
           if ( databaseMeta.isDisplaySizeTwiceThePrecision()
@@ -4694,12 +4689,12 @@ public class ValueMetaBase implements IValueMeta {
             // set the length for "CHAR(X) FOR BIT DATA"
             length = rm.getPrecision( index );
           } else if ( ( databaseMeta.getIDatabase().isOracleVariant() )
-            && ( type == java.sql.Types.VARBINARY || type == java.sql.Types.LONGVARBINARY ) ) {
+            && ( type == Types.VARBINARY || type == Types.LONGVARBINARY ) ) {
             // set the length for Oracle "RAW" or "LONGRAW" data types
             valtype = IValueMeta.TYPE_STRING;
             length = rm.getColumnDisplaySize( index );
           } else if ( databaseMeta.isMySqlVariant()
-            && ( type == java.sql.Types.VARBINARY || type == java.sql.Types.LONGVARBINARY ) ) {
+            && ( type == Types.VARBINARY || type == Types.LONGVARBINARY ) ) {
             // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT see PDI-4812)
@@ -4817,22 +4812,22 @@ public class ValueMetaBase implements IValueMeta {
       boolean isClob = false;
 
       switch ( originalColumnType ) {
-        case java.sql.Types.CHAR:
-        case java.sql.Types.VARCHAR:
-        case java.sql.Types.NVARCHAR:
-        case java.sql.Types.LONGVARCHAR: // Character Large Object
+        case Types.CHAR:
+        case Types.VARCHAR:
+        case Types.NVARCHAR:
+        case Types.LONGVARCHAR: // Character Large Object
           valtype = IValueMeta.TYPE_STRING;
           length = originalColumnDisplaySize;
           break;
 
-        case java.sql.Types.CLOB:
-        case java.sql.Types.NCLOB:
+        case Types.CLOB:
+        case Types.NCLOB:
           valtype = IValueMeta.TYPE_STRING;
           length = DatabaseMeta.CLOB_LENGTH;
           isClob = true;
           break;
 
-        case java.sql.Types.BIGINT:
+        case Types.BIGINT:
           // SQL BigInt is equivalent to a Java Long
           // And a Java Long is equivalent to a PDI Integer.
           valtype = IValueMeta.TYPE_INTEGER;
@@ -4840,29 +4835,29 @@ public class ValueMetaBase implements IValueMeta {
           length = 15;
           break;
 
-        case java.sql.Types.INTEGER:
+        case Types.INTEGER:
           valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 2.147.483.647
           length = 9;
           break;
 
-        case java.sql.Types.SMALLINT:
+        case Types.SMALLINT:
           valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 32.767
           length = 4;
           break;
 
-        case java.sql.Types.TINYINT:
+        case Types.TINYINT:
           valtype = IValueMeta.TYPE_INTEGER;
           precision = 0; // Max 127
           length = 2;
           break;
 
-        case java.sql.Types.DECIMAL:
-        case java.sql.Types.DOUBLE:
-        case java.sql.Types.FLOAT:
-        case java.sql.Types.REAL:
-        case java.sql.Types.NUMERIC:
+        case Types.DECIMAL:
+        case Types.DOUBLE:
+        case Types.FLOAT:
+        case Types.REAL:
+        case Types.NUMERIC:
           valtype = IValueMeta.TYPE_NUMBER;
           length = originalPrecision;
           precision = originalScale;
@@ -4873,14 +4868,14 @@ public class ValueMetaBase implements IValueMeta {
             precision = -1;
           }
 
-          if ( originalColumnType == java.sql.Types.DOUBLE || originalColumnType == java.sql.Types.FLOAT || originalColumnType == java.sql.Types.REAL ) {
+          if ( originalColumnType == Types.DOUBLE || originalColumnType == Types.FLOAT || originalColumnType == Types.REAL ) {
             if ( precision == 0 ) {
               precision = -1; // precision is obviously incorrect if the type if
               // Double/Float/Real
             }
 
             // If we're dealing with PostgreSQL and double precision types
-            if ( databaseMeta.getIDatabase().isPostgresVariant() && originalColumnType == java.sql.Types.DOUBLE
+            if ( databaseMeta.getIDatabase().isPostgresVariant() && originalColumnType == Types.DOUBLE
               && precision >= 16 && length >= 16 ) {
               precision = -1;
               length = -1;
@@ -4894,7 +4889,7 @@ public class ValueMetaBase implements IValueMeta {
                 length = -1;
                 // MySQL: Double value is giving length of 22,
                 // that exceeds the maximum length.
-              } else if ( originalColumnType == java.sql.Types.DOUBLE && length > 15 ) {
+              } else if ( originalColumnType == Types.DOUBLE && length > 15 ) {
                 length = -1;
               }
             }
@@ -4921,7 +4916,7 @@ public class ValueMetaBase implements IValueMeta {
 
           if ( databaseMeta.getIDatabase().isPostgresVariant() ) {
             // undefined size => arbitrary precision
-            if ( originalColumnType == java.sql.Types.NUMERIC && length == 0 && precision == 0 ) {
+            if ( originalColumnType == Types.NUMERIC && length == 0 && precision == 0 ) {
               valtype = IValueMeta.TYPE_BIGNUMBER;
               length = -1;
               precision = -1;
@@ -4944,18 +4939,18 @@ public class ValueMetaBase implements IValueMeta {
 
           break;
 
-        case java.sql.Types.TIMESTAMP:
+        case Types.TIMESTAMP:
           if ( databaseMeta.supportsTimestampDataType() ) {
             valtype = IValueMeta.TYPE_TIMESTAMP;
             length = originalScale;
           }
           break;
 
-        case java.sql.Types.DATE:
+        case Types.DATE:
           if ( databaseMeta.getIDatabase().isTeradataVariant() ) {
             precision = 1;
           }
-        case java.sql.Types.TIME:
+        case Types.TIME:
           valtype = IValueMeta.TYPE_DATE;
           //
           if ( databaseMeta.isMySqlVariant() ) {
@@ -4970,15 +4965,15 @@ public class ValueMetaBase implements IValueMeta {
           }
           break;
 
-        case java.sql.Types.BOOLEAN:
-        case java.sql.Types.BIT:
+        case Types.BOOLEAN:
+        case Types.BIT:
           valtype = IValueMeta.TYPE_BOOLEAN;
           break;
 
-        case java.sql.Types.BINARY:
-        case java.sql.Types.BLOB:
-        case java.sql.Types.VARBINARY:
-        case java.sql.Types.LONGVARBINARY:
+        case Types.BINARY:
+        case Types.BLOB:
+        case Types.VARBINARY:
+        case Types.LONGVARBINARY:
           valtype = IValueMeta.TYPE_BINARY;
 
           
@@ -4990,12 +4985,12 @@ public class ValueMetaBase implements IValueMeta {
             // set the length for "CHAR(X) FOR BIT DATA"
             length = originalPrecision;
           } else if ( ( databaseMeta.getIDatabase().isOracleVariant() )
-            && ( originalColumnType == java.sql.Types.VARBINARY || originalColumnType == java.sql.Types.LONGVARBINARY ) ) {
+            && ( originalColumnType == Types.VARBINARY || originalColumnType == Types.LONGVARBINARY ) ) {
             // set the length for Oracle "RAW" or "LONGRAW" data types
             valtype = IValueMeta.TYPE_STRING;
             length = originalColumnDisplaySize;
           } else if ( databaseMeta.isMySqlVariant()
-            && ( originalColumnType == java.sql.Types.VARBINARY || originalColumnType == java.sql.Types.LONGVARBINARY ) ) {
+            && ( originalColumnType == Types.VARBINARY || originalColumnType == Types.LONGVARBINARY ) ) {
             // PDI-6677 - don't call 'length = rm.getColumnDisplaySize(index);'
             length = -1; // keep the length to -1, e.g. for string functions (e.g.
             // CONCAT see PDI-4812)
@@ -5135,7 +5130,7 @@ public class ValueMetaBase implements IValueMeta {
             }
             preparedStatement.setDouble( index, num );
           } else {
-            preparedStatement.setNull( index, java.sql.Types.DOUBLE );
+            preparedStatement.setNull( index, Types.DOUBLE );
           }
           break;
         case IValueMeta.TYPE_INTEGER:
@@ -5151,7 +5146,7 @@ public class ValueMetaBase implements IValueMeta {
               }
             }
           } else {
-            preparedStatement.setNull( index, java.sql.Types.INTEGER );
+            preparedStatement.setNull( index, Types.INTEGER );
           }
           break;
         case IValueMeta.TYPE_STRING:
@@ -5183,7 +5178,7 @@ public class ValueMetaBase implements IValueMeta {
               }
             }
           } else {
-            preparedStatement.setNull( index, java.sql.Types.VARCHAR );
+            preparedStatement.setNull( index, Types.VARCHAR );
           }
           break;
         case IValueMeta.TYPE_DATE:
@@ -5201,18 +5196,18 @@ public class ValueMetaBase implements IValueMeta {
                 preparedStatement.setDate( index, ddate, Calendar.getInstance( this.getDateFormatTimeZone() ) );
               }
             } else {
-              if ( data instanceof java.sql.Timestamp ) {
+              if ( data instanceof Timestamp ) {
                 // Preserve ns precision!
                 //
                 if ( ignoreTimezone || this.getDateFormatTimeZone() == null ) {
-                  preparedStatement.setTimestamp( index, (java.sql.Timestamp) data );
+                  preparedStatement.setTimestamp( index, (Timestamp) data );
                 } else {
-                  preparedStatement.setTimestamp( index, (java.sql.Timestamp) data, Calendar.getInstance( this
+                  preparedStatement.setTimestamp( index, (Timestamp) data, Calendar.getInstance( this
                     .getDateFormatTimeZone() ) );
                 }
               } else {
                 long dat = getInteger( data ).longValue(); // converts using Date.getTime()
-                java.sql.Timestamp sdate = new java.sql.Timestamp( dat );
+                Timestamp sdate = new Timestamp( dat );
                 if ( ignoreTimezone || this.getDateFormatTimeZone() == null ) {
                   preparedStatement.setTimestamp( index, sdate );
                 } else {
@@ -5222,9 +5217,9 @@ public class ValueMetaBase implements IValueMeta {
             }
           } else {
             if ( getPrecision() == 1 || !databaseMeta.supportsTimeStampToDateConversion() ) {
-              preparedStatement.setNull( index, java.sql.Types.DATE );
+              preparedStatement.setNull( index, Types.DATE );
             } else {
-              preparedStatement.setNull( index, java.sql.Types.TIMESTAMP );
+              preparedStatement.setNull( index, Types.TIMESTAMP );
             }
           }
           break;
@@ -5233,13 +5228,13 @@ public class ValueMetaBase implements IValueMeta {
             if ( !isNull( data ) ) {
               preparedStatement.setBoolean( index, getBoolean( data ).booleanValue() );
             } else {
-              preparedStatement.setNull( index, java.sql.Types.BOOLEAN );
+              preparedStatement.setNull( index, Types.BOOLEAN );
             }
           } else {
             if ( !isNull( data ) ) {
               preparedStatement.setString( index, getBoolean( data ).booleanValue() ? "Y" : "N" );
             } else {
-              preparedStatement.setNull( index, java.sql.Types.CHAR );
+              preparedStatement.setNull( index, Types.CHAR );
             }
           }
           break;
@@ -5247,19 +5242,19 @@ public class ValueMetaBase implements IValueMeta {
           if ( !isNull( data ) ) {
             preparedStatement.setBigDecimal( index, getBigNumber( data ) );
           } else {
-            preparedStatement.setNull( index, java.sql.Types.DECIMAL );
+            preparedStatement.setNull( index, Types.DECIMAL );
           }
           break;
         case IValueMeta.TYPE_BINARY:
           if ( !isNull( data ) ) {
             preparedStatement.setBytes( index, getBinary( data ) );
           } else {
-            preparedStatement.setNull( index, java.sql.Types.BINARY );
+            preparedStatement.setNull( index, Types.BINARY );
           }
           break;
         default:
           // placeholder
-          preparedStatement.setNull( index, java.sql.Types.VARCHAR );
+          preparedStatement.setNull( index, Types.VARCHAR );
           break;
       }
     } catch ( Exception e ) {

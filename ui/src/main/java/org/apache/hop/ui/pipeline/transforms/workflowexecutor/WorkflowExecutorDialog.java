@@ -1070,5 +1070,3 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   }
 
 }
-
-

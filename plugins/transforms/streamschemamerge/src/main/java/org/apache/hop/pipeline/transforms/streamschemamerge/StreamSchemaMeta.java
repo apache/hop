@@ -57,7 +57,7 @@ import java.util.List;
 )
 public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMeta<StreamSchema, StreamSchemaData> {
 
-	private static final Class<?> PKG = org.apache.hop.pipeline.transforms.streamschemamerge.StreamSchemaMeta.class; // for i18n purposes
+	private static final Class<?> PKG = StreamSchemaMeta.class; // for i18n purposes
 
     /**
      * Stores the names of the transforms to merge into the output

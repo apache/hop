@@ -135,7 +135,7 @@ public class KerberosUtil {
     EXTERNAL;
 
     public static JaasAuthenticationMode byName(String modeName)
-        throws org.apache.hop.mongo.MongoDbException {
+        throws MongoDbException {
       if (modeName == null) {
         // default value
         return KERBEROS_USER;
@@ -147,7 +147,7 @@ public class KerberosUtil {
           return mode;
         }
       }
-      throw new org.apache.hop.mongo.MongoDbException(
+      throw new MongoDbException(
           BaseMessages.getString(
               MongoClientWrapper.class,
               "MongoKerberosWrapper.Message.Error.JaasAuthModeIncorrect",

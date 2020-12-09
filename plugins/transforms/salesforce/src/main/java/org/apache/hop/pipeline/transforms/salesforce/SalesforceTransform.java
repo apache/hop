@@ -125,7 +125,7 @@ public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, 
     if ( IValueMeta.TYPE_INTEGER == valueMeta.getType() ) {
       // Salesforce integer values can be only http://www.w3.org/2001/XMLSchema:int
       // see org.apache.hop.ui.pipeline.transforms.salesforceinput.SalesforceInputDialog#addFieldToTable
-      // So we need convert Hitachi Vantara integer (real java Long value) to real int.
+      // So we need convert a Hop integer (real java Long value) to real int.
       // It will be sent correct as http://www.w3.org/2001/XMLSchema:int
 
       // use checked cast for prevent losing data
