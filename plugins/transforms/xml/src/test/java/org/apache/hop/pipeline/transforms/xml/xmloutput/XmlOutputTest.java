@@ -55,7 +55,7 @@ import static org.mockito.Mockito.when;
  * @author Tatsiana_Kasiankova
  * 
  */
-public class XMLOutputTest {
+public class XmlOutputTest {
 
   private TransformMockHelper<XmlOutputMeta, XmlOutputData> stepMockHelper;
   private XmlOutput xmlOutput;

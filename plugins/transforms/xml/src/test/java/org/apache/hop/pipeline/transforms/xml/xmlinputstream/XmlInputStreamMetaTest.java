@@ -29,7 +29,7 @@ import java.util.List;
 import org.apache.hop.core.exception.HopException;
 import org.junit.Test;
 
-public class XMLInputStreamMetaTest {
+public class XmlInputStreamMetaTest {
 
   @Test
   public void testLoadSaveRoundTrip() throws HopException {

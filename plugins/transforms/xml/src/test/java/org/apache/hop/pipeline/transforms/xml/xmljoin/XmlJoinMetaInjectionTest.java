@@ -33,7 +33,7 @@ import org.junit.Test;
 /**
  * Created by ecuellar on 3/3/2016.
  */
-public class XMLJoinMetaInjectionTest extends BaseMetadataInjectionTest<XmlJoinMeta> {
+public class XmlJoinMetaInjectionTest extends BaseMetadataInjectionTest<XmlJoinMeta> {
   @ClassRule public static RestoreHopEngineEnvironment env = new RestoreHopEngineEnvironment();
 
   @Before

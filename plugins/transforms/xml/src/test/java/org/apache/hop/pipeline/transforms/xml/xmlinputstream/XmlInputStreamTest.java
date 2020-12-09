@@ -47,7 +47,6 @@ import org.apache.hop.pipeline.transform.RowAdapter;
 import org.apache.hop.pipeline.transforms.mock.TransformMockHelper;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 
@@ -55,7 +54,7 @@ import org.junit.Test;
  * @author Tatsiana_Kasiankova
  * 
  */
-public class XMLInputStreamTest {
+public class XmlInputStreamTest {
   private static final String INCORRECT_XML_DATA_VALUE_MESSAGE = "Incorrect xml data value - ";
   private static final String INCORRECT_XML_DATA_NAME_MESSAGE = "Incorrect xml data name - ";
   private static final String INCORRECT_XML_PATH_MESSAGE = "Incorrect xml path - ";
@@ -67,7 +66,7 @@ public class XMLInputStreamTest {
 
   private static final int START_ROW_IN_XML_TO_VERIFY = 9;
 
-  private static TransformMockHelper<XmlInputStreamMeta, XmlInputStreamData> stepMockHelper;
+  private static TransformMockHelper<XmlInputStreamMeta, XmlInputStreamData> transformMockHelper;
 
   private XmlInputStreamMeta xmlInputStreamMeta;
 
@@ -82,12 +81,12 @@ public class XMLInputStreamTest {
 
   @Before
   public void setUp() throws HopException {
-    stepMockHelper =
-      new TransformMockHelper<>( "XMLInputStreamTest", XmlInputStreamMeta.class,
+    transformMockHelper =
+      new TransformMockHelper<>( "XmlInputStreamTest", XmlInputStreamMeta.class,
         XmlInputStreamData.class );
-    when( stepMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
-        stepMockHelper.iLogChannel );
-    when( stepMockHelper.pipeline.isRunning() ).thenReturn( true );
+    when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
+        transformMockHelper.iLogChannel );
+    when( transformMockHelper.pipeline.isRunning() ).thenReturn( true );
 
     xmlInputStreamMeta = new XmlInputStreamMeta();
     xmlInputStreamMeta.setDefault();
@@ -105,11 +104,10 @@ public class XMLInputStreamTest {
 
   @After
   public void tearDown() {
-    stepMockHelper.cleanUp();
+    transformMockHelper.cleanUp();
   }
 
   @Test
-  @Ignore
   public void testParseXmlWithPrefixes_WhenSetEnableNamespaceAsTrue() throws HopException, IOException {
     xmlInputStreamMeta.setFilename( createTestFile( getXMLString( getGroupWithPrefix() ) ) );
     xmlInputStreamMeta.setEnableNamespaces( true );
@@ -157,7 +155,6 @@ public class XMLInputStreamTest {
   }
 
   @Test
-  @Ignore
   public void testParseXmlWithPrefixes_WhenSetEnableNamespaceAsFalse() throws HopException, IOException {
     xmlInputStreamMeta.setFilename( createTestFile( getXMLString( getGroupWithPrefix() ) ) );
     xmlInputStreamMeta.setEnableNamespaces( false );
@@ -201,7 +198,6 @@ public class XMLInputStreamTest {
   }
 
   @Test
-  @Ignore
   public void testParseXmlWithoutPrefixes_WhenSetEnableNamespaceAsTrue() throws HopException, IOException {
     xmlInputStreamMeta.setFilename( createTestFile( getXMLString( getGroupWithoutPrefix() ) ) );
     xmlInputStreamMeta.setEnableNamespaces( true );
@@ -246,7 +242,6 @@ public class XMLInputStreamTest {
   }
 
   @Test
-  @Ignore
   public void multiLineDataReadAsMultipleElements() throws HopException, IOException {
     xmlInputStreamMeta.setFilename( createTestFile( getMultiLineDataXml() ) );
     xmlInputStreamMeta.setEnableNamespaces( true );
@@ -261,8 +256,8 @@ public class XMLInputStreamTest {
 
   private void doTest() throws IOException, HopException {
     XmlInputStream xmlInputStream =
-        new XmlInputStream( stepMockHelper.transformMeta, stepMockHelper.iTransformMeta, stepMockHelper.iTransformData, 0, stepMockHelper.pipelineMeta,
-            stepMockHelper.pipeline );
+        new XmlInputStream( transformMockHelper.transformMeta, xmlInputStreamMeta, xmlInputStreamData, 0, transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline );
 
     IRowMeta inputRowMeta = new RowMeta(  );
     xmlInputStream.setInputRowMeta( inputRowMeta );
@@ -276,7 +271,6 @@ public class XMLInputStreamTest {
   }
 
   @Test
-  @Ignore
   public void testFromPreviousTransform() throws Exception {
     xmlInputStreamMeta.sourceFromInput = true;
     xmlInputStreamMeta.sourceFieldName = "inf";
@@ -290,8 +284,8 @@ public class XMLInputStreamTest {
     rs.setDone();
 
     XmlInputStream xmlInputStream =
-        new XmlInputStream( stepMockHelper.transformMeta, stepMockHelper.iTransformMeta, stepMockHelper.iTransformData, 0, stepMockHelper.pipelineMeta,
-            stepMockHelper.pipeline );
+        new XmlInputStream( transformMockHelper.transformMeta, xmlInputStreamMeta, xmlInputStreamData, 0, transformMockHelper.pipelineMeta,
+            transformMockHelper.pipeline );
     xmlInputStream.setInputRowMeta( rm );
     xmlInputStream.getInputRowMeta().addValueMeta( ms );
     xmlInputStream.addRowSetToInputRowSets( rs );
@@ -332,25 +326,21 @@ public class XMLInputStreamTest {
   }
 
   @Test
-  @Ignore
   public void testFileNameEnteredManuallyWithIncomingHops() throws Exception {
     testCorrectFileSelected( getFile( "default.xml" ), 0 );
   }
 
   @Test
-  @Ignore
   public void testFileNameSelectedFromIncomingHops() throws Exception {
     testCorrectFileSelected( "filename", 1 );
   }
 
   @Test( expected = HopException.class )
-  @Ignore
   public void testNotValidFilePathAndFileField() throws Exception {
     testCorrectFileSelected( "notPathNorValidFieldName", 0 );
   }
 
   @Test( expected = HopException.class )
-  @Ignore
   public void testEmptyFileField() throws Exception {
     testCorrectFileSelected( StringUtils.EMPTY, 0 );
   }
@@ -367,11 +357,11 @@ public class XMLInputStreamTest {
     rs.putRow( rm, new Object[] { pathValue } );
     rs.setDone();
 
-    when( stepMockHelper.pipelineMeta.findNrPrevTransforms( stepMockHelper.transformMeta ) ).thenReturn( 1 );
+    when( transformMockHelper.pipelineMeta.findNrPrevTransforms( transformMockHelper.transformMeta ) ).thenReturn( 1 );
 
     XmlInputStream xmlInputStream =
-            new XmlInputStream( stepMockHelper.transformMeta, stepMockHelper.iTransformMeta, stepMockHelper.iTransformData, 0, stepMockHelper.pipelineMeta,
-                    stepMockHelper.pipeline );
+            new XmlInputStream( transformMockHelper.transformMeta, xmlInputStreamMeta, xmlInputStreamData, 0, transformMockHelper.pipelineMeta,
+                    transformMockHelper.pipeline );
     xmlInputStream.setInputRowMeta( rm );
     xmlInputStream.getInputRowMeta().addValueMeta( ms );
     xmlInputStream.addRowSetToInputRowSets( rs );

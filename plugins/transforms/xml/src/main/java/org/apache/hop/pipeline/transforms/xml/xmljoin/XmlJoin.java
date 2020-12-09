@@ -34,6 +34,7 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
+import org.apache.hop.pipeline.transform.errorhandling.IStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -50,6 +51,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.List;
 
 /**
  * Converts input rows to one or more XML files.
@@ -76,9 +78,13 @@ public class XmlJoin extends BaseTransform<XmlJoinMeta, XmlJoinData> implements 
       first = false;
       int targetField_id = -1;
 
+      // Find the row sets to read from
+      //
+      List<IStream> infoStreams = meta.getTransformIOMeta().getInfoStreams();
+
       // Get the two input row sets
-      data.TargetRowSet = findInputRowSet( meta.getTargetXmlTransform() );
-      data.SourceRowSet = findInputRowSet( meta.getSourceXmlTransform() );
+      data.TargetRowSet = findInputRowSet( infoStreams.get( 0 ).getTransformName() );
+      data.SourceRowSet = findInputRowSet( infoStreams.get( 1 ).getTransformName() );
 
       // get the first line from the target row set
       Object[] rTarget = getRowFrom( data.TargetRowSet );

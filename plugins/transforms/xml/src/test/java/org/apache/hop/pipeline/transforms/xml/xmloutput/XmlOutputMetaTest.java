@@ -57,7 +57,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class XMLOutputMetaTest {
+public class XmlOutputMetaTest {
   @BeforeClass
   public static void setUp() throws Exception {
     if ( !HopClientEnvironment.isInitialized() ) {
