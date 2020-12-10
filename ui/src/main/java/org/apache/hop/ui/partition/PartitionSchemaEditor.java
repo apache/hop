@@ -115,13 +115,29 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     fdSpacer.right = new FormAttachment(100, 0);
     spacer.setLayoutData(fdSpacer);
 
-    // The number of partitions per cluster schema
+    // Is the schema defined dynamically using the number?
+    //
+    wDynamic = new Button(parent, SWT.CHECK);
+    props.setLook(wDynamic);
+    wDynamic.setText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Dynamic.Label"));
+    wDynamic.setToolTipText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Dynamic.Tooltip"));
+    FormData fdDynamic = new FormData();
+    fdDynamic.top = new FormAttachment(spacer, margin);
+    fdDynamic.left = new FormAttachment(0, 0);
+    fdDynamic.right = new FormAttachment(100, 0);
+    wDynamic.setLayoutData(fdDynamic);
+
+    // If dynamic is chosen, disable to list of partition names
+    //
+    wDynamic.addListener(SWT.Selection, e -> enableFields());
+
+    // The number of partitions
     //
     Label wlNumber = new Label(parent, SWT.LEFT);
     props.setLook(wlNumber);
     wlNumber.setText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Number.Label"));
     FormData fdlNumber = new FormData();
-    fdlNumber.top = new FormAttachment(spacer, 15);
+    fdlNumber.top = new FormAttachment(wDynamic, 15);
     fdlNumber.left = new FormAttachment(0, 0);
     fdlNumber.right = new FormAttachment(100, 0);
     wlNumber.setLayoutData(fdlNumber);
@@ -139,21 +155,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     fdNumber.right = new FormAttachment(100, 0);
     wNumber.setLayoutData(fdNumber);
 
-    // is the schema defined dynamically using the number of hop servers in the used cluster.
-    //
-    wDynamic = new Button(parent, SWT.CHECK);
-    props.setLook(wDynamic);
-    wDynamic.setText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Dynamic.Label"));
-    wDynamic.setToolTipText(BaseMessages.getString(PKG, "PartitionSchemaDialog.Dynamic.Tooltip"));
-    FormData fdDynamic = new FormData();
-    fdDynamic.top = new FormAttachment(wNumber, margin);
-    fdDynamic.left = new FormAttachment(0, 0);
-    fdDynamic.right = new FormAttachment(100, 0);
-    wDynamic.setLayoutData(fdDynamic);
 
-    // If dynamic is chosen, disable to list of partition names
-    //
-    wDynamic.addListener(SWT.Selection, e -> enableFields());
 
     // Schema list:
     wlPartitions = new Label(parent, SWT.LEFT);
@@ -162,7 +164,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
     FormData fdlPartitions = new FormData();
     fdlPartitions.left = new FormAttachment(0, 0);
     fdlPartitions.right = new FormAttachment(100, 0);
-    fdlPartitions.top = new FormAttachment(wDynamic, margin);
+    fdlPartitions.top = new FormAttachment(wNumber, margin);
     wlPartitions.setLayoutData(fdlPartitions);
 
     ColumnInfo[] partitionColumns =
@@ -175,7 +177,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
         };
     wPartitions =
         new TableView(
-            getMetadata(),
+            manager.getVariables(),
             parent,
             SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
             partitionColumns,
@@ -236,6 +238,8 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
   @Override
   public void getWidgetsContent(PartitionSchema partitionSchema) {
     partitionSchema.setName(wName.getText());
+    partitionSchema.setNumberOfPartitions( wNumber.getText() );
+    partitionSchema.setDynamicallyDefined( wDynamic.getSelection() );
 
     List<String> parts = new ArrayList<>();
 
@@ -244,6 +248,7 @@ public class PartitionSchemaEditor extends MetadataEditor<PartitionSchema> {
       parts.add(wPartitions.getNonEmpty(i).getText(1));
     }
     partitionSchema.setPartitionIDs(parts);
+
   }
 
   @Override

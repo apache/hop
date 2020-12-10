@@ -80,7 +80,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     final StringBuilder builder = new StringBuilder();
     try {
       final FileObject fileObject =
-        HopVfs.getFileObject( environmentSubstitute( this.meta.getFastloadPath().getValue() ) );
+        HopVfs.getFileObject( resolve( this.meta.getFastloadPath().getValue() ) );
       final String fastloadExec = HopVfs.getFilename( fileObject );
       builder.append( fastloadExec );
     } catch ( Exception e ) {
@@ -90,7 +90,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     if ( StringUtils.isNotBlank( this.meta.getLogFile().getValue() ) ) {
       try {
         FileObject fileObject =
-          HopVfs.getFileObject( environmentSubstitute( this.meta.getLogFile().getValue() ) );
+          HopVfs.getFileObject( resolve( this.meta.getLogFile().getValue() ) );
         builder.append( " -e " );
         builder.append( "\"" + HopVfs.getFilename( fileObject ) + "\"" );
       } catch ( Exception e ) {
@@ -170,9 +170,9 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
       // determine column sort order according to field mapping
       // thus the columns in the generated datafile are always in the same order and have the same size as in the
       // targetTable
-      this.tableRowMeta = this.meta.getRequiredFields( this.getPipelineMeta() );
-      IRowMeta streamRowMeta = this.getPipelineMeta().getPrevTransformFields( this.getTransformMeta() );
-      this.columnSortOrder = new ArrayList<Integer>( this.tableRowMeta.size() );
+      this.tableRowMeta = this.meta.getRequiredFields( this );
+      IRowMeta streamRowMeta = this.getPipelineMeta().getPrevTransformFields( this, this.getTransformMeta() );
+      this.columnSortOrder = new ArrayList<>( this.tableRowMeta.size() );
       for ( int i = 0; i < this.tableRowMeta.size(); i++ ) {
         IValueMeta column = this.tableRowMeta.getValueMeta( i );
         int tableIndex = this.meta.getTableFieldList().getValue().indexOf( column.getName() );
@@ -315,7 +315,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     try {
       controlFile = new File( resolveFileName( this.meta.getControlFile().getValue() ) );
       control = FileUtils.openInputStream( controlFile );
-      controlContent = environmentSubstitute( FileUtils.readFileToString( controlFile ) );
+      controlContent = resolve( FileUtils.readFileToString( controlFile ) );
     } catch ( IOException e ) {
       throw new HopException( "Cannot open control file [path=" + controlFile + "]", e );
     }
@@ -344,7 +344,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     builder.setRecordFormat( FastloadControlBuilder.RECORD_VARTEXT );
     try {
       builder.define(
-        this.meta.getRequiredFields( this.getPipelineMeta() ), meta.getTableFieldList(), resolveFileName( this.meta
+        this.meta.getRequiredFields( this ), meta.getTableFieldList(), resolveFileName( this.meta
           .getDataFile().getValue() ) );
     } catch ( Exception ex ) {
       throw new HopException( "Error defining data file!", ex );
@@ -352,7 +352,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
     builder.show();
     builder.beginLoading( this.meta.getDbMeta().getPreferredSchemaName(), this.meta.getTargetTable().getValue() );
 
-    builder.insert( this.meta.getRequiredFields( this.getPipelineMeta() ), meta.getTableFieldList(), this.meta
+    builder.insert( this.meta.getRequiredFields( this ), meta.getTableFieldList(), this.meta
       .getTargetTable().getValue() );
     builder.endLoading();
     builder.logoff();
@@ -402,7 +402,7 @@ public class TeraFast extends AbstractTransform<TeraFastMeta, GenericTransformDa
    * @throws IOException ...
    */
   private String resolveFileName( final String fileName ) throws HopException {
-    final FileObject fileObject = HopVfs.getFileObject( environmentSubstitute( fileName ) );
+    final FileObject fileObject = HopVfs.getFileObject( resolve( fileName ) );
     return HopVfs.getFilename( fileObject );
   }
 }

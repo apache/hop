@@ -1,30 +1,26 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.transforms.io;
 
 import org.apache.hop.beam.metadata.FileDefinition;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -57,8 +53,8 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
   private TextVar wFileSuffix;
   private Button wWindowed;
 
-  public BeamOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public BeamOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in , pipelineMeta, sname );
     input = (BeamOutputMeta) in;
   }
 
@@ -109,7 +105,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     fdlOutputLocation.top = new FormAttachment( lastControl, margin );
     fdlOutputLocation.right = new FormAttachment( middle, -margin );
     wlOutputLocation.setLayoutData( fdlOutputLocation );
-    wOutputLocation = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wOutputLocation = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wOutputLocation );
     FormData fdOutputLocation = new FormData();
     fdOutputLocation.left = new FormAttachment( middle, 0 );
@@ -126,7 +122,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     fdlFilePrefix.top = new FormAttachment( lastControl, margin );
     fdlFilePrefix.right = new FormAttachment( middle, -margin );
     wlFilePrefix.setLayoutData( fdlFilePrefix );
-    wFilePrefix = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilePrefix = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilePrefix );
     FormData fdFilePrefix = new FormData();
     fdFilePrefix.left = new FormAttachment( middle, 0 );
@@ -143,7 +139,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     fdlFileSuffix.top = new FormAttachment( lastControl, margin );
     fdlFileSuffix.right = new FormAttachment( middle, -margin );
     wlFileSuffix.setLayoutData( fdlFileSuffix );
-    wFileSuffix = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFileSuffix = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFileSuffix );
     FormData fdFileSuffix = new FormData();
     fdFileSuffix.left = new FormAttachment( middle, 0 );
@@ -169,7 +165,7 @@ public class BeamOutputDialog extends BaseTransformDialog implements ITransformD
     wWindowed.setLayoutData( fdWindowed );
     lastControl = wWindowed;
 
-    wFileDefinition = new MetaSelectionLine<>( pipelineMeta, metadataProvider, FileDefinition.class, shell, SWT.NONE,
+    wFileDefinition = new MetaSelectionLine<>( variables, metadataProvider, FileDefinition.class, shell, SWT.NONE,
       BaseMessages.getString( PKG, "BeamOutputDialog.FileDefinition" ), BaseMessages.getString( PKG, "BeamOutputDialog.FileDefinition" ));
     props.setLook( wFileDefinition );
     FormData fdFileDefinition = new FormData();

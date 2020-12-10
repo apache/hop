@@ -87,8 +87,8 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
                 numDocsToSample = 100; // default
               }
 
-              List<MongoField> discoveredFields = new ArrayList<MongoField>();
-              Map<String, MongoField> fieldLookup = new HashMap<String, MongoField>();
+              List<MongoField> discoveredFields = new ArrayList<>();
+              Map<String, MongoField> fieldLookup = new HashMap<>();
               try {
                 if (StringUtils.isEmpty(collection)) {
                   throw new HopException(
@@ -187,7 +187,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
       Map<String, MongoField> fieldLookup,
       List<MongoField> discoveredFields,
       int numDocsProcessed) {
-    List<String> fieldKeys = new ArrayList<String>(fieldLookup.keySet());
+    List<String> fieldKeys = new ArrayList<>( fieldLookup.keySet() );
     Collections.sort(fieldKeys); // sorting so name clash number assignments will be deterministic
     for (String key : fieldKeys) {
       MongoField m = fieldLookup.get(key);
@@ -212,7 +212,7 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
     }
 
     // check for name clashes
-    Map<String, Integer> tempM = new HashMap<String, Integer>();
+    Map<String, Integer> tempM = new HashMap<>();
     for (MongoField m : discoveredFields) {
       if (tempM.get(m.fieldName) != null) {
         Integer toUse = tempM.get(m.fieldName);
@@ -486,12 +486,12 @@ public class MongodbInputDiscoverFieldsImpl implements MongoDbInputDiscoverField
   }
 
   public static List<DBObject> jsonPipelineToDBObjectList(String jsonPipeline) throws HopException {
-    List<DBObject> pipeline = new ArrayList<DBObject>();
+    List<DBObject> pipeline = new ArrayList<>();
     StringBuilder b = new StringBuilder(jsonPipeline.trim());
 
     // extract the parts of the pipeline
     int bracketCount = -1;
-    List<String> parts = new ArrayList<String>();
+    List<String> parts = new ArrayList<>();
     int i = 0;
     while (i < b.length()) {
       if (b.charAt(i) == '{') {

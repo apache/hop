@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.www;
 
@@ -100,12 +94,11 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
 
       // Parse the XML, create a workflow configuration
       //
-      WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXML( xml.toString() );
+      WorkflowConfiguration workflowConfiguration = WorkflowConfiguration.fromXml( xml.toString(), variables);
       IHopMetadataProvider metadataProvider = workflowConfiguration.getMetadataProvider();
       WorkflowMeta workflowMeta = workflowConfiguration.getWorkflowMeta();
       WorkflowExecutionConfiguration workflowExecutionConfiguration = workflowConfiguration.getWorkflowExecutionConfiguration();
       workflowMeta.setLogLevel( workflowExecutionConfiguration.getLogLevel() );
-      workflowMeta.injectVariables( workflowExecutionConfiguration.getVariablesMap() );
 
       String serverObjectId = UUID.randomUUID().toString();
       SimpleLoggingObject servletLoggingObject = new SimpleLoggingObject( CONTEXT_PATH, LoggingObjectType.HOP_SERVER, null );
@@ -115,18 +108,18 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
       // Create the workflow and store in the list...
       //
       String runConfigurationName = workflowExecutionConfiguration.getRunConfiguration();
-      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
+      final IWorkflowEngine<WorkflowMeta> workflow = WorkflowEngineFactory.createWorkflowEngine( variables, runConfigurationName, metadataProvider, workflowMeta, servletLoggingObject );
 
       // Setting variables
       //
-      workflow.initializeVariablesFrom( null );
+      workflow.initializeFrom( null );
       workflow.getWorkflowMeta().setInternalHopVariables( workflow );
-      workflow.injectVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
+      workflow.setVariables( workflowConfiguration.getWorkflowExecutionConfiguration().getVariablesMap() );
 
       // Also copy the parameters over...
       //
-      workflow.copyParametersFrom( workflowMeta );
-      workflow.clearParameters();
+      workflow.copyParametersFromDefinitions( workflowMeta );
+      workflow.clearParameterValues();
       String[] parameterNames = workflow.listParameters();
       for ( int idx = 0; idx < parameterNames.length; idx++ ) {
         // Grab the parameter value set in the action
@@ -135,10 +128,11 @@ public class AddWorkflowServlet extends BaseHttpServlet implements IHopServerPlu
         if ( !Utils.isEmpty( thisValue ) ) {
           // Set the value as specified by the user in the action
           //
-          workflowMeta.setParameterValue( parameterNames[ idx ], thisValue );
+          workflow.setParameterValue( parameterNames[ idx ], thisValue );
         }
       }
-      workflowMeta.activateParameters();
+      workflow.activateParameters(workflow);
+
       // Check if there is a starting point specified.
       String startActionName = workflowExecutionConfiguration.getStartActionName();
       if ( startActionName != null && !startActionName.isEmpty() ) {

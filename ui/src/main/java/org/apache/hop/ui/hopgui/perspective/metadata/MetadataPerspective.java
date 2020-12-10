@@ -36,6 +36,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -179,6 +180,21 @@ public class MetadataPerspective implements IHopPerspective {
 
     this.refresh();
     this.updateSelection();
+
+    // Set the top level items in the tree to be expanded
+    //
+    for (TreeItem item : tree.getItems()) {
+      TreeMemory.getInstance().storeExpanded(METADATA_PERSPECTIVE_TREE, item, true);
+    }
+
+    // refresh the metadata when it changes.
+    //
+    hopGui.getEventsHandler().addEventListener(
+      getClass().getName(),
+      e->refresh(),
+      HopGuiEvents.MetadataChanged.name()
+    );
+
   }
 
   protected MetadataManager<IHopMetadata> getMetadataManager(String objectKey) throws HopException {

@@ -39,24 +39,28 @@ public class CloneRepositoryDialog extends GitRepositoryDialog {
   private Text cloneAsText;
   private String cloneAs;
 
-  public CloneRepositoryDialog( Shell parentShell, IHopMetadataProvider metadataProvider, GitRepository repo, IVariables variables ) {
-    super( parentShell, metadataProvider, repo, variables );
+  public CloneRepositoryDialog(
+      Shell parentShell,
+      IHopMetadataProvider metadataProvider,
+      GitRepository repo,
+      IVariables variables) {
+    super(parentShell, metadataProvider, repo, variables);
     APPLICATION_NAME = "Clone Repository";
   }
 
   @Override
   public String open() {
     Control lastControl = addStandardWidgets();
-    lastControl = addExtraControls( lastControl );
-    addButtons( lastControl );
+    lastControl = addExtraControls(lastControl);
+    addButtons(lastControl);
 
     // Set the shell size, based upon previous time...
-    BaseTransformDialog.setSize( shell );
+    BaseTransformDialog.setSize(shell);
 
     shell.open();
 
-    while ( !shell.isDisposed() ) {
-      if ( !shell.getDisplay().readAndDispatch() ) {
+    while (!shell.isDisposed()) {
+      if (!shell.getDisplay().readAndDispatch()) {
         shell.getDisplay().sleep();
       }
     }
@@ -64,50 +68,51 @@ public class CloneRepositoryDialog extends GitRepositoryDialog {
     return returnValue;
   }
 
-  protected Control addExtraControls( Control lastControl ) {
+  protected Control addExtraControls(Control lastControl) {
 
-    Label urlLabel = new Label( shell, SWT.RIGHT );
-    urlLabel.setText( "Source URL: " );
+    Label urlLabel = new Label(shell, SWT.RIGHT);
+    urlLabel.setText("Source URL: ");
     FormData fdUrlLabel = new FormData();
     fdUrlLabel.top = new FormAttachment(lastControl, props.getMargin());
     fdUrlLabel.left = new FormAttachment(0, 0);
     fdUrlLabel.right = new FormAttachment(props.getMiddlePct(), 0);
-    urlLabel.setLayoutData( fdUrlLabel );
+    urlLabel.setLayoutData(fdUrlLabel);
 
-    urlText = new Text( shell, SWT.SINGLE | SWT.BORDER );
+    urlText = new Text(shell, SWT.SINGLE | SWT.BORDER);
     FormData fdUrlText = new FormData();
     fdUrlText.top = new FormAttachment(urlLabel, 0, SWT.CENTER);
     fdUrlText.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
     fdUrlText.right = new FormAttachment(100, 0);
-    urlText.setLayoutData( fdUrlText );
+    urlText.setLayoutData(fdUrlText);
     lastControl = urlText;
 
-    Label cloneAsLabel = new Label( shell, SWT.RIGHT );
-    cloneAsLabel.setText( "Clone As: " );
+    Label cloneAsLabel = new Label(shell, SWT.RIGHT);
+    cloneAsLabel.setText("Clone As: ");
     FormData fdCloneAsLabel = new FormData();
     fdCloneAsLabel.top = new FormAttachment(lastControl, props.getMargin());
     fdCloneAsLabel.left = new FormAttachment(0, 0);
     fdCloneAsLabel.right = new FormAttachment(props.getMiddlePct(), 0);
-    cloneAsLabel.setLayoutData( fdCloneAsLabel );
+    cloneAsLabel.setLayoutData(fdCloneAsLabel);
 
-    cloneAsText = new Text( shell, SWT.SINGLE | SWT.BORDER );
+    cloneAsText = new Text(shell, SWT.SINGLE | SWT.BORDER);
     FormData fdCloneAsText = new FormData();
     fdCloneAsText.top = new FormAttachment(urlLabel, 0, SWT.CENTER);
     fdCloneAsText.left = new FormAttachment(props.getMiddlePct(), props.getMargin());
     fdCloneAsText.right = new FormAttachment(100, 0);
-    cloneAsText.setLayoutData( fdCloneAsText );
+    cloneAsText.setLayoutData(fdCloneAsText);
     lastControl = cloneAsText;
 
-    urlText.addModifyListener( event -> {
-      String url = ( (Text) event.widget ).getText();
-      URIish uri;
-      try {
-        uri = new URIish( url );
-        cloneAsText.setText( uri.getHumanishName() );
-      } catch ( URISyntaxException e ) {
-//        e.printStackTrace();
-      }
-    } );
+    urlText.addModifyListener(
+        event -> {
+          String url = ((Text) event.widget).getText();
+          URIish uri;
+          try {
+            uri = new URIish(url);
+            cloneAsText.setText(uri.getHumanishName());
+          } catch (URISyntaxException e) {
+            //        e.printStackTrace();
+          }
+        });
 
     return lastControl;
   }

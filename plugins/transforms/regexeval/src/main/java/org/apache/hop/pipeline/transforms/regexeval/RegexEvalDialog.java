@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
@@ -30,6 +24,8 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -70,8 +66,8 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
   private Label wlFields;
   private TableView wFields;
 
-  public RegexEvalDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public RegexEvalDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (RegexEvalMeta) in;
   }
 
@@ -174,10 +170,10 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     wFieldEvaluate.setLayoutData(fdfieldevaluate);
     wFieldEvaluate.addSelectionListener( lsSel );
     wFieldEvaluate.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -188,7 +184,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     // Output Fieldame
 
-    wResultField = new LabelTextVar( pipelineMeta, wTransformSettings,
+    wResultField = new LabelTextVar( variables, wTransformSettings,
       BaseMessages.getString( PKG, "RegexEvalDialog.ResultField.Label" ),
       BaseMessages.getString( PKG, "RegexEvalDialog.ResultField.Tooltip" ) );
 
@@ -296,7 +292,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     Composite wBottom = new Composite(wSash, SWT.NONE);
     props.setLook(wBottom);
 
-    wScript = new StyledTextComp( pipelineMeta, wGeneralComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wScript = new StyledTextComp( variables, wGeneralComp, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     wScript.setText( BaseMessages.getString( PKG, "RegexEvalDialog.Script.Label" ) );
     props.setLook( wScript, Props.WIDGET_STYLE_FIXED );
     wScript.addModifyListener( lsMod );
@@ -371,7 +367,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
 
     wFields =
       new TableView(
-        pipelineMeta, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columnInfo, fieldsRows, lsMod, props );
+        variables, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, columnInfo, fieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -658,7 +654,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     // Clear the existing list, and reload
     wFieldEvaluate.removeAll();
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         for ( String item : r.getFieldNames() ) {
           wFieldEvaluate.add( item );
@@ -802,7 +798,7 @@ public class RegexEvalDialog extends BaseTransformDialog implements ITransformDi
     RegexEvalMeta meta = new RegexEvalMeta();
     setRegexOptions( meta );
     RegexEvalHelperDialog d =
-      new RegexEvalHelperDialog( shell, pipelineMeta, meta.getScript(), meta.getRegexOptions(), meta
+      new RegexEvalHelperDialog( shell, new Variables(), pipelineMeta, meta.getScript(), meta.getRegexOptions(), meta
         .isCanonicalEqualityFlagSet() );
     wScript.setText( d.open() );
   }

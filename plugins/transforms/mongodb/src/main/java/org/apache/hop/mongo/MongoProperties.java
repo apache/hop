@@ -82,7 +82,7 @@ public class MongoProperties {
   public String toString() {
     StringBuilder builder = new StringBuilder();
     builder.append("MongoProperties:\n");
-    List<MongoProp> propList = new ArrayList<MongoProp>(props.keySet());
+    List<MongoProp> propList = new ArrayList<>( props.keySet() );
     Collections.sort(
         propList,
         new Comparator<MongoProp>() {
@@ -105,7 +105,7 @@ public class MongoProperties {
     private static final String DEFAULT_HOST = "localhost";
     private static final String DEFAULT_READ_PREFERENCE = "primary";
 
-    private final Map<MongoProp, String> props = new HashMap<MongoProp, String>();
+    private final Map<MongoProp, String> props = new HashMap<>();
 
     /** Initializes any default values. */
     public Builder() {
@@ -120,7 +120,7 @@ public class MongoProperties {
     }
 
     public MongoProperties build() {
-      return new MongoProperties(new HashMap<MongoProp, String>(props));
+      return new MongoProperties( new HashMap<>( props ));
     }
   }
 }

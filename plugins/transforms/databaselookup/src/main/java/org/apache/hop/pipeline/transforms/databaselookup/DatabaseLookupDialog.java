@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.databaselookup;
 
@@ -32,6 +27,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -114,8 +110,8 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
    */
   private IRowMeta prevFields = null;
 
-  public DatabaseLookupDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public DatabaseLookupDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (DatabaseLookupMeta) in;
   }
 
@@ -192,7 +188,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     fdbSchema.right = new FormAttachment( 100, 0 );
     wbSchema.setLayoutData( fdbSchema );
 
-    wSchema = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsTableMod );
     FormData fdSchema = new FormData();
@@ -219,7 +215,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     fdbTable.top = new FormAttachment( wbSchema, margin );
     wbTable.setLayoutData( fdbTable );
 
-    wTable = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTable = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsTableMod );
     FormData fdTable = new FormData();
@@ -325,7 +321,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     fieldColumns.add( ciKey[ 3 ] );
     wKey =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrKeyRows, lsMod, props );
 
     FormData fdKey = new FormData();
@@ -368,7 +364,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
 
     wReturn =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
     FormData fdReturn = new FormData();
@@ -511,7 +507,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
   private void setComboValues() {
     Runnable fieldLoader = () -> {
       try {
-        prevFields = pipelineMeta.getPrevTransformFields( transformName );
+        prevFields = pipelineMeta.getPrevTransformFields( variables, transformName );
       } catch ( HopException e ) {
         prevFields = new RowMeta();
         String msg = BaseMessages.getString( PKG, "DatabaseLookupDialog.DoMapping.UnableToFindInput" );
@@ -535,12 +531,12 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
           DatabaseMeta ci = pipelineMeta.findDatabase( connectionName );
           if ( ci != null ) {
             Database db = new Database( loggingObject, ci );
-            db.shareVariablesWith( pipelineMeta );
+            db.shareWith( variables );
             try {
               db.connect();
 
               //IRowMeta r = db.getTableFieldsMeta( schemaName, tableName );
-              String schemaTable = ci.getQuotedSchemaTableCombination( schemaName, tableName );
+              String schemaTable = ci.getQuotedSchemaTableCombination( variables, schemaName, tableName );
               IRowMeta r = db.getTableFields( schemaTable );
 
               if ( null != r ) {
@@ -736,7 +732,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
         logDebug( BaseMessages.getString( PKG, "DatabaseLookupDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
       }
 
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
       std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
       if ( std.open() ) {
         wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -753,7 +749,7 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           tableItem.setText( 2, "=" );
@@ -773,14 +769,13 @@ public class DatabaseLookupDialog extends BaseTransformDialog implements ITransf
     DatabaseMeta ci = pipelineMeta.findDatabase( wConnection.getText() );
     if ( ci != null ) {
       Database db = new Database( loggingObject, ci );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareWith( variables );
       try {
         db.connect();
 
         if ( !Utils.isEmpty( wTable.getText() ) ) {
           String schemaTable =
-            ci.getQuotedSchemaTableCombination( db.environmentSubstitute( wSchema.getText() ), db
-              .environmentSubstitute( wTable.getText() ) );
+            ci.getQuotedSchemaTableCombination( variables, wSchema.getText(), wTable.getText() );
           IRowMeta r = db.getTableFields( schemaTable );
 
           if ( r != null && !r.isEmpty() ) {

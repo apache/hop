@@ -59,7 +59,7 @@ public class SocketWriterDialog extends BaseTransformDialog implements ITransfor
   private TextVar wFlushInterval;
   private Button wCompressed;
 
-  public SocketWriterDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public SocketWriterDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (SocketWriterMeta) in;
   }
@@ -117,7 +117,7 @@ public class SocketWriterDialog extends BaseTransformDialog implements ITransfor
     fdlPort.right = new FormAttachment( middle, -margin );
     fdlPort.top = new FormAttachment( wTransformName, margin );
     wlPort.setLayoutData( fdlPort );
-    wPort = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPort = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wPort.setText( transformName );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
@@ -136,7 +136,7 @@ public class SocketWriterDialog extends BaseTransformDialog implements ITransfor
     fdlBufferSize.right = new FormAttachment( middle, -margin );
     fdlBufferSize.top = new FormAttachment( wPort, margin );
     wlBufferSize.setLayoutData( fdlBufferSize );
-    wBufferSize = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBufferSize = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wBufferSize.setText( transformName );
     props.setLook( wBufferSize );
     wBufferSize.addModifyListener( lsMod );
@@ -155,7 +155,7 @@ public class SocketWriterDialog extends BaseTransformDialog implements ITransfor
     fdlFlushInterval.right = new FormAttachment( middle, -margin );
     fdlFlushInterval.top = new FormAttachment( wBufferSize, margin );
     wlFlushInterval.setLayoutData( fdlFlushInterval );
-    wFlushInterval = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFlushInterval = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wFlushInterval.setText( transformName );
     props.setLook( wFlushInterval );
     wFlushInterval.addModifyListener( lsMod );

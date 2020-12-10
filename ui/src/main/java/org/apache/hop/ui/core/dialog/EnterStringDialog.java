@@ -1,35 +1,32 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.core.dialog;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
 import org.apache.hop.ui.core.widget.TextVar;
+import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -66,7 +63,7 @@ public class EnterStringDialog extends Dialog {
 
   private TextVar wStringVar;
 
-  private PipelineMeta pipelineMeta;
+  private final IVariables variables;
 
   private boolean allowVariables;
 
@@ -111,17 +108,17 @@ public class EnterStringDialog extends Dialog {
    * @param shellText
    * @param lineText
    * @param allowVariables Indicates to allow environmental substitution
-   * @param pipelineMeta      This object has the has the environmental variables
+   * @param variables      This object has the has the environmental variables
    */
   public EnterStringDialog( Shell parent, String string, String shellText, String lineText,
-                            boolean allowVariables, PipelineMeta pipelineMeta ) {
+                            boolean allowVariables, IVariables variables ) {
     super( parent, SWT.NONE );
     this.props = PropsUi.getInstance();
     this.string = string;
     this.shellText = shellText;
     this.lineText = lineText;
     this.allowVariables = allowVariables;
-    this.pipelineMeta = pipelineMeta;
+    this.variables = variables;
   }
 
   public String open() {
@@ -151,7 +148,7 @@ public class EnterStringDialog extends Dialog {
     fdlString.top = new FormAttachment( 0, margin );
     wlString.setLayoutData( fdlString );
     if ( allowVariables ) {
-      wStringVar = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+      wStringVar = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
       wStringVar.setText( string );
       props.setLook( wStringVar );
       lastControl = wStringVar;

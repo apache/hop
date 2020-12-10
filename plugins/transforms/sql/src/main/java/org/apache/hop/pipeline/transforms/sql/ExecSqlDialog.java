@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.sql;
 
@@ -52,6 +46,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class ExecSqlDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = ExecSqlMeta.class; // Needed by Translator
@@ -93,8 +88,8 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
   private ColumnInfo[] colinf;
 
-  public ExecSqlDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ExecSqlDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ExecSqlMeta) in;
     inputFields = new HashMap<>();
   }
@@ -162,7 +157,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     wlSql.setLayoutData(fdlSql);
 
     wSql =
-      new StyledTextComp( pipelineMeta, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+      new StyledTextComp( variables, shell, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     props.setLook( wSql, Props.WIDGET_STYLE_FIXED );
     wSql.addModifyListener( lsMod );
     wSql.addModifyListener( arg0 -> setPosition() );
@@ -311,7 +306,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
         BaseMessages.getString( PKG, "ExecSqlDialog.ColumnInfo.ArgumentFieldname" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false ), };
 
-    wFields = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+    wFields = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
     fdFields.top = new FormAttachment( wlFields, margin );
@@ -448,7 +443,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
     // top
     wlPosition.setLayoutData(fdlPosition);
 
-    // Finally, the SQL editor takes up all other space between the position and the SQL label
+    // Finally, the SQL editor takes up all other variables between the position and the SQL label
     //
     FormData fdSql = new FormData();
     fdSql.left = new FormAttachment( 0, 0 );
@@ -463,7 +458,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -680,7 +675,7 @@ public class ExecSqlDialog extends BaseTransformDialog implements ITransformDial
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1 }, new int[] {}, -1, -1, null );
       }

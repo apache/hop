@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.mailinput;
 
@@ -30,6 +24,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -157,8 +152,8 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
   private TextVar wEndMessage;
   private Button wIgnoreFieldErrors;
 
-  public MailInputDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public MailInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (MailInputMeta) in;
   }
 
@@ -262,7 +257,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlServerName.top = new FormAttachment( 0, 2 * margin );
     fdlServerName.right = new FormAttachment( middle, -margin );
     wlServerName.setLayoutData(fdlServerName);
-    wServerName = new TextVar( pipelineMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wServerName = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
     FormData fdServerName = new FormData();
@@ -305,7 +300,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlPort.top = new FormAttachment( wUseSSL, margin );
     fdlPort.right = new FormAttachment( middle, -margin );
     wlPort.setLayoutData(fdlPort);
-    wPort = new TextVar( pipelineMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPort = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPort );
     wPort.setToolTipText( BaseMessages.getString( PKG, "MailInput.SSLPort.Tooltip" ) );
     wPort.addModifyListener( lsMod );
@@ -324,7 +319,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlUserName.top = new FormAttachment( wPort, margin );
     fdlUserName.right = new FormAttachment( middle, -margin );
     wlUserName.setLayoutData(fdlUserName);
-    wUserName = new TextVar( pipelineMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUserName = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUserName );
     wUserName.setToolTipText( BaseMessages.getString( PKG, "MailInput.Username.Tooltip" ) );
     wUserName.addModifyListener( lsMod );
@@ -343,7 +338,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlPassword.top = new FormAttachment( wUserName, margin );
     fdlPassword.right = new FormAttachment( middle, -margin );
     wlPassword.setLayoutData(fdlPassword);
-    wPassword = new PasswordTextVar( pipelineMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPassword = new PasswordTextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
     FormData fdPassword = new FormData();
@@ -380,7 +375,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     // ProxyUsername line
     wlProxyUsername = new Label(wServerSettings, SWT.RIGHT );
     wlProxyUsername.setText( BaseMessages.getString( PKG, "MailInput.ProxyUsername.Label" ) );
-    wProxyUsername = new TextVar( pipelineMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyUsername = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wProxyUsername.setToolTipText( BaseMessages.getString( PKG, "MailInput.ProxyUsername.Tooltip" ) );
     wProxyUsername.addModifyListener( lsMod );
     addLabelInputPairBelow( wlProxyUsername, wProxyUsername, wUseProxy );
@@ -527,7 +522,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlFirstmails.top = new FormAttachment( wListmails, margin );
     wlFirstmails.setLayoutData(fdlFirstmails);
 
-    wFirstmails = new TextVar( pipelineMeta, wPOP3Settings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFirstmails = new TextVar( variables, wPOP3Settings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFirstmails );
     wFirstmails.addModifyListener( lsMod );
     FormData fdFirstmails = new FormData();
@@ -602,10 +597,10 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdFolderField.right = new FormAttachment( 100, -margin );
     wFolderField.setLayoutData(fdFolderField);
     wFolderField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         setFolderField();
       }
     } );
@@ -640,7 +635,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlIMAPFolder.top = new FormAttachment( wFolderField, margin );
     fdlIMAPFolder.right = new FormAttachment( middle, -margin );
     wlIMAPFolder.setLayoutData(fdlIMAPFolder);
-    wIMAPFolder = new TextVar( pipelineMeta, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIMAPFolder = new TextVar( variables, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIMAPFolder );
     wIMAPFolder.setToolTipText( BaseMessages.getString( PKG, "MailInput.IMAPFolder.Tooltip" ) );
     wIMAPFolder.addModifyListener( lsMod );
@@ -706,7 +701,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlIMAPFirstmails.top = new FormAttachment( wIMAPListmails, margin );
     wlIMAPFirstmails.setLayoutData(fdlIMAPFirstmails);
 
-    wIMAPFirstmails = new TextVar( pipelineMeta, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIMAPFirstmails = new TextVar( variables, wIMAPSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIMAPFirstmails );
     wIMAPFirstmails.addModifyListener( lsMod );
     FormData fdIMAPFirstmails = new FormData();
@@ -739,13 +734,13 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     // Starting message
     Label wlStartMessage = new Label(wBatchSettingsGroup, SWT.RIGHT );
     wlStartMessage.setText( BaseMessages.getString( PKG, "MailInputDialog.StartMessage.Label" ) );
-    wStartMessage = new TextVar( pipelineMeta, wBatchSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wStartMessage = new TextVar( variables, wBatchSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     addLabelInputPairBelow( wlStartMessage, wStartMessage, wBatchSize );
 
     // Last message
     Label wlEndMessage = new Label(wBatchSettingsGroup, SWT.RIGHT );
     wlEndMessage.setText( BaseMessages.getString( PKG, "MailInputDialog.EndMessage.Label" ) );
-    wEndMessage = new TextVar( pipelineMeta, wBatchSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEndMessage = new TextVar( variables, wBatchSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     addLabelInputPairBelow( wlEndMessage, wEndMessage, wStartMessage );
 
     //
@@ -810,7 +805,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdNegateSender.top = new FormAttachment( wlSender, 0, SWT.CENTER );
     fdNegateSender.right = new FormAttachment( 100, -margin );
     wNegateSender.setLayoutData(fdNegateSender);
-    wSender = new TextVar( pipelineMeta, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSender = new TextVar( variables, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSender );
     wSender.addModifyListener( lsMod );
     FormData fdSender = new FormData();
@@ -836,7 +831,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdNegateReceipient.top = new FormAttachment( wlReceipient, 0, SWT.CENTER );
     fdNegateReceipient.right = new FormAttachment( 100, -margin );
     wNegateReceipient.setLayoutData(fdNegateReceipient);
-    wReceipient = new TextVar( pipelineMeta, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReceipient = new TextVar( variables, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wReceipient );
     wReceipient.addModifyListener( lsMod );
     FormData fdReceipient = new FormData();
@@ -862,7 +857,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdNegateSubject.top = new FormAttachment( wlSubject, 0, SWT.CENTER );
     fdNegateSubject.right = new FormAttachment( 100, -margin );
     wNegateSubject.setLayoutData(fdNegateSubject);
-    wSubject = new TextVar( pipelineMeta, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSubject = new TextVar( variables, wHeader, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSubject );
     wSubject.addModifyListener( lsMod );
     FormData fdSubject = new FormData();
@@ -980,7 +975,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlReadFrom.top = new FormAttachment( wConditionOnReceivedDate, margin );
     fdlReadFrom.right = new FormAttachment( middle, -margin );
     wlReadFrom.setLayoutData(fdlReadFrom);
-    wReadFrom = new TextVar( pipelineMeta, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReadFrom = new TextVar( variables, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReadFrom.setToolTipText( BaseMessages.getString( PKG, "MailInput.ReadFrom.Tooltip" ) );
     props.setLook( wReadFrom );
     wReadFrom.addModifyListener( lsMod );
@@ -1041,7 +1036,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     fdlReadTo.top = new FormAttachment( wReadFrom, 2 * margin );
     fdlReadTo.right = new FormAttachment( middle, -margin );
     wlReadTo.setLayoutData(fdlReadTo);
-    wReadTo = new TextVar( pipelineMeta, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wReadTo = new TextVar( variables, wReceivedDate, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wReadTo.setToolTipText( BaseMessages.getString( PKG, "MailInput.ReadTo.Tooltip" ) );
     props.setLook( wReadTo );
     wReadTo.addModifyListener( lsMod );
@@ -1128,7 +1123,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     colinf[ 1 ].setToolTip( BaseMessages.getString( PKG, "MailInputdialog.FieldsTable.Column.Column.Tooltip" ) );
 
     wFields =
-      new TableView( pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+      new TableView( variables, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -1165,7 +1160,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     Listener lsTest = e -> test();
     wTest.addListener( SWT.Selection, lsTest);
     wGet.addListener( SWT.Selection, e -> getFields() );
-    Listener lsTestIMAPFolder = e -> checkFolder(pipelineMeta.environmentSubstitute(wIMAPFolder.getText()));
+    Listener lsTestIMAPFolder = e -> checkFolder(variables.resolve(wIMAPFolder.getText()));
     wTestIMAPFolder.addListener( SWT.Selection, lsTestIMAPFolder);
 
     Listener lsSelectFolder = e -> selectFolder(wIMAPFolder);
@@ -1421,7 +1416,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
         String field = wFolderField.getText();
         wFolderField.removeAll();
 
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wFolderField.setItems( r.getFieldNames() );
         }
@@ -1590,11 +1585,11 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
     }
 
     if ( !retval ) {
-      String realserver = pipelineMeta.environmentSubstitute( wServerName.getText() );
-      String realuser = pipelineMeta.environmentSubstitute( wUserName.getText() );
-      String realpass = Utils.resolvePassword( pipelineMeta, wPassword.getText() );
-      String realProxyUsername = pipelineMeta.environmentSubstitute( wProxyUsername.getText() );
-      int realport = Const.toInt( pipelineMeta.environmentSubstitute( wPort.getText() ), -1 );
+      String realserver = variables.resolve( wServerName.getText() );
+      String realuser = variables.resolve( wUserName.getText() );
+      String realpass = Utils.resolvePassword( variables, wPassword.getText() );
+      String realProxyUsername = variables.resolve( wProxyUsername.getText() );
+      int realport = Const.toInt( variables.resolve( wPort.getText() ), -1 );
 
       try {
         mailConn =
@@ -1658,7 +1653,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
       getInfo( oneMeta );
 
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, metadataProvider, oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( variables, metadataProvider, oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "MailInputDialog.NumberRows.DialogTitle" ),
@@ -1668,7 +1663,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
       if ( previewSize > 0 ) {
         PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-            shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+            shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
         progressDialog.open();
 
         if ( !progressDialog.isCancelled() ) {
@@ -1684,7 +1679,7 @@ public class MailInputDialog extends BaseTransformDialog implements ITransformDi
           }
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
-              shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+              shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
               .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
           prd.open();
 

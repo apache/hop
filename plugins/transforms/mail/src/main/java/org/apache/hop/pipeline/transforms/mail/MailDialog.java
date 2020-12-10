@@ -1,26 +1,20 @@
 // CHECKSTYLE:FileLength:OFF
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.mail;
 
@@ -29,6 +23,7 @@ import org.apache.hop.core.Props;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -165,8 +160,8 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
   private final MailMeta input;
 
-  public MailDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public MailDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (MailMeta) in;
   }
 
@@ -271,10 +266,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDestination.right = new FormAttachment( 100, -margin );
     wDestination.setLayoutData(fdDestination);
     wDestination.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -303,10 +298,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDestinationCc.right = new FormAttachment( 100, -margin );
     wDestinationCc.setLayoutData(fdDestinationCc);
     wDestinationCc.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -334,10 +329,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDestinationBCc.right = new FormAttachment( 100, -margin );
     wDestinationBCc.setLayoutData(fdDestinationBCc);
     wDestinationBCc.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -389,10 +384,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdReplyName.right = new FormAttachment( 100, -margin );
     wReplyName.setLayoutData(fdReplyName);
     wReplyName.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -421,10 +416,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdReply.right = new FormAttachment( 100, -margin );
     wReply.setLayoutData(fdReply);
     wReply.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -462,10 +457,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdReplyToAddresses.right = new FormAttachment( 100, -margin );
     wReplyToAddresses.setLayoutData(fdReplyToAddresses);
     wReplyToAddresses.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -494,10 +489,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdPerson.right = new FormAttachment( 100, -margin );
     wPerson.setLayoutData(fdPerson);
     wPerson.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -526,10 +521,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdPhone.right = new FormAttachment( 100, -margin );
     wPhone.setLayoutData(fdPhone);
     wPhone.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -601,10 +596,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdServer.right = new FormAttachment( 100, -margin );
     wServer.setLayoutData(fdServer);
     wServer.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -633,10 +628,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdPort.right = new FormAttachment( 100, -margin );
     wPort.setLayoutData(fdPort);
     wPort.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -711,10 +706,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdAuthUser.right = new FormAttachment( 100, -margin );
     wAuthUser.setLayoutData(fdAuthUser);
     wAuthUser.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -743,10 +738,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdAuthPass.right = new FormAttachment( 100, -margin );
     wAuthPass.setLayoutData(fdAuthPass);
     wAuthPass.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -946,10 +941,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdEncoding.right = new FormAttachment( 100, 0 );
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setEncodings();
@@ -1100,10 +1095,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdSubject.right = new FormAttachment( 100, -margin );
     wSubject.setLayoutData(fdSubject);
     wSubject.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1131,10 +1126,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdComment.right = new FormAttachment( 100, -margin );
     wComment.setLayoutData(fdComment);
     wComment.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1238,10 +1233,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdAttachContentField.right = new FormAttachment( 100, -margin );
     wAttachContentField.setLayoutData( fdAttachContentField );
     wAttachContentField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1269,10 +1264,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdAttachContentFileNameField.right = new FormAttachment( 100, -margin );
     wAttachContentFileNameField.setLayoutData( fdAttachContentFileNameField );
     wAttachContentFileNameField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1348,10 +1343,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdFilenameField.right = new FormAttachment( 100, -margin );
     wDynamicFilenameField.setLayoutData( fdFilenameField );
     wDynamicFilenameField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1380,10 +1375,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDynamicWildcardField.right = new FormAttachment( 100, -margin );
     wDynamicWildcardField.setLayoutData( fdDynamicWildcardField );
     wDynamicWildcardField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1414,7 +1409,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
       public void widgetSelected( SelectionEvent e ) {
         DirectoryDialog ddialog = new DirectoryDialog( shell, SWT.OPEN );
         if ( wSourceFileFoldername.getText() != null ) {
-          ddialog.setFilterPath( pipelineMeta.environmentSubstitute( wSourceFileFoldername.getText() ) );
+          ddialog.setFilterPath( variables.resolve( wSourceFileFoldername.getText() ) );
         }
 
         // Calling open() will open and run the dialog.
@@ -1438,7 +1433,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdbSourceFileFoldername.top = new FormAttachment( wDynamicWildcardField, 2 * margin );
     wbFileFoldername.setLayoutData(fdbSourceFileFoldername);
 
-    wSourceFileFoldername = new TextVar( pipelineMeta, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSourceFileFoldername = new TextVar( variables, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSourceFileFoldername );
     wSourceFileFoldername.addModifyListener( lsMod );
     FormData fdSourceFileFoldername = new FormData();
@@ -1448,14 +1443,14 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wSourceFileFoldername.setLayoutData(fdSourceFileFoldername);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFoldername.addModifyListener( e -> wSourceFileFoldername.setToolTipText( pipelineMeta.environmentSubstitute( wSourceFileFoldername.getText() ) ) );
+    wSourceFileFoldername.addModifyListener( e -> wSourceFileFoldername.setToolTipText( variables.resolve( wSourceFileFoldername.getText() ) ) );
 
     wbFileFoldername.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*" } );
         if ( wSourceFileFoldername.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wSourceFileFoldername.getText() ) );
+          dialog.setFileName( variables.resolve( wSourceFileFoldername.getText() ) );
         }
         dialog.setFilterNames( FILETYPES );
         if ( dialog.open() != null ) {
@@ -1496,7 +1491,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdlWildcard.top = new FormAttachment( wIncludeSubFolders, margin );
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
-    wWildcard = new TextVar( pipelineMeta, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( variables, wOriginFiles, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wWildcard );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "MailDialog.Wildcard.Tooltip" ) );
     wWildcard.addModifyListener( lsMod );
@@ -1507,7 +1502,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wWildcard.setLayoutData(fdWildcard);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( pipelineMeta.environmentSubstitute( wWildcard.getText() ) ) );
+    wWildcard.addModifyListener( e -> wWildcard.setToolTipText( variables.resolve( wWildcard.getText() ) ) );
     FormData fdOriginFiles = new FormData();
     fdOriginFiles.left = new FormAttachment( 0, margin );
     fdOriginFiles.top = new FormAttachment(wAttachedContent, 2 * margin );
@@ -1597,10 +1592,10 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdDynamicZipFileField.right = new FormAttachment( 100, -margin );
     wDynamicZipFileField.setLayoutData(fdDynamicZipFileField);
     wDynamicZipFileField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getPreviousFields();
@@ -1612,7 +1607,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     // ZipFilename line
     wZipFilename =
       new LabelTextVar(
-        pipelineMeta, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipFilename.Label" ), BaseMessages
+        variables, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipFilename.Label" ), BaseMessages
         .getString( PKG, "MailDialog.ZipFilename.Tooltip" ) );
     wZipFilename.addModifyListener( lsMod );
     FormData fdZipFilename = new FormData();
@@ -1624,7 +1619,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     // Zip files on condition?
     wZipSizeCondition =
       new LabelTextVar(
-        pipelineMeta, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipSizeCondition.Label" ), BaseMessages
+        variables, wZipGroup, BaseMessages.getString( PKG, "MailDialog.ZipSizeCondition.Label" ), BaseMessages
         .getString( PKG, "MailDialog.ZipSizeCondition.Tooltip" ) );
     wZipSizeCondition.addModifyListener( lsMod );
     FormData fdZipSizeCondition = new FormData();
@@ -1701,7 +1696,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdbaImageFilename.top = new FormAttachment( wTransformName, margin );
     wbaImageFilename.setLayoutData( fdbaImageFilename );
 
-    wImageFilename = new TextVar( pipelineMeta, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wImageFilename = new TextVar( variables, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wImageFilename );
     wImageFilename.addModifyListener( lsMod );
     FormData fdImageFilename = new FormData();
@@ -1711,14 +1706,14 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     wImageFilename.setLayoutData( fdImageFilename );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( pipelineMeta.environmentSubstitute( wImageFilename.getText() ) ) );
+    wImageFilename.addModifyListener( e -> wImageFilename.setToolTipText( variables.resolve( wImageFilename.getText() ) ) );
 
     wbImageFilename.addSelectionListener( new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.OPEN );
         dialog.setFilterExtensions( new String[] { "*png;*PNG", "*jpeg;*jpg;*JPEG;*JPG", "*gif;*GIF", "*" } );
         if ( wImageFilename.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wImageFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wImageFilename.getText() ) );
         }
         dialog.setFilterNames( IMAGES_FILE_TYPES );
         if ( dialog.open() != null ) {
@@ -1739,7 +1734,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
     fdlContentID.right = new FormAttachment( middle, -margin );
     wlContentID.setLayoutData( fdlContentID );
     wContentID =
-      new TextVar( pipelineMeta, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wembeddedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "MailDialog.ContentID.Tooltip" ) );
     props.setLook( wContentID );
     wContentID.addModifyListener( lsMod );
@@ -1798,7 +1793,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
 
     wFields =
       new TableView(
-        pipelineMeta, wembeddedComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        variables, wembeddedComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
         props );
 
     FormData fdFields = new FormData();
@@ -2051,7 +2046,7 @@ public class MailDialog extends BaseTransformDialog implements ITransformDialog 
         }
         wAttachContentFileNameField.removeAll();
 
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           String[] fieldnames = r.getFieldNames();
           wDestination.setItems( fieldnames );

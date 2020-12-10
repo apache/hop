@@ -439,7 +439,7 @@ public class ScriptMeta extends BaseTransformMeta implements ITransform {
       }
 
       try {
-        ScriptDummy dummyTransform = new ScriptDummy( prev, pipelineMeta.getTransformFields( transformMeta ) );
+        ScriptDummy dummyTransform = new ScriptDummy( prev, pipelineMeta.getTransformFields( variables, transformMeta ) );
         jsscope.put( "_transform_", dummyTransform );
 
         Object[] row = new Object[ prev.size() ];

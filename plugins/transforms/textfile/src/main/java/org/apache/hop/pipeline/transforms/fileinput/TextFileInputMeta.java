@@ -1,25 +1,20 @@
 // CHECKSTYLE:FileLength:OFF
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.fileinput;
 
@@ -1201,35 +1196,35 @@ public class TextFileInputMeta
 
     if ( getShortFileNameField() != null && getShortFileNameField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getShortFileNameField() ) );
+        new ValueMetaString( variables.resolve( getShortFileNameField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getExtensionField() != null && getExtensionField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getExtensionField() ) );
+        new ValueMetaString( variables.resolve( getExtensionField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getPathField() != null && getPathField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getPathField() ) );
+        new ValueMetaString( variables.resolve( getPathField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getSizeField() != null && getSizeField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaInteger( variables.environmentSubstitute( getSizeField() ) );
+        new ValueMetaInteger( variables.resolve( getSizeField() ) );
       v.setOrigin( name );
       v.setLength( 9 );
       row.addValueMeta( v );
     }
     if ( isHiddenField() != null && isHiddenField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaBoolean( variables.environmentSubstitute( isHiddenField() ) );
+        new ValueMetaBoolean( variables.resolve( isHiddenField() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
@@ -1237,13 +1232,13 @@ public class TextFileInputMeta
     if ( getLastModificationDateField() != null && getLastModificationDateField().length() > 0 ) {
       IValueMeta v =
         new ValueMetaDate(
-          variables.environmentSubstitute( getLastModificationDateField() ) );
+          variables.resolve( getLastModificationDateField() ) );
       v.setOrigin( name );
       row.addValueMeta( v );
     }
     if ( getUriField() != null && getUriField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getUriField() ) );
+        new ValueMetaString( variables.resolve( getUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -1456,7 +1451,7 @@ public class TextFileInputMeta
       remarks.add( cr );
     }
 
-    FileInputList textFileList = getTextFileList( pipelineMeta );
+    FileInputList textFileList = getTextFileList( variables );
     if ( textFileList.nrOfFiles() == 0 ) {
       if ( !isAcceptingFilenames() ) {
         cr =
@@ -1816,13 +1811,12 @@ public class TextFileInputMeta
     }
   }
 
-  @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
-    List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    ResourceReference reference = new ResourceReference( transformInfo );
+  @Override public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
+    List<ResourceReference> references = new ArrayList<>( 5 );
+    ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 
-    String[] textFiles = getFilePaths( pipelineMeta );
+    String[] textFiles = getFilePaths( variables );
     if ( textFiles != null ) {
       for ( int i = 0; i < textFiles.length; i++ ) {
         reference.getEntries().add( new ResourceEntry( textFiles[ i ], ResourceType.FILE ) );
@@ -1837,7 +1831,7 @@ public class TextFileInputMeta
    * For now, we'll simply turn it into an absolute path and pray that the file is on a shared drive or something like
    * that.
    *
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
@@ -1856,7 +1850,7 @@ public class TextFileInputMeta
         // Replace the filename ONLY (folder or filename)
         //
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName[ i ] ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName[ i ] ) );
           fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }

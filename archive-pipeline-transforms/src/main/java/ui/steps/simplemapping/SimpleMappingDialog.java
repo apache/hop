@@ -164,7 +164,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
 
   private List<ApplyChanges> changeList;
 
-  public SimpleMappingDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public SimpleMappingDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     mappingMeta = (SimpleMappingMeta) in;
     transModified = false;
@@ -246,7 +246,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
     fdlTransformation.right = new FormAttachment( 50, 0 );
     wlPath.setLayoutData( fdlTransformation );
 
-    wPath = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPath = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment( 0, 0 );
@@ -358,14 +358,14 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void selectFilePipeline() {
-    String curFile = pipelineMeta.environmentSubstitute( wPath.getText() );
+    String curFile = variables.environmentSubstitute( wPath.getText() );
 
     FileObject root = null;
 
     String parentFolder = null;
     try {
       parentFolder =
-        HopVFS.getFileObject( pipelineMeta.environmentSubstitute( pipelineMeta.getFilename() ) ).getParent().toString();
+        HopVFS.getFileObject( variables.environmentSubstitute( pipelineMeta.getFilename() ) ).getParent().toString();
     } catch ( Exception e ) {
       // Take no action
     }
@@ -397,7 +397,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
   }
 
   private void loadPipelineFile( String fname ) throws HopException {
-    mappingPipelineMeta = new PipelineMeta( pipelineMeta.environmentSubstitute( fname ) );
+    mappingPipelineMeta = new PipelineMeta( variables.environmentSubstitute( fname ) );
     mappingPipelineMeta.clearChanged();
   }
 
@@ -492,7 +492,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
 
     final TableView wMappingParameters =
       new TableView(
-        pipelineMeta, wParametersComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, parameters
+        variables, wParametersComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, parameters
         .getVariable().length, false, lsMod, props, false
       );
     props.setLook( wMappingParameters );
@@ -550,7 +550,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
       // INPUT
       //
       if ( parent ) {
-        return pipelineMeta.getPrevTransformFields( transformMeta );
+        return pipelineMeta.getPrevTransformFields( variables, transformMeta );
       } else {
         if ( mappingPipelineMeta == null ) {
           throw new HopException( BaseMessages.getString(
@@ -608,7 +608,7 @@ public class SimpleMappingDialog extends BaseTransformDialog implements ITransfo
         new ColumnInfo( targetColumnLabel, ColumnInfo.COLUMN_TYPE_TEXT, false, false ), };
     final TableView wFieldMappings =
       new TableView(
-        pipelineMeta, wInputComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 1, false, lsMod, props,
+        variables, wInputComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 1, false, lsMod, props,
         false );
     props.setLook( wFieldMappings );
     FormData fdMappings = new FormData();

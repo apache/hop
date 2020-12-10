@@ -100,7 +100,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
 
   private TextVar wBatchTime;
 
-  public SingleThreaderDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public SingleThreaderDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     singleThreaderMeta = (SingleThreaderMeta) in;
     transModified = false;
@@ -171,7 +171,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
     fdlTransformation.right = new FormAttachment( 50, 0 );
     wlPath.setLayoutData( fdlTransformation );
 
-    wPath = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPath = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment( 0, 0 );
@@ -218,7 +218,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
     fdlInjectTransform.left = new FormAttachment( 0, 0 );
     wlInjectTransform.setLayoutData( fdlInjectTransform );
 
-    wInjectTransform = new TextVar( pipelineMeta, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInjectTransform = new TextVar( variables, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInjectTransform );
     wInjectTransform.addModifyListener( lsMod );
     FormData fdInjectTransform = new FormData();
@@ -258,7 +258,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
     fdlRetrieveTransform.left = new FormAttachment( 0, 0 );
     wlRetrieveTransform.setLayoutData( fdlRetrieveTransform );
 
-    wRetrieveTransform = new TextVar( pipelineMeta, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRetrieveTransform = new TextVar( variables, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRetrieveTransform );
     wRetrieveTransform.addModifyListener( lsMod );
     FormData fdRetrieveTransform = new FormData();
@@ -306,7 +306,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
     fdlBatchSize.left = new FormAttachment( 0, 0 );
     wlBatchSize.setLayoutData( fdlBatchSize );
 
-    wBatchSize = new TextVar( pipelineMeta, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBatchSize = new TextVar( variables, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     FormData fdBatchSize = new FormData();
     fdBatchSize.left = new FormAttachment( 0, 0 );
     fdBatchSize.top = new FormAttachment( wlBatchSize, 5 );
@@ -320,7 +320,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
     fdlBatchTime.left = new FormAttachment( 0, 0 );
     wlBatchTime.setLayoutData( fdlBatchTime );
 
-    wBatchTime = new TextVar( pipelineMeta, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBatchTime = new TextVar( variables, wOptions, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wBatchTime.addModifyListener( lsMod );
     FormData fdBatchTime = new FormData();
     fdBatchTime.left = new FormAttachment( 0, 0 );
@@ -392,7 +392,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
     colinf[ 1 ].setUsingVariables( true );
 
     wParameters =
-      new TableView( pipelineMeta, wParameterComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, parameterRows,
+      new TableView( variables, wParameterComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, parameterRows,
         false, lsMod, props, false );
 
     FormData fdParameters = new FormData();
@@ -499,7 +499,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
   }
 
   private void selectPipelineFile( boolean useVfs ) {
-    String curFile = pipelineMeta.environmentSubstitute( wPath.getText() );
+    String curFile = variables.environmentSubstitute( wPath.getText() );
 
     if ( useVfs ) {
       FileObject root = null;
@@ -507,7 +507,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
       String parentFolder = null;
       try {
         parentFolder =
-          HopVFS.getFileObject( pipelineMeta.environmentSubstitute( pipelineMeta.getFilename() ) ).getParent().toString();
+          HopVFS.getFileObject( variables.environmentSubstitute( pipelineMeta.getFilename() ) ).getParent().toString();
       } catch ( Exception e ) {
         // Take no action
       }
@@ -540,7 +540,7 @@ public class SingleThreaderDialog extends BaseTransformDialog implements ITransf
   }
 
   private void loadPipelineFile( String fname ) throws HopException {
-    mappingPipelineMeta = new PipelineMeta( pipelineMeta.environmentSubstitute( fname ) );
+    mappingPipelineMeta = new PipelineMeta( variables.environmentSubstitute( fname ) );
     mappingPipelineMeta.clearChanged();
   }
 

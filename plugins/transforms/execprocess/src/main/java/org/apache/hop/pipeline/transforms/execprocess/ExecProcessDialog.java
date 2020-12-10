@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
@@ -28,6 +23,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -64,8 +60,8 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
   private final ExecProcessMeta input;
   private boolean gotPreviousFields = false;
 
-  public ExecProcessDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public ExecProcessDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ExecProcessMeta) in;
   }
 
@@ -160,11 +156,11 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wProcess.setLayoutData(fdProcess);
     wProcess.addFocusListener( new FocusListener() {
       @Override
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
       @Override
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         get();
@@ -277,7 +273,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wOutputComp.setLayout( fdOutputCompLayout );
 
     // Output Line Delimiter
-    wOutputDelim = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wOutputDelim = new LabelTextVar( variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.OutputDelimiterField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.OutputDelimiterField.Tooltip" ) );
     wOutputDelim.addModifyListener( lsMod );
@@ -288,7 +284,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wOutputDelim.setLayoutData(fdOutputDelim);
 
     // Result fieldname ...
-    wResult = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wResult = new LabelTextVar( variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.ResultField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.ResultField.Tooltip" ) );
     wResult.addModifyListener( lsMod );
@@ -299,7 +295,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wResult.setLayoutData(fdResult);
 
     // Error fieldname ...
-    wError = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wError = new LabelTextVar( variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.ErrorField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.ErrorField.Tooltip" ) );
     wError.addModifyListener( lsMod );
@@ -310,7 +306,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
     wError.setLayoutData(fdError);
 
     // ExitValue fieldname ...
-    wExitValue = new LabelTextVar( pipelineMeta, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wExitValue = new LabelTextVar( variables, wOutputComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "ExecProcessDialog.ExitValueField.Label" ),
       BaseMessages.getString( PKG, "ExecProcessDialog.ExitValueField.Tooltip" ) );
     wExitValue.addModifyListener( lsMod );
@@ -372,7 +368,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
 
     IRowMeta r = null;
     try {
-      r = pipelineMeta.getPrevTransformFields( transformName );
+      r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         wArgumentFields.getColumns()[ 0 ].setComboValues( r.getFieldNames() );
       }
@@ -476,7 +472,7 @@ public class ExecProcessDialog extends BaseTransformDialog implements ITransform
       try {
         String fieldvalue = wProcess.getText();
         wProcess.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wProcess.setItems( r.getFieldNames() );
         }

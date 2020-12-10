@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.snmptrap;
 
@@ -166,7 +160,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // ServerName line
     wServerName =
       new LabelTextVar(
-    		  getWorkflowMeta(), wServerSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Server.Label" ), BaseMessages
+    		  variables, wServerSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Server.Label" ), BaseMessages
         .getString( PKG, "JobSNMPTrap.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
@@ -179,7 +173,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // Server port line
     wPort =
       new LabelTextVar(
-    		  getWorkflowMeta(), wServerSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Port.Label" ), BaseMessages
+    		  variables, wServerSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Port.Label" ), BaseMessages
         .getString( PKG, "JobSNMPTrap.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
@@ -192,7 +186,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // Server OID line
     wOID =
       new LabelTextVar(
-    		  getWorkflowMeta(), wServerSettings, BaseMessages.getString( PKG, "JobSNMPTrap.OID.Label" ), BaseMessages
+    		  variables, wServerSettings, BaseMessages.getString( PKG, "JobSNMPTrap.OID.Label" ), BaseMessages
         .getString( PKG, "JobSNMPTrap.OID.Tooltip" ) );
     props.setLook( wOID );
     wOID.addModifyListener( lsMod );
@@ -260,7 +254,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // Community String line
     wComString =
       new LabelTextVar(
-    		  getWorkflowMeta(), wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.ComString.Label" ), BaseMessages
+    		  variables, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.ComString.Label" ), BaseMessages
         .getString( PKG, "JobSNMPTrap.ComString.Tooltip" ) );
     props.setLook( wComString );
     wComString.addModifyListener( lsMod );
@@ -273,7 +267,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // User line
     wUser =
       new LabelTextVar(
-    		  getWorkflowMeta(), wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.User.Label" ), BaseMessages
+    		  variables, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.User.Label" ), BaseMessages
         .getString( PKG, "JobSNMPTrap.User.Tooltip" ) );
     props.setLook( wUser );
     wUser.addModifyListener( lsMod );
@@ -286,7 +280,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // Passphrase String line
     wPassphrase =
       new LabelTextVar(
-    		  getWorkflowMeta(), wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Passphrase.Label" ),
+    		  variables, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Passphrase.Label" ),
         BaseMessages.getString( PKG, "JobSNMPTrap.Passphrase.Tooltip" ), true );
     props.setLook( wPassphrase );
     wPassphrase.addModifyListener( lsMod );
@@ -299,7 +293,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // EngineID String line
     wEngineID =
       new LabelTextVar(
-    		  getWorkflowMeta(), wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.EngineID.Label" ), BaseMessages
+    		  variables, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.EngineID.Label" ), BaseMessages
         .getString( PKG, "JobSNMPTrap.EngineID.Tooltip" ) );
     props.setLook( wEngineID );
     wEngineID.addModifyListener( lsMod );
@@ -312,7 +306,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // Retry line
     wRetry =
       new LabelTextVar(
-    		  getWorkflowMeta(), wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Retry.Label" ), BaseMessages
+    		  variables, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Retry.Label" ), BaseMessages
         .getString( PKG, "JobSNMPTrap.Retry.Tooltip" ) );
     props.setLook( wRetry );
     wRetry.addModifyListener( lsMod );
@@ -325,7 +319,7 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
     // Timeout line
     wTimeout =
       new LabelTextVar(
-    		  getWorkflowMeta(), wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Timeout.Label" ), BaseMessages
+    		  variables, wAdvancedSettings, BaseMessages.getString( PKG, "JobSNMPTrap.Timeout.Label" ), BaseMessages
         .getString( PKG, "JobSNMPTrap.Timeout.Tooltip" ) );
     props.setLook( wTimeout );
     wTimeout.addModifyListener( lsMod );
@@ -466,9 +460,9 @@ public class ActionSNMPTrapDialog extends ActionDialog implements IActionDialog 
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = getWorkflowMeta().environmentSubstitute( wServerName.getText() );
+    String hostname = variables.resolve( wServerName.getText() );
     int nrPort =
-      Const.toInt( getWorkflowMeta().environmentSubstitute( "" + wPort.getText() ), ActionSNMPTrap.DEFAULT_PORT );
+      Const.toInt( variables.resolve( "" + wPort.getText() ), ActionSNMPTrap.DEFAULT_PORT );
 
     try {
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( hostname ), nrPort );

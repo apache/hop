@@ -117,7 +117,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
 
   private boolean gotEncodings = false;
 
-  public ParGzipCsvInputDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public ParGzipCsvInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     inputMeta = (ParGzipCsvInputMeta) in;
   }
@@ -174,7 +174,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
 
       IRowMeta previousFields;
       try {
-        previousFields = pipelineMeta.getPrevTransformFields( transformMeta );
+        previousFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
       } catch ( HopTransformException e ) {
         new ErrorDialog( shell,
           BaseMessages.getString( PKG, "ParGzipCsvInputDialog.ErrorDialog.UnableToGetInputFields.Title" ),
@@ -248,7 +248,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
       fdlFilename.left = new FormAttachment( 0, 0 );
       fdlFilename.right = new FormAttachment( middle, -margin );
       wlFilename.setLayoutData( fdlFilename );
-      wFilename = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+      wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
       props.setLook( wFilename );
       wFilename.addModifyListener( lsMod );
       FormData fdFilename = new FormData();
@@ -275,7 +275,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
     fdbDelimiter.top = new FormAttachment( lastControl, margin );
     fdbDelimiter.right = new FormAttachment( 100, 0 );
     wbDelimiter.setLayoutData( fdbDelimiter );
-    wDelimiter = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDelimiter = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDelimiter );
     wDelimiter.addModifyListener( lsMod );
     FormData fdDelimiter = new FormData();
@@ -294,7 +294,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
     fdlEnclosure.left = new FormAttachment( 0, 0 );
     fdlEnclosure.right = new FormAttachment( middle, -margin );
     wlEnclosure.setLayoutData( fdlEnclosure );
-    wEnclosure = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEnclosure = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEnclosure );
     wEnclosure.addModifyListener( lsMod );
     FormData fdEnclosure = new FormData();
@@ -314,7 +314,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
     fdlBufferSize.left = new FormAttachment( 0, 0 );
     fdlBufferSize.right = new FormAttachment( middle, -margin );
     wlBufferSize.setLayoutData( fdlBufferSize );
-    wBufferSize = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBufferSize = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBufferSize );
     wBufferSize.addModifyListener( lsMod );
     FormData fdBufferSize = new FormData();
@@ -389,7 +389,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
     fdlRowNumField.left = new FormAttachment( 0, 0 );
     fdlRowNumField.right = new FormAttachment( middle, -margin );
     wlRowNumField.setLayoutData( fdlRowNumField );
-    wRowNumField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowNumField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRowNumField );
     wRowNumField.addModifyListener( lsMod );
     FormData fdRowNumField = new FormData();
@@ -426,7 +426,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
     fdlEncoding.left = new FormAttachment( 0, 0 );
     fdlEncoding.right = new FormAttachment( middle, -margin );
     wlEncoding.setLayoutData( fdlEncoding );
-    wEncoding = new ComboVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEncoding = new ComboVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
     FormData fdEncoding = new FormData();
@@ -517,7 +517,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
 
     } );
 
-    wFields = new TableView( pipelineMeta, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
+    wFields = new TableView( variables, shell, SWT.FULL_SELECTION | SWT.MULTI, colinf, 1, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.top = new FormAttachment( lastControl, margin * 2 );
@@ -588,7 +588,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
           FileDialog dialog = new FileDialog( shell, SWT.OPEN );
           dialog.setFilterExtensions( new String[] { "*.txt;*.csv", "*.csv", "*.txt", "*" } );
           if ( wFilename.getText() != null ) {
-            String fname = pipelineMeta.environmentSubstitute( wFilename.getText() );
+            String fname = variables.environmentSubstitute( wFilename.getText() );
             dialog.setFileName( fname );
           }
 
@@ -766,7 +766,7 @@ public class ParGzipCsvInputDialog extends BaseTransformDialog implements ITrans
       ParGzipCsvInputMeta meta = new ParGzipCsvInputMeta();
       getInfo( meta );
 
-      String filename = pipelineMeta.environmentSubstitute( meta.getFilename() );
+      String filename = variables.environmentSubstitute( meta.getFilename() );
 
       FileObject fileObject = HopVFS.getFileObject( filename );
       if ( !( fileObject instanceof LocalFile ) ) {

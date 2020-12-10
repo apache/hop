@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.shell;
 
@@ -165,7 +159,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       setFileName( XmlHandler.getTagValue( entrynode, "filename" ) );
@@ -237,7 +231,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealFilename() {
-    return environmentSubstitute( getFilename() );
+    return resolve( getFilename() );
   }
 
   public void setWorkDirectory( String n ) {
@@ -280,7 +274,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     FileLoggingEventListener loggingEventListener = null;
     LogLevel shellLogLevel = parentWorkflow.getLogLevel();
     if ( setLogfile ) {
-      String realLogFilename = environmentSubstitute( getLogFilename() );
+      String realLogFilename = resolve( getLogFilename() );
       // We need to check here the log filename
       // if we do not have one, we must fail
       if ( Utils.isEmpty( realLogFilename ) ) {
@@ -313,7 +307,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     if ( arguments != null ) {
       substArgs = new String[ arguments.length ];
       for ( int idx = 0; idx < arguments.length; idx++ ) {
-        substArgs[ idx ] = environmentSubstitute( arguments[ idx ] );
+        substArgs[ idx ] = resolve( arguments[ idx ] );
       }
     }
 
@@ -353,7 +347,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
           }
         } else {
           // Just pass a single row
-          List<RowMetaAndData> newList = new ArrayList<RowMetaAndData>();
+          List<RowMetaAndData> newList = new ArrayList<>();
           newList.add( resultRow );
           cmdRows = newList;
         }
@@ -410,9 +404,9 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       }
 
       if ( insertScript ) {
-        realScript = environmentSubstitute( script );
+        realScript = resolve( script );
       } else {
-        String realFilename = environmentSubstitute( getFilename() );
+        String realFilename = resolve( getFilename() );
         fileObject = HopVfs.getFileObject( realFilename );
       }
 
@@ -523,7 +517,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       // Build the environment variable list...
       ProcessBuilder procBuilder = new ProcessBuilder( cmds );
       Map<String, String> env = procBuilder.environment();
-      String[] variables = listVariables();
+      String[] variables = getVariableNames();
       for ( int i = 0; i < variables.length; i++ ) {
         if ( StringUtils.isNotEmpty(variables[i])) {
           env.put( variables[ i ], Const.NVL( getVariable( variables[ i ] ), "" ) );
@@ -531,7 +525,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       }
 
       if ( getWorkDirectory() != null && !Utils.isEmpty( Const.rtrim( getWorkDirectory() ) ) ) {
-        String vfsFilename = environmentSubstitute( getWorkDirectory() );
+        String vfsFilename = resolve( getWorkDirectory() );
         File file = new File( HopVfs.getFilename( HopVfs.getFileObject( vfsFilename ) ) );
         procBuilder.directory( file );
       }
@@ -559,7 +553,7 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
       if ( result.getExitStatus() != 0 ) {
         if ( log.isDetailed() ) {
           logDetailed( BaseMessages.getString(
-            PKG, "JobShell.ExitStatus", environmentSubstitute( getFilename() ), "" + result.getExitStatus() ) );
+            PKG, "JobShell.ExitStatus", resolve( getFilename() ), "" + result.getExitStatus() ) );
         }
 
         result.setNrErrors( 1 );
@@ -576,14 +570,14 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
 
     } catch ( IOException ioe ) {
       logError( BaseMessages.getString(
-        PKG, "JobShell.ErrorRunningShell", environmentSubstitute( getFilename() ), ioe.toString() ), ioe );
+        PKG, "JobShell.ErrorRunningShell", resolve( getFilename() ), ioe.toString() ), ioe );
       result.setNrErrors( 1 );
     } catch ( InterruptedException ie ) {
       logError( BaseMessages.getString(
-        PKG, "JobShell.Shellinterupted", environmentSubstitute( getFilename() ), ie.toString() ), ie );
+        PKG, "JobShell.Shellinterupted", resolve( getFilename() ), ie.toString() ), ie );
       result.setNrErrors( 1 );
     } catch ( Exception e ) {
-      logError( BaseMessages.getString( PKG, "JobShell.UnexpectedError", environmentSubstitute( getFilename() ), e
+      logError( BaseMessages.getString( PKG, "JobShell.UnexpectedError", resolve( getFilename() ), e
         .toString() ), e );
       result.setNrErrors( 1 );
     } finally {
@@ -659,10 +653,10 @@ public class ActionShell extends ActionBase implements Cloneable, IAction {
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( filename ) ) {
-      String realFileName = workflowMeta.environmentSubstitute( filename );
+      String realFileName = resolve( filename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.FILE ) );
       references.add( reference );

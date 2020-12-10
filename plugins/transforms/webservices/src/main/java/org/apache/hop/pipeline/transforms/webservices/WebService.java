@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.webservices;
 
@@ -41,10 +35,8 @@ import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.Wsdl;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameter;
 import org.apache.hop.pipeline.transforms.webservices.wsdl.WsdlOpParameterList;
@@ -208,7 +200,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
   private void defineIndexList( IRowMeta rowMeta, Object[] vCurrentRow ) throws HopException {
     // Create an index list for the input fields
     //
-    indexList = new ArrayList<Integer>();
+    indexList = new ArrayList<>();
     if ( rowMeta != null ) {
       for ( WebServiceField curField : meta.getFieldsIn() ) {
         int index = rowMeta.indexOfValue( curField.getName() );
@@ -250,7 +242,7 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
 
     StringBuilder xml = new StringBuilder();
 
-    // TODO We only manage one name space for all the elements. See in the
+    // TODO We only manage one name variables for all the elements. See in the
     // future how to manage multiple name spaces
     //
     xml.append( "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" );
@@ -423,8 +415,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
     cachedMeta = meta;
 
     try {
-      cachedWsdl = new Wsdl( new java.net.URI( data.realUrl ), null, null, environmentSubstitute( meta.getHttpLogin() ),
-        Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( meta.getHttpPassword() ) ) );
+      cachedWsdl = new Wsdl( new java.net.URI( data.realUrl ), null, null, resolve( meta.getHttpLogin() ),
+        Encr.decryptPasswordOptionallyEncrypted( resolve( meta.getHttpPassword() ) ) );
     } catch ( Exception e ) {
       throw new HopTransformException( BaseMessages.getString( PKG, "WebServices.ERROR0013.ExceptionLoadingWSDL" ), e );
     }
@@ -467,14 +459,14 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
   private HttpClient getHttpClient( HttpClientContext context ) {
     HttpClientManager.HttpClientBuilderFacade clientBuilder = HttpClientManager.getInstance().createBuilder();
 
-    String login = environmentSubstitute( meta.getHttpLogin() );
+    String login = resolve( meta.getHttpLogin() );
     if ( StringUtils.isNotBlank( login ) ) {
       clientBuilder.setCredentials( login,
-        Encr.decryptPasswordOptionallyEncrypted( environmentSubstitute( meta.getHttpPassword() ) ) );
+        Encr.decryptPasswordOptionallyEncrypted( resolve( meta.getHttpPassword() ) ) );
     }
     int proxyPort = 0;
     if ( StringUtils.isNotBlank( meta.getProxyHost() ) ) {
-      proxyPort = Const.toInt( environmentSubstitute( meta.getProxyPort() ), 8080 );
+      proxyPort = Const.toInt( resolve( meta.getProxyPort() ), 8080 );
       clientBuilder.setProxy( meta.getProxyHost(), proxyPort );
     }
     CloseableHttpClient httpClient = clientBuilder.build();
@@ -496,8 +488,8 @@ public class WebService extends BaseTransform<WebServiceMeta, WebServiceData> im
 
   public boolean init() {
 
-    data.indexMap = new Hashtable<String, Integer>();
-    data.realUrl = environmentSubstitute( meta.getUrl() );
+    data.indexMap = new Hashtable<>();
+    data.realUrl = resolve( meta.getUrl() );
 
     return super.init();
   }

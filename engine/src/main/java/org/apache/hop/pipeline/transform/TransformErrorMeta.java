@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transform;
 
@@ -98,17 +93,14 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
    */
   private String minPercentRows = "";
 
-  private IVariables variables;
-
   /**
    * Create a new transform error handling metadata object
    *
    * @param sourceTransform The source transform that can send the error rows
    */
-  public TransformErrorMeta( IVariables variables, TransformMeta sourceTransform ) {
+  public TransformErrorMeta( TransformMeta sourceTransform ) {
     this.sourceTransform = sourceTransform;
     this.enabled = false;
-    this.variables = variables;
   }
 
   /**
@@ -117,11 +109,10 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
    * @param sourceTransform The source transform that can send the error rows
    * @param targetTransform The target transform to send the error rows to
    */
-  public TransformErrorMeta( IVariables variables, TransformMeta sourceTransform, TransformMeta targetTransform ) {
+  public TransformErrorMeta( TransformMeta sourceTransform, TransformMeta targetTransform ) {
     this.sourceTransform = sourceTransform;
     this.targetTransform = targetTransform;
     this.enabled = false;
-    this.variables = variables;
   }
 
   /**
@@ -135,7 +126,7 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
    *                                   not needed)
    * @param errorCodesValuename        the name of the field value to contain the error code(s) (null or empty means it's not needed)
    */
-  public TransformErrorMeta( IVariables variables, TransformMeta sourceTransform, TransformMeta targetTransform, String nrErrorsValuename,
+  public TransformErrorMeta( TransformMeta sourceTransform, TransformMeta targetTransform, String nrErrorsValuename,
                              String errorDescriptionsValuename, String errorFieldsValuename, String errorCodesValuename ) {
     this.sourceTransform = sourceTransform;
     this.targetTransform = targetTransform;
@@ -144,7 +135,6 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
     this.errorDescriptionsValuename = errorDescriptionsValuename;
     this.errorFieldsValuename = errorFieldsValuename;
     this.errorCodesValuename = errorCodesValuename;
-    this.variables = variables;
   }
 
   @Override
@@ -180,9 +170,7 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
     return xml.toString();
   }
 
-  public TransformErrorMeta( IVariables variables, Node node, List<TransformMeta> transforms ) {
-    this.variables = variables;
-
+  public TransformErrorMeta( Node node, List<TransformMeta> transforms ) {
     sourceTransform = TransformMeta.findTransform( transforms, XmlHandler.getTagValue( node, TransformErrorMeta.XML_SOURCE_TRANSFORM_TAG ) );
     targetTransform = TransformMeta.findTransform( transforms, XmlHandler.getTagValue( node, TransformErrorMeta.XML_TARGET_TRANSFORM_TAG ) );
     enabled = "Y".equals( XmlHandler.getTagValue( node, "is_enabled" ) );
@@ -293,31 +281,26 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
     this.enabled = enabled;
   }
 
-  public IRowMeta getErrorFields() {
-    return getErrorRowMeta( 0L, null, null, null );
-  }
-
-  public IRowMeta getErrorRowMeta( long nrErrors, String errorDescriptions, String fieldNames,
-                                   String errorCodes ) {
+  public IRowMeta getErrorRowMeta( IVariables variables ) {
     IRowMeta row = new RowMeta();
 
-    String nrErr = variables.environmentSubstitute( getNrErrorsValuename() );
+    String nrErr = variables.resolve( getNrErrorsValuename() );
     if ( !Utils.isEmpty( nrErr ) ) {
       IValueMeta v = new ValueMetaInteger( nrErr );
       v.setLength( 3 );
       row.addValueMeta( v );
     }
-    String errDesc = variables.environmentSubstitute( getErrorDescriptionsValuename() );
+    String errDesc = variables.resolve( getErrorDescriptionsValuename() );
     if ( !Utils.isEmpty( errDesc ) ) {
       IValueMeta v = new ValueMetaString( errDesc );
       row.addValueMeta( v );
     }
-    String errFields = variables.environmentSubstitute( getErrorFieldsValuename() );
+    String errFields = variables.resolve( getErrorFieldsValuename() );
     if ( !Utils.isEmpty( errFields ) ) {
       IValueMeta v = new ValueMetaString( errFields );
       row.addValueMeta( v );
     }
-    String errCodes = variables.environmentSubstitute( getErrorCodesValuename() );
+    String errCodes = variables.resolve( getErrorCodesValuename() );
     if ( !Utils.isEmpty( errCodes ) ) {
       IValueMeta v = new ValueMetaString( errCodes );
       row.addValueMeta( v );
@@ -326,26 +309,26 @@ public class TransformErrorMeta extends ChangedFlag implements IXml, Cloneable {
     return row;
   }
 
-  public void addErrorRowData( Object[] row, int startIndex, long nrErrors, String errorDescriptions,
-                               String fieldNames, String errorCodes ) {
+  public void addErrorRowData( IVariables variables, Object[] row, int startIndex,
+    long nrErrors, String errorDescriptions, String fieldNames, String errorCodes) {
     int index = startIndex;
 
-    String nrErr = variables.environmentSubstitute( getNrErrorsValuename() );
+    String nrErr = variables.resolve( getNrErrorsValuename() );
     if ( !Utils.isEmpty( nrErr ) ) {
       row[ index ] = new Long( nrErrors );
       index++;
     }
-    String errDesc = variables.environmentSubstitute( getErrorDescriptionsValuename() );
+    String errDesc = variables.resolve( getErrorDescriptionsValuename() );
     if ( !Utils.isEmpty( errDesc ) ) {
       row[ index ] = errorDescriptions;
       index++;
     }
-    String errFields = variables.environmentSubstitute( getErrorFieldsValuename() );
+    String errFields = variables.resolve( getErrorFieldsValuename() );
     if ( !Utils.isEmpty( errFields ) ) {
       row[ index ] = fieldNames;
       index++;
     }
-    String errCodes = variables.environmentSubstitute( getErrorCodesValuename() );
+    String errCodes = variables.resolve( getErrorCodesValuename() );
     if ( !Utils.isEmpty( errCodes ) ) {
       row[ index ] = errorCodes;
       index++;

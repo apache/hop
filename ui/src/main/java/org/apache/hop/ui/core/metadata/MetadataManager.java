@@ -67,7 +67,7 @@ public class MetadataManager<T extends IHopMetadata> {
   }
 
   public void openMetaStoreExplorer() {
-    MetadataExplorerDialog dialog = new MetadataExplorerDialog( HopGui.getInstance().getShell(), metadataProvider );
+    MetadataExplorerDialog dialog = new MetadataExplorerDialog( HopGui.getInstance().getShell());
     dialog.open();
   }
 
@@ -166,7 +166,7 @@ public class MetadataManager<T extends IHopMetadata> {
 
       if (result != null) {
         ExtensionPointHandler.callExtensionPoint(
-            hopGui.getLog(), HopExtensionPoint.HopGuiMetadataObjectUpdated.id, element);
+            hopGui.getLog(), variables, HopExtensionPoint.HopGuiMetadataObjectUpdated.id, element );
         return true;
       } else {
         return false;
@@ -216,7 +216,7 @@ public class MetadataManager<T extends IHopMetadata> {
   
   private void initializeElementVariables( T element ) {
     if ( element instanceof IVariables ) {
-      ( (IVariables) element ).initializeVariablesFrom( variables );
+      ( (IVariables) element ).initializeFrom( variables );
     }
   }
 
@@ -251,7 +251,7 @@ public class MetadataManager<T extends IHopMetadata> {
       //
       initializeElementVariables( object );
 
-      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetadataObjectDeleted.id, object );
+      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), variables, HopExtensionPoint.HopGuiMetadataObjectDeleted.id, object );
 
       return true;
 
@@ -346,7 +346,7 @@ public class MetadataManager<T extends IHopMetadata> {
       // Save it in the metadata
       serializer.save( object );
 
-      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetadataObjectUpdated.id, object );
+      ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), variables, HopExtensionPoint.HopGuiMetadataObjectUpdated.id, object );
 
       return true;
     } else {
@@ -371,7 +371,7 @@ public class MetadataManager<T extends IHopMetadata> {
   public T newMetadata(T element) {
       try {
 
-        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiMetadataObjectCreateBeforeDialog.id, element );
+        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), variables, HopExtensionPoint.HopGuiMetadataObjectCreateBeforeDialog.id, element );
 
   	MetadataEditor<T> editor = this.createEditor(element);
   	editor.setTitle(getManagedName());
@@ -380,8 +380,8 @@ public class MetadataManager<T extends IHopMetadata> {
 
   	String name = dialog.open();
   	if (name != null) {
-  		ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(),
-  				HopExtensionPoint.HopGuiMetadataObjectCreated.id, element);
+  		ExtensionPointHandler.callExtensionPoint(HopGui.getInstance().getLog(), variables,
+        HopExtensionPoint.HopGuiMetadataObjectCreated.id, element );
   	}
   	return element;
       } catch ( Exception e ) {
@@ -401,7 +401,7 @@ public class MetadataManager<T extends IHopMetadata> {
       initializeElementVariables(element);
 
       ExtensionPointHandler.callExtensionPoint(
-          hopGui.getLog(), HopExtensionPoint.HopGuiMetadataObjectCreateBeforeDialog.id, element);
+          hopGui.getLog(), variables, HopExtensionPoint.HopGuiMetadataObjectCreateBeforeDialog.id, element );
 
       MetadataEditor<T> editor = this.createEditor(element);
       editor.setTitle("New " + this.getManagedName());
@@ -513,16 +513,19 @@ public class MetadataManager<T extends IHopMetadata> {
   }
 
   /**
-   * Gets space
+   * Gets variables
+    		  variables
    *
-   * @return value of space
+   * @return value of variables
+    		  variables
    */
   public IVariables getVariables() {
     return variables;
   }
 
   /**
-   * @param variables The space to set
+   * @param variables The variables
+    		  variables to set
    */
   public void setVariables( IVariables variables ) {
     this.variables = variables;

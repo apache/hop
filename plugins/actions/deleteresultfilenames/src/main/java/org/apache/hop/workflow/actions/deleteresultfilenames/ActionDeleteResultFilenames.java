@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.deleteresultfilenames;
 
@@ -103,7 +97,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       folderName = XmlHandler.getTagValue( entrynode, "foldername" );
@@ -142,7 +136,7 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
   }
 
   public String getRealWildcard() {
-    return environmentSubstitute( getWildcard() );
+    return resolve( getWildcard() );
   }
 
   public void setWildcard( String wildcard ) {
@@ -177,9 +171,9 @@ public class ActionDeleteResultFilenames extends ActionBase implements Cloneable
               ResultFile resultFile = it.next();
               FileObject file = resultFile.getFile();
               if ( file != null && file.exists() ) {
-                if ( CheckFileWildcard( file.getName().getBaseName(), environmentSubstitute( wildcard ), true )
+                if ( CheckFileWildcard( file.getName().getBaseName(), resolve( wildcard ), true )
                   && !CheckFileWildcard(
-                  file.getName().getBaseName(), environmentSubstitute( wildcardExclude ), false ) ) {
+                  file.getName().getBaseName(), resolve( wildcardExclude ), false ) ) {
                   // Remove file from result files list
                   result.getResultFiles().remove( resultFile.getFile().toString() );
 

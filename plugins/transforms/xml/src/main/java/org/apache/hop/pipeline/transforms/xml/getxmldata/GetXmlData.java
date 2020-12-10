@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org*
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
@@ -76,9 +71,9 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
 
   private Object[] prevRow = null; // A pre-allocated spot for the previous row
 
-  public GetXmlData(TransformMeta stepMeta, GetXmlDataMeta meta, GetXmlDataData data, int copyNr, PipelineMeta transMeta,
+  public GetXmlData(TransformMeta transformMeta, GetXmlDataMeta meta, GetXmlDataData data, int copyNr, PipelineMeta pipelineMeta,
                     Pipeline trans ) {
-    super( stepMeta, meta, data, copyNr, transMeta, trans );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, trans );
   }
 
   protected boolean setDocument( String StringXML, FileObject file, boolean IsInXMLField, boolean readurl )
@@ -394,7 +389,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
           FileObject file = null;
           try {
             // XML source is a file.
-            file = HopVfs.getFileObject( environmentSubstitute( Fieldvalue ) );
+            file = HopVfs.getFileObject( resolve( Fieldvalue ) );
 
             if ( meta.isIgnoreEmptyFile() && file.getContent().getSize() == 0 ) {
               logBasic( BaseMessages.getString( PKG, "GetXMLData.Error.FileSizeZero", "" + file.getName() ) );
@@ -926,7 +921,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
       for ( int i = 0; i < data.nrInputFields; i++ ) {
         GetXmlDataField xmlDataField = meta.getInputFields()[i];
         // Resolve variable substitution
-        String XPathValue = environmentSubstitute( xmlDataField.getXPath() );
+        String XPathValue = resolve( xmlDataField.getXPath() );
         if ( xmlDataField.getElementType() == GetXmlDataField.ELEMENT_TYPE_ATTRIBUT ) {
           // We have an attribute
           // do we need to add leading @?
@@ -947,7 +942,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
         xmlDataField.setResolvedXPath( XPathValue );
       }
 
-      data.PathValue = environmentSubstitute( meta.getLoopXPath() );
+      data.PathValue = resolve( meta.getLoopXPath() );
       if ( Utils.isEmpty( data.PathValue ) ) {
         logError( BaseMessages.getString( PKG, "GetXMLData.Error.EmptyPath" ) );
         return false;
@@ -959,7 +954,7 @@ public class GetXmlData extends BaseTransform<GetXmlDataMeta, GetXmlDataData> im
         logDetailed( BaseMessages.getString( PKG, "GetXMLData.Log.LoopXPath", data.PathValue ) );
       }
 
-      data.prunePath = environmentSubstitute( meta.getPrunePath() );
+      data.prunePath = resolve( meta.getPrunePath() );
       if ( data.prunePath != null ) {
         if ( Utils.isEmpty( data.prunePath.trim() ) ) {
           data.prunePath = null;

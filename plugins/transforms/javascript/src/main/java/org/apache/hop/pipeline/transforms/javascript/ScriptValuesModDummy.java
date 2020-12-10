@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.javascript;
 
@@ -203,30 +197,30 @@ public class ScriptValuesModDummy implements ITransform {
   public void resumeRunning() {
   }
 
-  public void copyVariablesFrom( IVariables variables ) {
+  public void copyFrom( IVariables variables ) {
   }
 
-  public String environmentSubstitute( String aString ) {
+  public String resolve( String aString ) {
     return null;
   }
 
-  public String[] environmentSubstitute( String[] string ) {
+  public String[] resolve( String[] string ) {
     return null;
   }
 
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
+  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
     return null;
   }
 
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
+  public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
     return false;
   }
 
-  public IVariables getParentVariableSpace() {
+  public IVariables getParentVariables() {
     return null;
   }
 
-  public void setParentVariableSpace( IVariables parent ) {
+  public void setParentVariables( IVariables parent ) {
   }
 
   public String getVariable( String variableName, String defaultValue ) {
@@ -237,20 +231,20 @@ public class ScriptValuesModDummy implements ITransform {
     return null;
   }
 
-  public void initializeVariablesFrom( IVariables parent ) {
+  public void initializeFrom( IVariables parent ) {
   }
 
-  public void injectVariables( Map<String, String> prop ) {
+  public void setVariables( Map<String, String> map ) {
   }
 
-  public String[] listVariables() {
+  public String[] getVariableNames() {
     return null;
   }
 
   public void setVariable( String variableName, String variableValue ) {
   }
 
-  public void shareVariablesWith( IVariables variables ) {
+  public void shareWith( IVariables variables ) {
   }
 
   public IRowMeta getInputRowMeta() {

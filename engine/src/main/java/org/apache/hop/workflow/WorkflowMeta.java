@@ -1,26 +1,20 @@
 // CHECKSTYLE:FileLength:OFF
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow;
 
@@ -47,7 +41,7 @@ import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
-import org.apache.hop.core.parameters.NamedParamsDefault;
+import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.reflection.StringSearchResult;
 import org.apache.hop.core.reflection.StringSearcher;
@@ -154,8 +148,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public boolean[] max = new boolean[ 1 ];
 
-  protected boolean batchIdPassed;
-
   protected static final String XML_TAG_PARAMETERS = "parameters";
 
   private List<MissingAction> missingActions;
@@ -165,7 +157,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
   public WorkflowMeta() {
     clear();
-    initializeVariablesFrom( null );
   }
 
   /**
@@ -181,7 +172,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     arguments = null;
 
     super.clear();
-    loopCache = new HashMap<String, Boolean>();
+    loopCache = new HashMap<>();
     addDefaults();
     workflowStatus = -1;
     workflowVersion = null;
@@ -290,7 +281,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param o the o
    * @return the int
    * @see #compare(WorkflowMeta, WorkflowMeta)
-   * @see java.lang.Comparable#compareTo(java.lang.Object)
+   * @see Comparable#compareTo(Object)
    */
   public int compareTo( WorkflowMeta o ) {
     return compare( this, o );
@@ -304,7 +295,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param obj the obj
    * @return true, if successful
    * @see #compare(WorkflowMeta, WorkflowMeta)
-   * @see java.lang.Object#equals(java.lang.Object)
+   * @see Object#equals(Object)
    */
   public boolean equals( Object obj ) {
     if ( !( obj instanceof WorkflowMeta ) ) {
@@ -318,7 +309,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * Clones the workflow meta-data object.
    *
    * @return a clone of the workflow meta-data object
-   * @see java.lang.Object#clone()
+   * @see Object#clone()
    */
   public Object clone() {
     return realClone( true );
@@ -338,10 +329,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       if ( doClear ) {
         workflowMeta.clear();
       } else {
-        workflowMeta.workflowActions = new ArrayList<ActionMeta>();
-        workflowMeta.workflowHops = new ArrayList<WorkflowHopMeta>();
-        workflowMeta.notes = new ArrayList<NotePadMeta>();
-        workflowMeta.namedParams = new NamedParamsDefault();
+        workflowMeta.workflowActions = new ArrayList<>();
+        workflowMeta.workflowHops = new ArrayList<>();
+        workflowMeta.notes = new ArrayList<>();
+        workflowMeta.namedParams = new NamedParameters();
       }
 
       for ( ActionMeta action : workflowActions ) {
@@ -451,9 +442,6 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     }
     xml.append( "    " ).append( XmlHandler.closeTag( XML_TAG_PARAMETERS ) ).append( Const.CR );
 
-
-    xml.append( "   " ).append( XmlHandler.addTagValue( "pass_batchid", batchIdPassed ) );
-
     xml.append( "  " ).append( XmlHandler.openTag( "actions" ) ).append( Const.CR );
     for ( int i = 0; i < nrActions(); i++ ) {
       ActionMeta jge = getAction( i );
@@ -497,13 +485,12 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Load the workflow from the XML file specified
    *
-   * @param parentSpace
+   * @param variables
    * @param fname
    * @param metadataProvider
    * @throws HopXmlException
    */
-  public WorkflowMeta( IVariables parentSpace, String fname, IHopMetadataProvider metadataProvider ) throws HopXmlException {
-    this.initializeVariablesFrom( parentSpace );
+  public WorkflowMeta( IVariables variables, String fname, IHopMetadataProvider metadataProvider ) throws HopXmlException {
     this.metadataProvider = metadataProvider;
     try {
       // OK, try to load using the VFS stuff...
@@ -512,7 +499,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
         // The workflowNode
         Node workflowNode = XmlHandler.getSubNode( doc, XML_TAG );
 
-        loadXml( workflowNode, fname, metadataProvider );
+        loadXml( workflowNode, fname, metadataProvider, variables);
       } else {
         throw new HopXmlException(
           BaseMessages.getString( PKG, "WorkflowMeta.Exception.ErrorReadingFromXMLFile" ) + fname );
@@ -527,39 +514,28 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * Instantiates a new workflow meta.
    *
    * @param inputStream the input stream
+   * @param variables
    * @throws HopXmlException the hop xml exception
    */
-  public WorkflowMeta( InputStream inputStream, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public WorkflowMeta( InputStream inputStream, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     this();
     this.metadataProvider = metadataProvider;
     Document doc = XmlHandler.loadXmlFile( inputStream, null, false, false );
     Node subNode = XmlHandler.getSubNode( doc, WorkflowMeta.XML_TAG );
-    loadXml( subNode, null );
+    loadXml( subNode, null, metadataProvider, variables );
   }
 
   /**
    * Create a new WorkflowMeta object by loading it from a a DOM node.
    *
    * @param workflowNode The node to load from
+   * @param variables
    * @throws HopXmlException
    */
-  public WorkflowMeta( Node workflowNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public WorkflowMeta( Node workflowNode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     this();
     this.metadataProvider = metadataProvider;
-    loadXml( workflowNode, null, metadataProvider );
-  }
-
-
-  /**
-   * Load xml.
-   *
-   * @param workflowNode the workflowNode
-   * @param fname   The filename
-   * @throws HopXmlException the hop xml exception
-   */
-  public void loadXml( Node workflowNode, String fname )
-    throws HopXmlException {
-    loadXml( workflowNode, fname, metadataProvider );
+    loadXml( workflowNode, null, metadataProvider, variables);
   }
 
   /**
@@ -568,9 +544,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @param workflowNode   The node to load from
    * @param filename     The filename
    * @param metadataProvider the MetaStore to use
+   * @param variables
    * @throws HopXmlException
    */
-  public void loadXml( Node workflowNode, String filename, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml( Node workflowNode, String filename, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       // clear the workflows;
       clear();
@@ -622,15 +599,13 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
         addParameterDefinition( parameterName, defaultValue, description );
       }
 
-      batchIdPassed = "Y".equalsIgnoreCase( XmlHandler.getTagValue( workflowNode, "pass_batchid" ) );
-
       /*
        * read the actions...
        */
       Node actionsNode = XmlHandler.getSubNode( workflowNode, "actions" );
       List<Node> actionNodes = XmlHandler.getNodes( actionsNode, ActionMeta.XML_TAG );
       for ( Node actionNode : actionNodes ) {
-        ActionMeta ac = new ActionMeta( actionNode, metadataProvider );
+        ActionMeta ac = new ActionMeta( actionNode, metadataProvider, variables);
 
         if ( ac.isSpecial() && ac.isMissing() ) {
           addMissingAction( (MissingAction) ac.getAction() );
@@ -686,13 +661,11 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       //
       attributesMap = AttributesUtil.loadAttributes( XmlHandler.getSubNode( workflowNode, AttributesUtil.XML_TAG ) );
 
-      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.WorkflowMetaLoaded.id, this );
+      ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, variables, HopExtensionPoint.WorkflowMetaLoaded.id, this );
 
       clearChanged();
     } catch ( Exception e ) {
       throw new HopXmlException( BaseMessages.getString( PKG, "WorkflowMeta.Exception.UnableToLoadWorkflowFromXMLNode" ), e );
-    } finally {
-      setInternalHopVariables();
     }
   }
 
@@ -1127,7 +1100,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    */
 
   public boolean hasLoop( ActionMeta action, ActionMeta lookup ) {
-    return hasLoop( action, lookup, new HashSet<ActionMeta>() );
+    return hasLoop( action, lookup, new HashSet<>() );
   }
 
   /**
@@ -1296,7 +1269,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return the all workflow hops using
    */
   public WorkflowHopMeta[] getAllWorkflowHopsUsing( String name ) {
-    List<WorkflowHopMeta> hops = new ArrayList<WorkflowHopMeta>();
+    List<WorkflowHopMeta> hops = new ArrayList<>();
 
     for ( WorkflowHopMeta hi : workflowHops ) {
       // Look at all the hops
@@ -1456,7 +1429,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return The selected transform and notes locations.
    */
   public Point[] getSelectedNoteLocations() {
-    List<Point> points = new ArrayList<Point>();
+    List<Point> points = new ArrayList<>();
 
     for ( NotePadMeta ni : getSelectedNotes() ) {
       Point p = ni.getLocation();
@@ -1472,7 +1445,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return the selected actions
    */
   public List<ActionMeta> getSelectedActions() {
-    List<ActionMeta> selection = new ArrayList<ActionMeta>();
+    List<ActionMeta> selection = new ArrayList<>();
     for ( ActionMeta je : workflowActions ) {
       if ( je.isSelected() ) {
         selection.add( je );
@@ -1533,27 +1506,9 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
     }
   }
 
-  /**
-   * Gets the boolean value of batch id passed.
-   *
-   * @return Returns the batchIdPassed.
-   */
-  public boolean isBatchIdPassed() {
-    return batchIdPassed;
-  }
-
-  /**
-   * Sets the batch id passed.
-   *
-   * @param batchIdPassed The batchIdPassed to set.
-   */
-  public void setBatchIdPassed( boolean batchIdPassed ) {
-    this.batchIdPassed = batchIdPassed;
-  }
-
-  public List<SqlStatement> getSqlStatements( IProgressMonitor monitor )
+  public List<SqlStatement> getSqlStatements( IProgressMonitor monitor, IVariables variables )
     throws HopException {
-    return getSqlStatements( null, monitor );
+    return getSqlStatements( null, monitor, variables );
   }
 
   /**
@@ -1562,19 +1517,19 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return An ArrayList of SqlStatement objects.
    */
   public List<SqlStatement> getSqlStatements( IHopMetadataProvider metadataProvider,
-                                              IProgressMonitor monitor ) throws HopException {
+                                              IProgressMonitor monitor, IVariables variables ) throws HopException {
     if ( monitor != null ) {
       monitor
         .beginTask( BaseMessages.getString( PKG, "WorkflowMeta.Monitor.GettingSQLNeededForThisWorkflow" ), nrActions() + 1 );
     }
-    List<SqlStatement> stats = new ArrayList<SqlStatement>();
+    List<SqlStatement> stats = new ArrayList<>();
 
     for ( int i = 0; i < nrActions(); i++ ) {
       ActionMeta copy = getAction( i );
       if ( monitor != null ) {
         monitor.subTask( BaseMessages.getString( PKG, "WorkflowMeta.Monitor.GettingSQLForActionCopy" ) + copy + "]" );
       }
-      stats.addAll( copy.getAction().getSqlStatements( metadataProvider, this ) );
+      stats.addAll( copy.getAction().getSqlStatements( metadataProvider, variables ) );
       if ( monitor != null ) {
         monitor.worked( 1 );
       }
@@ -1618,7 +1573,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return A list of StringSearchResult with strings used in the workflow
    */
   public List<StringSearchResult> getStringList( boolean searchTransforms, boolean searchDatabases, boolean searchNotes ) {
-    List<StringSearchResult> stringList = new ArrayList<StringSearchResult>();
+    List<StringSearchResult> stringList = new ArrayList<>();
 
     if ( searchTransforms ) {
       // Loop over all transforms in the pipeline and see what the used
@@ -1789,17 +1744,16 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * This method sets various internal hop variables that can be used by the pipeline.
    */
   @Override
-  public void setInternalHopVariables( IVariables var ) {
-    setInternalFilenameHopVariables( var );
-    setInternalNameHopVariable( var );
+  public void setInternalHopVariables( IVariables variables ) {
+    setInternalFilenameHopVariables( variables );
+    setInternalNameHopVariable( variables );
 
-    variables.getVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER );
-    updateCurrentDir();
+    updateCurrentDir(variables);
   }
 
   // changed to protected for testing purposes
   //
-  protected void updateCurrentDir() {
+  protected void updateCurrentDir(IVariables variables) {
     String prevCurrentDir = variables.getVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER );
     String currentDir = variables.getVariable(
       filename != null
@@ -1812,10 +1766,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Sets the internal name hop variable.
    *
-   * @param var the new internal name hop variable
+   * @param variables the new internal name hop variable
    */
   @Override
-  protected void setInternalNameHopVariable( IVariables var ) {
+  protected void setInternalNameHopVariable( IVariables variables ) {
     // The name of the workflow
     variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_NAME, Const.NVL( name, "" ) );
   }
@@ -1823,10 +1777,10 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
   /**
    * Sets the internal filename hop variables.
    *
-   * @param var the new internal filename hop variables
+   * @param variables the new internal filename hop variables
    */
   @Override
-  protected void setInternalFilenameHopVariables( IVariables var ) {
+  protected void setInternalFilenameHopVariables( IVariables variables ) {
     if ( filename != null ) {
       // we have a filename that's defined.
       try {
@@ -1848,21 +1802,15 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       variables.setVariable( Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_NAME, "" );
     }
 
-    setInternalEntryCurrentDirectory();
+    setInternalEntryCurrentDirectory(variables);
 
   }
 
-  protected void setInternalEntryCurrentDirectory() {
+  protected void setInternalEntryCurrentDirectory(IVariables variables) {
     variables.setVariable( Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER, variables.getVariable(
       filename != null
         ? Const.INTERNAL_VARIABLE_WORKFLOW_FILENAME_FOLDER
         : Const.INTERNAL_VARIABLE_ENTRY_CURRENT_FOLDER ) );
-  }
-
-  @Deprecated
-  public void checkActions( List<ICheckResult> remarks, boolean only_selected,
-                            IProgressMonitor monitor ) {
-    checkActions( remarks, only_selected, monitor, this, null );
   }
 
   /**
@@ -1912,14 +1860,14 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    *
    * @return the resource dependencies
    */
-  public List<ResourceReference> getResourceDependencies() {
-    List<ResourceReference> resourceReferences = new ArrayList<ResourceReference>();
+  public List<ResourceReference> getResourceDependencies(IVariables variables) {
+    List<ResourceReference> resourceReferences = new ArrayList<>();
     ActionMeta copy = null;
     IAction action = null;
     for ( int i = 0; i < workflowActions.size(); i++ ) {
       copy = workflowActions.get( i ); // get the action copy
       action = copy.getAction();
-      resourceReferences.addAll( action.getResourceDependencies( this ) );
+      resourceReferences.addAll( action.getResourceDependencies( variables, this ) );
     }
 
     return resourceReferences;
@@ -1936,7 +1884,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
       String fullname;
       String extension = "hwf";
       if ( StringUtils.isNotEmpty( getFilename() ) ) {
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( getFilename() ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( getFilename() ) );
         originalPath = fileObject.getParent().getName().getPath();
         baseName = fileObject.getName().getBaseName();
         fullname = fileObject.getName().getPath();
@@ -1957,7 +1905,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
           // loop over transforms, databases will be exported to XML anyway.
           //
           for ( ActionMeta action : workflowMeta.workflowActions ) {
-            action.getAction().exportResources( workflowMeta, definitions, namingInterface, metadataProvider );
+            action.getAction().exportResources( variables, definitions, namingInterface, metadataProvider );
           }
 
           // Set a number of parameters for all the data files referenced so far...
@@ -2066,7 +2014,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
    * @return
    */
   public List<IAction> composeActionList() {
-    List<IAction> list = new ArrayList<IAction>();
+    List<IAction> list = new ArrayList<>();
 
     for ( ActionMeta action : workflowActions ) {
       if ( !list.contains( action.getAction() ) ) {
@@ -2131,7 +2079,7 @@ public class WorkflowMeta extends AbstractMeta implements Cloneable, Comparable<
 
   public void addMissingAction( MissingAction missingAction ) {
     if ( missingActions == null ) {
-      missingActions = new ArrayList<MissingAction>();
+      missingActions = new ArrayList<>();
     }
     missingActions.add( missingAction );
   }

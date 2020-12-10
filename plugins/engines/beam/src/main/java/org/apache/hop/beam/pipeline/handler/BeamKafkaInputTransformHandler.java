@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.pipeline.handler;
 
@@ -34,6 +29,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -43,8 +39,8 @@ import java.util.Map;
 
 public class BeamKafkaInputTransformHandler extends BeamBaseTransformHandler implements IBeamTransformHandler {
 
-  public BeamKafkaInputTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, true, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamKafkaInputTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, true, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   @Override public void handleTransform( ILogChannel log, TransformMeta transformMeta, Map<String, PCollection<HopRow>> stepCollectionMap,
@@ -58,24 +54,24 @@ public class BeamKafkaInputTransformHandler extends BeamBaseTransformHandler imp
     // Output rows (fields selection)
     //
     IRowMeta outputRowMeta = new RowMeta();
-    beamConsumeMeta.getFields( outputRowMeta, transformMeta.getName(), null, null, pipelineMeta, null );
+    beamConsumeMeta.getFields( outputRowMeta, transformMeta.getName(), null, null, variables, null );
 
     String[] parameters = new String[beamConsumeMeta.getConfigOptions().size()];
     String[] values = new String[beamConsumeMeta.getConfigOptions().size()];
     String[] types = new String[beamConsumeMeta.getConfigOptions().size()];
     for (int i=0;i<parameters.length;i++) {
       ConfigOption option = beamConsumeMeta.getConfigOptions().get( i );
-      parameters[i] = pipelineMeta.environmentSubstitute( option.getParameter() );
-      values[i] = pipelineMeta.environmentSubstitute( option.getValue() );
+      parameters[i] = variables.resolve( option.getParameter() );
+      values[i] = variables.resolve( option.getValue() );
       types[i] = option.getType()==null ? ConfigOption.Type.String.name() : option.getType().name();
     }
 
     BeamKafkaInputTransform beamInputTransform = new BeamKafkaInputTransform(
       transformMeta.getName(),
       transformMeta.getName(),
-      pipelineMeta.environmentSubstitute( beamConsumeMeta.getBootstrapServers() ),
-      pipelineMeta.environmentSubstitute( beamConsumeMeta.getTopics() ),
-      pipelineMeta.environmentSubstitute( beamConsumeMeta.getGroupId() ),
+      variables.resolve( beamConsumeMeta.getBootstrapServers() ),
+      variables.resolve( beamConsumeMeta.getTopics() ),
+      variables.resolve( beamConsumeMeta.getGroupId() ),
       beamConsumeMeta.isUsingProcessingTime(),
       beamConsumeMeta.isUsingLogAppendTime(),
       beamConsumeMeta.isUsingCreateTime(),

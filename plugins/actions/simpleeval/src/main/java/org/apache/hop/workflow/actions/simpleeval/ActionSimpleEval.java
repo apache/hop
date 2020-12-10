@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.simpleeval;
 
@@ -32,6 +26,7 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.StringUtil;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.IAction;
@@ -225,28 +220,28 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   @Override
   public String getXml() {
-    StringBuilder retval = new StringBuilder( 300 );
+    StringBuilder xml = new StringBuilder( 300 );
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "valuetype", getValueTypeCode( valuetype ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fieldname", fieldname ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "variablename", variablename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "fieldtype", getFieldTypeCode( fieldtype ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "mask", mask ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "comparevalue", comparevalue ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "minvalue", minvalue ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "maxvalue", maxvalue ) );
-    retval.append( "      " ).append(
+    xml.append( super.getXml() );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "valuetype", getValueTypeCode( valuetype ) ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "fieldname", fieldname ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "variablename", variablename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "fieldtype", getFieldTypeCode( fieldtype ) ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "mask", mask ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "comparevalue", comparevalue ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "minvalue", minvalue ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "maxvalue", maxvalue ) );
+    xml.append( "      " ).append(
       XmlHandler.addTagValue( "successcondition", getSuccessConditionCode( successcondition ) ) );
-    retval
+    xml
       .append( "      " ).append(
       XmlHandler.addTagValue(
         "successnumbercondition", getSuccessNumberConditionCode( successnumbercondition ) ) );
-    retval.append( "      " ).append(
+    xml.append( "      " ).append(
       XmlHandler.addTagValue(
         "successbooleancondition", getSuccessBooleanConditionCode( successbooleancondition ) ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "successwhenvarset", successwhenvarset ) );
-    return retval.toString();
+    xml.append( "      " ).append( XmlHandler.addTagValue( "successwhenvarset", successwhenvarset ) );
+    return xml.toString();
   }
 
   private static int getValueTypeByCode( String tt ) {
@@ -350,7 +345,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
 
@@ -402,7 +397,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         }
         // get first row
         resultRow = rows.get( 0 );
-        String realfieldname = environmentSubstitute( fieldname );
+        String realfieldname = resolve( fieldname );
         int indexOfField = -1;
         indexOfField = resultRow.getRowMeta().indexOfValue( realfieldname );
         if ( indexOfField == -1 ) {
@@ -447,7 +442,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
             return result;
           }
         }
-        sourcevalue = environmentSubstitute( getVariableWithSpec() );
+        sourcevalue = resolve( getVariableWithSpec() );
         break;
       default:
         break;
@@ -458,12 +453,12 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     }
 
     boolean success = false;
-    String realCompareValue = environmentSubstitute( comparevalue );
+    String realCompareValue = resolve( comparevalue );
     if ( realCompareValue == null ) {
       realCompareValue = "";
     }
-    String realMinValue = environmentSubstitute( minvalue );
-    String realMaxValue = environmentSubstitute( maxvalue );
+    String realMinValue = resolve( minvalue );
+    String realMaxValue = resolve( maxvalue );
 
     switch ( fieldtype ) {
       case FIELD_TYPE_STRING:
@@ -731,7 +726,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
         }
         break;
       case FIELD_TYPE_DATE_TIME:
-        String realMask = environmentSubstitute( mask );
+        String realMask = resolve( mask );
         SimpleDateFormat df = new SimpleDateFormat();
         if ( !Utils.isEmpty( realMask ) ) {
           df.applyPattern( realMask );
@@ -923,7 +918,7 @@ public class ActionSimpleEval extends ActionBase implements Cloneable, IAction {
     }
 
     result.setResult( success );
-    // PDI-6943: this action does not set errors upon evaluation, independently of the outcome of the check
+    // This action does not set errors upon evaluation, independently of the outcome of the check
     result.setNrErrors( 0 );
     return result;
   }

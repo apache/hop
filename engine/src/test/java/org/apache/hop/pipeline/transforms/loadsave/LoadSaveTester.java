@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.loadsave;
 
@@ -85,13 +80,13 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
                          List<String> xmlAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
     this( clazz, commonAttributes, xmlAttributes, getterMap, setterMap,
-      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      new HashMap<>(), new HashMap<>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes,
                          Map<String, String> getterMap, Map<String, String> setterMap ) {
     this( clazz, commonAttributes, new ArrayList<>(), getterMap, setterMap,
-      new HashMap<String, IFieldLoadSaveValidator<?>>(), new HashMap<String, IFieldLoadSaveValidator<?>>() );
+      new HashMap<>(), new HashMap<>() );
   }
 
   public LoadSaveTester( Class<T> clazz, List<String> commonAttributes ) {
@@ -106,7 +101,7 @@ public class LoadSaveTester<T extends ITransformMeta> extends LoadSaveBase<T> {
   @SuppressWarnings( "unchecked" )
   protected Map<String, IFieldLoadSaveValidator<?>> createValidatorMapAndInvokeSetters( List<String> attributes,
                                                                                         T metaToSave ) {
-    Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> validatorMap = new HashMap<>();
     for ( String attribute : attributes ) {
       IGetter<?> getter = manipulator.getGetter( attribute );
       @SuppressWarnings( "rawtypes" )

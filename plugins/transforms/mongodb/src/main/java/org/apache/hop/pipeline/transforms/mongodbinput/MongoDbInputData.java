@@ -77,8 +77,8 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     // but not $.person[*].first, $.person[*].address[*].street.
 
     String expansion = null;
-    List<MongoField> normalList = new ArrayList<MongoField>();
-    List<MongoField> expansionList = new ArrayList<MongoField>();
+    List<MongoField> normalList = new ArrayList<>();
+    List<MongoField> expansionList = new ArrayList<>();
 
     for (MongoField f : normalFields) {
       String path = f.fieldPath;
@@ -118,7 +118,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
 
     if (expansionList.size() > 0) {
 
-      List<MongoField> subFields = new ArrayList<MongoField>();
+      List<MongoField> subFields = new ArrayList<>();
 
       for (MongoField ef : expansionList) {
         MongoField subField = new MongoField();
@@ -181,21 +181,21 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    * May return more than one Hop row if an array is being expanded/unwound
    *
    * @param mongoObj the mongo document
-   * @param space variables to use
+   * @param variables variables to use
    * @return populated Hop row(s)
    * @throws HopException if a problem occurs
    */
-  public Object[][] mongoDocumentToHop(DBObject mongoObj, IVariables space) throws HopException {
+  public Object[][] mongoDocumentToHop(DBObject mongoObj, IVariables variables) throws HopException {
 
     Object[][] result = null;
 
     if (m_expansionHandler != null) {
-      m_expansionHandler.reset(space);
+      m_expansionHandler.reset(variables);
 
       if (mongoObj instanceof BasicDBObject) {
-        result = m_expansionHandler.convertToHopValue((BasicDBObject) mongoObj, space);
+        result = m_expansionHandler.convertToHopValue((BasicDBObject) mongoObj, variables);
       } else {
-        result = m_expansionHandler.convertToHopValue((BasicDBList) mongoObj, space);
+        result = m_expansionHandler.convertToHopValue((BasicDBList) mongoObj, variables);
       }
     } else {
       result = new Object[1][];
@@ -206,7 +206,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
     Object value;
     for (MongoField f : m_userFields) {
       value = null;
-      f.reset(space);
+      f.reset(variables);
 
       if (mongoObj instanceof BasicDBObject) {
         value = f.convertToHopValue((BasicDBObject) mongoObj);
@@ -281,7 +281,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
    */
   public void setMongoFields(List<MongoField> fields) {
     // copy this list
-    m_userFields = new ArrayList<MongoField>();
+    m_userFields = new ArrayList<>();
 
     for (MongoField f : fields) {
       m_userFields.add(f.copy());
@@ -317,7 +317,7 @@ public class MongoDbInputData extends BaseTransformData implements ITransformDat
   public static List<String> indexedValsList(String indexedVals) {
 
     String[] parts = indexedVals.split(",");
-    List<String> list = new ArrayList<String>();
+    List<String> list = new ArrayList<>();
     for (String s : parts) {
       list.add(s.trim());
     }

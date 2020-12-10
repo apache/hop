@@ -220,7 +220,7 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
 
   private RowGeneratorMeta genMeta;
 
-  public ScriptDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public ScriptDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
 
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (ScriptMeta) in;
@@ -429,7 +429,7 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
 
     wFields =
       new TableView(
-        pipelineMeta, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wBottom, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -585,7 +585,7 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            rowPrevTransformFields = pipelineMeta.getPrevTransformFields( transformMeta );
+            rowPrevTransformFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
             if ( rowPrevTransformFields != null ) {
               setInputOutputFields();
             } else {
@@ -670,7 +670,7 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
         break;
     }
     StyledTextComp wScript =
-      new StyledTextComp( pipelineMeta, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, item
+      new StyledTextComp( variables, item.getParent(), SWT.MULTI | SWT.LEFT | SWT.H_SCROLL | SWT.V_SCROLL, item
         .getText(), false );
     if ( ( strScript != null ) && strScript.length() > 0 ) {
       wScript.setText( strScript );
@@ -1059,7 +1059,7 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
     try {
       // What fields are coming into the transform?
       //
-      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( transformName ).clone();
+      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( variables, transformName ).clone();
       if ( rowMeta != null ) {
         // Create a new RowGenerator transform to generate rows for the test data...
         // Only create a new instance the first time to help the user.
@@ -1223,7 +1223,7 @@ public class ScriptDialog extends BaseTransformDialog implements ITransformDialo
     jsscope.put( "_PipelineName_", jsscope, this.transformName );
 
     try {
-      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta rowMeta = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( rowMeta != null ) {
 
         ScriptDummy dummyTransform = new ScriptDummy( rowMeta, pipelineMeta.getTransformFields( transformName ) );

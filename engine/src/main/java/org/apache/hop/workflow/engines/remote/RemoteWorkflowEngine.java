@@ -1,29 +1,28 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.engines.remote;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.vfs2.FileObject;
+import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Result;
@@ -37,8 +36,6 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.INamedParams;
-import org.apache.hop.core.parameters.NamedParamsDefault;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.Variables;
@@ -144,7 +141,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /**
    * Parameters of the workflow.
    */
-  private INamedParams namedParams = new NamedParamsDefault();
+  private INamedParameters namedParams = new NamedParameters();
 
   private ActionMeta startActionMeta;
 
@@ -172,7 +169,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /**
    * A flat list of results in THIS workflow, in the order of execution of actions
    */
-  private final LinkedList<ActionResult> actionResults = new LinkedList<ActionResult>();
+  private final LinkedList<ActionResult> actionResults = new LinkedList<>();
 
   public RemoteWorkflowEngine() {
     workflowStartedListeners = Collections.synchronizedList( new ArrayList<>() );
@@ -241,8 +238,8 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
       logChannel.logBasic( "Executing this workflow using the Remote Workflow Engine with run configuration '" + workflowRunConfiguration.getName() + "'" );
 
-      serverPollDelay = Const.toLong( environmentSubstitute( remoteWorkflowRunConfiguration.getServerPollDelay() ), 1000L );
-      serverPollInterval = Const.toLong( environmentSubstitute( remoteWorkflowRunConfiguration.getServerPollInterval() ), 2000L );
+      serverPollDelay = Const.toLong( resolve( remoteWorkflowRunConfiguration.getServerPollDelay() ), 1000L );
+      serverPollInterval = Const.toLong( resolve( remoteWorkflowRunConfiguration.getServerPollInterval() ), 2000L );
 
       hopServer = metadataProvider.getSerializer( HopServer.class ).load( hopServerName );
       if ( hopServer == null ) {
@@ -304,7 +301,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
   public synchronized void getWorkflowStatus() throws HopException {
     try {
-      workflowStatus = hopServer.getWorkflowStatus( workflowMeta.getName(), containerId, lastLogLineNr );
+      workflowStatus = hopServer.getWorkflowStatus( this, workflowMeta.getName(), containerId, lastLogLineNr );
       lastLogLineNr = workflowStatus.getLastLoggingLineNr();
       if ( StringUtils.isNotEmpty( workflowStatus.getLoggingString() ) ) {
         logChannel.logBasic( workflowStatus.getLoggingString() ); // TODO implement detailed logging and add option to log at all
@@ -323,7 +320,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
   @Override public void stopExecution() {
     try {
-      hopServer.stopWorkflow( workflowMeta.getName(), containerId );
+      hopServer.stopWorkflow( this, workflowMeta.getName(), containerId );
       getWorkflowStatus();
     } catch ( Exception e ) {
       throw new RuntimeException( "Stopping of pipeline '" + workflowMeta.getName() + "' with ID " + containerId + " failed", e );
@@ -354,15 +351,15 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       // Inject certain internal variables to make it more intuitive.
       //
       for ( String var : Const.INTERNAL_PIPELINE_VARIABLES ) {
-        executionConfiguration.getVariablesMap().put( var, workflowMeta.getVariable( var ) );
+        executionConfiguration.getVariablesMap().put( var, getVariable( var ) );
       }
       for ( String var : Const.INTERNAL_WORKFLOW_VARIABLES ) {
-        executionConfiguration.getVariablesMap().put( var, workflowMeta.getVariable( var ) );
+        executionConfiguration.getVariablesMap().put( var, getVariable( var ) );
       }
       // Overwrite with all the other variables we know off
       //
-      for ( String var : listVariables() ) {
-        executionConfiguration.getVariablesMap().put( var, workflowMeta.getVariable( var ) );
+      for ( String var : getVariableNames() ) {
+        executionConfiguration.getVariablesMap().put( var, getVariable( var ) );
       }
 
       if ( executionConfiguration.isPassingExport() ) {
@@ -370,11 +367,11 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
         //
         FileObject tempFile = HopVfs.createTempFile( "workflowExport", ".zip", System.getProperty( "java.io.tmpdir" ) );
 
-        TopLevelResource topLevelResource = ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), workflowMeta, workflowMeta,
+        TopLevelResource topLevelResource = ResourceUtil.serializeResourceExportInterface( tempFile.getName().toString(), workflowMeta, this,
           metadataProvider, executionConfiguration.getXml(), CONFIGURATION_IN_EXPORT_FILENAME );
 
         // Send the zip file over to the hop server...
-        String result = hopServer.sendExport( topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_WORKFLOW, topLevelResource.getBaseResourceName() );
+        String result = hopServer.sendExport( this, topLevelResource.getArchiveName(), RegisterPackageServlet.TYPE_WORKFLOW, topLevelResource.getBaseResourceName() );
         WebResult webResult = WebResult.fromXmlString( result );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error passing the exported workflow to the remote server: " + Const.CR + webResult.getMessage() );
@@ -383,7 +380,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
       } else {
         String xml = new WorkflowConfiguration( workflowMeta, executionConfiguration, metadataProvider ).getXml();
 
-        String reply = hopServer.sendXml( xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
+        String reply = hopServer.sendXml( this, xml, RegisterWorkflowServlet.CONTEXT_PATH + "/?xml=Y" );
         WebResult webResult = WebResult.fromXmlString( reply );
         if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
           throw new HopException( "There was an error posting the workflow on the remote server: " + Const.CR + webResult.getMessage() );
@@ -393,7 +390,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
 
       // Start the workflow
       //
-      WebResult webResult = hopServer.startWorkflow( workflowMeta.getName(), containerId );
+      WebResult webResult = hopServer.startWorkflow( this, workflowMeta.getName(), containerId );
       if ( !webResult.getResult().equalsIgnoreCase( WebResult.STRING_OK ) ) {
         throw new HopException( "There was an error starting the workflow on the remote server: " + Const.CR + webResult.getMessage() );
       }
@@ -510,7 +507,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#addParameterDefinition(java.lang.String, java.lang.String,
+   * @see org.apache.hop.core.parameters.INamedParameters#addParameterDefinition(java.lang.String, java.lang.String,
    * java.lang.String)
    */
   @Override public void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException {
@@ -520,7 +517,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDescription(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterDescription(java.lang.String)
    */
   @Override public String getParameterDescription( String key ) throws UnknownParamException {
     return namedParams.getParameterDescription( key );
@@ -529,7 +526,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDefault(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterDefault(java.lang.String)
    */
   @Override public String getParameterDefault( String key ) throws UnknownParamException {
     return namedParams.getParameterDefault( key );
@@ -538,7 +535,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterValue(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterValue(java.lang.String)
    */
   @Override public String getParameterValue( String key ) throws UnknownParamException {
     return namedParams.getParameterValue( key );
@@ -547,7 +544,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#listParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#listParameters()
    */
   @Override public String[] listParameters() {
     return namedParams.listParameters();
@@ -556,7 +553,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#setParameterValue(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#setParameterValue(java.lang.String, java.lang.String)
    */
   @Override public void setParameterValue( String key, String value ) throws UnknownParamException {
     namedParams.setParameterValue( key, value );
@@ -565,67 +562,32 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#eraseParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#eraseParameters()
    */
-  public void eraseParameters() {
-    namedParams.eraseParameters();
+  public void removeAllParameters() {
+    namedParams.removeAllParameters();
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#clearParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#clearParameters()
    */
-  public void clearParameters() {
-    namedParams.clearParameters();
+  public void clearParameterValues() {
+    namedParams.clearParameterValues();
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#activateParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#activateParameters()
    */
-  public void activateParameters() {
-    String[] keys = listParameters();
-
-    for ( String key : keys ) {
-      String value;
-      try {
-        value = getParameterValue( key );
-      } catch ( UnknownParamException e ) {
-        value = "";
-      }
-      String defValue;
-      try {
-        defValue = getParameterDefault( key );
-      } catch ( UnknownParamException e ) {
-        defValue = "";
-      }
-
-      // Set the variable of "" if no value or default value was found.
-      //
-      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
-    }
+  public void activateParameters( IVariables variables ) {
+    namedParams.activateParameters( variables );
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#copyParametersFrom(org.apache.hop.core.parameters.INamedParams)
-   */
-  public void copyParametersFrom( INamedParams params ) {
-    namedParams.copyParametersFrom( params );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#mergeParametersWith(org.apache.hop.core.parameters.INamedParams,
-   * boolean replace)
-   */
-  @Override
-  public void mergeParametersWith( INamedParams params, boolean replace ) {
-    namedParams.mergeParametersWith( params, replace );
+  @Override public void copyParametersFromDefinitions( INamedParameterDefinitions definitions ) {
+    namedParams.copyParametersFromDefinitions( definitions );
   }
 
   /**
@@ -1106,14 +1068,14 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
    *
    * @return value of namedParams
    */
-  public INamedParams getNamedParams() {
+  public INamedParameters getNamedParams() {
     return namedParams;
   }
 
   /**
    * @param namedParams The namedParams to set
    */
-  public void setNamedParams( INamedParams namedParams ) {
+  public void setNamedParams( INamedParameters namedParams ) {
     this.namedParams = namedParams;
   }
 
@@ -1159,7 +1121,7 @@ public class RemoteWorkflowEngine extends Variables implements IWorkflowEngine<W
   }
 
   /**
-   * @param startActionCopy The startActionCopy to set
+   * @param actionMeta The start action to set
    */
   @Override public void setStartActionMeta( ActionMeta actionMeta ) {
     this.startActionMeta = actionMeta;

@@ -1,26 +1,20 @@
 // CHECKSTYLE:FileLength:OFF
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.javascript;
 
@@ -511,9 +505,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
         if ( ci == null ) {
           throw Context.reportRuntimeError( "Database connection not found: " + strDBName );
         }
-        ci.shareVariablesWith( scm );
 
         Database db = new Database( scm, ci );
+        // TODO: figure out how to set variables on the connection?
+        //
         db.setQueryLimit( 0 );
         try {
           db.connect( scm.getPartitionId() );
@@ -522,7 +517,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
           ResultSetMetaData resultSetMetaData = rs.getMetaData();
           int columnCount = resultSetMetaData.getColumnCount();
           if ( rs != null ) {
-            List<Object[]> list = new ArrayList<Object[]>();
+            List<Object[]> list = new ArrayList<>();
             while ( rs.next() ) {
               Object[] objRow = new Object[ columnCount ];
               for ( int i = 0; i < columnCount; i++ ) {
@@ -1788,10 +1783,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   static void setRootScopeVariable( IPipelineEngine pipeline, String variableName, String variableValue ) {
     pipeline.setVariable( variableName, variableValue );
 
-    IVariables parentSpace = pipeline.getParentVariableSpace();
+    IVariables parentSpace = pipeline.getParentVariables();
     while ( parentSpace != null ) {
       parentSpace.setVariable( variableName, variableValue );
-      parentSpace = parentSpace.getParentVariableSpace();
+      parentSpace = parentSpace.getParentVariables();
     }
   }
 
@@ -1806,7 +1801,7 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   static void setParentScopeVariable( IPipelineEngine pipeline, String variableName, String variableValue ) {
     pipeline.setVariable( variableName, variableValue );
 
-    IVariables parentSpace = pipeline.getParentVariableSpace();
+    IVariables parentSpace = pipeline.getParentVariables();
     if ( parentSpace != null ) {
       parentSpace.setVariable( variableName, variableValue );
     }
@@ -1815,10 +1810,10 @@ public class ScriptValuesAddedFunctions extends ScriptableObject {
   static void setGrandParentScopeVariable( IPipelineEngine pipeline, String variableName, String variableValue ) {
     pipeline.setVariable( variableName, variableValue );
 
-    IVariables parentSpace = pipeline.getParentVariableSpace();
+    IVariables parentSpace = pipeline.getParentVariables();
     if ( parentSpace != null ) {
       parentSpace.setVariable( variableName, variableValue );
-      IVariables grandParentSpace = parentSpace.getParentVariableSpace();
+      IVariables grandParentSpace = parentSpace.getParentVariables();
       if ( grandParentSpace != null ) {
         grandParentSpace.setVariable( variableName, variableValue );
       }

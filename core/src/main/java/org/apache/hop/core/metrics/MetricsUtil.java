@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.metrics;
 
@@ -45,7 +40,7 @@ public class MetricsUtil {
    * @return the duration in ms
    */
   public static List<MetricsDuration> getDuration( String logChannelId, Metrics metric ) {
-    List<MetricsDuration> durations = new ArrayList<MetricsDuration>();
+    List<MetricsDuration> durations = new ArrayList<>();
 
     Queue<IMetricsSnapshot> metrics = MetricsRegistry.getInstance().getSnapshotList( logChannelId );
     IMetricsSnapshot start = null;
@@ -72,7 +67,7 @@ public class MetricsUtil {
 
     // Now aggregate even further, calculate total times...
     //
-    Map<String, MetricsDuration> map = new HashMap<String, MetricsDuration>();
+    Map<String, MetricsDuration> map = new HashMap<>();
     for ( MetricsDuration duration : durations ) {
       String key =
         duration.getSubject() == null ? duration.getDescription() : duration.getDescription()
@@ -87,11 +82,11 @@ public class MetricsUtil {
 
     // If we already have
 
-    return new ArrayList<MetricsDuration>( map.values() );
+    return new ArrayList<>( map.values() );
   }
 
   public static List<MetricsDuration> getAllDurations( String parentLogChannelId ) {
-    List<MetricsDuration> durations = new ArrayList<MetricsDuration>();
+    List<MetricsDuration> durations = new ArrayList<>();
 
     List<String> logChannelIds = LoggingRegistry.getInstance().getLogChannelChildren( parentLogChannelId );
     for ( String logChannelId : logChannelIds ) {
@@ -111,8 +106,8 @@ public class MetricsUtil {
    * @return the duration in ms
    */
   public static List<MetricsDuration> getDurations( String logChannelId ) {
-    Map<String, IMetricsSnapshot> last = new HashMap<String, IMetricsSnapshot>();
-    Map<String, MetricsDuration> map = new HashMap<String, MetricsDuration>();
+    Map<String, IMetricsSnapshot> last = new HashMap<>();
+    Map<String, MetricsDuration> map = new HashMap<>();
 
     Queue<IMetricsSnapshot> metrics = MetricsRegistry.getInstance().getSnapshotList( logChannelId );
 
@@ -155,11 +150,11 @@ public class MetricsUtil {
       }
     }
 
-    return new ArrayList<MetricsDuration>( map.values() );
+    return new ArrayList<>( map.values() );
   }
 
   public static List<IMetricsSnapshot> getResultsList( Metrics metric ) {
-    List<IMetricsSnapshot> snapshots = new ArrayList<IMetricsSnapshot>();
+    List<IMetricsSnapshot> snapshots = new ArrayList<>();
 
     Map<String, Map<String, IMetricsSnapshot>> snapshotMaps =
       MetricsRegistry.getInstance().getSnapshotMaps();

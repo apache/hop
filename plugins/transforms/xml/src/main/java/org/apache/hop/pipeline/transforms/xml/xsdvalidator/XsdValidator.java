@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.xsdvalidator;
 
@@ -64,9 +58,9 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
 
   static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
 
-  public XsdValidator(TransformMeta stepMeta, XsdValidatorMeta meta, XsdValidatorData data, int copyNr, PipelineMeta transMeta,
+  public XsdValidator(TransformMeta transformMeta, XsdValidatorMeta meta, XsdValidatorData data, int copyNr, PipelineMeta pipelineMeta,
                       Pipeline trans ) {
-    super( stepMeta, meta, data, copyNr, transMeta, trans );
+    super( transformMeta, meta, data, copyNr, pipelineMeta, trans );
   }
 
   public boolean processRow() throws HopException {
@@ -113,7 +107,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
             // Is XSD file exists ?
             FileObject xsdfile = null;
             try {
-              xsdfile = HopVfs.getFileObject( environmentSubstitute( meta.getXSDFilename() ) );
+              xsdfile = HopVfs.getFileObject( resolve( meta.getXSDFilename() ) );
               if ( !xsdfile.exists() ) {
                 logError( BaseMessages.getString( PKG, "XsdValidator.Log.Error.XSDFileNotExists" ) );
                 throw new HopTransformException( BaseMessages.getString( PKG, "XsdValidator.Exception.XSDFileNotExists" ) );
@@ -172,7 +166,7 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
       String xsdfilename = null;
 
       if ( meta.getXSDSource().equals( meta.SPECIFY_FILENAME ) ) {
-        xsdfilename = environmentSubstitute( meta.getXSDFilename() );
+        xsdfilename = resolve( meta.getXSDFilename() );
       } else if ( meta.getXSDSource().equals( meta.SPECIFY_FIELDNAME ) ) {
         // Get the XSD field value
         xsdfilename = getInputRowMeta().getString( row, data.xsdindex );
@@ -267,10 +261,10 @@ public class XsdValidator extends BaseTransform<XsdValidatorMeta, XsdValidatorDa
         // Output type=String
         if ( isvalid ) {
           outputRowData =
-              RowDataUtil.addValueData( row, getInputRowMeta().size(), environmentSubstitute( meta.getIfXmlValid() ) );
+              RowDataUtil.addValueData( row, getInputRowMeta().size(), resolve( meta.getIfXmlValid() ) );
         } else {
           outputRowData =
-              RowDataUtil.addValueData( row, getInputRowMeta().size(), environmentSubstitute( meta.getIfXmlInvalid() ) );
+              RowDataUtil.addValueData( row, getInputRowMeta().size(), resolve( meta.getIfXmlInvalid() ) );
         }
       } else {
         outputRowData = RowDataUtil.addValueData( row, getInputRowMeta().size(), isvalid );

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.fileinput;
 
@@ -554,7 +549,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           try {
             strings[ fieldnr ] = pol;
           } catch ( ArrayIndexOutOfBoundsException e ) {
-            // In case we didn't allocate enough space.
+            // In case we didn't allocate enough variables.
             // This happens when you have less header values specified than there are actual values in the rows.
             // As this is "the exception" we catch and resize here.
             //
@@ -869,7 +864,7 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
           IRowMeta prevInfoFields = data.rowSet.getRowMeta();
           if ( idx < 0 ) {
             if ( meta.isPassingThruFields() ) {
-              data.passThruFields = new HashMap<FileObject, Object[]>();
+              data.passThruFields = new HashMap<>();
               infoTransform = new IRowMeta[] { prevInfoFields };
               data.nrPassThruFields = prevInfoFields.size();
             }
@@ -1196,11 +1191,11 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
 
       int errorFileIndex =
         ( StringUtils.isBlank( meta.getFileErrorField() ) ) ? -1 : addValueMeta( rowMeta, this
-          .environmentSubstitute( meta.getFileErrorField() ) );
+          .resolve( meta.getFileErrorField() ) );
 
       int errorMessageIndex =
         StringUtils.isBlank( meta.getFileErrorMessageField() ) ? -1 : addValueMeta( rowMeta, this
-          .environmentSubstitute( meta.getFileErrorMessageField() ) );
+          .resolve( meta.getFileErrorMessageField() ) );
 
       try {
         Object[] rowData = getRow();
@@ -1547,9 +1542,9 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
       data.fileType = meta.getFileTypeNr();
 
       // Handle the possibility of a variable substitution
-      data.separator = environmentSubstitute( meta.getSeparator() );
-      data.enclosure = environmentSubstitute( meta.getEnclosure() );
-      data.escapeCharacter = environmentSubstitute( meta.getEscapeCharacter() );
+      data.separator = resolve( meta.getSeparator() );
+      data.enclosure = resolve( meta.getEnclosure() );
+      data.escapeCharacter = resolve( meta.getEscapeCharacter() );
 
       // Add additional fields
       if ( !Utils.isEmpty( meta.getShortFileNameField() ) ) {
@@ -1586,14 +1581,14 @@ public class TextFileInput extends BaseTransform<TextFileInputMeta, TextFileInpu
   }
 
   private void initErrorHandling() {
-    List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<IFileErrorHandler>( 2 );
+    List<IFileErrorHandler> dataErrorLineHandlers = new ArrayList<>( 2 );
     if ( meta.getLineNumberFilesDestinationDirectory() != null ) {
       dataErrorLineHandlers
-        .add( new FileErrorHandlerContentLineNumber( getPipeline().getExecutionStartDate(), environmentSubstitute( meta
+        .add( new FileErrorHandlerContentLineNumber( getPipeline().getExecutionStartDate(), resolve( meta
           .getLineNumberFilesDestinationDirectory() ), meta.getLineNumberFilesExtension(), meta.getEncoding(), this ) );
     }
     if ( meta.getErrorFilesDestinationDirectory() != null ) {
-      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionStartDate(), environmentSubstitute(
+      dataErrorLineHandlers.add( new FileErrorHandlerMissingFiles( getPipeline().getExecutionStartDate(), resolve(
         meta.getErrorFilesDestinationDirectory() ), meta.getErrorLineFilesExtension(), meta.getEncoding(), this ) );
     }
     data.dataErrorLineHandler = new CompositeFileErrorHandler( dataErrorLineHandlers );

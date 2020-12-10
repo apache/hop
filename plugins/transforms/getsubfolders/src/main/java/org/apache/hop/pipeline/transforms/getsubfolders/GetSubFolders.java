@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.getsubfolders;
 
@@ -95,7 +90,7 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
 
         // cache the position of the field
         if ( data.indexOfFoldernameField < 0 ) {
-          String realDynamicFoldername = environmentSubstitute( meta.getDynamicFoldernameField() );
+          String realDynamicFoldername = resolve( meta.getDynamicFoldernameField() );
           data.indexOfFoldernameField = data.inputRowMeta.indexOfValue( realDynamicFoldername );
           if ( data.indexOfFoldernameField < 0 ) {
             // The field is unreachable !
@@ -145,7 +140,7 @@ public class GetSubFolders extends BaseTransform<GetSubFoldersMeta, GetSubFolder
           String[] filesname = { filename };
           String[] filesrequired = { GetSubFoldersMeta.NO };
           // Get files list
-          data.files = meta.getDynamicFolderList( getPipelineMeta(), filesname, filesrequired );
+          data.files = meta.getDynamicFolderList( this, filesname, filesrequired );
           data.filessize = data.files.nrOfFiles();
           data.filenr = 0;
         }

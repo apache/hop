@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.pipeline;
 
@@ -64,6 +59,7 @@ import org.apache.hop.core.plugins.JarFileCache;
 import org.apache.hop.core.plugins.PluginFolder;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.ITransformMeta;
@@ -87,6 +83,7 @@ import java.util.Map;
 
 public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngineRunConfiguration> {
 
+  protected IVariables variables;
   protected PipelineMeta pipelineMeta;
   protected SerializableMetadataProvider metadataProvider;
   protected String metaStoreJson;
@@ -102,8 +99,9 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     this.xpPluginClasses = new ArrayList<>();
   }
 
-  public HopPipelineMetaToBeamPipelineConverter( PipelineMeta pipelineMeta, IHopMetadataProvider metadataProvider, T pipelineRunConfiguration ) throws HopException, HopException {
+  public HopPipelineMetaToBeamPipelineConverter( IVariables variables, PipelineMeta pipelineMeta, IHopMetadataProvider metadataProvider, T pipelineRunConfiguration ) throws HopException, HopException {
     this();
+    this.variables = variables;
     this.pipelineMeta = pipelineMeta;
     this.metadataProvider = new SerializableMetadataProvider( metadataProvider );
     this.metaStoreJson = this.metadataProvider.toJson();
@@ -141,20 +139,20 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
   public void addDefaultTransformHandlers() throws HopException {
     // Add the transform handlers for the special cases, functionality which Beams handles specifically
     //
-    transformHandlers.put( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID, new BeamInputTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_OUTPUT_PLUGIN_ID, new BeamOutputTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_PUBLISH_PLUGIN_ID, new BeamPublisherTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_SUBSCRIBE_PLUGIN_ID, new BeamSubscriberTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_MERGE_JOIN_PLUGIN_ID, new BeamMergeJoinTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID, new BeamGroupByTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_WINDOW_PLUGIN_ID, new BeamWindowTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_TIMESTAMP_PLUGIN_ID, new BeamTimestampTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_BIGQUERY_INPUT_PLUGIN_ID, new BeamBigQueryInputTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_BIGQUERY_OUTPUT_PLUGIN_ID, new BeamBigQueryOutputTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_KAFKA_CONSUME_PLUGIN_ID, new BeamKafkaInputTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_KAFKA_PRODUCE_PLUGIN_ID, new BeamKafkaOutputTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    transformHandlers.put( BeamConst.STRING_BEAM_ROW_GENERATOR_PLUGIN_ID, new BeamRowGeneratorTransformHandler( pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
-    genericTransformHandler = new BeamGenericTransformHandler( pipelineRunConfiguration, metadataProvider, metaStoreJson, pipelineMeta, transformPluginClasses, xpPluginClasses );
+    transformHandlers.put( BeamConst.STRING_BEAM_INPUT_PLUGIN_ID, new BeamInputTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_OUTPUT_PLUGIN_ID, new BeamOutputTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_PUBLISH_PLUGIN_ID, new BeamPublisherTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_SUBSCRIBE_PLUGIN_ID, new BeamSubscriberTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_MERGE_JOIN_PLUGIN_ID, new BeamMergeJoinTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_MEMORY_GROUP_BY_PLUGIN_ID, new BeamGroupByTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_WINDOW_PLUGIN_ID, new BeamWindowTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_TIMESTAMP_PLUGIN_ID, new BeamTimestampTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_BIGQUERY_INPUT_PLUGIN_ID, new BeamBigQueryInputTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_BIGQUERY_OUTPUT_PLUGIN_ID, new BeamBigQueryOutputTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_KAFKA_CONSUME_PLUGIN_ID, new BeamKafkaInputTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_KAFKA_PRODUCE_PLUGIN_ID, new BeamKafkaOutputTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    transformHandlers.put( BeamConst.STRING_BEAM_ROW_GENERATOR_PLUGIN_ID, new BeamRowGeneratorTransformHandler( variables, pipelineRunConfiguration, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses ) );
+    genericTransformHandler = new BeamGenericTransformHandler( variables, pipelineRunConfiguration, metadataProvider, metaStoreJson, pipelineMeta, transformPluginClasses, xpPluginClasses );
   }
 
   public static List<String> findAnnotatedClasses( String folder, String annotationClassName ) throws HopException {
@@ -206,8 +204,8 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     PipelineOptions pipelineOptions = pipelineRunConfiguration.getPipelineOptions();
     // The generic options
     //
-    pipelineOptions.setUserAgent( pipelineRunConfiguration.environmentSubstitute( pipelineRunConfiguration.getUserAgent() ) );
-    pipelineOptions.setTempLocation( pipelineRunConfiguration.environmentSubstitute( pipelineRunConfiguration.getTempLocation() ) );
+    pipelineOptions.setUserAgent( pipelineRunConfiguration.resolve( pipelineRunConfiguration.getUserAgent() ) );
+    pipelineOptions.setTempLocation( pipelineRunConfiguration.resolve( pipelineRunConfiguration.getTempLocation() ) );
     pipelineOptions.setJobName( pipelineMeta.getName() );
 
     pipelineOptions.setRunner( runnerClass );
@@ -259,7 +257,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
     List<TransformMeta> beamInputTransformMetas = findBeamInputs();
     for ( TransformMeta transformMeta : beamInputTransformMetas ) {
       IBeamTransformHandler stepHandler = transformHandlers.get( transformMeta.getTransformPluginId() );
-      stepHandler.handleTransform( log, transformMeta, stepCollectionMap, pipeline, pipelineMeta.getTransformFields( transformMeta ), null, null );
+      stepHandler.handleTransform( log, transformMeta, stepCollectionMap, pipeline, pipelineMeta.getTransformFields( variables, transformMeta ), null, null );
     }
   }
 
@@ -281,7 +279,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
       // What fields are we getting from the previous transform(s)?
       //
-      IRowMeta rowMeta = pipelineMeta.getTransformFields( previousTransform );
+      IRowMeta rowMeta = pipelineMeta.getTransformFields( variables, previousTransform );
 
       stepHandler.handleTransform( log, transformMeta, stepCollectionMap, pipeline, rowMeta, previousTransforms, input );
     }
@@ -329,7 +327,7 @@ public class HopPipelineMetaToBeamPipelineConverter<T extends IBeamPipelineEngin
 
           // No fuss with info fields sneaking in, all previous transforms need to emit the same layout anyway
           //
-          rowMeta = pipelineMeta.getTransformFields( firstPreviousTransform );
+          rowMeta = pipelineMeta.getTransformFields( variables, firstPreviousTransform );
           // System.out.println("STEP FIELDS for '"+firstPreviousTransform.getName()+"' : "+rowMeta);
 
           // Check in the map to see if previousTransform isn't targeting this one

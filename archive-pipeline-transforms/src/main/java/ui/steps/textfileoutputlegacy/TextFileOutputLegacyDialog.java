@@ -50,7 +50,7 @@ public class TextFileOutputLegacyDialog extends TextFileOutputDialog {
   private Button wFileIsCommand;
   private FormData fdlFileIsCommand, fdFileIsCommand;
 
-  public TextFileOutputLegacyDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public TextFileOutputLegacyDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, in, pipelineMeta, sname );
   }
 

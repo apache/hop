@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transform;
 
@@ -159,8 +154,9 @@ public class BaseTransformMeta implements Cloneable {
    * Gets the table fields.
    *
    * @return the table fields
+   * @param variables
    */
-  public IRowMeta getTableFields() {
+  public IRowMeta getTableFields( IVariables variables ) {
     return null;
   }
 
@@ -181,7 +177,7 @@ public class BaseTransformMeta implements Cloneable {
    * @param name         Name of the transform to use as input for the origin field in the values
    * @param info         Fields used as extra lookup information
    * @param nextTransform     the next transform that is targeted
-   * @param variables        the space The variable space to use to replace variables
+   * @param variables        the variables The variable variables to use to replace variables
    * @param metadataProvider    the MetaStore to use to load additional external data or metadata impacting the output fields
    * @throws HopTransformException the hop transform exception
    */
@@ -193,6 +189,7 @@ public class BaseTransformMeta implements Cloneable {
   /**
    * Each transform must be able to report on the impact it has on a database, table field, etc.
    *
+   * @param variables The variables to use to resolve expressions
    * @param impact    The list of impacts @see org.apache.hop.pipelineMeta.DatabaseImpact
    * @param pipelineMeta The pipeline information
    * @param transformMeta  The transform information
@@ -202,7 +199,7 @@ public class BaseTransformMeta implements Cloneable {
    * @param info      The fields used as information by this transform
    * @param metadataProvider the MetaStore to use to load additional external data or metadata impacting the output fields
    */
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output,
                              IRowMeta info, IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
@@ -214,6 +211,8 @@ public class BaseTransformMeta implements Cloneable {
    * correctly. This can mean "create table", "create index" statements but also "alter table ... add/drop/modify"
    * statements.
    *
+   *
+   * @param variables
    * @param pipelineMeta PipelineMeta object containing the complete pipeline
    * @param transformMeta  TransformMeta object containing the complete transform
    * @param prev      Row containing meta-data for the input fields (no data)
@@ -221,7 +220,7 @@ public class BaseTransformMeta implements Cloneable {
    * @return The SQL Statements for this transform. If nothing has to be done, the SqlStatement.getSql() == null. @see
    * SqlStatement
    */
-  public SqlStatement getSqlStatements( PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
+  public SqlStatement getSqlStatements( IVariables variables, PipelineMeta pipelineMeta, TransformMeta transformMeta, IRowMeta prev,
                                         IHopMetadataProvider metadataProvider ) throws HopTransformException {
     // default: this doesn't require any SQL statements to be executed!
     return new SqlStatement( transformMeta.getName(), null, null );
@@ -251,7 +250,7 @@ public class BaseTransformMeta implements Cloneable {
    * <p>
    * This default implementation returns an empty row meaning that no fields are required for this transform to operate.
    *
-   * @param variables the variable space to use to do variable substitution.
+   * @param variables the variable variables to use to do variable substitution.
    * @return the required fields for this transforms meta data.
    * @throws HopException in case the required fields can't be determined
    */
@@ -298,14 +297,14 @@ public class BaseTransformMeta implements Cloneable {
    *
    * @return a list of all the resource dependencies that the transform is depending on
    */
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
-    return Arrays.asList( new ResourceReference( transformInfo ) );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
+    return Arrays.asList( new ResourceReference( transformMeta ) );
   }
 
   /**
    * Export resources.
    *
-   * @param variables                   the space
+   * @param variables                   the variables
    * @param definitions             the definitions
    * @param iResourceNaming the resource naming interface
    * @param metadataProvider               The place to load additional information
@@ -641,7 +640,7 @@ public class BaseTransformMeta implements Cloneable {
    * "New target transform"
    */
   public List<IStream> getOptionalStreams() {
-    List<IStream> list = new ArrayList<IStream>();
+    List<IStream> list = new ArrayList<>();
     return list;
   }
 
@@ -724,7 +723,7 @@ public class BaseTransformMeta implements Cloneable {
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metadataProvider the MetaStore to use
-   * @param variables     the variable space to use
+   * @param variables     the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */

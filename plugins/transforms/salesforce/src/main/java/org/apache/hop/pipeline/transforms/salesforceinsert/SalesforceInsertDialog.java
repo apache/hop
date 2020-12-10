@@ -29,6 +29,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -154,7 +155,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   /**
    * List of ColumnInfo that should have the field names of the selected database table
    */
-  private List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
+  private List<ColumnInfo> tableFieldColumns = new ArrayList<>();
   private boolean gotModule = false;
   private boolean gotFields = false;
 
@@ -165,10 +166,10 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
   private boolean getModulesListError = false; /* True if error getting modules list */
 
-  public SalesforceInsertDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, in, pipelineMeta, sname );
+  public SalesforceInsertDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, in, pipelineMeta, sname );
     input = (SalesforceInsertMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   @Override
@@ -262,7 +263,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     wConnectionGroup.setLayout( connectionGroupLayout );
 
     // Webservice URL
-    wURL = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wURL = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceInsertDialog.URL.Label" ),
       BaseMessages.getString( PKG, "SalesforceInsertDialog.URL.Tooltip" ) );
     props.setLook( wURL );
@@ -274,7 +275,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     wURL.setLayoutData( fdURL );
 
     // UserName line
-    wUserName = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wUserName = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceInsertDialog.User.Label" ),
       BaseMessages.getString( PKG, "SalesforceInsertDialog.User.Tooltip" ) );
     props.setLook( wUserName );
@@ -286,7 +287,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     wUserName.setLayoutData( fdUserName );
 
     // Password line
-    wPassword = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wPassword = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceInsertDialog.Password.Label" ),
       BaseMessages.getString( PKG, "SalesforceInsertDialog.Password.Tooltip" ), true );
     props.setLook( wPassword );
@@ -340,7 +341,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     fdlTimeOut.top = new FormAttachment( wSettingsGroup, margin );
     fdlTimeOut.right = new FormAttachment( middle, -margin );
     wlTimeOut.setLayoutData( fdlTimeOut );
-    wTimeOut = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
     fdTimeOut = new FormData();
@@ -398,7 +399,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     fdlBatchSize.top = new FormAttachment( wRollbackAllChangesOnError, margin );
     fdlBatchSize.right = new FormAttachment( middle, -margin );
     wlBatchSize.setLayoutData( fdlBatchSize );
-    wBatchSize = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBatchSize = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBatchSize );
     wBatchSize.addModifyListener( lsMod );
     fdBatchSize = new FormData();
@@ -416,7 +417,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     fdlModule.top = new FormAttachment( wBatchSize, margin );
     fdlModule.right = new FormAttachment( middle, -margin );
     wlModule.setLayoutData( fdlModule );
-    wModule = new ComboVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wModule = new ComboVar( variables, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wModule.setEditable( true );
     props.setLook( wModule );
     wModule.addModifyListener( lsTableMod );
@@ -482,7 +483,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     fdlSalesforceIDFieldName.top = new FormAttachment( wSettingsGroup, margin );
     fdlSalesforceIDFieldName.right = new FormAttachment( middle, -margin );
     wlSalesforceIDFieldName.setLayoutData( fdlSalesforceIDFieldName );
-    wSalesforceIDFieldName = new TextVar( pipelineMeta, wOutFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSalesforceIDFieldName = new TextVar( variables, wOutFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSalesforceIDFieldName );
     wSalesforceIDFieldName.setToolTipText( BaseMessages.getString(
       PKG, "SalesforceInsertDialog.SalesforceIDFieldName.Tooltip" ) );
@@ -531,7 +532,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     ciReturn[2].setToolTip( BaseMessages
       .getString( PKG, "SalesforceInsertDialog.ColumnInfo.UseExternalId.Tooltip" ) );
     tableFieldColumns.add( ciReturn[0] );
-    wReturn = new TableView( pipelineMeta, wGeneralComp, SWT.BORDER
+    wReturn = new TableView( variables, wGeneralComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn, UpInsRows, lsMod, props );
 
     wDoMapping = new Button( wGeneralComp, SWT.PUSH );
@@ -567,7 +568,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -691,7 +692,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
   private void getUpdate() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           tableItem.setText( 3, "Y" );
@@ -784,12 +785,12 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     meta.setSalesforceIDFieldName( wSalesforceIDFieldName.getText() );
     meta.setBatchSize( wBatchSize.getText() );
 
-    int nrfields = wReturn.nrNonEmpty();
+    int nrFields = wReturn.nrNonEmpty();
 
-    meta.allocate( nrfields );
+    meta.allocate( nrFields );
 
     //CHECKSTYLE:Indentation:OFF
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
       meta.getUpdateLookup()[i] = item.getText( 1 );
       meta.getUpdateStream()[i] = item.getText( 2 );
@@ -827,12 +828,12 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   }
 
   private SalesforceConnection getConnection() throws HopException {
-    String url = pipelineMeta.environmentSubstitute( wURL.getText() );
+    String url = variables.resolve( wURL.getText() );
     // Define a new Salesforce connection
     SalesforceConnection connection =
-      new SalesforceConnection( log, url, pipelineMeta.environmentSubstitute( wUserName.getText() ),
-        Utils.resolvePassword( pipelineMeta, wPassword.getText() ) );
-    int realTimeOut = Const.toInt( pipelineMeta.environmentSubstitute( wTimeOut.getText() ), 0 );
+      new SalesforceConnection( log, url, variables.resolve( wUserName.getText() ),
+        Utils.resolvePassword( variables, wPassword.getText() ) );
+    int realTimeOut = Const.toInt( variables.resolve( wTimeOut.getText() ), 0 );
     connection.setTimeOut( realTimeOut );
     // connect to Salesforce
     connection.connect();
@@ -842,7 +843,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
   private String[] getFieldNames() throws HopException {
     SalesforceConnection connection = null;
-    String selectedModule = pipelineMeta.environmentSubstitute( wModule.getText() );
+    String selectedModule = variables.resolve( wModule.getText() );
     try {
       // Define a new Salesforce connection
       connection = getConnection();
@@ -877,7 +878,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
     IRowMeta targetFields = new RowMeta();
 
     try {
-      sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      sourceFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "SalesforceInsertDialog.DoMapping.UnableToFindSourceFields.Title" ),
@@ -887,7 +888,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
     try {
       SalesforceConnection connection = getConnection();
-      Field[] fields = connection.getObjectFields( pipelineMeta.environmentSubstitute( wModule.getText() ) );
+      Field[] fields = connection.getObjectFields( variables.resolve( wModule.getText() ) );
       String[] fieldNames = connection.getFields( fields );
 
       FieldType dateType = FieldType.date;
@@ -914,7 +915,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
 
     // Create the existing mapping list...
     //
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
     StringBuffer missingSourceFields = new StringBuffer();
     StringBuffer missingTargetFields = new StringBuffer();
 
@@ -994,13 +995,13 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
 
     String[] fieldNames = entries.toArray( new String[entries.size()] );
     Const.sortStrings( fieldNames );
@@ -1026,7 +1027,7 @@ public class SalesforceInsertDialog extends SalesforceTransformDialog {
           if ( wModule.isDisposed() ) {
             return;
           }
-          String selectedModule = pipelineMeta.environmentSubstitute( wModule.getText() );
+          String selectedModule = variables.resolve( wModule.getText() );
           if ( !Utils.isEmpty( selectedModule ) ) {
             try {
               // loop through the objects and find build the list of fields

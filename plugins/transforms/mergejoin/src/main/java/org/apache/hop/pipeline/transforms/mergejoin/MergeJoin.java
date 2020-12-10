@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.mergejoin;
 
@@ -97,7 +91,7 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
         data.oneMeta = data.oneRowSet.getRowMeta();
       } else {
         data.one = null;
-        data.oneMeta = getPipelineMeta().getTransformFields( infoStreams.get( 0 ).getTransformName() );
+        data.oneMeta = getPipelineMeta().getTransformFields( this, infoStreams.get( 0 ).getTransformName() );
       }
 
       data.two = getRowFrom( data.twoRowSet );
@@ -105,7 +99,7 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
         data.twoMeta = data.twoRowSet.getRowMeta();
       } else {
         data.two = null;
-        data.twoMeta = getPipelineMeta().getTransformFields( infoStreams.get( 1 ).getTransformName() );
+        data.twoMeta = getPipelineMeta().getTransformFields( this, infoStreams.get( 1 ).getTransformName() );
       }
 
       // just for speed: oneMeta+twoMeta
@@ -208,12 +202,12 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
         if ( compare1 == 0 || compare2 == 0 ) { // Duplicate keys
 
           if ( data.ones == null ) {
-            data.ones = new ArrayList<Object[]>();
+            data.ones = new ArrayList<>();
           } else {
             data.ones.clear();
           }
           if ( data.twos == null ) {
-            data.twos = new ArrayList<Object[]>();
+            data.twos = new ArrayList<>();
           } else {
             data.twos.clear();
           }
@@ -395,9 +389,6 @@ public class MergeJoin extends BaseTransform<MergeJoinMeta, MergeJoinData> imple
     return true;
   }
 
-  /**
-   * @see ITransform#init(org.apache.hop.pipeline.transform.ITransform, org.apache.hop.pipeline.transform.ITransformData)
-   */
   public boolean init() {
 
     if ( super.init() ) {

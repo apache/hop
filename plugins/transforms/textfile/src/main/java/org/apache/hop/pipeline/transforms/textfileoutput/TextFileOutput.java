@@ -1,24 +1,19 @@
-/*******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
@@ -91,7 +86,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
   public boolean isFileExists( String filename ) throws HopException {
     try {
-      return getFileObject( filename, getPipelineMeta() ).exists();
+      return getFileObject( filename, this ).exists();
     } catch ( Exception e ) {
       throw new HopException( "Error opening new file : " + e.toString() );
     }
@@ -153,7 +148,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           if ( meta.isAddToResultFiles() ) {
             // Add this to the result file names...
             ResultFile resultFile =
-              new ResultFile( ResultFile.FILE_TYPE_GENERAL, getFileObject( filename, getPipelineMeta() ),
+              new ResultFile( ResultFile.FILE_TYPE_GENERAL, getFileObject( filename, this ),
                 getPipelineMeta().getName(), getTransformName() );
             resultFile.setComment( BaseMessages.getString( PKG, "TextFileOutput.AddResultFile" ) );
             addResultFile( resultFile );
@@ -186,13 +181,13 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           }
 
           OutputStream fileOutputStream =
-            getOutputStream( filename, getPipelineMeta(), !isZipFile && appendToExistingFile );
+            getOutputStream( filename, this, !isZipFile && appendToExistingFile );
           CompressionOutputStream compressionOutputStream = compressionProvider.createOutputStream( fileOutputStream );
 
           // The compression output stream may also archive entries. For this we create the filename
           // (with appropriate extension) and add it as an entry to the output stream. For providers
           // that do not archive entries, they should use the default no-op implementation.
-          compressionOutputStream.addEntry( filename, environmentSubstitute( meta.getExtension() ) );
+          compressionOutputStream.addEntry( filename, resolve( meta.getExtension() ) );
 
           if ( log.isDetailed() ) {
             if ( !Utils.isEmpty( meta.getEncoding() ) ) {
@@ -217,10 +212,10 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
             data.getFileStreamsCollection().closeOldestOpenFile( false );
           }
 
-          OutputStream fileOutputStream = getOutputStream( filename, getPipelineMeta(), true );
+          OutputStream fileOutputStream = getOutputStream( filename, this, true );
           ICompressionProvider compressionProvider = getCompressionProvider();
           CompressionOutputStream compressionOutputStream = compressionProvider.createOutputStream( fileOutputStream );
-          compressionOutputStream.addEntry( filename, environmentSubstitute( meta.getExtension() ) );
+          compressionOutputStream.addEntry( filename, resolve( meta.getExtension() ) );
           BufferedOutputStream bufferedOutputStream = new BufferedOutputStream( compressionOutputStream, 5000 );
 
           fileStreams.setFileOutputStream( fileOutputStream );
@@ -257,7 +252,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         if ( filename == null ) {
           throw new HopFileException( BaseMessages.getString( PKG, "TextFileOutput.Exception.FileNameNotSet" ) );
         }
-        filename = buildFilename( environmentSubstitute( filename ), true );
+        filename = buildFilename( resolve( filename ), true );
       }
     } else {
       data.fileNameFieldIndex = getInputRowMeta().indexOfValue( meta.getFileNameField() );
@@ -271,13 +266,13 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         throw new HopFileException( BaseMessages.getString( PKG, "TextFileOutput.Exception.FileNameNotSet" ) );
       }
 
-      filename = buildFilename( environmentSubstitute( data.fileName ), true );
+      filename = buildFilename( resolve( data.fileName ), true );
     }
     return filename;
   }
 
   public int getFlushInterval() {
-    String var = getPipelineMeta().getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_LIFE" );
+    String var = variables.getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_LIFE" );
     int flushInterval = 0;
     if ( var != null ) {
       try {
@@ -290,7 +285,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   }
 
   public int getMaxOpenFiles() {
-    String var = getPipelineMeta().getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_COUNT" );
+    String var = variables.getVariable( "HOP_FILE_OUTPUT_MAX_STREAM_COUNT" );
     int maxStreamCount = 0;
     if ( var != null ) {
       try {
@@ -318,7 +313,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
       return true;
     } else {
-      if ( ( data.writer == null ) && !Utils.isEmpty( environmentSubstitute( meta.getEndedLine() ) ) ) {
+      if ( ( data.writer == null ) && !Utils.isEmpty( resolve( meta.getEndedLine() ) ) ) {
         initServletStreamWriter();
         initBinaryDataFields();
       }
@@ -412,7 +407,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         if ( data.outputRowMeta != null && meta.isFooterEnabled() ) {
           writeHeader();
         }
-      } else if ( !Utils.isEmpty( environmentSubstitute( meta.getEndedLine() ) ) && !meta.isFileNameInField() ) {
+      } else if ( !Utils.isEmpty( resolve( meta.getEndedLine() ) ) && !meta.isFileNameInField() ) {
         String filename = getOutputFileName( null );
         initFileStreamWriter( filename );
         initBinaryDataFields();
@@ -682,7 +677,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
         }
         if ( found ) {
           if ( positions == null ) {
-            positions = new ArrayList<Integer>();
+            positions = new ArrayList<>();
           }
           positions.add( i );
         }
@@ -694,7 +689,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
   protected boolean writeEndedLine() {
     boolean retval = false;
     try {
-      String sLine = environmentSubstitute( meta.getEndedLine() );
+      String sLine = resolve( meta.getEndedLine() );
       if ( sLine != null ) {
         if ( sLine.trim().length() > 0 ) {
           data.writer.write( getBinaryString( sLine ) );
@@ -827,8 +822,8 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
           initOutput();
         } catch ( Exception e ) {
           logError( "Couldn't open file "
-            + HopVfs.getFriendlyURI( getParentVariableSpace().environmentSubstitute( meta.getFileName() ) )
-            + "." + getParentVariableSpace().environmentSubstitute( meta.getExtension() ), e );
+            + HopVfs.getFriendlyURI( getParentVariables().resolve( meta.getFileName() ) )
+            + "." + getParentVariables().resolve( meta.getExtension() ), e );
           setErrors( 1L );
           stopAll();
         }
@@ -866,23 +861,23 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
 
       if ( data.hasEncoding ) {
         if ( !Utils.isEmpty( meta.getSeparator() ) ) {
-          data.binarySeparator = environmentSubstitute( meta.getSeparator() ).getBytes( meta.getEncoding() );
+          data.binarySeparator = resolve( meta.getSeparator() ).getBytes( meta.getEncoding() );
         }
         if ( !Utils.isEmpty( meta.getEnclosure() ) ) {
-          data.binaryEnclosure = environmentSubstitute( meta.getEnclosure() ).getBytes( meta.getEncoding() );
+          data.binaryEnclosure = resolve( meta.getEnclosure() ).getBytes( meta.getEncoding() );
         }
         if ( !Utils.isEmpty( meta.getNewline() ) ) {
           data.binaryNewline = meta.getNewline().getBytes( meta.getEncoding() );
         }
       } else {
         if ( !Utils.isEmpty( meta.getSeparator() ) ) {
-          data.binarySeparator = environmentSubstitute( meta.getSeparator() ).getBytes();
+          data.binarySeparator = resolve( meta.getSeparator() ).getBytes();
         }
         if ( !Utils.isEmpty( meta.getEnclosure() ) ) {
-          data.binaryEnclosure = environmentSubstitute( meta.getEnclosure() ).getBytes();
+          data.binaryEnclosure = resolve( meta.getEnclosure() ).getBytes();
         }
         if ( !Utils.isEmpty( meta.getNewline() ) ) {
-          data.binaryNewline = environmentSubstitute( meta.getNewline() ).getBytes();
+          data.binaryNewline = resolve( meta.getNewline() ).getBytes();
         }
       }
 
@@ -979,7 +974,7 @@ public class TextFileOutput<Meta extends TextFileOutputMeta, Data extends TextFi
     FileObject parentfolder = null;
     try {
       // Get parent folder
-      parentfolder = getFileObject( filename, getPipelineMeta() ).getParent();
+      parentfolder = getFileObject( filename, variables ).getParent();
       if ( parentfolder.exists() ) {
         if ( isDetailed() ) {
           logDetailed( BaseMessages.getString( PKG, "TextFileOutput.Log.ParentFolderExist",

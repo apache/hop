@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.ping;
 
@@ -126,7 +120,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     fdlHostname.right = new FormAttachment( middle, 0 );
     wlHostname.setLayoutData(fdlHostname);
 
-    wHostname = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHostname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wHostname );
     wHostname.addModifyListener( lsMod );
     FormData fdHostname = new FormData();
@@ -136,7 +130,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     wHostname.setLayoutData(fdHostname);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wHostname.addModifyListener( e -> wHostname.setToolTipText( getWorkflowMeta().environmentSubstitute( wHostname.getText() ) ) );
+    wHostname.addModifyListener( e -> wHostname.setToolTipText( variables.resolve( wHostname.getText() ) ) );
 
     Label wlPingType = new Label(shell, SWT.RIGHT);
     wlPingType.setText( BaseMessages.getString( PKG, "JobPing.PingType.Label" ) );
@@ -174,7 +168,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     fdlTimeOut.top = new FormAttachment( wPingType, margin );
     wlTimeOut.setLayoutData(fdlTimeOut);
 
-    wTimeOut = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wlTimeOut.setToolTipText( BaseMessages.getString( PKG, "JobPing.TimeOut.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
@@ -194,7 +188,7 @@ public class ActionPingDialog extends ActionDialog implements IActionDialog {
     fdlNbrPackets.top = new FormAttachment( wTimeOut, margin );
     wlNbrPackets.setLayoutData(fdlNbrPackets);
 
-    wNbrPackets = new TextVar( getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wNbrPackets = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wNbrPackets );
     wNbrPackets.addModifyListener( lsMod );
     FormData fdNbrPackets = new FormData();

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.database;
 
@@ -31,6 +26,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.row.value.ValueMetaPluginType;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -68,6 +65,7 @@ public class DatabaseMetaTest {
 
   private DatabaseMeta databaseMeta;
   private IDatabase iDatabase;
+  private IVariables variables;
 
   @BeforeClass
   public static void setUpOnce() throws HopPluginException, HopException {
@@ -82,6 +80,7 @@ public class DatabaseMetaTest {
     databaseMeta = new DatabaseMeta();
     iDatabase = mock( IDatabase.class );
     databaseMeta.setIDatabase( iDatabase );
+    variables = Variables.getADefaultVariableSpace();
   }
 
   @Test
@@ -131,10 +130,10 @@ public class DatabaseMetaTest {
     DatabaseMeta databaseMeta = mock( DatabaseMeta.class );
     GenericDatabaseMeta odbm = new GenericDatabaseMeta();
     doCallRealMethod().when( databaseMeta ).setIDatabase( any( IDatabase.class ) );
-    doCallRealMethod().when( databaseMeta ).getFeatureSummary();
+    doCallRealMethod().when( databaseMeta ).getFeatureSummary(variables);
     doCallRealMethod().when( databaseMeta ).getAttributes();
     databaseMeta.setIDatabase( odbm );
-    List<RowMetaAndData> result = databaseMeta.getFeatureSummary();
+    List<RowMetaAndData> result = databaseMeta.getFeatureSummary(variables);
     assertNotNull( result );
     for ( RowMetaAndData rmd : result ) {
       assertEquals( 2, rmd.getRowMeta().size() );
@@ -187,7 +186,7 @@ public class DatabaseMetaTest {
     databaseMeta.setIDatabase( odbm );
     databaseMeta.setName( "test" );
 
-    List<DatabaseMeta> list = new ArrayList<DatabaseMeta>();
+    List<DatabaseMeta> list = new ArrayList<>();
     list.add( databaseMeta );
 
     DatabaseMeta databaseMeta2 = mock( DatabaseMeta.class );

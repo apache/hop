@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.kafka.shared;
 
@@ -57,16 +52,16 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class KafkaDialogHelper {
-  private IVariables space;
+  private IVariables variables;
   private KafkaFactory kafkaFactory;
   private ComboVar wTopic;
   private TextVar wBootstrapServers;
   private TableView optionsTable;
   private TransformMeta parentMeta;
 
-  public KafkaDialogHelper( IVariables space, ComboVar wTopic, TextVar wBootstrapServers, KafkaFactory kafkaFactory,
+  public KafkaDialogHelper( IVariables variables, ComboVar wTopic, TextVar wBootstrapServers, KafkaFactory kafkaFactory,
                             TableView optionsTable, TransformMeta parentMeta ) {
-    this.space = space;
+    this.variables = variables;
     this.wTopic = wTopic;
     this.wBootstrapServers = wBootstrapServers;
     this.kafkaFactory = kafkaFactory;
@@ -109,7 +104,7 @@ public class KafkaDialogHelper {
       localMeta.setDirectBootstrapServers( directBootstrapServers );
       localMeta.setConfig( config );
       localMeta.setParentTransformMeta( parentMeta );
-      kafkaConsumer = kafkaFactory.consumer( localMeta, space::environmentSubstitute );
+      kafkaConsumer = kafkaFactory.consumer( localMeta, variables::resolve );
       Map<String, List<PartitionInfo>> topicMap = kafkaConsumer.listTopics();
       return topicMap;
     } catch ( Exception e ) {
@@ -122,12 +117,12 @@ public class KafkaDialogHelper {
     }
   }
 
-  public static void populateFieldsList( PipelineMeta pipelineMeta, ComboVar comboVar, String TransformName ) {
+  public static void populateFieldsList( IVariables variables, PipelineMeta pipelineMeta, ComboVar comboVar, String TransformName ) {
     String current = comboVar.getText();
     comboVar.getCComboWidget().removeAll();
     comboVar.setText( current );
     try {
-      IRowMeta rmi = pipelineMeta.getPrevTransformFields( TransformName );
+      IRowMeta rmi = pipelineMeta.getPrevTransformFields( variables, TransformName );
       for ( int i = 0; i < rmi.size(); i++ ) {
         IValueMeta vmb = rmi.getValueMeta( i );
         comboVar.add( vmb.getName() );

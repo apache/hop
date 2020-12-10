@@ -1,27 +1,23 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.core.widget;
 
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
 import org.apache.hop.ui.core.PropsUi;
@@ -42,7 +38,7 @@ import static org.apache.hop.ui.core.WidgetUtils.createFieldDropDown;
 public class TopicSelection extends Composite {
 
   private final PropsUi props;
-  private final PipelineMeta pipelineMeta;
+  private final IVariables variables;
   private final BaseTransformMeta transformMeta;
   private final ModifyListener lsMod;
   private final boolean topicInField;
@@ -62,7 +58,7 @@ public class TopicSelection extends Composite {
   private TopicSelection( final Builder builder ) {
     super( builder.composite, builder.style );
     this.props = builder.props;
-    this.pipelineMeta = builder.pipelineMeta;
+    this.variables = builder.variables;
     this.transformMeta = builder.transformMeta;
     this.lsMod = builder.lsMod;
     this.topicInField = builder.topicInField;
@@ -151,8 +147,8 @@ public class TopicSelection extends Composite {
     formData.left = new FormAttachment( separator, 15 );
     formData.right = new FormAttachment( 100, 0 );
 
-    wTopicText = new TextVar( pipelineMeta, wTopicGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
-    wTopicField = createFieldDropDown( wTopicGroup, props, transformMeta, formData );
+    wTopicText = new TextVar( variables, wTopicGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTopicField = createFieldDropDown( wTopicGroup, props, variables, transformMeta, formData );
     wTopicText.setLayoutData( formData );
     wTopicField.setLayoutData( formData );
 
@@ -222,7 +218,7 @@ public class TopicSelection extends Composite {
     private Composite composite;
     private int style;
     private PropsUi props;
-    private PipelineMeta pipelineMeta;
+    private IVariables variables;
     private BaseTransformMeta transformMeta;
     private ModifyListener lsMod;
     private boolean topicInField;
@@ -247,8 +243,8 @@ public class TopicSelection extends Composite {
       return this;
     }
 
-    public Builder setPipelineMeta( PipelineMeta pipelineMeta ) {
-      this.pipelineMeta = pipelineMeta;
+    public Builder setVariables( IVariables variables ) {
+      this.variables = variables;
       return this;
     }
 

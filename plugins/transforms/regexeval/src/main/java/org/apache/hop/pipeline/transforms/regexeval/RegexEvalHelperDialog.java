@@ -1,34 +1,28 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.regexeval;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.transforms.regexeval.RegexEvalMeta;
 import org.apache.hop.ui.core.PropsUi;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.WindowProperty;
@@ -72,12 +66,13 @@ public class RegexEvalHelperDialog extends Dialog {
   private Button wOk, wCancel;
   private Listener lsOk, lsCancel;
 
+  private final IVariables variables;
   private Shell shell;
   private PropsUi props;
   private String regexscript;
   private String regexoptions;
   private boolean canonicalEqualityFlagSet;
-  private PipelineMeta transmeta;
+  private PipelineMeta pipelineMeta;
 
   private CTabFolder wNoteFolder;
   private FormData fdNoteFolder;
@@ -132,13 +127,14 @@ public class RegexEvalHelperDialog extends Dialog {
    * @param RegexOptions             Any extended options for the regular expression
    * @param canonicalEqualityFlagSet
    */
-  public RegexEvalHelperDialog( Shell parent, PipelineMeta transmeta, String RegexScript, String RegexOptions,
+  public RegexEvalHelperDialog( Shell parent, IVariables variables, PipelineMeta pipelineMeta, String RegexScript, String RegexOptions,
                                 boolean canonicalEqualityFlagSet ) {
     super( parent, SWT.NONE );
+    this.variables = variables;
     props = PropsUi.getInstance();
     this.regexscript = RegexScript;
     this.regexoptions = RegexOptions;
-    this.transmeta = transmeta;
+    this.pipelineMeta = pipelineMeta;
     this.errorDisplayed = false;
     this.canonicalEqualityFlagSet = canonicalEqualityFlagSet;
   }
@@ -191,7 +187,7 @@ public class RegexEvalHelperDialog extends Dialog {
     wlRegExScript.setLayoutData( fdlRegExScript );
 
     wRegExScript =
-      new StyledTextComp( transmeta, wNoteContentComp, SWT.MULTI
+      new StyledTextComp( variables, wNoteContentComp, SWT.MULTI
         | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     wRegExScript.setText( "" );
     props.setLook( wRegExScript, Props.WIDGET_STYLE_FIXED );
@@ -437,7 +433,7 @@ public class RegexEvalHelperDialog extends Dialog {
   }
 
   private void testValues() {
-    String realScript = transmeta.environmentSubstitute( wRegExScript.getText() );
+    String realScript = variables.resolve( wRegExScript.getText() );
 
     for ( int i = 1; i < 5; i++ ) {
       testValue( i, false, realScript );
@@ -447,7 +443,7 @@ public class RegexEvalHelperDialog extends Dialog {
   private void testValue( int index, boolean testRegEx, String regExString ) {
     String realScript = regExString;
     if ( realScript == null ) {
-      realScript = transmeta.environmentSubstitute( wRegExScript.getText() );
+      realScript = variables.resolve( wRegExScript.getText() );
     }
     if ( Utils.isEmpty( realScript ) ) {
       if ( testRegEx ) {
@@ -462,19 +458,19 @@ public class RegexEvalHelperDialog extends Dialog {
     Text control = null;
     switch ( index ) {
       case 1:
-        realValue = Const.NVL( transmeta.environmentSubstitute( wValue1.getText() ), "" );
+        realValue = Const.NVL( variables.resolve( wValue1.getText() ), "" );
         control = wValue1;
         break;
       case 2:
-        realValue = Const.NVL( transmeta.environmentSubstitute( wValue2.getText() ), "" );
+        realValue = Const.NVL( variables.resolve( wValue2.getText() ), "" );
         control = wValue2;
         break;
       case 3:
-        realValue = Const.NVL( transmeta.environmentSubstitute( wValue3.getText() ), "" );
+        realValue = Const.NVL( variables.resolve( wValue3.getText() ), "" );
         control = wValue3;
         break;
       case 4:
-        realValue = Const.NVL( transmeta.environmentSubstitute( wValueGroup.getText() ), "" );
+        realValue = Const.NVL( variables.resolve( wValueGroup.getText() ), "" );
         control = wValueGroup;
         break;
       default:

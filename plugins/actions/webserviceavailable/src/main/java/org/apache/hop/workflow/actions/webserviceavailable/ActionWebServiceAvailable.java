@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.webserviceavailable;
 
@@ -28,6 +22,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.action.ActionBase;
@@ -89,7 +84,7 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       url = XmlHandler.getTagValue( entrynode, "url" );
@@ -129,11 +124,11 @@ public class ActionWebServiceAvailable extends ActionBase implements Cloneable, 
     Result result = previousResult;
     result.setResult( false );
 
-    String realURL = environmentSubstitute( getURL() );
+    String realURL = resolve( getURL() );
 
     if ( !Utils.isEmpty( realURL ) ) {
-      int connectTimeOut = Const.toInt( environmentSubstitute( getConnectTimeOut() ), 0 );
-      int readTimeOut = Const.toInt( environmentSubstitute( getReadTimeOut() ), 0 );
+      int connectTimeOut = Const.toInt( resolve( getConnectTimeOut() ), 0 );
+      int readTimeOut = Const.toInt( resolve( getReadTimeOut() ), 0 );
       InputStream in = null;
       try {
 

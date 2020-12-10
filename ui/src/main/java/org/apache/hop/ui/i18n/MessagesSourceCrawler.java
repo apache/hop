@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.i18n;
 
@@ -143,7 +138,7 @@ public class MessagesSourceCrawler {
     //
     Map<String, List<KeyOccurrence>> packageOccurrences = sourcePackageOccurrences.get( sourceFolder );
     if ( packageOccurrences == null ) {
-      packageOccurrences = new HashMap<String, List<KeyOccurrence>>();
+      packageOccurrences = new HashMap<>();
       sourcePackageOccurrences.put( sourceFolder, packageOccurrences );
     }
 
@@ -152,7 +147,7 @@ public class MessagesSourceCrawler {
     //
     List<KeyOccurrence> occurrences = packageOccurrences.get( messagesPackage );
     if ( occurrences == null ) {
-      occurrences = new ArrayList<KeyOccurrence>();
+      occurrences = new ArrayList<>();
       occurrences.add( occ );
       packageOccurrences.put( messagesPackage, occurrences );
     } else {
@@ -222,7 +217,7 @@ public class MessagesSourceCrawler {
     int row = 0;
     String classPackage = null;
 
-    Map<String, String> importedClasses = new Hashtable<String, String>(); // Remember the imports we do...
+    Map<String, String> importedClasses = new Hashtable<>(); // Remember the imports we do...
 
     String line = reader.readLine();
     while ( line != null ) {
@@ -451,7 +446,7 @@ public class MessagesSourceCrawler {
    * @return all the key occurrences for a certain messages package.
    */
   public List<KeyOccurrence> getOccurrencesForPackage( String messagesPackage ) {
-    List<KeyOccurrence> list = new ArrayList<KeyOccurrence>();
+    List<KeyOccurrence> list = new ArrayList<>();
 
     for ( String sourceFolder : sourcePackageOccurrences.keySet() ) {
       Map<String, List<KeyOccurrence>> po = sourcePackageOccurrences.get( sourceFolder );
@@ -487,7 +482,7 @@ public class MessagesSourceCrawler {
    * @param sourceFolder
    */
   public List<KeyOccurrence> getKeyOccurrences( String sourceFolder ) {
-    Map<String, KeyOccurrence> map = new HashMap<String, KeyOccurrence>();
+    Map<String, KeyOccurrence> map = new HashMap<>();
     Map<String, List<KeyOccurrence>> po = sourcePackageOccurrences.get( sourceFolder );
     if ( po != null ) {
       for ( List<KeyOccurrence> keyOccurrences : po.values() ) {
@@ -498,7 +493,7 @@ public class MessagesSourceCrawler {
       }
     }
 
-    return new ArrayList<KeyOccurrence>( map.values() );
+    return new ArrayList<>( map.values() );
   }
 
 

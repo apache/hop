@@ -31,6 +31,7 @@ import org.apache.hop.metadata.api.IHopMetadataSerializer;
 import org.apache.hop.metadata.util.HopMetadataUtil;
 import org.apache.hop.ui.core.ConstUi;
 import org.apache.hop.ui.core.PropsUi;
+import org.apache.hop.ui.core.bus.HopGuiEvents;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
 import org.apache.hop.ui.core.gui.GuiResource;
 import org.apache.hop.ui.core.gui.GuiToolbarWidgets;
@@ -78,8 +79,6 @@ public class MetadataExplorerDialog {
 
   private static ILogChannel log = LogChannel.GENERAL;
 
-  private IHopMetadataProvider metadataProvider;
-
   private Shell parent;
 
   private Shell shell;
@@ -95,8 +94,7 @@ public class MetadataExplorerDialog {
 
   private static MetadataExplorerDialog activeInstance;
 
-  public MetadataExplorerDialog(Shell parent, IHopMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
+  public MetadataExplorerDialog(Shell parent) {
     this.parent = parent;
     props = PropsUi.getInstance();
   }
@@ -164,6 +162,14 @@ public class MetadataExplorerDialog {
     tree.addListener(SWT.Selection, e -> getSelectedState());
     tree.addListener(SWT.DefaultSelection, e -> doubleClickAction());
     tree.addListener(SWT.MenuDetect, e -> showMenu());
+
+    // refresh automatically when the metadata changes
+    //
+    HopGui.getInstance().getEventsHandler().addEventListener(
+      getClass().getName(),
+      e->refreshTree(),
+      HopGuiEvents.MetadataChanged.name()
+    );
 
     TreeMemory.addTreeListener(tree, METADATA_EXPLORER_DIALOG_TREE);
 
@@ -286,6 +292,7 @@ public class MetadataExplorerDialog {
 
   private MetadataManager<IHopMetadata> getActiveMetadataManger() {
     try {
+      IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
       Class<IHopMetadata> metadataClass = metadataProvider.getMetadataClassForKey(activeObjectKey);
       MetadataManager<IHopMetadata> manager =
           new MetadataManager<>(
@@ -380,6 +387,10 @@ public class MetadataExplorerDialog {
   private void close() {
     props.setScreen(new WindowProperty(shell));
     shell.dispose();
+
+    // Get rid of the listener we registered...
+    //
+    HopGui.getInstance().getEventsHandler().removeEventListeners( getClass().getName() );
   }
 
   @GuiToolbarElement(
@@ -390,6 +401,8 @@ public class MetadataExplorerDialog {
   public void refreshTree() {
     try {
       tree.removeAll();
+
+      IHopMetadataProvider metadataProvider = HopGui.getInstance().getMetadataProvider();
 
       // top level: object key
       //
@@ -430,13 +443,5 @@ public class MetadataExplorerDialog {
     } catch (Exception e) {
       new ErrorDialog(shell, "Error", "Error refreshing metadata tree", e);
     }
-  }
-
-  public IHopMetadataProvider getMetadataProvider() {
-    return metadataProvider;
-  }
-
-  public void setMetadataProvider(IHopMetadataProvider metadataProvider) {
-    this.metadataProvider = metadataProvider;
   }
 }

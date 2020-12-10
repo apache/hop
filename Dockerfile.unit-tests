@@ -1,0 +1,67 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+FROM openjdk:8-alpine
+MAINTAINER Apache Hop
+
+# Argument Branch name, used to download correct version
+ARG BRANCH_NAME
+ENV BRANCH_NAME=$BRANCH_NAME
+# path to where the artefacts should be deployed to
+ENV DEPLOYMENT_PATH=/opt
+# volume mount point
+ENV VOLUME_MOUNT_POINT=/files
+#Jenkins user an group
+ARG JENKINS_USER=hop
+ARG JENKINS_GROUP=hop
+ARG JENKINS_UID=1000
+ARG JENKINS_GID=1000
+
+# any JRE settings you want to pass on
+# The “-XX:+AggressiveHeap” tells the container to use all memory assigned to the container. 
+# this removed the need to calculate the necessary heap Xmx
+ENV HOP_OPTIONS=-XX:+AggressiveHeap
+
+# INSTALL REQUIRED PACKAGES AND ADJUST LOCALE
+# procps: The package includes the programs ps, top, vmstat, w, kill, free, slabtop, and skill
+
+RUN apk update \
+  && apk add --no-cache bash curl procps \ 
+  && rm -rf /var/cache/apk/* \
+  && mkdir ${VOLUME_MOUNT_POINT} \
+  && addgroup -g ${JENKINS_GID} ${JENKINS_GROUP} \
+  && adduser -D -s /bin/bash -h /home/${JENKINS_USER} --uid ${JENKINS_UID} --ingroup ${JENKINS_GROUP} ${JENKINS_USER} \
+  && chown ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH} \
+  && chown ${JENKINS_USER}:${JENKINS_GROUP} ${VOLUME_MOUNT_POINT}
+
+# copy the hop package from the local resources folder to the container image directory
+COPY --chown=${JENKINS_USER}:${JENKINS_GROUP} ./assemblies/client/target/hop-* ${DEPLOYMENT_PATH}/hop.zip
+
+RUN unzip ${DEPLOYMENT_PATH}/hop.zip -d ${DEPLOYMENT_PATH} \
+  && rm ${DEPLOYMENT_PATH}/hop.zip \
+  && chown -R ${JENKINS_USER}:${JENKINS_GROUP} ${DEPLOYMENT_PATH}/hop \
+  && chmod 700 ${DEPLOYMENT_PATH}/hop/*.sh
+
+# make volume available so that hop pipeline and workflow files can be provided easily
+VOLUME ["/files"]
+USER ${JENKINS_USER}
+ENV PATH=$PATH:${DEPLOYMENT_PATH}/hop
+#SET HOP_JAVA_HOME
+ENV HOP_JAVA_HOME /usr/lib/jvm/java-1.8-openjdk
+WORKDIR /home/${JENKINS_USER}
+# CMD ["/bin/bash"]
+ENTRYPOINT []

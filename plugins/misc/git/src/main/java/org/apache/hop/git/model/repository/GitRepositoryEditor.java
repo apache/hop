@@ -35,7 +35,8 @@ import org.eclipse.swt.widgets.Text;
 
 public class GitRepositoryEditor extends MetadataEditor<GitRepository> {
 
-  private static final Class<?> PKG = GitRepositoryEditor.class; // for i18n purposes, needed by Translator2!!
+  private static final Class<?> PKG =
+      GitRepositoryEditor.class; // for i18n purposes, needed by Translator2!!
 
   private Text nameText;
   private Text descText;
@@ -83,7 +84,7 @@ public class GitRepositoryEditor extends MetadataEditor<GitRepository> {
     nameLabel.setLayoutData(fdNameLabel);
     props.setLook(nameLabel);
 
-    nameText = new Text(parent, SWT.SINGLE | SWT.BORDER);    
+    nameText = new Text(parent, SWT.SINGLE | SWT.BORDER);
     nameText.addModifyListener(e -> setChanged());
     FormData fdNameText = new FormData();
     fdNameText.left = new FormAttachment(0, 0);
@@ -110,7 +111,7 @@ public class GitRepositoryEditor extends MetadataEditor<GitRepository> {
     descLabel.setLayoutData(fdDescLabel);
     props.setLook(descLabel);
 
-    descText = new Text(parent, SWT.MULTI | SWT.V_SCROLL | SWT.BORDER);    
+    descText = new Text(parent, SWT.MULTI | SWT.V_SCROLL | SWT.BORDER);
     descText.addModifyListener(e -> setChanged());
     FormData fdDescText = new FormData();
     fdDescText.height = 50;
@@ -148,7 +149,8 @@ public class GitRepositoryEditor extends MetadataEditor<GitRepository> {
     fdDirectoryButton.top = new FormAttachment(directoryLabel, props.getMargin());
     directoryButton.setLayoutData(fdDirectoryButton);
 
-    directoryText = new TextVar(getMetadataManager().getVariables(), parent, SWT.SINGLE | SWT.BORDER);
+    directoryText =
+        new TextVar(getMetadataManager().getVariables(), parent, SWT.SINGLE | SWT.BORDER);
     directoryText.addModifyListener(e -> setChanged());
     FormData fdDirectoryText = new FormData();
     fdDirectoryText.left = new FormAttachment(0, 0);
@@ -168,16 +170,16 @@ public class GitRepositoryEditor extends MetadataEditor<GitRepository> {
 
   @Override
   public void setWidgetsContent() {
-      GitRepository repository = this.getMetadata();
-      nameText.setText(Const.NVL(repository.getName(), ""));
-      descText.setText(Const.NVL(repository.getDescription(), ""));
-      directoryText.setText(Const.NVL(repository.getDirectory(), ""));
+    GitRepository repository = this.getMetadata();
+    nameText.setText(Const.NVL(repository.getName(), ""));
+    descText.setText(Const.NVL(repository.getDescription(), ""));
+    directoryText.setText(Const.NVL(repository.getDirectory(), ""));
   }
 
   @Override
   public void getWidgetsContent(GitRepository repository) {
-      repository.setName(nameText.getText());
-      repository.setDescription(descText.getText());
-      repository.setDirectory(directoryText.getText());            
+    repository.setName(nameText.getText());
+    repository.setDescription(descText.getText());
+    repository.setDirectory(directoryText.getText());
   }
 }

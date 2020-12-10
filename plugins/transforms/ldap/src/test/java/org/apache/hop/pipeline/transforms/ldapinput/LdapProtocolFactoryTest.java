@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
 import java.util.Collections;
@@ -42,13 +36,13 @@ public class LdapProtocolFactoryTest {
     IVariables variables = Mockito.mock(IVariables.class);
     ILdapMeta meta = Mockito.mock(ILdapMeta.class);
     Mockito.doReturn(ldapVariable).when(meta).getProtocol();
-    Mockito.doReturn(protocolName).when(variables).environmentSubstitute(ldapVariable);
+    Mockito.doReturn(protocolName).when(variables).resolve(ldapVariable);
     Mockito.doReturn(host).when(meta).getHost();
-    Mockito.doReturn(host).when(variables).environmentSubstitute(host);
+    Mockito.doReturn(host).when(variables).resolve(host);
 
     LdapProtocol ldapProtocol =
         ldapProtocolFactory.createLdapProtocol(variables, meta, Collections.emptyList());
-    Mockito.verify(variables, Mockito.times(1)).environmentSubstitute(ldapVariable);
+    Mockito.verify(variables, Mockito.times(1)).resolve(ldapVariable);
     Assert.assertTrue(
         "Invalid protocol created",
         protocolName.equals(ldapProtocol.getClass().getMethod("getName").invoke(null).toString()));
@@ -65,13 +59,13 @@ public class LdapProtocolFactoryTest {
     IVariables variables = Mockito.mock(IVariables.class);
     ILdapMeta meta = Mockito.mock(ILdapMeta.class);
     Mockito.doReturn(ldapVariable).when(meta).getProtocol();
-    Mockito.doReturn(protocolName).when(variables).environmentSubstitute(ldapVariable);
+    Mockito.doReturn(protocolName).when(variables).resolve(ldapVariable);
     Mockito.doReturn(host).when(meta).getHost();
-    Mockito.doReturn(host).when(variables).environmentSubstitute(host);
+    Mockito.doReturn(host).when(variables).resolve(host);
 
     LdapProtocol ldapProtocol =
         ldapProtocolFactory.createLdapProtocol(variables, meta, Collections.emptyList());
-    Mockito.verify(variables, Mockito.times(1)).environmentSubstitute(ldapVariable);
+    Mockito.verify(variables, Mockito.times(1)).resolve(ldapVariable);
     Assert.assertTrue(
         "Invalid protocol created",
         protocolName.equals(ldapProtocol.getClass().getMethod("getName").invoke(null).toString()));
@@ -88,13 +82,13 @@ public class LdapProtocolFactoryTest {
     IVariables variables = Mockito.mock(IVariables.class);
     ILdapMeta meta = Mockito.mock(ILdapMeta.class);
     Mockito.doReturn(ldapVariable).when(meta).getProtocol();
-    Mockito.doReturn(protocolName).when(variables).environmentSubstitute(ldapVariable);
+    Mockito.doReturn(protocolName).when(variables).resolve(ldapVariable);
     Mockito.doReturn(host).when(meta).getHost();
-    Mockito.doReturn(host).when(variables).environmentSubstitute(host);
+    Mockito.doReturn(host).when(variables).resolve(host);
 
     LdapProtocol ldapProtocol =
         ldapProtocolFactory.createLdapProtocol(variables, meta, Collections.emptyList());
-    Mockito.verify(variables, Mockito.times(1)).environmentSubstitute(ldapVariable);
+    Mockito.verify(variables, Mockito.times(1)).resolve(ldapVariable);
     Assert.assertTrue(
         "Invalid protocol created",
         protocolName.equals(ldapProtocol.getClass().getMethod("getName").invoke(null).toString()));

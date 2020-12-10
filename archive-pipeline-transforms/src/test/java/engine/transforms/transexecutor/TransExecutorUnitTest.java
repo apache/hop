@@ -126,7 +126,7 @@ public class PipelineExecutorUnitTest {
 
     executor.init();
     when( transParentMock.getLogLevel() ).thenReturn( LogLevel.DEBUG );
-    doNothing().when( transParentMock ).initializeVariablesFrom( any( IVariables.class ) );
+    doNothing().when( transParentMock ).initializeFrom( any( IVariables.class ) );
     when( executor.getLogLevel() ).thenReturn( LogLevel.DEBUG );
     when( executor.createInternalPipeline() ).thenCallRealMethod();
     when( executor.getPipeline() ).thenReturn( transParentMock );

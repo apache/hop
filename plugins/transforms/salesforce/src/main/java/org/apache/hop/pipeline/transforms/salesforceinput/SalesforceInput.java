@@ -184,7 +184,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
           return null;
         }
       }
-      for ( int i = 0; i < data.nrfields; i++ ) {
+      for ( int i = 0; i < data.nrFields; i++ ) {
         String value =
           data.connection.getRecordValue( srvalue.getRecordValue(), meta.getInputFields()[ i ].getField() );
 
@@ -214,7 +214,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
       } // End of loop over fields...
 
-      int rowIndex = data.nrfields;
+      int rowIndex = data.nrFields;
 
       // See if we need to add the url to the row...
       if ( meta.includeTargetURL() && !Utils.isEmpty( meta.getTargetURLField() ) ) {
@@ -282,37 +282,37 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
     switch ( meta.getRecordsFilter() ) {
       case SalesforceConnectionUtils.RECORDS_FILTER_UPDATED:
-        for ( int i = 0; i < data.nrfields; i++ ) {
+        for ( int i = 0; i < data.nrFields; i++ ) {
           SalesforceInputField field = fields[ i ];
-          sql += environmentSubstitute( field.getField() );
-          if ( i < data.nrfields - 1 ) {
+          sql += resolve( field.getField() );
+          if ( i < data.nrFields - 1 ) {
             sql += ",";
           }
         }
         break;
       case SalesforceConnectionUtils.RECORDS_FILTER_DELETED:
         sql += "SELECT ";
-        for ( int i = 0; i < data.nrfields; i++ ) {
+        for ( int i = 0; i < data.nrFields; i++ ) {
           SalesforceInputField field = fields[ i ];
-          sql += environmentSubstitute( field.getField() );
-          if ( i < data.nrfields - 1 ) {
+          sql += resolve( field.getField() );
+          if ( i < data.nrFields - 1 ) {
             sql += ",";
           }
         }
-        sql += " FROM " + environmentSubstitute( meta.getModule() ) + " WHERE isDeleted = true";
+        sql += " FROM " + resolve( meta.getModule() ) + " WHERE isDeleted = true";
         break;
       default:
         sql += "SELECT ";
-        for ( int i = 0; i < data.nrfields; i++ ) {
+        for ( int i = 0; i < data.nrFields; i++ ) {
           SalesforceInputField field = fields[ i ];
-          sql += environmentSubstitute( field.getField() );
-          if ( i < data.nrfields - 1 ) {
+          sql += resolve( field.getField() );
+          if ( i < data.nrFields - 1 ) {
             sql += ",";
           }
         }
-        sql = sql + " FROM " + environmentSubstitute( meta.getModule() );
-        if ( !Utils.isEmpty( environmentSubstitute( meta.getCondition() ) ) ) {
-          sql += " WHERE " + environmentSubstitute( meta.getCondition().replace( "\n\r", "" ).replace( "\n", "" ) );
+        sql = sql + " FROM " + resolve( meta.getModule() );
+        if ( !Utils.isEmpty( resolve( meta.getCondition() ) ) ) {
+          sql += " WHERE " + resolve( meta.getCondition().replace( "\n\r", "" ).replace( "\n", "" ) );
         }
         break;
     }
@@ -335,15 +335,15 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
 
     if ( super.init() ) {
       // get total fields in the grid
-      data.nrfields = meta.getInputFields().length;
+      data.nrFields = meta.getInputFields().length;
 
       // Check if field list is filled
-      if ( data.nrfields == 0 ) {
+      if ( data.nrFields == 0 ) {
         log.logError( BaseMessages.getString( PKG, "SalesforceInputDialog.FieldsMissing.DialogMessage" ) );
         return false;
       }
 
-      String soSQL = environmentSubstitute( meta.getQuery() );
+      String soSQL = resolve( meta.getQuery() );
       try {
 
         if ( meta.isSpecifyQuery() ) {
@@ -355,12 +355,12 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
         } else {
           // check records filter
           if ( meta.getRecordsFilter() != SalesforceConnectionUtils.RECORDS_FILTER_ALL ) {
-            String realFromDateString = environmentSubstitute( meta.getReadFrom() );
+            String realFromDateString = resolve( meta.getReadFrom() );
             if ( Utils.isEmpty( realFromDateString ) ) {
               log.logError( BaseMessages.getString( PKG, "SalesforceInputDialog.FromDateMissing.DialogMessage" ) );
               return false;
             }
-            String realToDateString = environmentSubstitute( meta.getReadTo() );
+            String realToDateString = resolve( meta.getReadTo() );
             if ( Utils.isEmpty( realToDateString ) ) {
               log.logError( BaseMessages.getString( PKG, "SalesforceInputDialog.ToDateMissing.DialogMessage" ) );
               return false;
@@ -379,7 +379,7 @@ public class SalesforceInput extends SalesforceTransform<SalesforceInputMeta, Sa
           }
         }
 
-        data.limit = Const.toLong( environmentSubstitute( meta.getRowLimit() ), 0 );
+        data.limit = Const.toLong( resolve( meta.getRowLimit() ), 0 );
 
         // Do we have to query for all records included deleted records
         data.connection.setQueryAll( meta.isQueryAll() );

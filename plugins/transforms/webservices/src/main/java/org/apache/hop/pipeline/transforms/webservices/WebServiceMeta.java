@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.webservices;
 
@@ -87,7 +81,7 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
   private String operationRequestName;
 
   /**
-   * The name-space of the operation
+   * The name-variables of the operation
    */
   private String operationNamespace;
 
@@ -146,8 +140,8 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
 
   public WebServiceMeta() {
     super();
-    fieldsIn = new ArrayList<WebServiceField>();
-    fieldsOut = new ArrayList<WebServiceField>();
+    fieldsIn = new ArrayList<>();
+    fieldsOut = new ArrayList<>();
   }
 
   public WebServiceMeta( Node transformNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
@@ -187,11 +181,11 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
 
   public WebServiceMeta clone() {
     WebServiceMeta retval = (WebServiceMeta) super.clone();
-    retval.fieldsIn = new ArrayList<WebServiceField>();
+    retval.fieldsIn = new ArrayList<>();
     for ( WebServiceField field : fieldsIn ) {
       retval.fieldsIn.add( field.clone() );
     }
-    retval.fieldsOut = new ArrayList<WebServiceField>();
+    retval.fieldsOut = new ArrayList<>();
     for ( WebServiceField field : fieldsOut ) {
       retval.fieldsOut.add( field.clone() );
     }
@@ -390,7 +384,7 @@ public class WebServiceMeta extends BaseTransformMeta implements ITransformMeta<
       return param;
     }
 
-    // if we are ignoring the name space prefix
+    // if we are ignoring the name variables prefix
     if ( ignoreWsNsPrefix ) {
 
       // we split the wsName and set it to the last element of what was parsed

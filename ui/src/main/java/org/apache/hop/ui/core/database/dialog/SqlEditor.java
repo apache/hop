@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.core.database.dialog;
 
@@ -54,8 +48,6 @@ import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.ModifyEvent;
-import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -64,7 +56,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.MessageBox;
@@ -111,11 +102,7 @@ public class SqlEditor {
 
   private SqlValuesHighlight highlight;
 
-  public SqlEditor( Shell parent, int style, DatabaseMeta ci, DbCache dbc, String sql ) {
-    this( null, parent, style, ci, dbc, sql );
-  }
-
-  public SqlEditor( IVariables variables, Shell parent, int style, DatabaseMeta ci, DbCache dbc, String sql ) {
+  public SqlEditor( Shell parent, int style, IVariables variables, DatabaseMeta ci, DbCache dbc, String sql ) {
     props = PropsUi.getInstance();
     log = new LogChannel( ci );
     input = sql;
@@ -350,7 +337,7 @@ public class SqlEditor {
             IRowMeta rowMeta = db.getReturnRowMeta();
             if ( rows.size() > 0 ) {
               PreviewRowsDialog prd =
-                new PreviewRowsDialog( shell, ci, SWT.NONE, BaseMessages.getString(
+                new PreviewRowsDialog( shell, variables, SWT.NONE, BaseMessages.getString(
                   PKG, "SQLEditor.ResultRows.Title", Integer.toString( nrstats ) ), rowMeta, rows );
               prd.open();
             } else {

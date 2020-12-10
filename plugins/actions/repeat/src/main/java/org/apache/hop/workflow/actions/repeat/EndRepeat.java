@@ -21,6 +21,7 @@ import org.apache.hop.core.Result;
 import org.apache.hop.core.annotations.Action;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.action.ActionBase;
 import org.apache.hop.workflow.action.IAction;
@@ -82,7 +83,7 @@ public class EndRepeat extends ActionBase implements IAction, Cloneable {
     return xml.toString();
   }
 
-  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider)
+  public void loadXml( Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables )
       throws HopXmlException {
     try {
       super.loadXml(actionNode);

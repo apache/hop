@@ -1,30 +1,26 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.transforms.window;
 
 import org.apache.hop.beam.core.BeamDefaults;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -53,8 +49,8 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
   private TextVar wEndTimeField;
   private TextVar wMaxTimeField;
 
-  public BeamWindowDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public BeamWindowDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (BeamWindowMeta) in;
   }
 
@@ -123,7 +119,7 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     fdlDuration.top = new FormAttachment( lastControl, margin );
     fdlDuration.right = new FormAttachment( middle, -margin );
     wlDuration.setLayoutData( fdlDuration );
-    wDuration = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDuration = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDuration );
     FormData fdDuration = new FormData();
     fdDuration.left = new FormAttachment( middle, 0 );
@@ -140,7 +136,7 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     fdlEvery.top = new FormAttachment( lastControl, margin );
     fdlEvery.right = new FormAttachment( middle, -margin );
     wlEvery.setLayoutData( fdlEvery );
-    wEvery = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEvery = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEvery );
     FormData fdEvery = new FormData();
     fdEvery.left = new FormAttachment( middle, 0 );
@@ -158,7 +154,7 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     fdlStartTimeField.top = new FormAttachment( lastControl, margin );
     fdlStartTimeField.right = new FormAttachment( middle, -margin );
     wlStartTimeField.setLayoutData( fdlStartTimeField );
-    wStartTimeField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wStartTimeField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wStartTimeField );
     FormData fdStartTimeField = new FormData();
     fdStartTimeField.left = new FormAttachment( middle, 0 );
@@ -175,7 +171,7 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     fdlEndTimeField.top = new FormAttachment( lastControl, margin );
     fdlEndTimeField.right = new FormAttachment( middle, -margin );
     wlEndTimeField.setLayoutData( fdlEndTimeField );
-    wEndTimeField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEndTimeField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEndTimeField );
     FormData fdEndTimeField = new FormData();
     fdEndTimeField.left = new FormAttachment( middle, 0 );
@@ -192,7 +188,7 @@ public class BeamWindowDialog extends BaseTransformDialog implements ITransformD
     fdlMaxTimeField.top = new FormAttachment( lastControl, margin );
     fdlMaxTimeField.right = new FormAttachment( middle, -margin );
     wlMaxTimeField.setLayoutData( fdlMaxTimeField );
-    wMaxTimeField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaxTimeField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMaxTimeField );
     FormData fdMaxTimeField = new FormData();
     fdMaxTimeField.left = new FormAttachment( middle, 0 );

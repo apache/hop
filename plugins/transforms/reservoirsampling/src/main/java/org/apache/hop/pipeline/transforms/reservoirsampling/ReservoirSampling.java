@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.reservoirsampling;
 
@@ -28,10 +22,8 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
-import org.apache.hop.pipeline.transform.ITransformData;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
-import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transforms.reservoirsampling.ReservoirSamplingData.PROC_MODE;
 
 import java.util.Arrays;
@@ -54,7 +46,8 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
    * 1985. Pages 37-57.
    *
    * @param transformMeta          holds the transform's meta data
-   * @param ReservoirSamplingData holds the transform's temporary data
+   * @param meta
+   * @param data holds the transform's temporary data
    * @param copyNr            the number assigned to the transform
    * @param pipelineMeta         meta data for the pipeline
    * @param pipeline             a <code>Pipeline</code> value
@@ -91,8 +84,8 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
 
       // Initialize the data object
       data.setOutputRowMeta( getInputRowMeta().clone() );
-      String sampleSize = getPipelineMeta().environmentSubstitute( meta.getSampleSize() );
-      String seed = getPipelineMeta().environmentSubstitute( meta.getSeed() );
+      String sampleSize = resolve( meta.getSampleSize() );
+      String seed = resolve( meta.getSeed() );
       data.initialize( Integer.valueOf( sampleSize ), Integer.valueOf( seed ) );
 
       // no real reason to determine the output fields here
@@ -114,7 +107,7 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
         int numRows = ( samples != null ) ? samples.size() : 0;
         logBasic( this.getTransformName()
           + " Actual/Sample: " + numRows + "/" + data.m_k + " Seed:"
-          + getPipelineMeta().environmentSubstitute( meta.m_randomSeed ) );
+          + resolve( meta.m_randomSeed ) );
         if ( samples != null ) {
           for ( int i = 0; i < samples.size(); i++ ) {
             Object[] sample = samples.get( i );
@@ -151,8 +144,6 @@ public class ReservoirSampling extends BaseTransform<ReservoirSamplingMeta, Rese
   /**
    * Initialize the transform.
    *
-   * @param smi a <code>ITransform</code> value
-   * @param sdi a <code>ITransformData</code> value
    * @return a <code>boolean</code> value
    */
   public boolean init() {

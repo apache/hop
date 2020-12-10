@@ -18,6 +18,7 @@
 package org.apache.hop.pipeline.transforms.streamschemamerge;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -55,8 +56,8 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 	private TableView wTransforms;
 	private FormData fdlTransforms, fdTransforms;
 
-	public StreamSchemaDialog(Shell parent, Object in, PipelineMeta pipelineMeta, String transformName) {
-		super(parent, (BaseTransformMeta)in, pipelineMeta, transformName);
+	public StreamSchemaDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String transformName) {
+		super(parent, variables, (BaseTransformMeta)in, pipelineMeta, transformName );
 		meta = (StreamSchemaMeta)in;
 	}
 
@@ -156,7 +157,7 @@ public class StreamSchemaDialog extends BaseTransformDialog implements ITransfor
 
 		wTransforms =
 				new TableView(
-						pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+						variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
 		fdTransforms = new FormData();
 		fdTransforms.left = new FormAttachment( 0, 0 );

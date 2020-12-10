@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.mssqlbulkload;
 
@@ -226,7 +220,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlSchemaname.top = new FormAttachment( wConnection, margin );
     wlSchemaname.setLayoutData(fdlSchemaname);
 
-    wSchemaname = new TextVar( workflowMeta, wConnectionGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( variables, wConnectionGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
@@ -259,7 +253,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       }
     } );
 
-    wTablename = new TextVar( workflowMeta, wConnectionGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablename = new TextVar( variables, wConnectionGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTablename );
     wTablename.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Tablename.Tooltip" ) );
     wTablename.addModifyListener( lsMod );
@@ -333,7 +327,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdbFilename.top = new FormAttachment(wConnectionGroup, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( workflowMeta, wDataFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wDataFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Filename.Tooltip" ) );
     wFilename.addModifyListener( lsMod );
@@ -344,9 +338,9 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*.txt", "*.csv", "*" }, FILETYPES, true )
     );
 
@@ -399,7 +393,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlFieldTerminator.top = new FormAttachment(wDataFileGroup, 3 * margin );
     wlFieldTerminator.setLayoutData(fdlFieldTerminator);
 
-    wFieldTerminator = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFieldTerminator = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFieldTerminator );
     wFieldTerminator.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.FieldTerminator.Tooltip" ) );
     wFieldTerminator.addModifyListener( lsMod );
@@ -420,7 +414,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlLineterminated.top = new FormAttachment( wFieldTerminator, margin );
     wlLineterminated.setLayoutData(fdlLineterminated);
 
-    wLineterminated = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLineterminated = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLineterminated );
     wLineterminated.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Lineterminated.Tooltip" ) );
     wLineterminated.addModifyListener( lsMod );
@@ -500,7 +494,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlSpecificCodePage.top = new FormAttachment( wCodePage, margin );
     wlSpecificCodePage.setLayoutData(fdlSpecificCodePage);
 
-    wSpecificCodePage = new TextVar( workflowMeta, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSpecificCodePage = new TextVar( variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSpecificCodePage );
     wSpecificCodePage.addModifyListener( lsMod );
     FormData fdSpecificCodePage = new FormData();
@@ -527,7 +521,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdbFormatFilename.top = new FormAttachment( wSpecificCodePage, 0 );
     wbFormatFilename.setLayoutData(fdbFormatFilename);
 
-    wFormatFilename = new TextVar( workflowMeta, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFormatFilename = new TextVar( variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFormatFilename );
     wFormatFilename.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.FormatFilename.Tooltip" ) );
     wFormatFilename.addModifyListener( lsMod );
@@ -538,9 +532,9 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wFormatFilename.setLayoutData(fdFormatFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFormatFilename.addModifyListener( e -> wFormatFilename.setToolTipText( workflowMeta.environmentSubstitute( wFormatFilename.getText() ) ) );
+    wFormatFilename.addModifyListener( e -> wFormatFilename.setToolTipText( variables.resolve( wFormatFilename.getText() ) ) );
 
-    wbFormatFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFormatFilename, workflowMeta,
+    wbFormatFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFormatFilename, variables,
       new String[] { "*.txt", "*.csv", "*" }, FILETYPES, true )
     );
 
@@ -675,7 +669,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlStartFile.top = new FormAttachment( wTablock, margin );
     wlStartFile.setLayoutData(fdlStartFile);
 
-    wStartFile = new TextVar( workflowMeta, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wStartFile = new TextVar( variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wStartFile );
     wStartFile.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.StartFile.Tooltip" ) );
     wStartFile.addModifyListener( lsMod );
@@ -696,7 +690,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlEndFile.top = new FormAttachment( wStartFile, margin );
     wlEndFile.setLayoutData(fdlEndFile);
 
-    wEndFile = new TextVar( workflowMeta, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEndFile = new TextVar( variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEndFile );
     wEndFile.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.EndFile.Tooltip" ) );
     wEndFile.addModifyListener( lsMod );
@@ -730,7 +724,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       }
     } );
 
-    wOrderBy = new TextVar( workflowMeta, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wOrderBy = new TextVar( variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wOrderBy );
     wOrderBy.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.OrderBy.Tooltip" ) );
     wOrderBy.addModifyListener( lsMod );
@@ -780,7 +774,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdbErrorFilename.top = new FormAttachment( wOrderDirection, 0 );
     wbErrorFilename.setLayoutData(fdbErrorFilename);
 
-    wErrorFilename = new TextVar( workflowMeta, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wErrorFilename = new TextVar( variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrorFilename );
     wErrorFilename.addModifyListener( lsMod );
     wErrorFilename.setToolTipText( BaseMessages.getString( PKG, "JobMysqlBulkLoad.ErrorFilename.Tooltip" ) );
@@ -791,8 +785,8 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     wErrorFilename.setLayoutData(fdErrorFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wErrorFilename.addModifyListener( e -> wErrorFilename.setToolTipText( workflowMeta.environmentSubstitute( wErrorFilename.getText() ) ) );
-    wbErrorFilename.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wErrorFilename, workflowMeta ) );
+    wErrorFilename.addModifyListener( e -> wErrorFilename.setToolTipText( variables.resolve( wErrorFilename.getText() ) ) );
+    wbErrorFilename.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wErrorFilename, variables ) );
 
     // Add Date time
     // Add Datetime
@@ -829,7 +823,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlMaxErrors.top = new FormAttachment( wAddDateTime, margin );
     wlMaxErrors.setLayoutData(fdlMaxErrors);
 
-    wMaxErrors = new TextVar( workflowMeta, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMaxErrors = new TextVar( variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMaxErrors );
     wlMaxErrors.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.MaxErrors.Tooltip" ) );
     wMaxErrors.addModifyListener( lsMod );
@@ -850,7 +844,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlBatchSize.top = new FormAttachment( wMaxErrors, margin );
     wlBatchSize.setLayoutData(fdlBatchSize);
 
-    wBatchSize = new TextVar( workflowMeta, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBatchSize = new TextVar( variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBatchSize );
     wBatchSize.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.BatchSize.Tooltip" ) );
     wBatchSize.addModifyListener( lsMod );
@@ -871,7 +865,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
     fdlRowsPerBatch.top = new FormAttachment( wBatchSize, margin );
     wlRowsPerBatch.setLayoutData(fdlRowsPerBatch);
 
-    wRowsPerBatch = new TextVar( workflowMeta, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowsPerBatch = new TextVar( variables, wAdvancedComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRowsPerBatch );
     wRowsPerBatch.setToolTipText( BaseMessages.getString( PKG, "JobMssqlBulkLoad.RowsPerBatch.Label" ) );
     wRowsPerBatch.addModifyListener( lsMod );
@@ -1162,7 +1156,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
         
     DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( connectionName );
     if ( databaseMeta != null ) {
-      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
+      DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases() );
       std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
       if ( std.open() ) {
         wTablename.setText( Const.NVL( std.getTableName(), "" ) );
@@ -1183,7 +1177,7 @@ public class ActionMssqlBulkLoadDialog extends ActionDialog implements IActionDi
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
         Database database = new Database( loggingObject, databaseMeta );
-        database.shareVariablesWith( getWorkflowMeta() );
+        database.shareWith( variables );
         try {
           database.connect();
           IRowMeta row =

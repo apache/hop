@@ -1,29 +1,26 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.base;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang.StringUtils;
+import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.parameters.INamedParameters;
 import org.apache.hop.server.HopServer;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.IAttributes;
@@ -34,7 +31,6 @@ import org.apache.hop.core.changed.IChanged;
 import org.apache.hop.core.changed.IHopObserver;
 import org.apache.hop.core.database.DatabaseMeta;
 import org.apache.hop.core.exception.HopException;
-import org.apache.hop.core.exception.HopValueException;
 import org.apache.hop.core.gui.IUndo;
 import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.listeners.IContentChangedListener;
@@ -45,15 +41,11 @@ import org.apache.hop.core.logging.DefaultLogLevel;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.INamedParams;
-import org.apache.hop.core.parameters.NamedParamsDefault;
+import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.row.IRowMeta;
-import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.undo.ChangeAction;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 
 import java.util.ArrayList;
@@ -66,7 +58,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngineMeta, INamedParams, IAttributes, ILoggingObject {
+public abstract class AbstractMeta implements IChanged, IUndo, IEngineMeta, INamedParameterDefinitions, IAttributes, ILoggingObject {
 
   /**
    * Constant = 1
@@ -100,13 +92,13 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
 
   protected String filename;
 
-  protected Set<INameChangedListener> nameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<INameChangedListener, Boolean>() );
+  protected Set<INameChangedListener> nameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
-  protected Set<IFilenameChangedListener> filenameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<IFilenameChangedListener, Boolean>() );
+  protected Set<IFilenameChangedListener> filenameChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
-  protected Set<IContentChangedListener> contentChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<IContentChangedListener, Boolean>() );
+  protected Set<IContentChangedListener> contentChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
-  protected Set<ICurrentDirectoryChangedListener> currentDirectoryChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<ICurrentDirectoryChangedListener, Boolean>() );
+  protected Set<ICurrentDirectoryChangedListener> currentDirectoryChangedListeners = Collections.newSetFromMap( new ConcurrentHashMap<>() );
 
   protected List<NotePadMeta> notes;
 
@@ -116,9 +108,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
 
   protected Map<String, Map<String, String>> attributesMap;
 
-  protected IVariables variables = new Variables();
-
-  protected INamedParams namedParams = new NamedParamsDefault();
+  protected INamedParameters namedParams = new NamedParameters();
 
   protected LogLevel logLevel = DefaultLogLevel.getLogLevel();
 
@@ -224,7 +214,6 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
   public void setName( String newName ) {
     fireNameChangedListeners( this.name, newName );
     this.name = newName;
-    setInternalNameHopVariable( variables );
   }
 
   /**
@@ -309,16 +298,8 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
   public void setFilename( String newFilename ) {
     fireFilenameChangedListeners( this.filename, newFilename );
     this.filename = newFilename;
-    setInternalFilenameHopVariables( variables );
   }
 
-  /**
-   * Calls setInternalHopVariables on the default object.
-   */
-  @Override
-  public void setInternalHopVariables() {
-    setInternalHopVariables( variables );
-  }
 
   /**
    * This method sets various internal hop variables.
@@ -344,7 +325,6 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
     }
     try {
       DatabaseMeta databaseMeta = metadataProvider.getSerializer( DatabaseMeta.class ).load( name );
-      databaseMeta.initializeVariablesFrom( this );
       return databaseMeta;
     } catch ( HopException e ) {
       throw new RuntimeException( "Unable to load database with name '" + name + "' from the metadata", e );
@@ -833,7 +813,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
    * @return A list of all the selected notes.
    */
   public List<NotePadMeta> getSelectedNotes() {
-    List<NotePadMeta> selection = new ArrayList<NotePadMeta>();
+    List<NotePadMeta> selection = new ArrayList<>();
     for ( NotePadMeta note : notes ) {
       if ( note.isSelected() ) {
         selection.add( note );
@@ -970,151 +950,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.variables.IVariables#copyVariablesFrom(org.apache.hop.core.variables.IVariables)
-   */
-
-  @Override
-  public void copyVariablesFrom( IVariables variables ) {
-    this.variables.copyVariablesFrom( variables );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String)
-   */
-  @Override
-  public String environmentSubstitute( String aString ) {
-    return variables.environmentSubstitute( aString );
-  }
-
-  /*
-   * (non-javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#environmentSubstitute(java.lang.String[])
-   */
-  @Override
-  public String[] environmentSubstitute( String[] aString ) {
-    return variables.environmentSubstitute( aString );
-  }
-
-  @Override
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
-    return variables.fieldSubstitute( aString, rowMeta, rowData );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#getParentVariableSpace()
-   */
-  @Override
-  public IVariables getParentVariableSpace() {
-    return variables.getParentVariableSpace();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.apache.hop.core.variables.IVariables#setParentVariableSpace(org.apache.hop.core.variables.IVariables)
-   */
-  @Override
-  public void setParentVariableSpace( IVariables parent ) {
-    variables.setParentVariableSpace( parent );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#getVariable(java.lang.String, java.lang.String)
-   */
-  @Override
-  public String getVariable( String variableName, String defaultValue ) {
-    return variables.getVariable( variableName, defaultValue );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#getVariable(java.lang.String)
-   */
-  @Override
-  public String getVariable( String variableName ) {
-    return variables.getVariable( variableName );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
-   */
-  @Override
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
-    if ( !Utils.isEmpty( variableName ) ) {
-      String value = environmentSubstitute( variableName );
-      if ( !Utils.isEmpty( value ) ) {
-        return ValueMetaString.convertStringToBoolean( value );
-      }
-    }
-    return defaultValue;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see
-   * org.apache.hop.core.variables.IVariables#initializeVariablesFrom(org.apache.hop.core.variables.IVariables)
-   */
-  @Override
-  public void initializeVariablesFrom( IVariables parent ) {
-    variables.initializeVariablesFrom( parent );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#listVariables()
-   */
-  @Override
-  public String[] listVariables() {
-    return variables.listVariables();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#setVariable(java.lang.String, java.lang.String)
-   */
-  @Override
-  public void setVariable( String variableName, String variableValue ) {
-    variables.setVariable( variableName, variableValue );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#shareVariablesWith(org.apache.hop.core.variables.IVariables)
-   */
-  @Override
-  public void shareVariablesWith( IVariables variables ) {
-    this.variables = variables;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.variables.IVariables#injectVariables(java.util.Map)
-   */
-  @Override
-  public void injectVariables( Map<String, String> prop ) {
-    variables.injectVariables( prop );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#addParameterDefinition(java.lang.String, java.lang.String,
+   * @see org.apache.hop.core.parameters.INamedParameters#addParameterDefinition(java.lang.String, java.lang.String,
    * java.lang.String)
    */
   @Override
@@ -1125,7 +961,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDescription(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterDescription(java.lang.String)
    */
   @Override
   public String getParameterDescription( String key ) throws UnknownParamException {
@@ -1135,7 +971,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDefault(java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#getParameterDefault(java.lang.String)
    */
   @Override
   public String getParameterDefault( String key ) throws UnknownParamException {
@@ -1145,17 +981,7 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterValue(java.lang.String)
-   */
-  @Override
-  public String getParameterValue( String key ) throws UnknownParamException {
-    return namedParams.getParameterValue( key );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#listParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#listParameters()
    */
   @Override
   public String[] listParameters() {
@@ -1165,80 +991,11 @@ public abstract class AbstractMeta implements IChanged, IUndo, IVariables, IEngi
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#setParameterValue(java.lang.String, java.lang.String)
+   * @see org.apache.hop.core.parameters.INamedParameters#eraseParameters()
    */
   @Override
-  public void setParameterValue( String key, String value ) throws UnknownParamException {
-    namedParams.setParameterValue( key, value );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#eraseParameters()
-   */
-  @Override
-  public void eraseParameters() {
-    namedParams.eraseParameters();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#clearParameters()
-   */
-  @Override
-  public void clearParameters() {
-    namedParams.clearParameters();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#copyParametersFrom(org.apache.hop.core.parameters.INamedParams)
-   */
-  @Override
-  public void copyParametersFrom( INamedParams params ) {
-    namedParams.copyParametersFrom( params );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#mergeParametersWith(org.apache.hop.core.parameters.INamedParams, boolean replace)
-   */
-  @Override
-  public void mergeParametersWith( INamedParams params, boolean replace ) {
-    namedParams.mergeParametersWith( params, replace );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#activateParameters()
-   */
-  @Override
-  public void activateParameters() {
-    String[] keys = listParameters();
-
-    for ( String key : keys ) {
-      String value;
-      try {
-        value = getParameterValue( key );
-      } catch ( UnknownParamException e ) {
-        value = "";
-      }
-      String defValue;
-      try {
-        defValue = getParameterDefault( key );
-      } catch ( UnknownParamException e ) {
-        defValue = "";
-      }
-
-      // Set the variable of "" if no value or default value was found.
-      //
-      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
-    }
+  public void removeAllParameters() {
+    namedParams.removeAllParameters();
   }
 
   /*

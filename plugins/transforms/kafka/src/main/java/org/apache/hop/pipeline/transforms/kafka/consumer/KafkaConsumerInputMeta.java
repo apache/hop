@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.kafka.consumer;
 
@@ -145,7 +140,7 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
   // Describe the standard way of retrieving mappings
   //
   @FunctionalInterface interface MappingMetaRetriever {
-    PipelineMeta get( TransformWithMappingMeta mappingMeta, IHopMetadataProvider metadataProvider, IVariables space )
+    PipelineMeta get( TransformWithMappingMeta mappingMeta, IHopMetadataProvider metadataProvider, IVariables variables )
       throws HopException;
   }
 
@@ -251,22 +246,22 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
     batchDuration = "1000";
   }
 
-  public RowMeta getRowMeta( String origin, IVariables space ) throws HopTransformException {
+  public RowMeta getRowMeta( String origin, IVariables variables ) throws HopTransformException {
     RowMeta rowMeta = new RowMeta();
-    putFieldOnRowMeta( getKeyField(), rowMeta, origin, space );
-    putFieldOnRowMeta( getMessageField(), rowMeta, origin, space );
-    putFieldOnRowMeta( getTopicField(), rowMeta, origin, space );
-    putFieldOnRowMeta( getPartitionField(), rowMeta, origin, space );
-    putFieldOnRowMeta( getOffsetField(), rowMeta, origin, space );
-    putFieldOnRowMeta( getTimestampField(), rowMeta, origin, space );
+    putFieldOnRowMeta( getKeyField(), rowMeta, origin, variables );
+    putFieldOnRowMeta( getMessageField(), rowMeta, origin, variables );
+    putFieldOnRowMeta( getTopicField(), rowMeta, origin, variables );
+    putFieldOnRowMeta( getPartitionField(), rowMeta, origin, variables );
+    putFieldOnRowMeta( getOffsetField(), rowMeta, origin, variables );
+    putFieldOnRowMeta( getTimestampField(), rowMeta, origin, variables );
     return rowMeta;
   }
 
   private void putFieldOnRowMeta( KafkaConsumerField field, IRowMeta rowMeta,
-                                  String origin, IVariables space ) throws HopTransformException {
+                                  String origin, IVariables variables ) throws HopTransformException {
     if ( field != null && !StringUtils.isEmpty( field.getOutputName() ) ) {
       try {
-        String value = space.environmentSubstitute( field.getOutputName() );
+        String value = variables.resolve( field.getOutputName() );
         IValueMeta v = ValueMetaFactory.createValueMeta( value,
           field.getOutputType().getIValueMetaType() );
         v.setOrigin( origin );
@@ -366,18 +361,18 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
 
 
   @Override public void getFields( IRowMeta rowMeta, String origin, IRowMeta[] info, TransformMeta nextTransform,
-                                   IVariables space, IHopMetadataProvider metadataProvider )
+                                   IVariables variables, IHopMetadataProvider metadataProvider )
     throws HopTransformException {
     try {
-      PipelineMeta pipelineMeta = mappingMetaRetriever.get( this, metadataProvider, space );
+      PipelineMeta pipelineMeta = mappingMetaRetriever.get( this, metadataProvider, variables );
       if ( !StringUtils.isEmpty( getSubTransform() ) ) {
-        String realSubTransformName = space.environmentSubstitute( getSubTransform() );
-        rowMeta.addRowMeta( pipelineMeta.getPrevTransformFields( realSubTransformName ) );
+        String realSubTransformName = variables.resolve( getSubTransform() );
+        rowMeta.addRowMeta( pipelineMeta.getPrevTransformFields( variables, realSubTransformName ) );
         pipelineMeta.getTransforms().stream().filter( transformMeta -> transformMeta.getName().equals( realSubTransformName ) )
           .findFirst()
-          .ifPresent( stepMeta -> {
+          .ifPresent( transformMeta -> {
             try {
-              stepMeta.getTransform().getFields( rowMeta, origin, info, nextTransform, space, metadataProvider );
+              transformMeta.getTransform().getFields( rowMeta, origin, info, nextTransform, variables, metadataProvider );
             } catch ( HopTransformException e ) {
               throw new RuntimeException( e );
             }
@@ -385,7 +380,7 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
       }
     } catch ( HopException e ) {
       getLog().logDebug( "could not get fields, probable AEL" );
-      rowMeta.addRowMeta( getRowMeta( origin, space ) );
+      rowMeta.addRowMeta( getRowMeta( origin, variables ) );
     }
   }
 
@@ -394,7 +389,7 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
                      IRowMeta info, IVariables variables, IHopMetadataProvider metadataProvider ) {
     long duration = Long.MIN_VALUE;
     try {
-      duration = Long.parseLong( variables.environmentSubstitute( getBatchDuration() ) );
+      duration = Long.parseLong( variables.resolve( getBatchDuration() ) );
     } catch ( NumberFormatException e ) {
       remarks.add( new CheckResult(
         ICheckResult.TYPE_RESULT_ERROR,
@@ -404,7 +399,7 @@ public class KafkaConsumerInputMeta extends TransformWithMappingMeta<KafkaConsum
 
     long size = Long.MIN_VALUE;
     try {
-      size = Long.parseLong( variables.environmentSubstitute( getBatchSize() ) );
+      size = Long.parseLong( variables.resolve( getBatchSize() ) );
     } catch ( NumberFormatException e ) {
       remarks.add( new CheckResult(
         ICheckResult.TYPE_RESULT_ERROR,

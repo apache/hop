@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.update;
 
@@ -78,7 +72,6 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     Map<String, String> vars = new HashMap<>();
     vars.put( "max.sz", "10" );
-    pipelineMeta.injectVariables( vars );
 
     umi = new UpdateMeta();
     ud = new UpdateData();
@@ -88,12 +81,12 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
 
     transformMeta = new TransformMeta( deletePid, "delete", umi );
     Pipeline pipeline = new LocalPipelineEngine( pipelineMeta );
+    pipeline.setVariables( vars );
     pipelineMeta.addTransform( transformMeta );
     mockHelper = new TransformMockHelper<>( "Update", UpdateMeta.class, UpdateData.class );
     Mockito.when( mockHelper.logChannelFactory.create( Mockito.any(), Mockito.any( ILoggingObject.class ) ) ).thenReturn( mockHelper.iLogChannel );
 
     upd = new Update( transformMeta, umi, ud, 1, pipelineMeta, pipeline );
-    upd.copyVariablesFrom( pipelineMeta );
 
     List<String> attributes =
       Arrays.asList( "schemaName", "tableName", "commitSize", "errorIgnored", "ignoreFlagField",
@@ -137,10 +130,10 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
       }
     };
     IFieldLoadSaveValidator<String[]> stringArrayLoadSaveValidator =
-      new ArrayLoadSaveValidator<String>( new StringLoadSaveValidator(), 5 );
+      new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), 5 );
 
 
-    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attrValidatorMap = new HashMap<>();
     attrValidatorMap.put( "keyStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyLookup", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "keyCondition", stringArrayLoadSaveValidator );
@@ -149,7 +142,7 @@ public class UpdateMetaTest implements IInitializer<ITransformMeta> {
     attrValidatorMap.put( "updateStream", stringArrayLoadSaveValidator );
     attrValidatorMap.put( "databaseMeta", new DatabaseMetaLoadSaveValidator() );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeValidatorMap = new HashMap<>();
 
     loadSaveTester =
       new LoadSaveTester( testMetaClass, attributes, new ArrayList<>(),

@@ -1,30 +1,26 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.lineage;
 
 import org.apache.hop.core.exception.HopTransformException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
@@ -54,7 +50,7 @@ public class PipelineDataLineage {
 
   public PipelineDataLineage( PipelineMeta pipelineMeta ) {
     this.pipelineMeta = pipelineMeta;
-    this.valueLineages = new ArrayList<ValueLineage>();
+    this.valueLineages = new ArrayList<>();
   }
 
   public PipelineMeta getPipelineMeta() {
@@ -85,7 +81,7 @@ public class PipelineDataLineage {
    * @throws HopTransformException In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
    *                          etc.
    */
-  public void calculateLineage() throws HopTransformException {
+  public void calculateLineage(IVariables variables) throws HopTransformException {
 
     // After sorting the transforms we get a map of all the previous transforms of a certain transform.
     //
@@ -94,9 +90,9 @@ public class PipelineDataLineage {
     // However, the we need a sorted list of previous transforms per transform, not a map.
     // So lets sort the maps, turn them into lists...
     //
-    Map<TransformMeta, List<TransformMeta>> previousTransformListMap = new HashMap<TransformMeta, List<TransformMeta>>();
+    Map<TransformMeta, List<TransformMeta>> previousTransformListMap = new HashMap<>();
     for ( TransformMeta transformMeta : transformMap.keySet() ) {
-      List<TransformMeta> previousTransforms = new ArrayList<TransformMeta>();
+      List<TransformMeta> previousTransforms = new ArrayList<>();
       previousTransformListMap.put( transformMeta, previousTransforms );
 
       previousTransforms.addAll( transformMap.get( transformMeta ).keySet() );
@@ -118,11 +114,11 @@ public class PipelineDataLineage {
       } );
     }
 
-    fieldTransformsMap = new HashMap<IValueMeta, List<TransformMeta>>();
+    fieldTransformsMap = new HashMap<>();
 
     List<TransformMeta> usedTransforms = pipelineMeta.getUsedTransforms();
     for ( TransformMeta transformMeta : usedTransforms ) {
-      calculateLineage( transformMeta );
+      calculateLineage( variables, transformMeta );
     }
   }
 
@@ -133,8 +129,8 @@ public class PipelineDataLineage {
    * @throws HopTransformException In case there is an exception calculating the lineage. This is usually caused by unavailable data sources
    *                          etc.
    */
-  private void calculateLineage( TransformMeta transformMeta ) throws HopTransformException {
-    IRowMeta outputMeta = pipelineMeta.getTransformFields( transformMeta );
+  private void calculateLineage( IVariables variables, TransformMeta transformMeta ) throws HopTransformException {
+    IRowMeta outputMeta = pipelineMeta.getTransformFields( variables, transformMeta );
 
     // The lineage is basically a calculation of origin for each output of a certain transform.
     //

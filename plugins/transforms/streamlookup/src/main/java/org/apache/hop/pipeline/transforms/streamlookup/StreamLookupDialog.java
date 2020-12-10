@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.streamlookup;
 
@@ -48,6 +42,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class StreamLookupDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = StreamLookupMeta.class; // Needed by Translator
@@ -72,8 +67,8 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
 
   private ColumnInfo[] ciReturn;
 
-  public StreamLookupDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public StreamLookupDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (StreamLookupMeta) in;
   }
 
@@ -190,7 +185,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
         BaseMessages.getString( PKG, "StreamLookupDialog.ColumnInfo.LookupField" ),
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
 
-    wKey = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
+    wKey = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrKeyRows, lsMod, props );
 
     FormData fdKey = new FormData();
@@ -305,7 +300,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
 
     wReturn =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
     FormData fdReturn = new FormData();
@@ -359,7 +354,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
           Map<String, Integer> prevFields = new HashMap<>();
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -394,7 +389,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
       TransformMeta lookupTransformMeta = pipelineMeta.findTransform( wTransform.getText() );
       if ( lookupTransformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getTransformFields( lookupTransformMeta );
+          IRowMeta row = pipelineMeta.getTransformFields( variables, lookupTransformMeta );
           Map<String, Integer> lookupFields = new HashMap<>();
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -560,13 +555,13 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     }
 
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wKey, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
       } else {
         String transformFrom = wTransform.getText();
         if ( !Utils.isEmpty( transformFrom ) ) {
-          r = pipelineMeta.getTransformFields( transformFrom );
+          r = pipelineMeta.getTransformFields( variables, transformFrom );
           if ( r != null ) {
             BaseTransformDialog.getFieldsFromPrevious( r, wKey, 2, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
           } else {
@@ -593,7 +588,7 @@ public class StreamLookupDialog extends BaseTransformDialog implements ITransfor
     try {
       String transformFrom = wTransform.getText();
       if ( !Utils.isEmpty( transformFrom ) ) {
-        IRowMeta r = pipelineMeta.getTransformFields( transformFrom );
+        IRowMeta r = pipelineMeta.getTransformFields( variables, transformFrom );
         if ( r != null && !r.isEmpty() ) {
           BaseTransformDialog.getFieldsFromPrevious( r, wReturn, 1, new int[] { 1 }, new int[] { 4 }, -1, -1, null );
         } else {

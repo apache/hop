@@ -1,31 +1,26 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.ProgressMonitorAdapter;
 import org.apache.hop.core.SqlStatement;
 import org.apache.hop.core.exception.HopException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.ui.core.dialog.ErrorDialog;
@@ -47,14 +42,16 @@ public class GetWorkflowSqlProgressDialog {
   private static final Class<?> PKG = GetWorkflowSqlProgressDialog.class; // Needed by Translator
 
   private Shell shell;
+  private final IVariables variables;
   private WorkflowMeta workflowMeta;
   private List<SqlStatement> stats;
 
   /**
    * Creates a new dialog that will handle the wait while getting the SQL for a workflow...
    */
-  public GetWorkflowSqlProgressDialog( Shell shell, WorkflowMeta workflowMeta ) {
+  public GetWorkflowSqlProgressDialog( Shell shell, IVariables variables, WorkflowMeta workflowMeta ) {
     this.shell = shell;
+    this.variables = variables;
     this.workflowMeta = workflowMeta;
   }
 
@@ -66,7 +63,7 @@ public class GetWorkflowSqlProgressDialog {
       // --> don't set variables if not running in different thread --> pmd.run(true,true, op);
 
       try {
-        stats = workflowMeta.getSqlStatements( new ProgressMonitorAdapter( monitor ) );
+        stats = workflowMeta.getSqlStatements( new ProgressMonitorAdapter( monitor ), variables );
       } catch ( HopException e ) {
         throw new InvocationTargetException( e, BaseMessages.getString(
           PKG, "GetJobSQLProgressDialog.RuntimeError.UnableToGenerateSQL.Exception", e.getMessage() ) ); // Error

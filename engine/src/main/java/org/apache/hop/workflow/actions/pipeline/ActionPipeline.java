@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.pipeline;
 
@@ -36,8 +30,8 @@ import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.file.IHasFilename;
 import org.apache.hop.core.logging.LogChannelFileWriter;
 import org.apache.hop.core.logging.LogLevel;
-import org.apache.hop.core.parameters.INamedParams;
-import org.apache.hop.core.parameters.NamedParamsDefault;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
 import org.apache.hop.core.util.CurrentDirectoryResolver;
 import org.apache.hop.core.util.FileUtil;
@@ -185,7 +179,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @Override
   public String getRealFilename() {
-    return environmentSubstitute( getFilename() );
+    return resolve( getFilename() );
   }
 
   public String getLogFilename() {
@@ -262,8 +256,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
 
@@ -365,7 +358,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     if ( setLogfile ) {
       pipelineLogLevel = logFileLevel;
 
-      realLogFilename = environmentSubstitute( getLogFilename() );
+      realLogFilename = resolve( getLogFilename() );
 
       // We need to check here the log filename
       // if we do not have one, we must fail
@@ -396,7 +389,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       }
     }
 
-    logDetailed( BaseMessages.getString( PKG, "ActionPipeline.Log.OpeningPipeline", environmentSubstitute( getFilename() ) ) );
+    logDetailed( BaseMessages.getString( PKG, "ActionPipeline.Log.OpeningPipeline", resolve( getFilename() ) ) );
 
     // Load the pipeline only once for the complete loop!
     // Throws an exception if it was not possible to load the pipeline, for example if the XML file doesn't exist.
@@ -417,7 +410,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
     RowMetaAndData resultRow = null;
     boolean first = true;
-    List<RowMetaAndData> rows = new ArrayList<RowMetaAndData>( result.getRows() );
+    List<RowMetaAndData> rows = new ArrayList<>( result.getRows() );
 
     while ( ( first && !execPerRow )
       || ( execPerRow && rows != null && iteration < rows.size() && result.getNrErrors() == 0 )
@@ -434,7 +427,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         resultRow = null;
       }
 
-      INamedParams namedParam = new NamedParamsDefault();
+      INamedParameters namedParam = new NamedParameters();
       if ( parameters != null ) {
         for ( int idx = 0; idx < parameters.length; idx++ ) {
           if ( !Utils.isEmpty( parameters[ idx ] ) ) {
@@ -444,7 +437,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
             if ( Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
               // There is no field name specified.
               //
-              String value = Const.NVL( environmentSubstitute( parameterValues[ idx ] ), "" );
+              String value = Const.NVL( resolve( parameterValues[ idx ] ), "" );
               namedParam.setParameterValue( parameters[ idx ], value );
             } else {
               // something filled in, in the field column...
@@ -470,7 +463,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
         }
 
         if ( clearResultRows ) {
-          previousResult.setRows( new ArrayList<RowMetaAndData>() );
+          previousResult.setRows( new ArrayList<>() );
         }
 
         if ( clearResultFiles ) {
@@ -484,7 +477,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
           // Execute for each input row
 
           // Just pass a single row
-          List<RowMetaAndData> newList = new ArrayList<RowMetaAndData>();
+          List<RowMetaAndData> newList = new ArrayList<>();
           newList.add( resultRow );
 
           // This previous result rows list can be either empty or not.
@@ -504,7 +497,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
                   // We have a parameter
                   if ( Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
                     namedParam.setParameterValue( parameters[ idx ], Const.NVL(
-                      environmentSubstitute( parameterValues[ idx ] ), "" ) );
+                      resolve( parameterValues[ idx ] ), "" ) );
                   } else {
                     String fieldValue = "";
 
@@ -528,7 +521,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
                   // We have a parameter
                   if ( Utils.isEmpty( Const.trim( parameterFieldNames[ idx ] ) ) ) {
                     namedParam.setParameterValue( parameters[ idx ], Const.NVL(
-                      environmentSubstitute( parameterValues[ idx ] ), "" ) );
+                      resolve( parameterValues[ idx ] ), "" ) );
                   } else {
                     String fieldValue = "";
 
@@ -546,35 +539,40 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
         // Handle the parameters...
         //
-        pipelineMeta.clearParameters();
         String[] parameterNames = pipelineMeta.listParameters();
 
         prepareFieldNamesParameters( parameters, parameterFieldNames, parameterValues, namedParam, this );
-
-        TransformWithMappingMeta.activateParams( pipelineMeta, pipelineMeta, this, parameterNames, parameters, parameterValues, isPassingAllParameters() );
 
         if ( StringUtils.isEmpty( runConfiguration ) ) {
           throw new HopException( "This action needs a run configuration to use to execute the specified pipeline" );
         }
 
-        runConfiguration = environmentSubstitute( runConfiguration );
+        runConfiguration = resolve( runConfiguration );
         log.logBasic( BaseMessages.getString( PKG, "ActionPipeline.RunConfig.Message", runConfiguration ));
 
         // Create the pipeline from meta-data
         //
-        pipeline = PipelineEngineFactory.createPipelineEngine( runConfiguration, metadataProvider, pipelineMeta );
+        pipeline = PipelineEngineFactory.createPipelineEngine( this, runConfiguration, metadataProvider, pipelineMeta );
         pipeline.setParent( this );
-
 
         // set the parent workflow on the pipeline, variables are taken from here...
         //
         pipeline.setParentWorkflow( parentWorkflow );
-        pipeline.setParentVariableSpace( parentWorkflow );
+        pipeline.setParentVariables( parentWorkflow );
         pipeline.setLogLevel( pipelineLogLevel );
         pipeline.setPreviousResult( previousResult );
 
         // inject the metadataProvider
         pipeline.setMetadataProvider( metadataProvider );
+
+        // Handle parameters...
+        //
+        pipeline.initializeFrom( null );
+        pipeline.copyParametersFromDefinitions( pipelineMeta );
+
+        // Pass the parameter values and activate...
+        //
+        TransformWithMappingMeta.activateParams( pipeline, pipeline, this, parameterNames, parameters, parameterValues, isPassingAllParameters() );
 
         // First get the root workflow
         //
@@ -663,22 +661,11 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
       CurrentDirectoryResolver r = new CurrentDirectoryResolver();
       IVariables tmpSpace = r.resolveCurrentDirectory( variables, parentWorkflow, getFilename() );
 
-      String realFilename = tmpSpace.environmentSubstitute( getFilename() );
+      String realFilename = tmpSpace.resolve( getFilename() );
 
       pipelineMeta = new PipelineMeta( realFilename, metadataProvider, true, this );
 
       if ( pipelineMeta != null ) {
-        // set Internal.Entry.Current.Directory again because it was changed
-        pipelineMeta.setInternalHopVariables();
-        //  When the child parameter does exist in the parent parameters, overwrite the child parameter by the
-        // parent parameter.
-
-        TransformWithMappingMeta.replaceVariableValues( pipelineMeta, variables, "Pipeline" );
-        if ( isPassingAllParameters() ) {
-          // All other parent parameters need to get copied into the child parameters  (when the 'Inherit all
-          // variables from the pipeline?' option is checked)
-          TransformWithMappingMeta.addMissingVariables( pipelineMeta, variables );
-        }
         // Pass the metadata references
         //
         pipelineMeta.setMetadataProvider( metadataProvider );
@@ -705,10 +692,10 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @Override
   public List<SqlStatement> getSqlStatements( IHopMetadataProvider metadataProvider, IVariables variables ) throws HopException {
-    this.copyVariablesFrom( variables );
+    this.copyFrom( variables );
     PipelineMeta pipelineMeta = getPipelineMeta( metadataProvider, this );
 
-    return pipelineMeta.getSqlStatements();
+    return pipelineMeta.getSqlStatements(variables);
   }
 
   @Override
@@ -730,13 +717,13 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( filename ) ) {
-      // During this phase, the variable space hasn't been initialized yet - it seems
+      // During this phase, the variable variables hasn't been initialized yet - it seems
       // to happen during the execute. As such, we need to use the workflow meta's resolution
       // of the variables.
-      String realFileName = workflowMeta.environmentSubstitute( filename );
+      String realFileName = variables.resolve( filename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realFileName, ResourceType.ACTIONFILE ) );
       references.add( reference );
@@ -752,7 +739,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param variables       The variable space to resolve (environment) variables with.
+   * @param variables       The variable variables to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metadataProvider       the metadataProvider to load external metadata from
@@ -769,13 +756,13 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
     //
     // First load the pipeline metadata...
     //
-    copyVariablesFrom( variables );
+    copyFrom( variables );
     PipelineMeta pipelineMeta = getPipelineMeta( metadataProvider, variables );
 
     // Also go down into the pipeline and export the files there. (mapping recursively down)
     //
     String proposedNewFilename =
-      pipelineMeta.exportResources( pipelineMeta, definitions, namingInterface, metadataProvider );
+      pipelineMeta.exportResources( variables, definitions, namingInterface, metadataProvider );
 
     // To get a relative path to it, we inject ${Internal.Entry.Current.Directory}
     //
@@ -872,7 +859,7 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metadataProvider metadataProvider
-   * @param variables the variable space to use
+   * @param variables the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */
@@ -883,15 +870,11 @@ public class ActionPipeline extends ActionBase implements Cloneable, IAction {
 
   @Override
   public void setParentWorkflowMeta( WorkflowMeta parentWorkflowMeta ) {
-    WorkflowMeta previous = getParentWorkflowMeta();
     super.setParentWorkflowMeta( parentWorkflowMeta );
-    if ( parentWorkflowMeta != null ) {
-      variables.setParentVariableSpace( parentWorkflowMeta );
-    }
   }
 
   public void prepareFieldNamesParameters( String[] parameters, String[] parameterFieldNames, String[] parameterValues,
-                                           INamedParams namedParam, ActionPipeline actionPipeline )
+                                           INamedParameters namedParam, ActionPipeline actionPipeline )
     throws UnknownParamException {
     for ( int idx = 0; idx < parameters.length; idx++ ) {
       // Grab the parameter value set in the Pipeline action

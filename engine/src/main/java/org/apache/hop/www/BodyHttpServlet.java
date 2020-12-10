@@ -1,29 +1,25 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.www;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.PackageMessages;
 import org.owasp.encoder.Encode;
@@ -67,7 +63,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
         beginHtml( response, out );
       }
 
-      WebResult result = generateBody( request, response, useXML );
+      WebResult result = generateBody( request, response, useXML, variables);
       if ( result != null ) {
         out.println( result.getXml() );
       }
@@ -114,7 +110,7 @@ public abstract class BodyHttpServlet extends BaseHttpServlet implements IHopSer
     out.print( XmlHandler.getXmlHeader( Const.XML_ENCODING ) );
   }
 
-  abstract WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML )
+  abstract WebResult generateBody( HttpServletRequest request, HttpServletResponse response, boolean useXML, IVariables variables )
     throws Exception;
 
   @Override

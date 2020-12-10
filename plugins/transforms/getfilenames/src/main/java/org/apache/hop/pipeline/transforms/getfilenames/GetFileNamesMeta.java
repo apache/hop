@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.getfilenames;
 
@@ -531,7 +526,7 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
     row.addValueMeta( rooturi );
 
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       row.addValueMeta( v );
@@ -699,7 +694,7 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
       remarks.add( cr );
 
       // check specified file names
-      FileInputList fileList = getFileList( pipelineMeta );
+      FileInputList fileList = getFileList( variables );
       if ( fileList.nrOfFiles() == 0 ) {
         cr =
           new CheckResult( ICheckResult.TYPE_RESULT_ERROR, BaseMessages.getString(
@@ -714,12 +709,12 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
-    List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
-    ResourceReference reference = new ResourceReference( transformInfo );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
+    List<ResourceReference> references = new ArrayList<>( 5 );
+    ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
 
-    String[] files = getFilePaths( pipelineMeta );
+    String[] files = getFilePaths( variables );
     if ( files != null ) {
       for ( int i = 0; i < files.length; i++ ) {
         reference.getEntries().add( new ResourceEntry( files[ i ], ResourceType.FILE ) );
@@ -740,7 +735,7 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
   }
 
   /**
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
@@ -759,7 +754,7 @@ public class GetFileNamesMeta extends BaseTransformMeta implements ITransformMet
         // Replace the filename ONLY (folder or filename)
         //
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName[ i ] ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName[ i ] ) );
           fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }

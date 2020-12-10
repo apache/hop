@@ -29,7 +29,7 @@ public class SalesforceUpsertDataTest {
     SalesforceUpsertData data = new SalesforceUpsertData();
     assertNull( data.inputRowMeta );
     assertNull( data.outputRowMeta );
-    assertEquals( 0, data.nrfields );
+    assertEquals( 0, data.nrFields );
     assertNull( data.fieldnrs );
     assertNull( data.upsertResult );
     assertNull( data.sfBuffer );

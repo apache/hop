@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.xmloutput;
 
@@ -30,6 +24,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaBase;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -117,8 +112,8 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
   private final Map<String, Integer> inputFields;
 
-  public XmlOutputDialog(Shell parent, Object in, PipelineMeta transMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, transMeta, sname );
+  public XmlOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (XmlOutputMeta) in;
     inputFields = new HashMap<>();
   }
@@ -207,7 +202,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     fdbFilename.top = new FormAttachment( 0, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -272,7 +267,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     fdlExtension.top = new FormAttachment( wServletOutput, margin );
     fdlExtension.right = new FormAttachment( middle, -margin );
     wlExtension.setLayoutData(fdlExtension);
-    wExtension = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExtension = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wExtension.setText( "" );
     props.setLook( wExtension );
     wExtension.addModifyListener( lsMod );
@@ -407,7 +402,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
       public void widgetSelected( SelectionEvent e ) {
         XmlOutputMeta tfoi = new XmlOutputMeta();
         getInfo( tfoi );
-        String[] files = tfoi.getFiles( pipelineMeta );
+        String[] files = tfoi.getFiles( variables );
         if ( files != null && files.length > 0 ) {
           EnterSelectionDialog esd =
               new EnterSelectionDialog( shell, files, BaseMessages.getString( PKG,
@@ -515,10 +510,10 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     fdEncoding.right = new FormAttachment( 100, 0 );
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setEncodings();
@@ -694,7 +689,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
               false ) };
 
     wFields =
-        new TableView( pipelineMeta, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        new TableView( variables, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
             props );
 
     FormData fdFields = new FormData();
@@ -708,10 +703,10 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     // Search the fields in the background
 
     final Runnable runnable = () -> {
-      TransformMeta stepMeta = pipelineMeta.findTransform( transformName );
-      if ( stepMeta != null ) {
+      TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
+      if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( stepMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -758,14 +753,14 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
     wFilename.addSelectionListener( lsDef );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
     wbFilename.addSelectionListener(new SelectionAdapter() {
       public void widgetSelected( SelectionEvent e ) {
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
         dialog.setFilterExtensions( new String[] { "*.xml", "*.txt", "*.csv", "*" } );
         if ( wFilename.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
+          dialog.setFileName( variables.resolve( wFilename.getText() ) );
         }
         dialog.setFilterNames( new String[] { BaseMessages.getString( PKG, "System.FileType.XMLFiles" ),
           BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
@@ -1013,11 +1008,11 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
     // Table table = wFields.table;
 
-    int nrfields = wFields.nrNonEmpty();
+    int nrFields = wFields.nrNonEmpty();
 
-    xmlOutputMeta.allocate( nrfields );
+    xmlOutputMeta.allocate( nrFields );
 
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       XmlField field = new XmlField();
 
       TableItem item = wFields.getNonEmpty( i );
@@ -1056,7 +1051,7 @@ public class XmlOutputDialog extends BaseTransformDialog implements ITransformDi
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           tableItem.setText( 3, XmlField.ContentType.Element.name() );

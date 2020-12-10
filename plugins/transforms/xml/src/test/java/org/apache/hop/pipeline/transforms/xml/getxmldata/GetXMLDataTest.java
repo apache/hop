@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
-*
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
@@ -92,7 +86,7 @@ public class GetXMLDataTest extends TestCase {
   }
 
   public List<RowMetaAndData> createData() {
-    List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> list = new ArrayList<>();
 
     IRowMeta rm = createRowMetaInterface();
 
@@ -126,7 +120,7 @@ public class GetXMLDataTest extends TestCase {
    * @return list of metadata/data couples of how the result should look like.
    */
   public List<RowMetaAndData> createResultData1() {
-    List<RowMetaAndData> list = new ArrayList<RowMetaAndData>();
+    List<RowMetaAndData> list = new ArrayList<>();
 
     IRowMeta rm = createResultRowMetaInterface();
 
@@ -196,8 +190,8 @@ public class GetXMLDataTest extends TestCase {
     // Create a new transformation...
     //
 
-    PipelineMeta transMeta = new PipelineMeta();
-    transMeta.setName( "getxmldata1" );
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName( "getxmldata1" );
 
     PluginRegistry registry = PluginRegistry.getInstance();
 
@@ -210,7 +204,7 @@ public class GetXMLDataTest extends TestCase {
     // Set the information of the injector.
     String injectorPid = registry.getPluginId( TransformPluginType.class, im );
     TransformMeta injectorTransform = new TransformMeta( injectorPid, injectorTransformName, im );
-    transMeta.addTransform( injectorTransform );
+    pipelineMeta.addTransform( injectorTransform );
 
     //
     // Create a Get XML Data step
@@ -220,7 +214,7 @@ public class GetXMLDataTest extends TestCase {
 
     String getXMLDataPid = registry.getPluginId( TransformPluginType.class, gxdm );
     TransformMeta getXMLDataTransform = new TransformMeta( getXMLDataPid, getXMLDataName, gxdm );
-    transMeta.addTransform( getXMLDataTransform );
+    pipelineMeta.addTransform( getXMLDataTransform );
 
     GetXmlDataField[] fields = new GetXmlDataField[5];
 
@@ -296,7 +290,7 @@ public class GetXMLDataTest extends TestCase {
     gxdm.setInputFields( fields );
 
     PipelineHopMeta hi = new PipelineHopMeta( injectorTransform, getXMLDataTransform );
-    transMeta.addPipelineHop( hi );
+    pipelineMeta.addPipelineHop( hi );
 
     //
     // Create a dummy step 1
@@ -306,13 +300,13 @@ public class GetXMLDataTest extends TestCase {
 
     String dummyPid1 = registry.getPluginId( TransformPluginType.class, dm1 );
     TransformMeta dummyTransform1 = new TransformMeta( dummyPid1, dummyTransformName1, dm1 );
-    transMeta.addTransform( dummyTransform1 );
+    pipelineMeta.addTransform( dummyTransform1 );
 
     PipelineHopMeta hi1 = new PipelineHopMeta( getXMLDataTransform, dummyTransform1 );
-    transMeta.addPipelineHop( hi1 );
+    pipelineMeta.addPipelineHop( hi1 );
 
     // Now execute the transformation...
-    Pipeline trans = new LocalPipelineEngine( transMeta );
+    Pipeline trans = new LocalPipelineEngine( pipelineMeta );
 
     trans.prepareExecution();
 
@@ -348,8 +342,8 @@ public class GetXMLDataTest extends TestCase {
     //
     // Create a new transformation...
     //
-    PipelineMeta transMeta = new PipelineMeta();
-    transMeta.setName( "getxmldata1" );
+    PipelineMeta pipelineMeta = new PipelineMeta();
+    pipelineMeta.setName( "getxmldata1" );
 
     PluginRegistry registry = PluginRegistry.getInstance();
 
@@ -362,7 +356,7 @@ public class GetXMLDataTest extends TestCase {
     // Set the information of the injector.
     String injectorPid = registry.getPluginId( TransformPluginType.class, im );
     TransformMeta injectorTransform = new TransformMeta( injectorPid, injectorTransformName, im );
-    transMeta.addTransform( injectorTransform );
+    pipelineMeta.addTransform( injectorTransform );
 
     //
     // Create a Get XML Data step
@@ -372,7 +366,7 @@ public class GetXMLDataTest extends TestCase {
 
     String getXMLDataPid = registry.getPluginId( TransformPluginType.class, gxdm );
     TransformMeta getXMLDataTransform = new TransformMeta( getXMLDataPid, getXMLDataName, gxdm );
-    transMeta.addTransform( getXMLDataTransform );
+    pipelineMeta.addTransform( getXMLDataTransform );
 
     GetXmlDataField[] fields = new GetXmlDataField[5];
 
@@ -400,7 +394,7 @@ public class GetXMLDataTest extends TestCase {
     gxdm.setInputFields( fields );
 
     PipelineHopMeta hi = new PipelineHopMeta( injectorTransform, getXMLDataTransform );
-    transMeta.addPipelineHop( hi );
+    pipelineMeta.addPipelineHop( hi );
 
     //
     // Create a dummy step 1
@@ -410,13 +404,13 @@ public class GetXMLDataTest extends TestCase {
 
     String dummyPid1 = registry.getPluginId( TransformPluginType.class, dm1 );
     TransformMeta dummyTransform1 = new TransformMeta( dummyPid1, dummyTransformName1, dm1 );
-    transMeta.addTransform( dummyTransform1 );
+    pipelineMeta.addTransform( dummyTransform1 );
 
     PipelineHopMeta hi1 = new PipelineHopMeta( getXMLDataTransform, dummyTransform1 );
-    transMeta.addPipelineHop( hi1 );
+    pipelineMeta.addPipelineHop( hi1 );
 
     // Now execute the transformation...
-    Pipeline trans = new LocalPipelineEngine( transMeta );
+    Pipeline trans = new LocalPipelineEngine( pipelineMeta );
 
     trans.prepareExecution(  );
 
@@ -443,7 +437,7 @@ public class GetXMLDataTest extends TestCase {
     List<RowMetaAndData> goldenImageRows = createResultData1();
 
     GetXmlDataData getXMLDataData = new GetXmlDataData();
-    GetXmlData getXmlData = new GetXmlData( dummyTransform1, gxdm, getXMLDataData, 0, transMeta, trans );
+    GetXmlData getXmlData = new GetXmlData( dummyTransform1, gxdm, getXMLDataData, 0, pipelineMeta, trans );
     getXmlData.setVariable( "xml_path", "data/owner" );
     getXmlData.init();
     assertEquals( "${xml_path}", gxdm.getInputFields()[0].getXPath() );

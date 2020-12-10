@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.mssqlbulkload;
 
@@ -183,7 +177,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return retval.toString();
   }
 
-  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       schemaname = XmlHandler.getTagValue( entrynode, "schemaname" );
@@ -293,7 +287,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     Result result = previousResult;
     result.setResult( false );
 
-    String vfsFilename = environmentSubstitute( filename );
+    String vfsFilename = resolve( filename );
     FileObject fileObject = null;
     // Let's check the filename ...
     if ( !Utils.isEmpty( vfsFilename ) ) {
@@ -337,13 +331,13 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 .getDatabaseName() ) );
               return result;
             }
-            db.shareVariablesWith( this );
+            db.shareWith( this );
             try {
               db.connect();
               // Get schemaname
-              String realSchemaname = environmentSubstitute( schemaname );
+              String realSchemaname = resolve( schemaname );
               // Get tablename
-              String realTablename = environmentSubstitute( tableName );
+              String realTablename = resolve( tableName );
 
               // Add schemaname (Most the time Schemaname.Tablename)
               if ( schemaname != null ) {
@@ -370,7 +364,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 }
                 // Check Specific Code page
                 if ( codepage.equals( "Specific" ) ) {
-                  String realCodePage = environmentSubstitute( codepage );
+                  String realCodePage = resolve( codepage );
                   if ( specificcodepage.length() < 0 ) {
                     logError( BaseMessages.getString( PKG, "JobMssqlBulkLoad.Error.SpecificCodePageMissing" ) );
                     return result;
@@ -383,7 +377,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 }
 
                 // Check Error file
-                String realErrorFile = environmentSubstitute( errorfilename );
+                String realErrorFile = resolve( errorfilename );
                 if ( realErrorFile != null ) {
                   File errorfile = new File( realErrorFile );
                   if ( errorfile.exists() && !adddatetime ) {
@@ -448,7 +442,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
                 if ( UseCodepage.length() > 0 ) {
                   SqlBulkLoad = SqlBulkLoad + "," + UseCodepage;
                 }
-                String realFormatFile = environmentSubstitute( formatfilename );
+                String realFormatFile = resolve( formatfilename );
                 if ( realFormatFile != null ) {
                   SqlBulkLoad = SqlBulkLoad + ", FORMATFILE='" + realFormatFile + "'";
                 }
@@ -617,11 +611,11 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealLineterminated() {
-    return environmentSubstitute( getLineterminated() );
+    return resolve( getLineterminated() );
   }
 
   public String getRealFieldTerminator() {
-    return environmentSubstitute( getFieldTerminator() );
+    return resolve( getFieldTerminator() );
   }
 
   public void setStartFile( int startfile ) {
@@ -665,7 +659,7 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
   }
 
   public String getRealOrderBy() {
-    return environmentSubstitute( getOrderBy() );
+    return resolve( getOrderBy() );
   }
 
   public void setAddFileToResult( boolean addfiletoresultin ) {
@@ -732,8 +726,8 @@ public class ActionMssqlBulkLoad extends ActionBase implements Cloneable, IActio
     return tablock;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     ResourceReference reference = null;
     if ( connection != null ) {
       reference = new ResourceReference( this );

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.transforms.bq;
 
@@ -32,6 +27,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -65,8 +61,8 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
   private TextVar wQuery;
   private TableView wFields;
 
-  public BeamBQInputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public BeamBQInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in , pipelineMeta, sname );
     input = (BeamBQInputMeta) in;
   }
 
@@ -117,7 +113,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
     fdlProjectId.top = new FormAttachment( lastControl, margin );
     fdlProjectId.right = new FormAttachment( middle, -margin );
     wlProjectId.setLayoutData( fdlProjectId );
-    wProjectId = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProjectId = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wProjectId );
     FormData fdProjectId = new FormData();
     fdProjectId.left = new FormAttachment( middle, 0 );
@@ -134,7 +130,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
     fdlDatasetId.top = new FormAttachment( lastControl, margin );
     fdlDatasetId.right = new FormAttachment( middle, -margin );
     wlDatasetId.setLayoutData( fdlDatasetId );
-    wDatasetId = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDatasetId = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDatasetId );
     FormData fdDatasetId = new FormData();
     fdDatasetId.left = new FormAttachment( middle, 0 );
@@ -151,7 +147,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
     fdlTableId.top = new FormAttachment( lastControl, margin );
     fdlTableId.right = new FormAttachment( middle, -margin );
     wlTableId.setLayoutData( fdlTableId );
-    wTableId = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTableId = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTableId );
     FormData fdTableId = new FormData();
     fdTableId.left = new FormAttachment( middle, 0 );
@@ -168,7 +164,7 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
     fdlQuery.top = new FormAttachment( lastControl, margin );
     fdlQuery.right = new FormAttachment( 100, 0 );
     wlQuery.setLayoutData( fdlQuery );
-    wQuery = new TextVar( pipelineMeta, shell, SWT.LEFT | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL );
+    wQuery = new TextVar( variables, shell, SWT.LEFT | SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL );
     props.setLook( wQuery, Props.WIDGET_STYLE_FIXED );
     FormData fdQuery = new FormData();
     fdQuery.left = new FormAttachment( 0, 0 );
@@ -258,8 +254,8 @@ public class BeamBQInputDialog extends BaseTransformDialog implements ITransform
         StringUtils.isNotEmpty( meta.getTableId() ) ) {
 
         Table table = bigQuery.getTable(
-          pipelineMeta.environmentSubstitute( meta.getDatasetId() ),
-          pipelineMeta.environmentSubstitute( meta.getTableId() )
+          variables.resolve( meta.getDatasetId() ),
+          variables.resolve( meta.getTableId() )
         );
 
         TableDefinition definition = table.getDefinition();

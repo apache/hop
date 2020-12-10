@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.sort;
 
@@ -126,7 +120,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
 
     try {
       FileObject fileObject =
-        HopVfs.createTempFile( meta.getPrefix(), ".tmp", environmentSubstitute( meta.getDirectory() ));
+        HopVfs.createTempFile( meta.getPrefix(), ".tmp", resolve( meta.getDirectory() ));
 
       data.files.add( fileObject ); // Remember the files!
       OutputStream outputStream = HopVfs.getOutputStream( fileObject, false );
@@ -530,7 +524,7 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
       return false;
     }
 
-    data.sortSize = Const.toInt( environmentSubstitute( meta.getSortSize() ), -1 );
+    data.sortSize = Const.toInt( resolve( meta.getSortSize() ), -1 );
     data.freeMemoryPctLimit = Const.toInt( meta.getFreeMemoryLimit(), -1 );
     if ( data.sortSize <= 0 && data.freeMemoryPctLimit <= 0 ) {
       // Prefer the memory limit as it should never fail
@@ -540,15 +534,15 @@ public class SortRows extends BaseTransform<SortRowsMeta, SortRowsData> implemen
 
     // In memory buffer
     //
-    data.buffer = new ArrayList<Object[]>( 5000 );
+    data.buffer = new ArrayList<>( 5000 );
 
     // Buffer for reading from disk
     //
-    data.rowbuffer = new ArrayList<Object[]>( 5000 );
+    data.rowbuffer = new ArrayList<>( 5000 );
 
-    data.compressFiles = getBooleanValueOfVariable( meta.getCompressFilesVariable(), meta.getCompressFiles() );
+    data.compressFiles = getVariableBoolean( meta.getCompressFilesVariable(), meta.getCompressFiles() );
 
-    data.tempRows = new ArrayList<RowTempFile>();
+    data.tempRows = new ArrayList<>();
 
     data.minSortSize = 5000;
 

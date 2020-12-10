@@ -107,13 +107,13 @@ public class ZipFileMetaTest {
     ZipFileMeta zipFileMeta = new ZipFileMeta();
     zipFileMeta.setDefault();
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
-    TransformMeta transformInfo = mock( TransformMeta.class );
+    TransformMeta transformMeta = mock( TransformMeta.class );
     IRowMeta prev = mock( IRowMeta.class );
     IHopMetadataProvider metadataProvider = mock( IHopMetadataProvider.class );
     IRowMeta info = mock( IRowMeta.class );
     ArrayList<ICheckResult> remarks = new ArrayList<>();
 
-    zipFileMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[] { "input" }, new String[] { "output" }, info,
+    zipFileMeta.check( remarks, pipelineMeta, transformMeta, prev, new String[] { "input" }, new String[] { "output" }, info,
       new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Source Filename field is missing!", remarks.get( 0 ).getText() );
@@ -122,7 +122,7 @@ public class ZipFileMetaTest {
     remarks = new ArrayList<>();
     zipFileMeta = new ZipFileMeta();
     zipFileMeta.setDynamicSourceFileNameField( "sourceFileField" );
-    zipFileMeta.check( remarks, pipelineMeta, transformInfo, prev, new String[ 0 ], new String[] { "output" }, info,
+    zipFileMeta.check( remarks, pipelineMeta, transformMeta, prev, new String[ 0 ], new String[] { "output" }, info,
       new Variables(), metadataProvider );
     assertEquals( 2, remarks.size() );
     assertEquals( "Target Filename field was specified", remarks.get( 0 ).getText() );
@@ -131,16 +131,16 @@ public class ZipFileMetaTest {
 
   @Test
   public void testGetTransform() throws Exception {
-    TransformMeta transformInfo = mock( TransformMeta.class );
-    when( transformInfo.getName() ).thenReturn( "Zip Transform Name" );
+    TransformMeta transformMeta = mock( TransformMeta.class );
+    when( transformMeta.getName() ).thenReturn( "Zip Transform Name" );
     ITransformData transformData = mock( ITransformData.class );
     PipelineMeta pipelineMeta = mock( PipelineMeta.class );
-    when( pipelineMeta.findTransform( "Zip Transform Name" ) ).thenReturn( transformInfo );
+    when( pipelineMeta.findTransform( "Zip Transform Name" ) ).thenReturn( transformMeta );
     Pipeline pipeline = mock( Pipeline.class );
 
     ZipFileMeta zipFileMeta = new ZipFileMeta();
-    ZipFile zipFile = (ZipFile) zipFileMeta.getTransform( transformInfo, transformData, 0, pipelineMeta, pipeline );
-    assertEquals( transformInfo, zipFile.getTransformMeta() );
+    ZipFile zipFile = (ZipFile) zipFileMeta.getTransform( transformMeta, transformData, 0, pipelineMeta, pipeline );
+    assertEquals( transformMeta, zipFile.getTransformMeta() );
     assertEquals( transformData, zipFile.getTransformDataInterface() );
     assertEquals( pipelineMeta, zipFile.getPipelineMeta() );
     assertEquals( pipeline, zipFile.getPipeline() );

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transform;
 
@@ -50,7 +45,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
     this.outputProducer = outputProducer;
     this.inputOptional = inputOptional;
     this.sortedDataRequired = sortedDataRequired;
-    this.streams = java.util.Collections.synchronizedList( new ArrayList<IStream>() );
+    this.streams = java.util.Collections.synchronizedList( new ArrayList<>() );
     this.inputDynamic = inputDynamic;
     this.outputDynamic = outputDynamic;
   }
@@ -111,7 +106,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
    * metadata.
    */
   public List<IStream> getInfoStreams() {
-    List<IStream> list = new ArrayList<IStream>();
+    List<IStream> list = new ArrayList<>();
     synchronized ( streams ) {
       for ( IStream stream : streams ) {
         if ( stream.getStreamType().equals( IStream.StreamType.INFO ) ) {
@@ -127,7 +122,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
    * metadata.
    */
   public List<IStream> getTargetStreams() {
-    List<IStream> list = new ArrayList<IStream>();
+    List<IStream> list = new ArrayList<>();
     synchronized ( streams ) {
       for ( IStream stream : streams ) {
         if ( stream.getStreamType().equals( IStream.StreamType.TARGET ) ) {
@@ -182,7 +177,7 @@ public class TransformIOMeta implements ITransformIOMeta, Cloneable {
   public void setInfoTransforms( TransformMeta[] infoTransforms ) {
     // First get the info transforms...
     //
-    List<IStream> list = new ArrayList<IStream>();
+    List<IStream> list = new ArrayList<>();
     synchronized ( streams ) {
       for ( IStream stream : streams ) {
         if ( stream.getStreamType().equals( IStream.StreamType.INFO ) ) {

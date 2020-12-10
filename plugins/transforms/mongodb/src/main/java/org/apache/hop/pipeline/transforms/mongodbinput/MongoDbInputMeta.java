@@ -164,10 +164,10 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
 
       Node mongo_fields = XmlHandler.getSubNode(stepnode, "mongo_fields");
       if (mongo_fields != null && XmlHandler.countNodes(mongo_fields, "mongo_field") > 0) {
-        int nrfields = XmlHandler.countNodes(mongo_fields, "mongo_field");
+        int nrFields = XmlHandler.countNodes(mongo_fields, "mongo_field");
 
-        m_fields = new ArrayList<MongoField>();
-        for (int i = 0; i < nrfields; i++) {
+        m_fields = new ArrayList<>();
+        for (int i = 0; i < nrFields; i++) {
           Node fieldNode = XmlHandler.getSubNodeByNr(mongo_fields, "mongo_field", i);
 
           MongoField newField = new MongoField();
@@ -185,7 +185,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
 
       String tags = XmlHandler.getTagValue(stepnode, "tag_sets");
       if (!StringUtils.isEmpty(tags)) {
-        setReadPrefTagSets(new ArrayList<String>());
+        setReadPrefTagSets( new ArrayList<>());
 
         String[] parts = tags.split("#@#");
         for (String p : parts) {
@@ -213,7 +213,7 @@ public class MongoDbInputMeta extends MongoDbMeta<MongoDbInput, MongoDbInputData
       String origin,
       IRowMeta[] info,
       TransformMeta nextTransform,
-      IVariables space,
+      IVariables variables,
       IHopMetadataProvider metadataProvider)
       throws HopTransformException {
 

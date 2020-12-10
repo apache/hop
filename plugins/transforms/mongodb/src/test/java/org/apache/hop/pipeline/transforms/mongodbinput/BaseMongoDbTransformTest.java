@@ -32,6 +32,7 @@ import org.apache.hop.mongo.wrapper.MongoWrapperUtil;
 import org.apache.hop.mongo.wrapper.collection.MongoCollectionWrapper;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
+import org.apache.hop.pipeline.engines.local.LocalPipelineEngine;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
 import org.junit.Before;
@@ -42,6 +43,7 @@ import org.mockito.MockitoAnnotations;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 /** Common mock setup for MongoDbOutputTest and MongoDbInput */
@@ -49,7 +51,7 @@ public class BaseMongoDbTransformTest {
 
   @Mock protected TransformMeta transformMeta;
   @Mock protected PipelineMeta pipelineMeta;
-  @Mock protected Pipeline pipeline;
+  protected Pipeline pipeline = spy(new LocalPipelineEngine() );
   @Mock protected ILogChannel mockLog;
   @Mock protected MongoWrapperClientFactory mongoClientWrapperFactory;
   @Mock protected MongoClientWrapper mongoClientWrapper;

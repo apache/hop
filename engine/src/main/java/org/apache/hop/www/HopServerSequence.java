@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.www;
 
@@ -31,6 +25,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopXmlException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.row.IValueMeta;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
@@ -81,7 +76,6 @@ public class HopServerSequence {
   /**
    * @param name
    * @param startValue
-   * @param incrementValue
    * @param databaseMeta
    * @param schemaName
    * @param tableName
@@ -99,14 +93,14 @@ public class HopServerSequence {
     this.valueField = valueField;
   }
 
-  public synchronized long getNextValue( ILoggingObject log, long incrementValue ) throws HopException {
+  public synchronized long getNextValue( IVariables variables, ILoggingObject log, long incrementValue ) throws HopException {
 
     Database db = null;
     try {
       db = new Database( log, databaseMeta );
       db.connect();
 
-      String schemaTable = databaseMeta.getQuotedSchemaTableCombination( schemaName, tableName );
+      String schemaTable = databaseMeta.getQuotedSchemaTableCombination( variables, schemaName, tableName );
       String seqField = databaseMeta.quoteField( sequenceNameField );
       String valField = databaseMeta.quoteField( valueField );
 

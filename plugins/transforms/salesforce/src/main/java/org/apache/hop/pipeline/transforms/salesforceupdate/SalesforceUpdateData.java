@@ -31,7 +31,7 @@ public class SalesforceUpdateData extends SalesforceTransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
 
-  public int nrfields;
+  public int nrFields;
   public int[] fieldnrs;
 
   public SaveResult[] saveResult;
@@ -43,7 +43,7 @@ public class SalesforceUpdateData extends SalesforceTransformData {
   public SalesforceUpdateData() {
     super();
 
-    nrfields = 0;
+    nrFields = 0;
 
     saveResult = null;
     iBufferPos = 0;

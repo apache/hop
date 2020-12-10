@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.www.jaxrs;
 
@@ -27,6 +22,8 @@ import org.apache.hop.core.logging.HopLogStore;
 import org.apache.hop.core.logging.ILogChannel;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.logging.SimpleLoggingObject;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineConfiguration;
 import org.apache.hop.pipeline.PipelineExecutionConfiguration;
@@ -46,7 +43,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Map;
 import java.util.UUID;
 
 @Path( "/carte/pipeline" )
@@ -133,7 +129,7 @@ public class PipelineResource {
       PipelineExecutionConfiguration executionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
       // Set the appropriate logging, variables, arguments, replay date, ...
       // etc.
-      pipeline.injectVariables( executionConfiguration.getVariablesMap() );
+      pipeline.setVariables( executionConfiguration.getVariablesMap() );
       pipeline.setPreviousResult( executionConfiguration.getPreviousResult() );
 
       pipeline.prepareExecution();
@@ -205,15 +201,6 @@ public class PipelineResource {
       if ( log.isDetailed() ) {
         log.logDetailed( "Logging level set to " + log.getLogLevel().getDescription() );
       }
-      pipelineMeta.injectVariables( pipelineExecutionConfiguration.getVariablesMap() );
-
-      // Also copy the parameters over...
-      //
-      Map<String, String> params = pipelineExecutionConfiguration.getParametersMap();
-      for ( String param : params.keySet() ) {
-        String value = params.get( param );
-        pipelineMeta.setParameterValue( param, value );
-      }
 
       PipelineExecutionConfiguration executionConfiguration = pipelineConfiguration.getPipelineExecutionConfiguration();
 
@@ -226,7 +213,8 @@ public class PipelineResource {
       // Create the pipeline and store in the list...
       //
       String runConfigurationName = executionConfiguration.getRunConfiguration();
-      final IPipelineEngine pipeline = PipelineEngineFactory.createPipelineEngine( runConfigurationName, metadataProvider, pipelineMeta);
+      IVariables variables = Variables.getADefaultVariableSpace(); // TODO: configure
+      final IPipelineEngine pipeline = PipelineEngineFactory.createPipelineEngine( variables, runConfigurationName, metadataProvider, pipelineMeta);
       pipeline.setParent( servletLoggingObject );
 
       HopServerSingleton.getInstance().getPipelineMap().addPipeline(pipelineMeta.getName(), serverObjectId, pipeline, pipelineConfiguration );

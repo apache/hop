@@ -85,8 +85,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
   private Listener modifyListener =  e -> setChanged();
   
   /**
-   * @param parent           The parent shell
-   * @param metadataProvider metadataProvider
+   * @param hopGui
+   * @param manager
    * @param runConfiguration The object to edit
    */
   public PipelineRunConfigurationEditor(HopGui hopGui,  MetadataManager<PipelineRunConfiguration> manager, PipelineRunConfiguration runConfiguration ) {
@@ -204,7 +204,8 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     fdlPluginType.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlPluginType.right = new FormAttachment( middle, 0 );
     wlPluginType.setLayoutData( fdlPluginType );
-    wPluginType = new ComboVar( runConfiguration, wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPluginType =
+        new ComboVar(manager.getVariables(), wMainComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook( wPluginType );
     wPluginType.setItems( getPluginTypes() );
     FormData fdPluginType = new FormData();
@@ -229,7 +230,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
 
     // Now add the run configuration plugin specific widgets
     //
-    guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 25 ); // max 8 lines
+    guiCompositeWidgets = new GuiCompositeWidgets( manager.getVariables(), 25 ); // max 8 lines
 
     // Add the plugin specific widgets
     //
@@ -277,7 +278,15 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
       new ColumnInfo( BaseMessages.getString( PKG, "PipelineRunConfigurationDialog.Variables.Column.Description" ), ColumnInfo.COLUMN_TYPE_TEXT ),
     };
 
-    wVariables = new TableView( workingConfiguration, wVariablesComp, SWT.NONE, columns, workingConfiguration.getConfigurationVariables().size(), null, props );
+    wVariables =
+        new TableView(
+            manager.getVariables(),
+            wVariablesComp,
+            SWT.NONE,
+            columns,
+            workingConfiguration.getConfigurationVariables().size(),
+            null,
+            props);
     props.setLook( wVariables );
     FormData fdVariables = new FormData();
     fdVariables.top = new FormAttachment( 0, 0 );
@@ -338,7 +347,7 @@ public class PipelineRunConfigurationEditor extends MetadataEditor<PipelineRunCo
     }
 
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
-      guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 25 );
+      guiCompositeWidgets = new GuiCompositeWidgets(manager.getVariables(), 25);
       guiCompositeWidgets.createCompositeWidgets( workingConfiguration.getEngineRunConfiguration(), null, wPluginSpecificComp, PipelineRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
       for ( Control control : guiCompositeWidgets.getWidgetsMap().values() ) {
         control.addListener( SWT.Modify, modifyListener );

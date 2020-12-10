@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.projects.project;
 
@@ -117,14 +112,14 @@ public class Project extends ConfigFile implements IConfigFile {
     // To allow circular logic where an environment file is relative to the project home
     //
     if ( StringUtils.isNotEmpty( projectConfig.getProjectHome() ) ) {
-      String realValue = variables.environmentSubstitute( projectConfig.getProjectHome() );
+      String realValue = variables.resolve( projectConfig.getProjectHome() );
       variables.setVariable( ProjectsUtil.VARIABLE_PROJECT_HOME, realValue );
     }
 
     // Apply the described variables from the various configuration files in the given order...
     //
     for (String configurationFile : configurationFiles) {
-      String realConfigurationFile = variables.environmentSubstitute( configurationFile );
+      String realConfigurationFile = variables.resolve( configurationFile );
 
       File file = new File(realConfigurationFile);
       if (file.exists()) {
@@ -147,15 +142,15 @@ public class Project extends ConfigFile implements IConfigFile {
     }
 
     if ( StringUtils.isNotEmpty( metadataBaseFolder ) ) {
-      String realValue = variables.environmentSubstitute( metadataBaseFolder );
+      String realValue = variables.resolve( metadataBaseFolder );
       variables.setVariable( Const.HOP_METADATA_FOLDER, realValue );
     }
     if ( StringUtils.isNotEmpty( unitTestsBasePath ) ) {
-      String realValue = variables.environmentSubstitute( unitTestsBasePath );
+      String realValue = variables.resolve( unitTestsBasePath );
       variables.setVariable( ProjectsUtil.VARIABLE_HOP_UNIT_TESTS_FOLDER, realValue );
     }
     if ( StringUtils.isNotEmpty( dataSetsCsvFolder ) ) {
-      String realValue = variables.environmentSubstitute( dataSetsCsvFolder );
+      String realValue = variables.resolve( dataSetsCsvFolder );
       variables.setVariable( ProjectsUtil.VARIABLE_HOP_DATASETS_FOLDER, realValue );
     }
     for ( DescribedVariable variable : getDescribedVariables() ) {

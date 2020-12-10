@@ -171,7 +171,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     fdlPluginType.left = new FormAttachment( 0, 0 ); // First one in the left top corner
     fdlPluginType.right = new FormAttachment( middle, 0 );
     wlPluginType.setLayoutData( fdlPluginType );
-    wPluginType = new ComboVar( runConfiguration, parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPluginType = new ComboVar( manager.getVariables(), parent, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPluginType );
     wPluginType.setItems( getPluginTypes() );
     FormData fdPluginType = new FormData();
@@ -196,7 +196,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
 
     // Now add the run configuration plugin specific widgets
     //
-    guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 8 ); // max 8 lines
+    guiCompositeWidgets = new GuiCompositeWidgets( manager.getVariables(), 8 ); // max 8 lines
 
     // Add the plugin specific widgets
     //
@@ -227,7 +227,7 @@ public class WorkflowRunConfigurationEditor extends MetadataEditor<WorkflowRunCo
     }
 
     if ( workingConfiguration.getEngineRunConfiguration() != null ) {
-      guiCompositeWidgets = new GuiCompositeWidgets( runConfiguration, 8 );
+      guiCompositeWidgets = new GuiCompositeWidgets( manager.getVariables(), 8 );
       guiCompositeWidgets.createCompositeWidgets( workingConfiguration.getEngineRunConfiguration(), null, wPluginSpecificComp, WorkflowRunConfiguration.GUI_PLUGIN_ELEMENT_PARENT_ID, null );
       for ( Control control : guiCompositeWidgets.getWidgetsMap().values() ) {
         control.addListener( SWT.Modify, modifyListener );

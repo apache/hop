@@ -34,66 +34,78 @@ public class PdiDiff {
   public static String REMOVED = "REMOVED";
   public static String ADDED = "ADDED";
 
-  public static PipelineMeta compareTransforms( PipelineMeta transMeta1, PipelineMeta transMeta2, boolean isForward ) {
-    transMeta1.getTransforms().forEach( step -> {
-      Optional<TransformMeta> step2 = transMeta2.getTransforms().stream()
-          .filter( obj -> step.getName().equals( obj.getName() ) ).findFirst();
-      String status = null;
-      if ( step2.isPresent() ) {
-        Map<String, String> tmp = null, tmp2 = null;
-        try {
-          // AttributeMap("Git") cannot affect the XML comparison
-          tmp = step.getAttributesMap().remove( ATTR_GIT );
-          tmp2 = step2.get().getAttributesMap().remove( ATTR_GIT );
-          if ( step.getXml().equals( step2.get().getXml() ) ) {
-            status = UNCHANGED;
-          } else {
-            status = CHANGED;
-          }
-        } catch ( HopException e ) {
-          e.printStackTrace();
-        } finally {
-          step.setAttributes( ATTR_GIT, tmp );
-          step2.get().setAttributes( ATTR_GIT, tmp2 );
-        }
-      } else {
-        if ( isForward ) {
-          status = REMOVED;
-        } else {
-          status = ADDED;
-        }
-      }
-      step.setAttribute( ATTR_GIT, ATTR_STATUS, status.toString() );
-    } );
+  public static PipelineMeta compareTransforms(
+      PipelineMeta transMeta1, PipelineMeta transMeta2, boolean isForward) {
+    transMeta1
+        .getTransforms()
+        .forEach(
+            step -> {
+              Optional<TransformMeta> step2 =
+                  transMeta2.getTransforms().stream()
+                      .filter(obj -> step.getName().equals(obj.getName()))
+                      .findFirst();
+              String status = null;
+              if (step2.isPresent()) {
+                Map<String, String> tmp = null, tmp2 = null;
+                try {
+                  // AttributeMap("Git") cannot affect the XML comparison
+                  tmp = step.getAttributesMap().remove(ATTR_GIT);
+                  tmp2 = step2.get().getAttributesMap().remove(ATTR_GIT);
+                  if (step.getXml().equals(step2.get().getXml())) {
+                    status = UNCHANGED;
+                  } else {
+                    status = CHANGED;
+                  }
+                } catch (HopException e) {
+                  e.printStackTrace();
+                } finally {
+                  step.setAttributes(ATTR_GIT, tmp);
+                  step2.get().setAttributes(ATTR_GIT, tmp2);
+                }
+              } else {
+                if (isForward) {
+                  status = REMOVED;
+                } else {
+                  status = ADDED;
+                }
+              }
+              step.setAttribute(ATTR_GIT, ATTR_STATUS, status.toString());
+            });
     return transMeta1;
   }
 
-  public static WorkflowMeta compareJobEntries( WorkflowMeta jobMeta1, WorkflowMeta jobMeta2, boolean isForward ) {
-    jobMeta1.getActions().forEach( je -> {
-      Optional<ActionMeta> je2 = jobMeta2.getActions().stream()
-          .filter( obj -> je.getName().equals( obj.getName() ) ).findFirst();
-      String status = null;
-      if ( je2.isPresent() ) {
-        Map<String, String> tmp = null, tmp2 = null;
-        // AttributeMap("Git") cannot affect the XML comparison
-        tmp = je.getAttributesMap().remove( ATTR_GIT );
-        tmp2 = je2.get().getAttributesMap().remove( ATTR_GIT );
-        if ( je.getXml().equals( je2.get().getXml() ) ) {
-          status = UNCHANGED;
-        } else {
-          status = CHANGED;
-        }
-        je.setAttributes( ATTR_GIT, tmp );
-        je2.get().setAttributes( ATTR_GIT, tmp2 );
-      } else {
-        if ( isForward ) {
-          status = REMOVED;
-        } else {
-          status = ADDED;
-        }
-      }
-      je.setAttribute( ATTR_GIT, ATTR_STATUS, status.toString() );
-    } );
+  public static WorkflowMeta compareJobEntries(
+      WorkflowMeta jobMeta1, WorkflowMeta jobMeta2, boolean isForward) {
+    jobMeta1
+        .getActions()
+        .forEach(
+            je -> {
+              Optional<ActionMeta> je2 =
+                  jobMeta2.getActions().stream()
+                      .filter(obj -> je.getName().equals(obj.getName()))
+                      .findFirst();
+              String status = null;
+              if (je2.isPresent()) {
+                Map<String, String> tmp = null, tmp2 = null;
+                // AttributeMap("Git") cannot affect the XML comparison
+                tmp = je.getAttributesMap().remove(ATTR_GIT);
+                tmp2 = je2.get().getAttributesMap().remove(ATTR_GIT);
+                if (je.getXml().equals(je2.get().getXml())) {
+                  status = UNCHANGED;
+                } else {
+                  status = CHANGED;
+                }
+                je.setAttributes(ATTR_GIT, tmp);
+                je2.get().setAttributes(ATTR_GIT, tmp2);
+              } else {
+                if (isForward) {
+                  status = REMOVED;
+                } else {
+                  status = ADDED;
+                }
+              }
+              je.setAttribute(ATTR_GIT, ATTR_STATUS, status.toString());
+            });
     return jobMeta1;
   }
 }

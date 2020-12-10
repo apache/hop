@@ -26,6 +26,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaNone;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -168,15 +169,15 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
   /**
    * List of ColumnInfo that should have the field names of the selected database table
    */
-  private static List<ColumnInfo> tableFieldColumns = new ArrayList<ColumnInfo>();
+  private static List<ColumnInfo> tableFieldColumns = new ArrayList<>();
   private String[] moduleFields;
 
   private boolean excludeNonUpdatableFields = true;
 
-  public SalesforceUpsertDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, in, pipelineMeta, sname );
+  public SalesforceUpsertDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, in, pipelineMeta, sname );
     input = (SalesforceUpsertMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -266,7 +267,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wConnectionGroup.setLayout( connectionGroupLayout );
 
     // Webservice URL
-    wURL = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wURL = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceUpsertDialog.URL.Label" ),
       BaseMessages.getString( PKG, "SalesforceUpsertDialog.URL.Tooltip" ) );
     props.setLook( wURL );
@@ -278,7 +279,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wURL.setLayoutData( fdURL );
 
     // UserName line
-    wUserName = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wUserName = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceUpsertDialog.User.Label" ),
       BaseMessages.getString( PKG, "SalesforceUpsertDialog.User.Tooltip" ) );
     props.setLook( wUserName );
@@ -290,7 +291,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     wUserName.setLayoutData( fdUserName );
 
     // Password line
-    wPassword = new LabelTextVar( pipelineMeta, wConnectionGroup,
+    wPassword = new LabelTextVar( variables, wConnectionGroup,
       BaseMessages.getString( PKG, "SalesforceUpsertDialog.Password.Label" ),
       BaseMessages.getString( PKG, "SalesforceUpsertDialog.Password.Tooltip" ), true );
     props.setLook( wPassword );
@@ -344,7 +345,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     fdlTimeOut.top = new FormAttachment( wSettingsGroup, margin );
     fdlTimeOut.right = new FormAttachment( middle, -margin );
     wlTimeOut.setLayoutData( fdlTimeOut );
-    wTimeOut = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
     fdTimeOut = new FormData();
@@ -402,7 +403,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     fdlBatchSize.top = new FormAttachment( wRollbackAllChangesOnError, margin );
     fdlBatchSize.right = new FormAttachment( middle, -margin );
     wlBatchSize.setLayoutData( fdlBatchSize );
-    wBatchSize = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBatchSize = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBatchSize );
     wBatchSize.addModifyListener( lsMod );
     fdBatchSize = new FormData();
@@ -420,7 +421,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     fdlModule.top = new FormAttachment( wBatchSize, margin );
     fdlModule.right = new FormAttachment( middle, -margin );
     wlModule.setLayoutData( fdlModule );
-    wModule = new ComboVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wModule = new ComboVar( variables, wSettingsGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wModule.setEditable( true );
     props.setLook( wModule );
     wModule.addModifyListener( lsTableMod );
@@ -509,7 +510,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     fdlSalesforceIDFieldName.top = new FormAttachment( wSettingsGroup, margin );
     fdlSalesforceIDFieldName.right = new FormAttachment( middle, -margin );
     wlSalesforceIDFieldName.setLayoutData( fdlSalesforceIDFieldName );
-    wSalesforceIDFieldName = new TextVar( pipelineMeta, wOutFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSalesforceIDFieldName = new TextVar( variables, wOutFieldsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSalesforceIDFieldName );
     wSalesforceIDFieldName.setToolTipText( BaseMessages.getString(
       PKG, "SalesforceUpsertDialog.SalesforceIDFieldName.Tooltip" ) );
@@ -559,7 +560,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       .getString( PKG, "SalesforceUpdateDialog.ColumnInfo.UseExternalId.Tooltip" ) );
     tableFieldColumns.add( ciReturn[0] );
     wReturn =
-      new TableView( pipelineMeta, wGeneralComp, SWT.BORDER
+      new TableView( variables, wGeneralComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn, UpInsRows, lsMod, props );
     wReturn.getTable().addFocusListener( new FocusListener() {
 
@@ -605,7 +606,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -721,7 +722,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
   private void getUpdate() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
           tableItem.setText( 3, "Y" );
@@ -831,12 +832,12 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     meta.setSalesforceIDFieldName( wSalesforceIDFieldName.getText() );
     meta.setBatchSize( wBatchSize.getText() );
 
-    int nrfields = wReturn.nrNonEmpty();
+    int nrFields = wReturn.nrNonEmpty();
 
-    meta.allocate( nrfields );
+    meta.allocate( nrFields );
 
     //CHECKSTYLE:Indentation:OFF
-    for ( int i = 0; i < nrfields; i++ ) {
+    for ( int i = 0; i < nrFields; i++ ) {
       TableItem item = wReturn.getNonEmpty( i );
       meta.getUpdateLookup()[i] = item.getText( 1 );
       meta.getUpdateStream()[i] = item.getText( 2 );
@@ -884,13 +885,13 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     getModulesListError = true;
     SalesforceUpsertMeta meta = new SalesforceUpsertMeta();
     getInfo( meta );
-    String url = pipelineMeta.environmentSubstitute( meta.getTargetUrl() );
-    String selectedModule = pipelineMeta.environmentSubstitute( meta.getModule() );
+    String url = variables.resolve( meta.getTargetUrl() );
+    String selectedModule = variables.resolve( meta.getModule() );
     // Define a new Salesforce connection
     SalesforceConnection connection =
-      new SalesforceConnection( log, url, pipelineMeta.environmentSubstitute( meta.getUsername() ),
-              Utils.resolvePassword( pipelineMeta, meta.getPassword() ) );
-    int realTimeOut = Const.toInt( pipelineMeta.environmentSubstitute( meta.getTimeout() ), 0 );
+      new SalesforceConnection( log, url, variables.resolve( meta.getUsername() ),
+              Utils.resolvePassword( variables, meta.getPassword() ) );
+    int realTimeOut = Const.toInt( variables.resolve( meta.getTimeout() ), 0 );
     connection.setTimeOut( realTimeOut );
     Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
     try {
@@ -934,7 +935,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
     IRowMeta targetFields = new RowMeta();
 
     try {
-      sourceFields = pipelineMeta.getPrevTransformFields( transformMeta );
+      sourceFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
     } catch ( HopException e ) {
       new ErrorDialog( shell,
         BaseMessages.getString( PKG, "SalesforceUpsertDialog.DoMapping.UnableToFindSourceFields.Title" ),
@@ -963,7 +964,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
 
     // Create the existing mapping list...
     //
-    List<SourceToTargetMapping> mappings = new ArrayList<SourceToTargetMapping>();
+    List<SourceToTargetMapping> mappings = new ArrayList<>();
     StringBuffer missingSourceFields = new StringBuffer();
     StringBuffer missingTargetFields = new StringBuffer();
 
@@ -1043,13 +1044,13 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
 
     Set<String> keySet = fields.keySet();
-    List<String> entries = new ArrayList<String>( keySet );
+    List<String> entries = new ArrayList<>( keySet );
 
     String[] fieldNames = entries.toArray( new String[entries.size()] );
     Const.sortStrings( fieldNames );
@@ -1064,15 +1065,15 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       try {
         SalesforceUpsertMeta meta = new SalesforceUpsertMeta();
         getInfo( meta );
-        String url = pipelineMeta.environmentSubstitute( meta.getTargetUrl() );
+        String url = variables.resolve( meta.getTargetUrl() );
 
         String selectedField = wModule.getText();
         wModule.removeAll();
 
         // Define a new Salesforce connection
         connection =
-          new SalesforceConnection( log, url, pipelineMeta.environmentSubstitute( meta.getUsername() ),
-            Utils.resolvePassword( pipelineMeta, meta.getPassword() ) );
+          new SalesforceConnection( log, url, variables.resolve( meta.getUsername() ),
+            Utils.resolvePassword( variables, meta.getPassword() ) );
         // connect to Salesforce
         connection.connect();
         // return
@@ -1107,7 +1108,7 @@ public class SalesforceUpsertDialog extends SalesforceTransformDialog {
       ColumnInfo colInfo = tableFieldColumns.get( i );
       colInfo.setComboValues( new String[] {} );
     }
-    String selectedModule = pipelineMeta.environmentSubstitute( wModule.getText() );
+    String selectedModule = variables.resolve( wModule.getText() );
     if ( !Utils.isEmpty( selectedModule ) ) {
       try {
         // loop through the objects and find build the list of fields

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.javascript;
 
@@ -484,11 +478,11 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
     jscx = ContextFactory.getGlobal().enterContext();
     jsscope = jscx.initStandardObjects( null, false );
     try {
-      jscx.setOptimizationLevel( Integer.valueOf( pipelineMeta.environmentSubstitute( optimizationLevel ) ) );
+      jscx.setOptimizationLevel( Integer.valueOf( variables.resolve( optimizationLevel ) ) );
     } catch ( NumberFormatException nfe ) {
       errorMessage =
         "Error with optimization level.  Could not convert the value of "
-          + pipelineMeta.environmentSubstitute( optimizationLevel ) + " to an integer.";
+          + variables.resolve( optimizationLevel ) + " to an integer.";
       cr = new CheckResult( ICheckResult.TYPE_RESULT_ERROR, errorMessage, transformMeta );
       remarks.add( cr );
     } catch ( IllegalArgumentException iae ) {
@@ -572,7 +566,7 @@ public class ScriptValuesMetaMod extends BaseTransformMeta implements ITransform
       }
 
       try {
-        ScriptValuesModDummy dummyTransform = new ScriptValuesModDummy( prev, pipelineMeta.getTransformFields( transformMeta ) );
+        ScriptValuesModDummy dummyTransform = new ScriptValuesModDummy( prev, pipelineMeta.getTransformFields( variables, transformMeta ) );
         Scriptable jsvalue = Context.toObject( dummyTransform, jsscope );
         jsscope.put( "_transform_", jsscope, jsvalue );
 
