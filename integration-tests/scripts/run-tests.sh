@@ -44,7 +44,7 @@ for d in $current_dir/../*/ ; do
         $HOP_LOCATION/hop-conf.sh -pc -p $project_name -ph "$(readlink -f $d)"
 
         #Find main hwf files TODO: add hpl support when result is returned correctly
-        for f in $d/main_*.hwf ; do
+        for f in $d/main*.hwf ; do
 
             #cleanup temp files
             rm -f /tmp/test_output
@@ -54,6 +54,7 @@ for d in $current_dir/../*/ ; do
             hop_file="$(readlink -f $f)"
             test_name=$(basename $f)
             test_name=${test_name//'main_'/}
+            test_name=${test_name//'main-'/}
             test_name=${test_name//'.hwf'/}
 
             #Starting Test
