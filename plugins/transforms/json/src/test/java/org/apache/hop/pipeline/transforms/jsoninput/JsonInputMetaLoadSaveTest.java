@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
@@ -53,15 +47,15 @@ public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
       "inFields", "isAFile", "FieldValue", "ShortFileNameField", "PathField", "HiddenField",
       "LastModificationDateField", "UriField", "UriField", "ExtensionField", "SizeField" );
 
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
     getterMap.put( "includeFilename", "includeFilename" );
     getterMap.put( "includeRowNumber", "includeRowNumber" );
     getterMap.put( "addResultFile", "addResultFile" );
 
     setterMap.put( "HiddenField", "setIsHiddenField" );
 
-    Map<String, IFieldLoadSaveValidator<?>> attributesMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> attributesMap = new HashMap<>();
     IFieldLoadSaveValidator<?> fileStringArrayValidator =
       new ArrayLoadSaveValidator<>( new StringLoadSaveValidator(), FILE_COUNT );
 
@@ -71,13 +65,13 @@ public class JsonInputMetaLoadSaveTest implements IInitializer<ITransformMeta> {
     attributesMap.put( "FileRequired", fileStringArrayValidator );
     attributesMap.put( "IncludeSubFolders", fileStringArrayValidator );
 
-    Map<String, IFieldLoadSaveValidator<?>> typeMap = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> typeMap = new HashMap<>();
     typeMap.put( JsonInputField.class.getCanonicalName(),
-      new ArrayLoadSaveValidator<JsonInputField>( new JsonInputFieldValidator() ) );
+      new ArrayLoadSaveValidator<>( new JsonInputFieldValidator() ) );
     typeMap.put( JsonInputField[].class.getCanonicalName(),
-      new ArrayLoadSaveValidator<JsonInputField>( new JsonInputFieldValidator() ) );
+      new ArrayLoadSaveValidator<>( new JsonInputFieldValidator() ) );
 
-    LoadSaveTester tester = new LoadSaveTester( JsonInputMeta.class, attributes, new ArrayList<String>(), getterMap, setterMap, attributesMap, typeMap, this );
+    LoadSaveTester tester = new LoadSaveTester( JsonInputMeta.class, attributes, new ArrayList<>(), getterMap, setterMap, attributesMap, typeMap, this );
 
     tester.testSerialization();
   }

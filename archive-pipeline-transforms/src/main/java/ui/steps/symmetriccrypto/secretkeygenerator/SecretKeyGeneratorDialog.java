@@ -102,7 +102,7 @@ public class SecretKeyGeneratorDialog extends BaseTransformDialog implements ITr
   private SecretKeyGeneratorMeta input;
   private boolean isReceivingInput = false;
 
-  public SecretKeyGeneratorDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public SecretKeyGeneratorDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SecretKeyGeneratorMeta) in;
   }
@@ -296,7 +296,7 @@ public class SecretKeyGeneratorDialog extends BaseTransformDialog implements ITr
 
     wFields =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -468,7 +468,7 @@ public class SecretKeyGeneratorDialog extends BaseTransformDialog implements ITr
       if ( previewSize > 0 ) {
         PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-            shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+            shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
         progressDialog.open();
 
         if ( !progressDialog.isCancelled() ) {
@@ -486,7 +486,7 @@ public class SecretKeyGeneratorDialog extends BaseTransformDialog implements ITr
 
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
-              shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+              shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
               .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
           prd.open();
 

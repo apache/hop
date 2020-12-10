@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.pgpverify;
 
@@ -154,7 +148,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     fdbGPGLocation.top = new FormAttachment( wName, 0 );
     wbGPGLocation.setLayoutData(fdbGPGLocation);
 
-    wGPGLocation = new TextVar( workflowMeta, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wGPGLocation = new TextVar( variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wGPGLocation );
     wGPGLocation.addModifyListener( lsMod );
     FormData fdGPGLocation = new FormData();
@@ -181,7 +175,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     fdbFilename.top = new FormAttachment( wGPGLocation, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( workflowMeta, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -233,7 +227,7 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     fdbDetachedFilename.top = new FormAttachment( wuseDetachedSignature, 0 );
     wbDetachedFilename.setLayoutData(fdbDetachedFilename);
 
-    wDetachedFilename = new TextVar( workflowMeta, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDetachedFilename = new TextVar( variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDetachedFilename );
     wDetachedFilename.addModifyListener( lsMod );
     FormData fdDetachedFilename = new FormData();
@@ -243,17 +237,17 @@ public class ActionPGPVerifyDialog extends ActionDialog implements IActionDialog
     wDetachedFilename.setLayoutData(fdDetachedFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wDetachedFilename.addModifyListener( e -> wDetachedFilename.setToolTipText( workflowMeta.environmentSubstitute( wDetachedFilename.getText() ) ) );
+    wDetachedFilename.addModifyListener( e -> wDetachedFilename.setToolTipText( variables.resolve( wDetachedFilename.getText() ) ) );
 
-    wbDetachedFilename.addListener( SWT.Selection, e->  BaseDialog.presentFileDialog( shell, wDetachedFilename, workflowMeta, EXTENSIONS, FILETYPES, false ) );
-
-    // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta, EXTENSIONS, FILETYPES, false ) );
+    wbDetachedFilename.addListener( SWT.Selection, e->  BaseDialog.presentFileDialog( shell, wDetachedFilename, variables, EXTENSIONS, FILETYPES, false ) );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wGPGLocation.addModifyListener( e -> wGPGLocation.setToolTipText( workflowMeta.environmentSubstitute( wGPGLocation.getText() ) ) );
-    wbGPGLocation.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGPGLocation, workflowMeta, EXTENSIONS, FILETYPES, false ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables, EXTENSIONS, FILETYPES, false ) );
+
+    // Whenever something changes, set the tooltip to the expanded version:
+    wGPGLocation.addModifyListener( e -> wGPGLocation.setToolTipText( variables.resolve( wGPGLocation.getText() ) ) );
+    wbGPGLocation.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGPGLocation, variables, EXTENSIONS, FILETYPES, false ) );
 
     FormData fdSettings = new FormData();
     fdSettings.left = new FormAttachment( 0, margin );

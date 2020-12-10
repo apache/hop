@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core;
 
@@ -192,8 +187,8 @@ public class Result implements Cloneable {
     result = false;
 
     exitStatus = 0;
-    rows = new ArrayList<RowMetaAndData>();
-    resultFiles = new ConcurrentHashMap<String, ResultFile>();
+    rows = new ArrayList<>();
+    resultFiles = new ConcurrentHashMap<>();
 
     stopped = false;
     entryNr = 0;
@@ -220,7 +215,7 @@ public class Result implements Cloneable {
       Result result = (Result) super.clone();
       result.setRows( null );
       if ( resultFiles != null ) {
-        Map<String, ResultFile> clonedFiles = new ConcurrentHashMap<String, ResultFile>();
+        Map<String, ResultFile> clonedFiles = new ConcurrentHashMap<>();
         Collection<ResultFile> files = resultFiles.values();
         for ( ResultFile file : files ) {
           clonedFiles.put( file.getFile().toString(), file.clone() );
@@ -238,7 +233,7 @@ public class Result implements Cloneable {
    * Clones the Result, including rows and files. To perform a clone without rows, use lightClone()
    *
    * @return A clone of the Result object
-   * @see java.lang.Object#clone()
+   * @see Object#clone()
    * @see Result#lightClone
    */
   @Override
@@ -248,7 +243,7 @@ public class Result implements Cloneable {
 
       // Clone result rows and files as well...
       if ( rows != null ) {
-        List<RowMetaAndData> clonedRows = new ArrayList<RowMetaAndData>();
+        List<RowMetaAndData> clonedRows = new ArrayList<>();
         for ( int i = 0; i < rows.size(); i++ ) {
           clonedRows.add( ( rows.get( i ) ).clone() );
         }
@@ -256,7 +251,7 @@ public class Result implements Cloneable {
       }
 
       if ( resultFiles != null ) {
-        Map<String, ResultFile> clonedFiles = new ConcurrentHashMap<String, ResultFile>();
+        Map<String, ResultFile> clonedFiles = new ConcurrentHashMap<>();
         Collection<ResultFile> files = resultFiles.values();
         for ( ResultFile file : files ) {
           clonedFiles.put( file.getFile().toString(), file.clone() );
@@ -304,7 +299,7 @@ public class Result implements Cloneable {
   /**
    * Returns a string representation of the Result object
    *
-   * @see java.lang.Object#toString()
+   * @see Object#toString()
    */
   @Override
   public String toString() {
@@ -730,7 +725,7 @@ public class Result implements Cloneable {
    * Returns the result files as a Map with the filename as key and the ResultFile object as value
    *
    * @return a Map with String as key and ResultFile as value.
-   * @see org.apache.hop.core.ResultFile
+   * @see ResultFile
    */
   public Map<String, ResultFile> getResultFiles() {
     return resultFiles;
@@ -740,17 +735,17 @@ public class Result implements Cloneable {
    * Returns the result files as a List of type ResultFile
    *
    * @return a list of type ResultFile containing this Result's ResultFile objects
-   * @see org.apache.hop.core.ResultFile
+   * @see ResultFile
    */
   public List<ResultFile> getResultFilesList() {
-    return new ArrayList<ResultFile>( resultFiles.values() );
+    return new ArrayList<>( resultFiles.values() );
   }
 
   /**
    * Sets the result files for this Result to the specified Map of ResultFile objects
    *
    * @param usedFiles The Map of result files to set. This is a Map with the filename as key and ResultFile object as value
-   * @see org.apache.hop.core.ResultFile
+   * @see ResultFile
    */
   public void setResultFiles( Map<String, ResultFile> usedFiles ) {
     this.resultFiles = usedFiles;

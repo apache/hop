@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.row;
 
@@ -29,6 +24,7 @@ import org.apache.hop.core.exception.HopEofException;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.exception.HopFileException;
 import org.apache.hop.core.exception.HopValueException;
+import org.apache.hop.core.variables.IVariables;
 import org.w3c.dom.Node;
 
 import java.io.DataInputStream;
@@ -630,7 +626,6 @@ public interface IValueMeta extends Cloneable {
 
   /**
    * Returns true of the date format is leniant, false if it is strict. <br/>
-   * See also {@link setDateFormatLenient(boolean)}
    *
    * @return true if the the date formatting (parsing) is to be lenient.
    */
@@ -677,7 +672,7 @@ public interface IValueMeta extends Cloneable {
   /**
    * store original JDBC RecordSetMetaData for later use
    *
-   * @see java.sql.ResultSetMetaData
+   * @see ResultSetMetaData
    */
 
   int getOriginalColumnType();
@@ -1022,7 +1017,7 @@ public interface IValueMeta extends Cloneable {
    * @param convertMeta the metadata of the object (only string type) to be converted
    * @param nullif      set the object to null if pos equals nullif (IgnoreCase)
    * @param ifNull      set the object to ifNull when pol is empty or null
-   * @param trim_type   the trim type to be used (IValueMeta.TRIM_TYPE_XXX)
+   * @param trimType   the trim type to be used (IValueMeta.TRIM_TYPE_XXX)
    * @return the object in the data type of this value metadata object
    * @throws HopValueException in case there is a data conversion error
    */
@@ -1180,6 +1175,8 @@ public interface IValueMeta extends Cloneable {
    * Investigate JDBC result set metadata at the specified index. If this value metadata is interested in handling this
    * SQL type, it should return the value meta. Otherwise it should return null.
    *
+   *
+   * @param variables
    * @param databaseMeta   the database metadata to reference capabilities and so on.
    * @param name           The name of the new value
    * @param rm             The result metadata to investigate
@@ -1189,8 +1186,8 @@ public interface IValueMeta extends Cloneable {
    * @return The value metadata if this value should handle the SQL type at the specified index.
    * @throws HopDatabaseException In case something went wrong.
    */
-  IValueMeta getValueFromSqlType(DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
-                                 int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException;
+  IValueMeta getValueFromSqlType( IVariables variables, DatabaseMeta databaseMeta, String name, ResultSetMetaData rm,
+                                  int index, boolean ignoreLength, boolean lazyConversion ) throws HopDatabaseException;
 
   /**
    * This is a similar method to getValueFromSQLType, but it uses a
@@ -1201,10 +1198,11 @@ public interface IValueMeta extends Cloneable {
    * actual values. This is a lightweight call using only JDBC metadata and does
    * not make use of SQL statements.
    *
+   * @param variables
    * @param databaseMeta the database metadata to reference capabilities and so on.
    * @param rs           A ResultSet from getColumns, positioned correctly on a column to read.
    */
-  IValueMeta getMetadataPreview( DatabaseMeta databaseMeta, ResultSet rs )
+  IValueMeta getMetadataPreview( IVariables variables, DatabaseMeta databaseMeta, ResultSet rs )
     throws HopDatabaseException;
 
   /**
@@ -1253,13 +1251,13 @@ public interface IValueMeta extends Cloneable {
    * @param iDatabase The database type/dialect to get the column type definition for
    * @param tk                Is this a technical key field?
    * @param pk                Is this a primary key field?
-   * @param use_autoinc       Use auto-increment?
-   * @param add_fieldname     add the fieldname to the column type definition?
-   * @param add_cr            add a cariage return to the string?
+   * @param useAutoIncrement       Use auto-increment?
+   * @param addFieldName     add the fieldname to the column type definition?
+   * @param addCr            add a cariage return to the string?
    * @return The field type definition
    */
   String getDatabaseColumnTypeDefinition( IDatabase iDatabase, String tk, String pk,
-                                          boolean useAutoInc, boolean addFieldname, boolean addCr );
+                                          boolean useAutoIncrement, boolean addFieldName, boolean addCr );
 
   /**
    * Is Ignore Whitespace

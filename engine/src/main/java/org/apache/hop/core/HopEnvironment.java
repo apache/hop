@@ -130,7 +130,7 @@ public class HopEnvironment {
         // Inform the outside world that we're ready with the init of the Hop Environment
         // Others might want to register extra plugins that perhaps were not found automatically
         //
-        ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, HopExtensionPoint.HopEnvironmentAfterInit.name(), PluginRegistry.getInstance());
+        ExtensionPointHandler.callExtensionPoint( LogChannel.GENERAL, null, HopExtensionPoint.HopEnvironmentAfterInit.name(), PluginRegistry.getInstance() );
 
         ready.set( true );
       } catch ( Throwable t ) {

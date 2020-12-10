@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.pipeline.transforms.groupby;
 
@@ -28,6 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -139,10 +134,10 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
 
   private Map<String, Integer> inputFields;
 
-  public GroupByDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public GroupByDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (GroupByMeta) in;
-    inputFields = new HashMap<String, Integer>();
+    inputFields = new HashMap<>();
   }
 
   public String open() {
@@ -227,7 +222,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     fdbSortDir.top = new FormAttachment( wAllRows, margin );
     wbSortDir.setLayoutData( fdbSortDir );
 
-    wSortDir = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSortDir = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSortDir );
     wSortDir.addModifyListener( lsMod );
     fdSortDir = new FormData();
@@ -248,7 +243,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
     } );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( pipelineMeta.environmentSubstitute( wSortDir.getText() ) ) );
+    wSortDir.addModifyListener( e -> wSortDir.setToolTipText( variables.resolve( wSortDir.getText() ) ) );
 
     // Prefix line...
     wlPrefix = new Label( shell, SWT.RIGHT );
@@ -347,7 +342,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
         BaseMessages.getString( PKG, "GroupByDialog.ColumnInfo.GroupField" ), ColumnInfo.COLUMN_TYPE_CCOMBO,
         new String[] { "" }, false );
 
-    wGroup = new TableView( pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey, nrKeyRows, lsMod, props );
+    wGroup = new TableView( variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey, nrKeyRows, lsMod, props );
     wGet = new Button( shell, SWT.PUSH );
     wGet.setText( BaseMessages.getString( PKG, "GroupByDialog.GetFields.Button" ) );
     fdGet = new FormData();
@@ -394,7 +389,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
 
     wAgg =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
     wAgg.addModifyListener( modifyEvent -> {
@@ -417,7 +412,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -490,7 +485,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
   protected void setComboBoxes() {
     // Something was changed in the row.
     //
-    final Map<String, Integer> fields = new HashMap<String, Integer>();
+    final Map<String, Integer> fields = new HashMap<>();
 
     // Add the currentMeta fields...
     fields.putAll( inputFields );
@@ -635,7 +630,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wGroup, 1, new int[] { 1 }, new int[] {}, -1, -1, null );
       }
@@ -648,7 +643,7 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
 
   private void getAgg() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wAgg, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
       }
@@ -683,9 +678,9 @@ public class GroupByDialog extends BaseTransformDialog implements ITransformDial
   }
 
   @Override
-  protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
+  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
     plugin.setDocumentationUrl("https://hop.apache.org/manual/latest/plugins/transforms/groupby.html");
-    return super.createHelpButton(shell, stepMeta, plugin);
+    return super.createHelpButton(shell, transformMeta, plugin);
   }
 
 }

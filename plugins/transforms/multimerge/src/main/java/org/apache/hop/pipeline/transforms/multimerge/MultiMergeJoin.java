@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.multimerge;
 
@@ -116,8 +110,8 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
     data.metas = new IRowMeta[ streamSize ];
     data.rowLengths = new int[ streamSize ];
     MultiMergeJoinData.QueueComparator comparator = new MultiMergeJoinData.QueueComparator( data );
-    data.queue = new PriorityQueue<MultiMergeJoinData.QueueEntry>( streamSize, comparator );
-    data.results = new ArrayList<List<Object[]>>( streamSize );
+    data.queue = new PriorityQueue<>( streamSize, comparator );
+    data.results = new ArrayList<>( streamSize );
     MultiMergeJoinData.QueueEntry queueEntry;
     data.queueEntries = new MultiMergeJoinData.QueueEntry[ streamSize ];
     data.drainIndices = new int[ streamSize ];
@@ -137,7 +131,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
       queueEntry.index = j;
       data.queueEntries[ j ] = queueEntry;
 
-      data.results.add( new ArrayList<Object[]>() );
+      data.results.add( new ArrayList<>() );
 
       rowSet = findInputRowSet( inputTransformName );
       if ( rowSet == null ) {
@@ -149,7 +143,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
       row = getRowFrom( rowSet );
       data.rows[ j ] = row;
       if ( row == null ) {
-        rowMeta = getPipelineMeta().getTransformFields( inputTransformName );
+        rowMeta = getPipelineMeta().getTransformFields( this, inputTransformName );
         data.metas[ j ] = rowMeta;
       } else {
         queueEntry.row = row;
@@ -421,7 +415,7 @@ public class MultiMergeJoin extends BaseTransform<MultiMergeJoinMeta,MultiMergeJ
       // check:2 No of keys are same for each stream
       int prevCount = 0;
 
-      List<String[]> keyList = new ArrayList<String[]>();
+      List<String[]> keyList = new ArrayList<>();
       for ( int i = 0; i < keyFields.length; i++ ) {
         String[] keys = keyFields[ i ].split( "," );
         keyList.add( keys );

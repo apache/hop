@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.pipeline.transforms.pipelineexecutor;
 
@@ -32,6 +26,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -155,8 +150,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
   private Button wGetParameters;
 
-  public PipelineExecutorDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public PipelineExecutorDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     pipelineExecutorMeta = (PipelineExecutorMeta) in;
     jobModified = false;
   }
@@ -243,7 +238,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     wbBrowse.setLayoutData( fdBrowse );
     wbBrowse.addListener( SWT.Selection, e -> selectPipelineFile() );    
 
-    wPath = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPath = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
     FormData fdTransformation = new FormData();
     fdTransformation.left = new FormAttachment( 0, 0 );
@@ -260,7 +255,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdlRunConfiguration.right = new FormAttachment( 50, 0 );
     wlRunConfiguration.setLayoutData( fdlRunConfiguration );
 
-    wRunConfiguration = new ComboVar( pipelineMeta, shell, SWT.LEFT | SWT.BORDER );
+    wRunConfiguration = new ComboVar( variables, shell, SWT.LEFT | SWT.BORDER );
     props.setLook( wlRunConfiguration );
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment( 0, 0 );
@@ -343,20 +338,20 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   }
 
   private void selectPipelineFile() {
-    String curFile = pipelineMeta.environmentSubstitute( wPath.getText() );
+    String curFile = variables.resolve( wPath.getText() );
 
 
 
     String parentFolder = null;
     try {
-      parentFolder = HopVfs.getFileObject( pipelineMeta.environmentSubstitute( pipelineMeta.getFilename() ) ).getParent().toString();
+      parentFolder = HopVfs.getFileObject( variables.resolve( pipelineMeta.getFilename() ) ).getParent().toString();
     } catch ( Exception e ) {
       // Take no action
     }
 
     try {
       HopPipelineFileType<PipelineMeta> fileType = HopGui.getDataOrchestrationPerspective().getPipelineFileType();
-      String filename = BaseDialog.presentFileDialog( shell, wPath, pipelineMeta, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+      String filename = BaseDialog.presentFileDialog( shell, wPath, variables, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename != null ) {
         loadPipelineFile( filename );
         if ( parentFolder != null && filename.startsWith( parentFolder ) ) {
@@ -372,8 +367,8 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   }
 
   private void loadPipelineFile( String fname ) throws HopException {
-    String filename = pipelineMeta.environmentSubstitute( fname );
-    executorPipelineMeta = new PipelineMeta( filename, metadataProvider, true, pipelineMeta );
+    String filename = variables.resolve( fname );
+    executorPipelineMeta = new PipelineMeta( filename, metadataProvider, true, variables );
     executorPipelineMeta.clearChanged();
   }
 
@@ -400,7 +395,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
       List<String> runConfigurations = metadataProvider.getSerializer( PipelineRunConfiguration.class ).listObjectNames();
 
       try {
-        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiRunConfiguration.id, new Object[] { runConfigurations, PipelineMeta.XML_TAG } );
+        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), variables, HopExtensionPoint.HopGuiRunConfiguration.id, new Object[] { runConfigurations, PipelineMeta.XML_TAG } );
       } catch ( HopException e ) {
         // Ignore errors
       }
@@ -426,7 +421,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
       wResultFilesTarget.setItems( prevTransforms );
       wOutputRowsSource.setItems( prevTransforms );
 
-      String[] inputFields = pipelineMeta.getPrevTransformFields( transformMeta ).getFieldNames();
+      String[] inputFields = pipelineMeta.getPrevTransformFields( variables, transformMeta ).getFieldNames();
       parameterColumns[ 1 ].setComboValues( inputFields );
       wGroupField.setItems( inputFields );
     } catch ( Exception e ) {
@@ -545,7 +540,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
 
     PipelineExecutorParameters parameters = pipelineExecutorMeta.getParameters();
     wPipelineExecutorParameters =
-      new TableView( pipelineMeta, wParametersComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, parameterColumns,
+      new TableView( variables, wParametersComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, parameterColumns,
         parameters.getVariable().length, false, lsMod, props, false );
     props.setLook( wPipelineExecutorParameters );
     FormData fdPipelineExecutors = new FormData();
@@ -642,7 +637,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdlGroupSize.left = new FormAttachment( 0, 0 );
     wlGroupSize.setLayoutData( fdlGroupSize );
 
-    wGroupSize = new TextVar( pipelineMeta, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wGroupSize = new TextVar( variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wGroupSize );
     wGroupSize.addModifyListener( lsMod );
     FormData fdGroupSize = new FormData();
@@ -680,7 +675,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdlGroupTime.left = new FormAttachment( 0, 0 ); // First one in the left
     wlGroupTime.setLayoutData( fdlGroupTime );
 
-    wGroupTime = new TextVar( pipelineMeta, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wGroupTime = new TextVar( variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wGroupTime );
     wGroupTime.addModifyListener( lsMod );
     FormData fdGroupTime = new FormData();
@@ -737,7 +732,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     executionResultColumns[ 1 ].setUsingVariables( true );
 
     TableView wExectionResults =
-      new TableView( pipelineMeta, wInputComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, executionResultColumns,
+      new TableView( variables, wInputComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, executionResultColumns,
         14, false, lsMod, props, false );
     props.setLook( wExectionResults );
     FormData fdExecutionResults = new FormData();
@@ -853,7 +848,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
     fdlResultFileNameField.left = new FormAttachment( 0, 0 ); // First one in the left
     wlResultFileNameField.setLayoutData( fdlResultFileNameField );
 
-    wResultFileNameField = new TextVar( pipelineMeta, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResultFileNameField = new TextVar( variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResultFileNameField );
     wResultFileNameField.addModifyListener( lsMod );
     FormData fdResultFileNameField = new FormData();
@@ -931,7 +926,7 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
 
     wOutputFields =
-      new TableView( pipelineMeta, wInputComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL
+      new TableView( variables, wInputComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL
         | SWT.H_SCROLL, ciResultFields, nrRows, false, lsMod, props, false );
 
     FormData fdResultFields = new FormData();
@@ -962,9 +957,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
       || wlGroupTime == null || wGroupTime == null ) {
       return;
     }
-    boolean enableSize = Const.toInt( pipelineMeta.environmentSubstitute( wGroupSize.getText() ), -1 ) >= 0;
+    boolean enableSize = Const.toInt( variables.resolve( wGroupSize.getText() ), -1 ) >= 0;
     boolean enableField = !Utils.isEmpty( wGroupField.getText() );
-    // boolean enableTime = Const.toInt(pipelineMeta.environmentSubstitute(wGroupTime.getText()), -1)>0;
+    // boolean enableTime = Const.toInt(variables.environmentSubstitute(wGroupTime.getText()), -1)>0;
 
     wlGroupSize.setEnabled( true );
     wGroupSize.setEnabled( true );
@@ -1084,9 +1079,9 @@ public class PipelineExecutorDialog extends BaseTransformDialog implements ITran
   }
 
   @Override
-  protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
+  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
     plugin.setDocumentationUrl("https://hop.apache.org/manual/latest/plugins/transforms/pipelineexcecutor.html");
-    return super.createHelpButton(shell, stepMeta, plugin);
+    return super.createHelpButton(shell, transformMeta, plugin);
   }
 
 }

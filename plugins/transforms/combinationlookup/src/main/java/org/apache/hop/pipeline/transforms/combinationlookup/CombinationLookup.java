@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.combinationlookup;
 
@@ -156,9 +151,9 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       //
       // Perhaps we should get 20% random values and delete everything below the lowest but one TK.
       //
-      List<RowMetaAndData> keys = new ArrayList<RowMetaAndData>( data.cache.keySet() );
+      List<RowMetaAndData> keys = new ArrayList<>( data.cache.keySet() );
       int sizeBefore = keys.size();
-      List<Long> samples = new ArrayList<Long>();
+      List<Long> samples = new ArrayList<>();
 
       // Take 10 sample technical keys....
       int transformsize = keys.size() / 5;
@@ -339,7 +334,7 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       data.schemaTable =
-        meta.getDatabaseMeta().getQuotedSchemaTableCombination( data.realSchemaName, data.realTableName );
+        meta.getDatabaseMeta().getQuotedSchemaTableCombination( this, data.realSchemaName, data.realTableName );
 
       determineTechKeyCreation();
 
@@ -668,20 +663,20 @@ public class CombinationLookup extends BaseTransform<CombinationLookupMeta, Comb
   @Override
   public boolean init() {
     if ( super.init() ) {
-      data.realSchemaName = environmentSubstitute( meta.getSchemaName() );
-      data.realTableName = environmentSubstitute( meta.getTableName() );
+      data.realSchemaName = resolve( meta.getSchemaName() );
+      data.realTableName = resolve( meta.getTableName() );
 
       if ( meta.getCacheSize() > 0 ) {
-        data.cache = new HashMap<RowMetaAndData, Long>( (int) ( meta.getCacheSize() * 1.5 ) );
+        data.cache = new HashMap<>( (int) ( meta.getCacheSize() * 1.5 ) );
       } else {
-        data.cache = new HashMap<RowMetaAndData, Long>();
+        data.cache = new HashMap<>();
       }
       if ( meta.getDatabaseMeta() == null ) {
         logError( BaseMessages.getString( PKG, "CombinationLookup.Init.ConnectionMissing", getTransformName() ) );
         return false;
       }
       data.db = new Database( this, meta.getDatabaseMeta() );
-      data.db.shareVariablesWith( this );
+      data.db.shareWith( this );
       try {
         data.db.connect( getPartitionId() );
 

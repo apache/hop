@@ -118,7 +118,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
   private TextVar wLinesupdatedField;
   private FormData fdlLinesupdatedField, fdLinesupdatedField;
 
-  public TransformsMetricsDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public TransformsMetricsDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (TransformsMetricsMeta) in;
   }
@@ -222,7 +222,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     colinf[ 1 ].setUsingVariables( true );
     wFields =
       new TableView(
-        pipelineMeta, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -266,7 +266,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     fdlTransformNameField.top = new FormAttachment( 0, margin );
     fdlTransformNameField.right = new FormAttachment( middle, -margin );
     wlTransformNameField.setLayoutData( fdlTransformNameField );
-    wTransformNameField = new TextVar( pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTransformNameField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTransformNameField.setText( "" );
     props.setLook( wTransformNameField );
     wTransformNameField.addModifyListener( lsMod );
@@ -285,7 +285,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     fdlTransformIdField.top = new FormAttachment( wTransformNameField, margin );
     fdlTransformIdField.right = new FormAttachment( middle, -margin );
     wlTransformIdField.setLayoutData( fdlTransformIdField );
-    wTransformIdField = new TextVar( pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTransformIdField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTransformIdField.setText( "" );
     props.setLook( wTransformIdField );
     wTransformIdField.addModifyListener( lsMod );
@@ -304,7 +304,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     fdlLinesinputField.top = new FormAttachment( wTransformIdField, margin );
     fdlLinesinputField.right = new FormAttachment( middle, -margin );
     wlLinesinputField.setLayoutData( fdlLinesinputField );
-    wLinesinputField = new TextVar( pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLinesinputField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLinesinputField.setText( "" );
     props.setLook( wLinesinputField );
     wLinesinputField.addModifyListener( lsMod );
@@ -323,7 +323,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     fdlLinesoutputField.top = new FormAttachment( wLinesinputField, margin );
     fdlLinesoutputField.right = new FormAttachment( middle, -margin );
     wlLinesoutputField.setLayoutData( fdlLinesoutputField );
-    wLinesoutputField = new TextVar( pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLinesoutputField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLinesoutputField.setText( "" );
     props.setLook( wLinesoutputField );
     wLinesoutputField.addModifyListener( lsMod );
@@ -342,7 +342,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     fdlLinesreadField.top = new FormAttachment( wLinesoutputField, margin );
     fdlLinesreadField.right = new FormAttachment( middle, -margin );
     wlLinesreadField.setLayoutData( fdlLinesreadField );
-    wLinesreadField = new TextVar( pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLinesreadField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLinesreadField.setText( "" );
     props.setLook( wLinesreadField );
     wLinesreadField.addModifyListener( lsMod );
@@ -361,7 +361,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     fdlLinesupdatedField.top = new FormAttachment( wLinesreadField, margin );
     fdlLinesupdatedField.right = new FormAttachment( middle, -margin );
     wlLinesupdatedField.setLayoutData( fdlLinesupdatedField );
-    wLinesupdatedField = new TextVar( pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLinesupdatedField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLinesupdatedField.setText( "" );
     props.setLook( wLinesupdatedField );
     wLinesupdatedField.addModifyListener( lsMod );
@@ -380,7 +380,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     fdlLineswrittenField.top = new FormAttachment( wLinesupdatedField, margin );
     fdlLineswrittenField.right = new FormAttachment( middle, -margin );
     wlLineswrittenField.setLayoutData( fdlLineswrittenField );
-    wLineswrittenField = new TextVar( pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLineswrittenField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLineswrittenField.setText( "" );
     props.setLook( wLineswrittenField );
     wLineswrittenField.addModifyListener( lsMod );
@@ -399,7 +399,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     fdlLineserrorsField.top = new FormAttachment( wLineswrittenField, margin );
     fdlLineserrorsField.right = new FormAttachment( middle, -margin );
     wlLineserrorsField.setLayoutData( fdlLineserrorsField );
-    wLineserrorsField = new TextVar( pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLineserrorsField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wLineserrorsField.setText( "" );
     props.setLook( wLineserrorsField );
     wLineserrorsField.addModifyListener( lsMod );
@@ -418,7 +418,7 @@ public class TransformsMetricsDialog extends BaseTransformDialog implements ITra
     fdlSecondsField.top = new FormAttachment( wLineserrorsField, margin );
     fdlSecondsField.right = new FormAttachment( middle, -margin );
     wlSecondsField.setLayoutData( fdlSecondsField );
-    wSecondsField = new TextVar( pipelineMeta, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSecondsField = new TextVar( variables, wFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSecondsField.setText( "" );
     props.setLook( wSecondsField );
     wSecondsField.addModifyListener( lsMod );

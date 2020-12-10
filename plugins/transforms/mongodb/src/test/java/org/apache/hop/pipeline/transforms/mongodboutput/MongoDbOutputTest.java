@@ -92,7 +92,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   List<Object[]> outputRowData;
 
   private List<MongoDbOutputMeta.MongoField> mongoFields =
-      new ArrayList<MongoDbOutputMeta.MongoField>();
+    new ArrayList<>();
 
   @Before
   public void before() throws MongoDbException {
@@ -156,7 +156,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   @Test(expected = HopException.class)
   public void testCheckTopLevelConsistencyNoFieldsDefined() throws Exception {
     MongoDbOutputData.checkTopLevelConsistency(
-        new ArrayList<MongoDbOutputMeta.MongoField>(0), new Variables());
+      new ArrayList<>( 0 ), new Variables());
   }
 
   /**
@@ -168,7 +168,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
    */
   @Test
   public void testUpdateObjectContainsQueryFields() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     mf.m_updateMatchField = true;
@@ -190,7 +190,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.RECORD, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.RECORD, false);
 
     assertEquals(JSON.serialize(result), "{ \"field1\" : \"value1\" , \"field2\" : 12}");
   }
@@ -205,7 +205,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
    */
   @Test
   public void testUpdateObjectBackwardsCompatibility() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     mf.m_updateMatchField = true;
@@ -234,7 +234,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.RECORD, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.RECORD, false);
 
     // here we expect that field1 does *not* occur twice in the update object
     assertEquals(JSON.serialize(result), "{ \"field1\" : \"value1\" , \"field2\" : 12}");
@@ -258,7 +258,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.RECORD, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.RECORD, false);
 
     assertEquals(JSON.serialize(result), "{ \"field1\" : \"value1\" , \"field2\" : 12}");
   }
@@ -281,7 +281,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.ARRAY, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.ARRAY, false);
 
     assertEquals(JSON.serialize(result), "[ \"value1\" , 12]");
   }
@@ -304,7 +304,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.ARRAY, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.ARRAY, false);
 
     assertEquals(JSON.serialize(result), "[ { \"field1\" : \"value1\"} , { \"field2\" : 12}]");
   }
@@ -327,14 +327,14 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.ARRAY, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.ARRAY, false);
 
     assertEquals(JSON.serialize(result), "[ { \"field1\" : \"value1\" , \"field2\" : 12}]");
   }
 
   @Test
   public void testTopLevelArrayStructureContainingObjectWithArray() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = new MongoDbOutputMeta.MongoField();
     mf.m_incomingFieldName = "field1";
@@ -361,7 +361,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.ARRAY, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.ARRAY, false);
 
     assertEquals(
         JSON.serialize(result),
@@ -386,7 +386,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.RECORD, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.RECORD, false);
 
     assertEquals(
         JSON.serialize(result), "{ \"field1\" : \"value1\" , \"nestedDoc\" : { \"field2\" : 12}}");
@@ -394,7 +394,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testTopLevelObjectStructureTwoLevelNested() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = new MongoDbOutputMeta.MongoField();
     mf.m_incomingFieldName = "field1";
@@ -421,7 +421,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.RECORD, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.RECORD, false);
 
     assertEquals(
         JSON.serialize(result),
@@ -430,7 +430,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testModifierUpdateWithMultipleModifiersOfSameType() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();
@@ -457,7 +457,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
     // in an update object with two entries
     DBObject modifierUpdate =
         data.getModifierUpdateObject(
-            paths, rm, dummyRow, vars, MongoDbOutputData.MongoTopLevel.RECORD);
+            paths, rm, dummyRow, vars, MongoTopLevel.RECORD);
 
     assertTrue(modifierUpdate != null);
     assertTrue(modifierUpdate.get("$set") != null);
@@ -467,7 +467,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testModifierSetComplexArrayGrouping() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();
@@ -491,7 +491,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
     DBObject modifierUpdate =
         data.getModifierUpdateObject(
-            paths, rm, dummyRow, vars, MongoDbOutputData.MongoTopLevel.RECORD);
+            paths, rm, dummyRow, vars, MongoTopLevel.RECORD);
 
     assertTrue(modifierUpdate != null);
     assertTrue(modifierUpdate.get("$set") != null);
@@ -512,7 +512,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testModifierPushComplexObject() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();
@@ -537,7 +537,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
     DBObject modifierUpdate =
         data.getModifierUpdateObject(
-            paths, rm, dummyRow, vars, MongoDbOutputData.MongoTopLevel.RECORD);
+            paths, rm, dummyRow, vars, MongoTopLevel.RECORD);
 
     assertTrue(modifierUpdate != null);
     assertTrue(modifierUpdate.get("$push") != null);
@@ -557,7 +557,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testModifierPushComplexObjectWithJsonNestedDoc() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();
@@ -591,7 +591,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
     DBObject modifierUpdate =
         data.getModifierUpdateObject(
-            paths, rm, dummyRow, vars, MongoDbOutputData.MongoTopLevel.RECORD);
+            paths, rm, dummyRow, vars, MongoTopLevel.RECORD);
 
     assertTrue(modifierUpdate != null);
     assertTrue(modifierUpdate.get("$push") != null);
@@ -613,7 +613,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testInsertHopFieldThatContainsJsonIntoTopLevelRecord() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     paths.add(mf);
@@ -640,7 +640,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rm, row, MongoDbOutputData.MongoTopLevel.RECORD, false);
+    DBObject result = hopRowToMongo(paths, rm, row, MongoTopLevel.RECORD, false);
 
     assertEquals(
         JSON.serialize(result),
@@ -660,7 +660,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   public void testForInsertTopLevelJSONDocAsIsWithOneJSONMatchPathAndOneJSONInsertPath()
       throws Exception {
 
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = mf("", false, "");
     mf.m_JSON = true;
@@ -678,7 +678,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   public void
       testScanForInsertTopLevelJSONDocAsIsWithMoreThanOnePathSpecifyingATopLevelJSONDocToInsert()
           throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
 
     MongoDbOutputMeta.MongoField mf = mf("", false, "");
     mf.m_JSON = true;
@@ -696,7 +696,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testInsertHopFieldThatContainsJsonIntoOneLevelNestedDoc() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     paths.add(mf);
@@ -723,7 +723,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.RECORD, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.RECORD, false);
 
     assertEquals(
         JSON.serialize(result),
@@ -733,7 +733,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testInsertHopFieldThatContainsJsonIntoTopLevelArray() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "[0]");
     paths.add(mf);
@@ -760,7 +760,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.ARRAY, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.ARRAY, false);
 
     assertEquals(
         JSON.serialize(result),
@@ -769,7 +769,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   @Test
   public void testGetQueryObjectThatContainsJsonNestedDoc() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(3);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 3 );
 
     MongoDbOutputMeta.MongoField mf = mf("field1", true, "");
     mf.m_updateMatchField = true;
@@ -801,7 +801,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
     DBObject query =
         MongoDbOutputData.getQueryObject(
-            paths, rmi, row, vs, MongoDbOutputData.MongoTopLevel.RECORD);
+            paths, rmi, row, vs, MongoTopLevel.RECORD);
 
     assertEquals(
         JSON.serialize(query),
@@ -900,8 +900,8 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
     field.m_incomingFieldName = fieldName;
     field.m_mongoDocPath = fieldName;
     IVariables vars = mock(IVariables.class);
-    when(vars.environmentSubstitute(anyString())).thenReturn(fieldName);
-    when(vars.environmentSubstitute(anyString())).thenReturn(fieldName);
+    when(vars.resolve(anyString())).thenReturn(fieldName);
+    when(vars.resolve(anyString())).thenReturn(fieldName);
     field.init(vars);
     return field;
   }
@@ -938,7 +938,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   private void setupRowMeta() {
     rowData = new Object[] {"foo", "bar", "baz"};
-    outputRowData = new ArrayList<Object[]>();
+    outputRowData = new ArrayList<>();
     rowMeta.addValueMeta(new ValueMetaString("foo"));
     rowMeta.addValueMeta(new ValueMetaString("bar"));
     rowMeta.addValueMeta(new ValueMetaString("baz"));
@@ -1006,10 +1006,10 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
   public void doBatchWithRetry() throws Exception {
     setupReturns();
     setupRowMeta();
-    dbOutput.m_batch = new ArrayList<DBObject>();
+    dbOutput.m_batch = new ArrayList<>();
     dbOutput.m_batch.add(
         new BasicDBObject(ImmutableMap.of("foo", "fooval", "bar", "barval", "baz", "bazval")));
-    List<Object[]> batchRows = new ArrayList<Object[]>();
+    List<Object[]> batchRows = new ArrayList<>();
     batchRows.add(rowData);
 
     List<DBObject> batchCopy = new ArrayList(dbOutput.m_batch);
@@ -1055,7 +1055,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
     final String[] metaNames = new String[] {"a1", "a2", "a3"};
     String[] mongoNames = new String[] {"a1", "a2"};
-    Capture<String> loggerCapture = new Capture<String>(CaptureType.ALL);
+    Capture<String> loggerCapture = new Capture<>( CaptureType.ALL );
     output.logBasic(EasyMock.capture(loggerCapture));
     EasyMock.replay(output);
     IRowMeta rmi = getStubRowMetaInterface(metaNames);
@@ -1133,7 +1133,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   private MongoDbOutput prepareMongoDbOutputMock() {
     MongoDbOutput output = EasyMock.createNiceMock(MongoDbOutput.class);
-    EasyMock.expect(output.environmentSubstitute(EasyMock.anyObject(String.class)))
+    EasyMock.expect(output.resolve(EasyMock.anyObject(String.class)))
         .andAnswer(
             () -> {
               Object[] args = EasyMock.getCurrentArguments();
@@ -1172,7 +1172,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
   private List<MongoDbOutputMeta.MongoField> getMongoFields(String[] names) {
     List<MongoDbOutputMeta.MongoField> ret =
-        new ArrayList<MongoDbOutputMeta.MongoField>(names.length);
+      new ArrayList<>( names.length );
     for (String name : names) {
       MongoDbOutputMeta.MongoField field = new MongoDbOutputMeta.MongoField();
       field.m_incomingFieldName = name;
@@ -1215,7 +1215,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
     DBObject updateObject =
         new MongoDbOutputData()
-            .getModifierUpdateObject(paths, rm, row, vs, MongoDbOutputData.MongoTopLevel.RECORD);
+            .getModifierUpdateObject(paths, rm, row, vs, MongoTopLevel.RECORD);
 
     assertNotNull(updateObject);
 
@@ -1252,7 +1252,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
       f.init(vs);
     }
 
-    DBObject result = hopRowToMongo(paths, rmi, row, MongoDbOutputData.MongoTopLevel.ARRAY, false);
+    DBObject result = hopRowToMongo(paths, rmi, row, MongoTopLevel.ARRAY, false);
     assertEquals(JSON.serialize(result), "[ { \"field1\" : \"value1\"} , { \"field2\" : 12}]");
   }
 
@@ -1263,7 +1263,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
    */
   @Test
   public void testModifierPushObjectWithEnvironmentSubstitution() throws Exception {
-    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<MongoDbOutputMeta.MongoField>(2);
+    List<MongoDbOutputMeta.MongoField> paths = new ArrayList<>( 2 );
     MongoDbOutputData data = new MongoDbOutputData();
 
     IVariables vars = new Variables();
@@ -1291,7 +1291,7 @@ public class MongoDbOutputTest extends BaseMongoDbTransformTest {
 
     DBObject modifierUpdate =
         data.getModifierUpdateObject(
-            paths, rm, dummyRow, vars, MongoDbOutputData.MongoTopLevel.RECORD);
+            paths, rm, dummyRow, vars, MongoTopLevel.RECORD);
 
     assertTrue(modifierUpdate != null);
     assertTrue(modifierUpdate.get("$push") != null);

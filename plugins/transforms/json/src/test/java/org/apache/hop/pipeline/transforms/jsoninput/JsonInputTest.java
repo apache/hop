@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
@@ -163,7 +157,7 @@ public class JsonInputTest {
   @Before
   public void setUp() {
     helper =
-      new TransformMockHelper<JsonInputMeta, JsonInputData>( "json input test", JsonInputMeta.class, JsonInputData.class );
+      new TransformMockHelper<>( "json input test", JsonInputMeta.class, JsonInputData.class );
     when( helper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       helper.iLogChannel );
     when( helper.pipeline.isRunning() ).thenReturn( true );
@@ -1049,7 +1043,7 @@ public class JsonInputTest {
     meta.setRemoveSourceField( true );
     when( helper.transformMeta.isDoingErrorHandling() ).thenReturn( true );
     JsonInput jsonInput = createJsonInput( "json", meta, new Object[] { input1 }, new Object[] { input2 } );
-    TransformErrorMeta errMeta = new TransformErrorMeta( jsonInput, helper.transformMeta );
+    TransformErrorMeta errMeta = new TransformErrorMeta( helper.transformMeta );
     errMeta.setEnabled( true );
     errMeta.setErrorFieldsValuename( "err field" );
     when( helper.transformMeta.getTransformErrorMeta() ).thenReturn( errMeta );
@@ -1141,7 +1135,7 @@ public class JsonInputTest {
   protected JsonInputMeta createFileListMeta( final List<FileObject> files ) {
     JsonInputMeta meta = new JsonInputMeta() {
       @Override
-      public FileInputList getFileInputList( IVariables space ) {
+      public FileInputList getFileInputList( IVariables variables ) {
         return new FileInputList() {
           @Override
           public List<FileObject> getFiles() {
@@ -1209,7 +1203,7 @@ public class JsonInputTest {
 
     jsonInput.addRowSetToInputRowSets( input );
     jsonInput.setInputRowMeta( rowMeta );
-    jsonInput.initializeVariablesFrom( variables );
+    jsonInput.initializeFrom( variables );
 
     jsonInput.init();
     return jsonInput;

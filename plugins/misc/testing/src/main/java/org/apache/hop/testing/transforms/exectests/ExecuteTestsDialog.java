@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.testing.transforms.exectests;
 
@@ -27,6 +22,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.StringUtil;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -67,8 +63,8 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
 
   private boolean hasPreviousTransforms;
 
-  public ExecuteTestsDialog( Shell parent, Object basePipelineMeta, PipelineMeta pipelineMeta, String transformName ) {
-    super( parent, (BaseTransformMeta) basePipelineMeta, pipelineMeta, transformName );
+  public ExecuteTestsDialog( Shell parent, IVariables variables, Object basePipelineMeta, PipelineMeta pipelineMeta, String transformName ) {
+    super( parent, variables, (BaseTransformMeta) basePipelineMeta, pipelineMeta, transformName );
 
     input = (ExecuteTestsMeta) basePipelineMeta;
   }
@@ -98,7 +94,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
     try {
       TransformMeta[] prevTransforms = pipelineMeta.getPrevTransforms( transformMeta );
       if ( prevTransforms.length > 0 ) {
-        IRowMeta prevTransformFields = pipelineMeta.getPrevTransformFields( transformMeta );
+        IRowMeta prevTransformFields = pipelineMeta.getPrevTransformFields( variables, transformMeta );
         inputFieldNames = prevTransformFields.getFieldNames();
         hasPreviousTransforms = true;
       }
@@ -175,7 +171,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
     fdlPipelineNameField.right = new FormAttachment( middle, -margin );
     fdlPipelineNameField.top = new FormAttachment( lastControl, margin );
     wlPipelineNameField.setLayoutData( fdlPipelineNameField );
-    wPipelineNameField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPipelineNameField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPipelineNameField );
     FormData fdPipelineNameField = new FormData();
     fdPipelineNameField.left = new FormAttachment( middle, 0 );
@@ -194,7 +190,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
     fdlUnitTestNameField.right = new FormAttachment( middle, -margin );
     fdlUnitTestNameField.top = new FormAttachment( lastControl, margin );
     wlUnitTestNameField.setLayoutData( fdlUnitTestNameField );
-    wUnitTestNameField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUnitTestNameField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUnitTestNameField );
     FormData fdUnitTestNameField = new FormData();
     fdUnitTestNameField.left = new FormAttachment( middle, 0 );
@@ -213,7 +209,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
     fdlDataSetNameField.right = new FormAttachment( middle, -margin );
     fdlDataSetNameField.top = new FormAttachment( lastControl, margin );
     wlDataSetNameField.setLayoutData( fdlDataSetNameField );
-    wDataSetNameField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDataSetNameField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDataSetNameField );
     FormData fdDataSetNameField = new FormData();
     fdDataSetNameField.left = new FormAttachment( middle, 0 );
@@ -232,7 +228,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
     fdlTransformNameField.right = new FormAttachment( middle, -margin );
     fdlTransformNameField.top = new FormAttachment( lastControl, margin );
     wlTransformNameField.setLayoutData( fdlTransformNameField );
-    wTransformNameField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTransformNameField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTransformNameField );
     FormData fdTransformNameField = new FormData();
     fdTransformNameField.left = new FormAttachment( middle, 0 );
@@ -251,7 +247,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
     fdlErrorField.right = new FormAttachment( middle, -margin );
     fdlErrorField.top = new FormAttachment( lastControl, margin );
     wlErrorField.setLayoutData( fdlErrorField );
-    wErrorField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wErrorField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wErrorField );
     FormData fdErrorField = new FormData();
     fdErrorField.left = new FormAttachment( middle, 0 );
@@ -270,7 +266,7 @@ public class ExecuteTestsDialog extends BaseTransformDialog implements ITransfor
     fdlCommentField.right = new FormAttachment( middle, -margin );
     fdlCommentField.top = new FormAttachment( lastControl, margin );
     wlCommentField.setLayoutData( fdlCommentField );
-    wCommentField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wCommentField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wCommentField );
     FormData fdCommentField = new FormData();
     fdCommentField.left = new FormAttachment( middle, 0 );

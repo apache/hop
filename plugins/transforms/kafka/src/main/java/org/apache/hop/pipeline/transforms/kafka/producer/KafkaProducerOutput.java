@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
@@ -47,8 +42,8 @@ public class KafkaProducerOutput extends BaseTransform<KafkaProducerOutputMeta, 
   public KafkaProducerOutput( TransformMeta transformMeta,
                               KafkaProducerOutputMeta meta,
                               KafkaProducerOutputData data, int copyNr,
-                              PipelineMeta transMeta, Pipeline trans ) {
-    super( transformMeta, meta, data, copyNr, transMeta, trans );
+                              PipelineMeta pipelineMeta, Pipeline trans ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, trans );
     setKafkaFactory( KafkaFactory.defaultFactory() );
   }
 
@@ -68,12 +63,12 @@ public class KafkaProducerOutput extends BaseTransform<KafkaProducerOutputMeta, 
       return false;
     }
     if ( first ) {
-      data.keyFieldIndex = getInputRowMeta().indexOfValue( environmentSubstitute( meta.getKeyField() ) );
-      data.messageFieldIndex = getInputRowMeta().indexOfValue( environmentSubstitute( meta.getMessageField() ) );
+      data.keyFieldIndex = getInputRowMeta().indexOfValue( resolve( meta.getKeyField() ) );
+      data.messageFieldIndex = getInputRowMeta().indexOfValue( resolve( meta.getMessageField() ) );
       IValueMeta keyValueMeta = getInputRowMeta().getValueMeta( data.keyFieldIndex );
       IValueMeta msgValueMeta = getInputRowMeta().getValueMeta( data.messageFieldIndex );
 
-      data.kafkaProducer = kafkaFactory.producer( meta, this::environmentSubstitute,
+      data.kafkaProducer = kafkaFactory.producer( meta, this::resolve,
         KafkaConsumerField.Type.fromValueMeta( keyValueMeta ),
         KafkaConsumerField.Type.fromValueMeta( msgValueMeta ) );
 
@@ -88,9 +83,9 @@ public class KafkaProducerOutput extends BaseTransform<KafkaProducerOutputMeta, 
     ProducerRecord<Object, Object> producerRecord;
     // allow for null keys
     if ( data.keyFieldIndex < 0 || r[ data.keyFieldIndex ] == null || StringUtils.isEmpty( r[ data.keyFieldIndex ].toString() ) ) {
-      producerRecord = new ProducerRecord<>( environmentSubstitute( meta.getTopic() ), r[ data.messageFieldIndex ] );
+      producerRecord = new ProducerRecord<>( resolve( meta.getTopic() ), r[ data.messageFieldIndex ] );
     } else {
-      producerRecord = new ProducerRecord<>( environmentSubstitute( meta.getTopic() ), r[ data.keyFieldIndex ],
+      producerRecord = new ProducerRecord<>( resolve( meta.getTopic() ), r[ data.keyFieldIndex ],
         r[ data.messageFieldIndex ] );
     }
 

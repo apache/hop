@@ -20,6 +20,7 @@ package org.apache.hop.workflow.actions.missing;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopWorkflowException;
 import org.apache.hop.core.exception.HopXmlException;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.action.ActionBase;
@@ -56,7 +57,7 @@ public class MissingAction extends ActionBase implements IAction {
   }
 
   @Override
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider)
+  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables)
       throws HopXmlException {
   }
 }

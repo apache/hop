@@ -68,7 +68,7 @@ public class SalesforceDelete extends SalesforceTransform<SalesforceDeleteMeta,S
       meta.getFields( data.outputRowMeta, getTransformName(), null, null, this, metadataProvider );
 
       // Check deleteKeyField
-      String realFieldName = environmentSubstitute( meta.getDeleteField() );
+      String realFieldName = resolve( meta.getDeleteField() );
       if ( Utils.isEmpty( realFieldName ) ) {
         throw new HopException( BaseMessages.getString( PKG, "SalesforceDelete.Error.DeleteKeyFieldMissing" ) );
       }
@@ -210,7 +210,7 @@ public class SalesforceDelete extends SalesforceTransform<SalesforceDeleteMeta,S
 
       try {
         // set timeout
-        data.connection.setTimeOut( Const.toInt( environmentSubstitute( meta.getTimeout() ), 0 ) );
+        data.connection.setTimeOut( Const.toInt( resolve( meta.getTimeout() ), 0 ) );
         // Do we use compression?
         data.connection.setUsingCompression( meta.isCompression() );
         // Do we rollback all changes on error

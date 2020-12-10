@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.mysqlbulkfile;
 
@@ -169,7 +163,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     fdlSchemaname.top = new FormAttachment( wConnection, margin );
     wlSchemaname.setLayoutData(fdlSchemaname);
 
-    wSchemaname = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchemaname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchemaname );
     wSchemaname.setToolTipText( BaseMessages.getString( PKG, "JobMysqlBulkFile.Schemaname.Tooltip" ) );
     wSchemaname.addModifyListener( lsMod );
@@ -202,7 +196,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       }
     } );
 
-    wTablename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTablename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTablename );
     wTablename.setToolTipText( BaseMessages.getString( PKG, "JobMysqlBulkFile.Tablename.Tooltip" ) );
     wTablename.addModifyListener( lsMod );
@@ -232,7 +226,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     // fdbFilename.height = 22;
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -242,9 +236,9 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     wFilename.setLayoutData(fdFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( workflowMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, workflowMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wFilename, variables,
       new String[] { "*.txt", "*.csv", "*"  }, FILETYPES, true )
     );
 
@@ -317,7 +311,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     fdlSeparator.top = new FormAttachment( wOutDumpValue, margin );
     wlSeparator.setLayoutData(fdlSeparator);
 
-    wSeparator = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeparator = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSeparator );
     wSeparator.addModifyListener( lsMod );
     FormData fdSeparator = new FormData();
@@ -337,7 +331,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     fdlEnclosed.top = new FormAttachment( wSeparator, margin );
     wlEnclosed.setLayoutData(fdlEnclosed);
 
-    wEnclosed = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEnclosed = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEnclosed );
     wEnclosed.addModifyListener( lsMod );
     FormData fdEnclosed = new FormData();
@@ -381,7 +375,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     fdlLineterminated.top = new FormAttachment( wOptionEnclosed, margin );
     wlLineterminated.setLayoutData(fdlLineterminated);
 
-    wLineterminated = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLineterminated = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLineterminated );
     wLineterminated.addModifyListener( lsMod );
     FormData fdLineterminated = new FormData();
@@ -413,7 +407,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       }
     } );
 
-    wListColumn = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wListColumn = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wListColumn );
     wListColumn.setToolTipText( BaseMessages.getString( PKG, "JobMysqlBulkFile.ListColumn.Tooltip" ) );
     wListColumn.addModifyListener( lsMod );
@@ -434,7 +428,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     fdlLimitlines.top = new FormAttachment( wListColumn, margin );
     wlLimitlines.setLayoutData(fdlLimitlines);
 
-    wLimitlines = new TextVar( workflowMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLimitlines = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLimitlines );
     wLimitlines.setToolTipText( BaseMessages.getString( PKG, "JobMysqlBulkFile.Limitlines.Tooltip" ) );
     wLimitlines.addModifyListener( lsMod );
@@ -699,7 +693,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
     if ( StringUtils.isNotEmpty( databaseName ) ) {
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( databaseName );
       if ( databaseMeta != null ) {
-        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, getWorkflowMeta().getDatabases() );
+        DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, getWorkflowMeta().getDatabases() );
         std.setSelectedSchemaAndTable( wSchemaname.getText(), wTablename.getText() );
         if ( std.open() ) {
           // wSchemaname.setText(Const.NVL(std.getSchemaName(), ""));
@@ -722,7 +716,7 @@ public class ActionMysqlBulkFileDialog extends ActionDialog implements IActionDi
       DatabaseMeta databaseMeta = getWorkflowMeta().findDatabase( wConnection.getText() );
       if ( databaseMeta != null ) {
         Database database = new Database( loggingObject, databaseMeta );
-        database.shareVariablesWith( getWorkflowMeta() );
+        database.shareWith( variables );
         try {
           database.connect();
           IRowMeta row =

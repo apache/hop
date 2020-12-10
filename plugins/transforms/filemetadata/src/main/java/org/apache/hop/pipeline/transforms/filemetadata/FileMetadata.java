@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.filemetadata;
 
@@ -150,7 +145,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
     outputRow = data.isReceivingInput ? RowDataUtil.createResizedCopy(r, data.outputRowMeta.size()) : RowDataUtil.allocateRowData(data.outputRowMeta.size());
 
     // get the configuration from the dialog
-    fileName = environmentSubstitute(meta.getFileName());
+    fileName = resolve(meta.getFileName());
 
     // if the file does not exist, just send an empty row
     try {
@@ -162,7 +157,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
       throw new HopTransformException(e.getMessage(), e);
     }
 
-    String strLimitRows = environmentSubstitute(meta.getLimitRows());
+    String strLimitRows = resolve(meta.getLimitRows());
     if (strLimitRows.trim().isEmpty()){
       limitRows = 0;
     }
@@ -170,11 +165,11 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
       limitRows = Long.parseLong(strLimitRows);
     }
 
-    defaultCharset = Charset.forName(environmentSubstitute(meta.getDefaultCharset()));
+    defaultCharset = Charset.forName( resolve(meta.getDefaultCharset()));
 
     ArrayList<Character> delimiterCandidates = new ArrayList<>(4);
     for (String candidate : meta.getDelimiterCandidates()) {
-      candidate = environmentSubstitute(candidate);
+      candidate = resolve(candidate);
       if (candidate.length() == 0){
         logBasic("Warning: file metadata step ignores empty delimiter candidate");
       }
@@ -188,7 +183,7 @@ public class FileMetadata extends BaseTransform<FileMetadataMeta, FileMetadataDa
 
     ArrayList<Character> enclosureCandidates = new ArrayList<>(4);
     for (String candidate : meta.getEnclosureCandidates()) {
-      candidate = environmentSubstitute(candidate);
+      candidate = resolve(candidate);
       if (candidate.length() == 0){
         logBasic("Warning: file metadata step ignores empty enclosure candidate");
       }

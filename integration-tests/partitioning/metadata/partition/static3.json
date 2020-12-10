@@ -1,0 +1,10 @@
+{
+  "dynamicallyDefined": false,
+  "numberOfPartitions": "3",
+  "name": "static3",
+  "partitionIDs": [
+    "P1",
+    "P2",
+    "P3"
+  ]
+}

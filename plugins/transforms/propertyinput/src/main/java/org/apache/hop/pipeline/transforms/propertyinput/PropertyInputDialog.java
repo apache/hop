@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.propertyinput;
 
@@ -35,6 +29,7 @@ import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
@@ -155,8 +150,8 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
   public static final int[] dateLengths = new int[] { 23, 19, 14, 10, 10, 10, 10, 8, 8, 8, 8, 6, 6 };
 
-  public PropertyInputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public PropertyInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (PropertyInputMeta) in;
   }
 
@@ -289,11 +284,11 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wFilenameField.setLayoutData(fdFilenameField);
     wFilenameField.addFocusListener( new FocusListener() {
       @Override
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
       @Override
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         setFileField();
       }
     } );
@@ -338,7 +333,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdbaFilename.top = new FormAttachment(wOriginFiles, margin );
     wbaFilename.setLayoutData(fdbaFilename);
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -355,7 +350,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlFilemask.top = new FormAttachment( wFilename, 2 * margin );
     fdlFilemask.right = new FormAttachment( middle, -margin );
     wlFilemask.setLayoutData(fdlFilemask);
-    wFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilemask );
     wFilemask.addModifyListener( lsMod );
     FormData fdFilemask = new FormData();
@@ -372,7 +367,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlExcludeFilemask.top = new FormAttachment( wFilemask, margin );
     fdlExcludeFilemask.right = new FormAttachment( middle, -margin );
     wlExcludeFilemask.setLayoutData(fdlExcludeFilemask);
-    wExcludeFilemask = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExcludeFilemask = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExcludeFilemask );
     wExcludeFilemask.addModifyListener( lsMod );
     FormData fdExcludeFilemask = new FormData();
@@ -450,7 +445,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
     wFilenameList =
       new TableView(
-        pipelineMeta, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 2, lsMod, props );
+        variables, wFileComp, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, colinfo, 2, lsMod, props );
     props.setLook( wFilenameList );
 
     FormData fdFilenameList = new FormData();
@@ -534,7 +529,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlEncoding.top = new FormAttachment( wFileType, margin );
     fdlEncoding.right = new FormAttachment( middle, -margin );
     wlEncoding.setLayoutData(fdlEncoding);
-    wEncoding = new ComboVar( pipelineMeta, wSettingsGroup, SWT.BORDER | SWT.READ_ONLY );
+    wEncoding = new ComboVar( variables, wSettingsGroup, SWT.BORDER | SWT.READ_ONLY );
     wEncoding.setEditable( true );
     props.setLook( wEncoding );
     wEncoding.addModifyListener( lsMod );
@@ -545,11 +540,11 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
       @Override
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
       @Override
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         setEncodings();
       }
     } );
@@ -577,7 +572,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
       }
     } );
 
-    wSection = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSection = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSection.setToolTipText( BaseMessages.getString( PKG, "PropertyInputDialog.Section.Tooltip" ) );
     props.setLook( wSection );
     wSection.addModifyListener( lsMod );
@@ -668,7 +663,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlInclFilenameField.left = new FormAttachment( wInclFilename, margin );
     fdlInclFilenameField.top = new FormAttachment(wSettingsGroup, margin );
     wlInclFilenameField.setLayoutData(fdlInclFilenameField);
-    wInclFilenameField = new TextVar( pipelineMeta, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclFilenameField = new TextVar( variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclFilenameField );
     wInclFilenameField.addModifyListener( lsMod );
     FormData fdInclFilenameField = new FormData();
@@ -701,7 +696,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlInclRownumField.left = new FormAttachment( wInclRownum, margin );
     fdlInclRownumField.top = new FormAttachment( wInclFilenameField, margin );
     wlInclRownumField.setLayoutData(fdlInclRownumField);
-    wInclRownumField = new TextVar( pipelineMeta, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclRownumField = new TextVar( variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclRownumField );
     wInclRownumField.addModifyListener( lsMod );
     FormData fdInclRownumField = new FormData();
@@ -750,7 +745,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlInclINIsectionField.left = new FormAttachment( wInclINIsection, margin );
     fdlInclINIsectionField.top = new FormAttachment( wResetRownum, margin );
     wlInclINIsectionField.setLayoutData(fdlInclINIsectionField);
-    wInclINIsectionField = new TextVar( pipelineMeta, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wInclINIsectionField = new TextVar( variables, wAdditionalGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wInclINIsectionField );
     wInclINIsectionField.addModifyListener( lsMod );
     FormData fdInclINIsectionField = new FormData();
@@ -890,7 +885,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     colinf[ 1 ]
       .setToolTip( BaseMessages.getString( PKG, "PropertyInputDialog.FieldsTable.Attribut.Column.Tooltip" ) );
     wFields =
-      new TableView( pipelineMeta, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+      new TableView( variables, wFieldsComp, SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -985,7 +980,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
         try {
           PropertyInputMeta tfii = new PropertyInputMeta();
           getInfo( tfii );
-          FileInputList fileInputList = tfii.getFiles( pipelineMeta );
+          FileInputList fileInputList = tfii.getFiles( variables );
           String[] files = fileInputList.getFileStrings();
 
           if ( files.length > 0 ) {
@@ -1144,7 +1139,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     try {
       String value = wFilenameField.getText();
       wFilenameField.removeAll();
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         r.getFieldNames();
 
@@ -1173,7 +1168,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
         PropertyInputMeta meta = new PropertyInputMeta();
         getInfo( meta );
 
-        FileInputList inputList = meta.getFiles( pipelineMeta );
+        FileInputList inputList = meta.getFiles( variables );
 
         if ( inputList.getFiles().size() > 0 ) {
 
@@ -1490,7 +1485,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
       getInfo( oneMeta );
 
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
 
       EnterNumberDialog numberDialog = new EnterNumberDialog( shell, props.getDefaultPreviewSize(),
         BaseMessages.getString( PKG, "PropertyInputDialog.NumberRows.DialogTitle" ),
@@ -1500,7 +1495,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
       if ( previewSize > 0 ) {
         PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-            shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+            shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
         progressDialog.open();
 
         if ( !progressDialog.isCancelled() ) {
@@ -1518,7 +1513,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
 
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
-              shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+              shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
               .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
           prd.open();
 
@@ -1537,7 +1532,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     try {
       getInfo( meta );
 
-      FileInputList fileInputList = meta.getFiles( pipelineMeta );
+      FileInputList fileInputList = meta.getFiles( variables );
 
       if ( fileInputList.nrOfFiles() > 0 ) {
         // Check the first file
@@ -1612,7 +1607,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlShortFileFieldName.right = new FormAttachment( middle, -margin );
     wlShortFileFieldName.setLayoutData(fdlShortFileFieldName);
 
-    wShortFileFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wShortFileFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wShortFileFieldName );
     wShortFileFieldName.addModifyListener( lsMod );
     FormData fdShortFileFieldName = new FormData();
@@ -1631,7 +1626,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlExtensionFieldName.right = new FormAttachment( middle, -margin );
     wlExtensionFieldName.setLayoutData(fdlExtensionFieldName);
 
-    wExtensionFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExtensionFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wExtensionFieldName );
     wExtensionFieldName.addModifyListener( lsMod );
     FormData fdExtensionFieldName = new FormData();
@@ -1650,7 +1645,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlPathFieldName.right = new FormAttachment( middle, -margin );
     wlPathFieldName.setLayoutData(fdlPathFieldName);
 
-    wPathFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPathFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPathFieldName );
     wPathFieldName.addModifyListener( lsMod );
     FormData fdPathFieldName = new FormData();
@@ -1669,7 +1664,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlSizeFieldName.right = new FormAttachment( middle, -margin );
     wlSizeFieldName.setLayoutData(fdlSizeFieldName);
 
-    wSizeFieldName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSizeFieldName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSizeFieldName );
     wSizeFieldName.addModifyListener( lsMod );
     FormData fdSizeFieldName = new FormData();
@@ -1688,7 +1683,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlIsHiddenName.right = new FormAttachment( middle, -margin );
     wlIsHiddenName.setLayoutData(fdlIsHiddenName);
 
-    wIsHiddenName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIsHiddenName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wIsHiddenName );
     wIsHiddenName.addModifyListener( lsMod );
     FormData fdIsHiddenName = new FormData();
@@ -1708,7 +1703,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlLastModificationTimeName.right = new FormAttachment( middle, -margin );
     wlLastModificationTimeName.setLayoutData(fdlLastModificationTimeName);
 
-    wLastModificationTimeName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wLastModificationTimeName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wLastModificationTimeName );
     wLastModificationTimeName.addModifyListener( lsMod );
     FormData fdLastModificationTimeName = new FormData();
@@ -1727,7 +1722,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlUriName.right = new FormAttachment( middle, -margin );
     wlUriName.setLayoutData(fdlUriName);
 
-    wUriName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUriName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUriName );
     wUriName.addModifyListener( lsMod );
     FormData fdUriName = new FormData();
@@ -1746,7 +1741,7 @@ public class PropertyInputDialog extends BaseTransformDialog implements ITransfo
     fdlRootUriName.right = new FormAttachment( middle, -margin );
     wlRootUriName.setLayoutData(fdlRootUriName);
 
-    wRootUriName = new TextVar( pipelineMeta, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRootUriName = new TextVar( variables, wAdditionalFieldsComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRootUriName );
     wRootUriName.addModifyListener( lsMod );
     FormData fdRootUriName = new FormData();

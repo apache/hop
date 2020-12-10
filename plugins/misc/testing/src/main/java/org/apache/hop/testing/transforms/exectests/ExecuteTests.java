@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.testing.transforms.exectests;
 
@@ -105,7 +100,6 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
           String testName = getInputRowMeta().getString( row, inputFieldIndex );
           try {
             PipelineUnitTest pipelineUnitTest = testSerializer.load( testName );
-            pipelineUnitTest.initializeVariablesFrom( this );
 
             data.tests.add( pipelineUnitTest );
           } catch ( Exception e ) {
@@ -154,22 +148,31 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
         if ( log.isDetailed() ) {
           log.logDetailed( "Executing pipeline '" + testPipelineMeta.getName() + "' for unit test '" + test.getName() + "'" );
         }
-        IPipelineEngine<PipelineMeta> testTrans = new LocalPipelineEngine( testPipelineMeta, this );
+        IPipelineEngine<PipelineMeta> testPipeline = new LocalPipelineEngine( testPipelineMeta, this, this );
 
         // 3. Pass execution details...
         //
-        testTrans.initializeVariablesFrom( this );
-        testTrans.setLogLevel( getPipeline().getLogLevel() );
-        testTrans.setMetadataProvider( getMetadataProvider() );
+        testPipeline.initializeFrom( this );
+        testPipeline.setLogLevel( getPipeline().getLogLevel() );
+        testPipeline.setMetadataProvider( getMetadataProvider() );
+
+        // Don't show to unit tests results dialog in case of errors
+        //
+        testPipeline.setVariable( DataSetConst.VAR_DO_NOT_SHOW_UNIT_TEST_ERRORS, "Y" );
+
+        // Make sure to run the unit test: gather data to compare after execution.
+        //
+        testPipeline.setVariable( DataSetConst.VAR_RUN_UNIT_TEST, "Y" );
+        testPipeline.setVariable( DataSetConst.VAR_UNIT_TEST_NAME, test.getName() );
 
         // 4. Execute
         //
-        testTrans.execute();
-        testTrans.waitUntilFinished();
+        testPipeline.execute();
+        testPipeline.waitUntilFinished();
 
         // 5. Validate results...
         //
-        Result transResult = testTrans.getResult();
+        Result transResult = testPipeline.getResult();
         if ( transResult.getNrErrors() != 0 ) {
           // The pipeline had a failure, report this too.
           //
@@ -185,8 +188,8 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
           putRow( data.outputRowMeta, row );
         }
 
-        List<UnitTestResult> testResults = new ArrayList<UnitTestResult>();
-        DataSetConst.validateTransResultAgainstUnitTest( testTrans, test, metadataProvider, testResults );
+        List<UnitTestResult> testResults = new ArrayList<>();
+        DataSetConst.validateTransResultAgainstUnitTest( testPipeline, test, metadataProvider, testResults );
 
         for ( UnitTestResult testResult : testResults ) {
           Object[] row = RowDataUtil.allocateRowData( data.outputRowMeta.size() );
@@ -227,7 +230,7 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
     PipelineMeta unitTestPipelineMeta = null;
     // Environment substitution is not yet supported in the UI
     //
-    String filename = test.calculateCompleteFilename();
+    String filename = test.calculateCompleteFilename(this);
     if ( StringUtils.isNotEmpty( filename ) ) {
       unitTestPipelineMeta = new PipelineMeta( filename, metadataProvider, true, this );
     }
@@ -235,24 +238,13 @@ public class ExecuteTests extends BaseTransform<ExecuteTestsMeta, ExecuteTestsDa
       throw new HopException( "Unable to find a valid pipeline filename in unit test '" + test.getName() + "'" );
     }
 
-    // Don't show to unit tests results dialog in case of errors
-    //
-    unitTestPipelineMeta.setVariable( DataSetConst.VAR_DO_NOT_SHOW_UNIT_TEST_ERRORS, "Y" );
-
     // Pass some data from the parent...
     //
     unitTestPipelineMeta.setMetadataProvider( metadataProvider );
-    unitTestPipelineMeta.initializeVariablesFrom( this );
-    unitTestPipelineMeta.copyParametersFrom( getPipeline() );
 
     // clear and load attributes for unit test...
     //
     TestingGuiPlugin.selectUnitTest( unitTestPipelineMeta, test );
-
-    // Make sure to run the unit test: gather data to compare after execution.
-    //
-    unitTestPipelineMeta.setVariable( DataSetConst.VAR_RUN_UNIT_TEST, "Y" );
-    unitTestPipelineMeta.setVariable( DataSetConst.VAR_UNIT_TEST_NAME, test.getName() );
 
     return unitTestPipelineMeta;
   }

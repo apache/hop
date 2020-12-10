@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.mail;
 
@@ -337,13 +331,13 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
             }
           }
         }
-        data.zipFileLimit = Const.toLong( environmentSubstitute( meta.getZipLimitSize() ), 0 );
+        data.zipFileLimit = Const.toLong( resolve( meta.getZipLimitSize() ), 0 );
         if ( data.zipFileLimit > 0 ) {
           data.zipFileLimit = data.zipFileLimit * 1048576; // Mo
         }
 
         if ( !meta.isZipFilenameDynamic() ) {
-          data.ZipFilename = environmentSubstitute( meta.getZipFilename() );
+          data.ZipFilename = resolve( meta.getZipFilename() );
         }
 
         // Attached files
@@ -371,19 +365,19 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
           }
         } else {
           // static attached filenames
-          data.realSourceFileFoldername = environmentSubstitute( meta.getSourceFileFoldername() );
-          data.realSourceWildcard = environmentSubstitute( meta.getSourceWildcard() );
+          data.realSourceFileFoldername = resolve( meta.getSourceFileFoldername() );
+          data.realSourceWildcard = resolve( meta.getSourceWildcard() );
         }
       }
 
       // check embedded images
       if ( meta.getEmbeddedImages() != null && meta.getEmbeddedImages().length > 0 ) {
         FileObject image = null;
-        data.embeddedMimePart = new HashSet<MimeBodyPart>();
+        data.embeddedMimePart = new HashSet<>();
         try {
           for ( int i = 0; i < meta.getEmbeddedImages().length; i++ ) {
-            String imageFile = environmentSubstitute( meta.getEmbeddedImages()[ i ] );
-            String contentID = environmentSubstitute( meta.getContentIds()[ i ] );
+            String imageFile = resolve( meta.getEmbeddedImages()[ i ] );
+            String contentID = resolve( meta.getContentIds()[ i ] );
             image = HopVfs.getFileObject( imageFile );
 
             if ( image.exists() && image.getType() == FileType.FILE ) {
@@ -586,7 +580,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
     // Set reply to
     if ( !Utils.isEmpty( replyToAddresses ) ) {
       // get replay to
-      // Split the mail-address: space separated
+      // Split the mail-address: variables separated
       String[] reply_Address_List = replyToAddresses.split( " " );
       InternetAddress[] address = new InternetAddress[ reply_Address_List.length ];
 
@@ -598,7 +592,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
       msg.setReplyTo( address );
     }
 
-    // Split the mail-address: space separated
+    // Split the mail-address: variables separated
     String[] destinations = destination.split( " " );
     InternetAddress[] address = new InternetAddress[ destinations.length ];
     for ( int i = 0; i < destinations.length; i++ ) {
@@ -609,7 +603,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
 
     String realdestinationCc = destinationCc;
     if ( !Utils.isEmpty( realdestinationCc ) ) {
-      // Split the mail-address Cc: space separated
+      // Split the mail-address Cc: variables separated
       String[] destinationsCc = realdestinationCc.split( " " );
       InternetAddress[] addressCc = new InternetAddress[ destinationsCc.length ];
       for ( int i = 0; i < destinationsCc.length; i++ ) {
@@ -621,7 +615,7 @@ public class Mail extends BaseTransform<MailMeta, MailData> implements ITransfor
 
     String realdestinationBCc = destinationBCc;
     if ( !Utils.isEmpty( realdestinationBCc ) ) {
-      // Split the mail-address BCc: space separated
+      // Split the mail-address BCc: variables separated
       String[] destinationsBCc = realdestinationBCc.split( " " );
       InternetAddress[] addressBCc = new InternetAddress[ destinationsBCc.length ];
       for ( int i = 0; i < destinationsBCc.length; i++ ) {

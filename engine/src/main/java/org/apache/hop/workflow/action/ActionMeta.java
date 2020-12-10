@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.action;
 
@@ -35,6 +29,7 @@ import org.apache.hop.core.gui.Point;
 import org.apache.hop.core.plugins.ActionPluginType;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.xml.IXml;
 import org.apache.hop.core.xml.XmlHandler;
 import org.apache.hop.i18n.BaseMessages;
@@ -110,7 +105,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
   }
 
 
-  public ActionMeta( Node actionNode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public ActionMeta( Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       String stype = XmlHandler.getTagValue( actionNode, "type" );
       PluginRegistry registry = PluginRegistry.getInstance();
@@ -127,7 +122,7 @@ public class ActionMeta implements Cloneable, IXml, IGuiPosition, IChanged,
           action.setPluginId( actionPlugin.getIds()[ 0 ] );
         }
         action.setMetadataProvider( metadataProvider ); // inject metadata
-        action.loadXml( actionNode, metadataProvider );
+        action.loadXml( actionNode, metadataProvider, variables);
 
         // Handle GUI information: nr & location?
         setNr( Const.toInt( XmlHandler.getTagValue( actionNode, "nr" ), 0 ) );

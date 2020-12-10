@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.exceloutput;
 
@@ -511,7 +506,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
           meta.setHeaderEnabled( true );
         }
       } else {
-        String templateFilename = environmentSubstitute( meta.getTemplateFileName() );
+        String templateFilename = resolve( meta.getTemplateFileName() );
         try ( FileObject templateFile = HopVfs.getFileObject( templateFilename ) ) {
           // create the openFile from the template
           Workbook templateWorkbook = Workbook.getWorkbook( HopVfs.getInputStream( templateFile ), data.ws );
@@ -682,12 +677,12 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
 
     if ( super.init() ) {
       data.splitnr = 0;
-      data.realSheetname = environmentSubstitute( meta.getSheetname() );
+      data.realSheetname = resolve( meta.getSheetname() );
 
       data.ws = new WorkbookSettings();
       if ( meta.isUseTempFiles() ) {
         data.ws.setUseTemporaryFileDuringWrite( true );
-        String realdir = environmentSubstitute( meta.getTempDirectory() );
+        String realdir = resolve( meta.getTempDirectory() );
         if ( !Utils.isEmpty( realdir ) ) {
           File file = new File( realdir );
           if ( !file.exists() ) {
@@ -698,8 +693,8 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
         }
       }
       data.ws.setLocale( Locale.getDefault() );
-      data.Headerrowheight = Const.toInt( environmentSubstitute( meta.getHeaderRowHeight() ), -1 );
-      data.realHeaderImage = environmentSubstitute( meta.getHeaderImage() );
+      data.Headerrowheight = Const.toInt( resolve( meta.getHeaderRowHeight() ), -1 );
+      data.realHeaderImage = resolve( meta.getHeaderImage() );
       if ( !Utils.isEmpty( meta.getEncoding() ) ) {
         data.ws.setEncoding( meta.getEncoding() );
       }
@@ -756,7 +751,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
 
   private void setFonts() throws Exception {
     // --- Set Header font
-    int headerFontSize = Const.toInt( environmentSubstitute( meta.getHeaderFontSize() ), ExcelOutputMeta.DEFAULT_FONT_SIZE );
+    int headerFontSize = Const.toInt( resolve( meta.getHeaderFontSize() ), ExcelOutputMeta.DEFAULT_FONT_SIZE );
     // Set font name
     FontName headerFontName = ExcelFontMap.getFontName( meta.getHeaderFontName() );
     // Set UnderlineStyle
@@ -810,7 +805,7 @@ public class ExcelOutput extends BaseTransform<ExcelOutputMeta, ExcelOutputData>
 
     // --- Set rows font
     // Set font size
-    int rowFontSize = Const.toInt( environmentSubstitute( meta.getRowFontSize() ), ExcelOutputMeta.DEFAULT_FONT_SIZE );
+    int rowFontSize = Const.toInt( resolve( meta.getRowFontSize() ), ExcelOutputMeta.DEFAULT_FONT_SIZE );
     // Set font name
     FontName rowFontName = ExcelFontMap.getFontName( meta.getRowFontName() );
 

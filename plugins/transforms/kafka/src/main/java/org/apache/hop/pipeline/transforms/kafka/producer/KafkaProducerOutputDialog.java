@@ -1,30 +1,26 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.kafka.producer;
 
 import com.google.common.collect.ImmutableMap;
 import org.apache.hop.core.Const;
 import org.apache.hop.core.Props;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -77,9 +73,9 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
   private Label wlBootstrapServers;
   private TextVar wBootstrapServers;
 
-  public KafkaProducerOutputDialog( Shell parent, Object in,
+  public KafkaProducerOutputDialog( Shell parent, IVariables variables, Object in,
                                     PipelineMeta pipelineMeta, String TransformName ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, TransformName );
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, TransformName );
     meta = (KafkaProducerOutputMeta) in;
   }
 
@@ -211,7 +207,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     fdlBootstrapServers.right = new FormAttachment( 100, 0 );
     wlBootstrapServers.setLayoutData( fdlBootstrapServers );
 
-    wBootstrapServers = new TextVar( pipelineMeta, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wBootstrapServers = new TextVar( variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wBootstrapServers );
     wBootstrapServers.addModifyListener( lsMod );
     FormData fdBootstrapServers = new FormData();
@@ -229,7 +225,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     fdlClientId.right = new FormAttachment( 100, 0 );
     wlClientId.setLayoutData( fdlClientId );
 
-    wClientId = new TextVar( pipelineMeta, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wClientId = new TextVar( variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wClientId );
     wClientId.addModifyListener( lsMod );
     FormData fdClientId = new FormData();
@@ -247,7 +243,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     fdlTopic.right = new FormAttachment( 100, 0 );
     wlTopic.setLayoutData( fdlTopic );
 
-    wTopic = new ComboVar( pipelineMeta, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTopic = new ComboVar( variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTopic );
     wTopic.addModifyListener( lsMod );
     FormData fdTopic = new FormData();
@@ -258,7 +254,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     wTopic.getCComboWidget().addListener(
       SWT.FocusIn,
       event -> {
-        KafkaDialogHelper kafkaDialogHelper = new KafkaDialogHelper( pipelineMeta,
+        KafkaDialogHelper kafkaDialogHelper = new KafkaDialogHelper( variables,
           wTopic, wBootstrapServers, kafkaFactory, optionsTable, meta.getParentTransformMeta() );
         kafkaDialogHelper.clusterNameChanged( event );
       } );
@@ -272,7 +268,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     fdlKeyField.right = new FormAttachment( 100, 0 );
     wlKeyField.setLayoutData( fdlKeyField );
 
-    wKeyField = new ComboVar( pipelineMeta, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wKeyField = new ComboVar( variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wKeyField );
     wKeyField.addModifyListener( lsMod );
     FormData fdKeyField = new FormData();
@@ -280,7 +276,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     fdKeyField.top = new FormAttachment( wlKeyField, props.getMargin() );
     fdKeyField.right = new FormAttachment( 100, 0 );
     wKeyField.setLayoutData( fdKeyField );
-    Listener lsKeyFocus = e -> KafkaDialogHelper.populateFieldsList( pipelineMeta, wKeyField, transformName );
+    Listener lsKeyFocus = e -> KafkaDialogHelper.populateFieldsList( variables, pipelineMeta, wKeyField, transformName );
     wKeyField.getCComboWidget().addListener( SWT.FocusIn, lsKeyFocus );
 
     Label wlMessageField = new Label( wSetupComp, SWT.LEFT );
@@ -292,7 +288,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     fdlMessageField.right = new FormAttachment( 100, 0 );
     wlMessageField.setLayoutData( fdlMessageField );
 
-    wMessageField = new ComboVar( pipelineMeta, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wMessageField = new ComboVar( variables, wSetupComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wMessageField );
     wMessageField.addModifyListener( lsMod );
     FormData fdMessageField = new FormData();
@@ -300,7 +296,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     fdMessageField.top = new FormAttachment( wlMessageField, props.getMargin() );
     fdMessageField.right = new FormAttachment( 100, 0 );
     wMessageField.setLayoutData( fdMessageField );
-    Listener lsMessageFocus = e -> KafkaDialogHelper.populateFieldsList( pipelineMeta, wMessageField, transformName );
+    Listener lsMessageFocus = e -> KafkaDialogHelper.populateFieldsList( variables, pipelineMeta, wMessageField, transformName );
     wMessageField.getCComboWidget().addListener( SWT.FocusIn, lsMessageFocus );
 
     FormData fdSetupComp = new FormData();
@@ -351,7 +347,7 @@ public class KafkaProducerOutputDialog extends BaseTransformDialog implements IT
     int fieldCount = meta.getConfig().size();
 
     optionsTable = new TableView(
-      pipelineMeta,
+      variables,
       parentWidget,
       SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI,
       columns,

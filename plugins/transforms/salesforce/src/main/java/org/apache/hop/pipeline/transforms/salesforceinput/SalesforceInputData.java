@@ -34,7 +34,7 @@ public class SalesforceInputData extends SalesforceTransformData {
   public IRowMeta outputRowMeta;
   public IRowMeta convertRowMeta;
   public int recordcount;
-  public int nrfields;
+  public int nrFields;
   public boolean limitReached;
   public long limit;
   // available before we call query more if needed
@@ -50,7 +50,7 @@ public class SalesforceInputData extends SalesforceTransformData {
     super();
 
     nr_repeats = 0;
-    nrfields = 0;
+    nrFields = 0;
     recordcount = 0;
     limitReached = false;
     limit = 0;

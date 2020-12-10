@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.sendnagiospassivecheck;
 
@@ -250,7 +244,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       port = XmlHandler.getTagValue( entrynode, "port" );
@@ -407,16 +401,16 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     result.setResult( false );
 
     // Target
-    String realServername = environmentSubstitute( serverName );
+    String realServername = resolve( serverName );
     String realPassword = Utils.resolvePassword( variables, password );
-    int realPort = Const.toInt( environmentSubstitute( port ), DEFAULT_PORT );
-    int realResponseTimeOut = Const.toInt( environmentSubstitute( responseTimeOut ), DEFAULT_RESPONSE_TIME_OUT );
+    int realPort = Const.toInt( resolve( port ), DEFAULT_PORT );
+    int realResponseTimeOut = Const.toInt( resolve( responseTimeOut ), DEFAULT_RESPONSE_TIME_OUT );
     int realConnectionTimeOut =
-      Const.toInt( environmentSubstitute( connectionTimeOut ), DEFAULT_CONNECTION_TIME_OUT );
+      Const.toInt( resolve( connectionTimeOut ), DEFAULT_CONNECTION_TIME_OUT );
 
     // Sender
-    String realSenderServerName = environmentSubstitute( senderServerName );
-    String realSenderServiceName = environmentSubstitute( senderServiceName );
+    String realSenderServerName = resolve( senderServerName );
+    String realSenderServiceName = resolve( senderServiceName );
 
     try {
       if ( Utils.isEmpty( realServername ) ) {
@@ -424,7 +418,7 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
           PKG, "JobSendNagiosPassiveCheck.Error.TargetServerMissing" ) );
       }
 
-      String realMessageString = environmentSubstitute( message );
+      String realMessageString = resolve( message );
 
       if ( Utils.isEmpty( realMessageString ) ) {
         throw new HopException( BaseMessages.getString( PKG, "JobSendNagiosPassiveCheck.Error.MessageMissing" ) );
@@ -502,10 +496,10 @@ public class ActionSendNagiosPassiveCheck extends ActionBase implements Cloneabl
     return true;
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( !Utils.isEmpty( serverName ) ) {
-      String realServername = workflowMeta.environmentSubstitute( serverName );
+      String realServername = resolve( serverName );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realServername, ResourceType.SERVER ) );
       references.add( reference );

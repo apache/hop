@@ -114,47 +114,16 @@ public class MetaInjectTest {
     doReturn( pipelineMeta ).when( metaInject ).getPipelineMeta();
 
     PipelineMeta internalPipelineMeta = mock( PipelineMeta.class );
-    TransformMeta stepMeta = mock( TransformMeta.class );
+    TransformMeta transformMeta = mock( TransformMeta.class );
     pipeline = new LocalPipelineEngine();
     pipeline.setLogChannel( LogChannel.GENERAL );
     pipeline = PowerMockito.spy(pipeline);
     doReturn(pipeline).when( metaInject ).getPipeline();
-    doReturn( INJECTOR_TRANSFORM_NAME ).when( stepMeta ).getName();
-    doReturn( Collections.singletonList( stepMeta ) ).when( internalPipelineMeta ).getUsedTransforms();
+    doReturn( INJECTOR_TRANSFORM_NAME ).when( transformMeta ).getName();
+    doReturn( Collections.singletonList( transformMeta ) ).when( internalPipelineMeta ).getUsedTransforms();
     ITransformMeta iTransformMeta = mock( ITransformMeta.class );
-    doReturn( iTransformMeta ).when( stepMeta ).getTransform();
+    doReturn( iTransformMeta ).when( transformMeta ).getTransform();
     doReturn( internalPipelineMeta ).when( metaInject ).loadPipelineMeta();
-  }
-
-
-  @Test
-  public void pipelineVariablesPassedToChildPipeline() throws HopException {
-    doReturn( new String[] { TEST_VARIABLE } ).when( metaInject ).listVariables();
-    doReturn( TEST_VALUE ).when( metaInject ).getVariable( TEST_VARIABLE );
-
-    PipelineMeta pipelineMeta = new PipelineMeta();
-    doReturn( pipelineMeta ).when( metaInject ).getPipelineMeta();
-    PipelineMeta internalPipelineMeta = new PipelineMeta();
-    doReturn( internalPipelineMeta ).when( metaInject ).loadPipelineMeta();
-
-    assertTrue( metaInject.init( ) );
-
-    assertEquals( TEST_VALUE, internalPipelineMeta.getVariable( TEST_VARIABLE ) );
-  }
-
-  @Test
-  public void pipelineParametersPassedToChildPipeline() throws HopException {
-    Pipeline pipeline = new LocalPipelineEngine();
-    pipeline.addParameterDefinition( TEST_PARAMETER, "TEST_DEF_VALUE", "" );
-    pipeline.setParameterValue( TEST_PARAMETER, TEST_VALUE );
-
-    doReturn( pipeline ).when( metaInject ).getPipeline();
-    PipelineMeta internalPipelineMeta = new PipelineMeta();
-    doReturn( internalPipelineMeta ).when( metaInject ).loadPipelineMeta();
-
-    assertTrue( metaInject.init(  ) );
-
-    assertEquals( TEST_VALUE, internalPipelineMeta.getParameterValue( TEST_PARAMETER ) );
   }
 
   @Test
@@ -186,7 +155,7 @@ public class MetaInjectTest {
   public void removeUnavailableTransformsFromMapping_unavailable_source_transform() {
     TargetTransformAttribute unavailableTargetTransform = new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false );
     SourceTransformField unavailableSourceTransform = new SourceTransformField(UNAVAILABLE_TRANSFORM, TEST_FIELD );
-    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<TargetTransformAttribute, SourceTransformField>();
+    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<>();
     targetMap.put( unavailableTargetTransform, unavailableSourceTransform );
 
     Set<SourceTransformField> unavailableSourceTransforms = Collections.singleton(UNAVAILABLE_SOURCE_TRANSFORM);
@@ -199,7 +168,7 @@ public class MetaInjectTest {
   public void removeUnavailableTransformsFromMapping_unavailable_target_transform() {
     TargetTransformAttribute unavailableTargetTransform = new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false );
     SourceTransformField unavailableSourceTransform = new SourceTransformField(UNAVAILABLE_TRANSFORM, TEST_FIELD );
-    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<TargetTransformAttribute, SourceTransformField>();
+    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<>();
     targetMap.put( unavailableTargetTransform, unavailableSourceTransform );
 
     Set<TargetTransformAttribute> unavailableTargetTransforms = Collections.singleton(UNAVAILABLE_TARGET_TRANSFORM);
@@ -212,7 +181,7 @@ public class MetaInjectTest {
   public void removeUnavailableTransformsFromMapping_unavailable_source_target_transform() {
     TargetTransformAttribute unavailableTargetTransform = new TargetTransformAttribute(UNAVAILABLE_TRANSFORM, TEST_ATTR_VALUE, false );
     SourceTransformField unavailableSourceTransform = new SourceTransformField(UNAVAILABLE_TRANSFORM, TEST_FIELD );
-    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<TargetTransformAttribute, SourceTransformField>();
+    Map<TargetTransformAttribute, SourceTransformField> targetMap = new HashMap<>();
     targetMap.put( unavailableTargetTransform, unavailableSourceTransform );
 
     Set<TargetTransformAttribute> unavailableTargetTransforms = Collections.singleton(UNAVAILABLE_TARGET_TRANSFORM);

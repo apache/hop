@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.testing;
 
@@ -33,8 +28,8 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.RowMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.HopMetadata;
+import org.apache.hop.metadata.api.HopMetadataBase;
 import org.apache.hop.metadata.api.HopMetadataProperty;
 import org.apache.hop.metadata.api.IHopMetadata;
 
@@ -48,12 +43,9 @@ import java.util.List;
   description = "This defines a data set, a static pre-defined collection of rows",
   iconImage = "dataset.svg"
 )
-public class DataSet extends Variables implements Cloneable, IVariables, IHopMetadata {
+public class DataSet extends HopMetadataBase implements Cloneable, IHopMetadata {
 
   public static final String VARIABLE_HOP_DATASETS_FOLDER = "HOP_DATASETS_FOLDER";
-
-  @HopMetadataProperty
-  private String name;
 
   @HopMetadataProperty
   private String description;
@@ -79,24 +71,6 @@ public class DataSet extends Variables implements Cloneable, IVariables, IHopMet
     this.baseFilename = baseFilename;
     this.fields = fields;
   }
-
-  @Override
-  public boolean equals( Object obj ) {
-    if ( this == obj ) {
-      return true;
-    }
-    if ( !( obj instanceof DataSet ) ) {
-      return false;
-    }
-    DataSet cmp = (DataSet) obj;
-    return name.equals( cmp );
-  }
-
-  @Override
-  public int hashCode() {
-    return name.hashCode();
-  }
-
 
   /**
    * Get standard Hop row metadata from the defined data set fields
@@ -140,12 +114,12 @@ public class DataSet extends Variables implements Cloneable, IVariables, IHopMet
   }
 
 
-  public List<Object[]> getAllRows( ILogChannel log, PipelineUnitTestSetLocation location ) throws HopException {
-    return DataSetCsvUtil.getAllRows( log, this, location );
+  public List<Object[]> getAllRows( IVariables variables, ILogChannel log, PipelineUnitTestSetLocation location ) throws HopException {
+    return DataSetCsvUtil.getAllRows( variables, log, this, location );
   }
 
-  public List<Object[]> getAllRows( ILogChannel log ) throws HopException {
-    return DataSetCsvUtil.getAllRows( this );
+  public List<Object[]> getAllRows( IVariables variables, ILogChannel log ) throws HopException {
+    return DataSetCsvUtil.getAllRows( variables, this );
   }
 
 
@@ -164,23 +138,6 @@ public class DataSet extends Variables implements Cloneable, IVariables, IHopMet
       rowMeta.addValueMeta( valueMeta );
     }
     return rowMeta;
-  }
-
-
-  /**
-   * Gets name
-   *
-   * @return value of name
-   */
-  public String getName() {
-    return name;
-  }
-
-  /**
-   * @param name The name to set
-   */
-  public void setName( String name ) {
-    this.name = name;
   }
 
   /**
@@ -247,16 +204,16 @@ public class DataSet extends Variables implements Cloneable, IVariables, IHopMet
     this.fields = fields;
   }
 
-  public String getActualDataSetFolder() {
+  public String getActualDataSetFolder(IVariables variables) {
     String folder = Const.NVL(folderName, "");
     if ( StringUtils.isEmpty( folder ) ) {
-      folder = getVariable( VARIABLE_HOP_DATASETS_FOLDER );
+      folder = variables.getVariable( VARIABLE_HOP_DATASETS_FOLDER );
     }
     if ( StringUtils.isEmpty( folder ) ) {
       // Local folder
       folder = ".";
     } else {
-      folder = environmentSubstitute( folder );
+      folder = variables.resolve( folder );
     }
 
     if ( !folder.endsWith( File.separator ) ) {
@@ -266,8 +223,8 @@ public class DataSet extends Variables implements Cloneable, IVariables, IHopMet
     return folder;
   }
 
-  public String getActualDataSetFilename() {
-    String filename = getActualDataSetFolder();
+  public String getActualDataSetFilename(IVariables variables) {
+    String filename = getActualDataSetFolder(variables);
     filename += baseFilename;
     return filename;
   }

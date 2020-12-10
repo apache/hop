@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.pgpencryptfiles;
 
@@ -253,11 +247,11 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdbbGpgExe.top = new FormAttachment( wName, margin );
     wbbGpgExe.setLayoutData(fdbbGpgExe);
 
-    wbbGpgExe.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGpgExe, workflowMeta,
+    wbbGpgExe.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wGpgExe, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 
-    wGpgExe = new TextVar( workflowMeta, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wGpgExe = new TextVar( variables, wSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wGpgExe.setToolTipText( BaseMessages.getString( PKG, "JobPGPEncryptFiles.GpgExe.Tooltip" ) );
     props.setLook( wGpgExe );
     wGpgExe.addModifyListener( lsMod );
@@ -369,7 +363,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdbSourceDirectory.right = new FormAttachment( 100, 0 );
     fdbSourceDirectory.top = new FormAttachment(wSettings, margin );
     wbSourceDirectory.setLayoutData( fdbSourceDirectory );
-    wbSourceDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSourceFileFolder, workflowMeta ) );
+    wbSourceDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wSourceFileFolder, variables ) );
 
 
     // Browse Source files button ...
@@ -390,7 +384,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdbaSourceFileFolder.top = new FormAttachment(wSettings, margin );
     wbaSourceFileFolder.setLayoutData(fdbaSourceFileFolder);
 
-    wSourceFileFolder = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSourceFileFolder = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSourceFileFolder
       .setToolTipText( BaseMessages.getString( PKG, "JobPGPEncryptFiles.SourceFileFolder.Tooltip" ) );
 
@@ -403,9 +397,9 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wSourceFileFolder.setLayoutData( fdSourceFileFolder );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( workflowMeta.environmentSubstitute( wSourceFileFolder.getText() ) ) );
+    wSourceFileFolder.addModifyListener( e -> wSourceFileFolder.setToolTipText( variables.resolve( wSourceFileFolder.getText() ) ) );
 
-    wbSourceFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wSourceFileFolder, workflowMeta,
+    wbSourceFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wSourceFileFolder, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -428,7 +422,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdbDestinationDirectory.right = new FormAttachment( 100, 0 );
     fdbDestinationDirectory.top = new FormAttachment( wSourceFileFolder, margin );
     wbDestinationDirectory.setLayoutData( fdbDestinationDirectory );
-    wbDestinationDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFileFolder, workflowMeta ) );
+    wbDestinationDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFileFolder, variables ) );
 
 
     // Browse Destination file browse button ...
@@ -440,7 +434,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdbDestinationFileFolder.top = new FormAttachment( wSourceFileFolder, margin );
     wbDestinationFileFolder.setLayoutData( fdbDestinationFileFolder );
 
-    wDestinationFileFolder = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDestinationFileFolder = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wDestinationFileFolder.setToolTipText( BaseMessages.getString(
       PKG, "JobPGPEncryptFiles.DestinationFileFolder.Tooltip" ) );
     props.setLook( wDestinationFileFolder );
@@ -451,7 +445,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdDestinationFileFolder.right = new FormAttachment( wbSourceFileFolder, -55 );
     wDestinationFileFolder.setLayoutData(fdDestinationFileFolder);
 
-    wbDestinationFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wDestinationFileFolder, workflowMeta,
+    wbDestinationFileFolder.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wDestinationFileFolder, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -486,7 +480,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdlWildcard.right = new FormAttachment( middle, -margin );
     wlWildcard.setLayoutData(fdlWildcard);
 
-    wWildcard = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wWildcard = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wWildcard.setToolTipText( BaseMessages.getString( PKG, "JobPGPEncryptFiles.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -540,7 +534,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
 
     wFields =
       new TableView(
-        workflowMeta, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wGeneralComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -923,7 +917,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     fdbDestinationFolder.top = new FormAttachment(wDestinationFile, 0 );
     wbDestinationFolder.setLayoutData(fdbDestinationFolder);
 
-    wDestinationFolder = new TextVar( workflowMeta, wMoveToGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDestinationFolder = new TextVar( variables, wMoveToGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wDestinationFolder );
     wDestinationFolder.addModifyListener( lsMod );
     FormData fdDestinationFolder = new FormData();
@@ -933,8 +927,8 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wDestinationFolder.setLayoutData(fdDestinationFolder);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wDestinationFolder.addModifyListener( e -> wDestinationFolder.setToolTipText( workflowMeta.environmentSubstitute( wDestinationFolder.getText() ) ) );
-    wbDestinationFolder.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFolder, workflowMeta ) );
+    wDestinationFolder.addModifyListener( e -> wDestinationFolder.setToolTipText( variables.resolve( wDestinationFolder.getText() ) ) );
+    wbDestinationFolder.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wDestinationFolder, variables ) );
 
     // Create destination folder/parent folder
     wlCreateMoveToFolder = new Label(wMoveToGroup, SWT.RIGHT );
@@ -1212,7 +1206,7 @@ public class ActionPGPEncryptFilesDialog extends ActionDialog implements IAction
     wlNrErrorsLessThan.setLayoutData(fdlNrErrorsLessThan);
 
     wNrErrorsLessThan =
-      new TextVar( workflowMeta, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobPGPEncryptFiles.NrErrorsLessThan.Tooltip" ) );
     props.setLook( wNrErrorsLessThan );
     wNrErrorsLessThan.addModifyListener( lsMod );

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.database;
 
@@ -90,11 +85,11 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @see IDatabase#getNotFoundTK(boolean)
    */
   @Override
-  public int getNotFoundTK( boolean useAutoInc ) {
-    if ( supportsAutoInc() && useAutoInc ) {
+  public int getNotFoundTK( boolean useAutoIncrement ) {
+    if ( supportsAutoInc() && useAutoIncrement ) {
       return 1;
     }
-    return super.getNotFoundTK( useAutoInc );
+    return super.getNotFoundTK( useAutoIncrement );
   }
 
   @Override
@@ -139,19 +134,19 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param use_autoinc whether or not this field uses auto increment
+   * @param useAutoIncrement whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to add a column to the specified table
    */
   @Override
-  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
+  public String getAddColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoIncrement,
                                        String pk, boolean semicolon ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.getAddColumnStatement( tableName, v, tk, useAutoInc, pk, semicolon );
+      return databaseDialect.getAddColumnStatement( tableName, v, tk, useAutoIncrement, pk, semicolon );
     }
 
-    return "ALTER TABLE " + tableName + " ADD " + getFieldDefinition( v, tk, pk, useAutoInc, true, false );
+    return "ALTER TABLE " + tableName + " ADD " + getFieldDefinition( v, tk, pk, useAutoIncrement, true, false );
   }
 
   /**
@@ -160,26 +155,26 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
    * @param tableName   The table to add
    * @param v           The column defined as a value
    * @param tk          the name of the technical key field
-   * @param use_autoinc whether or not this field uses auto increment
+   * @param useAutoIncrement whether or not this field uses auto increment
    * @param pk          the name of the primary key field
    * @param semicolon   whether or not to add a semi-colon behind the statement.
    * @return the SQL statement to modify a column in the specified table
    */
   @Override
-  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
+  public String getModifyColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoIncrement,
                                           String pk, boolean semicolon ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.getModifyColumnStatement( tableName, v, tk, useAutoInc, pk, semicolon );
+      return databaseDialect.getModifyColumnStatement( tableName, v, tk, useAutoIncrement, pk, semicolon );
     }
-    return "ALTER TABLE " + tableName + " MODIFY " + getFieldDefinition( v, tk, pk, useAutoInc, true, false );
+    return "ALTER TABLE " + tableName + " MODIFY " + getFieldDefinition( v, tk, pk, useAutoIncrement, true, false );
   }
 
   @Override
-  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoInc,
-                                    boolean addFieldname, boolean addCr ) {
+  public String getFieldDefinition( IValueMeta v, String tk, String pk, boolean useAutoIncrement,
+                                    boolean addFieldName, boolean addCr ) {
 
     if ( databaseDialect != null ) {
-      return databaseDialect.getFieldDefinition( v, tk, pk, useAutoInc, addFieldname, addCr );
+      return databaseDialect.getFieldDefinition( v, tk, pk, useAutoIncrement, addFieldName, addCr );
     }
 
     String retval = "";
@@ -188,7 +183,7 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
     int length = v.getLength();
     int precision = v.getPrecision();
 
-    if ( addFieldname ) {
+    if ( addFieldName ) {
       retval += fieldname + " ";
     }
 
@@ -822,12 +817,12 @@ public class GenericDatabaseMeta extends BaseDatabaseMeta implements IDatabase {
   }
 
   @Override
-  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoInc,
+  public String getDropColumnStatement( String tableName, IValueMeta v, String tk, boolean useAutoIncrement,
                                         String pk, boolean semicolon ) {
     if ( databaseDialect != null ) {
-      return databaseDialect.getDropColumnStatement( tableName, v, tk, useAutoInc, pk, semicolon );
+      return databaseDialect.getDropColumnStatement( tableName, v, tk, useAutoIncrement, pk, semicolon );
     }
-    return super.getDropColumnStatement( tableName, v, tk, useAutoInc, pk, semicolon );
+    return super.getDropColumnStatement( tableName, v, tk, useAutoIncrement, pk, semicolon );
   }
 
   @Override

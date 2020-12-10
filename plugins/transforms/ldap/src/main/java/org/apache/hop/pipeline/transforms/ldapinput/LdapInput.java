@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline.transforms.ldapinput;
 
 import java.util.HashSet;
@@ -291,7 +285,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
       // no need to convert, just return the value as it
       try {
         return attr.get();
-      } catch (java.lang.ClassCastException e) {
+      } catch ( ClassCastException e) {
         return attr.get().toString().getBytes();
       }
     }
@@ -343,12 +337,12 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     // Limit returned attributes to user selection
     data.attrReturned = new String[meta.getInputFields().length];
 
-    data.attributesBinary = new HashSet<String>();
+    data.attributesBinary = new HashSet<>();
     // Get user selection attributes
     for (int i = 0; i < meta.getInputFields().length; i++) {
       LdapInputField field = meta.getInputFields()[i];
       // get real attribute name
-      String name = environmentSubstitute(field.getAttribute());
+      String name = resolve(field.getAttribute());
       field.setRealAttribute(name);
 
       // specify attributes to be returned in binary format
@@ -371,9 +365,9 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     }
 
     if (meta.isUseAuthentication()) {
-      String username = environmentSubstitute(meta.getUserName());
+      String username = resolve(meta.getUserName());
       String password =
-          Encr.decryptPasswordOptionallyEncrypted(environmentSubstitute(meta.getPassword()));
+          Encr.decryptPasswordOptionallyEncrypted( resolve(meta.getPassword()));
       data.connection.connect(username, password);
     } else {
       data.connection.connect();
@@ -385,7 +379,7 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     }
     // Set the page size?
     if (meta.isPaging()) {
-      data.connection.setPagingSize(Const.toInt(environmentSubstitute(meta.getPageSize()), -1));
+      data.connection.setPagingSize(Const.toInt( resolve(meta.getPageSize()), -1));
     }
   }
 
@@ -413,12 +407,12 @@ public class LdapInput extends BaseTransform<LdapInputMeta, LdapInputData>
     if (super.init()) {
       data.rownr = 1L;
       // Get multi valued field separator
-      data.multiValuedFieldSeparator = environmentSubstitute(meta.getMultiValuedSeparator());
+      data.multiValuedFieldSeparator = resolve(meta.getMultiValuedSeparator());
       data.nrFields = meta.getInputFields().length;
       // Set the filter string
-      data.staticFilter = environmentSubstitute(meta.getFilterString());
+      data.staticFilter = resolve(meta.getFilterString());
       // Set the search base
-      data.staticSearchBase = environmentSubstitute(meta.getSearchBase());
+      data.staticSearchBase = resolve(meta.getSearchBase());
 
       data.dynamic = (meta.isDynamicSearch() || meta.isDynamicFilter());
       try {

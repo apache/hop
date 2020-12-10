@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.denormaliser;
 
@@ -39,8 +34,6 @@ import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 import java.math.BigDecimal;
@@ -65,7 +58,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
   private boolean allNullsAreZero = false;
   private boolean minNullIsValued = false;
 
-  private Map<String, IValueMeta> conversionMetaCache = new HashMap<String, IValueMeta>();
+  private Map<String, IValueMeta> conversionMetaCache = new HashMap<>();
 
   public Denormaliser( TransformMeta transformMeta, DenormaliserMeta meta, DenormaliserData data, int copyNr, PipelineMeta pipelineMeta,
                        Pipeline pipeline ) {
@@ -139,7 +132,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
       return false;
     }
 
-    Map<Integer, Integer> subjects = new Hashtable<Integer, Integer>();
+    Map<Integer, Integer> subjects = new Hashtable<>();
     data.fieldNameIndex = new int[ meta.getDenormaliserTargetField().length ];
     for ( int i = 0; i < meta.getDenormaliserTargetField().length; i++ ) {
       DenormaliserTargetField field = meta.getDenormaliserTargetField()[ i ];
@@ -165,10 +158,10 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
       // Fill a hashtable with the key strings and the position(s) of the field(s) in the row to take.
       // Store the indexes in a List so that we can accommodate multiple key/value pairs...
       //
-      String keyValue = environmentSubstitute( field.getKeyValue() );
+      String keyValue = resolve( field.getKeyValue() );
       List<Integer> indexes = data.keyValue.get( keyValue );
       if ( indexes == null ) {
-        indexes = new ArrayList<Integer>( 2 );
+        indexes = new ArrayList<>( 2 );
       }
       indexes.add( Integer.valueOf( i ) ); // Add the index to the list...
       data.keyValue.put( keyValue, indexes ); // store the list
@@ -188,7 +181,7 @@ public class Denormaliser extends BaseTransform<DenormaliserMeta, DenormaliserDa
       }
     }
 
-    List<Integer> removeList = new ArrayList<Integer>();
+    List<Integer> removeList = new ArrayList<>();
     removeList.add( Integer.valueOf( data.keyFieldNr ) );
     for ( int i = 0; i < data.fieldNrs.length; i++ ) {
       removeList.add( data.fieldNrs[ i ] );

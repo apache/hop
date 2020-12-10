@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.selectvalues;
 
@@ -59,6 +54,7 @@ import org.eclipse.swt.widgets.*;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class SelectValuesDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SelectValuesMeta.class; // Needed by Translator
@@ -92,8 +88,8 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
   private final Map<String, Integer> inputFields;
 
-  public SelectValuesDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SelectValuesDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SelectValuesMeta) in;
     inputFields = new HashMap<>();
   }
@@ -227,7 +223,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     fieldColumns.add( colinf[ 0 ] );
     wFields =
       new TableView(
-        pipelineMeta, wSelectComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
+        variables, wSelectComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, fieldsRows, lsMod, props );
 
     Button wGetSelect = new Button(wSelectComp, SWT.PUSH);
     wGetSelect.setText( BaseMessages.getString( PKG, "SelectValuesDialog.GetSelect.Button" ) );
@@ -302,7 +298,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     fieldColumns.add( colrem[ 0 ] );
     wRemove =
       new TableView(
-        pipelineMeta, wRemoveComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colrem, RemoveRows, lsMod, props );
+        variables, wRemoveComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colrem, RemoveRows, lsMod, props );
 
     Button wGetRemove = new Button(wRemoveComp, SWT.PUSH);
     wGetRemove.setText( BaseMessages.getString( PKG, "SelectValuesDialog.GetRemove.Button" ) );
@@ -413,7 +409,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     fieldColumns.add( colmeta[ 0 ] );
     wMeta =
       new TableView(
-        pipelineMeta, wMetaComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colmeta, MetaRows, lsMod, props );
+        variables, wMetaComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colmeta, MetaRows, lsMod, props );
 
     Button wGetMeta = new Button(wMetaComp, SWT.PUSH);
     wGetMeta.setText( BaseMessages.getString( PKG, "SelectValuesDialog.GetMeta.Button" ) );
@@ -477,7 +473,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
           prevFields = row;
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -512,7 +508,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
   private void setComboValues() {
     Runnable fieldLoader = () -> {
       try {
-        prevFields = pipelineMeta.getPrevTransformFields( transformName );
+        prevFields = pipelineMeta.getPrevTransformFields( variables, transformName );
       } catch ( HopException e ) {
         prevFields = new RowMeta();
         String msg = BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.UnableToFindInput" );
@@ -723,7 +719,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         switch ( wTabFolder.getSelectionIndex() ) {
           case 0:
@@ -795,7 +791,7 @@ public class SelectValuesDialog extends BaseTransformDialog implements ITransfor
     TransformMeta outputTransformMeta = nextTransforms.get( 0 );
     ITransformMeta transformMetaInterface = outputTransformMeta.getTransform();
     try {
-      nextTransformRequiredFields = transformMetaInterface.getRequiredFields( pipelineMeta );
+      nextTransformRequiredFields = transformMetaInterface.getRequiredFields( variables );
     } catch ( HopException e ) {
       logError( BaseMessages.getString( PKG, "SelectValuesDialog.DoMapping.UnableToFindOutput" ) );
       nextTransformRequiredFields = new RowMeta();

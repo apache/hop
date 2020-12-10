@@ -182,7 +182,7 @@ public class SalesforceInsertTest {
 
   private SalesforceInsertData generateSalesforceInsertData() {
     SalesforceInsertData data = smh.iTransformData;
-    data.nrfields = 1;
+    data.nrFields = 1;
     data.fieldnrs = new int[] { 0 };
     data.sfBuffer = new SObject[] { null };
     data.outputBuffer = new Object[][] { null };

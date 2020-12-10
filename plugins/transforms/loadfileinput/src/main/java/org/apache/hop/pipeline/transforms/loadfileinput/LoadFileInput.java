@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
@@ -500,14 +495,14 @@ public class LoadFileInput extends BaseTransform<LoadFileInputMeta, LoadFileInpu
   }
 
   protected Object[] copyOrCloneArrayFromLoadFile( Object[] outputRowData, Object[] readrow ) {
-    // if readrow array is shorter than outputRowData reserved space, then we can not clone it because we have to
-    // preserve the outputRowData reserved space. Clone, creates a new array with a new length, equals to the
-    // readRow length and with that set we lost our outputRowData reserved space - needed for future additions.
+    // if readrow array is shorter than outputRowData reserved variables, then we can not clone it because we have to
+    // preserve the outputRowData reserved variables. Clone, creates a new array with a new length, equals to the
+    // readRow length and with that set we lost our outputRowData reserved variables - needed for future additions.
     // The equals case works in both clauses, but arraycopy is up to 5 times faster for smaller arrays.
     if ( readrow.length <= outputRowData.length ) {
       System.arraycopy( readrow, 0, outputRowData, 0, readrow.length );
     } else {
-      // if readrow array is longer than outputRowData reserved space, then we can only clone it.
+      // if readrow array is longer than outputRowData reserved variables, then we can only clone it.
       // Copy does not work here and will return an error since we are trying to copy a bigger array into a shorter one.
       outputRowData = readrow.clone();
     }

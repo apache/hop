@@ -51,10 +51,10 @@ public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, 
       return false;
     }
 
-    String realUrl = environmentSubstitute( meta.getTargetUrl() );
-    String realUsername = environmentSubstitute( meta.getUsername() );
-    String realPassword = environmentSubstitute( meta.getPassword() );
-    String realModule = environmentSubstitute( meta.getModule() );
+    String realUrl = resolve( meta.getTargetUrl() );
+    String realUsername = resolve( meta.getUsername() );
+    String realPassword = resolve( meta.getPassword() );
+    String realModule = resolve( meta.getModule() );
 
     if ( Utils.isEmpty( realUrl ) ) {
       log.logError( BaseMessages.getString( PKG, "SalesforceTransform.TargetURLMissing.Error" ) );
@@ -76,7 +76,7 @@ public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, 
       // The final step should call data.connection.connect(), as other settings may set additional options
       data.connection = new SalesforceConnection( log, realUrl, realUsername, realPassword );
       data.connection.setModule( realModule );
-      data.connection.setTimeOut( Const.toInt( environmentSubstitute( meta.getTimeout() ), 0 ) );
+      data.connection.setTimeOut( Const.toInt( resolve( meta.getTimeout() ), 0 ) );
       data.connection.setUsingCompression( meta.isCompression() );
     } catch ( HopException ke ) {
       logError( BaseMessages.getString( PKG, "SalesforceInput.Log.ErrorOccurredDuringTransformInitialize" )
@@ -125,7 +125,7 @@ public abstract class SalesforceTransform<Meta extends SalesforceTransformMeta, 
     if ( IValueMeta.TYPE_INTEGER == valueMeta.getType() ) {
       // Salesforce integer values can be only http://www.w3.org/2001/XMLSchema:int
       // see org.apache.hop.ui.pipeline.transforms.salesforceinput.SalesforceInputDialog#addFieldToTable
-      // So we need convert Hitachi Vantara integer (real java Long value) to real int.
+      // So we need convert a Hop integer (real java Long value) to real int.
       // It will be sent correct as http://www.w3.org/2001/XMLSchema:int
 
       // use checked cast for prevent losing data

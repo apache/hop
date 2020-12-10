@@ -62,7 +62,7 @@ public class TransformMetastructureDialog extends BaseTransformDialog implements
   private TextVar wRowcountField;
   private FormData fdlRowcountField, fdRowcountField;
 
-  public TransformMetastructureDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public TransformMetastructureDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (TransformMetastructureMeta) in;
   }
@@ -149,7 +149,7 @@ public class TransformMetastructureDialog extends BaseTransformDialog implements
     fdlRowcountField.top = new FormAttachment( wOutputRowcount, margin );
     wlRowcountField.setLayoutData( fdlRowcountField );
 
-    wRowcountField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wRowcountField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wRowcountField );
     wRowcountField.addModifyListener( lsMod );
     fdRowcountField = new FormData();

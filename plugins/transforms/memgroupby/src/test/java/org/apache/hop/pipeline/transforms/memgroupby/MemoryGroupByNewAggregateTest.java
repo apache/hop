@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.memgroupby;
 
@@ -53,19 +47,19 @@ public class MemoryGroupByNewAggregateTest {
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     mockHelper =
-      new TransformMockHelper<MemoryGroupByMeta, MemoryGroupByData>( "Memory Group By", MemoryGroupByMeta.class,
+      new TransformMockHelper<>( "Memory Group By", MemoryGroupByMeta.class,
         MemoryGroupByData.class );
     when( mockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       mockHelper.iLogChannel );
     when( mockHelper.pipeline.isRunning() ).thenReturn( true );
 
     // In this transform we will distinct String aggregations from numeric ones
-    strings = new ArrayList<Integer>();
+    strings = new ArrayList<>();
     strings.add( MemoryGroupByMeta.TYPE_GROUP_CONCAT_COMMA );
     strings.add( MemoryGroupByMeta.TYPE_GROUP_CONCAT_STRING );
 
     // Statistics will be initialized with collections...
-    statistics = new ArrayList<Integer>();
+    statistics = new ArrayList<>();
     statistics.add( MemoryGroupByMeta.TYPE_GROUP_MEDIAN );
     statistics.add( MemoryGroupByMeta.TYPE_GROUP_PERCENTILE );
   }

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.syslog;
 
@@ -160,7 +154,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     // Server port line
     wServerName =
       new LabelTextVar(
-    		  getWorkflowMeta(), wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Server.Label" ), BaseMessages
+    		  variables, wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Server.Label" ), BaseMessages
         .getString( PKG, "ActionSyslog.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
@@ -173,7 +167,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     // Server port line
     wPort =
       new LabelTextVar(
-    		  getWorkflowMeta(), wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Port.Label" ), BaseMessages
+    		  variables, wServerSettings, BaseMessages.getString( PKG, "ActionSyslog.Port.Label" ), BaseMessages
         .getString( PKG, "ActionSyslog.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
@@ -339,7 +333,7 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
     fdlDatePattern.right = new FormAttachment( middle, -margin );
     fdlDatePattern.top = new FormAttachment( wAddTimestamp, margin );
     wlDatePattern.setLayoutData(fdlDatePattern);
-    wDatePattern = new ComboVar( getWorkflowMeta(), wMessageGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wDatePattern = new ComboVar( variables, wMessageGroup, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wDatePattern.setItems( Const.getDateFormats() );
     props.setLook( wDatePattern );
     FormData fdDatePattern = new FormData();
@@ -461,8 +455,8 @@ public class ActionSyslogDialog extends ActionDialog implements IActionDialog {
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = getWorkflowMeta().environmentSubstitute( wServerName.getText() );
-    int nrPort = Const.toInt( getWorkflowMeta().environmentSubstitute( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
+    String hostname = variables.resolve( wServerName.getText() );
+    int nrPort = Const.toInt( variables.resolve( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
 
     try {
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( hostname ), nrPort );

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.projects.project;
 
@@ -71,12 +66,12 @@ public class ProjectConfig {
    * @throws HopException In case the home folder doesn't exist or an invalid filename/path is being used.
    */
   public String getActualProjectConfigFilename(  IVariables variables ) throws HopException {
-    String actualHomeFolder = variables.environmentSubstitute( getProjectHome() );
+    String actualHomeFolder = variables.resolve( getProjectHome() );
     File actualHome = new File( actualHomeFolder );
     if (!actualHome.exists()) {
       throw new HopException("Project home folder '"+actualHomeFolder+"' does not exist");
     }
-    String actualConfigFilename = variables.environmentSubstitute( getConfigFilename() );
+    String actualConfigFilename = variables.resolve( getConfigFilename() );
     String fullFilename = FilenameUtils.concat( actualHome.getAbsolutePath(), actualConfigFilename );
     if (fullFilename==null) {
       throw new HopException("Unable to determine full path to the configuration file '"+actualConfigFilename+"' in home folder '"+actualHomeFolder);
@@ -87,8 +82,8 @@ public class ProjectConfig {
   public Project loadProject( IVariables variables ) throws HopException {
     String configFilename = getActualProjectConfigFilename( variables );
     if (configFilename==null) {
-      String projHome = variables.environmentSubstitute( getProjectHome() );
-      String confFile = variables.environmentSubstitute( getConfigFilename() );
+      String projHome = variables.resolve( getProjectHome() );
+      String confFile = variables.resolve( getConfigFilename() );
       throw new HopException("Invalid project folder provided: home folder: '"+projHome+"', config file: '"+confFile+"'");
     }
     Project project = new Project(configFilename);

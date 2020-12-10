@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.rest;
 
@@ -27,6 +21,7 @@ import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -113,8 +108,8 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
   private Button wMatrixGet;
 
-  public RestDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public RestDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (RestMeta) in;
     inputFields = new HashMap<>();
   }
@@ -206,7 +201,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlUrl.top = new FormAttachment(wGeneralComp, margin * 2 );
     wlUrl.setLayoutData(fdlUrl);
 
-    wUrl = new TextVar( pipelineMeta, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUrl = new TextVar( variables, gSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUrl );
     wUrl.addModifyListener( lsMod );
     FormData fdUrl = new FormData();
@@ -248,7 +243,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlUrlField.top = new FormAttachment( wUrlInField, margin );
     wlUrlField.setLayoutData(fdlUrlField);
 
-    wUrlField = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
+    wUrlField = new ComboVar( variables, gSettings, SWT.BORDER | SWT.READ_ONLY );
     wUrlField.setEditable( true );
     props.setLook( wUrlField );
     wUrlField.addModifyListener( lsMod );
@@ -258,10 +253,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdUrlField.right = new FormAttachment( 100, -margin );
     wUrlField.setLayoutData(fdUrlField);
     wUrlField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setStreamFields();
@@ -280,7 +275,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlMethod.top = new FormAttachment( wUrlField, 2 * margin );
     wlMethod.setLayoutData(fdlMethod);
 
-    wMethod = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
+    wMethod = new ComboVar( variables, gSettings, SWT.BORDER | SWT.READ_ONLY );
     wMethod.setEditable( true );
     props.setLook( wMethod );
     wMethod.addModifyListener( lsMod );
@@ -330,7 +325,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlMethodField.top = new FormAttachment( wMethodInField, margin );
     wlMethodField.setLayoutData(fdlMethodField);
 
-    wMethodField = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
+    wMethodField = new ComboVar( variables, gSettings, SWT.BORDER | SWT.READ_ONLY );
     wMethodField.setEditable( true );
     props.setLook( wMethodField );
     wMethodField.addModifyListener( lsMod );
@@ -340,10 +335,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdMethodField.right = new FormAttachment( 100, -margin );
     wMethodField.setLayoutData(fdMethodField);
     wMethodField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setStreamFields();
@@ -362,7 +357,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlBody.top = new FormAttachment( wMethodField, 2 * margin );
     wlBody.setLayoutData(fdlBody);
 
-    wBody = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
+    wBody = new ComboVar( variables, gSettings, SWT.BORDER | SWT.READ_ONLY );
     wBody.setEditable( true );
     props.setLook( wBody );
     wBody.addModifyListener( lsMod );
@@ -372,10 +367,10 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdBody.right = new FormAttachment( 100, -margin );
     wBody.setLayoutData(fdBody);
     wBody.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setStreamFields();
@@ -394,7 +389,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlApplicationType.top = new FormAttachment( wBody, 2 * margin );
     wlApplicationType.setLayoutData(fdlApplicationType);
 
-    wApplicationType = new ComboVar( pipelineMeta, gSettings, SWT.BORDER | SWT.READ_ONLY );
+    wApplicationType = new ComboVar( variables, gSettings, SWT.BORDER | SWT.READ_ONLY );
     wApplicationType.setEditable( true );
     props.setLook( wApplicationType );
     wApplicationType.addModifyListener( lsMod );
@@ -440,7 +435,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlResult.right = new FormAttachment( middle, -margin );
     fdlResult.top = new FormAttachment( gSettings, margin );
     wlResult.setLayoutData(fdlResult);
-    wResult = new TextVar( pipelineMeta, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResult = new TextVar( variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResult );
     wResult.addModifyListener( lsMod );
     FormData fdResult = new FormData();
@@ -458,7 +453,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlResultCode.right = new FormAttachment( middle, -margin );
     fdlResultCode.top = new FormAttachment( wResult, margin );
     wlResultCode.setLayoutData(fdlResultCode);
-    wResultCode = new TextVar( pipelineMeta, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResultCode = new TextVar( variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResultCode );
     wResultCode.addModifyListener( lsMod );
     FormData fdResultCode = new FormData();
@@ -476,7 +471,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlResponseTime.right = new FormAttachment( middle, -margin );
     fdlResponseTime.top = new FormAttachment( wResultCode, margin );
     wlResponseTime.setLayoutData(fdlResponseTime);
-    wResponseTime = new TextVar( pipelineMeta, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResponseTime = new TextVar( variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResponseTime );
     wResponseTime.addModifyListener( lsMod );
     FormData fdResponseTime = new FormData();
@@ -493,7 +488,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlResponseHeader.right = new FormAttachment( middle, -margin );
     fdlResponseHeader.top = new FormAttachment( wResponseTime, margin );
     wlResponseHeader.setLayoutData(fdlResponseHeader);
-    wResponseHeader = new TextVar( pipelineMeta, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResponseHeader = new TextVar( variables, gOutputFields, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResponseHeader );
     wResponseHeader.addModifyListener( lsMod );
     FormData fdResponseHeader = new FormData();
@@ -558,7 +553,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlHttpLogin.left = new FormAttachment( 0, 0 );
     fdlHttpLogin.right = new FormAttachment( middle, -margin );
     wlHttpLogin.setLayoutData( fdlHttpLogin );
-    wHttpLogin = new TextVar( pipelineMeta, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHttpLogin = new TextVar( variables, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wHttpLogin.addModifyListener( lsMod );
     wHttpLogin.setToolTipText( BaseMessages.getString( PKG, "RestDialog.HttpLogin.Tooltip" ) );
     props.setLook( wHttpLogin );
@@ -577,7 +572,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlHttpPassword.left = new FormAttachment( 0, 0 );
     fdlHttpPassword.right = new FormAttachment( middle, -margin );
     wlHttpPassword.setLayoutData( fdlHttpPassword );
-    wHttpPassword = new PasswordTextVar( pipelineMeta, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wHttpPassword = new PasswordTextVar( variables, gHttpAuth, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wHttpPassword.addModifyListener( lsMod );
     wHttpPassword.setToolTipText( BaseMessages.getString( PKG, "RestDialog.HttpPassword.Tooltip" ) );
     props.setLook( wHttpPassword );
@@ -638,7 +633,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlProxyHost.left = new FormAttachment( 0, 0 );
     fdlProxyHost.right = new FormAttachment( middle, -margin );
     wlProxyHost.setLayoutData( fdlProxyHost );
-    wProxyHost = new TextVar( pipelineMeta, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyHost = new TextVar( variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wProxyHost.addModifyListener( lsMod );
     wProxyHost.setToolTipText( BaseMessages.getString( PKG, "RestDialog.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
@@ -657,7 +652,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlProxyPort.left = new FormAttachment( 0, 0 );
     fdlProxyPort.right = new FormAttachment( middle, -margin );
     wlProxyPort.setLayoutData( fdlProxyPort );
-    wProxyPort = new TextVar( pipelineMeta, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyPort = new TextVar( variables, gProxy, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wProxyPort.addModifyListener( lsMod );
     wProxyPort.setToolTipText( BaseMessages.getString( PKG, "RestDialog.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
@@ -729,13 +724,13 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdbTrustStoreFile.top = new FormAttachment( 0, 0 );
     wbTrustStoreFile.setLayoutData(fdbTrustStoreFile);
 
-    wbTrustStoreFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTrustStoreFile, pipelineMeta,
+    wbTrustStoreFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTrustStoreFile, variables,
       new String[] { "*.)" },
       new String[] { BaseMessages.getString( PKG, "System.FileType.AllFiles" ) },
       true )
     );
 
-    wTrustStoreFile = new TextVar( pipelineMeta, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTrustStoreFile = new TextVar( variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTrustStoreFile );
     wTrustStoreFile.addModifyListener( lsMod );
     FormData fdTrustStoreFile = new FormData();
@@ -754,7 +749,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     fdlTrustStorePassword.right = new FormAttachment( middle, -margin );
     wlTrustStorePassword.setLayoutData(fdlTrustStorePassword);
     wTrustStorePassword =
-      new PasswordTextVar( pipelineMeta, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+      new PasswordTextVar( variables, gSSLTrustStore, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTrustStorePassword );
     wTrustStorePassword.addModifyListener( lsMod );
     FormData fdTrustStorePassword = new FormData();
@@ -824,7 +819,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
     colinf[ 1 ].setUsingVariables( true );
     wFields =
       new TableView(
-        pipelineMeta, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
+        variables, wAdditionalComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod,
         props );
 
     FormData fdFields = new FormData();
@@ -886,7 +881,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
     wParameters =
       new TableView(
-        pipelineMeta, wParametersComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinfoparams,
+        variables, wParametersComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinfoparams,
         ParametersRows, lsMod, props );
 
     FormData fdParameters = new FormData();
@@ -947,7 +942,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
     wMatrixParameters =
       new TableView(
-        pipelineMeta, wMatrixParametersComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinfoparams,
+        variables, wMatrixParametersComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinfoparams,
         matrixParametersRows, lsMod, props );
 
     FormData fdMatrixParameters = new FormData();
@@ -984,7 +979,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -1289,7 +1284,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
   private void getParametersFields( TableView tView ) {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog
           .getFieldsFromPrevious( r, tView, 1, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, null );
@@ -1304,7 +1299,7 @@ public class RestDialog extends BaseTransformDialog implements ITransformDialog 
 
   private void getHeaders() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wFields, 1, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, null );
       }

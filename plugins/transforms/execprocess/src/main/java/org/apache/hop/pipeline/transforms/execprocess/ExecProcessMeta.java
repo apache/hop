@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.execprocess;
 
@@ -213,21 +208,21 @@ public class ExecProcessMeta extends BaseTransformMeta implements ITransformMeta
   public void getFields( IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
                          IVariables variables, IHopMetadataProvider metadataProvider) throws HopTransformException {
     // Output fields (String)
-    String realOutputFieldname = variables.environmentSubstitute(resultfieldname);
+    String realOutputFieldname = variables.resolve(resultfieldname);
     if (!Utils.isEmpty(realOutputFieldname)) {
       IValueMeta v = new ValueMetaString(realOutputFieldname);
       v.setLength(100, -1);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    String realerrofieldname = variables.environmentSubstitute(errorfieldname);
+    String realerrofieldname = variables.resolve(errorfieldname);
     if (!Utils.isEmpty(realerrofieldname)) {
       IValueMeta v = new ValueMetaString(realerrofieldname);
       v.setLength(100, -1);
       v.setOrigin(name);
       inputRowMeta.addValueMeta(v);
     }
-    String realexitvaluefieldname = variables.environmentSubstitute(exitvaluefieldname);
+    String realexitvaluefieldname = variables.resolve(exitvaluefieldname);
     if (!Utils.isEmpty(realexitvaluefieldname)) {
       IValueMeta v = new ValueMetaInteger(realexitvaluefieldname);
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0);

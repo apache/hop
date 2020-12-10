@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.xslt;
 
@@ -61,8 +55,8 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransfor
   static final String JAXP_SCHEMA_LANGUAGE = "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
   static final String JAXP_SCHEMA_SOURCE = "http://java.sun.com/xml/jaxp/properties/schemaSource";
 
-  public Xslt(TransformMeta stepMeta, XsltMeta meta, XsltData data, int copyNr, PipelineMeta transMeta, Pipeline trans ) {
-    super( stepMeta, meta, data, copyNr, transMeta, trans );
+  public Xslt(TransformMeta transformMeta, XsltMeta meta, XsltData data, int copyNr, PipelineMeta pipelineMeta, Pipeline trans ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, trans );
   }
 
   public boolean processRow() throws HopException {
@@ -130,7 +124,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransfor
         }
 
         // Check if XSL File exists!
-        data.xslfilename = environmentSubstitute( meta.getXslFilename() );
+        data.xslfilename = resolve( meta.getXslFilename() );
         FileObject file = null;
         try {
           file = HopVfs.getFileObject( data.xslfilename );
@@ -161,7 +155,7 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransfor
       if ( nrOutputProps > 0 ) {
         data.outputProperties = new Properties();
         for ( int i = 0; i < nrOutputProps; i++ ) {
-          data.outputProperties.put( meta.getOutputPropertyName()[i], environmentSubstitute( meta
+          data.outputProperties.put( meta.getOutputPropertyName()[i], resolve( meta
               .getOutputPropertyValue()[i] ) );
         }
         data.setOutputProperties = true;
@@ -173,8 +167,8 @@ public class Xslt extends BaseTransform<XsltMeta, XsltData> implements ITransfor
         data.indexOfParams = new int[data.nrParams];
         data.nameOfParams = new String[data.nrParams];
         for ( int i = 0; i < data.nrParams; i++ ) {
-          String name = environmentSubstitute( meta.getParameterName()[i] );
-          String field = environmentSubstitute( meta.getParameterField()[i] );
+          String name = resolve( meta.getParameterName()[i] );
+          String field = resolve( meta.getParameterField()[i] );
           if ( Utils.isEmpty( field ) ) {
             throw new HopTransformException( BaseMessages
                 .getString( PKG, "Xslt.Exception.ParameterFieldMissing", name, i ) );

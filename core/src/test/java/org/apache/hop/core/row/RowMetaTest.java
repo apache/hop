@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.row;
 
@@ -93,7 +88,7 @@ public class RowMetaTest {
   }
 
   private List<IValueMeta> generateVList( String[] names, int[] types ) throws HopPluginException {
-    List<IValueMeta> list = new ArrayList<IValueMeta>();
+    List<IValueMeta> list = new ArrayList<>();
     for ( int i = 0; i < names.length; i++ ) {
       IValueMeta vm = ValueMetaFactory.createValueMeta( names[ i ], types[ i ] );
       vm.setOrigin( "originTransform" );
@@ -420,7 +415,7 @@ public class RowMetaTest {
     rowMeta = new RowMeta();
 
     // create pre-existed rom meta list
-    List<IValueMeta> pre = new ArrayList<IValueMeta>( 100000 );
+    List<IValueMeta> pre = new ArrayList<>( 100000 );
     for ( int i = 0; i < 100000; i++ ) {
       IValueMeta vm =
         ValueMetaFactory.createValueMeta( UUID.randomUUID().toString(), IValueMeta.TYPE_STRING );
@@ -432,7 +427,7 @@ public class RowMetaTest {
     long start, stop, time1, time2;
     start = System.nanoTime();
     // this is when filling regular array like in prev implementation
-    List<IValueMeta> prev = new ArrayList<IValueMeta>();
+    List<IValueMeta> prev = new ArrayList<>();
     for ( IValueMeta item : pre ) {
       prev.add( item );
     }

@@ -57,12 +57,12 @@ import java.util.List;
 )
 public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMeta<StreamSchema, StreamSchemaData> {
 
-	private static final Class<?> PKG = org.apache.hop.pipeline.transforms.streamschemamerge.StreamSchemaMeta.class; // for i18n purposes
+	private static final Class<?> PKG = StreamSchemaMeta.class; // for i18n purposes
 
     /**
      * Stores the names of the transforms to merge into the output
      */
-    private ArrayList<String> transformsToMerge = new ArrayList<String>();
+    private ArrayList<String> transformsToMerge = new ArrayList<>();
 
 	/**
 	 * Constructor should call super() to make sure the base class has a chance to initialize properly.
@@ -118,7 +118,7 @@ public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMet
      * @param arrayOfTransforms Names of steps to merge
      */
     public void setTransformsToMerge(String[] arrayOfTransforms) {
-        transformsToMerge = new ArrayList<String>();
+        transformsToMerge = new ArrayList<>();
         Collections.addAll(transformsToMerge, arrayOfTransforms);
     }
 
@@ -213,12 +213,12 @@ public class StreamSchemaMeta extends BaseTransformMeta implements ITransformMet
 	 * @param name 				the name of the transform making the changes
 	 * @param info				row structures of any info transforms coming in
 	 * @param nextTransform			the description of a transform this transform is passing rows to
-	 * @param space				the variable space for resolving variables
+	 * @param variables				the variable variables for resolving variables
 	 * @param metadataProvider			the metadata provider to optionally read from
 	 */
 	@Override
 	public void getFields(IRowMeta inputRowMeta, String name, IRowMeta[] info, TransformMeta nextTransform,
-						  IVariables space, IHopMetadataProvider metadataProvider) throws HopTransformException {
+						  IVariables variables, IHopMetadataProvider metadataProvider) throws HopTransformException {
 
 		/*
 		 * We don't have any input fields so we ingore inputRowMeta

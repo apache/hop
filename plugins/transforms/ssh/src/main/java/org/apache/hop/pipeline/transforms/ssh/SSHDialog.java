@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.ssh;
 
@@ -65,6 +59,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.apache.hop.core.variables.IVariables;
 
 public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SSHMeta.class; // Needed by Translator
@@ -106,8 +101,8 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
 
   private boolean gotPreviousFields = false;
 
-  public SSHDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SSHDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SSHMeta) in;
   }
 
@@ -199,7 +194,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // Server port line
     wServerName =
       new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Server.Label" ), BaseMessages
+        variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Server.Label" ), BaseMessages
         .getString( PKG, "SSHDialog.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
@@ -210,7 +205,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     wServerName.setLayoutData( fdServerName );
 
     // Server port line
-    wPort = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Port.Label" ),
+    wPort = new LabelTextVar( variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Port.Label" ),
       BaseMessages.getString( PKG, "SSHDialog.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
@@ -221,7 +216,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     wPort.setLayoutData( fdPort );
 
     // Server TimeOut line
-    wTimeOut = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.TimeOut.Label" ),
+    wTimeOut = new LabelTextVar( variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.TimeOut.Label" ),
       BaseMessages.getString( PKG, "SSHDialog.TimeOut.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
@@ -232,7 +227,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     wTimeOut.setLayoutData( fdTimeOut );
 
     // Usernameline
-    wUserName = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.UserName.Label" ),
+    wUserName = new LabelTextVar( variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.UserName.Label" ),
       BaseMessages.getString( PKG, "SSHDialog.UserName.Tooltip" ) );
     props.setLook( wUserName );
     wUserName.addModifyListener( lsMod );
@@ -243,7 +238,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     wUserName.setLayoutData( fdUserName );
 
     // Passwordline
-    wPassword = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Password.Label" ),
+    wPassword = new LabelTextVar( variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Password.Label" ),
       BaseMessages.getString( PKG, "SSHDialog.Password.Tooltip" ), true );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
@@ -293,7 +288,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
         FileDialog dialog = new FileDialog( shell, SWT.SAVE );
         dialog.setFilterExtensions( new String[] { "*.pem", "*" } );
         if ( wPrivateKey.getText() != null ) {
-          dialog.setFileName( pipelineMeta.environmentSubstitute( wPrivateKey.getText() ) );
+          dialog.setFileName( variables.resolve( wPrivateKey.getText() ) );
         }
         dialog.setFilterNames( new String[] {
           BaseMessages.getString( PKG, "System.FileType.PEMFiles" ),
@@ -314,7 +309,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdlPrivateKey.right = new FormAttachment( middle, 0 );
     fdlPrivateKey.top = new FormAttachment( wUseKey, 2*margin);
     wlPrivateKey.setLayoutData( fdlPrivateKey );
-    wPrivateKey = new TextVar( pipelineMeta, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPrivateKey = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wPrivateKey.setToolTipText( BaseMessages.getString( PKG, "SSHDialog.PrivateKey.Tooltip" )  );
     props.setLook( wPassword );
     wPrivateKey.addModifyListener( lsMod );
@@ -326,7 +321,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
 
 
     // Passphraseline
-    wPassphrase = new LabelTextVar( pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Passphrase.Label" ),
+    wPassphrase = new LabelTextVar( variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.Passphrase.Label" ),
       BaseMessages.getString( PKG, "SSHDialog.Passphrase.Tooltip" ), true );
     props.setLook( wPassphrase );
     wPassphrase.addModifyListener( lsMod );
@@ -339,7 +334,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // ProxyHostline
     wProxyHost =
       new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyHost.Label" ), BaseMessages
+        variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyHost.Label" ), BaseMessages
         .getString( PKG, "SSHDialog.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
     wProxyHost.addModifyListener( lsMod );
@@ -352,7 +347,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // ProxyPortline
     wProxyPort =
       new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyPort.Label" ), BaseMessages
+        variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyPort.Label" ), BaseMessages
         .getString( PKG, "SSHDialog.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
@@ -365,7 +360,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // ProxyUsernameline
     wProxyUsername =
       new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyUsername.Label" ),
+        variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyUsername.Label" ),
         BaseMessages.getString( PKG, "SSHDialog.ProxyUsername.Tooltip" ) );
     props.setLook( wProxyUsername );
     wProxyUsername.addModifyListener( lsMod );
@@ -378,7 +373,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // ProxyUsernameline
     wProxyPassword =
       new LabelTextVar(
-        pipelineMeta, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyPassword.Label" ),
+        variables, wSettingsGroup, BaseMessages.getString( PKG, "SSHDialog.ProxyPassword.Label" ),
         BaseMessages.getString( PKG, "SSHDialog.ProxyPassword.Tooltip" ), true );
     props.setLook( wProxyUsername );
     wProxyPassword.addModifyListener( lsMod );
@@ -451,7 +446,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // ResultOutFieldNameline
     wResultOutFieldName =
       new LabelTextVar(
-        pipelineMeta, wOutput, BaseMessages.getString( PKG, "SSHDialog.ResultOutFieldName.Label" ), BaseMessages
+        variables, wOutput, BaseMessages.getString( PKG, "SSHDialog.ResultOutFieldName.Label" ), BaseMessages
         .getString( PKG, "SSHDialog.ResultOutFieldName.Tooltip" ) );
     props.setLook( wResultOutFieldName );
     wResultOutFieldName.addModifyListener( lsMod );
@@ -464,7 +459,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     // ResultErrFieldNameline
     wResultErrFieldName =
       new LabelTextVar(
-        pipelineMeta, wOutput, BaseMessages.getString( PKG, "SSHDialog.ResultErrFieldName.Label" ), BaseMessages
+        variables, wOutput, BaseMessages.getString( PKG, "SSHDialog.ResultErrFieldName.Label" ), BaseMessages
         .getString( PKG, "SSHDialog.ResultErrFieldName.Tooltip" ) );
     props.setLook( wResultErrFieldName );
     wResultErrFieldName.addModifyListener( lsMod );
@@ -547,7 +542,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
     fdlCommand.right = new FormAttachment( middle, -2 * margin );
     wlCommand.setLayoutData( fdlCommand );
 
-    wCommand = new StyledTextComp( pipelineMeta, wCommands, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
+    wCommand = new StyledTextComp( variables, wCommands, SWT.MULTI | SWT.LEFT | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL, "" );
     wCommand.setToolTipText( BaseMessages.getString( PKG, "SSHDialog.Command.Tooltip" ) );
     props.setLook( wCommand );
     wCommand.addModifyListener( lsMod );
@@ -744,7 +739,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
         String source = wCommandField.getText();
 
         wCommandField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wCommandField.setItems( r.getFieldNames() );
           if ( source != null ) {
@@ -762,24 +757,24 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String servername = pipelineMeta.environmentSubstitute( wServerName.getText() );
-    int nrPort = Const.toInt( pipelineMeta.environmentSubstitute( wPort.getText() ), 22 );
-    String username = pipelineMeta.environmentSubstitute( wUserName.getText() );
-    String password = Utils.resolvePassword( pipelineMeta, wPassword.getText() );
-    String keyFilename = pipelineMeta.environmentSubstitute( wPrivateKey.getText() );
-    String passphrase = pipelineMeta.environmentSubstitute( wPassphrase.getText() );
-    int timeOut = Const.toInt( pipelineMeta.environmentSubstitute( wTimeOut.getText() ), 0 );
-    String proxyhost = pipelineMeta.environmentSubstitute( wProxyHost.getText() );
-    int proxyport = Const.toInt( pipelineMeta.environmentSubstitute( wProxyPort.getText() ), 0 );
-    String proxyusername = pipelineMeta.environmentSubstitute( wProxyUsername.getText() );
-    String proxypassword = Utils.resolvePassword( pipelineMeta, wProxyPassword.getText() );
+    String servername = variables.resolve( wServerName.getText() );
+    int nrPort = Const.toInt( variables.resolve( wPort.getText() ), 22 );
+    String username = variables.resolve( wUserName.getText() );
+    String password = Utils.resolvePassword( variables, wPassword.getText() );
+    String keyFilename = variables.resolve( wPrivateKey.getText() );
+    String passphrase = variables.resolve( wPassphrase.getText() );
+    int timeOut = Const.toInt( variables.resolve( wTimeOut.getText() ), 0 );
+    String proxyhost = variables.resolve( wProxyHost.getText() );
+    int proxyport = Const.toInt( variables.resolve( wProxyPort.getText() ), 0 );
+    String proxyusername = variables.resolve( wProxyUsername.getText() );
+    String proxypassword = Utils.resolvePassword( variables, wProxyPassword.getText() );
 
     Connection conn = null;
     try {
       conn =
         SSHData.OpenConnection(
           servername, nrPort, username, password, wUseKey.getSelection(), keyFilename, passphrase, timeOut,
-          pipelineMeta, proxyhost, proxyport, proxyusername, proxypassword );
+          variables, proxyhost, proxyport, proxyusername, proxypassword );
       testOK = true;
 
     } catch ( Exception e ) {
@@ -817,7 +812,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
       getInfo( oneMeta );
 
       PipelineMeta previewMeta =
-        PipelinePreviewFactory.generatePreviewPipeline( pipelineMeta, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
+        PipelinePreviewFactory.generatePreviewPipeline( variables, pipelineMeta.getMetadataProvider(), oneMeta, wTransformName.getText() );
       EnterNumberDialog numberDialog =
         new EnterNumberDialog(
           shell, 1, BaseMessages.getString( PKG, "SSHDialog.NumberRows.DialogTitle" ), BaseMessages.getString(
@@ -827,7 +822,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
       if ( previewSize > 0 ) {
         PipelinePreviewProgressDialog progressDialog =
           new PipelinePreviewProgressDialog(
-            shell, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
+            shell, variables, previewMeta, new String[] { wTransformName.getText() }, new int[] { previewSize } );
         progressDialog.open();
 
         if ( !progressDialog.isCancelled() ) {
@@ -844,7 +839,7 @@ public class SSHDialog extends BaseTransformDialog implements ITransformDialog {
           }
           PreviewRowsDialog prd =
             new PreviewRowsDialog(
-              shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+              shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
               .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
           prd.open();
 

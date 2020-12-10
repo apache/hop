@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.engines;
 
@@ -34,7 +29,6 @@ import org.apache.beam.sdk.metrics.MetricResults;
 import org.apache.beam.sdk.metrics.MetricsFilter;
 import org.apache.hop.beam.metadata.RunnerType;
 import org.apache.hop.beam.pipeline.HopPipelineMetaToBeamPipelineConverter;
-import org.apache.hop.core.Const;
 import org.apache.hop.core.IRowSet;
 import org.apache.hop.core.Result;
 import org.apache.hop.core.exception.HopException;
@@ -45,10 +39,10 @@ import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.logging.LoggingObject;
 import org.apache.hop.core.logging.LoggingObjectType;
 import org.apache.hop.core.parameters.DuplicateParamException;
-import org.apache.hop.core.parameters.INamedParams;
-import org.apache.hop.core.parameters.NamedParamsDefault;
+import org.apache.hop.core.parameters.INamedParameterDefinitions;
+import org.apache.hop.core.parameters.INamedParameters;
+import org.apache.hop.core.parameters.NamedParameters;
 import org.apache.hop.core.parameters.UnknownParamException;
-import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
@@ -150,7 +144,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
   /**
    * The named parameters.
    */
-  protected INamedParams namedParams = new NamedParamsDefault();
+  protected INamedParameters namedParams = new NamedParameters();
   private String statusDescription;
   private ComponentExecutionStatus status;
 
@@ -184,14 +178,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     this.logLevel = this.logChannel.getLogLevel();
   }
 
-  public BeamPipelineEngine( PipelineMeta pipelineMeta, ILoggingObject parent ) {
+  public BeamPipelineEngine( PipelineMeta pipelineMeta, ILoggingObject parent, IVariables variables ) {
     this();
     this.pipelineMeta = pipelineMeta;
     this.loggingObject = new LoggingObject( this );
     setParent( parent );
-    initializeVariablesFrom( pipelineMeta );
-    copyParametersFrom( pipelineMeta );
-    pipelineMeta.activateParameters();
+    initializeFrom( variables );
+    copyParametersFromDefinitions( pipelineMeta );
+    activateParameters(this);
   }
 
   @Override public abstract IPipelineEngineRunConfiguration createDefaultPipelineEngineRunConfiguration();
@@ -221,7 +215,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
 
       beamEngineRunConfiguration = (IBeamPipelineEngineRunConfiguration) engineRunConfiguration;
 
-      converter = new HopPipelineMetaToBeamPipelineConverter( pipelineMeta, metadataProvider, beamEngineRunConfiguration );
+      converter = new HopPipelineMetaToBeamPipelineConverter( this, pipelineMeta, metadataProvider, beamEngineRunConfiguration );
 
       beamPipeline = converter.createPipeline();
 
@@ -705,7 +699,7 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     return result;
   }
 
-  @Override public void retrieveComponentOutput( String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
+  @Override public void retrieveComponentOutput( IVariables variables, String componentName, int copyNr, int nrRows, IPipelineComponentRowsReceived rowsReceived ) throws HopException {
     throw new HopException( "Retrieving component output is not supported by the Beam pipeline engine" );
   }
 
@@ -1281,135 +1275,58 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     this.activeSubWorkflows = activeSubWorkflows;
   }
 
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#addParameterDefinition(java.lang.String, java.lang.String,
-   * java.lang.String)
-   */
   @Override
   public void addParameterDefinition( String key, String defValue, String description ) throws DuplicateParamException {
     namedParams.addParameterDefinition( key, defValue, description );
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDescription(java.lang.String)
-   */
   @Override
   public String getParameterDescription( String key ) throws UnknownParamException {
     return namedParams.getParameterDescription( key );
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterDefault(java.lang.String)
-   */
   @Override
   public String getParameterDefault( String key ) throws UnknownParamException {
     return namedParams.getParameterDefault( key );
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#getParameterValue(java.lang.String)
-   */
   @Override
   public String getParameterValue( String key ) throws UnknownParamException {
     return namedParams.getParameterValue( key );
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#listParameters()
-   */
   @Override
   public String[] listParameters() {
     return namedParams.listParameters();
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#setParameterValue(java.lang.String, java.lang.String)
-   */
   @Override
   public void setParameterValue( String key, String value ) throws UnknownParamException {
     namedParams.setParameterValue( key, value );
   }
 
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#eraseParameters()
-   */
   @Override
-  public void eraseParameters() {
-    namedParams.eraseParameters();
+  public void removeAllParameters() {
+    namedParams.removeAllParameters();
+  }
+
+  @Override
+  public void clearParameterValues() {
+    namedParams.clearParameterValues();
+  }
+
+  @Override public void copyParametersFromDefinitions( INamedParameterDefinitions definitions ) {
+    namedParams.copyParametersFromDefinitions( definitions );
   }
 
   /*
    * (non-Javadoc)
    *
-   * @see org.apache.hop.core.parameters.INamedParams#clearParameters()
+   * @see org.apache.hop.core.parameters.INamedParameters#activateParameters()
    */
   @Override
-  public void clearParameters() {
-    namedParams.clearParameters();
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#copyParametersFrom(org.apache.hop.core.parameters.INamedParams)
-   */
-  @Override
-  public void copyParametersFrom( INamedParams params ) {
-    namedParams.copyParametersFrom( params );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#mergeParametersWith(org.apache.hop.core.parameters.INamedParams, boolean replace)
-   */
-  @Override
-  public void mergeParametersWith( INamedParams params, boolean replace ) {
-    namedParams.mergeParametersWith( params, replace );
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see org.apache.hop.core.parameters.INamedParams#activateParameters()
-   */
-  @Override
-  public void activateParameters() {
-    String[] keys = listParameters();
-
-    for ( String key : keys ) {
-      String value;
-      try {
-        value = getParameterValue( key );
-      } catch ( UnknownParamException e ) {
-        value = "";
-      }
-      String defValue;
-      try {
-        defValue = getParameterDefault( key );
-      } catch ( UnknownParamException e ) {
-        defValue = "";
-      }
-
-      // Set the variable of "" if no value or default value was found.
-      //
-      setVariable( key, Const.NVL(value, Const.NVL(defValue, "")));
-    }
+  public void activateParameters(IVariables variables) {
+    namedParams.activateParameters( variables );
   }
 
   @Override public boolean isFeedbackShown() {
@@ -1434,14 +1351,14 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
    *
    * @return value of namedParams
    */
-  public INamedParams getNamedParams() {
+  public INamedParameters getNamedParams() {
     return namedParams;
   }
 
   /**
    * @param namedParams The namedParams to set
    */
-  public void setNamedParams( INamedParams namedParams ) {
+  public void setNamedParams( INamedParameters namedParams ) {
     this.namedParams = namedParams;
   }
 
@@ -1596,4 +1513,3 @@ public abstract class BeamPipelineEngine extends Variables implements IPipelineE
     this.beamEngineRunConfiguration = beamEngineRunConfiguration;
   }
 }
-

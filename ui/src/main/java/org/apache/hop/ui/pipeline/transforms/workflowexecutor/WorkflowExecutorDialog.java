@@ -26,6 +26,7 @@ import org.apache.hop.core.logging.LogChannel;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.core.vfs.HopVfs;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -150,8 +151,8 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
 
   private HopWorkflowFileType<WorkflowMeta> fileType = HopGui.getDataOrchestrationPerspective().getWorkflowFileType();
 
-  public WorkflowExecutorDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public WorkflowExecutorDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     workflowExecutorMeta = (WorkflowExecutorMeta) in;
     jobModified = false;
   }
@@ -237,7 +238,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     wbBrowse.setLayoutData( fdBrowse );
     wbBrowse.addListener( SWT.Selection, e -> selectWorkflowFile() );
 
-    wPath = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPath = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPath );
     FormData fdJobformation = new FormData();
     fdJobformation.left = new FormAttachment( 0, 0 );
@@ -254,7 +255,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlRunConfiguration.right = new FormAttachment( 50, 0 );
     wlRunConfiguration.setLayoutData( fdlRunConfiguration );
 
-    wRunConfiguration = new ComboVar( pipelineMeta, shell, SWT.LEFT | SWT.BORDER );
+    wRunConfiguration = new ComboVar( variables, shell, SWT.LEFT | SWT.BORDER );
     props.setLook( wlRunConfiguration );
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment( 0, 0 );
@@ -336,17 +337,17 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   }
 
   private void selectWorkflowFile() {
-    String curFile = pipelineMeta.environmentSubstitute( wPath.getText() );
+    String curFile = variables.resolve( wPath.getText() );
 
     String parentFolder = null;
     try {
-      parentFolder = HopVfs.getFileObject( pipelineMeta.environmentSubstitute( pipelineMeta.getFilename() ) ).getParent().toString();
+      parentFolder = HopVfs.getFileObject( variables.resolve( pipelineMeta.getFilename() ) ).getParent().toString();
     } catch ( Exception e ) {
       // Take no action
     }
 
     try {
-      String filename = BaseDialog.presentFileDialog( shell, wPath, pipelineMeta, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
+      String filename = BaseDialog.presentFileDialog( shell, wPath, variables, fileType.getFilterExtensions(), fileType.getFilterNames(), true );
       if ( filename != null ) {
 
         loadWorkflowFile( filename );
@@ -363,7 +364,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   }
 
   private void loadWorkflowFile( String fname ) throws HopException {
-    executorWorkflowMeta = new WorkflowMeta( pipelineMeta.environmentSubstitute( fname ) );
+    executorWorkflowMeta = new WorkflowMeta( variables.resolve( fname ) );
     executorWorkflowMeta.clearChanged();
   }
 
@@ -390,7 +391,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
       List<String> runConfigurations = metadataProvider.getSerializer( WorkflowRunConfiguration.class ).listObjectNames();
 
       try {
-        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), HopExtensionPoint.HopGuiRunConfiguration.id, new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );
+        ExtensionPointHandler.callExtensionPoint( HopGui.getInstance().getLog(), variables, HopExtensionPoint.HopGuiRunConfiguration.id, new Object[] { runConfigurations, WorkflowMeta.XML_TAG } );
       } catch ( HopException e ) {
         // Ignore errors
       }
@@ -416,7 +417,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
       wResultFilesTarget.setItems( prevTransforms );
       wResultRowsTarget.setItems( prevTransforms );
 
-      String[] inputFields = pipelineMeta.getPrevTransformFields( transformMeta ).getFieldNames();
+      String[] inputFields = pipelineMeta.getPrevTransformFields( variables, transformMeta ).getFieldNames();
       parameterColumns[ 1 ].setComboValues( inputFields );
       wGroupField.setItems( inputFields );
     } catch ( Exception e ) {
@@ -531,7 +532,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     WorkflowExecutorParameters parameters = workflowExecutorMeta.getParameters();
     wWorkflowExecutorParameters =
       new TableView(
-        pipelineMeta, wParametersComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, parameterColumns,
+        variables, wParametersComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, parameterColumns,
         parameters.getVariable().length, lsMod, props );
     props.setLook( wWorkflowExecutorParameters );
     FormData fdJobExecutors = new FormData();
@@ -623,7 +624,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlGroupSize.left = new FormAttachment( 0, 0 );
     wlGroupSize.setLayoutData( fdlGroupSize );
 
-    wGroupSize = new TextVar( pipelineMeta, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wGroupSize = new TextVar( variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wGroupSize );
     wGroupSize.addModifyListener( lsMod );
     FormData fdGroupSize = new FormData();
@@ -661,7 +662,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlGroupTime.left = new FormAttachment( 0, 0 ); // First one in the left
     wlGroupTime.setLayoutData( fdlGroupTime );
 
-    wGroupTime = new TextVar( pipelineMeta, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wGroupTime = new TextVar( variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wGroupTime );
     wGroupTime.addModifyListener( lsMod );
     FormData fdGroupTime = new FormData();
@@ -719,7 +720,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     executionResultColumns[ 1 ].setUsingVariables( true );
 
     TableView wExectionResults =
-      new TableView( pipelineMeta, wInputComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, executionResultColumns,
+      new TableView( variables, wInputComposite, SWT.FULL_SELECTION | SWT.SINGLE | SWT.BORDER, executionResultColumns,
         14, false, lsMod, props, false );
     props.setLook( wExectionResults );
     FormData fdExecutionResults = new FormData();
@@ -834,7 +835,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
     fdlResultFileNameField.left = new FormAttachment( 0, 0 ); // First one in the left
     wlResultFileNameField.setLayoutData( fdlResultFileNameField );
 
-    wResultFileNameField = new TextVar( pipelineMeta, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wResultFileNameField = new TextVar( variables, wInputComposite, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wResultFileNameField );
     wResultFileNameField.addModifyListener( lsMod );
     FormData fdResultFileNameField = new FormData();
@@ -912,7 +913,7 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
           ColumnInfo.COLUMN_TYPE_TEXT, false ), };
 
     wResultRowsFields =
-      new TableView( pipelineMeta, wInputComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL
+      new TableView( variables, wInputComposite, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL
         | SWT.H_SCROLL, ciResultFields, nrRows, false, lsMod, props, false );
 
     FormData fdResultFields = new FormData();
@@ -944,9 +945,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
       || wGroupTime == null ) {
       return;
     }
-    boolean enableSize = Const.toInt( pipelineMeta.environmentSubstitute( wGroupSize.getText() ), -1 ) >= 0;
+    boolean enableSize = Const.toInt( variables.resolve( wGroupSize.getText() ), -1 ) >= 0;
     boolean enableField = !Utils.isEmpty( wGroupField.getText() );
-    // boolean enableTime = Const.toInt(pipelineMeta.environmentSubstitute(wGroupTime.getText()), -1)>0;
+    // boolean enableTime = Const.toInt(variables.environmentSubstitute(wGroupTime.getText()), -1)>0;
 
     wlGroupSize.setEnabled( true );
     wGroupSize.setEnabled( true );
@@ -1063,11 +1064,9 @@ public class WorkflowExecutorDialog extends BaseTransformDialog implements ITran
   }
 
   @Override
-  protected Button createHelpButton(Shell shell, TransformMeta stepMeta, IPlugin plugin) {
+  protected Button createHelpButton(Shell shell, TransformMeta transformMeta, IPlugin plugin) {
     plugin.setDocumentationUrl("https://hop.apache.org/manual/latest/plugins/transforms/workflowexecutor.html");
-    return super.createHelpButton(shell, stepMeta, plugin);
+    return super.createHelpButton(shell, transformMeta, plugin);
   }
 
 }
-
-

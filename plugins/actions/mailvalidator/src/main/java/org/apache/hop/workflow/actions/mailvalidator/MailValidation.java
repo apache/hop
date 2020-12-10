@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.mailvalidator;
 
@@ -56,7 +50,7 @@ public class MailValidation {
    * verify if there is a mail server registered to the domain name. and return the email servers count
    */
   public static int mailServersCount( String hostName ) throws NamingException {
-    Hashtable<String, String> env = new Hashtable<String, String>();
+    Hashtable<String, String> env = new Hashtable<>();
     env.put( "java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory" );
     DirContext ictx = new InitialDirContext( env );
     Attributes attrs = ictx.getAttributes( hostName, new String[] { "MX" } );
@@ -99,7 +93,7 @@ public class MailValidation {
 
   private static ArrayList<String> getMX( String hostName ) throws NamingException {
     // Perform a DNS lookup for MX records in the domain
-    Hashtable<String, String> env = new Hashtable<String, String>();
+    Hashtable<String, String> env = new Hashtable<>();
     env.put( "java.naming.factory.initial", "com.sun.jndi.dns.DnsContextFactory" );
     DirContext ictx = new InitialDirContext( env );
     Attributes attrs = ictx.getAttributes( hostName, new String[] { "MX" } );
@@ -117,7 +111,7 @@ public class MailValidation {
     // Huzzah! we have machines to try. Return them as an array list
     // NOTE: We SHOULD take the preference into account to be absolutely
     // correct. This is left as an exercise for anyone who cares.
-    ArrayList<String> res = new ArrayList<String>();
+    ArrayList<String> res = new ArrayList<>();
     NamingEnumeration<?> en = attr.getAll();
 
     while ( en.hasMore() ) {
@@ -166,7 +160,7 @@ public class MailValidation {
     // In that case, we will ignore the domain
     // extracted from email address
 
-    ArrayList<String> mxList = new ArrayList<String>();
+    ArrayList<String> mxList = new ArrayList<>();
     if ( Utils.isEmpty( defaultSMTPServer ) ) {
       try {
         mxList = getMX( domain );

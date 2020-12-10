@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline.transforms.ldapoutput;
 
 import java.util.ArrayList;
@@ -94,12 +88,12 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
         for (int i = 0; i < data.nrFields; i++) {
 
           data.fieldStream[i] =
-              getInputRowMeta().indexOfValue(environmentSubstitute(meta.getUpdateStream()[i]));
+              getInputRowMeta().indexOfValue( resolve(meta.getUpdateStream()[i]));
           if (data.fieldStream[i] < 0) {
             throw new HopException(
                 "Field [" + meta.getUpdateStream()[i] + "] couldn't be found in the input stream!");
           }
-          data.fieldsAttribute[i] = environmentSubstitute(meta.getUpdateLookup()[i]);
+          data.fieldsAttribute[i] = resolve(meta.getUpdateLookup()[i]);
 
           if (meta.getOperationType() == LdapOutputMeta.OPERATION_TYPE_UPSERT
               && meta.getUpdate()[i].booleanValue()) {
@@ -127,14 +121,14 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
       }
 
       if (meta.getOperationType() == LdapOutputMeta.OPERATION_TYPE_RENAME) {
-        String oldDnField = environmentSubstitute(meta.getOldDnFieldName());
+        String oldDnField = resolve(meta.getOldDnFieldName());
         if (Utils.isEmpty(oldDnField)) {
           throw new HopException(
               BaseMessages.getString(
                   classFromResourcesPackage, "LdapOutput.Error.OldDNFieldMissing"));
         }
 
-        String newDnField = environmentSubstitute(meta.getNewDnFieldName());
+        String newDnField = resolve(meta.getNewDnFieldName());
         if (Utils.isEmpty(newDnField)) {
           throw new HopException(
               BaseMessages.getString(
@@ -161,7 +155,7 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
         }
 
       } else {
-        String dnField = environmentSubstitute(meta.getDnField());
+        String dnField = resolve(meta.getDnField());
         // Check Dn field
         if (Utils.isEmpty(dnField)) {
           throw new HopException(
@@ -322,14 +316,14 @@ public class LdapOutput extends BaseTransform<LdapOutputMeta, LdapOutputData>
 
         // connect
         if (meta.isUseAuthentication()) {
-          String username = environmentSubstitute(meta.getUserName());
+          String username = resolve(meta.getUserName());
           String password =
-              Encr.decryptPasswordOptionallyEncrypted(environmentSubstitute(meta.getPassword()));
+              Encr.decryptPasswordOptionallyEncrypted( resolve(meta.getPassword()));
           data.connection.connect(username, password);
         } else {
           data.connection.connect();
         }
-        data.separator = environmentSubstitute(meta.getMultiValuedSeparator());
+        data.separator = resolve(meta.getMultiValuedSeparator());
       } catch (Exception e) {
         logError(BaseMessages.getString(classFromResourcesPackage, "LdapOutput.Error.Init", e));
         stopAll();

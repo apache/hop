@@ -88,7 +88,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
   private Map<String, Integer> inputFields;
 
-  public MemoryGroupByDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
+  public MemoryGroupByDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
     super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (MemoryGroupByMeta) in;
     inputFields = new HashMap<String, Integer>();
@@ -187,7 +187,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
     wGroup =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey,
         nrKeyRows, lsMod, props );
 
     wGet = new Button( shell, SWT.PUSH );
@@ -238,7 +238,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
     wAgg =
       new TableView(
-        pipelineMeta, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
+        variables, shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciReturn,
         UpInsRows, lsMod, props );
 
     wGetAgg = new Button( shell, SWT.PUSH );
@@ -257,7 +257,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
         TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
         if ( transformMeta != null ) {
           try {
-            IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+            IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
             // Remember these fields...
             for ( int i = 0; i < row.size(); i++ ) {
@@ -450,7 +450,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wGroup, 1, new int[] { 1 }, new int[] {}, -1, -1, null );
       }
@@ -463,7 +463,7 @@ public class MemoryGroupByDialog extends BaseTransformDialog implements ITransfo
 
   private void getAgg() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious( r, wAgg, 1, new int[] { 1, 2 }, new int[] {}, -1, -1, null );
       }

@@ -42,45 +42,47 @@ public class DeleteBranchDialog extends Dialog {
   private boolean isForce;
   private List<String> branches;
 
-  public DeleteBranchDialog( Shell parentShell ) {
-    super( parentShell );
+  public DeleteBranchDialog(Shell parentShell) {
+    super(parentShell);
   }
 
   @Override
-  protected Control createDialogArea( Composite parent ) {
-    Composite comp = (Composite) super.createDialogArea( parent );
+  protected Control createDialogArea(Composite parent) {
+    Composite comp = (Composite) super.createDialogArea(parent);
 
     GridLayout layout = (GridLayout) comp.getLayout();
     layout.numColumns = 2;
 
-    Label branchLabel = new Label( comp, SWT.RIGHT );
-    branchLabel.setText( BaseMessages.getString( PKG, "Git.Dialog.Branch.Delete.Message" ) );
-    comboBranch = new CCombo( comp, SWT.DROP_DOWN );
-    comboBranch.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
-    comboBranch.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        selectedBranch = ( (CCombo) e.getSource() ).getText();
-      }
-    } );
-    branches.forEach( branch -> comboBranch.add( branch ) );
+    Label branchLabel = new Label(comp, SWT.RIGHT);
+    branchLabel.setText(BaseMessages.getString(PKG, "Git.Dialog.Branch.Delete.Message"));
+    comboBranch = new CCombo(comp, SWT.DROP_DOWN);
+    comboBranch.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+    comboBranch.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            selectedBranch = ((CCombo) e.getSource()).getText();
+          }
+        });
+    branches.forEach(branch -> comboBranch.add(branch));
 
-    Label forceLabel = new Label( comp, SWT.RIGHT );
-    forceLabel.setText( BaseMessages.getString( PKG, "Git.Dialog.Force" ) );
-    Button forceButton = new Button( comp, SWT.CHECK );
-    forceButton.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
-    forceButton.addSelectionListener( new SelectionAdapter() {
-      @Override
-      public void widgetSelected( SelectionEvent e ) {
-        isForce = ( (Button) e.getSource() ).getSelection();
-      }
-    } );
-    forceButton.setSelection( false );
+    Label forceLabel = new Label(comp, SWT.RIGHT);
+    forceLabel.setText(BaseMessages.getString(PKG, "Git.Dialog.Force"));
+    Button forceButton = new Button(comp, SWT.CHECK);
+    forceButton.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+    forceButton.addSelectionListener(
+        new SelectionAdapter() {
+          @Override
+          public void widgetSelected(SelectionEvent e) {
+            isForce = ((Button) e.getSource()).getSelection();
+          }
+        });
+    forceButton.setSelection(false);
 
     return comp;
   }
 
-  public void setBranches( List<String> branches ) {
+  public void setBranches(List<String> branches) {
     this.branches = branches;
   }
 

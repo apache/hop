@@ -1,28 +1,22 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.hopgui.file.pipeline.delegates;
 
-import org.apache.hop.core.Const;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.extension.ExtensionPointHandler;
 import org.apache.hop.core.extension.HopExtensionPoint;
@@ -164,7 +158,7 @@ public class HopGuiPipelineRunDelegate {
     int debugAnswer = PipelineDebugDialog.DEBUG_CONFIG;
 
     if ( debug || preview ) {
-      PipelineDebugDialog pipelineDebugDialog = new PipelineDebugDialog( hopGui.getShell(), pipelineDebugMeta );
+      PipelineDebugDialog pipelineDebugDialog = new PipelineDebugDialog( hopGui.getShell(), pipelineGraph.getVariables(), pipelineDebugMeta );
       debugAnswer = pipelineDebugDialog.open();
       if ( debugAnswer == PipelineDebugDialog.DEBUG_CANCEL ) {
         // If we cancel the debug dialog, we don't go further with the execution either.
@@ -177,7 +171,7 @@ public class HopGuiPipelineRunDelegate {
     variableMap.putAll( executionConfiguration.getVariablesMap() ); // the default
 
     executionConfiguration.setVariablesMap( variableMap );
-    executionConfiguration.getUsedVariables( pipelineMeta );
+    executionConfiguration.getUsedVariables( pipelineGraph.getVariables(), pipelineMeta );
 
     executionConfiguration.setLogLevel( logLevel );
 
@@ -194,13 +188,6 @@ public class HopGuiPipelineRunDelegate {
       pipelineGraph.pipelineLogDelegate.addPipelineLog();
       pipelineGraph.extraViewTabFolder.setSelection( 0 );
 
-      // Set the named parameters
-      Map<String, String> paramMap = executionConfiguration.getParametersMap();
-      for ( String key : paramMap.keySet() ) {
-        pipelineMeta.setParameterValue( key, Const.NVL( paramMap.get( key ), "" ) );
-      }
-      pipelineMeta.activateParameters();
-
       // Set the log level
       //
       if ( executionConfiguration.getLogLevel() != null ) {
@@ -210,15 +197,8 @@ public class HopGuiPipelineRunDelegate {
       // Set the run options
       pipelineMeta.setClearingLog( executionConfiguration.isClearingLog() );
 
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineMetaExecutionStart.id, pipelineMeta );
-      ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id, executionConfiguration );
-
-      try {
-        ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.HopGuiPipelineBeforeStart.id, new Object[] { executionConfiguration, pipelineMeta, pipelineMeta } );
-      } catch ( HopException e ) {
-        log.logError( e.getMessage(), pipelineMeta.getFilename() );
-        return null;
-      }
+      ExtensionPointHandler.callExtensionPoint( log, pipelineGraph.getVariables(), HopExtensionPoint.HopGuiPipelineMetaExecutionStart.id, pipelineMeta );
+      ExtensionPointHandler.callExtensionPoint( log, pipelineGraph.getVariables(), HopExtensionPoint.HopGuiPipelineExecutionConfiguration.id, executionConfiguration );
 
       // Verify if there is at least one transform specified to debug or preview...
       // TODO: Is this a local preview or debugging execution? We might want to get rid of the distinction

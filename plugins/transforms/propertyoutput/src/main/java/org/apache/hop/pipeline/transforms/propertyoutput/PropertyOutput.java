@@ -83,7 +83,7 @@ public class PropertyOutput
       }
 
       if ( meta.isFileNameInField() ) {
-        String realFieldName = environmentSubstitute( meta.getFileNameField() );
+        String realFieldName = resolve( meta.getFileNameField() );
         if ( Utils.isEmpty( realFieldName ) ) {
           logError( BaseMessages.getString( PKG, "PropertyOutput.Log.FilenameInFieldEmpty" ) );
           throw new HopException( BaseMessages.getString( PKG, "PropertyOutput.Log.FilenameInFieldEmpty" ) );
@@ -222,7 +222,7 @@ public class PropertyOutput
     }
     boolean retval = false;
     try ( OutputStream propsFile = HopVfs.getOutputStream( data.file, false ) ) {
-      data.pro.store( propsFile, environmentSubstitute( meta.getComment() ) );
+      data.pro.store( propsFile, resolve( meta.getComment() ) );
 
       if ( meta.isAddToResult() ) {
         // Add this to the result file names...

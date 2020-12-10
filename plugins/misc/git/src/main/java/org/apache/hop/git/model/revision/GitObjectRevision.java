@@ -25,10 +25,9 @@ public class GitObjectRevision implements ObjectRevision {
   private Date creationDate;
   private String comment;
 
-  public GitObjectRevision() {
-  }
+  public GitObjectRevision() {}
 
-  public GitObjectRevision( String revisionId, String login, Date creationDate, String comment ) {
+  public GitObjectRevision(String revisionId, String login, Date creationDate, String comment) {
     this();
     this.revisionId = revisionId;
     this.login = login;
@@ -41,14 +40,13 @@ public class GitObjectRevision implements ObjectRevision {
    *
    * @return value of revisionId
    */
-  @Override public String getRevisionId() {
+  @Override
+  public String getRevisionId() {
     return revisionId;
   }
 
-  /**
-   * @param revisionId The revisionId to set
-   */
-  public void setRevisionId( String revisionId ) {
+  /** @param revisionId The revisionId to set */
+  public void setRevisionId(String revisionId) {
     this.revisionId = revisionId;
   }
 
@@ -57,14 +55,13 @@ public class GitObjectRevision implements ObjectRevision {
    *
    * @return value of login
    */
-  @Override public String getLogin() {
+  @Override
+  public String getLogin() {
     return login;
   }
 
-  /**
-   * @param login The login to set
-   */
-  public void setLogin( String login ) {
+  /** @param login The login to set */
+  public void setLogin(String login) {
     this.login = login;
   }
 
@@ -73,14 +70,13 @@ public class GitObjectRevision implements ObjectRevision {
    *
    * @return value of creationDate
    */
-  @Override public Date getCreationDate() {
+  @Override
+  public Date getCreationDate() {
     return creationDate;
   }
 
-  /**
-   * @param creationDate The creationDate to set
-   */
-  public void setCreationDate( Date creationDate ) {
+  /** @param creationDate The creationDate to set */
+  public void setCreationDate(Date creationDate) {
     this.creationDate = creationDate;
   }
 
@@ -93,10 +89,8 @@ public class GitObjectRevision implements ObjectRevision {
     return comment;
   }
 
-  /**
-   * @param comment The comment to set
-   */
-  public void setComment( String comment ) {
+  /** @param comment The comment to set */
+  public void setComment(String comment) {
     this.comment = comment;
   }
 }

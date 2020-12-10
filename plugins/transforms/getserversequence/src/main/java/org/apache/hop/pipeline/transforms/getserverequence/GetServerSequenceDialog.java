@@ -1,30 +1,25 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.getserverequence;
 
 import org.apache.hop.core.Const;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -61,8 +56,8 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
 
   private final GetServerSequenceMeta input;
 
-  public GetServerSequenceDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public GetServerSequenceDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (GetServerSequenceMeta) in;
   }
 
@@ -126,7 +121,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     wValuename.setLayoutData( fdValuename );
 
     // Hop server line
-    wHopServer = new MetaSelectionLine<>( pipelineMeta, pipelineMeta.getMetadataProvider(), HopServer.class,
+    wHopServer = new MetaSelectionLine<>( variables, pipelineMeta.getMetadataProvider(), HopServer.class,
     	      shell, SWT.BORDER, 
     	      BaseMessages.getString( PKG, "GetSequenceDialog.HopServer.Label" ), 
     	      "Select the server to use" // TODO : i18n
@@ -149,7 +144,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     fdlSeqname.top = new FormAttachment( wHopServer, margin );
     wlSeqname.setLayoutData( fdlSeqname );
 
-    wSeqname = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeqname = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wSeqname.setText( "" );
     props.setLook( wSeqname );
     wSeqname.addModifyListener( lsMod );
@@ -169,7 +164,7 @@ public class GetServerSequenceDialog extends BaseTransformDialog implements ITra
     fdlIncrement.top = new FormAttachment( wSeqname, margin );
     wlIncrement.setLayoutData( fdlIncrement );
 
-    wIncrement = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wIncrement = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wIncrement.setText( "" );
     props.setLook( wIncrement );
     wIncrement.addModifyListener( lsMod );

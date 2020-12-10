@@ -1,28 +1,24 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.ui.hopgui.dialog;
 
 import org.apache.hop.core.ProgressMonitorAdapter;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.DatabaseImpact;
 import org.apache.hop.pipeline.PipelineMeta;
@@ -46,6 +42,7 @@ public class AnalyseImpactProgressDialog {
   private static final Class<?> PKG = AnalyseImpactProgressDialog.class; // Needed by Translator
 
   private Shell shell;
+  private final IVariables variables;
   private PipelineMeta pipelineMeta;
   private List<DatabaseImpact> impact;
   private boolean impactHasRun;
@@ -54,8 +51,9 @@ public class AnalyseImpactProgressDialog {
    * Creates a new dialog that will handle the wait while determining the impact of the pipeline on the databases
    * used...
    */
-  public AnalyseImpactProgressDialog( Shell shell, PipelineMeta pipelineMeta, List<DatabaseImpact> impact ) {
+  public AnalyseImpactProgressDialog( Shell shell, IVariables variables, PipelineMeta pipelineMeta, List<DatabaseImpact> impact ) {
     this.shell = shell;
+    this.variables = variables;
     this.pipelineMeta = pipelineMeta;
     this.impact = impact;
   }
@@ -64,7 +62,7 @@ public class AnalyseImpactProgressDialog {
     IRunnableWithProgress op = monitor -> {
       try {
         impact.clear(); // Start with a clean slate!!
-        pipelineMeta.analyseImpact( impact, new ProgressMonitorAdapter( monitor ) );
+        pipelineMeta.analyseImpact( variables, impact, new ProgressMonitorAdapter( monitor ) );
         impactHasRun = true;
       } catch ( Exception e ) {
         impact.clear();

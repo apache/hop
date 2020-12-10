@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2016-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.jsoninput;
 
@@ -69,8 +63,8 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
 
   private static final byte[] EMPTY_JSON = "{}".getBytes(); // for replacing null inputs
 
-  public JsonInput( TransformMeta transformMeta, JsonInputMeta meta, JsonInputData data, int copyNr, PipelineMeta transMeta, Pipeline pipeline ) {
-    super( transformMeta, meta, data, copyNr, transMeta, pipeline );
+  public JsonInput( TransformMeta transformMeta, JsonInputMeta meta, JsonInputData data, int copyNr, PipelineMeta pipelineMeta, Pipeline pipeline ) {
+    super( transformMeta, meta, data, copyNr, pipelineMeta, pipeline );
   }
 
   @Override
@@ -443,7 +437,7 @@ public class JsonInput extends BaseFileInputTransform<JsonInputMeta, JsonInputDa
     JsonInputField[] inputFields = new JsonInputField[data.nrInputFields];
     for ( int i = 0; i < data.nrInputFields; i++ ) {
       JsonInputField field = meta.getInputFields()[ i ].clone();
-      field.setPath( environmentSubstitute( field.getPath() ) );
+      field.setPath( resolve( field.getPath() ) );
       inputFields[i] = field;
     }
     // Instead of putting in the meta.inputFields, we put in our json path resolved input fields

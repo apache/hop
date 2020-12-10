@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.http;
 
@@ -199,7 +193,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlURL.right = new FormAttachment( middle, -margin );
     wlURL.setLayoutData(fdlURL);
     wURL =
-      new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobHTTP.URL.Tooltip" ) );
     props.setLook( wURL );
     wURL.addModifyListener( lsMod );
@@ -241,7 +235,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlFieldURL.top = new FormAttachment( wRunEveryRow, margin );
     fdlFieldURL.right = new FormAttachment( middle, -margin );
     wlFieldURL.setLayoutData(fdlFieldURL);
-    wFieldURL = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFieldURL = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFieldURL );
     wFieldURL.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.InputField.Tooltip" ) );
     wFieldURL.addModifyListener( lsMod );
@@ -261,7 +255,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlFieldUpload.top = new FormAttachment( wFieldURL, margin );
     fdlFieldUpload.right = new FormAttachment( middle, -margin );
     wlFieldUpload.setLayoutData(fdlFieldUpload);
-    wFieldUpload = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFieldUpload = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFieldUpload );
     wFieldUpload.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.InputFieldUpload.Tooltip" ) );
     wFieldUpload.addModifyListener( lsMod );
@@ -280,7 +274,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlFieldTarget.top = new FormAttachment( wFieldUpload, margin );
     fdlFieldTarget.right = new FormAttachment( middle, -margin );
     wlFieldTarget.setLayoutData(fdlFieldTarget);
-    wFieldTarget = new TextVar( workflowMeta, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFieldTarget = new TextVar( variables, wGeneralComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFieldTarget );
     wFieldTarget.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.InputFieldDest.Tooltip" ) );
     wFieldTarget.addModifyListener( lsMod );
@@ -311,7 +305,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlUserName.top = new FormAttachment( wFieldTarget, margin );
     fdlUserName.right = new FormAttachment( middle, -margin );
     wlUserName.setLayoutData(fdlUserName);
-    wUserName = new TextVar( workflowMeta, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUserName = new TextVar( variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUserName );
     wUserName.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.UploadUser.Tooltip" ) );
     wUserName.addModifyListener( lsMod );
@@ -330,7 +324,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlPassword.top = new FormAttachment( wUserName, margin );
     fdlPassword.right = new FormAttachment( middle, -margin );
     wlPassword.setLayoutData(fdlPassword);
-    wPassword = new PasswordTextVar( workflowMeta, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wPassword = new PasswordTextVar( variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wPassword );
     wPassword.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.UploadPassword.Tooltip" ) );
     wPassword.addModifyListener( lsMod );
@@ -349,7 +343,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlProxyServer.top = new FormAttachment( wPassword, 3 * margin );
     fdlProxyServer.right = new FormAttachment( middle, -margin );
     wlProxyServer.setLayoutData(fdlProxyServer);
-    wProxyServer = new TextVar( workflowMeta, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyServer = new TextVar( variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wProxyServer );
     wProxyServer.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.ProxyHost.Tooltip" ) );
     wProxyServer.addModifyListener( lsMod );
@@ -368,7 +362,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlProxyPort.top = new FormAttachment( wProxyServer, margin );
     fdlProxyPort.right = new FormAttachment( middle, -margin );
     wlProxyPort.setLayoutData(fdlProxyPort);
-    wProxyPort = new TextVar( workflowMeta, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wProxyPort = new TextVar( variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wProxyPort );
     wProxyPort.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.ProxyPort.Tooltip" ) );
     wProxyPort.addModifyListener( lsMod );
@@ -387,7 +381,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlNonProxyHosts.top = new FormAttachment( wProxyPort, margin );
     fdlNonProxyHosts.right = new FormAttachment( middle, -margin );
     wlNonProxyHosts.setLayoutData(fdlNonProxyHosts);
-    wNonProxyHosts = new TextVar( workflowMeta, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wNonProxyHosts = new TextVar( variables, wAuthentication, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wNonProxyHosts );
     wNonProxyHosts.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.ProxyIgnoreRegexp.Tooltip" ) );
     wNonProxyHosts.addModifyListener( lsMod );
@@ -436,7 +430,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdbUploadFile.top = new FormAttachment(wAuthentication, margin );
     wbUploadFile.setLayoutData(fdbUploadFile);
 
-    wUploadFile = new TextVar( workflowMeta, wUpLoadFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wUploadFile = new TextVar( variables, wUpLoadFile, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wUploadFile );
     wUploadFile.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.UploadFile.Tooltip" ) );
     wUploadFile.addModifyListener( lsMod );
@@ -447,9 +441,9 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     wUploadFile.setLayoutData(fdUploadFile);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wUploadFile.addModifyListener( e -> wUploadFile.setToolTipText( workflowMeta.environmentSubstitute( wUploadFile.getText() ) ) );
+    wUploadFile.addModifyListener( e -> wUploadFile.setToolTipText( variables.resolve( wUploadFile.getText() ) ) );
 
-    wbUploadFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wUploadFile, workflowMeta,
+    wbUploadFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wUploadFile, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -492,7 +486,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdbTargetFile.top = new FormAttachment( wUploadFile, margin );
     wbTargetFile.setLayoutData(fdbTargetFile);
 
-    wTargetFile = new TextVar( workflowMeta, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTargetFile = new TextVar( variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTargetFile );
     wTargetFile.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.TargetFile.Tooltip" ) );
     wTargetFile.addModifyListener( lsMod );
@@ -502,7 +496,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdTargetFile.right = new FormAttachment( wbTargetFile, -margin );
     wTargetFile.setLayoutData(fdTargetFile);
 
-    wbTargetFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTargetFile, workflowMeta,
+    wbTargetFile.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wTargetFile, variables,
       new String[] { "*" }, FILETYPES, true )
     );
 
@@ -556,7 +550,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
     fdlTargetExt.top = new FormAttachment( wDateTimeAdded, margin );
     fdlTargetExt.right = new FormAttachment( middle, -margin );
     wlTargetExt.setLayoutData(fdlTargetExt);
-    wTargetExt = new TextVar( workflowMeta, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTargetExt = new TextVar( variables, wTargetFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTargetExt );
     wTargetExt.setToolTipText( BaseMessages.getString( PKG, "JobHTTP.TargetFileExt.Tooltip" ) );
     wTargetExt.addModifyListener( lsMod );
@@ -636,7 +630,7 @@ public class ActionHttpDialog extends ActionDialog implements IActionDialog {
 
     wHeaders =
       new TableView(
-        workflowMeta, wHeadersComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, rows, lsMod, props );
+        variables, wHeadersComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, rows, lsMod, props );
 
     FormData fdHeaders = new FormData();
     fdHeaders.left = new FormAttachment( 0, margin );

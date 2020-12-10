@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.engine;
 
@@ -27,6 +22,7 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.ILoggingObject;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.workflow.WorkflowMeta;
 import org.apache.hop.workflow.config.IWorkflowEngineRunConfiguration;
@@ -36,10 +32,12 @@ import org.apache.hop.workflow.engines.local.LocalWorkflowEngine;
 public class WorkflowEngineFactory {
 
   public static final <T extends WorkflowMeta> IWorkflowEngine<T> createWorkflowEngine(
+      IVariables variables,
       String runConfigurationName,
       IHopMetadataProvider metadataProvider,
       T workflowMeta,
-      ILoggingObject parentLogging) throws HopException {
+      ILoggingObject parentLogging)
+      throws HopException {
 
     if (StringUtils.isEmpty(runConfigurationName)) {
       throw new HopException(
@@ -57,17 +55,18 @@ public class WorkflowEngineFactory {
       throw new HopException(
           "Workflow run configuration '" + runConfigurationName + "' could not be found");
     }
-    IWorkflowEngine<T> workflowEngine = createWorkflowEngine(
-      runConfiguration,
-      workflowMeta,
-      parentLogging
-    );
+    IWorkflowEngine<T> workflowEngine =
+        createWorkflowEngine(runConfiguration, workflowMeta, parentLogging);
 
     // Copy the variables from the metadata
     //
-    workflowEngine.initializeVariablesFrom(workflowMeta);
+    workflowEngine.initializeFrom(variables);
 
-    // Pass the metastores around to make sure
+    // Copy the parameters from the metadata...
+    //
+    workflowEngine.copyParametersFromDefinitions( workflowMeta );
+
+    // Pass the metadata providers around to make sure
     //
     workflowEngine.setMetadataProvider(metadataProvider);
     workflowMeta.setMetadataProvider(metadataProvider);

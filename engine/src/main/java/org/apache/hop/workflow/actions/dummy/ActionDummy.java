@@ -60,7 +60,7 @@ public class ActionDummy extends ActionBase implements IAction {
     return super.getXml();
   }
 
-  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider) throws HopXmlException {     
+  public void loadXml(Node actionNode, IHopMetadataProvider metadataProvider, IVariables variables) throws HopXmlException {     
     super.loadXml(actionNode);
   }
 

@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.ftpdelete;
 
@@ -251,7 +245,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // ServerName line
     wServerName =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.Server.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.Server.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
@@ -264,7 +258,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // Proxy port line
     wPort =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.Port.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.Port.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
@@ -277,7 +271,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // UserName line
     wUserName =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.User.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.User.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.User.Tooltip" ) );
     props.setLook( wUserName );
     wUserName.addModifyListener( lsMod );
@@ -290,7 +284,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // Password line
     wPassword =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.Password.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.Password.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.Password.Tooltip" ), true );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
@@ -345,7 +339,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // Proxy host line
     wProxyHost =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.ProxyHost.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.ProxyHost.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
     wProxyHost.addModifyListener( lsMod );
@@ -358,7 +352,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // Proxy port line
     wProxyPort =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.ProxyPort.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.ProxyPort.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
@@ -370,7 +364,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
     // Proxy username line
     wProxyUsername =
-      new LabelTextVar( workflowMeta, wServerSettings,
+      new LabelTextVar( variables, wServerSettings,
         BaseMessages.getString( PKG, "JobFTPDelete.ProxyUsername.Label" ),
         BaseMessages.getString( PKG, "JobFTPDelete.ProxyUsername.Tooltip" ) );
     props.setLook( wProxyUsername );
@@ -383,7 +377,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
     // Proxy password line
     wProxyPassword =
-      new LabelTextVar( workflowMeta, wServerSettings,
+      new LabelTextVar( variables, wServerSettings,
         BaseMessages.getString( PKG, "JobFTPDelete.ProxyPassword.Label" ),
         BaseMessages.getString( PKG, "JobFTPDelete.ProxyPassword.Tooltip" ), true );
     props.setLook( wProxyPassword );
@@ -437,7 +431,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // fdbKeyFilename.height = 22;
     wbKeyFilename.setLayoutData(fdbKeyFilename);
 
-    wKeyFilename = new TextVar( workflowMeta, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wKeyFilename = new TextVar( variables, wServerSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wKeyFilename.setToolTipText( BaseMessages.getString( PKG, "JobFTPDelete.KeyFilename.Tooltip" ) );
     props.setLook( wKeyFilename );
     wKeyFilename.addModifyListener( lsMod );
@@ -448,16 +442,16 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wKeyFilename.setLayoutData(fdKeyFilename);
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wKeyFilename.addModifyListener( e -> wKeyFilename.setToolTipText( workflowMeta.environmentSubstitute( wKeyFilename.getText() ) ) );
+    wKeyFilename.addModifyListener( e -> wKeyFilename.setToolTipText( variables.environmentSubstitute( wKeyFilename.getText() ) ) );
 
-    wbKeyFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wKeyFilename, workflowMeta,
+    wbKeyFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( shell, wKeyFilename, variables,
       new String[] { "*.pem", "*" }, FILETYPES, true )
     );
 
     // keyfilePass line
     wkeyfilePass =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.keyfilePass.Label" ),
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTPDelete.keyfilePass.Label" ),
         BaseMessages.getString( PKG, "JobFTPDelete.keyfilePass.Tooltip" ), true );
     props.setLook( wkeyfilePass );
     wkeyfilePass.addModifyListener( lsMod );
@@ -533,7 +527,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // Timeout line
     wTimeout =
       new LabelTextVar(
-        workflowMeta, wAdvancedSettings, BaseMessages.getString( PKG, "JobFTPDelete.Timeout.Label" ), BaseMessages
+        variables, wAdvancedSettings, BaseMessages.getString( PKG, "JobFTPDelete.Timeout.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.Timeout.Tooltip" ) );
     props.setLook( wTimeout );
     wTimeout.addModifyListener( lsMod );
@@ -627,7 +621,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
 
     wFtpDirectory =
-      new TextVar( workflowMeta, wRemoteSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wRemoteSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobFTPDelete.RemoteDir.Tooltip" ) );
     props.setLook( wFtpDirectory );
     wFtpDirectory.addModifyListener( lsMod );
@@ -640,7 +634,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // Wildcard line
     wWildcard =
       new LabelTextVar(
-        workflowMeta, wRemoteSettings, BaseMessages.getString( PKG, "JobFTPDelete.Wildcard.Label" ), BaseMessages
+        variables, wRemoteSettings, BaseMessages.getString( PKG, "JobFTPDelete.Wildcard.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -712,7 +706,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     wlNrErrorsLessThan.setLayoutData(fdlNrErrorsLessThan);
 
     wNrErrorsLessThan =
-      new TextVar( workflowMeta, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobFTPDelete.NrBadFormedLessThan.Tooltip" ) );
     props.setLook( wNrErrorsLessThan );
     wNrErrorsLessThan.addModifyListener( lsMod );
@@ -775,7 +769,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // host line
     wSocksProxyHost =
       new LabelTextVar(
-        workflowMeta, wSocksProxy, BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyHost.Label" ), BaseMessages
+        variables, wSocksProxy, BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyHost.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.SocksProxyHost.Tooltip" ) );
     props.setLook( wSocksProxyHost );
     wSocksProxyHost.addModifyListener( lsMod );
@@ -788,7 +782,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     // port line
     wSocksProxyPort =
       new LabelTextVar(
-        workflowMeta, wSocksProxy, BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyPort.Label" ), BaseMessages
+        variables, wSocksProxy, BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyPort.Label" ), BaseMessages
         .getString( PKG, "JobFTPDelete.SocksProxyPort.Tooltip" ) );
     props.setLook( wSocksProxyPort );
     wSocksProxyPort.addModifyListener( lsMod );
@@ -800,7 +794,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
     // username line
     wSocksProxyUsername =
-      new LabelTextVar( workflowMeta, wSocksProxy,
+      new LabelTextVar( variables, wSocksProxy,
         BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyUsername.Label" ),
         BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyPassword.Tooltip" ) );
     props.setLook( wSocksProxyUsername );
@@ -813,7 +807,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
     // password line
     wSocksProxyPassword =
-      new LabelTextVar( workflowMeta, wSocksProxy,
+      new LabelTextVar( variables, wSocksProxy,
         BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyPassword.Label" ),
         BaseMessages.getString( PKG, "JobFTPDelete.SocksProxyPassword.Tooltip" ), true );
     props.setLook( wSocksProxyPort );
@@ -981,7 +975,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     boolean folderexists = false;
     String errmsg = "";
     try {
-      String realfoldername = getWorkflowMeta().environmentSubstitute( wFtpDirectory.getText() );
+      String realfoldername = variables.environmentSubstitute( wFtpDirectory.getText() );
       if ( !Utils.isEmpty( realfoldername ) ) {
         if ( connect() ) {
           if ( wProtocol.getText().equals( ActionFtpDelete.PROTOCOL_FTP ) ) {
@@ -1063,16 +1057,16 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
       if ( ftpclient == null || !ftpclient.connected() ) {
         // Create ftp client to host:port ...
         ftpclient = new FTPClient();
-        realServername = workflowMeta.environmentSubstitute( wServerName.getText() );
-        int realPort = Const.toInt( workflowMeta.environmentSubstitute( wPort.getText() ), 21 );
+        realServername = variables.environmentSubstitute( wServerName.getText() );
+        int realPort = Const.toInt( variables.environmentSubstitute( wPort.getText() ), 21 );
         ftpclient.setRemoteAddr( InetAddress.getByName( realServername ) );
         ftpclient.setRemotePort( realPort );
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
-          String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
+          String realProxyHost = variables.environmentSubstitute( wProxyHost.getText() );
           ftpclient.setRemoteAddr( InetAddress.getByName( realProxyHost ) );
 
-          int port = Const.toInt( workflowMeta.environmentSubstitute( wProxyPort.getText() ), 21 );
+          int port = Const.toInt( variables.environmentSubstitute( wProxyPort.getText() ), 21 );
           if ( port != 0 ) {
             ftpclient.setRemotePort( port );
           }
@@ -1081,10 +1075,10 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         // login to ftp host ...
         ftpclient.connect();
         String realUsername =
-          workflowMeta.environmentSubstitute( wUserName.getText() )
+          variables.environmentSubstitute( wUserName.getText() )
             + ( !Utils.isEmpty( wProxyHost.getText() ) ? "@" + realServername : "" )
             + ( !Utils.isEmpty( wProxyUsername.getText() ) ? " "
-            + workflowMeta.environmentSubstitute( wProxyUsername.getText() ) : "" );
+            + variables.environmentSubstitute( wProxyUsername.getText() ) : "" );
 
         String realPassword =
           Utils.resolvePassword( workflowMeta, wPassword.getText() )
@@ -1120,10 +1114,10 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
       WorkflowMeta workflowMeta = getWorkflowMeta();
     	
       if ( ftpsclient == null ) {
-        String realServername = workflowMeta.environmentSubstitute( wServerName.getText() );
-        String realUsername = workflowMeta.environmentSubstitute( wUserName.getText() );
+        String realServername = variables.environmentSubstitute( wServerName.getText() );
+        String realUsername = variables.environmentSubstitute( wUserName.getText() );
         String realPassword = Utils.resolvePassword( workflowMeta, wPassword.getText() );
-        int port = Const.toInt( workflowMeta.environmentSubstitute( wPort.getText() ), 0 );
+        int port = Const.toInt( variables.environmentSubstitute( wPort.getText() ), 0 );
 
         // Create ftp client to host:port ...
         ftpsclient =
@@ -1133,11 +1127,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
           // Set proxy
-          String realProxyHost = workflowMeta.environmentSubstitute( wProxyHost.getText() );
-          String realProxyUser = workflowMeta.environmentSubstitute( wProxyUsername.getText() );
+          String realProxyHost = variables.environmentSubstitute( wProxyHost.getText() );
+          String realProxyUser = variables.environmentSubstitute( wProxyUsername.getText() );
           String realProxyPass = Utils.resolvePassword( workflowMeta, wProxyPassword.getText() );
           ftpsclient.setProxyHost( realProxyHost );
-          int proxyport = Const.toInt( workflowMeta.environmentSubstitute( wProxyPort.getText() ), 990 );
+          int proxyport = Const.toInt( variables.environmentSubstitute( wProxyPort.getText() ), 990 );
           if ( proxyport != 0 ) {
             ftpsclient.setProxyPort( proxyport );
           }
@@ -1181,8 +1175,8 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
       if ( sftpclient == null ) {
         // Create sftp client to host ...
         sftpclient =
-          new SftpClient( InetAddress.getByName( workflowMeta.environmentSubstitute( wServerName.getText() ) ), Const
-            .toInt( workflowMeta.environmentSubstitute( wPort.getText() ), 22 ), workflowMeta
+          new SftpClient( InetAddress.getByName( variables.environmentSubstitute( wServerName.getText() ) ), Const
+            .toInt( variables.environmentSubstitute( wPort.getText() ), 22 ), workflowMeta
             .environmentSubstitute( wUserName.getText() ) );
 
         // login to ftp host ...
@@ -1217,7 +1211,7 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
     	
       if ( conn == null ) { // Create a connection instance
         conn =
-          new Connection( workflowMeta.environmentSubstitute( wServerName.getText() ), Const.toInt( workflowMeta
+          new Connection( variables.environmentSubstitute( wServerName.getText() ), Const.toInt( workflowMeta
             .environmentSubstitute( wPort.getText() ), 22 ) );
 
         /* We want to connect through a HTTP proxy */
@@ -1226,11 +1220,11 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
           // if the proxy requires basic authentication:
           if ( !Utils.isEmpty( wProxyUsername.getText() ) ) {
             conn.setProxyData( new HTTPProxyData(
-              workflowMeta.environmentSubstitute( wProxyHost.getText() ), Const.toInt( wProxyPort.getText(), 22 ),
-              workflowMeta.environmentSubstitute( wProxyUsername.getText() ),
+              variables.environmentSubstitute( wProxyHost.getText() ), Const.toInt( wProxyPort.getText(), 22 ),
+              variables.environmentSubstitute( wProxyUsername.getText() ),
               Utils.resolvePassword( workflowMeta, wProxyPassword.getText() ) ) );
           } else {
-            conn.setProxyData( new HTTPProxyData( workflowMeta.environmentSubstitute( wProxyHost.getText() ), Const
+            conn.setProxyData( new HTTPProxyData( variables.environmentSubstitute( wProxyHost.getText() ), Const
               .toInt( wProxyPort.getText(), 22 ) ) );
           }
         }
@@ -1241,12 +1235,12 @@ public class ActionFtpDeleteDialog extends ActionDialog implements IActionDialog
         if ( wusePublicKey.getSelection() ) {
           retval =
             conn.authenticateWithPublicKey(
-              workflowMeta.environmentSubstitute( wUserName.getText() ), new java.io.File( workflowMeta
+              variables.environmentSubstitute( wUserName.getText() ), new java.io.File( workflowMeta
                 .environmentSubstitute( wKeyFilename.getText() ) ), workflowMeta
                 .environmentSubstitute( wkeyfilePass.getText() ) );
         } else {
           retval =
-            conn.authenticateWithPassword( workflowMeta.environmentSubstitute( wUserName.getText() ),
+            conn.authenticateWithPassword( variables.environmentSubstitute( wUserName.getText() ),
               Utils.resolvePassword( workflowMeta, wPassword.getText() ) );
         }
       }

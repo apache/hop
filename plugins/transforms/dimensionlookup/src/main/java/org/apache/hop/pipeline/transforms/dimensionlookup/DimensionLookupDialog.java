@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.dimensionlookup;
 
@@ -34,6 +29,7 @@ import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -151,8 +147,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
   private Composite helpComp;
 
-  public DimensionLookupDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
-    super( parent, (BaseTransformMeta) in, tr, sname );
+  public DimensionLookupDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, tr, sname );
     input = (DimensionLookupMeta) in;
     inputFields = new HashMap<>();
   }
@@ -293,7 +289,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdbSchema.right = new FormAttachment( 100, 0 );
     wbSchema.setLayoutData(fdbSchema);
 
-    wSchema = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSchema = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSchema );
     wSchema.addModifyListener( lsTableMod );
     FormData fdSchema = new FormData();
@@ -320,7 +316,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     fdbTable.top = new FormAttachment(wbSchema, margin );
     wbTable.setLayoutData( fdbTable );
 
-    wTable = new TextVar( pipelineMeta, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTable = new TextVar( variables, comp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wTable );
     wTable.addModifyListener( lsTableMod );
     FormData fdTable = new FormData();
@@ -456,7 +452,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         ColumnInfo.COLUMN_TYPE_CCOMBO, new String[] { "" }, false );
     tableFieldColumns.add( ciKey[ 0 ] );
     wKey =
-      new TableView( pipelineMeta, wKeyComp, SWT.BORDER
+      new TableView( variables, wKeyComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciKey, nrKeyRows, lsMod, props );
 
     FormData fdKey = new FormData();
@@ -521,7 +517,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
         ? DimensionLookupMeta.typeDesc : DimensionLookupMeta.typeDescLookup );
     tableFieldColumns.add( ciUpIns[ 0 ] );
     wUpIns =
-      new TableView( pipelineMeta, wFieldsComp, SWT.BORDER
+      new TableView( variables, wFieldsComp, SWT.BORDER
         | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL, ciUpIns, UpInsRows, lsMod, props );
 
     FormData fdUpIns = new FormData();
@@ -539,7 +535,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -1382,7 +1378,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     in.setAutoIncrement( wAutoinc.getSelection() );
 
     if ( in.getKeyRename() != null && in.getKeyRename().equalsIgnoreCase( in.getKeyField() ) ) {
-      in.setKeyRename( null ); // Don't waste space&time if it's the same
+      in.setKeyRename( null ); // Don't waste variables&time if it's the same
     }
 
     in.setVersionField( wVersion.getText() );
@@ -1422,7 +1418,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     }
     logDebug( BaseMessages.getString( PKG, "DimensionLookupDialog.Log.LookingAtConnection" ) + databaseMeta.toString() );
 
-    DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, databaseMeta, pipelineMeta.getDatabases() );
+    DatabaseExplorerDialog std = new DatabaseExplorerDialog( shell, SWT.NONE, variables, databaseMeta, pipelineMeta.getDatabases() );
     std.setSelectedSchemaAndTable( wSchema.getText(), wTable.getText() );
     if ( std.open() ) {
       wSchema.setText( Const.NVL( std.getSchemaName(), "" ) );
@@ -1449,7 +1445,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
    */
   private void getUpdate() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
           r, wUpIns, 2, new int[] { 1, 2 }, new int[] {}, -1, -1, ( tableItem, v ) -> {
@@ -1495,8 +1491,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
 
               IRowMeta r =
                 db.getTableFieldsMeta(
-                  pipelineMeta.environmentSubstitute( schemaName ),
-                  pipelineMeta.environmentSubstitute( tableName ) );
+                  variables.resolve( schemaName ),
+                  variables.resolve( tableName ) );
               if ( null != r ) {
                 String[] fieldNames = r.getFieldNames();
                 if ( null != fieldNames ) {
@@ -1537,7 +1533,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     DatabaseMeta databaseMeta = pipelineMeta.findDatabase( wConnection.getText() );
     if ( databaseMeta != null ) {
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareWith( variables );
       try {
         db.connect();
         IRowMeta r = db.getTableFieldsMeta( wSchema.getText(), wTable.getText() );
@@ -1568,7 +1564,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
     if ( !gotPreviousFields ) {
       try {
         String field = wDatefield.getText();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wDatefield.setItems( r.getFieldNames() );
 
@@ -1595,8 +1591,8 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
             db.connect();
             IRowMeta r =
               db.getTableFieldsMeta(
-                pipelineMeta.environmentSubstitute( wSchema.getText() ),
-                pipelineMeta.environmentSubstitute( wTable.getText() ) );
+                variables.resolve( wSchema.getText() ),
+                variables.resolve( wTable.getText() ) );
             if ( null != r ) {
               String[] fieldNames = r.getFieldNames();
               if ( null != fieldNames ) {
@@ -1649,7 +1645,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
    */
   private void getKeys() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null && !r.isEmpty() ) {
         BaseTransformDialog.getFieldsFromPrevious(
           r, wKey, 2, new int[] { 1, 2 }, new int[] { 3 }, -1, -1, ( tableItem, v ) -> {
@@ -1705,7 +1701,7 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       // transforms!
       TransformMeta transforminfo =
         new TransformMeta( BaseMessages.getString( PKG, "DimensionLookupDialog.Transforminfo.Title" ), name, info );
-      IRowMeta prev = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta prev = pipelineMeta.getPrevTransformFields( variables, transformName );
 
       String message = null;
       if ( Utils.isEmpty( info.getKeyField() ) ) {
@@ -1716,11 +1712,11 @@ public class DimensionLookupDialog extends BaseTransformDialog implements ITrans
       }
 
       if ( message == null ) {
-        SqlStatement sql = info.getSqlStatements( pipelineMeta, transforminfo, prev, metadataProvider );
+        SqlStatement sql = info.getSqlStatements( variables, pipelineMeta, transforminfo, prev, metadataProvider );
         if ( !sql.hasError() ) {
           if ( sql.hasSql() ) {
             SqlEditor sqledit =
-              new SqlEditor( pipelineMeta, shell, SWT.NONE, info.getDatabaseMeta(), DbCache.getInstance(), sql
+              new SqlEditor( shell, SWT.NONE, variables,  info.getDatabaseMeta(), DbCache.getInstance(), sql
                 .getSql() );
             sqledit.open();
           } else {

@@ -34,7 +34,7 @@ public class SalesforceUpsertData extends SalesforceTransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
 
-  public int nrfields;
+  public int nrFields;
   public int[] fieldnrs;
 
   public UpsertResult[] upsertResult;
@@ -50,7 +50,7 @@ public class SalesforceUpsertData extends SalesforceTransformData {
   public SalesforceUpsertData() {
     super();
 
-    nrfields = 0;
+    nrFields = 0;
 
     upsertResult = null;
     realSalesforceFieldName = null;

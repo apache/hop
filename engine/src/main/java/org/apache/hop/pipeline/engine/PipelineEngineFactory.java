@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.engine;
 
@@ -26,6 +21,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.plugins.IPlugin;
 import org.apache.hop.core.plugins.PluginRegistry;
+import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.metadata.api.IHopMetadataProvider;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.config.IPipelineEngineRunConfiguration;
@@ -33,7 +30,17 @@ import org.apache.hop.pipeline.config.PipelineRunConfiguration;
 
 public class PipelineEngineFactory {
 
-  public static final <T extends PipelineMeta> IPipelineEngine<T> createPipelineEngine( String runConfigurationName, IHopMetadataProvider metadataProvider, T pipelineMeta ) throws HopException {
+  /**
+   * Create a new pipeline engine
+   * @param parentVariables The parent variables to use and pass on to the pipeline engine. They will not be changed.
+   * @param runConfigurationName The run configuration to use
+   * @param metadataProvider
+   * @param pipelineMeta
+   * @param <T>
+   * @return
+   * @throws HopException
+   */
+  public static final <T extends PipelineMeta> IPipelineEngine<T> createPipelineEngine( IVariables parentVariables, String runConfigurationName, IHopMetadataProvider metadataProvider, T pipelineMeta ) throws HopException {
 
     if ( StringUtils.isEmpty(runConfigurationName)) {
       throw new HopException( "Please specify a run configuration to execute the pipeline with" );
@@ -50,13 +57,19 @@ public class PipelineEngineFactory {
 
     // Apply the variables from the run configuration
     //
-    pipelineRunConfiguration.applyToVariables(pipelineMeta);
+    IVariables variables = new Variables();
+    variables.copyFrom( parentVariables );
+    pipelineRunConfiguration.applyToVariables(variables);
 
     IPipelineEngine<T> pipelineEngine = createPipelineEngine( pipelineRunConfiguration, pipelineMeta );
 
     // inherit variables from the metadata
     //
-    pipelineEngine.initializeVariablesFrom( pipelineMeta );
+    pipelineEngine.initializeFrom( variables );
+
+    // Copy over the parameter definitions
+    //
+    pipelineEngine.copyParametersFromDefinitions( pipelineMeta );
 
     // Pass the metadata to make sure
     //

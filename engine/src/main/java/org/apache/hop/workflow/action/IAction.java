@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.action;
 
@@ -109,16 +103,16 @@ import java.util.Map;
  * The action should execute its configured task, and report back on the outcome. A action does that by calling
  * certain methods on the passed in <a href="../../core/Result.html">Result</a> object:<br/>
  * <br/>
- * <code>prev_result.setNrErrors(..)</code><br/>
+ * <code>prevResult.setNrErrors(..)</code><br/>
  * The action needs to indicate whether it has encountered any errors during execution. If there are errors,
  * setNrErrors must be called with the number of errors encountered (typically this is 1). If there are no errors,
  * setNrErrors must be called with an argument of 0.<br/>
  * <br/>
- * <code>prev_result.setResult(..)</code><br/>
+ * <code>prevResult.setResult(..)</code><br/>
  * The action must indicate the outcome of the task. This value determines which output hops can be followed next. If
- * a action does not support evaluation, it need not call prev_result.setResult().<br/>
+ * a action does not support evaluation, it need not call prevResult.setResult().<br/>
  * <br/>
- * Finally, the passed in prev_result object must be returned.</li>
+ * Finally, the passed in prevResult object must be returned.</li>
  * </ul>
  * </p>
  *
@@ -132,7 +126,7 @@ public interface IAction {
    * Execute the action. The previous result and number of rows are provided to the method for the purpose of
    * chaining actions, pipelines, etc.
    *
-   * @param prev_result the previous result
+   * @param prevResult the previous result
    * @param nr          the number of rows
    * @return the Result object from execution of this action
    * @throws HopException if any Hop exceptions occur
@@ -240,9 +234,10 @@ public interface IAction {
    *
    * @param entrynode the top-level XML node
    * @param metadataProvider The metadataProvider to optionally load from.
+   * @param variables
    * @throws HopXmlException if any errors occur during the loading of the XML
    */
-  void loadXml( Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException;
+  void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException;
 
   /**
    * This method is called by PDI whenever a action needs to serialize its settings to XML. It is called when saving
@@ -332,7 +327,7 @@ public interface IAction {
    * Gets the SQL statements needed by this action to execute successfully, given a set of variables.
    *
    * @param metadataProvider the MetaStore to use
-   * @param variables a variable space object containing variable bindings
+   * @param variables a variable variables object containing variable bindings
    * @return a list of SQL statements
    * @throws HopException if any errors occur during the generation of SQL statements
    */
@@ -365,7 +360,7 @@ public interface IAction {
    *
    * @param remarks      List of CheckResult objects indicating consistency status
    * @param workflowMeta the metadata object for the action
-   * @param variables    the variable space to resolve string expressions with variables with
+   * @param variables    the variable variables to resolve string expressions with variables with
    * @param metadataProvider    the MetaStore to load common elements from
    */
   void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IHopMetadataProvider metadataProvider );
@@ -375,14 +370,14 @@ public interface IAction {
    *
    * @return a list of all the resource dependencies that the transform is depending on
    */
-  List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta );
+  List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta );
 
   /**
    * Exports the object to a flat-file system, adding content with filename keys to a set of definitions. The supplied
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param variables       The variable space to resolve (environment) variables with.
+   * @param variables       The variable variables to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metadataProvider       the metadataProvider to load external metadata from
@@ -407,7 +402,7 @@ public interface IAction {
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metadataProvider the metadataProvider
-   * @param variables the variable space to use
+   * @param variables the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */

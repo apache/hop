@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.xml.xslt;
 
@@ -163,42 +157,42 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return je;
   }
 
-  public String getXML() {
-    StringBuffer retval = new StringBuffer( 50 );
+  public String getXml() {
+    StringBuffer xml = new StringBuffer( 50 );
 
-    retval.append( super.getXml() );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "xmlfilename", xmlfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "xslfilename", xslfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "outputfilename", outputfilename ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", ifFileExists ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "filenamesfromprevious", filenamesfromprevious ) );
-    retval.append( "      " ).append( XmlHandler.addTagValue( "xsltfactory", xsltfactory ) );
+    xml.append( super.getXml() );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "xmlfilename", xmlfilename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "xslfilename", xslfilename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "outputfilename", outputfilename ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "iffileexists", ifFileExists ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "addfiletoresult", addfiletoresult ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "filenamesfromprevious", filenamesfromprevious ) );
+    xml.append( "      " ).append( XmlHandler.addTagValue( "xsltfactory", xsltfactory ) );
 
-    retval.append( "    <parameters>" ).append( Const.CR );
+    xml.append( "    <parameters>" ).append( Const.CR );
 
     for ( int i = 0; i < parameterName.length; i++ ) {
-      retval.append( "      <parameter>" ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "field", parameterField[i] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "name", parameterName[i] ) );
-      retval.append( "      </parameter>" ).append( Const.CR );
+      xml.append( "      <parameter>" ).append( Const.CR );
+      xml.append( "        " ).append( XmlHandler.addTagValue( "field", parameterField[i] ) );
+      xml.append( "        " ).append( XmlHandler.addTagValue( "name", parameterName[i] ) );
+      xml.append( "      </parameter>" ).append( Const.CR );
     }
 
-    retval.append( "    </parameters>" ).append( Const.CR );
-    retval.append( "    <outputproperties>" ).append( Const.CR );
+    xml.append( "    </parameters>" ).append( Const.CR );
+    xml.append( "    <outputproperties>" ).append( Const.CR );
 
     for ( int i = 0; i < outputPropertyName.length; i++ ) {
-      retval.append( "      <outputproperty>" ).append( Const.CR );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "name", outputPropertyName[i] ) );
-      retval.append( "        " ).append( XmlHandler.addTagValue( "value", outputPropertyValue[i] ) );
-      retval.append( "      </outputproperty>" ).append( Const.CR );
+      xml.append( "      <outputproperty>" ).append( Const.CR );
+      xml.append( "        " ).append( XmlHandler.addTagValue( "name", outputPropertyName[i] ) );
+      xml.append( "        " ).append( XmlHandler.addTagValue( "value", outputPropertyValue[i] ) );
+      xml.append( "      </outputproperty>" ).append( Const.CR );
     }
 
-    retval.append( "    </outputproperties>" ).append( Const.CR );
-    return retval.toString();
+    xml.append( "    </outputproperties>" ).append( Const.CR );
+    return xml.toString();
   }
 
-  public void loadXml(Node entrynode, IHopMetadataProvider metadataProvider ) throws HopXmlException {
+  public void loadXml( Node entrynode, IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       xmlfilename = XmlHandler.getTagValue( entrynode, "xmlfilename" );
@@ -243,11 +237,11 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealxmlfilename() {
-    return environmentSubstitute( getxmlFilename() );
+    return resolve( getxmlFilename() );
   }
 
   public String getoutputfilename() {
-    return environmentSubstitute( getoutputFilename() );
+    return resolve( getoutputFilename() );
   }
 
   public boolean isFilenamesFromPrevious() {
@@ -259,7 +253,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   }
 
   public String getRealxslfilename() {
-    return environmentSubstitute( getxslFilename() );
+    return resolve( getxslFilename() );
   }
 
   public Result execute(Result previousResult, int nr ) throws HopException {
@@ -272,7 +266,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     if ( nrOutputProps > 0 ) {
       outputProperties = new Properties();
       for ( int i = 0; i < nrOutputProps; i++ ) {
-        outputProperties.put( getOutputPropertyName()[i], environmentSubstitute( getOutputPropertyValue()[i] ) );
+        outputProperties.put( getOutputPropertyName()[i], resolve( getOutputPropertyValue()[i] ) );
       }
       setOutputProperties = true;
     }
@@ -283,8 +277,8 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
       nameOfParams = new String[nrParams];
       valueOfParams = new String[nrParams];
       for ( int i = 0; i < nrParams; i++ ) {
-        String name = environmentSubstitute( getParameterName()[i] );
-        String value = environmentSubstitute( getParameterField()[i] );
+        String name = resolve( getParameterName()[i] );
+        String value = resolve( getParameterField()[i] );
         if ( Utils.isEmpty( value ) ) {
           throw new HopTransformException( BaseMessages.getString( PKG, "Xslt.Exception.ParameterFieldMissing", name, i ) );
         }
@@ -557,11 +551,11 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
     return addfiletoresult;
   }
 
-  public List<ResourceReference> getResourceDependencies(WorkflowMeta jobMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( jobMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( ( !Utils.isEmpty( xslfilename ) ) && ( !Utils.isEmpty( xmlfilename ) ) ) {
-      String realXmlFileName = jobMeta.environmentSubstitute( xmlfilename );
-      String realXslFileName = jobMeta.environmentSubstitute( xslfilename );
+      String realXmlFileName = variables.resolve( xmlfilename );
+      String realXslFileName = variables.resolve( xslfilename );
       ResourceReference reference = new ResourceReference( this );
       reference.getEntries().add( new ResourceEntry( realXmlFileName, ResourceEntry.ResourceType.FILE ) );
       reference.getEntries().add( new ResourceEntry( realXslFileName, ResourceEntry.ResourceType.FILE ) );
@@ -571,7 +565,7 @@ public class Xslt extends ActionBase implements Cloneable, IAction {
   }
 
   @Override
-  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables space, IHopMetadataProvider metadataProvider ) {
+  public void check(List<ICheckResult> remarks, WorkflowMeta jobMeta, IVariables variables, IHopMetadataProvider metadataProvider ) {
     ValidatorContext ctx = new ValidatorContext();
     putVariableSpace( ctx, getVariables() );
     putValidators( ctx, notBlankValidator(), fileExistsValidator() );

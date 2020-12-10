@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow;
 
@@ -31,7 +25,6 @@ import org.apache.hop.core.exception.HopException;
 import org.apache.hop.core.logging.LogLevel;
 import org.apache.hop.core.util.Utils;
 import org.apache.hop.core.variables.IVariables;
-import org.apache.hop.core.variables.Variables;
 import org.apache.hop.core.xml.XmlHandler;
 import org.w3c.dom.Node;
 
@@ -133,21 +126,24 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
   public void setVariablesMap( IVariables variablesMap ) {
     this.variablesMap = new HashMap<>();
 
-    for ( String name : variablesMap.listVariables() ) {
+    for ( String name : variablesMap.getVariableNames() ) {
       String value = variablesMap.getVariable( name );
       this.variablesMap.put( name, value );
     }
   }
 
-  public void getUsedVariables( WorkflowMeta workflowMeta ) {
-    Properties sp = new Properties();
-    IVariables variables = new Variables();
-    variables.initializeVariablesFrom( workflowMeta );
+  /**
+   * Extracts used variables and their values.
+   * @param workflowMeta The metadata to search for variables
+   * @param variables The place to look up the values in
+   */
+  public void getUsedVariables( WorkflowMeta workflowMeta, IVariables variables ) {
+    Properties properties = new Properties();
 
-    String[] keys = variables.listVariables();
+    String[] keys = variables.getVariableNames();
     for ( int i = 0; i < keys.length; i++ ) {
       if ( StringUtils.isNotEmpty( keys[ i ] ) ) {
-        sp.put( keys[ i ], Const.NVL( variables.getVariable( keys[ i ] ), "" ) );
+        properties.put( keys[ i ], Const.NVL( variables.getVariable( keys[ i ] ), "" ) );
       }
     }
 
@@ -159,7 +155,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
         String varname = vars.get( i );
         if ( !varname.startsWith( Const.INTERNAL_VARIABLE_PREFIX ) ) {
           // add all new non-internal variables to newVariablesMap
-          newVariables.put( varname, Const.NVL( variablesMap.get( varname ), sp.getProperty( varname, "" ) ) );
+          newVariables.put( varname, Const.NVL( variablesMap.get( varname ), properties.getProperty( varname, "" ) ) );
         }
       }
       // variables.clear();
@@ -169,7 +165,7 @@ public class WorkflowExecutionConfiguration implements IExecutionConfiguration {
     // Also add the internal workflow variables if these are set...
     //
     for ( String variableName : Const.INTERNAL_WORKFLOW_VARIABLES ) {
-      String value = workflowMeta.getVariable( variableName );
+      String value = variables.getVariable( variableName );
       if ( !Utils.isEmpty( value ) ) {
         variablesMap.put( variableName, value );
       }

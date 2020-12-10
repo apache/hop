@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 package org.apache.hop.pipeline.transforms.mapping;
 
 import org.apache.hop.core.exception.HopException;
@@ -36,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -69,7 +64,7 @@ public class SimpleMappingTest {
   @Before
   public void setup() throws Exception {
     transformMockHelper =
-      new TransformMockHelper<SimpleMappingMeta, SimpleMappingData>( "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class,
+      new TransformMockHelper<>( "SIMPLE_MAPPING_TEST", SimpleMappingMeta.class,
         SimpleMappingData.class );
     when( transformMockHelper.logChannelFactory.create( any(), any( ILoggingObject.class ) ) ).thenReturn(
       transformMockHelper.iLogChannel );
@@ -102,8 +97,9 @@ public class SimpleMappingTest {
     simpleMpData.rowDataInputMapper = rdInputMpMock;
     simpleMpData.mappingPipeline = transformMockHelper.pipeline;
 
-    when( transformMockHelper.pipeline.findTransformInterface( MAPPING_OUTPUT_TRANSFORM_NAME, 0 ) ).thenReturn( mpOutputMock );
-    when( transformMockHelper.pipeline.addRowProducer( MAPPING_INPUT_TRANSFORM_NAME, 0 ) ).thenReturn( rProducerMock );
+    Mockito.doReturn( mpOutputMock ).when( transformMockHelper.pipeline ).findTransformInterface( MAPPING_OUTPUT_TRANSFORM_NAME, 0 );
+    Mockito.doReturn(rProducerMock).when( transformMockHelper.pipeline).addRowProducer( MAPPING_INPUT_TRANSFORM_NAME, 0 );
+
     when( transformMockHelper.iTransformMeta.getInputMapping() ).thenReturn( mpIODefMock );
   }
 
@@ -174,7 +170,6 @@ public class SimpleMappingTest {
     MappingOutput mappingOutput = mock( MappingOutput.class );
     when( mappingOutput.getTransformName() ).thenReturn( MAPPING_OUTPUT_TRANSFORM_NAME );
     transformMockHelper.iTransformData.mappingOutput = mappingOutput;
-
 
     smp = new SimpleMapping( transformMockHelper.transformMeta, transformMockHelper.iTransformMeta, transformMockHelper.iTransformData, 0, transformMockHelper.pipelineMeta,
       transformMockHelper.pipeline );

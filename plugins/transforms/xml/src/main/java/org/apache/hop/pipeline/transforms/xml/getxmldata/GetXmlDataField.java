@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
-*
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.xml.getxmldata;
 
@@ -120,27 +114,27 @@ public class GetXmlDataField implements Cloneable {
     this( "" );
   }
 
-  public String getXML() {
-    StringBuffer retval = new StringBuffer( 400 );
+  public String getXml() {
+    StringBuffer xml = new StringBuffer( 400 );
 
-    retval.append( "      <field>" ).append( Const.CR );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "name", getName() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "xpath", getXPath() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "element_type", getElementTypeCode() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "result_type", getResultTypeCode() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "type", getTypeDesc() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "format", getFormat() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "currency", getCurrencySymbol() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "decimal", getDecimalSymbol() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "group", getGroupSymbol() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "length", getLength() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "precision", getPrecision() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "trim_type", getTrimTypeCode() ) );
-    retval.append( "        " ).append( XmlHandler.addTagValue( "repeat", isRepeated() ) );
+    xml.append( "      <field>" ).append( Const.CR );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "name", getName() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "xpath", getXPath() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "element_type", getElementTypeCode() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "result_type", getResultTypeCode() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "type", getTypeDesc() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "format", getFormat() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "currency", getCurrencySymbol() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "decimal", getDecimalSymbol() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "group", getGroupSymbol() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "length", getLength() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "precision", getPrecision() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "trim_type", getTrimTypeCode() ) );
+    xml.append( "        " ).append( XmlHandler.addTagValue( "repeat", isRepeated() ) );
 
-    retval.append( "      </field>" ).append( Const.CR );
+    xml.append( "      </field>" ).append( Const.CR );
 
-    return retval.toString();
+    return xml.toString();
   }
 
   public GetXmlDataField(Node fnode ) throws HopValueException {

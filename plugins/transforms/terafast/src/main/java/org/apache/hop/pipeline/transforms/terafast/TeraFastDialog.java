@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.terafast;
 
@@ -51,6 +46,7 @@ import org.eclipse.swt.widgets.*;
 
 import java.util.List;
 import java.util.*;
+import org.apache.hop.core.variables.IVariables;
 
 public class TeraFastDialog extends BaseTransformDialog implements ITransformDialog {
 
@@ -115,9 +111,9 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
    * @param pipelineMeta    transaction meta
    * @param transformName     name of transform.
    */
-  public TeraFastDialog( final Shell parent, final Object baseTransformMeta, final PipelineMeta pipelineMeta,
+  public TeraFastDialog( final Shell parent, IVariables variables, final Object baseTransformMeta, final PipelineMeta pipelineMeta,
                          final String transformName ) {
-    super( parent, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName );
+    super( parent, variables, (BaseTransformMeta) baseTransformMeta, pipelineMeta, transformName );
     this.meta = (TeraFastMeta) baseTransformMeta;
   }
 
@@ -177,7 +173,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
         return;
       }
       try {
-        final IRowMeta row = TeraFastDialog.this.pipelineMeta.getPrevTransformFields( transformMetaSearchFields );
+        final IRowMeta row = TeraFastDialog.this.pipelineMeta.getPrevTransformFields( variables, transformMetaSearchFields );
 
         // Remember these fields...
         for ( int i = 0; i < row.size(); i++ ) {
@@ -317,7 +313,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     IRowMeta targetFields;
 
     try {
-      sourceFields = this.pipelineMeta.getPrevTransformFields( this.transformMeta );
+      sourceFields = this.pipelineMeta.getPrevTransformFields( variables, this.transformMeta );
     } catch ( HopException e ) {
       new ErrorDialog( this.shell,
         BaseMessages.getString( PKG, "TeraFastDialog.DoMapping.UnableToFindSourceFields.Title" ),
@@ -327,7 +323,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     // refresh fields
     this.meta.getTargetTable().setValue( this.wTable.getText() );
     try {
-      targetFields = this.meta.getRequiredFields( this.pipelineMeta );
+      targetFields = this.meta.getRequiredFields( variables );
     } catch ( HopException e ) {
       new ErrorDialog( this.shell,
         BaseMessages.getString( PKG, "TeraFastDialog.DoMapping.UnableToFindTargetFields.Title" ),
@@ -397,7 +393,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
    */
   public void getUpdate() {
     try {
-      final IRowMeta row = this.pipelineMeta.getPrevTransformFields( this.transformName );
+      final IRowMeta row = this.pipelineMeta.getPrevTransformFields( variables, this.transformName );
       if ( row != null ) {
         ITableItemInsertListener listener = ( tableItem, value ) -> {
           // possible to check format of input fields
@@ -457,7 +453,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
    * Build UI.
    */
   protected void buildUi() {
-    final PluginWidgetFactory factory = new PluginWidgetFactory( this.shell, this.pipelineMeta );
+    final PluginWidgetFactory factory = new PluginWidgetFactory( this.shell, variables );
     factory.setMiddle( this.props.getMiddlePct() );
 
     // Buttons at the bottom
@@ -758,7 +754,7 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
         new String[] { "" }, false );
     this.tableFieldColumns.add( this.ciReturn[ 0 ] );
     this.wReturn = new TableView(
-        this.pipelineMeta, this.shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
+      variables, this.shell, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL,
         this.ciReturn, upInsRows, null, this.props );
 
     this.wGetLU = factory.createPushButton( BaseMessages.getString( PKG, "TeraFastDialog.GetFields.Label" ) );
@@ -842,12 +838,12 @@ public class TeraFastDialog extends BaseTransformDialog implements ITransformDia
     /**
      * {@inheritDoc}
      *
-     * @see java.lang.Runnable#run()
+     * @see Runnable#run()
      */
     @Override
     public void run() {
       try {
-        final IRowMeta rowMeta = this.dialog.meta.getRequiredFields( this.dialog.pipelineMeta );
+        final IRowMeta rowMeta = this.dialog.meta.getRequiredFields( variables );
         if ( rowMeta == null ) {
           return;
         }

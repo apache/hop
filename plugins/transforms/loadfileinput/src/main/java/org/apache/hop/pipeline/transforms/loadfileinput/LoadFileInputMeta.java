@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.loadfileinput;
 
@@ -806,7 +801,7 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
       }
 
       try {
-        IValueMeta v = ValueMetaFactory.createValueMeta( variables.environmentSubstitute( field.getName() ), type );
+        IValueMeta v = ValueMetaFactory.createValueMeta( variables.resolve( field.getName() ), type );
         v.setLength( field.getLength() );
         v.setPrecision( field.getPrecision() );
         v.setConversionMask( field.getFormat() );
@@ -821,14 +816,14 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
       }
     }
     if ( includeFilename ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( filenameField ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( filenameField ) );
       v.setLength( 250 );
       v.setPrecision( -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( includeRowNumber ) {
-      IValueMeta v = new ValueMetaInteger( variables.environmentSubstitute( rowNumberField ) );
+      IValueMeta v = new ValueMetaInteger( variables.resolve( rowNumberField ) );
       v.setLength( IValueMeta.DEFAULT_INTEGER_LENGTH, 0 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -837,45 +832,45 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
 
     if ( getShortFileNameField() != null && getShortFileNameField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaString( variables.environmentSubstitute( getShortFileNameField() ) );
+        new ValueMetaString( variables.resolve( getShortFileNameField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getExtensionField() != null && getExtensionField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getExtensionField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getExtensionField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getPathField() != null && getPathField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getPathField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getPathField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( isHiddenField() != null && isHiddenField().length() > 0 ) {
-      IValueMeta v = new ValueMetaBoolean( variables.environmentSubstitute( isHiddenField() ) );
+      IValueMeta v = new ValueMetaBoolean( variables.resolve( isHiddenField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getLastModificationDateField() != null && getLastModificationDateField().length() > 0 ) {
       IValueMeta v =
-        new ValueMetaDate( variables.environmentSubstitute( getLastModificationDateField() ) );
+        new ValueMetaDate( variables.resolve( getLastModificationDateField() ) );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
     if ( getUriField() != null && getUriField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getUriField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
     }
 
     if ( getRootUriField() != null && getRootUriField().length() > 0 ) {
-      IValueMeta v = new ValueMetaString( variables.environmentSubstitute( getRootUriField() ) );
+      IValueMeta v = new ValueMetaString( variables.resolve( getRootUriField() ) );
       v.setLength( 100, -1 );
       v.setOrigin( name );
       r.addValueMeta( v );
@@ -927,7 +922,7 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
         remarks.add( cr );
       }
     } else {
-      FileInputList fileInputList = getFiles( pipelineMeta );
+      FileInputList fileInputList = getFiles( variables );
 
       if ( fileInputList == null || fileInputList.getFiles().size() == 0 ) {
         cr =
@@ -944,7 +939,7 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
   }
 
   /**
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
@@ -958,7 +953,7 @@ public class LoadFileInputMeta extends BaseTransformMeta implements ITransformMe
       //
       if ( !fileinfield ) {
         for ( int i = 0; i < fileName.length; i++ ) {
-          FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( fileName[ i ] ) );
+          FileObject fileObject = HopVfs.getFileObject( variables.resolve( fileName[ i ] ) );
           fileName[ i ] = iResourceNaming.nameResource( fileObject, variables, Utils.isEmpty( fileMask[ i ] ) );
         }
       }

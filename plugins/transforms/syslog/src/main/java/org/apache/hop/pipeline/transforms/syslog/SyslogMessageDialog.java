@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.syslog;
 
@@ -47,6 +41,7 @@ import org.snmp4j.UserTarget;
 import org.snmp4j.smi.UdpAddress;
 
 import java.net.InetAddress;
+import org.apache.hop.core.variables.IVariables;
 
 public class SyslogMessageDialog extends BaseTransformDialog implements ITransformDialog {
   private static final Class<?> PKG = SyslogMessageMeta.class; // Needed by Translator
@@ -72,8 +67,8 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
 
   private boolean gotPreviousFields = false;
 
-  public SyslogMessageDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public SyslogMessageDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (SyslogMessageMeta) in;
   }
 
@@ -142,7 +137,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     wSettingsGroup.setLayout( settingGroupLayout );
 
     // Server port line
-    wServerName = new LabelTextVar( pipelineMeta, wSettingsGroup,
+    wServerName = new LabelTextVar( variables, wSettingsGroup,
       BaseMessages.getString( PKG, "SyslogMessageDialog.Server.Label" ),
       BaseMessages.getString( PKG, "SyslogMessageDialog.Server.Tooltip" ) );
     props.setLook( wServerName );
@@ -154,7 +149,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     wServerName.setLayoutData(fdServerName);
 
     // Server port line
-    wPort = new LabelTextVar( pipelineMeta, wSettingsGroup,
+    wPort = new LabelTextVar( variables, wSettingsGroup,
       BaseMessages.getString( PKG, "SyslogMessageDialog.Port.Label" ),
       BaseMessages.getString( PKG, "SyslogMessageDialog.Port.Tooltip" ) );
     props.setLook( wPort );
@@ -301,7 +296,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     fdlDatePattern.right = new FormAttachment( middle, -margin );
     fdlDatePattern.top = new FormAttachment( wAddTimestamp, margin );
     wlDatePattern.setLayoutData(fdlDatePattern);
-    wDatePattern = new ComboVar( pipelineMeta, wLogSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
+    wDatePattern = new ComboVar( variables, wLogSettings, SWT.SINGLE | SWT.READ_ONLY | SWT.BORDER );
     wDatePattern.setItems( Const.getDateFormats() );
     props.setLook( wDatePattern );
     FormData fdDatePattern = new FormData();
@@ -335,10 +330,10 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
     fdMessageField.right = new FormAttachment( 100, 0 );
     wMessageField.setLayoutData(fdMessageField);
     wMessageField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         get();
       }
     } );
@@ -454,7 +449,7 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
         String source = wMessageField.getText();
 
         wMessageField.removeAll();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wMessageField.setItems( r.getFieldNames() );
           if ( source != null ) {
@@ -472,8 +467,8 @@ public class SyslogMessageDialog extends BaseTransformDialog implements ITransfo
   private void test() {
     boolean testOK = false;
     String errMsg = null;
-    String hostname = pipelineMeta.environmentSubstitute( wServerName.getText() );
-    int nrPort = Const.toInt( pipelineMeta.environmentSubstitute( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
+    String hostname = variables.resolve( wServerName.getText() );
+    int nrPort = Const.toInt( variables.resolve( "" + wPort.getText() ), SyslogDefs.DEFAULT_PORT );
 
     try {
       UdpAddress udpAddress = new UdpAddress( InetAddress.getByName( hostname ), nrPort );

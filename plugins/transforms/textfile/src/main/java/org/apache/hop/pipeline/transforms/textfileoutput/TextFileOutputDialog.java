@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.textfileoutput;
 
@@ -31,6 +26,7 @@ import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaFactory;
 import org.apache.hop.core.row.value.ValueMetaString;
 import org.apache.hop.core.util.Utils;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -150,8 +146,8 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
 
   private boolean gotPreviousFields = false;
 
-  public TextFileOutputDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public TextFileOutputDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (TextFileOutputMeta) in;
     inputFields = new HashMap<>();
   }
@@ -242,7 +238,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     fdbFilename.top = new FormAttachment( 0, 0 );
     wbFilename.setLayoutData(fdbFilename);
 
-    wFilename = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     FormData fdFilename = new FormData();
@@ -362,7 +358,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     fdlFileNameField.top = new FormAttachment( wFileNameInField, margin );
     wlFileNameField.setLayoutData(fdlFileNameField);
 
-    wFileNameField = new ComboVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFileNameField = new ComboVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFileNameField );
     wFileNameField.addModifyListener( lsMod );
     FormData fdFileNameField = new FormData();
@@ -372,10 +368,10 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wFileNameField.setLayoutData(fdFileNameField);
     wFileNameField.setEnabled( false );
     wFileNameField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         getFields();
@@ -394,7 +390,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     fdlExtension.top = new FormAttachment( wFileNameField, margin );
     fdlExtension.right = new FormAttachment( middle, -margin );
     wlExtension.setLayoutData(fdlExtension);
-    wExtension = new TextVar( pipelineMeta, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wExtension = new TextVar( variables, wFileComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wExtension.setText( "" );
     props.setLook( wExtension );
     wExtension.addModifyListener( lsMod );
@@ -549,7 +545,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
       public void widgetSelected( SelectionEvent e ) {
         TextFileOutputMeta tfoi = new TextFileOutputMeta();
         saveInfoInMeta( tfoi );
-        String[] files = tfoi.getFiles( pipelineMeta );
+        String[] files = tfoi.getFiles( variables );
         if ( files != null && files.length > 0 ) {
           EnterSelectionDialog esd = new EnterSelectionDialog( shell, files,
             BaseMessages.getString( PKG, "TextFileOutputDialog.SelectOutputFiles.DialogTitle" ),
@@ -667,7 +663,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
       }
     } );
 
-    wSeparator = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSeparator = new TextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSeparator );
     wSeparator.addModifyListener( lsMod );
     FormData fdSeparator = new FormData();
@@ -685,7 +681,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     fdlEnclosure.top = new FormAttachment( wSeparator, margin );
     fdlEnclosure.right = new FormAttachment( middle, -margin );
     wlEnclosure.setLayoutData(fdlEnclosure);
-    wEnclosure = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEnclosure = new TextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEnclosure );
     wEnclosure.addModifyListener( lsMod );
     FormData fdEnclosure = new FormData();
@@ -841,10 +837,10 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     fdEncoding.right = new FormAttachment( 100, 0 );
     wEncoding.setLayoutData(fdEncoding);
     wEncoding.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         setEncodings();
@@ -903,7 +899,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     fdlSplitEvery.top = new FormAttachment( wFastDump, margin );
     fdlSplitEvery.right = new FormAttachment( middle, -margin );
     wlSplitEvery.setLayoutData(fdlSplitEvery);
-    wSplitEvery = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wSplitEvery = new TextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wSplitEvery );
     wSplitEvery.addModifyListener( lsMod );
     FormData fdSplitEvery = new FormData();
@@ -921,7 +917,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     fdlEndedLine.top = new FormAttachment( wSplitEvery, margin );
     fdlEndedLine.right = new FormAttachment( middle, -margin );
     wlEndedLine.setLayoutData(fdlEndedLine);
-    wEndedLine = new TextVar( pipelineMeta, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEndedLine = new TextVar( variables, wContentComp, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wEndedLine );
     wEndedLine.addModifyListener( lsMod );
     FormData fdEndedLine = new FormData();
@@ -1029,7 +1025,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
 
     wFields =
       new TableView(
-        pipelineMeta, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
+        variables, wFieldsComp, SWT.BORDER | SWT.FULL_SELECTION | SWT.MULTI, colinf, FieldsRows, lsMod, props );
 
     FormData fdFields = new FormData();
     fdFields.left = new FormAttachment( 0, 0 );
@@ -1045,7 +1041,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
       TransformMeta transformMeta = pipelineMeta.findTransform( transformName );
       if ( transformMeta != null ) {
         try {
-          IRowMeta row = pipelineMeta.getPrevTransformFields( transformMeta );
+          IRowMeta row = pipelineMeta.getPrevTransformFields( variables, transformMeta );
 
           // Remember these fields...
           for ( int i = 0; i < row.size(); i++ ) {
@@ -1091,9 +1087,9 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     wSeparator.addSelectionListener( lsDef );
 
     // Whenever something changes, set the tooltip to the expanded version:
-    wFilename.addModifyListener( e -> wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) ) );
+    wFilename.addModifyListener( e -> wFilename.setToolTipText( variables.resolve( wFilename.getText() ) ) );
 
-    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( true, shell, wFilename, pipelineMeta,
+    wbFilename.addListener( SWT.Selection, e-> BaseDialog.presentFileDialog( true, shell, wFilename, variables,
       new String[] {"*.txt", "*.csv", "*" },
       new String[] {
         BaseMessages.getString( PKG, "System.FileType.TextFiles" ),
@@ -1274,7 +1270,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
     if ( !gotPreviousFields ) {
       try {
         String field = wFileNameField.getText();
-        IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+        IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
         if ( r != null ) {
           wFileNameField.setItems( r.getFieldNames() );
         }
@@ -1469,7 +1465,7 @@ public class TextFileOutputDialog extends BaseTransformDialog implements ITransf
 
   private void get() {
     try {
-      IRowMeta r = pipelineMeta.getPrevTransformFields( transformName );
+      IRowMeta r = pipelineMeta.getPrevTransformFields( variables, transformName );
       if ( r != null ) {
         ITableItemInsertListener listener = ( tableItem, v ) -> {
 

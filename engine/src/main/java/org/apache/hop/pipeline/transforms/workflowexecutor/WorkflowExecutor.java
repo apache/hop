@@ -37,7 +37,6 @@ import org.apache.hop.core.util.Utils;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.PipelineMeta;
-import org.apache.hop.pipeline.TransformWithMappingMeta;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
 import org.apache.hop.pipeline.transform.TransformMeta;
@@ -183,11 +182,13 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
 
     data.executorWorkflow = createWorkflow( data.executorWorkflowMeta, this );
 
-    data.executorWorkflow.shareVariablesWith( data.executorWorkflowMeta );
+    data.executorWorkflow.initializeFrom( this );
     data.executorWorkflow.setParentPipeline( getPipeline() );
     data.executorWorkflow.setLogLevel( getLogLevel() );
     data.executorWorkflow.setInternalHopVariables();
-    data.executorWorkflow.copyParametersFrom( data.executorWorkflowMeta );
+
+    // Copy the parameters
+    data.executorWorkflow.copyParametersFromDefinitions( data.executorWorkflowMeta );
 
     // data.executorWorkflow.setInteractive(); TODO: pass interactivity through the pipeline too for drill-down.
 
@@ -209,7 +210,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
     //
     getPipeline().addActiveSubWorkflow( getTransformName(), data.executorWorkflow );
 
-    ExtensionPointHandler.callExtensionPoint( log, HopExtensionPoint.WorkflowStart.id, data.executorWorkflow );
+    ExtensionPointHandler.callExtensionPoint( log, this, HopExtensionPoint.WorkflowStart.id, data.executorWorkflow );
 
     Result result = data.executorWorkflow.startExecution();
 
@@ -306,7 +307,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
   @VisibleForTesting
   IWorkflowEngine<WorkflowMeta> createWorkflow( WorkflowMeta workflowMeta, ILoggingObject parentLogging ) throws HopException {
 
-    return WorkflowEngineFactory.createWorkflowEngine( environmentSubstitute(meta.getRunConfigurationName()), metadataProvider, workflowMeta, parentLogging );
+    return WorkflowEngineFactory.createWorkflowEngine( this, resolve(meta.getRunConfigurationName()), metadataProvider, workflowMeta, parentLogging );
   }
 
   @VisibleForTesting
@@ -343,21 +344,18 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           // The value is provided by a static String or variable expression as an Input value
           //
           if (StringUtils.isNotEmpty( variableInput )) {
-            variableValue = this.environmentSubstitute( variableInput );
+            variableValue = this.resolve( variableInput );
           }
         }
 
         try {
-          data.executorWorkflowMeta.setParameterValue( variableName, Const.NVL(variableValue, "") );
           data.executorWorkflow.setParameterValue( variableName, Const.NVL(variableValue, "") );
         } catch( UnknownParamException e ) {
-          data.executorWorkflowMeta.setVariable( variableName, Const.NVL(variableValue, "") );
           data.executorWorkflow.setVariable( variableName, Const.NVL(variableValue, "") );
         }
       }
     }
-    data.executorWorkflowMeta.activateParameters();
-    data.executorWorkflow.activateParameters();
+    data.executorWorkflow.activateParameters(data.executorWorkflow);
   }
 
   @Override
@@ -372,20 +370,20 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
         // Do we have a workflow at all?
         //
         if ( data.executorWorkflowMeta != null ) {
-          data.groupBuffer = new ArrayList<RowMetaAndData>();
+          data.groupBuffer = new ArrayList<>();
 
           // How many rows do we group together for the workflow?
           //
           data.groupSize = -1;
           if ( !Utils.isEmpty( meta.getGroupSize() ) ) {
-            data.groupSize = Const.toInt( environmentSubstitute( meta.getGroupSize() ), -1 );
+            data.groupSize = Const.toInt( resolve( meta.getGroupSize() ), -1 );
           }
 
           // Is there a grouping time set?
           //
           data.groupTime = -1;
           if ( !Utils.isEmpty( meta.getGroupTime() ) ) {
-            data.groupTime = Const.toInt( environmentSubstitute( meta.getGroupTime() ), -1 );
+            data.groupTime = Const.toInt( resolve( meta.getGroupTime() ), -1 );
           }
           data.groupTimeStart = System.currentTimeMillis();
 
@@ -393,7 +391,7 @@ public class WorkflowExecutor extends BaseTransform<WorkflowExecutorMeta, Workfl
           //
           data.groupField = null;
           if ( !Utils.isEmpty( meta.getGroupField() ) ) {
-            data.groupField = environmentSubstitute( meta.getGroupField() );
+            data.groupField = resolve( meta.getGroupField() );
           }
 
           // That's all for now...

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.clonerow;
 
@@ -31,8 +26,6 @@ import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.Pipeline;
 import org.apache.hop.pipeline.transform.BaseTransform;
 import org.apache.hop.pipeline.transform.ITransform;
-import org.apache.hop.pipeline.transform.ITransformData;
-import org.apache.hop.pipeline.transform.ITransformMeta;
 import org.apache.hop.pipeline.transform.TransformMeta;
 
 /**
@@ -69,14 +62,14 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> implemen
       data.addInfosToRow = ( meta.isAddCloneFlag() || meta.isAddCloneNum() );
 
       if ( meta.isAddCloneFlag() ) {
-        String realflagfield = environmentSubstitute( meta.getCloneFlagField() );
+        String realflagfield = resolve( meta.getCloneFlagField() );
         if ( Utils.isEmpty( realflagfield ) ) {
           logError( BaseMessages.getString( PKG, "CloneRow.Error.CloneFlagFieldMissing" ) );
           throw new HopException( BaseMessages.getString( PKG, "CloneRow.Error.CloneFlagFieldMissing" ) );
         }
       }
       if ( meta.isAddCloneNum() ) {
-        String realnumfield = environmentSubstitute( meta.getCloneNumField() );
+        String realnumfield = resolve( meta.getCloneNumField() );
         if ( Utils.isEmpty( realnumfield ) ) {
           logError( BaseMessages.getString( PKG, "CloneRow.Error.CloneNumFieldMissing" ) );
           throw new HopException( BaseMessages.getString( PKG, "CloneRow.Error.CloneNumFieldMissing" ) );
@@ -101,7 +94,7 @@ public class CloneRow extends BaseTransform<CloneRowMeta, CloneRowData> implemen
           }
         }
       } else {
-        String nrclonesString = environmentSubstitute( meta.getNrClones() );
+        String nrclonesString = resolve( meta.getNrClones() );
         data.nrclones = Const.toInt( nrclonesString, 0 );
         if ( log.isDebug() ) {
           logDebug( BaseMessages.getString( PKG, "CloneRow.Log.NrClones", "" + data.nrclones ) );

@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.core.database;
 
@@ -32,6 +27,7 @@ import org.apache.hop.core.row.IRowMeta;
 import org.apache.hop.core.row.IValueMeta;
 import org.apache.hop.core.row.value.ValueMetaNumber;
 import org.apache.hop.core.variables.IVariables;
+import org.apache.hop.core.variables.Variables;
 import org.apache.hop.junit.rules.RestoreHopEnvironment;
 import org.junit.After;
 import org.junit.Before;
@@ -100,6 +96,7 @@ public class DatabaseTest {
   private DatabaseMetaData dbMetaData = mock( DatabaseMetaData.class );
   private ResultSetMetaData rsMetaData = mock( ResultSetMetaData.class );
   private Connection conn;
+  private IVariables variables;
   //end common fields
 
   @BeforeClass
@@ -111,6 +108,7 @@ public class DatabaseTest {
   public void setUp() throws Exception {
     conn = mockConnection( mock( DatabaseMetaData.class ) );
     when( log.getLogLevel() ).thenReturn( LogLevel.NOTHING );
+    variables = mock(IVariables.class);
   }
 
   @After
@@ -158,7 +156,7 @@ public class DatabaseTest {
    */
   @Test
   public void testGetLookupMetaCalls() throws HopDatabaseException, SQLException {
-    when( meta.getQuotedSchemaTableCombination( anyString(), anyString() ) ).thenReturn( "a" );
+    when( meta.getQuotedSchemaTableCombination(any(), anyString(), anyString() ) ).thenReturn( "a" );
     when( meta.quoteField( anyString() ) ).thenReturn( "a" );
     when( ps.executeQuery() ).thenReturn( rs );
     when( rs.getMetaData() ).thenReturn( rsMetaData );
@@ -379,11 +377,11 @@ public class DatabaseTest {
     IRowMeta fields = mock( IRowMeta.class );
     doReturn( 1 ).when( fields ).size();
     doReturn( v ).when( fields ).getValueMeta( 0 );
-    boolean useAutoInc = true, semiColon = true;
+    boolean useAutoIncrement = true, semiColon = true;
 
-    doReturn( "double foo" ).when( meta ).getFieldDefinition( v, tk, pk, useAutoInc );
+    doReturn( "double foo" ).when( meta ).getFieldDefinition( v, tk, pk, useAutoIncrement );
     doReturn( true ).when( meta ).requiresCreateTablePrimaryKeyAppend();
-    String statement = db.getCreateTableStatement( tableName, fields, tk, useAutoInc, pk, semiColon );
+    String statement = db.getCreateTableStatement( tableName, fields, tk, useAutoIncrement, pk, semiColon );
     String expectedStatRegexp = concatWordsForRegexp(
       "CREATE TABLE DUMMY", "\\(",
       "double foo", ",",
@@ -392,7 +390,7 @@ public class DatabaseTest {
       "\\)", ";" );
     assertTrue( statement.matches( expectedStatRegexp ) );
     doReturn( "CREATE COLUMN TABLE " ).when( iDatabase ).getCreateTableStatement();
-    statement = db.getCreateTableStatement( tableName, fields, tk, useAutoInc, pk, semiColon );
+    statement = db.getCreateTableStatement( tableName, fields, tk, useAutoIncrement, pk, semiColon );
 
     expectedStatRegexp = concatWordsForRegexp(
       "CREATE COLUMN TABLE DUMMY", "\\(",
@@ -587,8 +585,8 @@ public class DatabaseTest {
   @Test
   public void testCheckTableExistsFalseProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false" );
     Database db = spy( new Database( log, databaseMeta ) );
+    db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false" );
 
     db.checkTableExists( any(), any() );
     verify( db, times( 1 ) ).checkTableExists( any() );
@@ -598,8 +596,8 @@ public class DatabaseTest {
   @Test
   public void testCheckTableExistsTrueProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true" );
     Database db = spy( new Database( log, databaseMeta ) );
+    db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true" );
     db.setConnection( conn );
 
     try {
@@ -626,8 +624,8 @@ public class DatabaseTest {
   @Test
   public void testCheckColumnExistsFalseProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false" );
     Database db = spy( new Database( log, databaseMeta ) );
+    db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false" );
 
     db.checkColumnExists( any(), any(), any() );
     verify( db, times( 1 ) ).checkColumnExists( any(), any() );
@@ -637,8 +635,8 @@ public class DatabaseTest {
   @Test
   public void testCheckColumnExistsTrueProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true" );
     Database db = spy( new Database( log, databaseMeta ) );
+    db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true" );
     db.setConnection( conn );
 
     try {
@@ -669,8 +667,8 @@ public class DatabaseTest {
   @Test
   public void testGetTableFieldsMetaFalseProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false" );
     Database db = spy( new Database( log, databaseMeta ) );
+    db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "false" );
 
     db.getTableFieldsMeta( any(), any() );
     //verify( db, times( 1 ) ).getQueryFields( any(), any() );
@@ -681,8 +679,8 @@ public class DatabaseTest {
   @Ignore // TODO figure out why it gives a different error
   public void testGetTableFieldsMetaTrueProperty() throws Exception {
     DatabaseMeta databaseMeta = new DatabaseMeta();
-    databaseMeta.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true" );
     Database db = spy( new Database( log, databaseMeta ) );
+    db.setVariable( Const.HOP_COMPATIBILITY_USE_JDBC_METADATA, "true" );
     db.setConnection( conn );
 
     try {

@@ -29,10 +29,8 @@ import org.apache.hop.ui.core.widget.ColumnInfo;
 import org.apache.hop.ui.core.widget.ComboVar;
 import org.apache.hop.ui.core.widget.TableView;
 import org.apache.hop.ui.core.widget.TextVar;
-import org.apache.hop.ui.hopgui.HopGui;
 import org.apache.hop.ui.hopgui.file.pipeline.HopPipelineFileType;
 import org.apache.hop.ui.hopgui.file.workflow.HopWorkflowFileType;
-import org.apache.hop.ui.hopgui.perspective.dataorch.HopDataOrchestrationPerspective;
 import org.apache.hop.ui.pipeline.transform.BaseTransformDialog;
 import org.apache.hop.ui.workflow.action.ActionDialog;
 import org.apache.hop.ui.workflow.dialog.WorkflowDialog;
@@ -164,7 +162,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     wbbFilename.setLayoutData( fdbFilename );
     wbbFilename.addListener( SWT.Selection, e->browseForFile() );
 
-    wFilename = new TextVar(getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wFilename = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wFilename);
     FormData fdFilename = new FormData();
     fdFilename.left = new FormAttachment(middle, 0);
@@ -182,7 +180,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     fdlRunConfiguration.right = new FormAttachment(middle, -margin);
     wlRunConfiguration.setLayoutData(fdlRunConfiguration);
 
-    wRunConfiguration = new ComboVar(this.getWorkflowMeta(), shell, SWT.LEFT | SWT.BORDER);
+    wRunConfiguration = new ComboVar(variables, shell, SWT.LEFT | SWT.BORDER);
     props.setLook(wRunConfiguration);
     FormData fdRunConfiguration = new FormData();
     fdRunConfiguration.left = new FormAttachment(middle, 0);
@@ -199,7 +197,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     fdlVariableName.right = new FormAttachment(middle, 0);
     fdlVariableName.top = new FormAttachment(lastControl, margin);
     wlVariableName.setLayoutData(fdlVariableName);
-    wVariableName = new TextVar(getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wVariableName = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wVariableName);
     FormData fdVariableName = new FormData();
     fdVariableName.left = new FormAttachment(middle, 0);
@@ -216,7 +214,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     fdlVariableValue.right = new FormAttachment(middle, -margin);
     fdlVariableValue.top = new FormAttachment(lastControl, margin);
     wlVariableValue.setLayoutData(fdlVariableValue);
-    wVariableValue = new TextVar(getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wVariableValue = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wVariableValue);
     FormData fdVariableValue = new FormData();
     fdVariableValue.left = new FormAttachment(middle, 0);
@@ -233,7 +231,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     fdlDelay.right = new FormAttachment(middle, -margin);
     fdlDelay.top = new FormAttachment(lastControl, margin);
     wlDelay.setLayoutData(fdlDelay);
-    wDelay = new TextVar(getWorkflowMeta(), shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+    wDelay = new TextVar(variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wDelay);
     FormData fdDelay = new FormData();
     fdDelay.left = new FormAttachment(middle, 0);
@@ -296,7 +294,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     fdlLogFileBase.top = new FormAttachment(lastLogControl, margin);
     wlLogFileBase.setLayoutData(fdlLogFileBase);
     wLogFileBase =
-        new TextVar(getWorkflowMeta(), wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLogFileBase);
     FormData fdLogFileBase = new FormData();
     fdLogFileBase.left = new FormAttachment(middle, 0);
@@ -314,7 +312,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     fdlLogFileExtension.top = new FormAttachment(lastLogControl, margin);
     wlLogFileExtension.setLayoutData(fdlLogFileExtension);
     wLogFileExtension =
-        new TextVar(getWorkflowMeta(), wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLogFileExtension);
     FormData fdLogFileExtension = new FormData();
     fdLogFileExtension.left = new FormAttachment(middle, 0);
@@ -400,7 +398,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     fdlLogFileUpdateInterval.top = new FormAttachment(lastLogControl, margin);
     wlLogFileUpdateInterval.setLayoutData(fdlLogFileUpdateInterval);
     wLogFileUpdateInterval =
-        new TextVar(getWorkflowMeta(), wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
+        new TextVar(variables, wLogFileGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER);
     props.setLook(wLogFileUpdateInterval);
     FormData fdLogFileUpdateInterval = new FormData();
     fdLogFileUpdateInterval.left = new FormAttachment(middle, 0);
@@ -457,7 +455,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
 
     wParameters =
         new TableView(
-            getWorkflowMeta(),
+            variables,
             shell,
             SWT.BORDER,
             columnInfos,
@@ -518,7 +516,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     filterNames.addAll( Arrays.asList( workflowFileType.getFilterNames()));
     filterNames.add(BaseMessages.getString( PKG, "System.FileType.AllFiles" ));
 
-    BaseDialog.presentFileDialog( shell, wFilename, getWorkflowMeta(),
+    BaseDialog.presentFileDialog( shell, wFilename, variables,
       filterExtensions.toArray(new String[0]),
       filterNames.toArray(new String[0]),
       true
@@ -579,10 +577,10 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     //
     MetadataManager<PipelineRunConfiguration> prcManager =
         new MetadataManager<>(
-            getWorkflowMeta(), getMetadataProvider(), PipelineRunConfiguration.class);
+            variables, getMetadataProvider(), PipelineRunConfiguration.class);
     MetadataManager<WorkflowRunConfiguration> wrcManager =
         new MetadataManager<>(
-            getWorkflowMeta(), getMetadataProvider(), WorkflowRunConfiguration.class);
+            variables, getMetadataProvider(), WorkflowRunConfiguration.class);
     List<String> entries = new ArrayList<>();
     try {
       prcManager.getNames().forEach(name -> entries.add("Pipeline" + COLON_SEPARATOR + name));
@@ -596,7 +594,7 @@ public class RepeatDialog extends ActionDialog implements IActionDialog {
     }
     wRunConfiguration.setItems(entries.toArray(new String[0]));
     if (StringUtils.isNotEmpty(action.getRunConfigurationName())) {
-      String realFilename = getWorkflowMeta().environmentSubstitute(wFilename.getText());
+      String realFilename = variables.resolve(wFilename.getText());
       try {
         if (this.action.isPipeline(realFilename)) {
           wRunConfiguration.setText(

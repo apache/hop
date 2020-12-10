@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2018 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.tableinput;
 
@@ -210,9 +205,9 @@ public class TableInputMeta
     // First try without connecting to the database... (can be S L O W)
     String sNewSql = sql;
     if ( isVariableReplacementActive() ) {
-      sNewSql = db.environmentSubstitute( sql );
+      sNewSql = db.resolve( sql );
       if ( variables != null ) {
-        sNewSql = variables.environmentSubstitute( sNewSql );
+        sNewSql = variables.resolve( sNewSql );
       }
     }
 
@@ -288,7 +283,7 @@ public class TableInputMeta
       remarks.add( cr );
 
       Database db = new Database( loggingObject, databaseMeta );
-      db.shareVariablesWith( pipelineMeta );
+      db.shareWith( variables );
       super.databases = new Database[] { db }; // keep track of it for canceling purposes...
 
       try {
@@ -410,14 +405,14 @@ public class TableInputMeta
   }
 
   @Override
-  public void analyseImpact( List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
+  public void analyseImpact( IVariables variables, List<DatabaseImpact> impact, PipelineMeta pipelineMeta, TransformMeta transformMeta,
                              IRowMeta prev, String[] input, String[] output, IRowMeta info,
                              IHopMetadataProvider metadataProvider ) throws HopTransformException {
 
     // Find the lookupfields...
     IRowMeta out = new RowMeta();
     // TODO: this builds, but does it work in all cases.
-    getFields( out, transformMeta.getName(), new IRowMeta[] { info }, null, pipelineMeta, metadataProvider );
+    getFields( out, transformMeta.getName(), new IRowMeta[] { info }, null, variables, metadataProvider );
 
     if ( out != null ) {
       for ( int i = 0; i < out.size(); i++ ) {

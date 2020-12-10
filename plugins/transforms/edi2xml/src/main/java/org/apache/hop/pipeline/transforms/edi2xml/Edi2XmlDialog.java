@@ -1,28 +1,24 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.pipeline.transforms.edi2xml;
 
 import org.apache.hop.core.Const;
+import org.apache.hop.core.variables.IVariables;
 import org.apache.hop.i18n.BaseMessages;
 import org.apache.hop.pipeline.PipelineMeta;
 import org.apache.hop.pipeline.transform.BaseTransformMeta;
@@ -48,8 +44,8 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
 
   private ComboVar wEdiField;
 
-  public Edi2XmlDialog( Shell parent, Object in, PipelineMeta pipelineMeta, String sname ) {
-    super( parent, (BaseTransformMeta) in, pipelineMeta, sname );
+  public Edi2XmlDialog( Shell parent, IVariables variables, Object in, PipelineMeta pipelineMeta, String sname ) {
+    super( parent, variables, (BaseTransformMeta) in, pipelineMeta, sname );
     input = (Edi2XmlMeta) in;
   }
 
@@ -104,7 +100,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     fdlEdiField.top = new FormAttachment( wTransformName, margin );
     wlEdiField.setLayoutData( fdlEdiField );
 
-    wEdiField = new ComboVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wEdiField = new ComboVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wEdiField.setToolTipText( BaseMessages.getString( PKG, "Edi2Xml.InputField.Tooltip" ) );
     props.setLook( wEdiField );
     wEdiField.addModifyListener( lsMod );
@@ -114,10 +110,10 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     fdEdiField.right = new FormAttachment( 100, 0 );
     wEdiField.setLayoutData( fdEdiField );
     wEdiField.addFocusListener( new FocusListener() {
-      public void focusLost( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusLost( FocusEvent e ) {
       }
 
-      public void focusGained( org.eclipse.swt.events.FocusEvent e ) {
+      public void focusGained( FocusEvent e ) {
         Cursor busy = new Cursor( shell.getDisplay(), SWT.CURSOR_WAIT );
         shell.setCursor( busy );
         BaseTransformDialog.getFieldsFromPrevious( wEdiField, pipelineMeta, transformMeta );
@@ -137,7 +133,7 @@ public class Edi2XmlDialog extends BaseTransformDialog implements ITransformDial
     fdlXmlField.top = new FormAttachment( wEdiField, margin );
     wlXmlField.setLayoutData(fdlXmlField);
 
-    wXmlField = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wXmlField = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wXmlField );
     wXmlField.setToolTipText( BaseMessages.getString( PKG, "Edi2Xml.OutputField.Tooltip" ) );
     wXmlField.addModifyListener( lsMod );

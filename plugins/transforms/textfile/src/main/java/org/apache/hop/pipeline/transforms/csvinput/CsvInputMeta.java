@@ -262,7 +262,7 @@ public class CsvInputMeta
         if ( lazyConversionActive ) {
           valueMeta.setStorageType( IValueMeta.STORAGE_TYPE_BINARY_STRING );
         }
-        valueMeta.setStringEncoding( variables.environmentSubstitute( encoding ) );
+        valueMeta.setStringEncoding( variables.resolve( encoding ) );
 
         // In case we want to convert Strings...
         // Using a copy of the valueMeta object means that the inner and outer representation format is the same.
@@ -431,18 +431,18 @@ public class CsvInputMeta
     this.enclosure = enclosure;
   }
 
-  @Override
-  public List<ResourceReference> getResourceDependencies( PipelineMeta pipelineMeta, TransformMeta transformInfo ) {
-    List<ResourceReference> references = new ArrayList<ResourceReference>( 5 );
+  @Override public List<ResourceReference> getResourceDependencies( IVariables variables, TransformMeta transformMeta ) {
 
-    ResourceReference reference = new ResourceReference( transformInfo );
+    List<ResourceReference> references = new ArrayList<>( 5 );
+
+    ResourceReference reference = new ResourceReference( transformMeta );
     references.add( reference );
     if ( !Utils.isEmpty( filename ) ) {
       // Add the filename to the references, including a reference to this
       // transform meta data.
       //
       reference.getEntries().add(
-        new ResourceEntry( pipelineMeta.environmentSubstitute( filename ), ResourceType.FILE ) );
+        new ResourceEntry( variables.resolve( filename ), ResourceType.FILE ) );
     }
     return references;
   }
@@ -469,7 +469,7 @@ public class CsvInputMeta
 
   @Override
   public String[] getFilePaths( IVariables variables ) {
-    return new String[] { variables.environmentSubstitute( filename ), };
+    return new String[] { variables.resolve( filename ), };
   }
 
   @Override
@@ -617,7 +617,7 @@ public class CsvInputMeta
   }
 
   /**
-   * @param variables                   the variable space to use
+   * @param variables                   the variable variables to use
    * @param definitions
    * @param iResourceNaming
    * @param metadataProvider               the metadataProvider in which non-hop metadata could reside.
@@ -635,7 +635,7 @@ public class CsvInputMeta
         // From : ${Internal.Pipeline.Filename.Directory}/../foo/bar.csv
         // To : /home/matt/test/files/foo/bar.csv
         //
-        FileObject fileObject = HopVfs.getFileObject( variables.environmentSubstitute( filename ) );
+        FileObject fileObject = HopVfs.getFileObject( variables.resolve( filename ) );
 
         // If the file doesn't exist, forget about this effort too!
         //
@@ -673,8 +673,8 @@ public class CsvInputMeta
   }
 
   @Override
-  public FileObject getHeaderFileObject( final PipelineMeta pipelineMeta ) {
-    final String filename = pipelineMeta.environmentSubstitute( getFilename() );
+  public FileObject getHeaderFileObject( final IVariables variables ) {
+    final String filename = variables.resolve( getFilename() );
     try {
       return HopVfs.getFileObject( filename );
     } catch ( final HopFileException e ) {

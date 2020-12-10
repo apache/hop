@@ -31,7 +31,7 @@ public class SalesforceInsertData extends SalesforceTransformData {
   public IRowMeta inputRowMeta;
   public IRowMeta outputRowMeta;
 
-  public int nrfields;
+  public int nrFields;
   public int[] fieldnrs;
 
   public SaveResult[] saveResult;
@@ -45,7 +45,7 @@ public class SalesforceInsertData extends SalesforceTransformData {
   public SalesforceInsertData() {
     super();
 
-    nrfields = 0;
+    nrFields = 0;
 
     saveResult = null;
     realSalesforceFieldName = null;

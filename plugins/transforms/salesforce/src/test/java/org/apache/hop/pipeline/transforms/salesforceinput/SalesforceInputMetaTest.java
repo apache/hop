@@ -76,14 +76,14 @@ public class SalesforceInputMetaTest {
 
   @Test
   public void testSalesforceInputMeta() throws HopException {
-    List<String> attributes = new ArrayList<String>();
+    List<String> attributes = new ArrayList<>();
     attributes.addAll( SalesforceMetaTest.getDefaultAttributes() );
     attributes.addAll( Arrays.asList( "inputFields", "condition", "query", "specifyQuery", "includeTargetURL",
       "targetURLField", "includeModule", "moduleField", "includeRowNumber", "includeDeletionDate", "deletionDateField",
       "rowNumberField", "includeSQL", "sqlField", "includeTimestamp", "timestampField", "readFrom", "readTo",
       "recordsFilter", "queryAll", "rowLimit" ) );
-    Map<String, String> getterMap = new HashMap<String, String>();
-    Map<String, String> setterMap = new HashMap<String, String>();
+    Map<String, String> getterMap = new HashMap<>();
+    Map<String, String> setterMap = new HashMap<>();
 
     getterMap.put( "includeTargetURL", "includeTargetURL" );
     getterMap.put( "includeModule", "includeModule" );
@@ -95,7 +95,7 @@ public class SalesforceInputMetaTest {
     getterMap.put( "includeTimestamp", "includeTimestamp" );
 
 
-    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidators = new HashMap<String, IFieldLoadSaveValidator<?>>();
+    Map<String, IFieldLoadSaveValidator<?>> fieldLoadSaveValidators = new HashMap<>();
     fieldLoadSaveValidators.put( "inputFields",
       new ArrayLoadSaveValidator<>( new SalesforceInputFieldLoadSaveValidator(), 50 ) );
     fieldLoadSaveValidators.put( "recordsFilter", new RecordsFilterLoadSaveValidator() );
@@ -148,7 +148,7 @@ public class SalesforceInputMetaTest {
   public void testCheck() {
     SalesforceInputMeta meta = new SalesforceInputMeta();
     meta.setDefault();
-    List<ICheckResult> remarks = new ArrayList<ICheckResult>();
+    List<ICheckResult> remarks = new ArrayList<>();
     meta.check( remarks, null, null, null, null, null, null, null, null );
     boolean hasError = false;
     for ( ICheckResult cr : remarks ) {

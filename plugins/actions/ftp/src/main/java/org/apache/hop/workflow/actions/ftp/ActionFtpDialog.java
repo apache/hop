@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.ftp;
 
@@ -236,7 +230,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // ServerName line
     wServerName =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTP.Server.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTP.Server.Label" ), BaseMessages
         .getString( PKG, "JobFTP.Server.Tooltip" ) );
     props.setLook( wServerName );
     wServerName.addModifyListener( lsMod );
@@ -249,7 +243,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // Server port line
     wPort =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTP.Port.Label" ), BaseMessages.getString(
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTP.Port.Label" ), BaseMessages.getString(
         PKG, "JobFTP.Port.Tooltip" ) );
     props.setLook( wPort );
     wPort.addModifyListener( lsMod );
@@ -262,7 +256,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // UserName line
     wUserName =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTP.User.Label" ), BaseMessages.getString(
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTP.User.Label" ), BaseMessages.getString(
         PKG, "JobFTP.User.Tooltip" ) );
     props.setLook( wUserName );
     wUserName.addModifyListener( lsMod );
@@ -275,7 +269,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // Password line
     wPassword =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTP.Password.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTP.Password.Label" ), BaseMessages
         .getString( PKG, "JobFTP.Password.Tooltip" ), true );
     props.setLook( wPassword );
     wPassword.addModifyListener( lsMod );
@@ -288,7 +282,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // Proxy host line
     wProxyHost =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTP.ProxyHost.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTP.ProxyHost.Label" ), BaseMessages
         .getString( PKG, "JobFTP.ProxyHost.Tooltip" ) );
     props.setLook( wProxyHost );
     wProxyHost.addModifyListener( lsMod );
@@ -301,7 +295,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // Proxy port line
     wProxyPort =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTP.ProxyPort.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTP.ProxyPort.Label" ), BaseMessages
         .getString( PKG, "JobFTP.ProxyPort.Tooltip" ) );
     props.setLook( wProxyPort );
     wProxyPort.addModifyListener( lsMod );
@@ -314,7 +308,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // Proxy username line
     wProxyUsername =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTP.ProxyUsername.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTP.ProxyUsername.Label" ), BaseMessages
         .getString( PKG, "JobFTP.ProxyUsername.Tooltip" ) );
     props.setLook( wProxyUsername );
     wProxyUsername.addModifyListener( lsMod );
@@ -327,7 +321,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // Proxy password line
     wProxyPassword =
       new LabelTextVar(
-        workflowMeta, wServerSettings, BaseMessages.getString( PKG, "JobFTP.ProxyPassword.Label" ), BaseMessages
+        variables, wServerSettings, BaseMessages.getString( PKG, "JobFTP.ProxyPassword.Label" ), BaseMessages
         .getString( PKG, "JobFTP.ProxyPassword.Tooltip" ), true );
     props.setLook( wProxyPassword );
     wProxyPassword.addModifyListener( lsMod );
@@ -389,7 +383,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // Timeout line
     wTimeout =
       new LabelTextVar(
-        workflowMeta, wAdvancedSettings, BaseMessages.getString( PKG, "JobFTP.Timeout.Label" ), BaseMessages
+        variables, wAdvancedSettings, BaseMessages.getString( PKG, "JobFTP.Timeout.Label" ), BaseMessages
         .getString( PKG, "JobFTP.Timeout.Tooltip" ) );
     props.setLook( wTimeout );
     wTimeout.addModifyListener( lsMod );
@@ -512,7 +506,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wbTestChangeFolderExists.setLayoutData(fdbTestChangeFolderExists);
 
     wFtpDirectory =
-      new TextVar( workflowMeta, wRemoteSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wRemoteSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobFTP.RemoteDir.Tooltip" ) );
     props.setLook( wFtpDirectory );
     wFtpDirectory.addModifyListener( lsMod );
@@ -525,7 +519,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // Wildcard line
     wWildcard =
       new LabelTextVar(
-        workflowMeta, wRemoteSettings, BaseMessages.getString( PKG, "JobFTP.Wildcard.Label" ), BaseMessages
+        variables, wRemoteSettings, BaseMessages.getString( PKG, "JobFTP.Wildcard.Label" ), BaseMessages
         .getString( PKG, "JobFTP.Wildcard.Tooltip" ) );
     props.setLook( wWildcard );
     wWildcard.addModifyListener( lsMod );
@@ -610,7 +604,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wbTestFolderExists.setLayoutData(fdbTestFolderExists);
 
     wMoveToDirectory =
-      new TextVar( workflowMeta, wRemoteSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wRemoteSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobFTP.MoveToDirectory.Tooltip" ) );
     wMoveToDirectory.setToolTipText( BaseMessages.getString( PKG, "JobFTP.MoveFolder.Tooltip" ) );
     props.setLook( wMoveToDirectory );
@@ -682,7 +676,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
 
     wbTargetDirectory.addListener( SWT.Selection, e-> BaseDialog.presentDirectoryDialog( shell, wTargetDirectory, workflowMeta ) );
 
-    wTargetDirectory = new TextVar( workflowMeta, wLocalSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
+    wTargetDirectory = new TextVar( variables, wLocalSettings, SWT.SINGLE | SWT.LEFT | SWT.BORDER,
       BaseMessages.getString( PKG, "JobFTP.TargetDir.Tooltip" ) );
     props.setLook( wTargetDirectory );
     wTargetDirectory.addModifyListener( lsMod );
@@ -974,7 +968,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     wlNrErrorsLessThan.setLayoutData(fdlNrErrorsLessThan);
 
     wNrErrorsLessThan =
-      new TextVar( workflowMeta, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
+      new TextVar( variables, wSuccessOn, SWT.SINGLE | SWT.LEFT | SWT.BORDER, BaseMessages.getString(
         PKG, "JobFTP.NrBadFormedLessThan.Tooltip" ) );
     props.setLook( wNrErrorsLessThan );
     wNrErrorsLessThan.addModifyListener( lsMod );
@@ -1037,7 +1031,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // host line
     wSocksProxyHost =
       new LabelTextVar(
-        workflowMeta, wSocksProxy, BaseMessages.getString( PKG, "JobFTP.SocksProxyHost.Label" ), BaseMessages
+        variables, wSocksProxy, BaseMessages.getString( PKG, "JobFTP.SocksProxyHost.Label" ), BaseMessages
         .getString( PKG, "JobFTP.SocksProxyHost.Tooltip" ) );
     props.setLook( wSocksProxyHost );
     wSocksProxyHost.addModifyListener( lsMod );
@@ -1050,7 +1044,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // port line
     wSocksProxyPort =
       new LabelTextVar(
-        workflowMeta, wSocksProxy, BaseMessages.getString( PKG, "JobFTP.SocksProxyPort.Label" ), BaseMessages
+        variables, wSocksProxy, BaseMessages.getString( PKG, "JobFTP.SocksProxyPort.Label" ), BaseMessages
         .getString( PKG, "JobFTP.SocksProxyPort.Tooltip" ) );
     props.setLook( wSocksProxyPort );
     wSocksProxyPort.addModifyListener( lsMod );
@@ -1063,7 +1057,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // username line
     wSocksProxyUsername =
       new LabelTextVar(
-        workflowMeta, wSocksProxy, BaseMessages.getString( PKG, "JobFTP.SocksProxyUsername.Label" ), BaseMessages
+        variables, wSocksProxy, BaseMessages.getString( PKG, "JobFTP.SocksProxyUsername.Label" ), BaseMessages
         .getString( PKG, "JobFTP.SocksProxyPassword.Tooltip" ) );
     props.setLook( wSocksProxyUsername );
     wSocksProxyUsername.addModifyListener( lsMod );
@@ -1076,7 +1070,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
     // password line
     wSocksProxyPassword =
       new LabelTextVar(
-        workflowMeta, wSocksProxy, BaseMessages.getString( PKG, "JobFTP.SocksProxyPassword.Label" ), BaseMessages
+        variables, wSocksProxy, BaseMessages.getString( PKG, "JobFTP.SocksProxyPassword.Label" ), BaseMessages
         .getString( PKG, "JobFTP.SocksProxyPassword.Tooltip" ), true );
     props.setLook( wSocksProxyPort );
     wSocksProxyPassword.addModifyListener( lsMod );
@@ -1206,16 +1200,16 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
       if ( ftpclient == null || !ftpclient.connected() ) {
         // Create ftp client to host:port ...
         ftpclient = new FTPClient();
-        realServername = getWorkflowMeta().environmentSubstitute( wServerName.getText() );
-        int realPort = Const.toInt( getWorkflowMeta().environmentSubstitute( wPort.getText() ), 21 );
+        realServername = variables.environmentSubstitute( wServerName.getText() );
+        int realPort = Const.toInt( variables.environmentSubstitute( wPort.getText() ), 21 );
         ftpclient.setRemoteAddr( InetAddress.getByName( realServername ) );
         ftpclient.setRemotePort( realPort );
 
         if ( !Utils.isEmpty( wProxyHost.getText() ) ) {
-          String realProxy_host = getWorkflowMeta().environmentSubstitute( wProxyHost.getText() );
+          String realProxy_host = variables.environmentSubstitute( wProxyHost.getText() );
           ftpclient.setRemoteAddr( InetAddress.getByName( realProxy_host ) );
 
-          int port = Const.toInt( getWorkflowMeta().environmentSubstitute( wProxyPort.getText() ), 21 );
+          int port = Const.toInt( variables.environmentSubstitute( wProxyPort.getText() ), 21 );
           if ( port != 0 ) {
             ftpclient.setRemotePort( port );
           }
@@ -1224,10 +1218,10 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
         // login to ftp host ...
         ftpclient.connect();
         String realUsername =
-        		getWorkflowMeta().environmentSubstitute( wUserName.getText() )
+        		variables.environmentSubstitute( wUserName.getText() )
             + ( !Utils.isEmpty( wProxyHost.getText() ) ? "@" + realServername : "" )
             + ( !Utils.isEmpty( wProxyUsername.getText() ) ? " "
-            + getWorkflowMeta().environmentSubstitute( wProxyUsername.getText() ) : "" );
+            + variables.environmentSubstitute( wProxyUsername.getText() ) : "" );
 
         String realPassword =
           Utils.resolvePassword( getWorkflowMeta(), wPassword.getText() )
@@ -1240,7 +1234,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
 
       String realFtpDirectory = "";
       if ( !Utils.isEmpty( wFtpDirectory.getText() ) ) {
-        realFtpDirectory = getWorkflowMeta().environmentSubstitute( wFtpDirectory.getText() );
+        realFtpDirectory = variables.environmentSubstitute( wFtpDirectory.getText() );
       }
 
       if ( checkfolder ) {
@@ -1260,7 +1254,7 @@ public class ActionFtpDialog extends ActionDialog implements IActionDialog {
         // move to folder ...
 
         if ( !Utils.isEmpty( wMoveToDirectory.getText() ) ) {
-          String realMoveDirectory = getWorkflowMeta().environmentSubstitute( wMoveToDirectory.getText() );
+          String realMoveDirectory = variables.environmentSubstitute( wMoveToDirectory.getText() );
           realMoveDirectory = realFtpDirectory + "/" + realMoveDirectory;
           ftpclient.chdir( realMoveDirectory );
         }

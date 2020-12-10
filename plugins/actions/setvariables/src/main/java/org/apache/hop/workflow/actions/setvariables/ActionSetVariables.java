@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.setvariables;
 
@@ -154,7 +148,7 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
   }
 
   public void loadXml( Node entrynode,
-                       IHopMetadataProvider metadataProvider ) throws HopXmlException {
+                       IHopMetadataProvider metadataProvider, IVariables variables ) throws HopXmlException {
     try {
       super.loadXml( entrynode );
       replaceVars = "Y".equalsIgnoreCase( XmlHandler.getTagValue( entrynode, "replacevars" ) );
@@ -189,9 +183,9 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
 
       List<String> variables = new ArrayList<>();
       List<String> variableValues = new ArrayList<>();
-      List<Integer> variableTypes = new ArrayList<Integer>();
+      List<Integer> variableTypes = new ArrayList<>();
 
-      String realFilename = environmentSubstitute( filename );
+      String realFilename = resolve( filename );
       if ( !Utils.isEmpty( realFilename ) ) {
         try ( InputStream is = HopVfs.getInputStream( realFilename );
               // for UTF8 properties files
@@ -241,8 +235,8 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
         int type = variableTypes.get( i );
 
         if ( replaceVars ) {
-          varname = environmentSubstitute( varname );
-          value = environmentSubstitute( value );
+          varname = resolve( varname );
+          value = resolve( value );
         }
 
         // OK, where do we set this value...
@@ -423,12 +417,12 @@ public class ActionSetVariables extends ActionBase implements Cloneable, IAction
     }
   }
 
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    List<ResourceReference> references = super.getResourceDependencies( workflowMeta );
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    List<ResourceReference> references = super.getResourceDependencies( variables, workflowMeta );
     if ( variableName != null ) {
       ResourceReference reference = null;
       for ( int i = 0; i < variableName.length; i++ ) {
-        String filename = workflowMeta.environmentSubstitute( variableName[ i ] );
+        String filename = resolve( variableName[ i ] );
         if ( reference == null ) {
           reference = new ResourceReference( this );
           references.add( reference );

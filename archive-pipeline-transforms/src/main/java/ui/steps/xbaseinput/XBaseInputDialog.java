@@ -114,7 +114,7 @@ public class XBaseInputDialog extends BaseTransformDialog implements ITransformD
   private XBaseInputMeta input;
   private boolean backupChanged, backupAddRownr;
 
-  public XBaseInputDialog( Shell parent, Object in, PipelineMeta tr, String sname ) {
+  public XBaseInputDialog( Shell parent, IVariables variables, Object in, PipelineMeta tr, String sname ) {
     super( parent, (BaseTransformMeta) in, tr, sname );
     input = (XBaseInputMeta) in;
   }
@@ -182,7 +182,7 @@ public class XBaseInputDialog extends BaseTransformDialog implements ITransformD
     fdbFilename.top = new FormAttachment( wTransformName, margin );
     wbFilename.setLayoutData( fdbFilename );
 
-    wFilename = new TextVar( pipelineMeta, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wFilename = new TextVar( variables, shell, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     props.setLook( wFilename );
     wFilename.addModifyListener( lsMod );
     fdFilename = new FormData();
@@ -437,7 +437,7 @@ public class XBaseInputDialog extends BaseTransformDialog implements ITransformD
 
     wFilename.addModifyListener( new ModifyListener() {
       public void modifyText( ModifyEvent arg0 ) {
-        wFilename.setToolTipText( pipelineMeta.environmentSubstitute( wFilename.getText() ) );
+        wFilename.setToolTipText( variables.environmentSubstitute( wFilename.getText() ) );
       }
     } );
 
@@ -500,7 +500,7 @@ public class XBaseInputDialog extends BaseTransformDialog implements ITransformD
   public void getData() {
     if ( input.getDbfFileName() != null ) {
       wFilename.setText( input.getDbfFileName() );
-      wFilename.setToolTipText( pipelineMeta.environmentSubstitute( input.getDbfFileName() ) );
+      wFilename.setToolTipText( variables.environmentSubstitute( input.getDbfFileName() ) );
     }
     wFieldRownr.setText( Const.NVL( input.getRowNrField(), "" ) );
 
@@ -610,7 +610,7 @@ public class XBaseInputDialog extends BaseTransformDialog implements ITransformD
 
         PreviewRowsDialog prd =
           new PreviewRowsDialog(
-            shell, pipelineMeta, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
+            shell, variables, SWT.NONE, wTransformName.getText(), progressDialog.getPreviewRowsMeta( wTransformName
             .getText() ), progressDialog.getPreviewRows( wTransformName.getText() ), loggingText );
         prd.open();
       }

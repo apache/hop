@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2019 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.action;
 
@@ -164,7 +158,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Checks if the Action object is equal to the specified object
    *
    * @return true if the two objects are equal, false otherwise
-   * @see java.lang.Object#equals(java.lang.Object)
+   * @see Object#equals(Object)
    */
   @Override
   public boolean equals( Object obj ) {
@@ -434,7 +428,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   /**
    * Returns a string representation of the object. For ActionBase, this method returns the name
    *
-   * @see java.lang.Object#toString()
+   * @see Object#toString()
    */
   @Override
   public String toString() {
@@ -474,7 +468,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Gets the SQL statements needed by this action to execute successfully, given a set of variables. For
    * ActionBase, this method returns an empty list.
    *
-   * @param variables a variable space object containing variable bindings
+   * @param variables a variable variables object containing variable bindings
    * @return an empty list
    * @throws HopException if any errors occur during the generation of SQL statements
    */
@@ -514,69 +508,69 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   }
 
   /**
-   * Copies variables from a given variable space to this action
+   * Copies variables from a given variable variables to this action
    *
-   * @see IVariables#copyVariablesFrom(IVariables)
+   * @see IVariables#copyFrom(IVariables)
    */
   @Override
-  public void copyVariablesFrom( IVariables variables ) {
-    this.variables.copyVariablesFrom( variables );
+  public void copyFrom( IVariables variables ) {
+    this.variables.copyFrom( variables );
   }
 
   /**
    * Substitutes any variable values into the given string, and returns the resolved string
    *
    * @return the string with any environment variables resolved and substituted
-   * @see IVariables#environmentSubstitute(java.lang.String)
+   * @see IVariables#resolve(String)
    */
   @Override
-  public String environmentSubstitute( String aString ) {
-    return variables.environmentSubstitute( aString );
+  public String resolve( String aString ) {
+    return variables.resolve( aString );
   }
 
   /**
    * Substitutes any variable values into each of the given strings, and returns an array containing the resolved
    * string(s)
    *
-   * @see IVariables#environmentSubstitute(java.lang.String[])
+   * @see IVariables#resolve(String[])
    */
   @Override
-  public String[] environmentSubstitute( String[] aString ) {
-    return variables.environmentSubstitute( aString );
+  public String[] resolve( String[] aString ) {
+    return variables.resolve( aString );
   }
 
   @Override
-  public String fieldSubstitute( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
-    return variables.fieldSubstitute( aString, rowMeta, rowData );
+  public String resolve( String aString, IRowMeta rowMeta, Object[] rowData ) throws HopValueException {
+    return variables.resolve( aString, rowMeta, rowData );
   }
 
   /**
-   * Gets the parent variable space
+   * Gets the parent variable variables
    *
-   * @return the parent variable space
-   * @see IVariables#getParentVariableSpace()
+   * @return the parent variable variables
+   * @see IVariables#getParentVariables()
    */
   @Override
-  public IVariables getParentVariableSpace() {
-    return variables.getParentVariableSpace();
+  public IVariables getParentVariables() {
+    return variables.getParentVariables();
   }
 
   /**
-   * Sets the parent variable space
+   * Sets the parent variable variables
    *
-   * @see IVariables#setParentVariableSpace(
+   * @see IVariables#setParentVariables(
    *IVariables)
    */
   @Override
-  public void setParentVariableSpace( IVariables parent ) {
-    variables.setParentVariableSpace( parent );
+  public void setParentVariables( IVariables parent ) {
+    variables.setParentVariables( parent );
   }
 
   /**
    * Gets the value of the specified variable, or returns a default value if no such variable exists
    *
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see IVariables#getVariable(java.lang.String, java.lang.String)
+   * @see IVariables#getVariable(String, String)
    */
   @Override
   public String getVariable( String variableName, String defaultValue ) {
@@ -587,7 +581,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * Gets the value of the specified variable, or returns a default value if no such variable exists
    *
    * @return the value of the specified variable, or returns a default value if no such variable exists
-   * @see IVariables#getVariable(java.lang.String)
+   * @see IVariables#getVariable(String)
    */
   @Override
   public String getVariable( String variableName ) {
@@ -601,12 +595,12 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @param variableName the name of the variable to interrogate
    * @return a boolean representation of the specified variable after performing any necessary substitution
    * @boolean defaultValue the value to use if the specified variable is unassigned.
-   * @see IVariables#getBooleanValueOfVariable(java.lang.String, boolean)
+   * @see IVariables#getVariableBoolean(String, boolean)
    */
   @Override
-  public boolean getBooleanValueOfVariable( String variableName, boolean defaultValue ) {
+  public boolean getVariableBoolean( String variableName, boolean defaultValue ) {
     if ( !Utils.isEmpty( variableName ) ) {
-      String value = environmentSubstitute( variableName );
+      String value = resolve( variableName );
       if ( !Utils.isEmpty( value ) ) {
         return ValueMetaString.convertStringToBoolean( value );
       }
@@ -617,29 +611,29 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   /**
    * Sets the values of the action's variables to the values from the parent variables
    *
-   * @see IVariables#initializeVariablesFrom(
+   * @see IVariables#initializeFrom(
    *IVariables)
    */
   @Override
-  public void initializeVariablesFrom( IVariables parent ) {
-    variables.initializeVariablesFrom( parent );
+  public void initializeFrom( IVariables parent ) {
+    variables.initializeFrom( parent );
   }
 
   /**
    * Gets a list of variable names for the action
    *
    * @return a list of variable names
-   * @see IVariables#listVariables()
+   * @see IVariables#getVariableNames()
    */
   @Override
-  public String[] listVariables() {
-    return variables.listVariables();
+  public String[] getVariableNames() {
+    return variables.getVariableNames();
   }
 
   /**
    * Sets the value of the specified variable to the specified value
    *
-   * @see IVariables#setVariable(java.lang.String, java.lang.String)
+   * @see IVariables#setVariable(String, String)
    */
   @Override
   public void setVariable( String variableName, String variableValue ) {
@@ -647,26 +641,26 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
   }
 
   /**
-   * Shares a variable space from another variable space. This means that the object should take over the space used as
+   * Shares a variable variables from another variable variables. This means that the object should take over the variables used as
    * argument.
    *
-   * @see IVariables#shareVariablesWith(IVariables)
+   * @see IVariables#shareWith(IVariables)
    */
   @Override
-  public void shareVariablesWith( IVariables variables ) {
+  public void shareWith( IVariables variables ) {
     this.variables = variables;
   }
 
   /**
    * Injects variables using the given Map. The behavior should be that the properties object will be stored and at the
-   * time the IVariables is initialized (or upon calling this method if the space is already initialized). After
+   * time the IVariables is initialized (or upon calling this method if the variables is already initialized). After
    * injecting the link of the properties object should be removed.
    *
-   * @see IVariables#injectVariables(java.util.Map)
+   * @see IVariables#setVariables(Map)
    */
   @Override
-  public void injectVariables( Map<String, String> prop ) {
-    variables.injectVariables( prop );
+  public void setVariables( Map<String, String> map ) {
+    variables.setVariables( map );
   }
 
   /**
@@ -674,7 +668,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    *
    * @param remarks   List of CheckResult objects indicating consistency status
    * @param workflowMeta   the metadata object for the action
-   * @param variables     the variable space to resolve string expressions with variables with
+   * @param variables     the variable variables to resolve string expressions with variables with
    * @param metadataProvider the MetaStore to load common elements from
    */
   public void check( List<ICheckResult> remarks, WorkflowMeta workflowMeta, IVariables variables, IHopMetadataProvider metadataProvider ) {
@@ -688,8 +682,8 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * @return an empty list of ResourceReferences
    * @see ResourceReference
    */
-  public List<ResourceReference> getResourceDependencies( WorkflowMeta workflowMeta ) {
-    return new ArrayList<ResourceReference>( 5 ); // default: return an empty resource dependency list. Lower the
+  public List<ResourceReference> getResourceDependencies( IVariables variables, WorkflowMeta workflowMeta ) {
+    return new ArrayList<>( 5 ); // default: return an empty resource dependency list. Lower the
     // initial capacity
   }
 
@@ -698,7 +692,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    * resource naming interface allows the object to name appropriately without worrying about those parts of the
    * implementation specific details.
    *
-   * @param variables           The variable space to resolve (environment) variables with.
+   * @param variables           The variable variables to resolve (environment) variables with.
    * @param definitions     The map containing the filenames and content
    * @param namingInterface The resource naming interface allows the object to be named appropriately
    * @param metadataProvider       the metadataProvider to load external metadata from
@@ -1061,7 +1055,7 @@ public class ActionBase implements Cloneable, IVariables, ILoggingObject,
    *
    * @param index     the referenced object index to load (in case there are multiple references)
    * @param metadataProvider the metadataProvider to load from
-   * @param variables     the variable space to use
+   * @param variables     the variable variables to use
    * @return the referenced object once loaded
    * @throws HopException
    */

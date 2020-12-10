@@ -1,25 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * Copyright (C) 2002-2017 by Hitachi Vantara : http://www.pentaho.com
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.workflow.actions.mailvalidator;
 
@@ -115,7 +109,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     wName.setLayoutData(fdName);
 
     // eMail address
-    wMailAddress = new LabelTextVar( getWorkflowMeta(), shell,
+    wMailAddress = new LabelTextVar( variables, shell,
       BaseMessages.getString( PKG, "ActionMailValidatorDialog.MailAddress.Label" ),
       BaseMessages.getString( PKG, "ActionMailValidatorDialog.MailAddress.Tooltip" ) );
     wMailAddress.addModifyListener( lsMod );
@@ -171,7 +165,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     fdlTimeOut.top = new FormAttachment( wSMTPCheck, margin );
     wlTimeOut.setLayoutData(fdlTimeOut);
 
-    wTimeOut = new TextVar( getWorkflowMeta(), wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wTimeOut = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wTimeOut.setToolTipText( BaseMessages.getString( PKG, "ActionMailValidatorDialog.TimeOutField.Tooltip" ) );
     props.setLook( wTimeOut );
     wTimeOut.addModifyListener( lsMod );
@@ -191,7 +185,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     fdleMailSender.top = new FormAttachment( wTimeOut, margin );
     wleMailSender.setLayoutData(fdleMailSender);
 
-    weMailSender = new TextVar( getWorkflowMeta(), wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    weMailSender = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     weMailSender.setToolTipText( BaseMessages.getString(
       PKG, "ActionMailValidatorDialog.eMailSenderField.Tooltip" ) );
     props.setLook( weMailSender );
@@ -212,7 +206,7 @@ public class ActionMailValidatorDialog extends ActionDialog implements IActionDi
     fdlDefaultSMTP.top = new FormAttachment( weMailSender, margin );
     wlDefaultSMTP.setLayoutData(fdlDefaultSMTP);
 
-    wDefaultSMTP = new TextVar( getWorkflowMeta(), wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
+    wDefaultSMTP = new TextVar( variables, wSettingsGroup, SWT.SINGLE | SWT.LEFT | SWT.BORDER );
     wDefaultSMTP.setToolTipText( BaseMessages.getString(
       PKG, "ActionMailValidatorDialog.DefaultSMTPField.Tooltip" ) );
     props.setLook( wDefaultSMTP );

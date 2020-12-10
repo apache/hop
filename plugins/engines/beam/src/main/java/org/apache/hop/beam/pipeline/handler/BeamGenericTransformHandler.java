@@ -1,24 +1,19 @@
-/*! ******************************************************************************
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
  *
- * Hop : The Hop Orchestration Platform
- *
- * http://www.project-hop.org
- *
- *******************************************************************************
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- ******************************************************************************/
+ */
 
 package org.apache.hop.beam.pipeline.handler;
 
@@ -68,8 +63,8 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
   private String metaStoreJson;
 
-  public BeamGenericTransformHandler( IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, String metaStoreJson, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
-    super( runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
+  public BeamGenericTransformHandler( IVariables variables, IBeamPipelineEngineRunConfiguration runConfiguration, IHopMetadataProvider metadataProvider, String metaStoreJson, PipelineMeta pipelineMeta, List<String> transformPluginClasses, List<String> xpPluginClasses ) {
+    super( variables, runConfiguration, false, false, metadataProvider, pipelineMeta, transformPluginClasses, xpPluginClasses );
     this.metaStoreJson = metaStoreJson;
   }
 
@@ -95,7 +90,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     for ( TransformMeta infoTransformMeta : infoTransformMetas ) {
       if ( !previousTransforms.contains( infoTransformMeta ) ) {
         infoTransforms.add( infoTransformMeta.getName() );
-        infoRowMetaJsons.add( JsonRowMeta.toJson( pipelineMeta.getTransformFields( infoTransformMeta ) ) );
+        infoRowMetaJsons.add( JsonRowMeta.toJson( pipelineMeta.getTransformFields( variables, infoTransformMeta ) ) );
         PCollection<HopRow> infoCollection = stepCollectionMap.get( infoTransformMeta.getName() );
         if ( infoCollection == null ) {
           throw new HopException( "Unable to find collection for transform '" + infoTransformMeta.getName() + " providing info for '" + transformMeta.getName() + "'" );
@@ -106,12 +101,12 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
     // Get the list of variables from the PipelineMeta variable variables:
     //
-    List<VariableValue> variableValues = getVariableValues( pipelineMeta );
+    List<VariableValue> variableValues = getVariableValues( variables );
 
     // Find out all the target transforms for this transform...
     //
     ITransformIOMeta ioMeta = transformMeta.getTransform().getTransformIOMeta();
-    List<String> targetTransforms = new ArrayList<String>();
+    List<String> targetTransforms = new ArrayList<>();
     for ( IStream targetStream : ioMeta.getTargetStreams() ) {
       if ( targetStream.getTransformMeta() != null ) {
         targetTransforms.add( targetStream.getTransformMeta().getName() );
@@ -189,7 +184,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
 
     // The main collection
     //
-    PCollection<HopRow> mainPCollection = tuple.get( new TupleTag<HopRow>( HopBeamUtil.createMainOutputTupleId( transformMeta.getName() ) ) );
+    PCollection<HopRow> mainPCollection = tuple.get( new TupleTag<>( HopBeamUtil.createMainOutputTupleId( transformMeta.getName() ) ) );
 
     // Save this in the map
     //
@@ -199,7 +194,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
     //
     for ( String targetTransform : targetTransforms ) {
       String tupleId = HopBeamUtil.createTargetTupleId( transformMeta.getName(), targetTransform );
-      PCollection<HopRow> targetPCollection = tuple.get( new TupleTag<HopRow>( tupleId ) );
+      PCollection<HopRow> targetPCollection = tuple.get( new TupleTag<>( tupleId ) );
 
       // Store this in the map as well
       //
@@ -239,7 +234,7 @@ public class BeamGenericTransformHandler extends BeamBaseTransformHandler implem
   private List<VariableValue> getVariableValues( IVariables variables ) {
 
     List<VariableValue> variableValues = new ArrayList<>();
-    for ( String variable : variables.listVariables() ) {
+    for ( String variable : variables.getVariableNames() ) {
       String value = variables.getVariable( variable );
       variableValues.add( new VariableValue( variable, value ) );
     }

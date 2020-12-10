@@ -18,10 +18,38 @@
 package org.apache.hop.metadata.api;
 
 /**
- * Hop Metadata object classes should implement this interface so the plugin system can recognize them.
- * Other than that they just have a name really.  Maybe later we can add keywords and some ACLs.
+ * Hop Metadata object classes should implement this interface so the plugin system can recognize
+ * them. Other than that they just have a name really. Maybe later we can add keywords and some
+ * ACLs.
  */
 public interface IHopMetadata {
+  /**
+   * Get the name of the metadata object.
+   *
+   * @return The name uniquely identifying the metadata object
+   */
   String getName();
+
+  /**
+   * Set the name.
+   *
+   * @param name The name uniquely identifying the metadata object
+   */
   void setName(String name);
+
+  /**
+   * Get the source of the metadata object. Plugins can use this to mix metadata from various
+   * sources. It helps to figure out where this object originated.
+   *
+   * @return The source of metadata or null if it's not specified.
+   */
+  String getMetadataSource();
+
+  /**
+   * Set the source of the metadata. Plugins can use this to mix metadata from various sources.
+   * It helps to figure out where this object originated.
+   *
+   * @param metadataSource The source of metadata or null if it's not specified
+   */
+  void setMetadataSource(String metadataSource);
 }

@@ -49,13 +49,13 @@ import static org.mockito.Mockito.when;
 
 public class MongoFieldTest {
 
-  @Mock IVariables space;
+  @Mock IVariables variables;
   private MongoField field;
 
   @Before
   public void before() throws HopPluginException {
     MockitoAnnotations.initMocks(this);
-    when(space.environmentSubstitute(any(String.class)))
+    when(variables.resolve(any(String.class)))
         .thenAnswer(
             new Answer<String>() {
               @Override
@@ -161,6 +161,6 @@ public class MongoFieldTest {
     field.fieldPath = path;
     field.hopType = type;
     field.init(0);
-    field.reset(space);
+    field.reset(variables);
   }
 }
