@@ -12,7 +12,12 @@
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
         </file>
-    </files>
+        <file>
+            <source>${project.basedir}/src/main/resources/dependencies.xml</source>
+            <outputDirectory>.</outputDirectory>
+            <filtered>true</filtered>
+        </file>        
+    </files>    
     <fileSets>
         <fileSet>
             <outputDirectory>lib</outputDirectory>
@@ -22,12 +27,6 @@
         </fileSet>
     </fileSets>
     <dependencySets>
-        <dependencySet>
-            <useProjectArtifact>false</useProjectArtifact>
-            <includes>
-                <include>org.apache.hop:hop-transform-syslog:jar</include>
-            </includes>
-        </dependencySet>
         <dependencySet>
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
